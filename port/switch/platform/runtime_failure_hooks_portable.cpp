@@ -38,12 +38,6 @@ namespace SysUtils {
 std::uint8_t DecimalSeparator{'.'};
 }  // namespace SysUtils
 
-#if !defined(__SWITCH__) && !defined(SRHD_PORTABLE_RENDERER)
-namespace System {
-std::uint32_t RandSeed{};
-}  // namespace System
-#endif
-
 namespace WindowsSdk {
 std::int32_t PAS_STDCALL RegCloseKey(HKEY) { return 1; }
 
