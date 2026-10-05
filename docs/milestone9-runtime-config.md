@@ -64,5 +64,9 @@ symbols. It does not retain `Direct3DCreate9`, `DirectSoundCreate`,
 `InitializeGlobalUiRuntime`.
 
 Release-file semantic fingerprints and actual Switch `port.log` evidence are
-not substituted by these asset-free checks; hardware validation remains
+not substituted by these asset-free checks. A direct baseline experiment was
+also rejected: `LoadLanguageAndPackages` retains cache/audio/registry/D3D/UI
+references from full `GR_Main`, which would require the expressly deferred
+subsystems. The M9 portable slice therefore stays asset-free until that later
+dependency boundary is intentionally opened; hardware validation remains
 pending.
