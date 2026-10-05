@@ -15,7 +15,7 @@ Validation before hardware handoff:
 - clean `make clean && make`: PASS;
 - ELF prohibited-symbol audit: PASS;
 - NRO ASET JPEG equals `assets/icon.jpg`: PASS;
-- package-host CI: pending the pushed commit.
+- package-host CI: PASS, run `37381737826`.
 
 This is a Switch hardware diagnostic only. Its first real run must use the
 deployment instructions in `switch-deployment.md`; no game assets are part of
