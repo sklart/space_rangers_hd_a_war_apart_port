@@ -30,6 +30,7 @@
 namespace {
 constexpr const char* kLogPath = "sdmc:/switch/space-rangers-hd-a-war-apart/logs/port.log";
 constexpr const char* kPreviousLogPath = "sdmc:/switch/space-rangers-hd-a-war-apart/logs/port-prev.log";
+constexpr const char* kGrMainLogPath = "sdmc:/switch/space-rangers-hd-a-war-apart/logs/gr-main.log";
 constexpr const char* kDefaultGameRoot = "sdmc:/switch/space-rangers-hd-a-war-apart/game";
 constexpr const char* kDefaultUserRoot = "sdmc:/switch/space-rangers-hd-a-war-apart";
 
@@ -125,7 +126,7 @@ bool ConfigurePackages(srhd_awa::platform::startup_slice::State* state, const ch
   std::string error;
   StageBegin("startup configuration");
   Log("[M7] platform init begin");
-  if (!srhd_awa::platform::startup_slice::Initialize(state, root, kDefaultUserRoot, kLogPath, &error)) {
+  if (!srhd_awa::platform::startup_slice::Initialize(state, root, kDefaultUserRoot, kGrMainLogPath, &error)) {
     Log("[M7] FAIL startup=%s", error.c_str());
     Stage("startup configuration", false, error.c_str());
     return false;
@@ -318,10 +319,10 @@ int main(int argc, char** argv) {
   FingerprintBlock(GR_Main::MainDataConfig, &main_fp, 1);
   FingerprintBlock(GR_Main::LanguageDataConfig, &lang_fp, 1);
   FingerprintData(GR_Main::CacheDataRoot, &cache_runtime_fp, 1);
-  Log("[M9] Main.dat entries=%lu blocks=%lu params=%lu depth=%lu fnv64=%016llx", static_cast<unsigned long>(main_fp.entries), static_cast<unsigned long>(main_fp.blocks), static_cast<unsigned long>(main_fp.params), static_cast<unsigned long>(main_fp.depth), static_cast<unsigned long long>(main_fp.hash));
-  Log("[M9] Lang.dat language=%s entries=%lu blocks=%lu params=%lu depth=%lu fnv64=%016llx", static_cast<const char*>(static_cast<pas::AnsiString>(GR_Main::LanguageInstallConfig->GetParam(u"Lang"sv)).c_str()), static_cast<unsigned long>(lang_fp.entries), static_cast<unsigned long>(lang_fp.blocks), static_cast<unsigned long>(lang_fp.params), static_cast<unsigned long>(lang_fp.depth), static_cast<unsigned long long>(lang_fp.hash));
-  Log("[M9] CacheData.dat raw nodes=%lu files=%lu depth=%lu fnv64=%016llx", static_cast<unsigned long>(cache_raw_fp.nodes), static_cast<unsigned long>(cache_raw_fp.files), static_cast<unsigned long>(cache_raw_fp.depth), static_cast<unsigned long long>(cache_raw_fp.hash));
-  Log("[M9] CacheDataRoot runtime nodes=%lu files=%lu depth=%lu fnv64=%016llx", static_cast<unsigned long>(cache_runtime_fp.nodes), static_cast<unsigned long>(cache_runtime_fp.files), static_cast<unsigned long>(cache_runtime_fp.depth), static_cast<unsigned long long>(cache_runtime_fp.hash));
+  Log("[M9] Main.dat entries=%lu blocks=%lu params=%lu depth=%lu truncated=%u fnv64=%016llx", static_cast<unsigned long>(main_fp.entries), static_cast<unsigned long>(main_fp.blocks), static_cast<unsigned long>(main_fp.params), static_cast<unsigned long>(main_fp.depth), main_fp.truncated ? 1u : 0u, static_cast<unsigned long long>(main_fp.hash));
+  Log("[M9] Lang.dat language=%s entries=%lu blocks=%lu params=%lu depth=%lu truncated=%u fnv64=%016llx", static_cast<const char*>(static_cast<pas::AnsiString>(GR_Main::LanguageInstallConfig->GetParam(u"Lang"sv)).c_str()), static_cast<unsigned long>(lang_fp.entries), static_cast<unsigned long>(lang_fp.blocks), static_cast<unsigned long>(lang_fp.params), static_cast<unsigned long>(lang_fp.depth), lang_fp.truncated ? 1u : 0u, static_cast<unsigned long long>(lang_fp.hash));
+  Log("[M9] CacheData.dat raw nodes=%lu files=%lu depth=%lu truncated=%u fnv64=%016llx", static_cast<unsigned long>(cache_raw_fp.nodes), static_cast<unsigned long>(cache_raw_fp.files), static_cast<unsigned long>(cache_raw_fp.depth), cache_raw_fp.truncated ? 1u : 0u, static_cast<unsigned long long>(cache_raw_fp.hash));
+  Log("[M9] CacheDataRoot runtime nodes=%lu files=%lu depth=%lu truncated=%u fnv64=%016llx", static_cast<unsigned long>(cache_runtime_fp.nodes), static_cast<unsigned long>(cache_runtime_fp.files), static_cast<unsigned long>(cache_runtime_fp.depth), cache_runtime_fp.truncated ? 1u : 0u, static_cast<unsigned long long>(cache_runtime_fp.hash));
   try {
     if (!GR_Main::UserSettingsConfig || !std::filesystem::is_regular_file(user_cfg_path, user_cfg_error))
       throw std::runtime_error("writable CFG.TXT was not materialized");

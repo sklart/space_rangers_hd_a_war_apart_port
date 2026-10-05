@@ -12,7 +12,7 @@ struct State {
 };
 
 bool Initialize(State* state, const std::string& game_root, const std::string& user_root,
-                const std::string& startup_log_path,
+                const std::string& gr_main_log_path,
                 std::string* error);
 void Shutdown(State* state);
 

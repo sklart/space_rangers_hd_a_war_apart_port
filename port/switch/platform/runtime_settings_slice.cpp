@@ -84,7 +84,8 @@ void LoadUserSettings() {
     changed = true;
   } else {
     const auto current = GR_Main::UserSettingsConfig->GetParam(u"CurrentVersion"sv);
-    if (current == u"2.1.1800" && GR_Main::UserSettingsConfig->GetParam(u"CountFilmSave"sv) == u"30") {
+    if (current == u"2.1.1800" && HasParam(GR_Main::UserSettingsConfig, u"CountFilmSave") &&
+        GR_Main::UserSettingsConfig->GetParam(u"CountFilmSave"sv) == u"30") {
       GR_Main::UserSettingsConfig->SetParam(u"CountFilmSave"sv, u"7"_wref.get());
       changed = true;
     }

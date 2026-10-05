@@ -29,7 +29,7 @@ void FreeConfigState() {
 }  // namespace
 
 bool Initialize(State* state, const std::string& game_root, const std::string& user_root,
-                const std::string& startup_log_path,
+                const std::string& gr_main_log_path,
                 std::string* error) {
   if (!state || state->package_collection_initialized || state->platform.services_initialized ||
       GR_Main::InstallConfig || GR_Main::LanguageInstallConfig) {
@@ -60,7 +60,7 @@ bool Initialize(State* state, const std::string& game_root, const std::string& u
     GR_Main::InstallConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
     GR_Main::InstallConfig->LoadFromTextFileWithEncodingProbe(const_cast<char16_t*>(u"install.txt"), false);
     stage = "startup log";
-    pas::text_assign(GR_Main::SessionLog, startup_log_path.c_str(), false);
+    pas::text_assign(GR_Main::SessionLog, gr_main_log_path.c_str(), false);
     // Portable equivalent of CreateStartupLogFile: use the caller's writable root,
     // retain the release file-create/write/close sequence, and avoid Documents/VCL.
     pas::text_open(GR_Main::SessionLog, 3, false);

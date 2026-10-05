@@ -295,6 +295,14 @@ int main() {
   if (!migrated_1800) std::fprintf(stderr, "2.1.1800 CFG migration failed: %s\n", runtime_error.c_str());
   ok = ok && migrated_1800;
   srhd_awa::platform::runtime_settings_slice::Shutdown();
+  std::ofstream(root / "user" / "config" / "CFG.TXT") << "CurrentVersion=2.1.1800\n";
+  const bool runtime_1800_without_count = srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error);
+  const bool migrated_1800_without_count = runtime_1800_without_count &&
+      GR_Main::UserSettingsConfig->GetParam(u"CurrentVersion"sv) == GR_Main::GameVersionText &&
+      GR_Main::UserSettingsConfig->CountParams(u"CountFilmSave"_wref.get()) == 0;
+  if (!migrated_1800_without_count) std::fprintf(stderr, "2.1.1800 CFG migration without CountFilmSave failed: %s\n", runtime_error.c_str());
+  ok = ok && migrated_1800_without_count;
+  srhd_awa::platform::runtime_settings_slice::Shutdown();
   std::ofstream(root / "user" / "config" / "CFG.TXT") << "CurrentVersion=2.1.2400\n";
   const bool runtime_old_version = srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error);
   const bool migrated_old_version = runtime_old_version &&
