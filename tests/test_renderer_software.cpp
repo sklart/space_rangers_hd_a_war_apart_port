@@ -61,6 +61,7 @@ int main() {
   using srhd_awa::platform::renderer_platform::RendererConfig;
   using srhd_awa::platform::renderer_platform::ShutdownSoftwareRenderer;
   RendererConfig invalid{};
+  std::fputs("renderer stage: invalid guard\n", stderr);
   invalid.game_width = 0;
   if (InitializeSoftwareRenderer(invalid, nullptr) ||
       srhd_awa::platform::renderer_platform::PresentRgb565(nullptr, 0, 0, 0)) {
@@ -68,6 +69,7 @@ int main() {
     return 1;
   }
   RendererConfig config{};
+  std::fputs("renderer stage: fixture init\n", stderr);
   config.game_width = config.game_height = config.presentation_width = config.presentation_height = 64;
   config.minimap_buffer_size = 16;
   if (!InitializeSoftwareRenderer(config, nullptr)) {
@@ -78,6 +80,7 @@ int main() {
     std::fputs("renderer golden-frame invariant failed\n", stderr);
     return 1;
   }
+  std::fputs("renderer stage: fixture shutdown\n", stderr);
   ShutdownSoftwareRenderer();
   if (GR_Main::ScreenRenderBuffer || GR_Main::RenderScratchBuffer || GR_Main::AuxRenderBuffer ||
       GR_Main::CurrentPixelFormat || srhd_awa::platform::renderer_platform::IsInitialized()) {
@@ -85,6 +88,7 @@ int main() {
     return 1;
   }
   GR_Main::GR_DXInit();
+  std::fputs("renderer stage: default init\n", stderr);
   const bool reinitialized = srhd_awa::platform::renderer_platform::IsInitialized() &&
       GR_Main::ScreenRenderBuffer && GR_Main::ScreenRenderBuffer->Width == 1280 &&
       GR_Main::ScreenRenderBuffer->Height == 720;
