@@ -9,6 +9,8 @@ cd port/switch
 make -f Makefile clean
 make -f Makefile host-package-test
 make -f Makefile host-package-tree-test
+make -f Makefile host-package-payload-test
+make -f Makefile host-corrupt-package-test
 ```
 
 На проверенной локальной установке `common.pkg` содержит 51 папку, 1 890
@@ -17,6 +19,8 @@ make -f Makefile host-package-tree-test
 runtime-представлении. Путь сопоставляется без учёта ASCII-регистра и принимает
 `/` и `\`.
 
-Чтение компрессированных записей (kind 2) намеренно возвращает явную ошибку:
-распаковщик ещё не подключён. Данное ограничение не маскируется fallback-ом к
-Win32. Проверка на настоящей Switch пока **PENDING MANUAL VERIFICATION**.
+Нормализованное дерево имеет FNV-1a-64 `9c74d6b37be3edd2`. Реальный payload
+`DATA/Asteroid/00.gai` имеет `kind=2`, размер 246863 и CRC32 `045269e4`.
+Его блоки имеют контейнер `ZL02`, decoded size и zlib stream; Switch backend
+распаковывает их через zlib без Win32 HANDLE. Проверка на настоящей Switch пока
+**PENDING MANUAL VERIFICATION**.
