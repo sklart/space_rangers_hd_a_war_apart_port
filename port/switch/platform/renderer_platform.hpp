@@ -16,6 +16,18 @@ struct RendererConfig {
   bool frame_limit{true};
 };
 
+struct PresentationDiagnostics {
+  bool renderer_ready{};
+  bool texture_ready{};
+  bool present_succeeded{};
+  std::int32_t output_width{};
+  std::int32_t output_height{};
+  std::int32_t destination_x{};
+  std::int32_t destination_y{};
+  std::int32_t destination_width{};
+  std::int32_t destination_height{};
+};
+
 void SetNativeWindow(void* native_window);
 bool InitializeSoftwareRenderer(const RendererConfig& config, std::string* error);
 bool InitializeReleaseCompatibleDefaults(std::string* error);
@@ -26,5 +38,6 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width,
 bool IsInitialized();
 std::uint64_t PresentationCount();
 std::uint64_t LastPresentationHash();
+PresentationDiagnostics LastPresentationDiagnostics();
 
 }  // namespace srhd_awa::platform::renderer_platform

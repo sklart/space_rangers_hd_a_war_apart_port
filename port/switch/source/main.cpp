@@ -22,6 +22,7 @@
 #include <cstdio>
 #include <cstring>
 #include <filesystem>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -58,6 +59,7 @@ void StageBegin(const char* name) { Log("[STAGE] %s BEGIN", name); }
 
 struct Fingerprint { std::uint64_t hash{UINT64_C(1469598103934665603)}; std::uint32_t entries{}; std::uint32_t blocks{}; std::uint32_t params{}; std::uint32_t files{}; std::uint32_t nodes{}; std::uint32_t depth{}; };
 void HashByte(Fingerprint* fp, std::uint8_t value) { fp->hash = (fp->hash ^ value) * UINT64_C(1099511628211); }
+void HashU32(Fingerprint* fp, std::uint32_t value) { for (unsigned shift = 0; shift < 32; shift += 8) HashByte(fp, static_cast<std::uint8_t>(value >> shift)); }
 void HashWide(Fingerprint* fp, const pas::WideString& value) { for (const char16_t* p = value.pchar(); p && *p; ++p) { HashByte(fp, static_cast<std::uint8_t>(*p)); HashByte(fp, static_cast<std::uint8_t>(*p >> 8)); } HashByte(fp, 0xff); }
 void FingerprintBlock(EC_BlockPar::TBlockParEC* block, Fingerprint* fp, std::uint32_t depth) {
   if (!block) return; fp->depth = std::max(fp->depth, depth);
@@ -65,7 +67,24 @@ void FingerprintBlock(EC_BlockPar::TBlockParEC* block, Fingerprint* fp, std::uin
 }
 void FingerprintData(EC_Data::TDataEC* data, Fingerprint* fp, std::uint32_t depth) {
   if (!data) return; fp->depth = std::max(fp->depth, depth);
-  for (auto* entry = data->FirstEntry; entry; entry = entry->Next) { ++fp->nodes; HashByte(fp, static_cast<std::uint8_t>(entry->Kind)); HashWide(fp, entry->Name); if (entry->Kind == EC_Data::dekSubtree) FingerprintData(entry->ChildData, fp, depth + 1); else { ++fp->files; if (entry->SharedFileRef && entry->SharedFileRef->FileRef) HashWide(fp, entry->SharedFileRef->FileRef->GetFileName()); HashByte(fp, static_cast<std::uint8_t>(entry->FileOffset)); HashByte(fp, static_cast<std::uint8_t>(entry->ByteCount)); } }
+  for (auto* entry = data->FirstEntry; entry; entry = entry->Next) { ++fp->nodes; HashByte(fp, static_cast<std::uint8_t>(entry->Kind)); HashWide(fp, entry->Name); if (entry->Kind == EC_Data::dekSubtree) FingerprintData(entry->ChildData, fp, depth + 1); else { ++fp->files; if (entry->SharedFileRef && entry->SharedFileRef->FileRef) HashWide(fp, entry->SharedFileRef->FileRef->GetFileName()); HashU32(fp, entry->FileOffset); HashU32(fp, entry->ByteCount); } }
+}
+
+bool ValidateReleaseAssets(const char* root) {
+  StageBegin("release asset sanity");
+  const std::filesystem::path base(root);
+  for (const char* relative : {"install.txt", "cfg.txt", "DATA/common.pkg", "install_russian.txt"}) {
+    const auto path = base / relative;
+    std::error_code error;
+    if (!std::filesystem::is_regular_file(path, error)) {
+      const auto rendered = path.generic_string();
+      Log("[RESOURCE] FAIL missing=%s", rendered.c_str());
+      Stage("release asset sanity", false, rendered.c_str());
+      return false;
+    }
+  }
+  Stage("release asset sanity", true);
+  return true;
 }
 
 const char* GameRoot(int argc, char** argv) {
@@ -150,7 +169,7 @@ bool ReadRequiredAsset(const char* root) {
   const bool baseline_ok = tree.folders == 51 && tree.files == 1890 && tree.entries == 1940 &&
       tree.max_depth == 4 && tree.tree_hash == UINT64_C(0x9c74d6b37be3edd2) &&
       entry->kind == 2 && payload.size() == 246863 && payload_crc == 0x045269e4u;
-  Log("[PACKAGE] PASS folders=%lu files=%lu entries=%lu depth=%lu tree_hash=%016llx selected=DATA/Asteroid/00.gai kind=%ld size=%lu crc32=%08lx",
+  Log("[PACKAGE] %s folders=%lu files=%lu entries=%lu depth=%lu tree_hash=%016llx selected=DATA/Asteroid/00.gai kind=%ld size=%lu crc32=%08lx", baseline_ok ? "PASS" : "FAIL",
       static_cast<unsigned long>(tree.folders), static_cast<unsigned long>(tree.files),
       static_cast<unsigned long>(tree.entries), static_cast<unsigned long>(tree.max_depth), static_cast<unsigned long long>(tree.tree_hash),
       static_cast<long>(entry->kind), static_cast<unsigned long>(payload.size()), static_cast<unsigned long>(payload_crc));
@@ -189,12 +208,17 @@ bool RunRendererSelfTest() {
   GR_Main::EndFramePresentation();
   const auto present_count = srhd_awa::platform::renderer_platform::PresentationCount();
   const auto hash = srhd_awa::platform::renderer_platform::LastPresentationHash();
+  const auto diagnostics = srhd_awa::platform::renderer_platform::LastPresentationDiagnostics();
   const bool ok = before_outer_end == 0 && present_count == 1 && hash != 0;
   Log("[M8] OKGF bridge %s", ok ? "PASS" : "FAIL");
   Log("[M8] draw %s fnv64=%016llx", ok ? "PASS" : "FAIL",
       static_cast<unsigned long long>(hash));
-  Log("[M8] present backend=SDL2-RGB565");
-  Log("[M8] present %s", ok ? "PASS" : "FAIL");
+  Log("[M8] RGB565 %s", ok ? "PASS" : "FAIL");
+  Log("[M8] SDL renderer %s", diagnostics.renderer_ready ? "PASS" : "PENDING");
+  Log("[M8] SDL texture %s", diagnostics.texture_ready ? "PASS" : "PENDING");
+  Log("[M8] output=%ldx%ld", static_cast<long>(diagnostics.output_width), static_cast<long>(diagnostics.output_height));
+  Log("[M8] destination=%ld,%ld,%ld,%ld", static_cast<long>(diagnostics.destination_x), static_cast<long>(diagnostics.destination_y), static_cast<long>(diagnostics.destination_width), static_cast<long>(diagnostics.destination_height));
+  Log("[M8] present %s", diagnostics.present_succeeded && ok ? "PASS" : "FAIL");
   Stage("SDL presentation", ok);
   Log("[M8] renderer boundary %s", ok ? "reached" : "failed");
   return ok;
@@ -215,6 +239,12 @@ int main(int argc, char** argv) {
   Log("[BOOT] user_root=%s", kDefaultUserRoot);
   Log("[BOOT] baseline=2.1.2500");
   Log("[FILESYSTEM] BEGIN game-root=%s", game_root);
+
+  if (!ValidateReleaseAssets(game_root)) return 1;
+
+  const std::filesystem::path user_cfg_path = std::filesystem::path(kDefaultUserRoot) / "config" / "CFG.TXT";
+  std::error_code user_cfg_error;
+  const bool user_cfg_existed = std::filesystem::is_regular_file(user_cfg_path, user_cfg_error);
 
   Log("[GR_MAIN] linked");
   srhd_awa::platform::startup_slice::State startup;
@@ -240,10 +270,36 @@ int main(int argc, char** argv) {
   Log("[M9] Main.dat entries=%lu blocks=%lu params=%lu depth=%lu fnv64=%016llx", static_cast<unsigned long>(main_fp.entries), static_cast<unsigned long>(main_fp.blocks), static_cast<unsigned long>(main_fp.params), static_cast<unsigned long>(main_fp.depth), static_cast<unsigned long long>(main_fp.hash));
   Log("[M9] Lang.dat language=%s entries=%lu blocks=%lu params=%lu depth=%lu fnv64=%016llx", static_cast<const char*>(static_cast<pas::AnsiString>(GR_Main::LanguageInstallConfig->GetParam(u"Lang"sv)).c_str()), static_cast<unsigned long>(lang_fp.entries), static_cast<unsigned long>(lang_fp.blocks), static_cast<unsigned long>(lang_fp.params), static_cast<unsigned long>(lang_fp.depth), static_cast<unsigned long long>(lang_fp.hash));
   Log("[M9] CacheData.dat nodes=%lu files=%lu depth=%lu fnv64=%016llx", static_cast<unsigned long>(cache_fp.nodes), static_cast<unsigned long>(cache_fp.files), static_cast<unsigned long>(cache_fp.depth), static_cast<unsigned long long>(cache_fp.hash));
-  Log("[M9] user config PASS");
-  Log("[M9] GameDataConfig PASS");
-  Log("[M9] UiDepthConfig PASS");
+  try {
+    if (!GR_Main::UserSettingsConfig || !std::filesystem::is_regular_file(user_cfg_path, user_cfg_error))
+      throw std::runtime_error("writable CFG.TXT was not materialized");
+    const auto user_cfg_wide = pas::WideString(u"sdmc:/switch/space-rangers-hd-a-war-apart/config/CFG.TXT");
+    GR_Main::UserSettingsConfig->SaveTextFile(user_cfg_wide.pchar(), true, false);
+    auto* reloaded = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
+    reloaded->LoadFromTextFileWithEncodingProbe(user_cfg_wide.pchar(), true);
+    pas::free(reloaded);
+    Log("[M9] CFG create %s", user_cfg_existed ? "SKIP existing" : "PASS");
+    Log("[M9] CFG save PASS");
+    Log("[M9] CFG reload PASS");
+  } catch (...) {
+    Log("[M9] CFG FAIL writable persistence");
+    Stage("DAT/runtime config", false, "CFG persistence");
+    srhd_awa::platform::runtime_settings_slice::Shutdown();
+    srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
+  const bool derived_ok = GR_Main::GameDataConfig && GR_Main::UiStyleConfig && GR_Main::UiDepthConfig &&
+      GR_Main::WideCaseTable.length() > 0;
+  Log("[M9] GameDataConfig %s", GR_Main::GameDataConfig ? "PASS" : "FAIL");
+  Log("[M9] UiStyleConfig %s", GR_Main::UiStyleConfig ? "PASS" : "FAIL");
+  Log("[M9] UiDepthConfig %s", GR_Main::UiDepthConfig ? "PASS" : "FAIL");
   Log("[M9] CaseConv count=%ld", static_cast<long>(GR_Main::WideCaseTable.length()));
+  if (!derived_ok) {
+    Stage("DAT/runtime config", false, "derived M9 state");
+    srhd_awa::platform::runtime_settings_slice::Shutdown();
+    srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
   Stage("DAT/runtime config", true);
   srhd_awa::platform::runtime_platform::PumpEvents(startup.platform);
   srhd_awa::platform::renderer_platform::SetNativeWindow(startup.platform.native_window);

@@ -19,6 +19,7 @@ void* g_native_window{};
 bool g_initialized{};
 std::uint64_t g_presentation_count{};
 std::uint64_t g_last_presentation_hash{};
+PresentationDiagnostics g_presentation_diagnostics{};
 
 #if defined(__SWITCH__)
 SDL_Renderer* g_sdl_renderer{};
@@ -135,6 +136,7 @@ bool InitializeReleaseCompatibleDefaults(std::string* error) {
 bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, std::int32_t height) {
   if (!g_initialized || !pixels || !ValidDimensions(width, height, pitch)) return false;
   g_last_presentation_hash = HashRgb565(pixels, pitch, width, height);
+  g_presentation_diagnostics = {};
 #if defined(__SWITCH__)
   if (!g_native_window) return false;
   if (!g_sdl_renderer) {
@@ -142,6 +144,7 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
                                         SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!g_sdl_renderer) return false;
   }
+  g_presentation_diagnostics.renderer_ready = g_sdl_renderer != nullptr;
   if (!g_sdl_texture || g_texture_width != width || g_texture_height != height) {
     if (g_sdl_texture) SDL_DestroyTexture(g_sdl_texture);
     g_sdl_texture = SDL_CreateTexture(g_sdl_renderer, SDL_PIXELFORMAT_RGB565,
@@ -150,6 +153,7 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
     g_texture_width = width;
     g_texture_height = height;
   }
+  g_presentation_diagnostics.texture_ready = g_sdl_texture != nullptr;
   if (SDL_UpdateTexture(g_sdl_texture, nullptr, pixels, pitch) != 0) return false;
   int output_width{};
   int output_height{};
@@ -166,9 +170,18 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
       destination_width,
       destination_height,
   };
+  g_presentation_diagnostics.output_width = output_width;
+  g_presentation_diagnostics.output_height = output_height;
+  g_presentation_diagnostics.destination_x = destination.x;
+  g_presentation_diagnostics.destination_y = destination.y;
+  g_presentation_diagnostics.destination_width = destination.w;
+  g_presentation_diagnostics.destination_height = destination.h;
   SDL_RenderClear(g_sdl_renderer);
   if (SDL_RenderCopy(g_sdl_renderer, g_sdl_texture, nullptr, &destination) != 0) return false;
   SDL_RenderPresent(g_sdl_renderer);
+  g_presentation_diagnostics.present_succeeded = true;
+#else
+  g_presentation_diagnostics.present_succeeded = true;
 #endif
   ++g_presentation_count;
   return true;
@@ -185,6 +198,7 @@ void ShutdownPresentation() {
 #endif
   g_presentation_count = 0;
   g_last_presentation_hash = 0;
+  g_presentation_diagnostics = {};
 }
 
 void ShutdownSoftwareRenderer() {
@@ -196,5 +210,6 @@ void ShutdownSoftwareRenderer() {
 bool IsInitialized() { return g_initialized; }
 std::uint64_t PresentationCount() { return g_presentation_count; }
 std::uint64_t LastPresentationHash() { return g_last_presentation_hash; }
+PresentationDiagnostics LastPresentationDiagnostics() { return g_presentation_diagnostics; }
 
 }  // namespace srhd_awa::platform::renderer_platform
