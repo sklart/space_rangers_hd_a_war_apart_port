@@ -82,6 +82,10 @@ host-package-payload-cpp-test: | $(BUILD)
 	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_package_payload_cpp.cpp platform/package.cpp -lz -o $(BUILD)/test_package_payload_cpp
 	$(BUILD)/test_package_payload_cpp "../../windows/Space Rangers HD A War Apart"
 
+host-zl02-synthetic-test: | $(BUILD)
+	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_zl02_synthetic.cpp platform/package.cpp -lz -o $(BUILD)/test_zl02_synthetic
+	$(BUILD)/test_zl02_synthetic
+
 host-corrupt-package-test: | $(BUILD)
 	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_corrupt_package.cpp platform/package.cpp -lz -o $(BUILD)/test_corrupt_package
 	$(BUILD)/test_corrupt_package
