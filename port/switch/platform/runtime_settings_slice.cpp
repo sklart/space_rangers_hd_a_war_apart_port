@@ -82,6 +82,16 @@ void LoadUserSettings() {
     GR_Main::UserSettingsConfig->AddParam(u"HardwareRender"_wref.get(), u"True"_wref.get());
     GR_Main::UserSettingsConfig->AddParam(u"MultiThread"_wref.get(), u"False"_wref.get());
     changed = true;
+  } else {
+    const auto current = GR_Main::UserSettingsConfig->GetParam(u"CurrentVersion"sv);
+    if (current == u"2.1.1800" && GR_Main::UserSettingsConfig->GetParam(u"CountFilmSave"sv) == u"30") {
+      GR_Main::UserSettingsConfig->SetParam(u"CountFilmSave"sv, u"7"_wref.get());
+      changed = true;
+    }
+    if (current != GR_Main::GameVersionText) {
+      GR_Main::UserSettingsConfig->SetParam(u"CurrentVersion"sv, GR_Main::GameVersionText);
+      changed = true;
+    }
   }
   if (!HasParam(GR_Main::UserSettingsConfig, u"VideoMemSizeLimit")) {
     GR_Main::UserSettingsConfig->AddParam(u"VideoMemSizeLimit"_wref.get(), u"256"_wref.get());
@@ -89,9 +99,9 @@ void LoadUserSettings() {
   }
   if (changed) GR_Main::UserSettingsConfig->SaveTextFile(path.pchar(), true, false);
 
-  GR_Main::VSyncEnabled = ReadEnabled(GR_Main::UserSettingsConfig, u"VSync", GR_Main::VSyncEnabled);
-  GlobalsV::ScaleViewportToWindow = ReadEnabled(GR_Main::UserSettingsConfig, u"RenderModeScale", GlobalsV::ScaleViewportToWindow);
-  GR_Main::PresentWithoutLimit = ReadEnabled(GR_Main::UserSettingsConfig, u"DisableFrameLimit", GR_Main::PresentWithoutLimit);
+  GR_Main::VSyncEnabled = ReadEnabled(GR_Main::UserSettingsConfig, u"VSync", false);
+  GlobalsV::ScaleViewportToWindow = ReadEnabled(GR_Main::UserSettingsConfig, u"RenderModeScale", true);
+  GR_Main::PresentWithoutLimit = ReadEnabled(GR_Main::UserSettingsConfig, u"DisableFrameLimit", false);
   GlobalsV::HardwareRenderingRequested = ReadEnabled(GR_Main::UserSettingsConfig, u"HardwareRender", false);
   GlobalsV::HardwareRenderingEnabled = false;
 
@@ -103,7 +113,7 @@ void LoadUserSettings() {
 }
 }  // namespace
 
-bool Initialize(std::string* error) {
+bool Initialize(std::string* error, BeforeDerivedRuntimeStateHook before_derived, void* hook_context) {
   if (GR_Main::MainDataConfig || GR_Main::LanguageDataConfig || GR_Main::CacheDataRoot ||
       GR_Main::UserSettingsConfig || GR_Main::CCInterface) {
     if (error) *error = "runtime settings slice is already initialized";
@@ -113,6 +123,7 @@ bool Initialize(std::string* error) {
     GR_Main::CCInterface = pas::construct_call<GR_Main::TCCInterface>(GR_Main::TCCInterface_Create);
     GR_Main::LoadDatConfigAndModOverrides();
     LoadUserSettings();
+    if (before_derived) before_derived(hook_context);
     BuildDerivedRuntimeState();
     return true;
   } catch (...) {

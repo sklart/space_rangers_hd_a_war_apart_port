@@ -2,6 +2,7 @@
 
 #include "units/GR_GraphBuf.hpp"
 #include "units/GR_Main.hpp"
+#include "units/GlobalsV.hpp"
 
 #include <cstdint>
 #include <cstdio>
@@ -87,11 +88,17 @@ int main() {
     std::fputs("renderer shutdown cleanup failed\n", stderr);
     return 1;
   }
+  GR_Main::VSyncEnabled = true;
+  GR_Main::PresentWithoutLimit = true;
+  GlobalsV::ScaleViewportToWindow = false;
+  GlobalsV::HardwareRenderingRequested = true;
   GR_Main::GR_DXInit();
   std::fputs("renderer stage: default init\n", stderr);
   const bool reinitialized = srhd_awa::platform::renderer_platform::IsInitialized() &&
       GR_Main::ScreenRenderBuffer && GR_Main::ScreenRenderBuffer->Width == 1280 &&
-      GR_Main::ScreenRenderBuffer->Height == 720;
+      GR_Main::ScreenRenderBuffer->Height == 720 && GR_Main::VSyncEnabled &&
+      GR_Main::PresentWithoutLimit && !GlobalsV::ScaleViewportToWindow &&
+      GlobalsV::HardwareRenderingRequested && !GlobalsV::HardwareRenderingEnabled;
   ShutdownSoftwareRenderer();
   if (!reinitialized || srhd_awa::platform::renderer_platform::PresentRgb565(nullptr, 0, 0, 0)) {
     std::fputs("renderer default reinitialization failed\n", stderr);

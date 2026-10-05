@@ -15,6 +15,7 @@
 #include "units/EC_File.hpp"
 #include "units/EC_HsFile.hpp"
 #include "units/GR_Main.hpp"
+#include "units/GlobalsV.hpp"
 #include "units/aPacket.hpp"
 
 #include <cstdarg>
@@ -57,18 +58,46 @@ void Stage(const char* name, bool pass, const char* reason = nullptr) {
 }
 void StageBegin(const char* name) { Log("[STAGE] %s BEGIN", name); }
 
-struct Fingerprint { std::uint64_t hash{UINT64_C(1469598103934665603)}; std::uint32_t entries{}; std::uint32_t blocks{}; std::uint32_t params{}; std::uint32_t files{}; std::uint32_t nodes{}; std::uint32_t depth{}; };
+struct Fingerprint {
+  std::uint64_t hash{UINT64_C(1469598103934665603)};
+  std::uint32_t entries{}, blocks{}, params{}, files{}, nodes{}, depth{};
+  bool truncated{};
+};
+constexpr std::uint32_t kFingerprintMaxDepth = 64;
+constexpr std::uint32_t kFingerprintMaxEntries = 100000;
 void HashByte(Fingerprint* fp, std::uint8_t value) { fp->hash = (fp->hash ^ value) * UINT64_C(1099511628211); }
 void HashU32(Fingerprint* fp, std::uint32_t value) { for (unsigned shift = 0; shift < 32; shift += 8) HashByte(fp, static_cast<std::uint8_t>(value >> shift)); }
+void HashMarker(Fingerprint* fp, const char* marker) { while (*marker) HashByte(fp, static_cast<std::uint8_t>(*marker++)); HashByte(fp, 0); }
 void HashWide(Fingerprint* fp, const pas::WideString& value) { for (const char16_t* p = value.pchar(); p && *p; ++p) { HashByte(fp, static_cast<std::uint8_t>(*p)); HashByte(fp, static_cast<std::uint8_t>(*p >> 8)); } HashByte(fp, 0xff); }
-void FingerprintBlock(EC_BlockPar::TBlockParEC* block, Fingerprint* fp, std::uint32_t depth) {
-  if (!block) return; fp->depth = std::max(fp->depth, depth);
-  for (std::int32_t i = 0; i < block->GetEntryCount(); ++i) { ++fp->entries; const auto kind = block->GetEntryKindByIndex(i); HashByte(fp, static_cast<std::uint8_t>(kind)); HashWide(fp, block->GetEntryNameByIndex(i)); if (kind == EC_BlockPar::bpkBlock) { ++fp->blocks; FingerprintBlock(block->GetEntryBlockByIndex(i), fp, depth + 1); } else { ++fp->params; HashWide(fp, block->GetEntryStringByIndex(i)); } }
+void FingerprintBlockImpl(EC_BlockPar::TBlockParEC* block, Fingerprint* fp, std::uint32_t depth, std::vector<EC_BlockPar::TBlockParEC*>* active) {
+  if (!block) { HashMarker(fp, "null-block"); return; }
+  if (depth > kFingerprintMaxDepth || fp->entries >= kFingerprintMaxEntries || std::find(active->begin(), active->end(), block) != active->end()) { fp->truncated = true; HashMarker(fp, "block-guard"); return; }
+  active->push_back(block); fp->depth = std::max(fp->depth, depth);
+  try {
+    for (std::int32_t i = 0; i < block->GetEntryCount() && fp->entries < kFingerprintMaxEntries; ++i) {
+      ++fp->entries; const auto kind = block->GetEntryKindByIndex(i); HashByte(fp, static_cast<std::uint8_t>(kind));
+      switch (kind) {
+        case EC_BlockPar::bpkBlock: ++fp->blocks; HashWide(fp, block->GetEntryNameByIndex(i)); FingerprintBlockImpl(block->GetEntryBlockByIndex(i), fp, depth + 1, active); break;
+        case EC_BlockPar::bpkString: ++fp->params; HashWide(fp, block->GetEntryNameByIndex(i)); HashWide(fp, block->GetEntryStringByIndex(i)); break;
+        case EC_BlockPar::bpkText: ++fp->params; HashMarker(fp, "bpkText-no-accessor"); break;
+        default: fp->truncated = true; HashMarker(fp, "unknown-block-entry"); break;
+      }
+    }
+    if (fp->entries >= kFingerprintMaxEntries) { fp->truncated = true; HashMarker(fp, "entry-limit"); }
+  } catch (...) { fp->truncated = true; HashMarker(fp, "block-access-error"); }
+  active->pop_back();
 }
-void FingerprintData(EC_Data::TDataEC* data, Fingerprint* fp, std::uint32_t depth) {
-  if (!data) return; fp->depth = std::max(fp->depth, depth);
-  for (auto* entry = data->FirstEntry; entry; entry = entry->Next) { ++fp->nodes; HashByte(fp, static_cast<std::uint8_t>(entry->Kind)); HashWide(fp, entry->Name); if (entry->Kind == EC_Data::dekSubtree) FingerprintData(entry->ChildData, fp, depth + 1); else { ++fp->files; if (entry->SharedFileRef && entry->SharedFileRef->FileRef) HashWide(fp, entry->SharedFileRef->FileRef->GetFileName()); HashU32(fp, entry->FileOffset); HashU32(fp, entry->ByteCount); } }
+void FingerprintBlock(EC_BlockPar::TBlockParEC* block, Fingerprint* fp, std::uint32_t depth) { std::vector<EC_BlockPar::TBlockParEC*> active; FingerprintBlockImpl(block, fp, depth, &active); }
+void FingerprintDataImpl(EC_Data::TDataEC* data, Fingerprint* fp, std::uint32_t depth, std::vector<EC_Data::TDataEC*>* active) {
+  if (!data) { HashMarker(fp, "null-data"); return; }
+  if (depth > kFingerprintMaxDepth || fp->nodes >= kFingerprintMaxEntries || std::find(active->begin(), active->end(), data) != active->end()) { fp->truncated = true; HashMarker(fp, "data-guard"); return; }
+  active->push_back(data); fp->depth = std::max(fp->depth, depth);
+  for (auto* entry = data->FirstEntry; entry && fp->nodes < kFingerprintMaxEntries; entry = entry->Next) { ++fp->nodes; HashByte(fp, static_cast<std::uint8_t>(entry->Kind)); HashWide(fp, entry->Name); if (entry->Kind == EC_Data::dekSubtree) FingerprintDataImpl(entry->ChildData, fp, depth + 1, active); else { ++fp->files; if (entry->SharedFileRef && entry->SharedFileRef->FileRef) HashWide(fp, entry->SharedFileRef->FileRef->GetFileName()); HashU32(fp, entry->FileOffset); HashU32(fp, entry->ByteCount); } }
+  if (fp->nodes >= kFingerprintMaxEntries) { fp->truncated = true; HashMarker(fp, "node-limit"); }
+  active->pop_back();
 }
+void FingerprintData(EC_Data::TDataEC* data, Fingerprint* fp, std::uint32_t depth) { std::vector<EC_Data::TDataEC*> active; FingerprintDataImpl(data, fp, depth, &active); }
+void CaptureRawCacheFingerprint(void* context) { FingerprintData(GR_Main::CacheDataRoot, static_cast<Fingerprint*>(context), 1); }
 
 bool ValidateReleaseAssets(const char* root) {
   StageBegin("release asset sanity");
@@ -180,6 +209,10 @@ bool ReadRequiredAsset(const char* root) {
 
 bool RunRendererSelfTest() {
   Log("[M8] renderer init begin");
+  const bool configured_vsync = GR_Main::VSyncEnabled;
+  const bool configured_scale = GlobalsV::ScaleViewportToWindow;
+  const bool configured_unlimited = GR_Main::PresentWithoutLimit;
+  const bool configured_hardware_request = GlobalsV::HardwareRenderingRequested;
   GR_Main::GR_DXInit();
   auto* framebuffer = GR_Main::ScreenRenderBuffer;
   if (!framebuffer || !GR_Main::RenderScratchBuffer || !GR_Main::AuxRenderBuffer ||
@@ -209,7 +242,17 @@ bool RunRendererSelfTest() {
   const auto present_count = srhd_awa::platform::renderer_platform::PresentationCount();
   const auto hash = srhd_awa::platform::renderer_platform::LastPresentationHash();
   const auto diagnostics = srhd_awa::platform::renderer_platform::LastPresentationDiagnostics();
-  const bool ok = before_outer_end == 0 && present_count == 1 && hash != 0;
+  const bool settings_preserved = GR_Main::VSyncEnabled == configured_vsync &&
+      GlobalsV::ScaleViewportToWindow == configured_scale &&
+      GlobalsV::HardwareRenderingRequested == configured_hardware_request &&
+      !GlobalsV::HardwareRenderingEnabled;
+  GR_Main::PresentWithoutLimit = configured_unlimited;
+  const bool aspect_ok = diagnostics.output_width > 0 && diagnostics.output_height > 0 &&
+      diagnostics.destination_width > 0 && diagnostics.destination_height > 0 &&
+      diagnostics.destination_width <= diagnostics.output_width && diagnostics.destination_height <= diagnostics.output_height &&
+      diagnostics.destination_x >= 0 && diagnostics.destination_y >= 0;
+  const bool ok = before_outer_end == 0 && present_count == 1 && hash != 0 && settings_preserved &&
+      diagnostics.renderer_ready && diagnostics.texture_ready && diagnostics.present_succeeded && aspect_ok;
   Log("[M8] OKGF bridge %s", ok ? "PASS" : "FAIL");
   Log("[M8] draw %s fnv64=%016llx", ok ? "PASS" : "FAIL",
       static_cast<unsigned long long>(hash));
@@ -218,7 +261,11 @@ bool RunRendererSelfTest() {
   Log("[M8] SDL texture %s", diagnostics.texture_ready ? "PASS" : "PENDING");
   Log("[M8] output=%ldx%ld", static_cast<long>(diagnostics.output_width), static_cast<long>(diagnostics.output_height));
   Log("[M8] destination=%ld,%ld,%ld,%ld", static_cast<long>(diagnostics.destination_x), static_cast<long>(diagnostics.destination_y), static_cast<long>(diagnostics.destination_width), static_cast<long>(diagnostics.destination_height));
-  Log("[M8] present %s", diagnostics.present_succeeded && ok ? "PASS" : "FAIL");
+  Log("[M8] settings vsync=%u scale=%u unlimited=%u hardware_requested=%u hardware_enabled=%u",
+      GR_Main::VSyncEnabled ? 1u : 0u, GlobalsV::ScaleViewportToWindow ? 1u : 0u,
+      GR_Main::PresentWithoutLimit ? 1u : 0u, GlobalsV::HardwareRenderingRequested ? 1u : 0u,
+      GlobalsV::HardwareRenderingEnabled ? 1u : 0u);
+  Log("[M8] present %s", diagnostics.present_succeeded && aspect_ok ? "PASS" : "FAIL");
   Stage("SDL presentation", ok);
   Log("[M8] renderer boundary %s", ok ? "reached" : "failed");
   return ok;
@@ -248,13 +295,17 @@ int main(int argc, char** argv) {
 
   Log("[GR_MAIN] linked");
   srhd_awa::platform::startup_slice::State startup;
-  if (!ConfigurePackages(&startup, game_root)) return 1;
+  if (!ConfigurePackages(&startup, game_root)) {
+    srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
   Stage("SDL/platform services", true);
   Stage("window", true);
   std::string m9_error;
   StageBegin("DAT/runtime config");
   Log("[M9] dat config begin");
-  if (!srhd_awa::platform::runtime_settings_slice::Initialize(&m9_error)) {
+  Fingerprint cache_raw_fp;
+  if (!srhd_awa::platform::runtime_settings_slice::Initialize(&m9_error, CaptureRawCacheFingerprint, &cache_raw_fp)) {
     Log("[M9] FAIL runtime config=%s", m9_error.c_str());
     Stage("DAT/runtime config", false, m9_error.c_str());
     srhd_awa::platform::startup_slice::Shutdown(&startup);
@@ -263,13 +314,14 @@ int main(int argc, char** argv) {
   Log("[M9] Main.dat PASS");
   Log("[M9] Lang.dat PASS language=%s", static_cast<const char*>(static_cast<pas::AnsiString>(GR_Main::LanguageInstallConfig->GetParam(u"Lang"sv)).c_str()));
   Log("[M9] CacheData.dat PASS");
-  Fingerprint main_fp, lang_fp, cache_fp;
+  Fingerprint main_fp, lang_fp, cache_runtime_fp;
   FingerprintBlock(GR_Main::MainDataConfig, &main_fp, 1);
   FingerprintBlock(GR_Main::LanguageDataConfig, &lang_fp, 1);
-  FingerprintData(GR_Main::CacheDataRoot, &cache_fp, 1);
+  FingerprintData(GR_Main::CacheDataRoot, &cache_runtime_fp, 1);
   Log("[M9] Main.dat entries=%lu blocks=%lu params=%lu depth=%lu fnv64=%016llx", static_cast<unsigned long>(main_fp.entries), static_cast<unsigned long>(main_fp.blocks), static_cast<unsigned long>(main_fp.params), static_cast<unsigned long>(main_fp.depth), static_cast<unsigned long long>(main_fp.hash));
   Log("[M9] Lang.dat language=%s entries=%lu blocks=%lu params=%lu depth=%lu fnv64=%016llx", static_cast<const char*>(static_cast<pas::AnsiString>(GR_Main::LanguageInstallConfig->GetParam(u"Lang"sv)).c_str()), static_cast<unsigned long>(lang_fp.entries), static_cast<unsigned long>(lang_fp.blocks), static_cast<unsigned long>(lang_fp.params), static_cast<unsigned long>(lang_fp.depth), static_cast<unsigned long long>(lang_fp.hash));
-  Log("[M9] CacheData.dat nodes=%lu files=%lu depth=%lu fnv64=%016llx", static_cast<unsigned long>(cache_fp.nodes), static_cast<unsigned long>(cache_fp.files), static_cast<unsigned long>(cache_fp.depth), static_cast<unsigned long long>(cache_fp.hash));
+  Log("[M9] CacheData.dat raw nodes=%lu files=%lu depth=%lu fnv64=%016llx", static_cast<unsigned long>(cache_raw_fp.nodes), static_cast<unsigned long>(cache_raw_fp.files), static_cast<unsigned long>(cache_raw_fp.depth), static_cast<unsigned long long>(cache_raw_fp.hash));
+  Log("[M9] CacheDataRoot runtime nodes=%lu files=%lu depth=%lu fnv64=%016llx", static_cast<unsigned long>(cache_runtime_fp.nodes), static_cast<unsigned long>(cache_runtime_fp.files), static_cast<unsigned long>(cache_runtime_fp.depth), static_cast<unsigned long long>(cache_runtime_fp.hash));
   try {
     if (!GR_Main::UserSettingsConfig || !std::filesystem::is_regular_file(user_cfg_path, user_cfg_error))
       throw std::runtime_error("writable CFG.TXT was not materialized");
@@ -308,11 +360,15 @@ int main(int argc, char** argv) {
 #ifdef __SWITCH__
   if (renderer_ok) {
     Log("[M8] visible-frame hold BEGIN seconds=5");
-    for (int index = 0; index < 500 && appletMainLoop(); ++index) {
+    int iterations = 0;
+    bool interrupted = false;
+    for (; iterations < 500; ++iterations) {
+      if (!appletMainLoop()) { interrupted = true; break; }
       srhd_awa::platform::runtime_platform::PumpEvents(startup.platform);
       svcSleepThread(10000000ULL);
     }
-    Log("[M8] visible-frame hold PASS");
+    if (interrupted) Log("[M8] visible-frame hold INTERRUPTED iterations=%d", iterations);
+    else Log("[M8] visible-frame hold PASS duration_ms=5000");
   }
 #endif
   const bool resource_ok = ReadRequiredAsset(game_root);

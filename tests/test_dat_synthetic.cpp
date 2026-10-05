@@ -287,9 +287,20 @@ int main() {
       std::filesystem::is_regular_file(root / "user" / "config" / "CFG.TXT"));
   ok = ok && runtime_state;
   srhd_awa::platform::runtime_settings_slice::Shutdown();
+  std::ofstream(root / "user" / "config" / "CFG.TXT") << "CurrentVersion=2.1.1800\nCountFilmSave=30\n";
   const bool runtime_twice = srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error);
-  if (!runtime_twice) std::fprintf(stderr, "runtime reinitialization failed: %s\n", runtime_error.c_str());
-  ok = ok && runtime_twice;
+  const bool migrated_1800 = runtime_twice &&
+      GR_Main::UserSettingsConfig->GetParam(u"CurrentVersion"sv) == GR_Main::GameVersionText &&
+      GR_Main::UserSettingsConfig->GetParam(u"CountFilmSave"sv) == u"7";
+  if (!migrated_1800) std::fprintf(stderr, "2.1.1800 CFG migration failed: %s\n", runtime_error.c_str());
+  ok = ok && migrated_1800;
+  srhd_awa::platform::runtime_settings_slice::Shutdown();
+  std::ofstream(root / "user" / "config" / "CFG.TXT") << "CurrentVersion=2.1.2400\n";
+  const bool runtime_old_version = srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error);
+  const bool migrated_old_version = runtime_old_version &&
+      GR_Main::UserSettingsConfig->GetParam(u"CurrentVersion"sv) == GR_Main::GameVersionText;
+  if (!migrated_old_version) std::fprintf(stderr, "old CFG version migration failed: %s\n", runtime_error.c_str());
+  ok = ok && migrated_old_version;
   srhd_awa::platform::runtime_settings_slice::Shutdown();
   FreeDatRoots();
   const bool runtime_cleanup = !GR_Main::CCInterface && !GR_Main::UserSettingsConfig && !GR_Main::NewGameSettingsConfig &&

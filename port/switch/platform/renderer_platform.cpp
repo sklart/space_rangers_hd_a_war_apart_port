@@ -3,6 +3,8 @@
 #include "units/GR_DX.hpp"
 #include "units/GR_GraphBuf.hpp"
 #include "units/GR_Main.hpp"
+#include "units/EC_BlockPar.hpp"
+#include "units/EC_Str.hpp"
 #include "units/GlobalsV.hpp"
 #include "units/System.hpp"
 #include "types/aMyFunction.hpp"
@@ -87,8 +89,8 @@ bool InitializeSoftwareRenderer(const RendererConfig& config, std::string* error
   GR_Main::PresentWithoutLimit = !config.frame_limit;
   GR_Main::PresentationFrameRate = 60;
   GlobalsV::ScaleViewportToWindow = config.scale_viewport;
+  // The Switch backend is software-only, but keeps the user request for diagnostics.
   GlobalsV::HardwareRenderingEnabled = false;
-  GlobalsV::HardwareRenderingRequested = false;
 
   GR_Main::CurrentPixelFormat = pas::make_object<GR_GraphBuf::TPixelFormatGR>();
   GR_Main::CurrentPixelFormat->RedMask = 0xf800u;
@@ -130,6 +132,15 @@ bool InitializeReleaseCompatibleDefaults(std::string* error) {
   if (GR_Main::GameScreenHeight > 0) config.game_height = GR_Main::GameScreenHeight;
   if (GR_Main::PresentationWidth > 0) config.presentation_width = GR_Main::PresentationWidth;
   if (GR_Main::PresentationHeight > 0) config.presentation_height = GR_Main::PresentationHeight;
+  config.vsync = GR_Main::VSyncEnabled;
+  config.scale_viewport = GlobalsV::ScaleViewportToWindow;
+  config.frame_limit = !GR_Main::PresentWithoutLimit;
+#if defined(__SWITCH__)
+  if (GR_Main::GameDataConfig && GR_Main::GameDataConfig->CountParams(u"MiniMapBufSize"_wref.get()) > 0) {
+    const auto size = EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::GameDataConfig->GetParam(u"MiniMapBufSize"sv)));
+    if (size > 0 && size <= 4096) config.minimap_buffer_size = size;
+  }
+#endif
   return InitializeSoftwareRenderer(config, error);
 }
 
