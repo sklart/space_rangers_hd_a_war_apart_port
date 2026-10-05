@@ -16,7 +16,8 @@ jobs:
         run: |
           mkdir -p build port/switch/build
           git -C upstream/cpp apply ../../port/switch/platform/gr_main_portable.patch
-          trap 'git -C upstream/cpp apply -R ../../port/switch/platform/gr_main_portable.patch' EXIT
+          git -C upstream/cpp apply --ignore-space-change ../../port/switch/platform/gr_main_zlib_portable.patch
+          trap 'git -C upstream/cpp apply -R --ignore-space-change ../../port/switch/platform/gr_main_zlib_portable.patch; git -C upstream/cpp apply -R --ignore-space-change ../../port/switch/platform/gr_main_portable.patch' EXIT
           startup_sources="port/switch/platform/package.cpp port/switch/platform/game_path.cpp port/switch/platform/user_root.cpp port/switch/platform/ec_file_adapter.cpp port/switch/platform/windows_imports_portable.cpp port/switch/platform/sysutils_imports_portable.cpp port/switch/platform/runtime_time.cpp port/switch/platform/runtime_failure_hooks_portable.cpp upstream/cpp/src/CrcUnit.cpp upstream/cpp/src/BlockParException.cpp upstream/cpp/src/EC_File.cpp upstream/cpp/src/EC_Struct.cpp upstream/cpp/src/EC_Buf.cpp upstream/cpp/src/EC_BlockPar.cpp upstream/cpp/src/EC_Str.cpp upstream/cpp/src/EC_Mem.cpp upstream/cpp/src/aPacket.cpp upstream/cpp/src/GR_Main.cpp upstream/cpp/runtime/runtime.cpp"
           platform_startup_sources="$startup_sources port/switch/platform/runtime_platform.cpp port/switch/platform/startup_slice.cpp upstream/cpp/src/MessageText.cpp"
           g++ -std=c++20 -Wall -Wextra -Wpedantic -Iport/switch/platform tests/test_corrupt_package.cpp port/switch/platform/package.cpp -lz -o port/switch/build/test_corrupt_package

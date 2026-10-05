@@ -1,0 +1,26 @@
+diff --git a/src/GR_Main.cpp b/src/GR_Main.cpp
+--- a/src/GR_Main.cpp
++++ b/src/GR_Main.cpp
+@@ -3705,14 +3705,22 @@ namespace GR_Main {
+        return Result;
+    }
+
+    std::int32_t PAS_STDCALL OKGF_ZLib_Compress(void* Dest, void* Source, std::int32_t SourceSize, std::int32_t Mode) {
++#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
++        return srhd_awa::platform::zlib_bridge::Compress(Dest, Source, SourceSize, Mode);
++#else
+        using CppImport = std::int32_t (PAS_STDCALL *)(void*, void*, std::int32_t, std::int32_t);
+        static const auto cpp_import = pas::win::load_import<CppImport>("ZLib.dll", "OKGF_ZLib_Compress");
+        return cpp_import(Dest, Source, SourceSize, Mode);
++#endif
+    }
+
+    std::int32_t PAS_STDCALL OKGF_ZLib_UnCompress(void* Dest, std::int32_t DestCapacity, void* Source, std::int32_t SourceSize) {
++#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
++        return srhd_awa::platform::zlib_bridge::Uncompress(Dest, DestCapacity, Source, SourceSize);
++#else
+        using CppImport = std::int32_t (PAS_STDCALL *)(void*, std::int32_t, void*, std::int32_t);
+        static const auto cpp_import = pas::win::load_import<CppImport>("ZLib.dll", "OKGF_ZLib_UnCompress");
+        return cpp_import(Dest, DestCapacity, Source, SourceSize);
++#endif
+    }
