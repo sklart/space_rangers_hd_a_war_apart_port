@@ -229,18 +229,28 @@ int main() {
   std::string runtime_error;
   const bool runtime_once = srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error);
   if (!runtime_once) std::fprintf(stderr, "runtime initialization failed: %s\n", runtime_error.c_str());
-  ok = ok && runtime_once && GR_Main::GameDataConfig && GR_Main::UiStyleConfig && GR_Main::UiDepthConfig &&
+  const bool runtime_state = runtime_once && GR_Main::GameDataConfig && GR_Main::UiStyleConfig && GR_Main::UiDepthConfig &&
       GR_Main::WideCaseTable.length() == 1 && GR_Main::VSyncEnabled &&
       std::filesystem::is_regular_file(root / "user" / "config" / "CFG.TXT");
+  if (!runtime_state) std::fprintf(stderr, "runtime state failed: game=%d style=%d depth=%d case=%d vsync=%d cfg=%d\n",
+      GR_Main::GameDataConfig != nullptr, GR_Main::UiStyleConfig != nullptr, GR_Main::UiDepthConfig != nullptr,
+      GR_Main::WideCaseTable.length(), GR_Main::VSyncEnabled,
+      std::filesystem::is_regular_file(root / "user" / "config" / "CFG.TXT"));
+  ok = ok && runtime_state;
   srhd_awa::platform::runtime_settings_slice::Shutdown();
   const bool runtime_twice = srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error);
   if (!runtime_twice) std::fprintf(stderr, "runtime reinitialization failed: %s\n", runtime_error.c_str());
   ok = ok && runtime_twice;
   srhd_awa::platform::runtime_settings_slice::Shutdown();
   FreeDatRoots();
-  ok = ok && !GR_Main::CCInterface && !GR_Main::UserSettingsConfig && !GR_Main::NewGameSettingsConfig &&
+  const bool runtime_cleanup = !GR_Main::CCInterface && !GR_Main::UserSettingsConfig && !GR_Main::NewGameSettingsConfig &&
       !GR_Main::MainDataConfig && !GR_Main::LanguageDataConfig && !GR_Main::CacheDataRoot &&
       GR_Main::WideCaseTable.length() == 0;
+  if (!runtime_cleanup) std::fprintf(stderr, "runtime cleanup failed: cc=%d user=%d newgame=%d main=%d lang=%d cache=%d case=%d\n",
+      GR_Main::CCInterface != nullptr, GR_Main::UserSettingsConfig != nullptr, GR_Main::NewGameSettingsConfig != nullptr,
+      GR_Main::MainDataConfig != nullptr, GR_Main::LanguageDataConfig != nullptr, GR_Main::CacheDataRoot != nullptr,
+      GR_Main::WideCaseTable.length());
+  ok = ok && runtime_cleanup;
   aPacket::FinalizePackageCollection();
   std::filesystem::remove_all(root, error);
   if (ok) std::puts("encrypted DAT synthetic regression passed");
