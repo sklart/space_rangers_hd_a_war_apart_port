@@ -14,6 +14,7 @@ GAME_CPP_ROOT := ../../upstream/cpp
 BUILD_GIT_COMMIT := $(shell git -C ../.. rev-parse --short HEAD)
 HOST_EC_PATCH_FILE := $(abspath platform/msys-runtime-text.patch)
 GR_MAIN_PORTABLE_PATCH_FILE := $(abspath platform/gr_main_portable.patch)
+GR_MAIN_ZLIB_PORTABLE_PATCH_FILE := $(abspath platform/gr_main_zlib_portable.patch)
 
 CC := $(DEVKITA64)/bin/aarch64-none-elf-gcc
 CXX := $(DEVKITA64)/bin/aarch64-none-elf-g++
@@ -95,8 +96,8 @@ $(BUILD)/aPacket.o: $(GAME_CPP_ROOT)/src/aPacket.cpp | $(BUILD)
 $(BUILD)/MessageText.o: $(GAME_CPP_ROOT)/src/MessageText.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(BUILD)/GR_Main.o: $(GAME_CPP_ROOT)/src/GR_Main.cpp $(GR_MAIN_PORTABLE_PATCH_FILE) | $(BUILD)
-	@patched=0; git -C $(GAME_CPP_ROOT) apply $(GR_MAIN_PORTABLE_PATCH_FILE) || exit $$?; patched=1; $(CXX) $(CXXFLAGS) -c $< -o $@; result=$$?; if test $$patched -eq 1; then git -C $(GAME_CPP_ROOT) apply -R $(GR_MAIN_PORTABLE_PATCH_FILE) || exit $$?; fi; exit $$result
+$(BUILD)/GR_Main.o: $(GAME_CPP_ROOT)/src/GR_Main.cpp $(GR_MAIN_PORTABLE_PATCH_FILE) $(GR_MAIN_ZLIB_PORTABLE_PATCH_FILE) | $(BUILD)
+	@patched_gr=0; patched_zlib=0; git -C $(GAME_CPP_ROOT) apply $(GR_MAIN_PORTABLE_PATCH_FILE) || exit $$?; patched_gr=1; git -C $(GAME_CPP_ROOT) apply --ignore-space-change $(GR_MAIN_ZLIB_PORTABLE_PATCH_FILE) || exit $$?; patched_zlib=1; $(CXX) $(CXXFLAGS) -c $< -o $@; result=$$?; if test $$patched_zlib -eq 1; then git -C $(GAME_CPP_ROOT) apply -R --ignore-space-change $(GR_MAIN_ZLIB_PORTABLE_PATCH_FILE) || exit $$?; fi; if test $$patched_gr -eq 1; then git -C $(GAME_CPP_ROOT) apply -R --ignore-space-change $(GR_MAIN_PORTABLE_PATCH_FILE) || exit $$?; fi; exit $$result
 
 $(BUILD)/GR_GraphBuf.o: $(GAME_CPP_ROOT)/src/GR_GraphBuf.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
