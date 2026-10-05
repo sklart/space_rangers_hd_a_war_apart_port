@@ -12,6 +12,7 @@ SOURCES := source
 INCLUDES := include
 GAME_CPP_ROOT := ../../upstream/cpp
 BUILD_GIT_COMMIT := $(shell git -C ../.. rev-parse --short HEAD)
+HOST_EC_PATCH_FILE := $(abspath platform/msys-runtime-text.patch)
 
 CC := $(DEVKITA64)/bin/aarch64-none-elf-gcc
 CXX := $(DEVKITA64)/bin/aarch64-none-elf-g++
@@ -31,9 +32,9 @@ CPPFILES := $(wildcard $(SOURCES)/*.cpp)
 OFILES := $(CPPFILES:$(SOURCES)/%.cpp=$(BUILD)/%.o)
 PLATFORM_CPPFILES := $(wildcard platform/*.cpp)
 PLATFORM_OFILES := $(PLATFORM_CPPFILES:platform/%.cpp=$(BUILD)/platform_%.o)
-GAME_OFILES := $(BUILD)/CrcUnit.o $(BUILD)/System.o $(BUILD)/SystemImports.o
+GAME_OFILES := $(BUILD)/CrcUnit.o $(BUILD)/System.o $(BUILD)/SystemImports.o $(BUILD)/EC_File.o $(BUILD)/EC_Struct.o $(BUILD)/runtime.o
 
-.PHONY: all clean host-package-test host-package-cycle-test
+.PHONY: all clean host-package-test host-package-cycle-test host-ec-file-test host-ec-file-synthetic-test host-milestone4-regression
 all: $(TARGET).nro
 
 $(BUILD):
@@ -52,6 +53,15 @@ $(BUILD)/System.o: $(GAME_CPP_ROOT)/src/System.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(BUILD)/SystemImports.o: $(GAME_CPP_ROOT)/src/SystemImports.cpp | $(BUILD)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(BUILD)/EC_File.o: $(GAME_CPP_ROOT)/src/EC_File.cpp | $(BUILD)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(BUILD)/EC_Struct.o: $(GAME_CPP_ROOT)/src/EC_Struct.cpp | $(BUILD)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(BUILD)/runtime.o: $(GAME_CPP_ROOT)/runtime/runtime.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OKGF_LIB):
@@ -89,9 +99,18 @@ host-zl02-synthetic-test: | $(BUILD)
 host-release-regression: host-package-test host-package-tree-test host-package-payload-cpp-test host-package-payload-test host-corrupt-package-test host-package-cycle-test host-zl02-synthetic-test
 	@echo RELEASE REGRESSION PASS
 
+host-milestone4-regression: host-release-regression host-ec-file-synthetic-test host-ec-file-test
+	@echo MILESTONE 4 HOST REGRESSION PASS
+
 host-corrupt-package-test: | $(BUILD)
 	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_corrupt_package.cpp platform/package.cpp -lz -o $(BUILD)/test_corrupt_package
 	$(BUILD)/test_corrupt_package
+
+host-ec-file-test: | $(BUILD)
+	@patched=0; if test "$$(uname -o)" = Msys; then git -C $(GAME_CPP_ROOT) apply $(HOST_EC_PATCH_FILE) || exit $$?; patched=1; fi; g++ -std=c++20 -Wall -Wextra -Wpedantic -Iplatform -I$(GAME_CPP_ROOT)/src -I$(GAME_CPP_ROOT)/runtime ../../tests/test_ec_file.cpp platform/package.cpp platform/ec_file_adapter.cpp platform/windows_imports_portable.cpp $(GAME_CPP_ROOT)/src/EC_File.cpp $(GAME_CPP_ROOT)/src/EC_Struct.cpp $(GAME_CPP_ROOT)/runtime/runtime.cpp -lz -o $(BUILD)/test_ec_file; result=$$?; if test $$result -eq 0; then $(BUILD)/test_ec_file "../../windows/Space Rangers HD A War Apart"; result=$$?; fi; if test $$patched -eq 1; then git -C $(GAME_CPP_ROOT) apply -R $(HOST_EC_PATCH_FILE) || exit $$?; fi; exit $$result
+
+host-ec-file-synthetic-test: | $(BUILD)
+	@patched=0; if test "$$(uname -o)" = Msys; then git -C $(GAME_CPP_ROOT) apply $(HOST_EC_PATCH_FILE) || exit $$?; patched=1; fi; g++ -std=c++20 -Wall -Wextra -Wpedantic -Iplatform -I$(GAME_CPP_ROOT)/src -I$(GAME_CPP_ROOT)/runtime ../../tests/test_ec_file_synthetic.cpp platform/package.cpp platform/ec_file_adapter.cpp platform/windows_imports_portable.cpp $(GAME_CPP_ROOT)/src/EC_File.cpp $(GAME_CPP_ROOT)/src/EC_Struct.cpp $(GAME_CPP_ROOT)/runtime/runtime.cpp -lz -o $(BUILD)/test_ec_file_synthetic; result=$$?; if test $$result -eq 0; then $(BUILD)/test_ec_file_synthetic; result=$$?; fi; if test $$patched -eq 1; then git -C $(GAME_CPP_ROOT) apply -R $(HOST_EC_PATCH_FILE) || exit $$?; fi; exit $$result
 
 host-package-cycle-test: | $(BUILD)
 	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_package_cycles.cpp platform/package.cpp -lz -o $(BUILD)/test_package_cycles

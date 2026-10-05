@@ -1,0 +1,15 @@
+diff --git a/runtime/text.hpp b/runtime/text.hpp
+--- a/runtime/text.hpp
++++ b/runtime/text.hpp
+@@ -127,6 +127,11 @@ inline void text_open(TextFile &f, int mode, bool checked) {
+ #ifdef _WIN32
+               if (_chsize_s(_fileno(f.stream), end))
+                 in_out_res = file_error();
++#elif defined(__MSYS__)
++              std::error_code error;
++              std::filesystem::resize_file(f.name, static_cast<uintmax_t>(end), error);
++              if (error)
++                in_out_res = file_error();
+ #else
+               if (::ftruncate(::fileno(f.stream), end))
+                 in_out_res = file_error();

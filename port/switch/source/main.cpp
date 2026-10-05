@@ -6,6 +6,8 @@
 #include "units/SystemImports.hpp"
 #include "filesystem.hpp"
 #include "package.hpp"
+#include "ec_file_adapter.hpp"
+#include "units/EC_File.hpp"
 
 #include <cstdarg>
 #include <cstdio>
@@ -61,6 +63,28 @@ bool ReadRequiredAsset(const char* root) {
     return false;
   }
   const std::uint32_t payload_crc = CrcUnit::ComputeCrc32(payload.data(), static_cast<std::int32_t>(payload.size()));
+  if (!srhd_awa::platform::ec_file::OpenPackage(std::string(root) + "/DATA/common.pkg", &package_error)) {
+    Log("[EC_FILE] FAIL adapter open error=%s", package_error.c_str());
+    return false;
+  }
+  EC_File::TFileEC file{};
+  EC_File::TFileEC_Create(&file);
+  file.SetFileName(pas::WideString(u"data\\asteroid\\00.GAI"));
+  const bool opened = file.TryAcquireReadHandle(false) != 0;
+  const uint32_t ec_size = opened ? file.GetSize() : 0;
+  std::vector<uint8_t> ec_payload(ec_size);
+  if (opened) file.ReadBuffer(ec_payload.data(), ec_size);
+  const bool seek_ok = opened && file.SetPointer(4, 0) == 4 && file.SetPointer(3, 1) == 7 && file.SetPointer(5, 2) == ec_size - 5;
+  uint8_t ec_tail[5]{};
+  if (seek_ok) file.ReadBuffer(ec_tail, sizeof(ec_tail));
+  if (opened) file.ReleaseHandle();
+  EC_File::TFileEC_Destroy(&file);
+  srhd_awa::platform::ec_file::ClosePackage();
+  const bool ec_ok = opened && ec_size == payload.size() && ec_payload == payload && seek_ok &&
+      std::memcmp(ec_tail, payload.data() + payload.size() - sizeof(ec_tail), sizeof(ec_tail)) == 0;
+  Log("[EC_FILE] %s open=%u size=%lu read=%lu seek=%u crc32=%08lx", ec_ok ? "PASS" : "FAIL", opened ? 1u : 0u,
+      static_cast<unsigned long>(ec_size), static_cast<unsigned long>(ec_payload.size()), seek_ok ? 1u : 0u,
+      static_cast<unsigned long>(CrcUnit::ComputeCrc32(ec_payload.data(), static_cast<std::int32_t>(ec_payload.size()))));
   const bool baseline_ok = tree.folders == 51 && tree.files == 1890 && tree.entries == 1940 &&
       tree.max_depth == 4 && tree.tree_hash == UINT64_C(0x9c74d6b37be3edd2) &&
       entry->kind == 2 && payload.size() == 246863 && payload_crc == 0x045269e4u;
@@ -69,7 +93,7 @@ bool ReadRequiredAsset(const char* root) {
       static_cast<unsigned long>(tree.entries), static_cast<unsigned long>(tree.max_depth), static_cast<unsigned long long>(tree.tree_hash),
       static_cast<long>(entry->kind), static_cast<unsigned long>(payload.size()), static_cast<unsigned long>(payload_crc));
   Log("[SELFTEST] %s package baseline", baseline_ok ? "PASS" : "FAIL");
-  return baseline_ok;
+  return baseline_ok && ec_ok;
 }
 }  // namespace
 

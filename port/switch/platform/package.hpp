@@ -26,7 +26,7 @@ class Package {
   bool ReadPayload(const Entry& entry, std::vector<uint8_t>* out, std::string* error);
   Summary Summarize() const;
  private:
-  struct OpenEntry { const Entry* entry{}; uint64_t position{}; bool open{}; };
+  struct OpenEntry { const Entry* entry{}; uint64_t position{}; bool open{}; bool decoded{}; std::vector<uint8_t> payload; };
   bool LoadFolder(uint32_t offset, Folder* folder, uint32_t depth, std::vector<uint32_t>& active_offsets, std::string* error);
   std::unique_ptr<Folder> root_; std::string path_; uint64_t size_{}; std::vector<OpenEntry> open_entries_;
 };
