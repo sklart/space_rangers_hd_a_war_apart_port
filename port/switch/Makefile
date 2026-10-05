@@ -63,6 +63,10 @@ $(TARGET).nro: $(BUILD)/$(TARGET).elf
 clean:
 	rm -rf $(BUILD) $(TARGET).nro
 
-host-package-test:
+host-package-test: | $(BUILD)
 	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_package_probe.cpp platform/filesystem.cpp -o $(BUILD)/test_package_probe
 	$(BUILD)/test_package_probe "../../windows/Space Rangers HD A War Apart"
+
+host-package-tree-test: | $(BUILD)
+	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_package_tree.cpp platform/package.cpp -o $(BUILD)/test_package_tree
+	$(BUILD)/test_package_tree "../../windows/Space Rangers HD A War Apart"

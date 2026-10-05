@@ -1,6 +1,8 @@
 /build/
 **/build/
-/upstream/
+/upstream/*
+!/upstream/cpp/
+!/upstream/okgf/
 /windows/
 *.nro
 *.elf

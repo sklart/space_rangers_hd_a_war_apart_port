@@ -1,3 +1,6 @@
 [submodule "space-rangers-hd-cpp"]
 	path = upstream/cpp
 	url = https://github.com/pakompom/SpaceRangersHD_CPP.git
+[submodule "okgf"]
+	path = upstream/okgf
+	url = https://github.com/pakompom/okgf.git
