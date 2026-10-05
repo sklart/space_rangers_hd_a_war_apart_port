@@ -13,6 +13,7 @@ INCLUDES := include
 GAME_CPP_ROOT := ../../upstream/cpp
 BUILD_GIT_COMMIT := $(shell git -C ../.. rev-parse --short HEAD)
 HOST_EC_PATCH_FILE := $(abspath platform/msys-runtime-text.patch)
+GR_MAIN_PORTABLE_PATCH_FILE := $(abspath platform/gr_main_portable.patch)
 
 CC := $(DEVKITA64)/bin/aarch64-none-elf-gcc
 CXX := $(DEVKITA64)/bin/aarch64-none-elf-g++
@@ -32,9 +33,9 @@ CPPFILES := $(wildcard $(SOURCES)/*.cpp)
 OFILES := $(CPPFILES:$(SOURCES)/%.cpp=$(BUILD)/%.o)
 PLATFORM_CPPFILES := $(wildcard platform/*.cpp)
 PLATFORM_OFILES := $(PLATFORM_CPPFILES:platform/%.cpp=$(BUILD)/platform_%.o)
-GAME_OFILES := $(BUILD)/CrcUnit.o $(BUILD)/System.o $(BUILD)/SystemImports.o $(BUILD)/EC_File.o $(BUILD)/EC_Struct.o $(BUILD)/EC_Buf.o $(BUILD)/EC_BlockPar.o $(BUILD)/EC_Str.o $(BUILD)/EC_Mem.o $(BUILD)/aPacket.o $(BUILD)/MessageText.o $(BUILD)/GR_Main.o $(BUILD)/runtime.o
+GAME_OFILES := $(BUILD)/CrcUnit.o $(BUILD)/System.o $(BUILD)/SystemImports.o $(BUILD)/EC_File.o $(BUILD)/EC_Struct.o $(BUILD)/EC_Buf.o $(BUILD)/EC_BlockPar.o $(BUILD)/EC_Str.o $(BUILD)/EC_Mem.o $(BUILD)/aPacket.o $(BUILD)/MessageText.o $(BUILD)/GR_GraphBuf.o $(BUILD)/GR_Main.o $(BUILD)/runtime.o
 
-.PHONY: all clean host-package-test host-package-cycle-test host-ec-file-test host-ec-file-synthetic-test host-blockpar-synthetic-test host-configured-package-test host-gr-main-no-mod-test host-gr-main-config-test host-gr-main-release-config-test host-platform-startup-test host-milestone4-regression host-milestone5-regression host-milestone6-regression host-milestone7-regression
+.PHONY: all clean host-package-test host-package-cycle-test host-ec-file-test host-ec-file-synthetic-test host-blockpar-synthetic-test host-configured-package-test host-gr-main-no-mod-test host-gr-main-config-test host-gr-main-release-config-test host-platform-startup-test host-renderer-software-test host-milestone4-regression host-milestone5-regression host-milestone6-regression host-milestone7-regression host-milestone8-regression
 all: $(TARGET).nro
 
 $(BUILD):
@@ -79,7 +80,10 @@ $(BUILD)/aPacket.o: $(GAME_CPP_ROOT)/src/aPacket.cpp | $(BUILD)
 $(BUILD)/MessageText.o: $(GAME_CPP_ROOT)/src/MessageText.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(BUILD)/GR_Main.o: $(GAME_CPP_ROOT)/src/GR_Main.cpp | $(BUILD)
+$(BUILD)/GR_Main.o: $(GAME_CPP_ROOT)/src/GR_Main.cpp $(GR_MAIN_PORTABLE_PATCH_FILE) | $(BUILD)
+	@patched=0; git -C $(GAME_CPP_ROOT) apply $(GR_MAIN_PORTABLE_PATCH_FILE) || exit $$?; patched=1; $(CXX) $(CXXFLAGS) -c $< -o $@; result=$$?; if test $$patched -eq 1; then git -C $(GAME_CPP_ROOT) apply -R $(GR_MAIN_PORTABLE_PATCH_FILE) || exit $$?; fi; exit $$result
+
+$(BUILD)/GR_GraphBuf.o: $(GAME_CPP_ROOT)/src/GR_GraphBuf.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(BUILD)/runtime.o: $(GAME_CPP_ROOT)/runtime/runtime.cpp | $(BUILD)
@@ -131,6 +135,12 @@ host-milestone6-regression: host-milestone5-regression host-gr-main-no-mod-test 
 
 host-milestone7-regression: host-milestone6-regression host-platform-startup-test
 	@echo MILESTONE 7 HOST REGRESSION PASS
+
+host-milestone8-regression: host-milestone7-regression host-renderer-software-test
+	@echo MILESTONE 8 HOST REGRESSION PASS
+
+host-renderer-software-test: | $(BUILD)
+	@patched=0; git -C $(GAME_CPP_ROOT) apply $(GR_MAIN_PORTABLE_PATCH_FILE) || exit $$?; patched=1; mkdir -p $(BUILD)/host-renderer; gcc -std=c11 -I../../upstream/okgf/include -I../../upstream/okgf/src -c ../../upstream/okgf/src/pixels.c -o $(BUILD)/host-renderer/pixels.o; gcc -std=c11 -I../../upstream/okgf/include -I../../upstream/okgf/src -c ../../upstream/okgf/src/copy.c -o $(BUILD)/host-renderer/copy.o; gcc -std=c11 -I../../upstream/okgf/include -I../../upstream/okgf/src -c ../../upstream/okgf/src/alpha_buffers.c -o $(BUILD)/host-renderer/alpha_buffers.o; gcc -std=c11 -I../../upstream/okgf/include -I../../upstream/okgf/src -c ../../upstream/okgf/src/gradients.c -o $(BUILD)/host-renderer/gradients.o; gcc -std=c11 -I../../upstream/okgf/include -I../../upstream/okgf/src -c ../../upstream/okgf/src/math/precision.c -o $(BUILD)/host-renderer/precision.o; result=$$?; if test $$result -eq 0; then g++ -std=c++20 -Wall -Wextra -Wpedantic -DSRHD_PORTABLE_RENDERER -ffunction-sections -fdata-sections -Iplatform -I$(GAME_CPP_ROOT)/src -I$(GAME_CPP_ROOT)/runtime -I../../upstream/okgf/include ../../tests/test_renderer_software.cpp platform/okgf_bridge.cpp platform/renderer_platform.cpp platform/runtime_failure_hooks_portable.cpp platform/windows_imports_portable.cpp $(GAME_CPP_ROOT)/src/System.cpp $(GAME_CPP_ROOT)/src/SystemImports.cpp $(GAME_CPP_ROOT)/src/EC_Struct.cpp $(GAME_CPP_ROOT)/src/EC_Mem.cpp $(GAME_CPP_ROOT)/src/GR_GraphBuf.cpp $(GAME_CPP_ROOT)/src/GR_Main.cpp $(GAME_CPP_ROOT)/runtime/runtime.cpp $(BUILD)/host-renderer/pixels.o $(BUILD)/host-renderer/copy.o $(BUILD)/host-renderer/alpha_buffers.o $(BUILD)/host-renderer/gradients.o $(BUILD)/host-renderer/precision.o -Wl,--gc-sections -lm -o $(BUILD)/test_renderer_software; result=$$?; fi; if test $$result -eq 0; then $(BUILD)/test_renderer_software; result=$$?; fi; if test $$patched -eq 1; then git -C $(GAME_CPP_ROOT) apply -R $(GR_MAIN_PORTABLE_PATCH_FILE) || exit $$?; fi; exit $$result
 
 host-corrupt-package-test: | $(BUILD)
 	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_corrupt_package.cpp platform/package.cpp -lz -o $(BUILD)/test_corrupt_package

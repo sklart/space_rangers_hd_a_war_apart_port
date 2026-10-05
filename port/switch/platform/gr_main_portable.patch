@@ -1,0 +1,129 @@
+diff --git a/src/GR_Main.cpp b/src/GR_Main.cpp
+index 6aa8db1..b536fdf 100644
+--- a/src/GR_Main.cpp
++++ b/src/GR_Main.cpp
+@@ -44,6 +44,11 @@
+ #include "units/aMyFunction.hpp"
+ #include "units/aPacket.hpp"
+ 
++#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
++#include "okgf_bridge.hpp"
++#include "renderer_platform.hpp"
++#endif
++
+ namespace GR_Main {
+     using TGetNativeSystemInfo = pas::StdcallProc<void(WindowsSdk::TSystemInfo&)>;
+ 
+@@ -1795,6 +1800,12 @@ namespace GR_Main {
+     }
+ 
+     void GR_DXInit() {
++#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
++        if (!srhd_awa::platform::renderer_platform::InitializeReleaseCompatibleDefaults(nullptr)) {
++            pas::raise(pas::make_exception<pas::Exception>("portable software renderer initialization failed"_a));
++        }
++        return;
++#endif
+         Direct3D9::IDirect3D9 cpp_result{};
+         std::int32_t Code{};
+         Direct3D9::IDirect3DSurface9 Surface{};
+@@ -2159,7 +2170,18 @@ namespace GR_Main {
+     }
+ 
+     // Hardware mode ends/presents/restarts the scene; software mode draws the buffer texture unless OffscreenTexture is assigned.
++    #if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
++    __attribute__((noinline))
++    #endif
+     void PresentScreenBuffer() {
++#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
++        if (ScreenRenderBuffer != nullptr) {
++            srhd_awa::platform::renderer_platform::PresentRgb565(
++                ScreenRenderBuffer->GetPixels(), ScreenRenderBuffer->PitchBytes,
++                ScreenRenderBuffer->Width, ScreenRenderBuffer->Height);
++        }
++        return;
++#endif
+         Direct3D9::IDirect3DTexture9 cpp_result{};
+         Direct3D9::IDirect3DTexture9 cpp_result_2{};
+         Direct3D9::IDirect3DTexture9 cpp_result_3{};
+@@ -3996,9 +4018,13 @@ namespace GR_Main {
+     }
+ 
+     void OKGR_Copy_XY_XY_WORD(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
++#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
++        return srhd_awa::platform::okgf_bridge::CopyWord(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width, Height);
++#else
+         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t, std::int32_t, std::int32_t);
+         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Copy_XY_XY_WORD");
+         return cpp_import(Dest, DestPitch, DestX, DestY, Source, SourcePitch, SourceX, SourceY, Width, Height);
++#endif
+     }
+ 
+     void OKGR_PalCopy_XY_XY_WORD(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, void* Palette, std::int32_t Width, std::int32_t Height) {
+@@ -4032,9 +4058,13 @@ namespace GR_Main {
+     }
+ 
+     void OKGR_Fill_WORD(void* Pixels, std::int32_t Pitch, std::int32_t Width, std::int32_t Height, std::uint16_t Color) {
++#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
++        return srhd_awa::platform::okgf_bridge::FillWord(Pixels, Pitch, Width, Height, Color);
++#else
+         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::uint16_t);
+         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_Fill_WORD");
+         return cpp_import(Pixels, Pitch, Width, Height, Color);
++#endif
+     }
+ 
+     void OKGF_ConvertRGBto565(void* Source, void* Dest, std::int32_t Pitch, std::int32_t Width, std::int32_t Height) {
+@@ -4056,9 +4086,13 @@ namespace GR_Main {
+     }
+ 
+     void OKGF_Convert565toBGRA(void* Source, std::int32_t SourcePitch, void* Dest, std::int32_t DestPitch, std::int32_t Width, std::int32_t Height) {
++#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
++        return srhd_awa::platform::okgf_bridge::Convert565ToBgra(Source, SourcePitch, Dest, DestPitch, Width, Height);
++#else
+         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, void*, std::int32_t, std::int32_t, std::int32_t);
+         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_Convert565toBGRA");
+         return cpp_import(Source, SourcePitch, Dest, DestPitch, Width, Height);
++#endif
+     }
+ 
+     void OKGF_Convert_8888to565(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
+@@ -4110,9 +4144,13 @@ namespace GR_Main {
+     }
+ 
+     void OKGR_PixelAlpha_16(void* Pixel, std::uint16_t Color, std::uint8_t Alpha) {
++#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
++        return srhd_awa::platform::okgf_bridge::PixelAlpha16(Pixel, Color, Alpha);
++#else
+         using CppImport = void (PAS_CDECL *)(void*, std::uint16_t, std::uint8_t);
+         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGR_PixelAlpha_16");
+         return cpp_import(Pixel, Color, Alpha);
++#endif
+     }
+ 
+     std::int32_t OKGR_Line_Clip(pas::Var<std::int32_t> X1, pas::Var<std::int32_t> Y1, pas::Var<std::int32_t> X2, pas::Var<std::int32_t> Y2, const WindowsSdk::TRect& Clip) {
+@@ -4207,16 +4245,24 @@ namespace GR_Main {
+ 
+     // Cdecl triangle ABI verified at native caller.
+     void OKGF_Triangle_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::uint32_t Color1, std::int32_t X2, std::int32_t Y2, std::uint32_t Color2, std::int32_t X3, std::int32_t Y3, std::uint32_t Color3, WindowsSdk::PRect Clip) {
++#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
++        return srhd_awa::platform::okgf_bridge::Triangle16(Pixels, Pitch, X1, Y1, Color1, X2, Y2, Color2, X3, Y3, Color3, Clip);
++#else
+         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::uint32_t, std::int32_t, std::int32_t, std::uint32_t, std::int32_t, std::int32_t, std::uint32_t, WindowsSdk::PRect);
+         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_Triangle_16");
+         return cpp_import(Pixels, Pitch, X1, Y1, Color1, X2, Y2, Color2, X3, Y3, Color3, Clip);
++#endif
+     }
+ 
+     // Cdecl gradient-line ABI verified at native caller.
+     void OKGF_LineIp_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::uint32_t Color1, std::int32_t X2, std::int32_t Y2, std::uint32_t Color2) {
++#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
++        return srhd_awa::platform::okgf_bridge::LineIp16(Pixels, Pitch, X1, Y1, Color1, X2, Y2, Color2);
++#else
+         using CppImport = void (PAS_CDECL *)(void*, std::int32_t, std::int32_t, std::int32_t, std::uint32_t, std::int32_t, std::int32_t, std::uint32_t);
+         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_LineIp_16");
+         return cpp_import(Pixels, Pitch, X1, Y1, Color1, X2, Y2, Color2);
++#endif
+     }
+ 
+     void TCCInterface_Create(TCCInterface* Self) {

@@ -7,6 +7,8 @@
 #include "package.hpp"
 #include "ec_file_adapter.hpp"
 #include "startup_slice.hpp"
+#include "renderer_platform.hpp"
+#include "units/GR_GraphBuf.hpp"
 #include "units/EC_BlockPar.hpp"
 #include "units/EC_File.hpp"
 #include "units/EC_HsFile.hpp"
@@ -113,6 +115,46 @@ bool ReadRequiredAsset(const char* root) {
   Log("[M7] resource %s", ec_ok ? "PASS" : "FAIL");
   return baseline_ok && ec_ok;
 }
+
+bool RunRendererSelfTest() {
+  Log("[M8] renderer init begin");
+  GR_Main::GR_DXInit();
+  auto* framebuffer = GR_Main::ScreenRenderBuffer;
+  if (!framebuffer || !GR_Main::RenderScratchBuffer || !GR_Main::AuxRenderBuffer ||
+      !GR_Main::CurrentPixelFormat || framebuffer->UseTexture) {
+    Log("[M8] FAIL renderer state");
+    return false;
+  }
+  Log("[M8] mode=software-rgb565 framebuffer=%ldx%ld pitch=%ld", static_cast<long>(framebuffer->Width),
+      static_cast<long>(framebuffer->Height), static_cast<long>(framebuffer->PitchBytes));
+  Log("[M8] pixel-format=RGB565");
+  GR_Main::OKGR_Fill_WORD(framebuffer->GetPixels(), framebuffer->PitchBytes, framebuffer->Width,
+                          framebuffer->Height, 0x001f);
+  GR_GraphBuf::TGraphBufGR_DrawHorizontalLine16(framebuffer, 4, 4, 80, 0xf800);
+  GR_GraphBuf::TGraphBufGR_DrawVerticalLine16(framebuffer, 4, 4, 80, 0x07e0);
+  GR_Main::LineRasterizer16(framebuffer->GetPixels(), framebuffer->PitchBytes, 10, 10, 0xf800,
+                             110, 40, 0x07e0);
+  WindowsSdk::TRect clip{0, 0, framebuffer->Width, framebuffer->Height};
+  GR_Main::TriangleRasterizer16(framebuffer->GetPixels(), framebuffer->PitchBytes, 30, 40, 0xf800,
+                                 150, 80, 0x07e0, 70, 160, 0x001f, &clip);
+  framebuffer->BlendPixel16(8, 8, 0xffff, 128);
+  GR_Main::PresentWithoutLimit = true;
+  GR_Main::BeginFramePresentation();
+  GR_Main::BeginFramePresentation();
+  GR_Main::EndFramePresentation();
+  const auto before_outer_end = srhd_awa::platform::renderer_platform::PresentationCount();
+  GR_Main::EndFramePresentation();
+  const auto present_count = srhd_awa::platform::renderer_platform::PresentationCount();
+  const auto hash = srhd_awa::platform::renderer_platform::LastPresentationHash();
+  const bool ok = before_outer_end == 0 && present_count == 1 && hash != 0;
+  Log("[M8] OKGF bridge %s", ok ? "PASS" : "FAIL");
+  Log("[M8] draw %s fnv64=%016llx", ok ? "PASS" : "FAIL",
+      static_cast<unsigned long long>(hash));
+  Log("[M8] present backend=SDL2-RGB565");
+  Log("[M8] present %s", ok ? "PASS" : "FAIL");
+  Log("[M8] renderer boundary %s", ok ? "reached" : "failed");
+  return ok;
+}
 }  // namespace
 
 int main(int argc, char** argv) {
@@ -128,16 +170,10 @@ int main(int argc, char** argv) {
   srhd_awa::platform::startup_slice::State startup;
   if (!ConfigurePackages(&startup, game_root)) return 1;
   srhd_awa::platform::runtime_platform::PumpEvents(startup.platform);
-  std::uint16_t framebuffer[4]{};
-  OKGR_Fill_WORD(framebuffer, static_cast<std::int32_t>(sizeof(framebuffer)), 2, 2, 0x07e0);
-  if (framebuffer[0] != 0x07e0 || framebuffer[3] != 0x07e0) {
-    Log("[OKGF] FAIL OKGR_Fill_WORD framebuffer validation");
-  } else {
-    Log("[OKGF] PASS portable renderer CPU framebuffer 2x2");
-  }
+  const bool renderer_ok = RunRendererSelfTest();
   const bool resource_ok = ReadRequiredAsset(game_root);
-  Log("[FILESYSTEM] %s game-root", resource_ok ? "PASS" : "FAIL");
+  Log("[FILESYSTEM] %s game-root", resource_ok && renderer_ok ? "PASS" : "FAIL");
   Log("[M7] startup boundary %s", resource_ok ? "reached" : "failed");
   srhd_awa::platform::startup_slice::Shutdown(&startup);
-  return 0;
+  return resource_ok && renderer_ok ? 0 : 1;
 }

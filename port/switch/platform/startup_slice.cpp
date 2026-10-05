@@ -1,6 +1,7 @@
 #include "startup_slice.hpp"
 
 #include "ec_file_adapter.hpp"
+#include "renderer_platform.hpp"
 #include "units/EC_BlockPar.hpp"
 #include "units/GR_Main.hpp"
 #include "units/MessageText.hpp"
@@ -49,6 +50,7 @@ bool Initialize(State* state, const std::string& game_root, const std::string& s
       Shutdown(state);
       return false;
     }
+    renderer_platform::SetNativeWindow(state->platform.native_window);
     // A token is deliberately used instead of truncating an SDL_Window pointer.
     GR_Main::MainWindowHandle = state->platform.window_token;
     GR_Main::InstallConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
@@ -74,6 +76,8 @@ bool Initialize(State* state, const std::string& game_root, const std::string& s
 
 void Shutdown(State* state) {
   if (!state) return;
+  renderer_platform::ShutdownSoftwareRenderer();
+  renderer_platform::SetNativeWindow(nullptr);
   if (MessageText::QuestMessages) {
     pas::free(MessageText::QuestMessages);
     MessageText::QuestMessages = nullptr;
