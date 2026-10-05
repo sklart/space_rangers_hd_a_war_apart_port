@@ -12,6 +12,8 @@ jobs:
         with:
           submodules: recursive
       - run: sudo apt-get update && sudo apt-get install -y zlib1g-dev
+      - name: Validate Switch NRO icon
+        run: python3 tools/validate-switch-icon.py port/switch/assets/icon.jpg
       - name: Build and run asset-free corrupt package regression
         run: |
           mkdir -p build port/switch/build

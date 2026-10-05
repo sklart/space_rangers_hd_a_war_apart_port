@@ -19,7 +19,9 @@ GR_MAIN_ZLIB_PORTABLE_PATCH_FILE := $(abspath platform/gr_main_zlib_portable.pat
 CC := $(DEVKITA64)/bin/aarch64-none-elf-gcc
 CXX := $(DEVKITA64)/bin/aarch64-none-elf-g++
 ELF2NRO := $(DEVKITPRO)/tools/bin/elf2nro
-NRO_ICON := icon.jpg
+NRO_ICON := assets/icon.jpg
+ICON_VALIDATOR := ../../tools/validate-switch-icon.py
+PYTHON ?= python3
 
 INCLUDE := -I$(LIBNX)/include -I$(PORTLIBS)/include -I$(INCLUDES) -Iplatform -I$(GAME_CPP_ROOT)/src -I$(GAME_CPP_ROOT)/runtime -I../../upstream/okgf/include
 LIBDIRS := -L$(LIBNX)/lib -L$(PORTLIBS)/lib
@@ -114,6 +116,7 @@ $(BUILD)/$(TARGET).elf: $(OFILES) $(PLATFORM_OFILES) $(GAME_OFILES) $(OKGF_LIB)
 	$(CXX) $(OFILES) $(PLATFORM_OFILES) $(GAME_OFILES) $(LIBDIRS) $(LDFLAGS) $(LIBS) -o $@
 
 $(TARGET).nro: $(BUILD)/$(TARGET).elf $(NRO_ICON)
+	$(PYTHON) $(ICON_VALIDATOR) $(NRO_ICON)
 	$(ELF2NRO) $< $@ --nacp=SpaceRangersHDAWarApart.nacp --icon=$(NRO_ICON)
 
 clean:
