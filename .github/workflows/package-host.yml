@@ -23,6 +23,8 @@ jobs:
           port/switch/build/test_package_cycles
           g++ -std=c++20 -Wall -Wextra -Wpedantic -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_ec_file_synthetic.cpp port/switch/platform/package.cpp port/switch/platform/game_path.cpp port/switch/platform/user_root.cpp port/switch/platform/ec_file_adapter.cpp port/switch/platform/windows_imports_portable.cpp upstream/cpp/src/EC_File.cpp upstream/cpp/src/EC_Struct.cpp upstream/cpp/runtime/runtime.cpp -lz -o port/switch/build/test_ec_file_synthetic
           port/switch/build/test_ec_file_synthetic
+          g++ -std=c++20 -Wall -Wextra -Wpedantic -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_user_writable.cpp port/switch/platform/package.cpp port/switch/platform/game_path.cpp port/switch/platform/user_root.cpp port/switch/platform/ec_file_adapter.cpp port/switch/platform/windows_imports_portable.cpp upstream/cpp/src/EC_File.cpp upstream/cpp/src/EC_Struct.cpp upstream/cpp/runtime/runtime.cpp -lz -o port/switch/build/test_user_writable
+          port/switch/build/test_user_writable port/switch/build/m9-user-root
           g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_blockpar_synthetic.cpp $startup_sources -Wl,--gc-sections -lz -o port/switch/build/test_blockpar_synthetic
           port/switch/build/test_blockpar_synthetic
           git -C upstream/cpp apply ../../port/switch/platform/gr_main_portable.patch
