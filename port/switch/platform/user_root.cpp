@@ -46,7 +46,10 @@ std::string ResolveConfigPath(const std::string& path) {
   const std::filesystem::path input(normalized);
   if (!input.is_absolute() && input.has_root_name()) return {};
   const std::filesystem::path config = (g_root / "config").lexically_normal();
-  const std::filesystem::path resolved = (input.is_absolute() ? input : config / input).lexically_normal();
+  // GetGameUserDirectory() already supplies a config-root-relative path.  Do
+  // not append config/ again when that path reaches CreateNew/SaveTextFile.
+  const std::filesystem::path resolved =
+      (input.is_absolute() || IsContained(input, config) ? input : config / input).lexically_normal();
   return IsContained(resolved, config) ? resolved.generic_string() : std::string{};
 }
 
