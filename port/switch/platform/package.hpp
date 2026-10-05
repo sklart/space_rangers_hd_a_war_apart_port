@@ -18,6 +18,7 @@ class Package {
   const Entry* Resolve(const std::string& path) const;
   uint32_t OpenEntryByPath(const std::string& path, std::string* error);
   bool SeekEntry(uint32_t handle, uint64_t position, std::string* error);
+  bool SeekEntry(uint32_t handle, uint32_t offset, uint32_t origin, std::string* error);
   size_t ReadEntry(uint32_t handle, void* destination, size_t bytes, std::string* error);
   uint64_t GetEntryPosition(uint32_t handle) const;
   uint64_t GetEntrySize(uint32_t handle) const;
