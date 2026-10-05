@@ -60,6 +60,7 @@ int main() {
   std::string window_error;
   bool ok = !srhd_awa::platform::runtime_platform::CreateMainWindow(&uninitialized_platform, &window_error) &&
       uninitialized_platform.window_token == 0 && !uninitialized_platform.services_initialized;
+  if (!ok) std::fputs("platform startup: uninitialized-window guard failed\n", stderr);
   const std::filesystem::path root = "build/milestone7_startup";
   WriteConfigs(root, true, false);
   if (!WritePackage(root / "DATA" / "base.pkg", "base") || !WritePackage(root / "DATA" / "language.pkg", "language")) return 1;
@@ -67,14 +68,17 @@ int main() {
   srhd_awa::platform::startup_slice::State state;
   std::string error;
   ok = ok && srhd_awa::platform::startup_slice::Initialize(&state, root.string(), (root / "user").string(), (root / "startup.log").string(), &error);
+  if (!ok) std::fprintf(stderr, "platform startup: initial initialize failed: %s\n", error.c_str());
   ok = ok && state.platform.window_token != 0 && GR_Main::MainWindowHandle == state.platform.window_token &&
       GR_Main::PerformanceCounterFrequency > 0 && MessageText::QuestMessages != nullptr &&
       EC_HsFile::PackageCollection->GetPackByIndex(0)->UseLooseFiles && ReadMarker("language");
+  if (!ok) std::fputs("platform startup: initial runtime invariants failed\n", stderr);
   srhd_awa::platform::startup_slice::Shutdown(&state);
   ok = ok && Clean() && !state.platform.services_initialized;
   error.clear();
   ok = ok && srhd_awa::platform::startup_slice::Initialize(&state, root.string(), (root / "user").string(), (root / "startup.log").string(), &error) &&
       state.platform.window_token != 0 && ReadMarker("language");
+  if (!ok) std::fprintf(stderr, "platform startup: reinitialize failed: %s\n", error.c_str());
   srhd_awa::platform::startup_slice::Shutdown(&state);
   ok = ok && Clean();
 
@@ -82,17 +86,20 @@ int main() {
   std::filesystem::create_directories(no_install);
   error.clear();
   ok = ok && !srhd_awa::platform::startup_slice::Initialize(&state, no_install.string(), (no_install / "user").string(), (no_install / "startup.log").string(), &error) && Clean();
+  if (!ok) std::fprintf(stderr, "platform startup: missing-install guard failed: %s\n", error.c_str());
   const std::filesystem::path no_language = "build/milestone7_missing_language";
   WriteConfigs(no_language, false, false);
   WritePackage(no_language / "DATA" / "base.pkg", "base");
   error.clear();
   ok = ok && !srhd_awa::platform::startup_slice::Initialize(&state, no_language.string(), (no_language / "user").string(), (no_language / "startup.log").string(), &error) && Clean();
+  if (!ok) std::fprintf(stderr, "platform startup: missing-language guard failed: %s\n", error.c_str());
   const std::filesystem::path invalid = "build/milestone7_invalid_package";
   WriteConfigs(invalid, true, true);
   WritePackage(invalid / "DATA" / "language.pkg", "language");
   std::ofstream(invalid / "DATA" / "invalid.pkg") << "not a package";
   error.clear();
   ok = ok && !srhd_awa::platform::startup_slice::Initialize(&state, invalid.string(), (invalid / "user").string(), (invalid / "startup.log").string(), &error) && Clean();
+  if (!ok) std::fprintf(stderr, "platform startup: invalid-package guard failed: %s\n", error.c_str());
 
   std::filesystem::remove_all(root); std::filesystem::remove_all(no_install);
   std::filesystem::remove_all(no_language); std::filesystem::remove_all(invalid);
