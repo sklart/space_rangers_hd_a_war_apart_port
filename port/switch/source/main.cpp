@@ -61,11 +61,15 @@ bool ReadRequiredAsset(const char* root) {
     return false;
   }
   const std::uint32_t payload_crc = CrcUnit::ComputeCrc32(payload.data(), static_cast<std::int32_t>(payload.size()));
+  const bool baseline_ok = tree.folders == 51 && tree.files == 1890 && tree.entries == 1940 &&
+      tree.max_depth == 4 && tree.tree_hash == UINT64_C(0x9c74d6b37be3edd2) &&
+      entry->kind == 2 && payload.size() == 246863 && payload_crc == 0x045269e4u;
   Log("[PACKAGE] PASS folders=%lu files=%lu entries=%lu depth=%lu tree_hash=%016llx selected=DATA/Asteroid/00.gai kind=%ld size=%lu crc32=%08lx",
       static_cast<unsigned long>(tree.folders), static_cast<unsigned long>(tree.files),
       static_cast<unsigned long>(tree.entries), static_cast<unsigned long>(tree.max_depth), static_cast<unsigned long long>(tree.tree_hash),
       static_cast<long>(entry->kind), static_cast<unsigned long>(payload.size()), static_cast<unsigned long>(payload_crc));
-  return true;
+  Log("[SELFTEST] %s package baseline", baseline_ok ? "PASS" : "FAIL");
+  return baseline_ok;
 }
 }  // namespace
 
