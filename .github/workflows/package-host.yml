@@ -5,7 +5,7 @@ on:
   pull_request:
 
 jobs:
-  corrupt-package:
+  host-regression:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,5 +21,7 @@ jobs:
           port/switch/build/test_package_cycles
           g++ -std=c++20 -Wall -Wextra -Wpedantic -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_ec_file_synthetic.cpp port/switch/platform/package.cpp port/switch/platform/ec_file_adapter.cpp port/switch/platform/windows_imports_portable.cpp upstream/cpp/src/EC_File.cpp upstream/cpp/src/EC_Struct.cpp upstream/cpp/runtime/runtime.cpp -lz -o port/switch/build/test_ec_file_synthetic
           port/switch/build/test_ec_file_synthetic
+          g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_blockpar_synthetic.cpp port/switch/platform/package.cpp port/switch/platform/ec_file_adapter.cpp port/switch/platform/windows_imports_portable.cpp port/switch/platform/gr_main_package_config_shim.cpp upstream/cpp/src/CrcUnit.cpp upstream/cpp/src/BlockParException.cpp upstream/cpp/src/EC_File.cpp upstream/cpp/src/EC_Struct.cpp upstream/cpp/src/EC_Buf.cpp upstream/cpp/src/EC_BlockPar.cpp upstream/cpp/src/EC_Str.cpp upstream/cpp/src/EC_Mem.cpp upstream/cpp/src/aPacket.cpp upstream/cpp/runtime/runtime.cpp -Wl,--gc-sections -lz -o port/switch/build/test_blockpar_synthetic
+          port/switch/build/test_blockpar_synthetic
           g++ -std=c++20 -Wall -Wextra -Wpedantic -Iport/switch/platform tests/test_zl02_synthetic.cpp port/switch/platform/package.cpp -lz -o port/switch/build/test_zl02_synthetic
           port/switch/build/test_zl02_synthetic
