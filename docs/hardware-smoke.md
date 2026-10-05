@@ -1,12 +1,18 @@
-# Evening Switch smoke
+# M10 Switch hardware baseline
 
-1. Скопируйте `port/switch/SpaceRangersHDAWarApart.nro` в
-   `sdmc:/switch/space-rangers-hd-a-war-apart/`.
-2. Убедитесь, что собственная установленная игра находится в `game/DATA/`
-   рядом с NRO.
-3. Запустите NRO один раз и дождитесь возврата в меню/окно.
-4. Пришлите единственный файл
-   `sdmc:/switch/space-rangers-hd-a-war-apart/port.log`.
+## Первичная установка
+
+1. Создайте `sdmc:/switch/space-rangers-hd-a-war-apart/`.
+2. Скопируйте всю оригинальную игру в `game/`.
+3. Скопируйте `SpaceRangersHDAWarApart.nro` в корень каталога.
+
+## Каждый следующий тест
+
+Заменяйте только `SpaceRangersHDAWarApart.nro`; `game/` не трогайте.
+
+После запуска заберите `logs/port.log`. Сообщите, появилась ли diagnostic
+frame с линиями и треугольником, нормальны ли цвета и aspect ratio, и вернулся
+ли NRO самостоятельно в hbmenu.
 
 Ожидаются строки `[BOOT]`, `[PLATFORM]`, `[FILESYSTEM]`, `[PACKAGE]`,
 `[RESOURCE]`, `[OKGF]`. Для baseline пакета package log должен содержать

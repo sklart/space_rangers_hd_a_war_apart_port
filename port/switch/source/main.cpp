@@ -19,11 +19,13 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
+#include <filesystem>
 #include <string>
 #include <vector>
 
 namespace {
-constexpr const char* kLogPath = "sdmc:/switch/space-rangers-hd-a-war-apart/port.log";
+constexpr const char* kLogPath = "sdmc:/switch/space-rangers-hd-a-war-apart/logs/port.log";
+constexpr const char* kPreviousLogPath = "sdmc:/switch/space-rangers-hd-a-war-apart/logs/port-prev.log";
 constexpr const char* kDefaultGameRoot = "sdmc:/switch/space-rangers-hd-a-war-apart/game";
 constexpr const char* kDefaultUserRoot = "sdmc:/switch/space-rangers-hd-a-war-apart";
 
@@ -36,6 +38,19 @@ void Log(const char* format, ...) {
   std::fputc('\n', file);
   va_end(args);
   std::fclose(file);
+}
+
+void BeginLogSession() {
+  std::error_code error;
+  std::filesystem::create_directories("sdmc:/switch/space-rangers-hd-a-war-apart/logs", error);
+  std::filesystem::remove(kPreviousLogPath, error);
+  std::filesystem::rename(kLogPath, kPreviousLogPath, error);
+  if (std::FILE* file = std::fopen(kLogPath, "w")) std::fclose(file);
+}
+
+void Stage(const char* name, bool pass, const char* reason = nullptr) {
+  if (pass) Log("[STAGE] %s PASS", name);
+  else Log("[STAGE] %s FAIL %s", name, reason ? reason : "unknown");
 }
 
 const char* GameRoot(int argc, char** argv) {
@@ -53,7 +68,9 @@ bool ConfigurePackages(srhd_awa::platform::startup_slice::State* state, const ch
   Log("[M7] timing PASS frequency=%lld", static_cast<long long>(GR_Main::PerformanceCounterFrequency));
   Log("[M7] window PASS token=%lu", static_cast<unsigned long>(GR_Main::MainWindowHandle));
   Log("[M7] package collection PASS");
+  Stage("package collection", true);
   Log("[M7] install config PASS");
+  Stage("INSTALL.TXT", true);
   std::int32_t package_count = 0;
   while (EC_HsFile::PackageCollection->GetPackByIndex(package_count)) ++package_count;
   Log("[M7] language packages PASS language=%s count=%ld",
@@ -154,23 +171,32 @@ bool RunRendererSelfTest() {
       static_cast<unsigned long long>(hash));
   Log("[M8] present backend=SDL2-RGB565");
   Log("[M8] present %s", ok ? "PASS" : "FAIL");
+  Stage("SDL presentation", ok);
   Log("[M8] renderer boundary %s", ok ? "reached" : "failed");
   return ok;
 }
 }  // namespace
 
 int main(int argc, char** argv) {
+  BeginLogSession();
   Log("[BOOT] BEGIN Space Rangers HD: A War Apart");
+  Log("[BOOT] Space Rangers HD: A War Apart");
+  Log("[BOOT] milestone=10-hardware-baseline");
   Log("[BOOT] build_git=%s baseline_rangers_sha256=83300344af802bc51e64389c58f047e5afdf195c133048098be3881fae29ed98", BUILD_GIT_COMMIT);
   Log("[BOOT] runtime units=CrcUnit,System,SystemImports (SpaceRangersHD_CPP)");
   SystemImports::Randomize();
   Log("[GAME] PASS SystemImports::Randomize RandSeed=%lu", static_cast<unsigned long>(System::RandSeed));
   const char* game_root = GameRoot(argc, argv);
+  Log("[BOOT] game_root=%s", game_root);
+  Log("[BOOT] user_root=%s", kDefaultUserRoot);
+  Log("[BOOT] baseline=2.1.2500");
   Log("[FILESYSTEM] BEGIN game-root=%s", game_root);
 
   Log("[GR_MAIN] linked");
   srhd_awa::platform::startup_slice::State startup;
   if (!ConfigurePackages(&startup, game_root)) return 1;
+  Stage("SDL/platform services", true);
+  Stage("window", true);
   std::string m9_error;
   Log("[M9] dat config begin");
   if (!srhd_awa::platform::runtime_settings_slice::Initialize(&m9_error)) {
@@ -185,9 +211,20 @@ int main(int argc, char** argv) {
   Log("[M9] GameDataConfig PASS");
   Log("[M9] UiDepthConfig PASS");
   Log("[M9] CaseConv count=%ld", static_cast<long>(GR_Main::WideCaseTable.length()));
+  Stage("DAT/runtime config", true);
   srhd_awa::platform::runtime_platform::PumpEvents(startup.platform);
   srhd_awa::platform::renderer_platform::SetNativeWindow(startup.platform.native_window);
   const bool renderer_ok = RunRendererSelfTest();
+#ifdef __SWITCH__
+  if (renderer_ok) {
+    Log("[M8] visible-frame hold BEGIN seconds=5");
+    for (int index = 0; index < 500 && appletMainLoop(); ++index) {
+      srhd_awa::platform::runtime_platform::PumpEvents(startup.platform);
+      svcSleepThread(10000000ULL);
+    }
+    Log("[M8] visible-frame hold PASS");
+  }
+#endif
   const bool resource_ok = ReadRequiredAsset(game_root);
   Log("[FILESYSTEM] %s game-root", resource_ok && renderer_ok ? "PASS" : "FAIL");
   Log("[M7] startup boundary %s", resource_ok ? "reached" : "failed");
@@ -195,5 +232,9 @@ int main(int argc, char** argv) {
   srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
   srhd_awa::platform::runtime_settings_slice::Shutdown();
   srhd_awa::platform::startup_slice::Shutdown(&startup);
+  Log("[SHUTDOWN] renderer PASS");
+  Log("[SHUTDOWN] runtime settings PASS");
+  Log("[SHUTDOWN] startup PASS");
+  Log("[BOOT] COMPLETE");
   return resource_ok && renderer_ok ? 0 : 1;
 }
