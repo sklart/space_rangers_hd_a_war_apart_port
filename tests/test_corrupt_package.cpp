@@ -23,24 +23,24 @@ int main() {
   bool ok = true;
   ok &= check(write_bytes(path, {4, 0, 0}), "short root pointer") && check(rejected(path), "short root rejection");
   ok &= check(write_bytes(path, {0xff, 0xff, 0xff, 0x7f}), "root eof") && check(rejected(path), "root eof rejection");
-  { FILE* f = std::fopen(path, "wb"); u32(f, 4); u32(f, 170); std::fclose(f); ok &= check(rejected(path), "truncated header"); }
+  auto write = [&](const auto& emit) { FILE* f = std::fopen(path, "wb"); if (!f) return false; emit(f); std::fclose(f); return true; };
+  ok &= check(write([&](FILE* f) { u32(f, 4); u32(f, 170); }), "truncated header write") && check(rejected(path), "truncated header");
   for (const auto& c : std::vector<std::pair<uint32_t, uint32_t>>{{11, 158}, {170, 157}, {0xffffffffu, 158}, {0, 158}}) {
-    FILE* f = std::fopen(path, "wb"); u32(f, 4); folder(f, 0, c.second, c.first); std::fclose(f); ok &= check(rejected(path), "invalid header fields");
+    ok &= check(write([&](FILE* f) { u32(f, 4); folder(f, 0, c.second, c.first); }), "invalid header write") && check(rejected(path), "invalid header fields");
   }
-  { FILE* f = std::fopen(path, "wb"); u32(f, 4); folder(f, 0xffffffffu); std::fclose(f); ok &= check(rejected(path), "huge count"); }
-  { FILE* f = std::fopen(path, "wb"); u32(f, 4); folder(f, 1); std::fclose(f); ok &= check(rejected(path), "truncated entry"); }
-  { FILE* f = std::fopen(path, "wb"); u32(f, 4); folder(f, 1); entry(f, "A", 3, 0xfffffff0u); std::fclose(f); ok &= check(rejected(path), "child eof"); }
-  { FILE* f = std::fopen(path, "wb"); u32(f, 4); folder(f, 1); entry(f, "A", 3, 4); std::fclose(f); ok &= check(rejected(path), "self cycle"); }
-  { FILE* f = std::fopen(path, "wb"); u32(f, 4); folder(f, 1); entry(f, "A", 3, 174); folder(f, 1); entry(f, "B", 3, 4); std::fclose(f); ok &= check(rejected(path), "indirect cycle"); }
+  ok &= check(write([&](FILE* f) { u32(f, 4); folder(f, 0xffffffffu); }), "huge count write") && check(rejected(path), "huge count");
+  ok &= check(write([&](FILE* f) { u32(f, 4); folder(f, 1); }), "truncated entry write") && check(rejected(path), "truncated entry");
+  ok &= check(write([&](FILE* f) { u32(f, 4); folder(f, 1); entry(f, "A", 3, 0xfffffff0u); }), "child eof write") && check(rejected(path), "child eof");
+  ok &= check(write([&](FILE* f) { u32(f, 4); folder(f, 1); entry(f, "A", 3, 4); }), "self cycle write") && check(rejected(path), "self cycle");
+  ok &= check(write([&](FILE* f) { u32(f, 4); folder(f, 1); entry(f, "A", 3, 174); folder(f, 1); entry(f, "B", 3, 4); }), "indirect cycle write") && check(rejected(path), "indirect cycle");
   for (int variant = 0; variant != 8; ++variant) {
-    FILE* f = std::fopen(path, "wb"); u32(f, 4); folder(f, 1); entry(f, "FILE", 2, 174, variant == 7 ? 0xffffffffu : 1); u32(f, 0);
-    if (variant == 1) u32(f, 7);
-    if (variant == 2) u32(f, 80000);
-    if (variant == 3) { u32(f, 8); std::fwrite("NOPE", 1, 4, f); u32(f, 1); }
-    if (variant == 4) { u32(f, 8); std::fwrite("ZL02", 1, 4, f); u32(f, 2); }
-    if (variant == 5) { u32(f, 8); std::fwrite("ZL02", 1, 4, f); u32(f, 1); }
-    if (variant == 6) { u32(f, 10); std::fwrite("ZL02", 1, 4, f); u32(f, 1); std::fputc(0, f); std::fputc(0, f); }
-    std::fclose(f); ok &= check(payload_rejected(path), "compressed corruption");
+    ok &= check(write([&](FILE* f) { u32(f, 4); folder(f, 1); entry(f, "FILE", 2, 174, variant == 7 ? 0xffffffffu : 1); u32(f, 0);
+      if (variant == 1) { u32(f, 7); }
+      if (variant == 2) { u32(f, 80000); }
+      if (variant == 3) { u32(f, 8); std::fwrite("NOPE", 1, 4, f); u32(f, 1); }
+      if (variant == 4) { u32(f, 8); std::fwrite("ZL02", 1, 4, f); u32(f, 2); }
+      if (variant == 5) { u32(f, 8); std::fwrite("ZL02", 1, 4, f); u32(f, 1); }
+      if (variant == 6) { u32(f, 10); std::fwrite("ZL02", 1, 4, f); u32(f, 1); std::fputc(0, f); std::fputc(0, f); } }), "compressed write") && check(payload_rejected(path), "compressed corruption");
   }
   std::remove(path); if (ok) std::puts("corrupt package suite passed"); return ok ? 0 : 1;
 }

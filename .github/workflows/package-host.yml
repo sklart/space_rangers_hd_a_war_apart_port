@@ -14,7 +14,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y zlib1g-dev
       - name: Build and run asset-free corrupt package regression
         run: |
-          mkdir -p port/switch/build
+          mkdir -p build port/switch/build
           g++ -std=c++20 -Wall -Wextra -Wpedantic -Iport/switch/platform tests/test_corrupt_package.cpp port/switch/platform/package.cpp -lz -o port/switch/build/test_corrupt_package
           port/switch/build/test_corrupt_package
           g++ -std=c++20 -Wall -Wextra -Wpedantic -Iport/switch/platform tests/test_package_cycles.cpp port/switch/platform/package.cpp -lz -o port/switch/build/test_package_cycles
