@@ -1,19 +1,17 @@
 #include "ec_file_adapter.hpp"
+#include "game_path.hpp"
 #include "package.hpp"
 #include "units/EC_HsFile.hpp"
 
-#include <algorithm>
 #include <array>
 #include <cstdio>
 #include <cstdlib>
-#include <filesystem>
 #include <memory>
 #include <unordered_map>
 
 namespace {
 EC_HsFile::TPackCollectionEC g_collection;
 pas::CriticalSection g_lock;
-std::string g_game_root;
 
 struct OpenSlot {
   FILE* loose_file{};
@@ -27,55 +25,6 @@ struct PackState {
   bool opened{};
 };
 std::unordered_map<EC_HsFile::TPackFileEC*, PackState> g_pack_states;
-
-std::string NormalizeRelative(std::string path) {
-  std::replace(path.begin(), path.end(), '\\', '/');
-  const std::filesystem::path input(path);
-  if (input.is_absolute() || input.has_root_name()) return {};
-  std::filesystem::path result;
-  for (const auto& component : input) {
-    if (component == "." || component.empty()) continue;
-    const auto name = component.generic_string();
-    if (component == ".." || component.is_absolute() || name.find(':') != std::string::npos) return {};
-    result /= component;
-  }
-  return result.generic_string();
-}
-
-bool EqualsAsciiInsensitive(const std::string& left, const std::string& right) {
-  if (left.size() != right.size()) return false;
-  for (size_t index = 0; index < left.size(); ++index) {
-    const auto fold = [](unsigned char value) {
-      return value >= 'a' && value <= 'z' ? static_cast<unsigned char>(value - 'a' + 'A') : value;
-    };
-    if (fold(left[index]) != fold(right[index])) return false;
-  }
-  return true;
-}
-
-std::string ResolveLoosePath(const char* path) {
-  const std::string relative = NormalizeRelative(path ? path : "");
-  if (relative.empty() || g_game_root.empty()) return {};
-  std::filesystem::path resolved(g_game_root);
-  for (const auto& component : std::filesystem::path(relative)) {
-    const auto direct = resolved / component;
-    if (std::filesystem::exists(direct)) {
-      resolved = direct;
-      continue;
-    }
-    std::error_code error;
-    bool matched = false;
-    for (const auto& entry : std::filesystem::directory_iterator(resolved, error)) {
-      if (EqualsAsciiInsensitive(entry.path().filename().string(), component.string())) {
-        resolved = entry.path();
-        matched = true;
-        break;
-      }
-    }
-    if (error || !matched) return direct.string();
-  }
-  return resolved.string();
-}
 
 PackState* State(EC_HsFile::TPackFileEC* pack) {
   const auto it = g_pack_states.find(pack);
@@ -133,9 +82,8 @@ std::uint8_t TPackFileEC::Open() {
   auto* state = State(this);
   if (!state) return false;
   if (!UseLooseFiles) {
-    const std::filesystem::path requested(PackagePath.c_str());
-    const std::string path = requested.is_absolute() ? requested.string() :
-        g_game_root.empty() ? requested.string() : ResolveLoosePath(PackagePath.c_str());
+    const std::string resolved = srhd_awa::platform::game_path::Resolve(PackagePath.c_str());
+    const std::string path = resolved.empty() ? PackagePath.c_str() : resolved;
     if (!state->package) state->package = std::make_unique<srhd_awa::package::Package>();
     std::string error;
     if (path.empty() || !state->package->Open(path, &error)) {
@@ -170,7 +118,7 @@ std::int32_t TPackFileEC::OpenEntryByPath(pas::AnsiString path, std::uint32_t) {
   if (!state || !state->opened || slot < 0) return -1;
   OpenSlot& open = state->slots[slot];
   if (UseLooseFiles) {
-    const std::string file_path = ResolveLoosePath(path.c_str());
+    const std::string file_path = srhd_awa::platform::game_path::Resolve(path.c_str());
     if (file_path.empty() || !(open.loose_file = std::fopen(file_path.c_str(), "rb"))) return -1;
     if (std::fseek(open.loose_file, 0, SEEK_END) != 0 || (open.size = std::ftell(open.loose_file)) == UINT64_MAX || std::fseek(open.loose_file, 0, SEEK_SET) != 0) {
       std::fclose(open.loose_file); open = {}; return -1;
@@ -370,7 +318,7 @@ namespace srhd_awa::platform::ec_file {
 bool OpenPackage(const std::string& path, std::string* error) {
   return OpenPackages({path}, error);
 }
-void SetGameRoot(const std::string& game_root) { g_game_root = game_root; }
+void SetGameRoot(const std::string& game_root) { srhd_awa::platform::game_path::SetRoot(game_root); }
 bool OpenPackages(const std::vector<std::string>& paths, std::string* error) {
   ClosePackage();
   if (paths.empty()) {

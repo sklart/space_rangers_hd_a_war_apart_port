@@ -7,7 +7,11 @@
 #include "filesystem.hpp"
 #include "package.hpp"
 #include "ec_file_adapter.hpp"
+#include "units/EC_BlockPar.hpp"
 #include "units/EC_File.hpp"
+#include "units/EC_HsFile.hpp"
+#include "units/GR_Main.hpp"
+#include "units/aPacket.hpp"
 
 #include <cstdarg>
 #include <cstdio>
@@ -33,6 +37,29 @@ void Log(const char* format, ...) {
 const char* GameRoot(int argc, char** argv) {
   if (argc > 1 && argv[1] && argv[1][0] != '\0') return argv[1];
   return kDefaultGameRoot;
+}
+
+bool ConfigurePackages(const char* root) {
+  srhd_awa::platform::ec_file::SetGameRoot(root);
+  if (!aPacket::InitializePackageCollection()) {
+    Log("[GR_MAIN_CONFIG] FAIL package collection initialization");
+    return false;
+  }
+
+  GR_Main::InstallConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
+  GR_Main::InstallConfig->LoadFromTextFileWithEncodingProbe(const_cast<char16_t*>(u"install.txt"), false);
+  pas::text_assign(GR_Main::SessionLog, kLogPath, false);
+  GR_Main::SelectedLanguage = u"russian"_w;
+  GR_Main::RequestedLanguage = pas::WideString();
+  GR_Main::SkipModsOnReload = false;
+
+  Log("[GR_MAIN_CONFIG] begin");
+  GR_Main::LoadLanguageAndPackages();
+  std::int32_t package_count = 0;
+  while (EC_HsFile::PackageCollection->GetPackByIndex(package_count)) ++package_count;
+  Log("[GR_MAIN_LANGUAGE] %s", GR_Main::SelectedLanguage == u"russian" ? "russian" : "unexpected");
+  Log("[GR_MAIN_PACKAGES] count=%ld", static_cast<long>(package_count));
+  return true;
 }
 
 bool ReadRequiredAsset(const char* root) {
@@ -63,10 +90,6 @@ bool ReadRequiredAsset(const char* root) {
     return false;
   }
   const std::uint32_t payload_crc = CrcUnit::ComputeCrc32(payload.data(), static_cast<std::int32_t>(payload.size()));
-  if (!srhd_awa::platform::ec_file::OpenPackage(std::string(root) + "/DATA/common.pkg", &package_error)) {
-    Log("[EC_FILE] FAIL adapter open error=%s", package_error.c_str());
-    return false;
-  }
   EC_File::TFileEC file{};
   EC_File::TFileEC_Create(&file);
   file.SetFileName(pas::WideString(u"data\\asteroid\\00.GAI"));
@@ -79,7 +102,6 @@ bool ReadRequiredAsset(const char* root) {
   if (seek_ok) file.ReadBuffer(ec_tail, sizeof(ec_tail));
   if (opened) file.ReleaseHandle();
   EC_File::TFileEC_Destroy(&file);
-  srhd_awa::platform::ec_file::ClosePackage();
   const bool ec_ok = opened && ec_size == payload.size() && ec_payload == payload && seek_ok &&
       std::memcmp(ec_tail, payload.data() + payload.size() - sizeof(ec_tail), sizeof(ec_tail)) == 0;
   Log("[EC_FILE] %s open=%u size=%lu read=%lu seek=%u crc32=%08lx", ec_ok ? "PASS" : "FAIL", opened ? 1u : 0u,
@@ -93,6 +115,7 @@ bool ReadRequiredAsset(const char* root) {
       static_cast<unsigned long>(tree.entries), static_cast<unsigned long>(tree.max_depth), static_cast<unsigned long long>(tree.tree_hash),
       static_cast<long>(entry->kind), static_cast<unsigned long>(payload.size()), static_cast<unsigned long>(payload_crc));
   Log("[SELFTEST] %s package baseline", baseline_ok ? "PASS" : "FAIL");
+  Log("[GR_MAIN_RESOURCE] %s", ec_ok ? "PASS" : "FAIL");
   return baseline_ok && ec_ok;
 }
 }  // namespace
@@ -105,6 +128,9 @@ int main(int argc, char** argv) {
   Log("[GAME] PASS SystemImports::Randomize RandSeed=%lu", static_cast<unsigned long>(System::RandSeed));
   const char* game_root = GameRoot(argc, argv);
   Log("[FILESYSTEM] BEGIN game-root=%s", game_root);
+
+  Log("[GR_MAIN] linked");
+  if (!ConfigurePackages(game_root)) return 1;
 
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) != 0) {
     Log("[PLATFORM] FAIL SDL_Init=%s", SDL_GetError());

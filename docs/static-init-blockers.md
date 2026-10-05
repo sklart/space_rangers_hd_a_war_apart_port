@@ -1,17 +1,19 @@
-# Static initialization blockers after the EC_File slice
+# Static initialization boundary after the GR_Main configuration slice
 
-Milestone 4 deliberately does not link `GR_Main.cpp`. The first real resource
-operation is now `TFileEC` over `DATA/common.pkg`; no game global or
-`GR_Main` static initializer is required for that path.
+Milestone 6 links the unmodified translated `GR_Main.cpp`, but section GC
+retains only the executed configuration route: `AppendLogLineThreadSafe`,
+`LoadSelectedModInstallBlocks`, and `LoadLanguageAndPackages`, together with
+their globals. The unit's static initialization did not make a window,
+Direct3D, DirectSound, registry, Steam, or threads mandatory.
 
-The next attempted game-owned startup route is `GR_Main::InitializePlatformRuntime`.
-Its reached dependencies are Win32 window registration/creation, DirectSound,
-registry-backed configuration and later the configured package collection.
-Those are not individual missing imports that can safely be stubbed: linking
-the unit would trigger the static/UI initialization avalanche described by the
-dependency map. They remain out of scope for Milestone 4.
+`GR_Main::InitializePlatformRuntimeAndMainWindow` remains discarded from the
+final ELF. It is still the next broad boundary: the function combines DLL
+loading, window registration/creation, Direct3D, DirectSound, COM, timer,
+Forms, package initialization and base configuration loading. M6 deliberately
+does not call it or emulate its Win32 subsystem.
 
-The next narrow investigation should isolate the configuration and
-`aPacket::LoadConfiguredPackages` resource branch before any window, audio or
-registry initialization. No `GR_Main` code was added to the NRO for this
-milestone.
+The remaining three small registry return-value hooks are only translation
+linkage for discarded legacy failure branches; they are not reached by the
+configuration slice and do not model registry behaviour. The game-root path
+resolver and `SysUtilsImports::FileExists` are portable filesystem operations,
+not a Win32 compatibility layer.

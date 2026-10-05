@@ -9,10 +9,11 @@ supplies the `EC_HsFile::TPackCollectionEC` backend used by real `EC_File`.
 order: language mods, language, mods, base install. Later collection entries
 are therefore lower-priority during `OpenEntryByPathAcrossPackages` traversal.
 
-`gr_main_package_config_shim.cpp` owns only the four configuration globals and
-minimal unreachable failure-path hooks demanded by the translated units. It is
-not `GR_Main.cpp`: it creates no native window, registry/Steam integration,
-audio or renderer.
+Historical note: M5 used `gr_main_package_config_shim.cpp` for the four
+configuration globals and unreachable failure-path hooks. M6 removes that
+shim from the active build: the real globals and configuration functions now
+come from `GR_Main.cpp`, still without window, registry/Steam, audio or
+renderer startup.
 
 Validation:
 

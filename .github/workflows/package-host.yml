@@ -15,13 +15,18 @@ jobs:
       - name: Build and run asset-free corrupt package regression
         run: |
           mkdir -p build port/switch/build
+          startup_sources="port/switch/platform/package.cpp port/switch/platform/game_path.cpp port/switch/platform/ec_file_adapter.cpp port/switch/platform/windows_imports_portable.cpp port/switch/platform/sysutils_imports_portable.cpp port/switch/platform/runtime_failure_hooks_portable.cpp upstream/cpp/src/CrcUnit.cpp upstream/cpp/src/BlockParException.cpp upstream/cpp/src/EC_File.cpp upstream/cpp/src/EC_Struct.cpp upstream/cpp/src/EC_Buf.cpp upstream/cpp/src/EC_BlockPar.cpp upstream/cpp/src/EC_Str.cpp upstream/cpp/src/EC_Mem.cpp upstream/cpp/src/aPacket.cpp upstream/cpp/src/GR_Main.cpp upstream/cpp/runtime/runtime.cpp"
           g++ -std=c++20 -Wall -Wextra -Wpedantic -Iport/switch/platform tests/test_corrupt_package.cpp port/switch/platform/package.cpp -lz -o port/switch/build/test_corrupt_package
           port/switch/build/test_corrupt_package
           g++ -std=c++20 -Wall -Wextra -Wpedantic -Iport/switch/platform tests/test_package_cycles.cpp port/switch/platform/package.cpp -lz -o port/switch/build/test_package_cycles
           port/switch/build/test_package_cycles
-          g++ -std=c++20 -Wall -Wextra -Wpedantic -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_ec_file_synthetic.cpp port/switch/platform/package.cpp port/switch/platform/ec_file_adapter.cpp port/switch/platform/windows_imports_portable.cpp upstream/cpp/src/EC_File.cpp upstream/cpp/src/EC_Struct.cpp upstream/cpp/runtime/runtime.cpp -lz -o port/switch/build/test_ec_file_synthetic
+          g++ -std=c++20 -Wall -Wextra -Wpedantic -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_ec_file_synthetic.cpp port/switch/platform/package.cpp port/switch/platform/game_path.cpp port/switch/platform/ec_file_adapter.cpp port/switch/platform/windows_imports_portable.cpp upstream/cpp/src/EC_File.cpp upstream/cpp/src/EC_Struct.cpp upstream/cpp/runtime/runtime.cpp -lz -o port/switch/build/test_ec_file_synthetic
           port/switch/build/test_ec_file_synthetic
-          g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_blockpar_synthetic.cpp port/switch/platform/package.cpp port/switch/platform/ec_file_adapter.cpp port/switch/platform/windows_imports_portable.cpp port/switch/platform/gr_main_package_config_shim.cpp upstream/cpp/src/CrcUnit.cpp upstream/cpp/src/BlockParException.cpp upstream/cpp/src/EC_File.cpp upstream/cpp/src/EC_Struct.cpp upstream/cpp/src/EC_Buf.cpp upstream/cpp/src/EC_BlockPar.cpp upstream/cpp/src/EC_Str.cpp upstream/cpp/src/EC_Mem.cpp upstream/cpp/src/aPacket.cpp upstream/cpp/runtime/runtime.cpp -Wl,--gc-sections -lz -o port/switch/build/test_blockpar_synthetic
+          g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_blockpar_synthetic.cpp $startup_sources -Wl,--gc-sections -lz -o port/switch/build/test_blockpar_synthetic
           port/switch/build/test_blockpar_synthetic
+          g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_gr_main_no_mod_startup.cpp $startup_sources -Wl,--gc-sections -lz -o port/switch/build/test_gr_main_no_mod_startup
+          port/switch/build/test_gr_main_no_mod_startup
+          g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_gr_main_config_startup.cpp $startup_sources -Wl,--gc-sections -lz -o port/switch/build/test_gr_main_config_startup
+          port/switch/build/test_gr_main_config_startup
           g++ -std=c++20 -Wall -Wextra -Wpedantic -Iport/switch/platform tests/test_zl02_synthetic.cpp port/switch/platform/package.cpp -lz -o port/switch/build/test_zl02_synthetic
           port/switch/build/test_zl02_synthetic
