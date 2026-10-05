@@ -16,10 +16,17 @@ class Package {
  public:
   bool Open(const std::string& path, std::string* error);
   const Entry* Resolve(const std::string& path) const;
+  uint32_t OpenEntryByPath(const std::string& path, std::string* error);
+  bool SeekEntry(uint32_t handle, uint64_t position, std::string* error);
+  size_t ReadEntry(uint32_t handle, void* destination, size_t bytes, std::string* error);
+  uint64_t GetEntryPosition(uint32_t handle) const;
+  uint64_t GetEntrySize(uint32_t handle) const;
+  void CloseEntry(uint32_t handle);
   bool ReadPayload(const Entry& entry, std::vector<uint8_t>* out, std::string* error);
   Summary Summarize() const;
  private:
+  struct OpenEntry { const Entry* entry{}; uint64_t position{}; bool open{}; };
   bool LoadFolder(uint32_t offset, Folder* folder, uint32_t depth, std::string* error);
-  std::unique_ptr<Folder> root_; std::string path_; uint64_t size_{};
+  std::unique_ptr<Folder> root_; std::string path_; uint64_t size_{}; std::vector<OpenEntry> open_entries_;
 };
 }  // namespace srhd_awa::package
