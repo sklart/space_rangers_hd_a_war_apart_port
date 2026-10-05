@@ -72,11 +72,15 @@ host-package-test: | $(BUILD)
 	$(BUILD)/test_package_probe "../../windows/Space Rangers HD A War Apart"
 
 host-package-tree-test: | $(BUILD)
-	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_package_tree.cpp platform/package.cpp -o $(BUILD)/test_package_tree
+	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_package_tree.cpp platform/package.cpp -lz -o $(BUILD)/test_package_tree
 	$(BUILD)/test_package_tree "../../windows/Space Rangers HD A War Apart"
 
 host-package-payload-test:
 	python ../../tests/test_package_payload.py "../../windows/Space Rangers HD A War Apart"
+
+host-package-payload-cpp-test: | $(BUILD)
+	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_package_payload_cpp.cpp platform/package.cpp -lz -o $(BUILD)/test_package_payload_cpp
+	$(BUILD)/test_package_payload_cpp "../../windows/Space Rangers HD A War Apart"
 
 host-corrupt-package-test: | $(BUILD)
 	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_corrupt_package.cpp platform/package.cpp -o $(BUILD)/test_corrupt_package
