@@ -95,6 +95,26 @@ std::vector<std::uint8_t> BuildDat(const std::vector<std::uint8_t>& decoded, std
   return result;
 }
 
+std::vector<std::uint8_t> BuildRawDat(std::vector<std::uint8_t> encoded, std::uint32_t seed_key) {
+  const std::uint32_t inner_crc = crc32(0, encoded.data(), static_cast<uInt>(encoded.size()));
+  constexpr std::int32_t seed = 12345;
+  ApplyDatCipher(&encoded, seed);
+  std::vector<std::uint8_t> payload;
+  AppendU32(&payload, inner_crc);
+  AppendU32(&payload, static_cast<std::uint32_t>(seed) ^ seed_key);
+  payload.insert(payload.end(), encoded.begin(), encoded.end());
+  const std::uint32_t first_crc = crc32(0, payload.data(), static_cast<uInt>(payload.size())) ^ kCrcKey1;
+  std::vector<std::uint8_t> outer_crc_input;
+  AppendU32(&outer_crc_input, first_crc);
+  outer_crc_input.insert(outer_crc_input.end(), payload.begin(), payload.end());
+  const std::uint32_t outer_crc = crc32(0, outer_crc_input.data(), static_cast<uInt>(outer_crc_input.size())) ^ kCrcKey2;
+  std::vector<std::uint8_t> result;
+  AppendU32(&result, static_cast<std::uint32_t>(payload.size()) ^ kCrcKey1 ^ kCrcKey2);
+  AppendU32(&result, outer_crc);
+  result.insert(result.end(), payload.begin(), payload.end());
+  return result;
+}
+
 bool WriteFile(const std::filesystem::path& path, const std::vector<std::uint8_t>& bytes) {
   if (FILE* file = std::fopen(path.string().c_str(), "wb")) {
     const bool ok = std::fwrite(bytes.data(), 1, bytes.size(), file) == bytes.size();
@@ -116,6 +136,16 @@ bool LoadRejectedDatKeepsBlock(const std::filesystem::path& path,
   }
   return GR_Main::CCInterface->GetResourceChecksumFailed() &&
       block->GetParam(u"Name"sv) == u"Value";
+}
+
+bool RejectsMalformedDat(const std::filesystem::path& path,
+                         const std::vector<std::uint8_t>& bytes) {
+  if (!WriteFile(path, bytes)) return false;
+  GR_Main::CCInterface->SetResourceChecksumFailed(false);
+  bool raised = false;
+  try { block->LoadFromEncryptedDatFile(pas::WideString(path.filename().string().c_str())); }
+  catch (...) { raised = true; }
+  return raised || GR_Main::CCInterface->GetResourceChecksumFailed();
 }
 
 void FreeDatRoots() {
@@ -161,6 +191,14 @@ int main() {
   auto bad_inner = good_block;
   bad_inner[16] ^= 0x80;
   ok = ok && LoadRejectedDatKeepsBlock(root / "block.dat", bad_inner, loaded_block);
+  auto bad_outer_size = good_block;
+  bad_outer_size[0] ^= 0x01;
+  ok = ok && LoadRejectedDatKeepsBlock(root / "block.dat", bad_outer_size, loaded_block);
+  auto truncated = good_block;
+  truncated.resize(11);
+  ok = ok && RejectsMalformedDat(root / "block.dat", truncated);
+  ok = ok && RejectsMalformedDat(root / "block.dat",
+      BuildRawDat({0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07}, kBlockSeedKey));
   pas::free(loaded_block);
   pas::free(loaded_data);
 
