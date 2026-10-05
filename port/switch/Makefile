@@ -70,3 +70,6 @@ host-package-test: | $(BUILD)
 host-package-tree-test: | $(BUILD)
 	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_package_tree.cpp platform/package.cpp -o $(BUILD)/test_package_tree
 	$(BUILD)/test_package_tree "../../windows/Space Rangers HD A War Apart"
+
+host-package-payload-test:
+	python ../../tests/test_package_payload.py "../../windows/Space Rangers HD A War Apart"
