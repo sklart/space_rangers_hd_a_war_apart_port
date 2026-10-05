@@ -81,6 +81,20 @@ bool WriteFile(const std::filesystem::path& path, const std::vector<std::uint8_t
   }
   return false;
 }
+
+bool LoadRejectedDatKeepsBlock(const std::filesystem::path& path,
+                               const std::vector<std::uint8_t>& bytes,
+                               EC_BlockPar::TBlockParEC* block) {
+  if (!WriteFile(path, bytes)) return false;
+  GR_Main::CCInterface->SetResourceChecksumFailed(false);
+  try {
+    block->LoadFromEncryptedDatFile(pas::WideString(path.filename().string().c_str()));
+  } catch (...) {
+    return false;
+  }
+  return GR_Main::CCInterface->GetResourceChecksumFailed() &&
+      block->GetParam(u"Name"sv) == u"Value";
+}
 }  // namespace
 
 int main() {
@@ -100,7 +114,8 @@ int main() {
   data.push_back(EC_Data::dekFile);
   AppendWide(&data, u"Node");
   AppendWide(&data, u"file.bin");
-  if (!WriteFile(root / "block.dat", BuildDat(block, kBlockSeedKey)) ||
+  const auto good_block = BuildDat(block, kBlockSeedKey);
+  if (!WriteFile(root / "block.dat", good_block) ||
       !WriteFile(root / "data.dat", BuildDat(data, kDataSeedKey))) return 1;
 
   srhd_awa::platform::ec_file::SetGameRoot(root.string());
@@ -112,6 +127,12 @@ int main() {
   loaded_block->LoadFromEncryptedDatFile(u"block.dat");
   loaded_data->LoadFromEncryptedDatFile(u"data.dat");
   ok = loaded_block->GetParam(u"Name"sv) == u"Value" && !loaded_data->IsEmpty();
+  auto bad_outer = good_block;
+  bad_outer[4] ^= 0x80;
+  ok = ok && LoadRejectedDatKeepsBlock(root / "block.dat", bad_outer, loaded_block);
+  auto bad_inner = good_block;
+  bad_inner[16] ^= 0x80;
+  ok = ok && LoadRejectedDatKeepsBlock(root / "block.dat", bad_inner, loaded_block);
   pas::free(loaded_block);
   pas::free(loaded_data);
   pas::free(GR_Main::CCInterface);
