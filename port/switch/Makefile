@@ -83,5 +83,5 @@ host-package-payload-cpp-test: | $(BUILD)
 	$(BUILD)/test_package_payload_cpp "../../windows/Space Rangers HD A War Apart"
 
 host-corrupt-package-test: | $(BUILD)
-	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_corrupt_package.cpp platform/package.cpp -o $(BUILD)/test_corrupt_package
+	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_corrupt_package.cpp platform/package.cpp -lz -o $(BUILD)/test_corrupt_package
 	$(BUILD)/test_corrupt_package
