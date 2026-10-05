@@ -180,6 +180,8 @@ int main() {
   std::filesystem::create_directories(root / "CFG" / "russian");
   std::filesystem::create_directories(root / "Mods" / "TestMod" / "CFG" / "russian");
   std::ofstream(root / "Mods" / "ModCFG.txt") << "CurrentMod=TestMod\n";
+  std::ofstream(root / "base.bin") << "base";
+  std::ofstream(root / "mod.bin") << "mod";
   ok = ok && WriteFile(root / "CFG" / "Main.dat", BuildDat(BlockWith(main_entries, 3), kBlockSeedKey)) &&
       WriteFile(root / "Mods" / "TestMod" / "CFG" / "Main.dat", BuildDat(BlockWith(mod_main_entries, 1), kBlockSeedKey)) &&
       WriteFile(root / "CFG" / "russian" / "Lang.dat", BuildDat(BlockWith(lang_entries, 2), kBlockSeedKey)) &&
