@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <filesystem>
+#include <fstream>
 #include <vector>
 
 #include <zlib.h>
@@ -28,6 +29,26 @@ void AppendWide(std::vector<std::uint8_t>* out, const char16_t* text) {
     out->push_back(static_cast<std::uint8_t>(*it >> 8));
     if (*it == 0) return;
   }
+}
+
+void AppendString(std::vector<std::uint8_t>* out, const char16_t* name, const char16_t* value) {
+  out->push_back(EC_BlockPar::bpkString);
+  AppendWide(out, name);
+  AppendWide(out, value);
+}
+
+void AppendBlock(std::vector<std::uint8_t>* out, const char16_t* name,
+                 const std::vector<std::uint8_t>& child) {
+  out->push_back(EC_BlockPar::bpkBlock);
+  AppendWide(out, name);
+  out->insert(out->end(), child.begin(), child.end());
+}
+
+std::vector<std::uint8_t> BlockWith(const std::vector<std::uint8_t>& entries, std::uint32_t count) {
+  std::vector<std::uint8_t> block{0};  // UseSortedIndex=false.
+  AppendU32(&block, count);
+  block.insert(block.end(), entries.begin(), entries.end());
+  return block;
 }
 
 void ApplyDatCipher(std::vector<std::uint8_t>* bytes, std::int32_t seed) {
@@ -95,6 +116,12 @@ bool LoadRejectedDatKeepsBlock(const std::filesystem::path& path,
   return GR_Main::CCInterface->GetResourceChecksumFailed() &&
       block->GetParam(u"Name"sv) == u"Value";
 }
+
+void FreeDatRoots() {
+  GR_Main::FreeDatConfigRoots();
+  pas::free(GR_Main::LanguageInstallConfig);
+  GR_Main::LanguageInstallConfig = nullptr;
+}
 }  // namespace
 
 int main() {
@@ -135,6 +162,40 @@ int main() {
   ok = ok && LoadRejectedDatKeepsBlock(root / "block.dat", bad_inner, loaded_block);
   pas::free(loaded_block);
   pas::free(loaded_data);
+
+  // Exercise the actual GR_Main loader with base assets followed by selected-mod overrides.
+  const auto data_base = BlockWith([&] { std::vector<std::uint8_t> e; AppendString(&e, u"Origin", u"base"); return e; }(), 1);
+  const auto data_mod = BlockWith([&] { std::vector<std::uint8_t> e; AppendString(&e, u"Origin", u"mod"); return e; }(), 1);
+  const auto ml = BlockWith([&] { std::vector<std::uint8_t> e; AppendString(&e, u"Tag", u"base"); return e; }(), 1);
+  const auto zpos = BlockWith([&] { std::vector<std::uint8_t> e; AppendString(&e, u"Planet", u"1"); return e; }(), 1);
+  std::vector<std::uint8_t> main_entries;
+  AppendBlock(&main_entries, u"Data", data_base); AppendBlock(&main_entries, u"ML", ml); AppendBlock(&main_entries, u"ZPos", zpos);
+  std::vector<std::uint8_t> mod_main_entries; AppendBlock(&mod_main_entries, u"Data", data_mod);
+  const auto case_conv = BlockWith([&] { std::vector<std::uint8_t> e; AppendString(&e, u"a", u"A"); return e; }(), 1);
+  const auto planet_quest = BlockWith({}, 0);
+  std::vector<std::uint8_t> lang_entries; AppendBlock(&lang_entries, u"CaseConv", case_conv); AppendBlock(&lang_entries, u"PlanetQuest", planet_quest);
+  std::vector<std::uint8_t> mod_lang_entries; AppendString(&mod_lang_entries, u"Override", u"yes");
+  std::vector<std::uint8_t> cache_base; AppendU32(&cache_base, 1); cache_base.push_back(EC_Data::dekFile); AppendWide(&cache_base, u"Base"); AppendWide(&cache_base, u"base.bin");
+  std::vector<std::uint8_t> cache_mod; AppendU32(&cache_mod, 1); cache_mod.push_back(EC_Data::dekFile); AppendWide(&cache_mod, u"Mod"); AppendWide(&cache_mod, u"mod.bin");
+  std::filesystem::create_directories(root / "CFG" / "russian");
+  std::filesystem::create_directories(root / "Mods" / "TestMod" / "CFG" / "russian");
+  std::ofstream(root / "Mods" / "ModCFG.txt") << "CurrentMod=TestMod\n";
+  ok = ok && WriteFile(root / "CFG" / "Main.dat", BuildDat(BlockWith(main_entries, 3), kBlockSeedKey)) &&
+      WriteFile(root / "Mods" / "TestMod" / "CFG" / "Main.dat", BuildDat(BlockWith(mod_main_entries, 1), kBlockSeedKey)) &&
+      WriteFile(root / "CFG" / "russian" / "Lang.dat", BuildDat(BlockWith(lang_entries, 2), kBlockSeedKey)) &&
+      WriteFile(root / "Mods" / "TestMod" / "CFG" / "russian" / "Lang.dat", BuildDat(BlockWith(mod_lang_entries, 1), kBlockSeedKey)) &&
+      WriteFile(root / "CFG" / "CacheData.dat", BuildDat(cache_base, kDataSeedKey)) &&
+      WriteFile(root / "Mods" / "TestMod" / "CFG" / "CacheData.dat", BuildDat(cache_mod, kDataSeedKey));
+  GR_Main::LanguageInstallConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
+  GR_Main::LanguageInstallConfig->AddParam(u"Lang"_wref.get(), u"russian"_wref.get());
+  GR_Main::SkipModsOnReload = false;
+  try { GR_Main::LoadDatConfigAndModOverrides(); } catch (...) { ok = false; }
+  ok = ok && GR_Main::MainDataConfig && GR_Main::LanguageDataConfig && GR_Main::CacheDataRoot &&
+      GR_Main::MainDataConfig->GetBlockByPath(u"Data"_wref.get())->GetParam(u"Origin"sv) == u"mod" &&
+      GR_Main::LanguageDataConfig->GetParam(u"Override"sv) == u"yes" &&
+      GR_Main::CacheDataRoot->FileExistsByPath(u"Base"_wref.get()) && GR_Main::CacheDataRoot->FileExistsByPath(u"Mod"_wref.get());
+  FreeDatRoots();
+  ok = ok && !GR_Main::MainDataConfig && !GR_Main::LanguageDataConfig && !GR_Main::CacheDataRoot;
   pas::free(GR_Main::CCInterface);
   GR_Main::CCInterface = nullptr;
   aPacket::FinalizePackageCollection();
