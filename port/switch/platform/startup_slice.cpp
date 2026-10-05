@@ -28,7 +28,8 @@ void FreeConfigState() {
 }
 }  // namespace
 
-bool Initialize(State* state, const std::string& game_root, const std::string& startup_log_path,
+bool Initialize(State* state, const std::string& game_root, const std::string& user_root,
+                const std::string& startup_log_path,
                 std::string* error) {
   if (!state || state->package_collection_initialized || state->platform.services_initialized ||
       GR_Main::InstallConfig || GR_Main::LanguageInstallConfig) {
@@ -36,6 +37,7 @@ bool Initialize(State* state, const std::string& game_root, const std::string& s
     return false;
   }
   srhd_awa::platform::ec_file::SetGameRoot(game_root);
+  srhd_awa::platform::ec_file::SetUserRoot(user_root);
   try {
     if (!runtime_platform::InitializePlatformServices(&state->platform, error)) return false;
     GR_Main::PerformanceCounterFrequency = state->platform.timing_frequency;

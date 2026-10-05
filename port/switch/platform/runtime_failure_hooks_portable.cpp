@@ -34,12 +34,6 @@ namespace MMSystem {
 std::uint32_t PAS_STDCALL timeGetTime() { return WindowsImports::GetTickCount(); }
 }  // namespace MMSystem
 
-namespace GlobalsV {
-std::uint8_t HardwareRenderingRequested{};
-std::uint8_t HardwareRenderingEnabled{};
-std::uint8_t ScaleViewportToWindow{true};
-}  // namespace GlobalsV
-
 namespace SysUtils {
 std::uint8_t DecimalSeparator{'.'};
 }  // namespace SysUtils

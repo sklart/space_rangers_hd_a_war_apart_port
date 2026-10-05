@@ -1,11 +1,13 @@
 #include "ec_file_adapter.hpp"
 #include "game_path.hpp"
 #include "package.hpp"
+#include "user_root.hpp"
 #include "units/EC_HsFile.hpp"
 
 #include <array>
 #include <cstdio>
 #include <cstdlib>
+#include <filesystem>
 #include <memory>
 #include <unordered_map>
 
@@ -18,6 +20,7 @@ struct OpenSlot {
   uint32_t package_handle{};
   uint64_t position{};
   uint64_t size{};
+  bool writable{};
 };
 struct PackState {
   std::unique_ptr<srhd_awa::package::Package> package;
@@ -118,7 +121,8 @@ std::int32_t TPackFileEC::OpenEntryByPath(pas::AnsiString path, std::uint32_t) {
   if (!state || !state->opened || slot < 0) return -1;
   OpenSlot& open = state->slots[slot];
   if (UseLooseFiles) {
-    const std::string file_path = srhd_awa::platform::game_path::Resolve(path.c_str());
+    std::string file_path = srhd_awa::platform::user_root::ResolveConfigPath(path.c_str());
+    if (file_path.empty()) file_path = srhd_awa::platform::game_path::Resolve(path.c_str());
     if (file_path.empty() || !(open.loose_file = std::fopen(file_path.c_str(), "rb"))) return -1;
     if (std::fseek(open.loose_file, 0, SEEK_END) != 0 || (open.size = std::ftell(open.loose_file)) == UINT64_MAX || std::fseek(open.loose_file, 0, SEEK_SET) != 0) {
       std::fclose(open.loose_file); open = {}; return -1;
@@ -160,7 +164,16 @@ std::uint8_t TPackFileEC::ReadEntrySlot(std::uint32_t slot, void* buffer, std::u
   return read == bytes;
 }
 
-std::uint8_t TPackFileEC::WriteEntrySlot(std::uint32_t, void*, std::uint32_t) { return false; }
+std::uint8_t TPackFileEC::WriteEntrySlot(std::uint32_t slot, void* buffer, std::uint32_t bytes) {
+  auto* state = State(this);
+  if (!state || slot >= 16 || OpenSlots[slot].IsAvailable) return false;
+  auto& open = state->slots[slot];
+  if (!open.loose_file || !open.writable) return false;
+  const size_t written = std::fwrite(buffer, 1, bytes, open.loose_file);
+  open.position += written;
+  if (open.position > open.size) open.size = open.position;
+  return written == bytes;
+}
 
 std::uint8_t TPackFileEC::SeekEntrySlot(std::uint32_t slot, std::uint32_t offset, std::int32_t origin) {
   auto* state = State(this);
@@ -277,7 +290,28 @@ std::int32_t TPackCollectionEC::OpenEntryByPathAcrossPackages(
   }
   return -1;
 }
-std::int32_t TPackCollectionEC::CreateLooseFile(pas::WideString) { return -1; }
+std::int32_t TPackCollectionEC::CreateLooseFile(pas::WideString path) {
+  const std::string resolved = srhd_awa::platform::user_root::ResolveConfigPath(static_cast<pas::AnsiString>(path).c_str());
+  if (resolved.empty()) return -1;
+  for (auto* pack = FirstPack; pack; pack = pack->NextPack) {
+    if (!pack->UseLooseFiles) continue;
+    auto* state = State(pack);
+    const auto slot = pack->FindFreeOpenSlotIndex();
+    if (!state || slot < 0) return -1;
+    std::error_code error;
+    std::filesystem::create_directories(std::filesystem::path(resolved).parent_path(), error);
+    if (error) return -1;
+    auto& open = state->slots[slot];
+    open.loose_file = std::fopen(resolved.c_str(), "w+b");
+    if (!open.loose_file) return -1;
+    open.position = 0;
+    open.size = 0;
+    open.writable = true;
+    pack->OpenSlots[slot].IsAvailable = false;
+    return pack->CollectionIndex * 16 + slot;
+  }
+  return -1;
+}
 std::uint8_t TPackCollectionEC::CloseEntryHandle(std::int32_t handle) {
   if (handle < 0) return false;
   const std::int32_t index = handle / 16;
@@ -294,7 +328,11 @@ std::uint8_t TPackCollectionEC::ReadEntryHandle(std::int32_t handle, void* buffe
   if (ok) Trace("read", handle, bytes);
   return ok;
 }
-std::uint8_t TPackCollectionEC::WriteEntryHandle(std::int32_t, void*, std::uint32_t) { return false; }
+std::uint8_t TPackCollectionEC::WriteEntryHandle(std::int32_t handle, void* buffer, std::uint32_t bytes) {
+  if (handle < 0) return false;
+  auto* pack = GetPackByIndex(handle / 16);
+  return pack && pack->WriteEntrySlot(static_cast<uint32_t>(handle % 16), buffer, bytes);
+}
 std::uint8_t TPackCollectionEC::SeekEntryHandle(std::int32_t handle, std::uint32_t offset, std::int32_t origin) {
   if (handle < 0) return false;
   auto* pack = GetPackByIndex(handle / 16);
@@ -319,6 +357,10 @@ bool OpenPackage(const std::string& path, std::string* error) {
   return OpenPackages({path}, error);
 }
 void SetGameRoot(const std::string& game_root) { srhd_awa::platform::game_path::SetRoot(game_root); }
+void SetUserRoot(const std::string& user_root) {
+  srhd_awa::platform::user_root::SetRoot(user_root);
+  srhd_awa::platform::user_root::EnsureLayout();
+}
 bool OpenPackages(const std::vector<std::string>& paths, std::string* error) {
   ClosePackage();
   if (paths.empty()) {

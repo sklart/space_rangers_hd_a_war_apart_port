@@ -66,14 +66,14 @@ int main() {
 
   srhd_awa::platform::startup_slice::State state;
   std::string error;
-  ok = ok && srhd_awa::platform::startup_slice::Initialize(&state, root.string(), (root / "startup.log").string(), &error);
+  ok = ok && srhd_awa::platform::startup_slice::Initialize(&state, root.string(), (root / "user").string(), (root / "startup.log").string(), &error);
   ok = ok && state.platform.window_token != 0 && GR_Main::MainWindowHandle == state.platform.window_token &&
       GR_Main::PerformanceCounterFrequency > 0 && MessageText::QuestMessages != nullptr &&
       EC_HsFile::PackageCollection->GetPackByIndex(0)->UseLooseFiles && ReadMarker("language");
   srhd_awa::platform::startup_slice::Shutdown(&state);
   ok = ok && Clean() && !state.platform.services_initialized;
   error.clear();
-  ok = ok && srhd_awa::platform::startup_slice::Initialize(&state, root.string(), (root / "startup.log").string(), &error) &&
+  ok = ok && srhd_awa::platform::startup_slice::Initialize(&state, root.string(), (root / "user").string(), (root / "startup.log").string(), &error) &&
       state.platform.window_token != 0 && ReadMarker("language");
   srhd_awa::platform::startup_slice::Shutdown(&state);
   ok = ok && Clean();
@@ -81,18 +81,18 @@ int main() {
   const std::filesystem::path no_install = "build/milestone7_missing_install";
   std::filesystem::create_directories(no_install);
   error.clear();
-  ok = ok && !srhd_awa::platform::startup_slice::Initialize(&state, no_install.string(), (no_install / "startup.log").string(), &error) && Clean();
+  ok = ok && !srhd_awa::platform::startup_slice::Initialize(&state, no_install.string(), (no_install / "user").string(), (no_install / "startup.log").string(), &error) && Clean();
   const std::filesystem::path no_language = "build/milestone7_missing_language";
   WriteConfigs(no_language, false, false);
   WritePackage(no_language / "DATA" / "base.pkg", "base");
   error.clear();
-  ok = ok && !srhd_awa::platform::startup_slice::Initialize(&state, no_language.string(), (no_language / "startup.log").string(), &error) && Clean();
+  ok = ok && !srhd_awa::platform::startup_slice::Initialize(&state, no_language.string(), (no_language / "user").string(), (no_language / "startup.log").string(), &error) && Clean();
   const std::filesystem::path invalid = "build/milestone7_invalid_package";
   WriteConfigs(invalid, true, true);
   WritePackage(invalid / "DATA" / "language.pkg", "language");
   std::ofstream(invalid / "DATA" / "invalid.pkg") << "not a package";
   error.clear();
-  ok = ok && !srhd_awa::platform::startup_slice::Initialize(&state, invalid.string(), (invalid / "startup.log").string(), &error) && Clean();
+  ok = ok && !srhd_awa::platform::startup_slice::Initialize(&state, invalid.string(), (invalid / "user").string(), (invalid / "startup.log").string(), &error) && Clean();
 
   std::filesystem::remove_all(root); std::filesystem::remove_all(no_install);
   std::filesystem::remove_all(no_language); std::filesystem::remove_all(invalid);

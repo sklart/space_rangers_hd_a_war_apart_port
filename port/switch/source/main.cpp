@@ -7,6 +7,7 @@
 #include "package.hpp"
 #include "ec_file_adapter.hpp"
 #include "startup_slice.hpp"
+#include "runtime_settings_slice.hpp"
 #include "renderer_platform.hpp"
 #include "units/GR_GraphBuf.hpp"
 #include "units/EC_BlockPar.hpp"
@@ -24,6 +25,7 @@
 namespace {
 constexpr const char* kLogPath = "sdmc:/switch/space-rangers-hd-a-war-apart/port.log";
 constexpr const char* kDefaultGameRoot = "sdmc:/switch/space-rangers-hd-a-war-apart/game";
+constexpr const char* kDefaultUserRoot = "sdmc:/switch/space-rangers-hd-a-war-apart";
 
 void Log(const char* format, ...) {
   std::FILE* file = std::fopen(kLogPath, "a");
@@ -44,7 +46,7 @@ const char* GameRoot(int argc, char** argv) {
 bool ConfigurePackages(srhd_awa::platform::startup_slice::State* state, const char* root) {
   std::string error;
   Log("[M7] platform init begin");
-  if (!srhd_awa::platform::startup_slice::Initialize(state, root, kLogPath, &error)) {
+  if (!srhd_awa::platform::startup_slice::Initialize(state, root, kDefaultUserRoot, kLogPath, &error)) {
     Log("[M7] FAIL startup=%s", error.c_str());
     return false;
   }
@@ -169,6 +171,20 @@ int main(int argc, char** argv) {
   Log("[GR_MAIN] linked");
   srhd_awa::platform::startup_slice::State startup;
   if (!ConfigurePackages(&startup, game_root)) return 1;
+  std::string m9_error;
+  Log("[M9] dat config begin");
+  if (!srhd_awa::platform::runtime_settings_slice::Initialize(&m9_error)) {
+    Log("[M9] FAIL runtime config=%s", m9_error.c_str());
+    srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
+  Log("[M9] Main.dat PASS");
+  Log("[M9] Lang.dat PASS language=%s", static_cast<const char*>(static_cast<pas::AnsiString>(GR_Main::LanguageInstallConfig->GetParam(u"Lang"sv)).c_str()));
+  Log("[M9] CacheData.dat PASS");
+  Log("[M9] user config PASS");
+  Log("[M9] GameDataConfig PASS");
+  Log("[M9] UiDepthConfig PASS");
+  Log("[M9] CaseConv count=%ld", static_cast<long>(GR_Main::WideCaseTable.length()));
   srhd_awa::platform::runtime_platform::PumpEvents(startup.platform);
   srhd_awa::platform::renderer_platform::SetNativeWindow(startup.platform.native_window);
   const bool renderer_ok = RunRendererSelfTest();
@@ -177,6 +193,7 @@ int main(int argc, char** argv) {
   Log("[M7] startup boundary %s", resource_ok ? "reached" : "failed");
   srhd_awa::platform::renderer_platform::ShutdownSoftwareRenderer();
   srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
+  srhd_awa::platform::runtime_settings_slice::Shutdown();
   srhd_awa::platform::startup_slice::Shutdown(&startup);
   return resource_ok && renderer_ok ? 0 : 1;
 }

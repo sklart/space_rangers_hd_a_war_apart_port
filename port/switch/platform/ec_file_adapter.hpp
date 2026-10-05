@@ -6,5 +6,6 @@ namespace srhd_awa::platform::ec_file {
 bool OpenPackage(const std::string& package_path, std::string* error);
 bool OpenPackages(const std::vector<std::string>& package_paths, std::string* error);
 void SetGameRoot(const std::string& game_root);
+void SetUserRoot(const std::string& user_root);
 void ClosePackage();
 }

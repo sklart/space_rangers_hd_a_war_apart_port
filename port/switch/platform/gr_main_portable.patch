@@ -2,19 +2,42 @@ diff --git a/src/GR_Main.cpp b/src/GR_Main.cpp
 index 6aa8db1..b536fdf 100644
 --- a/src/GR_Main.cpp
 +++ b/src/GR_Main.cpp
-@@ -44,6 +44,11 @@
+@@ -44,6 +44,12 @@
  #include "units/aMyFunction.hpp"
  #include "units/aPacket.hpp"
  
 +#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
 +#include "okgf_bridge.hpp"
 +#include "renderer_platform.hpp"
++#include "user_root.hpp"
 +#endif
 +
  namespace GR_Main {
      using TGetNativeSystemInfo = pas::StdcallProc<void(WindowsSdk::TSystemInfo&)>;
  
-@@ -1795,6 +1800,12 @@ namespace GR_Main {
+@@ -509,6 +514,13 @@ namespace GR_Main {
+     // Returns a trailing directory separator.
+     pas::WideString GetGameUserDirectory() {
++#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
++        const auto directory = srhd_awa::platform::user_root::ConfigDirectory();
++        if (directory.empty() || !srhd_awa::platform::user_root::EnsureLayout()) {
++            pas::raise(pas::make_exception<pas::Exception>("portable user root is unavailable"_a));
++        }
++        return pas::WideString(directory.c_str());
++#endif
+         std::uint8_t* PathBuffer{};
+         ShlObj::PItemIDList ItemIdList{};
+         pas::WideString DocumentsPath{};
+         if (CachedGameUserDirectory != u"") {
+@@ -1022,6 +1035,7 @@ namespace GR_Main {
+         }
+     }
+ 
++#if !defined(SRHD_PORTABLE_RUNTIME_SLICE)
+     void InitializeRuntimeAndSettings() {
+         pas::WideString ModuleName{};
+         pas::WideString Text{};
+@@ -1795,6 +1809,12 @@ namespace GR_Main {
      }
  
      void GR_DXInit() {
@@ -27,7 +50,7 @@ index 6aa8db1..b536fdf 100644
          Direct3D9::IDirect3D9 cpp_result{};
          std::int32_t Code{};
          Direct3D9::IDirect3DSurface9 Surface{};
-@@ -2159,7 +2170,18 @@ namespace GR_Main {
+@@ -2159,7 +2179,18 @@ namespace GR_Main {
      }
  
      // Hardware mode ends/presents/restarts the scene; software mode draws the buffer texture unless OffscreenTexture is assigned.
@@ -46,7 +69,24 @@ index 6aa8db1..b536fdf 100644
          Direct3D9::IDirect3DTexture9 cpp_result{};
          Direct3D9::IDirect3DTexture9 cpp_result_2{};
          Direct3D9::IDirect3DTexture9 cpp_result_3{};
-@@ -3996,9 +4018,13 @@ namespace GR_Main {
+@@ -2421,6 +2452,8 @@ namespace GR_Main {
+         }
+     }
+ 
++#endif
++
+     // Tests bit 15 of GetAsyncKeyState.
+     std::uint8_t IsVirtualKeyDown(std::int32_t Key) {
+         return (WindowsSdk::GetAsyncKeyState(Key) & 0x00008000) == 0x00008000;
+@@ -2512,6 +2545,7 @@ namespace GR_Main {
+         pas::critical_leave(SessionLogLock);
+     }
+ 
++#if !defined(SRHD_PORTABLE_RUNTIME_SLICE)
+     void LogMemoryUsage() {
+         TMemoryStatusEx Status{};
+         Status.Length = static_cast<std::int32_t>(sizeof(TMemoryStatusEx));
+@@ -3996,9 +4030,13 @@ namespace GR_Main {
      }
  
      void OKGR_Copy_XY_XY_WORD(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
@@ -60,7 +100,7 @@ index 6aa8db1..b536fdf 100644
      }
  
      void OKGR_PalCopy_XY_XY_WORD(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, void* Palette, std::int32_t Width, std::int32_t Height) {
-@@ -4032,9 +4058,13 @@ namespace GR_Main {
+@@ -4032,9 +4070,13 @@ namespace GR_Main {
      }
  
      void OKGR_Fill_WORD(void* Pixels, std::int32_t Pitch, std::int32_t Width, std::int32_t Height, std::uint16_t Color) {
@@ -74,7 +114,7 @@ index 6aa8db1..b536fdf 100644
      }
  
      void OKGF_ConvertRGBto565(void* Source, void* Dest, std::int32_t Pitch, std::int32_t Width, std::int32_t Height) {
-@@ -4056,9 +4086,13 @@ namespace GR_Main {
+@@ -4056,9 +4098,13 @@ namespace GR_Main {
      }
  
      void OKGF_Convert565toBGRA(void* Source, std::int32_t SourcePitch, void* Dest, std::int32_t DestPitch, std::int32_t Width, std::int32_t Height) {
@@ -88,7 +128,7 @@ index 6aa8db1..b536fdf 100644
      }
  
      void OKGF_Convert_8888to565(void* Dest, std::int32_t DestPitch, std::int32_t DestX, std::int32_t DestY, void* Source, std::int32_t SourcePitch, std::int32_t SourceX, std::int32_t SourceY, std::int32_t Width, std::int32_t Height) {
-@@ -4110,9 +4144,13 @@ namespace GR_Main {
+@@ -4110,9 +4156,13 @@ namespace GR_Main {
      }
  
      void OKGR_PixelAlpha_16(void* Pixel, std::uint16_t Color, std::uint8_t Alpha) {
@@ -102,7 +142,7 @@ index 6aa8db1..b536fdf 100644
      }
  
      std::int32_t OKGR_Line_Clip(pas::Var<std::int32_t> X1, pas::Var<std::int32_t> Y1, pas::Var<std::int32_t> X2, pas::Var<std::int32_t> Y2, const WindowsSdk::TRect& Clip) {
-@@ -4207,16 +4245,24 @@ namespace GR_Main {
+@@ -4207,18 +4257,28 @@ namespace GR_Main {
  
      // Cdecl triangle ABI verified at native caller.
      void OKGF_Triangle_16(void* Pixels, std::int32_t Pitch, std::int32_t X1, std::int32_t Y1, std::uint32_t Color1, std::int32_t X2, std::int32_t Y2, std::uint32_t Color2, std::int32_t X3, std::int32_t Y3, std::uint32_t Color3, WindowsSdk::PRect Clip) {
@@ -126,4 +166,8 @@ index 6aa8db1..b536fdf 100644
 +#endif
      }
  
++#endif
++
      void TCCInterface_Create(TCCInterface* Self) {
+         pas::object_create(Self);
+         Self->Lock = pas::make_critical_section<pas::CriticalSection>();
