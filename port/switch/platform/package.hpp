@@ -27,7 +27,7 @@ class Package {
   Summary Summarize() const;
  private:
   struct OpenEntry { const Entry* entry{}; uint64_t position{}; bool open{}; };
-  bool LoadFolder(uint32_t offset, Folder* folder, uint32_t depth, std::string* error);
+  bool LoadFolder(uint32_t offset, Folder* folder, uint32_t depth, std::vector<uint32_t>& active_offsets, std::string* error);
   std::unique_ptr<Folder> root_; std::string path_; uint64_t size_{}; std::vector<OpenEntry> open_entries_;
 };
 }  // namespace srhd_awa::package
