@@ -11,12 +11,14 @@
 #include "renderer_platform.hpp"
 #include "units/GR_GraphBuf.hpp"
 #include "units/EC_BlockPar.hpp"
+#include "units/EC_Data.hpp"
 #include "units/EC_File.hpp"
 #include "units/EC_HsFile.hpp"
 #include "units/GR_Main.hpp"
 #include "units/aPacket.hpp"
 
 #include <cstdarg>
+#include <algorithm>
 #include <cstdio>
 #include <cstring>
 #include <filesystem>
@@ -51,6 +53,18 @@ void BeginLogSession() {
 void Stage(const char* name, bool pass, const char* reason = nullptr) {
   if (pass) Log("[STAGE] %s PASS", name);
   else Log("[STAGE] %s FAIL %s", name, reason ? reason : "unknown");
+}
+
+struct Fingerprint { std::uint64_t hash{UINT64_C(1469598103934665603)}; std::uint32_t entries{}; std::uint32_t blocks{}; std::uint32_t params{}; std::uint32_t files{}; std::uint32_t nodes{}; std::uint32_t depth{}; };
+void HashByte(Fingerprint* fp, std::uint8_t value) { fp->hash = (fp->hash ^ value) * UINT64_C(1099511628211); }
+void HashWide(Fingerprint* fp, const pas::WideString& value) { for (const char16_t* p = value.pchar(); p && *p; ++p) { HashByte(fp, static_cast<std::uint8_t>(*p)); HashByte(fp, static_cast<std::uint8_t>(*p >> 8)); } HashByte(fp, 0xff); }
+void FingerprintBlock(EC_BlockPar::TBlockParEC* block, Fingerprint* fp, std::uint32_t depth) {
+  if (!block) return; fp->depth = std::max(fp->depth, depth);
+  for (std::int32_t i = 0; i < block->GetEntryCount(); ++i) { ++fp->entries; const auto kind = block->GetEntryKindByIndex(i); HashByte(fp, static_cast<std::uint8_t>(kind)); HashWide(fp, block->GetEntryNameByIndex(i)); if (kind == EC_BlockPar::bpkBlock) { ++fp->blocks; FingerprintBlock(block->GetEntryBlockByIndex(i), fp, depth + 1); } else { ++fp->params; HashWide(fp, block->GetEntryStringByIndex(i)); } }
+}
+void FingerprintData(EC_Data::TDataEC* data, Fingerprint* fp, std::uint32_t depth) {
+  if (!data) return; fp->depth = std::max(fp->depth, depth);
+  for (auto* entry = data->FirstEntry; entry; entry = entry->Next) { ++fp->nodes; HashByte(fp, static_cast<std::uint8_t>(entry->Kind)); HashWide(fp, entry->Name); if (entry->Kind == EC_Data::dekSubtree) FingerprintData(entry->ChildData, fp, depth + 1); else { ++fp->files; if (entry->SharedFileRef && entry->SharedFileRef->FileRef) HashWide(fp, entry->SharedFileRef->FileRef->GetFileName()); HashByte(fp, static_cast<std::uint8_t>(entry->FileOffset)); HashByte(fp, static_cast<std::uint8_t>(entry->ByteCount)); } }
 }
 
 const char* GameRoot(int argc, char** argv) {
@@ -207,6 +221,13 @@ int main(int argc, char** argv) {
   Log("[M9] Main.dat PASS");
   Log("[M9] Lang.dat PASS language=%s", static_cast<const char*>(static_cast<pas::AnsiString>(GR_Main::LanguageInstallConfig->GetParam(u"Lang"sv)).c_str()));
   Log("[M9] CacheData.dat PASS");
+  Fingerprint main_fp, lang_fp, cache_fp;
+  FingerprintBlock(GR_Main::MainDataConfig, &main_fp, 1);
+  FingerprintBlock(GR_Main::LanguageDataConfig, &lang_fp, 1);
+  FingerprintData(GR_Main::CacheDataRoot, &cache_fp, 1);
+  Log("[M9] Main.dat entries=%lu blocks=%lu params=%lu depth=%lu fnv64=%016llx", static_cast<unsigned long>(main_fp.entries), static_cast<unsigned long>(main_fp.blocks), static_cast<unsigned long>(main_fp.params), static_cast<unsigned long>(main_fp.depth), static_cast<unsigned long long>(main_fp.hash));
+  Log("[M9] Lang.dat language=%s entries=%lu blocks=%lu params=%lu depth=%lu fnv64=%016llx", static_cast<const char*>(static_cast<pas::AnsiString>(GR_Main::LanguageInstallConfig->GetParam(u"Lang"sv)).c_str()), static_cast<unsigned long>(lang_fp.entries), static_cast<unsigned long>(lang_fp.blocks), static_cast<unsigned long>(lang_fp.params), static_cast<unsigned long>(lang_fp.depth), static_cast<unsigned long long>(lang_fp.hash));
+  Log("[M9] CacheData.dat nodes=%lu files=%lu depth=%lu fnv64=%016llx", static_cast<unsigned long>(cache_fp.nodes), static_cast<unsigned long>(cache_fp.files), static_cast<unsigned long>(cache_fp.depth), static_cast<unsigned long long>(cache_fp.hash));
   Log("[M9] user config PASS");
   Log("[M9] GameDataConfig PASS");
   Log("[M9] UiDepthConfig PASS");
