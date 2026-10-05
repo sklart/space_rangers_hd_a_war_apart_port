@@ -61,9 +61,9 @@ bool ReadRequiredAsset(const char* root) {
     return false;
   }
   const std::uint32_t payload_crc = CrcUnit::ComputeCrc32(payload.data(), static_cast<std::int32_t>(payload.size()));
-  Log("[PACKAGE] PASS folders=%lu files=%lu entries=%lu depth=%lu selected=DATA/Asteroid/00.gai kind=%ld size=%lu crc32=%08lx",
+  Log("[PACKAGE] PASS folders=%lu files=%lu entries=%lu depth=%lu tree_hash=%016llx selected=DATA/Asteroid/00.gai kind=%ld size=%lu crc32=%08lx",
       static_cast<unsigned long>(tree.folders), static_cast<unsigned long>(tree.files),
-      static_cast<unsigned long>(tree.entries), static_cast<unsigned long>(tree.max_depth),
+      static_cast<unsigned long>(tree.entries), static_cast<unsigned long>(tree.max_depth), static_cast<unsigned long long>(tree.tree_hash),
       static_cast<long>(entry->kind), static_cast<unsigned long>(payload.size()), static_cast<unsigned long>(payload_crc));
   return true;
 }
