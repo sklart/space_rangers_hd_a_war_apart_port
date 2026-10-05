@@ -5,10 +5,13 @@
 #include "units/System.hpp"
 #include "units/SystemImports.hpp"
 #include "filesystem.hpp"
+#include "package.hpp"
 
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
+#include <string>
+#include <vector>
 
 namespace {
 constexpr const char* kLogPath = "sdmc:/switch/space-rangers-hd-a-war-apart/port.log";
@@ -37,11 +40,31 @@ bool ReadRequiredAsset(const char* root) {
     Log("[RESOURCE] FAIL parser=EC_HsFile root file=DATA/common.pkg error=%s", error);
     return false;
   }
-  const std::uint32_t crc = CrcUnit::ComputeCrc32(&package, static_cast<std::int32_t>(sizeof(package)));
-  Log("[RESOURCE] PASS parser=EC_HsFile root size=%llu root=%lu entries=%lu record=%lu first=%s crc32=%08lx",
+  const std::uint32_t smoke_crc = CrcUnit::ComputeCrc32(&package, static_cast<std::int32_t>(sizeof(package)));
+  Log("[CXX] CrcUnit linkage smoke crc32=%08lx", static_cast<unsigned long>(smoke_crc));
+  Log("[RESOURCE] PASS parser=package probe size=%llu root=%lu entries=%lu record=%lu first=%s",
       static_cast<unsigned long long>(package.file_size), static_cast<unsigned long>(package.root_offset),
       static_cast<unsigned long>(package.entry_count), static_cast<unsigned long>(package.entry_record_size),
-      package.first_entry_name, static_cast<unsigned long>(crc));
+      package.first_entry_name);
+
+  srhd_awa::package::Package archive;
+  std::string package_error;
+  if (!archive.Open(std::string(root) + "/DATA/common.pkg", &package_error)) {
+    Log("[PACKAGE] FAIL recursive load error=%s", package_error.c_str());
+    return false;
+  }
+  const auto tree = archive.Summarize();
+  const auto* entry = archive.Resolve("DATA/Asteroid/00.gai");
+  std::vector<std::uint8_t> payload;
+  if (!entry || !archive.ReadPayload(*entry, &payload, &package_error)) {
+    Log("[PACKAGE] FAIL payload path=DATA/Asteroid/00.gai error=%s", package_error.c_str());
+    return false;
+  }
+  const std::uint32_t payload_crc = CrcUnit::ComputeCrc32(payload.data(), static_cast<std::int32_t>(payload.size()));
+  Log("[PACKAGE] PASS folders=%lu files=%lu entries=%lu depth=%lu selected=DATA/Asteroid/00.gai kind=%ld size=%lu crc32=%08lx",
+      static_cast<unsigned long>(tree.folders), static_cast<unsigned long>(tree.files),
+      static_cast<unsigned long>(tree.entries), static_cast<unsigned long>(tree.max_depth),
+      static_cast<long>(entry->kind), static_cast<unsigned long>(payload.size()), static_cast<unsigned long>(payload_crc));
   return true;
 }
 }  // namespace
