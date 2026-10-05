@@ -33,7 +33,7 @@ PLATFORM_CPPFILES := $(wildcard platform/*.cpp)
 PLATFORM_OFILES := $(PLATFORM_CPPFILES:platform/%.cpp=$(BUILD)/platform_%.o)
 GAME_OFILES := $(BUILD)/CrcUnit.o $(BUILD)/System.o $(BUILD)/SystemImports.o
 
-.PHONY: all clean host-package-test
+.PHONY: all clean host-package-test host-package-cycle-test
 all: $(TARGET).nro
 
 $(BUILD):
@@ -86,9 +86,13 @@ host-zl02-synthetic-test: | $(BUILD)
 	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_zl02_synthetic.cpp platform/package.cpp -lz -o $(BUILD)/test_zl02_synthetic
 	$(BUILD)/test_zl02_synthetic
 
-host-release-regression: host-package-test host-package-tree-test host-package-payload-cpp-test host-package-payload-test
+host-release-regression: host-package-test host-package-tree-test host-package-payload-cpp-test host-package-payload-test host-corrupt-package-test host-package-cycle-test host-zl02-synthetic-test
 	@echo RELEASE REGRESSION PASS
 
 host-corrupt-package-test: | $(BUILD)
 	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_corrupt_package.cpp platform/package.cpp -lz -o $(BUILD)/test_corrupt_package
 	$(BUILD)/test_corrupt_package
+
+host-package-cycle-test: | $(BUILD)
+	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_package_cycles.cpp platform/package.cpp -lz -o $(BUILD)/test_package_cycles
+	$(BUILD)/test_package_cycles

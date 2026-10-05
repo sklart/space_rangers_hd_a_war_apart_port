@@ -10,7 +10,10 @@ make -f Makefile clean
 make -f Makefile host-package-test
 make -f Makefile host-package-tree-test
 make -f Makefile host-package-payload-test
+make -f Makefile host-package-payload-cpp-test
 make -f Makefile host-corrupt-package-test
+make -f Makefile host-package-cycle-test
+make -f Makefile host-zl02-synthetic-test
 ```
 
 На проверенной локальной установке `common.pkg` содержит 51 папку, 1 890
