@@ -1,4 +1,3 @@
-#include <SDL2/SDL.h>
 #include <switch.h>
 #include <okgf.h>
 #include "units/CrcUnit.hpp"
@@ -7,6 +6,7 @@
 #include "filesystem.hpp"
 #include "package.hpp"
 #include "ec_file_adapter.hpp"
+#include "startup_slice.hpp"
 #include "units/EC_BlockPar.hpp"
 #include "units/EC_File.hpp"
 #include "units/EC_HsFile.hpp"
@@ -39,26 +39,21 @@ const char* GameRoot(int argc, char** argv) {
   return kDefaultGameRoot;
 }
 
-bool ConfigurePackages(const char* root) {
-  srhd_awa::platform::ec_file::SetGameRoot(root);
-  if (!aPacket::InitializePackageCollection()) {
-    Log("[GR_MAIN_CONFIG] FAIL package collection initialization");
+bool ConfigurePackages(srhd_awa::platform::startup_slice::State* state, const char* root) {
+  std::string error;
+  Log("[M7] platform init begin");
+  if (!srhd_awa::platform::startup_slice::Initialize(state, root, kLogPath, &error)) {
+    Log("[M7] FAIL startup=%s", error.c_str());
     return false;
   }
-
-  GR_Main::InstallConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
-  GR_Main::InstallConfig->LoadFromTextFileWithEncodingProbe(const_cast<char16_t*>(u"install.txt"), false);
-  pas::text_assign(GR_Main::SessionLog, kLogPath, false);
-  GR_Main::SelectedLanguage = u"russian"_w;
-  GR_Main::RequestedLanguage = pas::WideString();
-  GR_Main::SkipModsOnReload = false;
-
-  Log("[GR_MAIN_CONFIG] begin");
-  GR_Main::LoadLanguageAndPackages();
+  Log("[M7] timing PASS frequency=%lld", static_cast<long long>(GR_Main::PerformanceCounterFrequency));
+  Log("[M7] window PASS token=%lu", static_cast<unsigned long>(GR_Main::MainWindowHandle));
+  Log("[M7] package collection PASS");
+  Log("[M7] install config PASS");
   std::int32_t package_count = 0;
   while (EC_HsFile::PackageCollection->GetPackByIndex(package_count)) ++package_count;
-  Log("[GR_MAIN_LANGUAGE] %s", GR_Main::SelectedLanguage == u"russian" ? "russian" : "unexpected");
-  Log("[GR_MAIN_PACKAGES] count=%ld", static_cast<long>(package_count));
+  Log("[M7] language packages PASS language=%s count=%ld",
+      GR_Main::SelectedLanguage == u"russian" ? "russian" : "unexpected", static_cast<long>(package_count));
   return true;
 }
 
@@ -115,7 +110,7 @@ bool ReadRequiredAsset(const char* root) {
       static_cast<unsigned long>(tree.entries), static_cast<unsigned long>(tree.max_depth), static_cast<unsigned long long>(tree.tree_hash),
       static_cast<long>(entry->kind), static_cast<unsigned long>(payload.size()), static_cast<unsigned long>(payload_crc));
   Log("[SELFTEST] %s package baseline", baseline_ok ? "PASS" : "FAIL");
-  Log("[GR_MAIN_RESOURCE] %s", ec_ok ? "PASS" : "FAIL");
+  Log("[M7] resource %s", ec_ok ? "PASS" : "FAIL");
   return baseline_ok && ec_ok;
 }
 }  // namespace
@@ -130,22 +125,9 @@ int main(int argc, char** argv) {
   Log("[FILESYSTEM] BEGIN game-root=%s", game_root);
 
   Log("[GR_MAIN] linked");
-  if (!ConfigurePackages(game_root)) return 1;
-
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER) != 0) {
-    Log("[PLATFORM] FAIL SDL_Init=%s", SDL_GetError());
-    return 1;
-  }
-  Log("[PLATFORM] PASS SDL2 initialized");
-
-  SDL_Window* window = SDL_CreateWindow("Space Rangers HD", SDL_WINDOWPOS_CENTERED,
-      SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_SHOWN);
-  if (!window) {
-    Log("[PLATFORM] FAIL SDL_CreateWindow=%s", SDL_GetError());
-    SDL_Quit();
-    return 1;
-  }
-  Log("[PLATFORM] PASS presentation=1280x720");
+  srhd_awa::platform::startup_slice::State startup;
+  if (!ConfigurePackages(&startup, game_root)) return 1;
+  srhd_awa::platform::runtime_platform::PumpEvents(startup.platform);
   std::uint16_t framebuffer[4]{};
   OKGR_Fill_WORD(framebuffer, static_cast<std::int32_t>(sizeof(framebuffer)), 2, 2, 0x07e0);
   if (framebuffer[0] != 0x07e0 || framebuffer[3] != 0x07e0) {
@@ -155,8 +137,7 @@ int main(int argc, char** argv) {
   }
   const bool resource_ok = ReadRequiredAsset(game_root);
   Log("[FILESYSTEM] %s game-root", resource_ok ? "PASS" : "FAIL");
-  Log("[GAME] %s real C++ runtime bootstrap", resource_ok ? "PASS" : "WAITING_FOR_PACKAGE_LOADER");
-  SDL_DestroyWindow(window);
-  SDL_Quit();
+  Log("[M7] startup boundary %s", resource_ok ? "reached" : "failed");
+  srhd_awa::platform::startup_slice::Shutdown(&startup);
   return 0;
 }

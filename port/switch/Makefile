@@ -32,9 +32,9 @@ CPPFILES := $(wildcard $(SOURCES)/*.cpp)
 OFILES := $(CPPFILES:$(SOURCES)/%.cpp=$(BUILD)/%.o)
 PLATFORM_CPPFILES := $(wildcard platform/*.cpp)
 PLATFORM_OFILES := $(PLATFORM_CPPFILES:platform/%.cpp=$(BUILD)/platform_%.o)
-GAME_OFILES := $(BUILD)/CrcUnit.o $(BUILD)/System.o $(BUILD)/SystemImports.o $(BUILD)/EC_File.o $(BUILD)/EC_Struct.o $(BUILD)/EC_Buf.o $(BUILD)/EC_BlockPar.o $(BUILD)/EC_Str.o $(BUILD)/EC_Mem.o $(BUILD)/aPacket.o $(BUILD)/GR_Main.o $(BUILD)/runtime.o
+GAME_OFILES := $(BUILD)/CrcUnit.o $(BUILD)/System.o $(BUILD)/SystemImports.o $(BUILD)/EC_File.o $(BUILD)/EC_Struct.o $(BUILD)/EC_Buf.o $(BUILD)/EC_BlockPar.o $(BUILD)/EC_Str.o $(BUILD)/EC_Mem.o $(BUILD)/aPacket.o $(BUILD)/MessageText.o $(BUILD)/GR_Main.o $(BUILD)/runtime.o
 
-.PHONY: all clean host-package-test host-package-cycle-test host-ec-file-test host-ec-file-synthetic-test host-blockpar-synthetic-test host-configured-package-test host-gr-main-no-mod-test host-gr-main-config-test host-gr-main-release-config-test host-milestone4-regression host-milestone5-regression host-milestone6-regression
+.PHONY: all clean host-package-test host-package-cycle-test host-ec-file-test host-ec-file-synthetic-test host-blockpar-synthetic-test host-configured-package-test host-gr-main-no-mod-test host-gr-main-config-test host-gr-main-release-config-test host-platform-startup-test host-milestone4-regression host-milestone5-regression host-milestone6-regression host-milestone7-regression
 all: $(TARGET).nro
 
 $(BUILD):
@@ -74,6 +74,9 @@ $(BUILD)/EC_Mem.o: $(GAME_CPP_ROOT)/src/EC_Mem.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(BUILD)/aPacket.o: $(GAME_CPP_ROOT)/src/aPacket.cpp | $(BUILD)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(BUILD)/MessageText.o: $(GAME_CPP_ROOT)/src/MessageText.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(BUILD)/GR_Main.o: $(GAME_CPP_ROOT)/src/GR_Main.cpp | $(BUILD)
@@ -126,6 +129,9 @@ host-milestone5-regression: host-milestone4-regression host-blockpar-synthetic-t
 host-milestone6-regression: host-milestone5-regression host-gr-main-no-mod-test host-gr-main-config-test host-gr-main-release-config-test
 	@echo MILESTONE 6 HOST REGRESSION PASS
 
+host-milestone7-regression: host-milestone6-regression host-platform-startup-test
+	@echo MILESTONE 7 HOST REGRESSION PASS
+
 host-corrupt-package-test: | $(BUILD)
 	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_corrupt_package.cpp platform/package.cpp -lz -o $(BUILD)/test_corrupt_package
 	$(BUILD)/test_corrupt_package
@@ -150,6 +156,9 @@ host-gr-main-config-test: | $(BUILD)
 
 host-gr-main-release-config-test: | $(BUILD)
 	@g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iplatform -I$(GAME_CPP_ROOT)/src -I$(GAME_CPP_ROOT)/runtime ../../tests/test_gr_main_release_config.cpp platform/package.cpp platform/game_path.cpp platform/ec_file_adapter.cpp platform/windows_imports_portable.cpp platform/sysutils_imports_portable.cpp platform/runtime_failure_hooks_portable.cpp $(GAME_CPP_ROOT)/src/CrcUnit.cpp $(GAME_CPP_ROOT)/src/BlockParException.cpp $(GAME_CPP_ROOT)/src/EC_File.cpp $(GAME_CPP_ROOT)/src/EC_Struct.cpp $(GAME_CPP_ROOT)/src/EC_Buf.cpp $(GAME_CPP_ROOT)/src/EC_BlockPar.cpp $(GAME_CPP_ROOT)/src/EC_Str.cpp $(GAME_CPP_ROOT)/src/EC_Mem.cpp $(GAME_CPP_ROOT)/src/aPacket.cpp $(GAME_CPP_ROOT)/src/GR_Main.cpp $(GAME_CPP_ROOT)/runtime/runtime.cpp -Wl,--gc-sections -lz -o $(BUILD)/test_gr_main_release_config && $(BUILD)/test_gr_main_release_config "../../windows/Space Rangers HD A War Apart"
+
+host-platform-startup-test: | $(BUILD)
+	@g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iplatform -I$(GAME_CPP_ROOT)/src -I$(GAME_CPP_ROOT)/runtime ../../tests/test_platform_startup.cpp platform/package.cpp platform/game_path.cpp platform/ec_file_adapter.cpp platform/windows_imports_portable.cpp platform/sysutils_imports_portable.cpp platform/runtime_failure_hooks_portable.cpp platform/runtime_platform.cpp platform/startup_slice.cpp $(GAME_CPP_ROOT)/src/CrcUnit.cpp $(GAME_CPP_ROOT)/src/BlockParException.cpp $(GAME_CPP_ROOT)/src/EC_File.cpp $(GAME_CPP_ROOT)/src/EC_Struct.cpp $(GAME_CPP_ROOT)/src/EC_Buf.cpp $(GAME_CPP_ROOT)/src/EC_BlockPar.cpp $(GAME_CPP_ROOT)/src/EC_Str.cpp $(GAME_CPP_ROOT)/src/EC_Mem.cpp $(GAME_CPP_ROOT)/src/aPacket.cpp $(GAME_CPP_ROOT)/src/MessageText.cpp $(GAME_CPP_ROOT)/src/GR_Main.cpp $(GAME_CPP_ROOT)/runtime/runtime.cpp -Wl,--gc-sections -lz -o $(BUILD)/test_platform_startup && $(BUILD)/test_platform_startup
 
 host-package-cycle-test: | $(BUILD)
 	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_package_cycles.cpp platform/package.cpp -lz -o $(BUILD)/test_package_cycles
