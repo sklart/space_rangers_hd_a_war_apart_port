@@ -189,11 +189,26 @@ int main() {
   GR_Main::LanguageInstallConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
   GR_Main::LanguageInstallConfig->AddParam(u"Lang"_wref.get(), u"russian"_wref.get());
   GR_Main::SkipModsOnReload = false;
-  try { GR_Main::LoadDatConfigAndModOverrides(); } catch (...) { ok = false; }
-  ok = ok && GR_Main::MainDataConfig && GR_Main::LanguageDataConfig && GR_Main::CacheDataRoot &&
-      GR_Main::MainDataConfig->GetBlockByPath(u"Data"_wref.get())->GetParam(u"Origin"sv) == u"mod" &&
-      GR_Main::LanguageDataConfig->GetParam(u"Override"sv) == u"yes" &&
-      GR_Main::CacheDataRoot->FileExistsByPath(u"Base"_wref.get()) && GR_Main::CacheDataRoot->FileExistsByPath(u"Mod"_wref.get());
+  try { GR_Main::LoadDatConfigAndModOverrides(); } catch (...) {
+    std::fputs("DAT root load raised\n", stderr);
+    ok = false;
+  }
+  const bool roots_present = GR_Main::MainDataConfig && GR_Main::LanguageDataConfig && GR_Main::CacheDataRoot;
+  if (!roots_present) std::fputs("DAT root load returned missing root\n", stderr);
+  if (roots_present) {
+    try {
+      const bool merged = GR_Main::MainDataConfig->GetBlockByPath(u"Data"_wref.get())->GetParam(u"Origin"sv) == u"mod" &&
+          GR_Main::LanguageDataConfig->GetParam(u"Override"sv) == u"yes" &&
+          GR_Main::CacheDataRoot->FileExistsByPath(u"Base"_wref.get()) && GR_Main::CacheDataRoot->FileExistsByPath(u"Mod"_wref.get());
+      if (!merged) std::fputs("DAT root merge invariant failed\n", stderr);
+      ok = ok && merged;
+    } catch (...) {
+      std::fputs("DAT root merge assertion raised\n", stderr);
+      ok = false;
+    }
+  } else {
+    ok = false;
+  }
   FreeDatRoots();
   ok = ok && !GR_Main::MainDataConfig && !GR_Main::LanguageDataConfig && !GR_Main::CacheDataRoot;
   pas::free(GR_Main::CCInterface);
