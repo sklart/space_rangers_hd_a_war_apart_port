@@ -10,7 +10,10 @@
 | GR_Main configuration | `GR_Main::LoadLanguageAndPackages` → `LoadSelectedModInstallBlocks` → `aPacket::LoadConfiguredPackages` | `EC_Buf`, `EC_BlockPar`, `EC_Str`, `EC_Mem`, real globals, install/language/mod config, multi-package collection | common game-root resolver backs loose files and `FileExists` | Milestone 6: PASS on host for synthetic selected-mod precedence and release Russian configuration with 18 ordered sources |
 | platform runtime bootstrap | `startup_slice` → real `aPacket::InitializePackageCollection` → real install load | portable timing, lifecycle cleanup, logical window token | SDL2 window on Switch; headless token in CI | Milestone 7: host lifecycle/failure PASS; ARM64 NRO build PASS |
 | SDL window | `runtime_platform::CreateMainWindow` | SDL2 video + gamecontroller runtime | physical event loop not yet validated | M7: compiled ARM64; hardware pending |
-| renderer bootstrap | `GR_DXInit` and Direct3D/OKGF bridge | renderer device and presentation | Direct3D semantics have no reached portable backend | NEXT |
+| DAT roots | `GR_Main::LoadDatConfigAndModOverrides` | `EC_Data`, encrypted DAT loader, `CCInterface`, configured package collection | none on the reached portable path | M9: host/CI/ARM64 PASS |
+| user settings | `runtime_settings_slice` → `CFG.TXT` | contained writable user `config/`, `TFileEC::CreateNew` | no Win32 Documents/registry dependency | M9: host/CI/ARM64 PASS |
+| runtime config state | DAT roots → `GameDataConfig`, `UiStyleConfig`, `UiDepthConfig`, `WideCaseTable` | real `Main.dat`, language DAT, cache root | GlobalCache/audio/global UI intentionally not entered | M9: host/CI/ARM64 PASS |
+| renderer bootstrap | `GR_DXInit` and Direct3D/OKGF bridge | renderer device and presentation | Direct3D semantics have no reached portable backend | M8: PASS |
 | audio | DirectSound path | audio device | intentionally deferred | DEFERRED |
 | resource | `CrcUnit.cpp`: `ComputeCrc32` | portable Delphi helpers | none on compiled path | PASS: linked ARM64 |
 | renderer | `GR_Main`, `EC_OKGF`, OKGF | window, `okgf.dll` ABI | game-facing adapter incomplete | portable OKGF is fully built, linked and fills a CPU framebuffer |
