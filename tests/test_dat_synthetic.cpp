@@ -1,4 +1,5 @@
 #include "ec_file_adapter.hpp"
+#include "runtime_settings_slice.hpp"
 #include "units/EC_BlockPar.hpp"
 #include "units/EC_Data.hpp"
 #include "units/GR_Main.hpp"
@@ -167,7 +168,13 @@ int main() {
   const auto data_base = BlockWith([&] { std::vector<std::uint8_t> e; AppendString(&e, u"Origin", u"base"); return e; }(), 1);
   const auto data_mod = BlockWith([&] { std::vector<std::uint8_t> e; AppendString(&e, u"Origin", u"mod"); return e; }(), 1);
   const auto ml = BlockWith([&] { std::vector<std::uint8_t> e; AppendString(&e, u"Tag", u"base"); return e; }(), 1);
-  const auto zpos = BlockWith([&] { std::vector<std::uint8_t> e; AppendString(&e, u"Planet", u"1"); return e; }(), 1);
+  const auto zpos = BlockWith([&] {
+    std::vector<std::uint8_t> e;
+    for (const auto* name : {u"Planet", u"UnitPathShip", u"UnitPathEndShip", u"UnitPath", u"UnitPathEnd",
+                             u"ButtonAction", u"GalaxyStar", u"GalaxyStarName", u"GalaxyWar",
+                             u"ConstellationLine", u"ConstellationColor"}) AppendString(&e, name, u"1");
+    return e;
+  }(), 11);
   std::vector<std::uint8_t> main_entries;
   AppendBlock(&main_entries, u"Data", data_base); AppendBlock(&main_entries, u"ML", ml); AppendBlock(&main_entries, u"ZPos", zpos);
   std::vector<std::uint8_t> mod_main_entries; AppendBlock(&mod_main_entries, u"Data", data_mod);
@@ -215,6 +222,23 @@ int main() {
   ok = ok && !GR_Main::MainDataConfig && !GR_Main::LanguageDataConfig && !GR_Main::CacheDataRoot;
   pas::free(GR_Main::CCInterface);
   GR_Main::CCInterface = nullptr;
+  srhd_awa::platform::ec_file::SetUserRoot((root / "user").string());
+  std::ofstream(root / "cfg.txt") << "VSync=True\nRenderModeScale=True\nDisableFrameLimit=False\n";
+  GR_Main::LanguageInstallConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
+  GR_Main::LanguageInstallConfig->AddParam(u"Lang"_wref.get(), u"russian"_wref.get());
+  std::string runtime_error;
+  const bool runtime_once = srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error);
+  ok = ok && runtime_once && GR_Main::GameDataConfig && GR_Main::UiStyleConfig && GR_Main::UiDepthConfig &&
+      GR_Main::WideCaseTable.length() == 1 && GR_Main::VSyncEnabled &&
+      std::filesystem::is_regular_file(root / "user" / "config" / "CFG.TXT");
+  srhd_awa::platform::runtime_settings_slice::Shutdown();
+  const bool runtime_twice = srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error);
+  ok = ok && runtime_twice;
+  srhd_awa::platform::runtime_settings_slice::Shutdown();
+  FreeDatRoots();
+  ok = ok && !GR_Main::CCInterface && !GR_Main::UserSettingsConfig && !GR_Main::NewGameSettingsConfig &&
+      !GR_Main::MainDataConfig && !GR_Main::LanguageDataConfig && !GR_Main::CacheDataRoot &&
+      GR_Main::WideCaseTable.length() == 0;
   aPacket::FinalizePackageCollection();
   std::filesystem::remove_all(root, error);
   if (ok) std::puts("encrypted DAT synthetic regression passed");
