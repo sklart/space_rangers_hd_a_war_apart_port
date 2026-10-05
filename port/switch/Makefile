@@ -11,6 +11,7 @@ BUILD := build
 SOURCES := source
 INCLUDES := include
 GAME_CPP_ROOT := ../../upstream/cpp
+BUILD_GIT_COMMIT := $(shell git -C ../.. rev-parse --short HEAD)
 
 CC := $(DEVKITA64)/bin/aarch64-none-elf-gcc
 CXX := $(DEVKITA64)/bin/aarch64-none-elf-g++
@@ -20,7 +21,7 @@ INCLUDE := -I$(LIBNX)/include -I$(PORTLIBS)/include -I$(INCLUDES) -Iplatform -I$
 LIBDIRS := -L$(LIBNX)/lib -L$(PORTLIBS)/lib
 ARCH := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 CFLAGS := -g -O2 -Wall -Wextra $(ARCH) -ffunction-sections -fdata-sections $(INCLUDE) -D__SWITCH__
-CXXFLAGS := $(CFLAGS) -std=gnu++20
+CXXFLAGS := $(CFLAGS) -std=gnu++20 -DBUILD_GIT_COMMIT=\"$(BUILD_GIT_COMMIT)\"
 LDFLAGS := -specs=$(LIBNX)/switch.specs -g $(ARCH) -Wl,-Map,$(BUILD)/$(TARGET).map -Wl,--gc-sections
 OKGF_LIB := $(BUILD)/okgf/libokgf.a
 OKGF_SOFTFLOAT_LIB := $(BUILD)/okgf/vendor/softfloat/libokgf_softfloat.a

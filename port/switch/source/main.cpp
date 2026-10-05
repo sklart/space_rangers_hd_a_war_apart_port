@@ -75,6 +75,7 @@ bool ReadRequiredAsset(const char* root) {
 
 int main(int argc, char** argv) {
   Log("[BOOT] BEGIN Space Rangers HD: A War Apart");
+  Log("[BOOT] build_git=%s baseline_rangers_sha256=83300344af802bc51e64389c58f047e5afdf195c133048098be3881fae29ed98", BUILD_GIT_COMMIT);
   Log("[BOOT] runtime units=CrcUnit,System,SystemImports (SpaceRangersHD_CPP)");
   SystemImports::Randomize();
   Log("[GAME] PASS SystemImports::Randomize RandSeed=%lu", static_cast<unsigned long>(System::RandSeed));
