@@ -54,6 +54,7 @@ void Stage(const char* name, bool pass, const char* reason = nullptr) {
   if (pass) Log("[STAGE] %s PASS", name);
   else Log("[STAGE] %s FAIL %s", name, reason ? reason : "unknown");
 }
+void StageBegin(const char* name) { Log("[STAGE] %s BEGIN", name); }
 
 struct Fingerprint { std::uint64_t hash{UINT64_C(1469598103934665603)}; std::uint32_t entries{}; std::uint32_t blocks{}; std::uint32_t params{}; std::uint32_t files{}; std::uint32_t nodes{}; std::uint32_t depth{}; };
 void HashByte(Fingerprint* fp, std::uint8_t value) { fp->hash = (fp->hash ^ value) * UINT64_C(1099511628211); }
@@ -74,9 +75,11 @@ const char* GameRoot(int argc, char** argv) {
 
 bool ConfigurePackages(srhd_awa::platform::startup_slice::State* state, const char* root) {
   std::string error;
+  StageBegin("startup configuration");
   Log("[M7] platform init begin");
   if (!srhd_awa::platform::startup_slice::Initialize(state, root, kDefaultUserRoot, kLogPath, &error)) {
     Log("[M7] FAIL startup=%s", error.c_str());
+    Stage("startup configuration", false, error.c_str());
     return false;
   }
   Log("[M7] timing PASS frequency=%lld", static_cast<long long>(GR_Main::PerformanceCounterFrequency));
@@ -89,6 +92,13 @@ bool ConfigurePackages(srhd_awa::platform::startup_slice::State* state, const ch
   while (EC_HsFile::PackageCollection->GetPackByIndex(package_count)) ++package_count;
   Log("[M7] language packages PASS language=%s count=%ld",
       GR_Main::SelectedLanguage == u"russian" ? "russian" : "unexpected", static_cast<long>(package_count));
+  Log("[M7] configured sources=%ld", static_cast<long>(package_count));
+  if (GR_Main::SelectedLanguage != u"russian" || package_count != 18) {
+    Stage("configured packages", false, "release baseline mismatch");
+    return false;
+  }
+  Stage("configured packages", true);
+  Stage("startup configuration", true);
   return true;
 }
 
@@ -212,9 +222,11 @@ int main(int argc, char** argv) {
   Stage("SDL/platform services", true);
   Stage("window", true);
   std::string m9_error;
+  StageBegin("DAT/runtime config");
   Log("[M9] dat config begin");
   if (!srhd_awa::platform::runtime_settings_slice::Initialize(&m9_error)) {
     Log("[M9] FAIL runtime config=%s", m9_error.c_str());
+    Stage("DAT/runtime config", false, m9_error.c_str());
     srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
@@ -236,6 +248,7 @@ int main(int argc, char** argv) {
   srhd_awa::platform::runtime_platform::PumpEvents(startup.platform);
   srhd_awa::platform::renderer_platform::SetNativeWindow(startup.platform.native_window);
   const bool renderer_ok = RunRendererSelfTest();
+  if (!renderer_ok) Stage("renderer self-test", false);
 #ifdef __SWITCH__
   if (renderer_ok) {
     Log("[M8] visible-frame hold BEGIN seconds=5");
@@ -247,6 +260,7 @@ int main(int argc, char** argv) {
   }
 #endif
   const bool resource_ok = ReadRequiredAsset(game_root);
+  Stage("package baseline", resource_ok);
   Log("[FILESYSTEM] %s game-root", resource_ok && renderer_ok ? "PASS" : "FAIL");
   Log("[M7] startup boundary %s", resource_ok ? "reached" : "failed");
   srhd_awa::platform::renderer_platform::ShutdownSoftwareRenderer();
