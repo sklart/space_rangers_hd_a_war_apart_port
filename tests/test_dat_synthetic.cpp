@@ -139,7 +139,8 @@ bool LoadRejectedDatKeepsBlock(const std::filesystem::path& path,
 }
 
 bool RejectsMalformedDat(const std::filesystem::path& path,
-                         const std::vector<std::uint8_t>& bytes) {
+                         const std::vector<std::uint8_t>& bytes,
+                         EC_BlockPar::TBlockParEC* block) {
   if (!WriteFile(path, bytes)) return false;
   GR_Main::CCInterface->SetResourceChecksumFailed(false);
   bool raised = false;
@@ -202,11 +203,11 @@ int main() {
   ok = ok && outer_size_rejected;
   auto truncated = good_block;
   truncated.resize(11);
-  const bool truncation_rejected = RejectsMalformedDat(root / "block.dat", truncated);
+  const bool truncation_rejected = RejectsMalformedDat(root / "block.dat", truncated, loaded_block);
   if (!truncation_rejected) std::fputs("truncated DAT was not rejected\n", stderr);
   ok = ok && truncation_rejected;
   const bool invalid_stream_rejected = RejectsMalformedDat(root / "block.dat",
-      BuildRawDat({0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07}, kBlockSeedKey));
+      BuildRawDat({0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07}, kBlockSeedKey), loaded_block);
   if (!invalid_stream_rejected) std::fputs("invalid compressed DAT was not rejected\n", stderr);
   ok = ok && invalid_stream_rejected;
   pas::free(loaded_block);
