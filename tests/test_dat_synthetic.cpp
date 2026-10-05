@@ -187,18 +187,28 @@ int main() {
   ok = loaded_block->GetParam(u"Name"sv) == u"Value" && !loaded_data->IsEmpty();
   auto bad_outer = good_block;
   bad_outer[4] ^= 0x80;
-  ok = ok && LoadRejectedDatKeepsBlock(root / "block.dat", bad_outer, loaded_block);
+  const bool outer_crc_rejected = LoadRejectedDatKeepsBlock(root / "block.dat", bad_outer, loaded_block);
+  if (!outer_crc_rejected) std::fputs("bad outer CRC was not rejected\n", stderr);
+  ok = ok && outer_crc_rejected;
   auto bad_inner = good_block;
   bad_inner[16] ^= 0x80;
-  ok = ok && LoadRejectedDatKeepsBlock(root / "block.dat", bad_inner, loaded_block);
+  const bool inner_crc_rejected = LoadRejectedDatKeepsBlock(root / "block.dat", bad_inner, loaded_block);
+  if (!inner_crc_rejected) std::fputs("bad inner CRC was not rejected\n", stderr);
+  ok = ok && inner_crc_rejected;
   auto bad_outer_size = good_block;
   bad_outer_size[0] ^= 0x01;
-  ok = ok && LoadRejectedDatKeepsBlock(root / "block.dat", bad_outer_size, loaded_block);
+  const bool outer_size_rejected = LoadRejectedDatKeepsBlock(root / "block.dat", bad_outer_size, loaded_block);
+  if (!outer_size_rejected) std::fputs("bad outer size was not rejected\n", stderr);
+  ok = ok && outer_size_rejected;
   auto truncated = good_block;
   truncated.resize(11);
-  ok = ok && RejectsMalformedDat(root / "block.dat", truncated);
-  ok = ok && RejectsMalformedDat(root / "block.dat",
+  const bool truncation_rejected = RejectsMalformedDat(root / "block.dat", truncated);
+  if (!truncation_rejected) std::fputs("truncated DAT was not rejected\n", stderr);
+  ok = ok && truncation_rejected;
+  const bool invalid_stream_rejected = RejectsMalformedDat(root / "block.dat",
       BuildRawDat({0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07}, kBlockSeedKey));
+  if (!invalid_stream_rejected) std::fputs("invalid compressed DAT was not rejected\n", stderr);
+  ok = ok && invalid_stream_rejected;
   pas::free(loaded_block);
   pas::free(loaded_data);
 
