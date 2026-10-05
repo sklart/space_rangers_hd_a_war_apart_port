@@ -15,9 +15,6 @@ jobs:
       - name: Build and run asset-free corrupt package regression
         run: |
           mkdir -p build port/switch/build
-          git -C upstream/cpp apply ../../port/switch/platform/gr_main_portable.patch
-          git -C upstream/cpp apply --ignore-space-change ../../port/switch/platform/gr_main_zlib_portable.patch
-          trap 'git -C upstream/cpp apply -R --ignore-space-change ../../port/switch/platform/gr_main_zlib_portable.patch; git -C upstream/cpp apply -R --ignore-space-change ../../port/switch/platform/gr_main_portable.patch' EXIT
           startup_sources="port/switch/platform/package.cpp port/switch/platform/game_path.cpp port/switch/platform/user_root.cpp port/switch/platform/ec_file_adapter.cpp port/switch/platform/windows_imports_portable.cpp port/switch/platform/sysutils_imports_portable.cpp port/switch/platform/runtime_time.cpp port/switch/platform/runtime_failure_hooks_portable.cpp upstream/cpp/src/CrcUnit.cpp upstream/cpp/src/BlockParException.cpp upstream/cpp/src/EC_File.cpp upstream/cpp/src/EC_Struct.cpp upstream/cpp/src/EC_Buf.cpp upstream/cpp/src/EC_BlockPar.cpp upstream/cpp/src/EC_Str.cpp upstream/cpp/src/EC_Mem.cpp upstream/cpp/src/aPacket.cpp upstream/cpp/src/GR_Main.cpp upstream/cpp/runtime/runtime.cpp"
           platform_startup_sources="$startup_sources port/switch/platform/runtime_platform.cpp port/switch/platform/startup_slice.cpp upstream/cpp/src/MessageText.cpp"
           g++ -std=c++20 -Wall -Wextra -Wpedantic -Iport/switch/platform tests/test_corrupt_package.cpp port/switch/platform/package.cpp -lz -o port/switch/build/test_corrupt_package
@@ -28,15 +25,20 @@ jobs:
           port/switch/build/test_ec_file_synthetic
           g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_blockpar_synthetic.cpp $startup_sources -Wl,--gc-sections -lz -o port/switch/build/test_blockpar_synthetic
           port/switch/build/test_blockpar_synthetic
+          git -C upstream/cpp apply ../../port/switch/platform/gr_main_portable.patch
+          git -C upstream/cpp apply --ignore-space-change ../../port/switch/platform/gr_main_zlib_portable.patch
           dat_sources="port/switch/platform/package.cpp port/switch/platform/game_path.cpp port/switch/platform/user_root.cpp port/switch/platform/ec_file_adapter.cpp port/switch/platform/windows_imports_portable.cpp port/switch/platform/sysutils_imports_portable.cpp port/switch/platform/runtime_time.cpp port/switch/platform/runtime_failure_hooks_portable.cpp port/switch/platform/zlib_bridge.cpp upstream/cpp/src/CrcUnit.cpp upstream/cpp/src/System.cpp upstream/cpp/src/SystemImports.cpp upstream/cpp/src/BlockParException.cpp upstream/cpp/src/GI_Main.cpp upstream/cpp/src/GlobalsV.cpp upstream/cpp/src/aMyFunction.cpp upstream/cpp/src/EC_File.cpp upstream/cpp/src/EC_Struct.cpp upstream/cpp/src/EC_Buf.cpp upstream/cpp/src/EC_BlockPar.cpp upstream/cpp/src/EC_Data.cpp upstream/cpp/src/EC_Str.cpp upstream/cpp/src/EC_Mem.cpp upstream/cpp/src/aPacket.cpp upstream/cpp/src/MessageText.cpp upstream/cpp/src/GR_GraphBuf.cpp upstream/cpp/src/GR_Main.cpp upstream/cpp/runtime/runtime.cpp"
           g++ -std=c++20 -Wall -Wextra -Wpedantic -DSRHD_PORTABLE_RENDERER -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_dat_synthetic.cpp $dat_sources -Wl,--gc-sections -lz -o port/switch/build/test_dat_synthetic
           port/switch/build/test_dat_synthetic
+          git -C upstream/cpp apply -R --ignore-space-change ../../port/switch/platform/gr_main_zlib_portable.patch
+          git -C upstream/cpp apply -R --ignore-space-change ../../port/switch/platform/gr_main_portable.patch
           g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_gr_main_no_mod_startup.cpp $startup_sources -Wl,--gc-sections -lz -o port/switch/build/test_gr_main_no_mod_startup
           port/switch/build/test_gr_main_no_mod_startup
           g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_gr_main_config_startup.cpp $startup_sources -Wl,--gc-sections -lz -o port/switch/build/test_gr_main_config_startup
           port/switch/build/test_gr_main_config_startup
           g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_platform_startup.cpp $platform_startup_sources -Wl,--gc-sections -lz -o port/switch/build/test_platform_startup
           port/switch/build/test_platform_startup
+          git -C upstream/cpp apply ../../port/switch/platform/gr_main_portable.patch
           mkdir -p port/switch/build/host-renderer
           for source in pixels copy alpha_buffers gradients; do
             gcc -std=c11 -Iupstream/okgf/include -Iupstream/okgf/src -c "upstream/okgf/src/$source.c" -o "port/switch/build/host-renderer/$source.o"
@@ -44,5 +46,6 @@ jobs:
           gcc -std=c11 -Iupstream/okgf/include -Iupstream/okgf/src -c upstream/okgf/src/math/precision.c -o port/switch/build/host-renderer/precision.o
           g++ -std=c++20 -Wall -Wextra -Wpedantic -DSRHD_PORTABLE_RENDERER -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime -Iupstream/okgf/include tests/test_renderer_software.cpp port/switch/platform/okgf_bridge.cpp port/switch/platform/renderer_platform.cpp port/switch/platform/runtime_failure_hooks_portable.cpp port/switch/platform/windows_imports_portable.cpp upstream/cpp/src/System.cpp upstream/cpp/src/SystemImports.cpp upstream/cpp/src/EC_Struct.cpp upstream/cpp/src/EC_Mem.cpp upstream/cpp/src/GR_GraphBuf.cpp upstream/cpp/src/GR_Main.cpp upstream/cpp/runtime/runtime.cpp port/switch/build/host-renderer/pixels.o port/switch/build/host-renderer/copy.o port/switch/build/host-renderer/alpha_buffers.o port/switch/build/host-renderer/gradients.o port/switch/build/host-renderer/precision.o -Wl,--gc-sections -lm -o port/switch/build/test_renderer_software
           port/switch/build/test_renderer_software
+          git -C upstream/cpp apply -R --ignore-space-change ../../port/switch/platform/gr_main_portable.patch
           g++ -std=c++20 -Wall -Wextra -Wpedantic -Iport/switch/platform tests/test_zl02_synthetic.cpp port/switch/platform/package.cpp -lz -o port/switch/build/test_zl02_synthetic
           port/switch/build/test_zl02_synthetic
