@@ -38,8 +38,10 @@ bool Initialize(State* state, const std::string& game_root, const std::string& u
   }
   srhd_awa::platform::ec_file::SetGameRoot(game_root);
   srhd_awa::platform::ec_file::SetUserRoot(user_root);
+  const char* stage = "platform services";
   try {
     if (!runtime_platform::InitializePlatformServices(&state->platform, error)) return false;
+    stage = "package collection";
     GR_Main::PerformanceCounterFrequency = state->platform.timing_frequency;
     if (!aPacket::InitializePackageCollection()) {
       if (error) *error = "package collection initialization failed";
@@ -47,14 +49,17 @@ bool Initialize(State* state, const std::string& game_root, const std::string& u
       return false;
     }
     state->package_collection_initialized = true;
+    stage = "main window";
     if (!runtime_platform::CreateMainWindow(&state->platform, error)) {
       Shutdown(state);
       return false;
     }
     // A token is deliberately used instead of truncating an SDL_Window pointer.
     GR_Main::MainWindowHandle = state->platform.window_token;
+    stage = "install config";
     GR_Main::InstallConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
     GR_Main::InstallConfig->LoadFromTextFileWithEncodingProbe(const_cast<char16_t*>(u"install.txt"), false);
+    stage = "startup log";
     pas::text_assign(GR_Main::SessionLog, startup_log_path.c_str(), false);
     // Portable equivalent of CreateStartupLogFile: use the caller's writable root,
     // retain the release file-create/write/close sequence, and avoid Documents/VCL.
@@ -64,11 +69,13 @@ bool Initialize(State* state, const std::string& game_root, const std::string& u
     GR_Main::SelectedLanguage = u"russian"_w;
     GR_Main::RequestedLanguage = pas::WideString();
     GR_Main::SkipModsOnReload = false;
+    stage = "language and packages";
     GR_Main::LoadLanguageAndPackages();
+    stage = "quest messages";
     MessageText::QuestMessages = pas::construct_call<MessageText::TQuestMessages>(MessageText::TQuestMessages_Create);
     return true;
   } catch (...) {
-    if (error) *error = "translated startup configuration failed";
+    if (error) *error = std::string("translated startup configuration failed at ") + stage;
     Shutdown(state);
     return false;
   }
