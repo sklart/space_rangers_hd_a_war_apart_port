@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <switch.h>
+#include <okgf.h>
 #include "units/CrcUnit.hpp"
 #include "units/System.hpp"
 #include "units/SystemImports.hpp"
@@ -67,6 +68,13 @@ int main(int argc, char** argv) {
     return 1;
   }
   Log("[PLATFORM] PASS presentation=1280x720");
+  std::uint16_t framebuffer[4]{};
+  OKGR_Fill_WORD(framebuffer, static_cast<std::int32_t>(sizeof(framebuffer)), 2, 2, 0x07e0);
+  if (framebuffer[0] != 0x07e0 || framebuffer[3] != 0x07e0) {
+    Log("[OKGF] FAIL OKGR_Fill_WORD framebuffer validation");
+  } else {
+    Log("[OKGF] PASS portable renderer CPU framebuffer 2x2");
+  }
   const bool resource_ok = ReadRequiredAsset(game_root);
   Log("[FILESYSTEM] %s game-root", resource_ok ? "PASS" : "FAIL");
   Log("[GAME] %s real C++ runtime bootstrap", resource_ok ? "PASS" : "WAITING_FOR_PACKAGE_LOADER");
