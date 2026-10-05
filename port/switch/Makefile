@@ -86,6 +86,9 @@ host-zl02-synthetic-test: | $(BUILD)
 	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_zl02_synthetic.cpp platform/package.cpp -lz -o $(BUILD)/test_zl02_synthetic
 	$(BUILD)/test_zl02_synthetic
 
+host-release-regression: host-package-test host-package-tree-test host-package-payload-cpp-test host-package-payload-test
+	@echo RELEASE REGRESSION PASS
+
 host-corrupt-package-test: | $(BUILD)
 	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_corrupt_package.cpp platform/package.cpp -lz -o $(BUILD)/test_corrupt_package
 	$(BUILD)/test_corrupt_package
