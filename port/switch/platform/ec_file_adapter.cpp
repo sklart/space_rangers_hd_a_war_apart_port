@@ -121,9 +121,14 @@ std::int32_t TPackFileEC::OpenEntryByPath(pas::AnsiString path, std::uint32_t) {
   if (!state || !state->opened || slot < 0) return -1;
   OpenSlot& open = state->slots[slot];
   if (UseLooseFiles) {
-    std::string file_path = srhd_awa::platform::user_root::ResolveConfigPath(path.c_str());
-    if (file_path.empty()) file_path = srhd_awa::platform::game_path::Resolve(path.c_str());
-    if (file_path.empty() || !(open.loose_file = std::fopen(file_path.c_str(), "rb"))) return -1;
+    // A user config may override a loose read, but a missing user file must not
+    // shadow the read-only game installation (for example INSTALL.TXT).
+    const std::string user_path = srhd_awa::platform::user_root::ResolveConfigPath(path.c_str());
+    if (!user_path.empty()) open.loose_file = std::fopen(user_path.c_str(), "rb");
+    if (!open.loose_file) {
+      const std::string game_path = srhd_awa::platform::game_path::Resolve(path.c_str());
+      if (game_path.empty() || !(open.loose_file = std::fopen(game_path.c_str(), "rb"))) return -1;
+    }
     if (std::fseek(open.loose_file, 0, SEEK_END) != 0 || (open.size = std::ftell(open.loose_file)) == UINT64_MAX || std::fseek(open.loose_file, 0, SEEK_SET) != 0) {
       std::fclose(open.loose_file); open = {}; return -1;
     }
