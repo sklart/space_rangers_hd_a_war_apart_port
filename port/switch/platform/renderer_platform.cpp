@@ -151,8 +151,23 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
     g_texture_height = height;
   }
   if (SDL_UpdateTexture(g_sdl_texture, nullptr, pixels, pitch) != 0) return false;
+  int output_width{};
+  int output_height{};
+  if (SDL_GetRendererOutputSize(g_sdl_renderer, &output_width, &output_height) != 0 ||
+      output_width <= 0 || output_height <= 0) return false;
+  const float scale_x = static_cast<float>(output_width) / static_cast<float>(width);
+  const float scale_y = static_cast<float>(output_height) / static_cast<float>(height);
+  const float scale = scale_x < scale_y ? scale_x : scale_y;
+  const int destination_width = static_cast<int>(static_cast<float>(width) * scale);
+  const int destination_height = static_cast<int>(static_cast<float>(height) * scale);
+  const SDL_Rect destination{
+      (output_width - destination_width) / 2,
+      (output_height - destination_height) / 2,
+      destination_width,
+      destination_height,
+  };
   SDL_RenderClear(g_sdl_renderer);
-  SDL_RenderCopy(g_sdl_renderer, g_sdl_texture, nullptr, nullptr);
+  if (SDL_RenderCopy(g_sdl_renderer, g_sdl_texture, nullptr, &destination) != 0) return false;
   SDL_RenderPresent(g_sdl_renderer);
 #endif
   ++g_presentation_count;

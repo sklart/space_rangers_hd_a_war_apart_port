@@ -170,10 +170,13 @@ int main(int argc, char** argv) {
   srhd_awa::platform::startup_slice::State startup;
   if (!ConfigurePackages(&startup, game_root)) return 1;
   srhd_awa::platform::runtime_platform::PumpEvents(startup.platform);
+  srhd_awa::platform::renderer_platform::SetNativeWindow(startup.platform.native_window);
   const bool renderer_ok = RunRendererSelfTest();
   const bool resource_ok = ReadRequiredAsset(game_root);
   Log("[FILESYSTEM] %s game-root", resource_ok && renderer_ok ? "PASS" : "FAIL");
   Log("[M7] startup boundary %s", resource_ok ? "reached" : "failed");
+  srhd_awa::platform::renderer_platform::ShutdownSoftwareRenderer();
+  srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
   srhd_awa::platform::startup_slice::Shutdown(&startup);
   return resource_ok && renderer_ok ? 0 : 1;
 }
