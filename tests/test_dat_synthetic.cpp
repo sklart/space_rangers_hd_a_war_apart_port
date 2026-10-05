@@ -228,11 +228,13 @@ int main() {
   GR_Main::LanguageInstallConfig->AddParam(u"Lang"_wref.get(), u"russian"_wref.get());
   std::string runtime_error;
   const bool runtime_once = srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error);
+  if (!runtime_once) std::fprintf(stderr, "runtime initialization failed: %s\n", runtime_error.c_str());
   ok = ok && runtime_once && GR_Main::GameDataConfig && GR_Main::UiStyleConfig && GR_Main::UiDepthConfig &&
       GR_Main::WideCaseTable.length() == 1 && GR_Main::VSyncEnabled &&
       std::filesystem::is_regular_file(root / "user" / "config" / "CFG.TXT");
   srhd_awa::platform::runtime_settings_slice::Shutdown();
   const bool runtime_twice = srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error);
+  if (!runtime_twice) std::fprintf(stderr, "runtime reinitialization failed: %s\n", runtime_error.c_str());
   ok = ok && runtime_twice;
   srhd_awa::platform::runtime_settings_slice::Shutdown();
   FreeDatRoots();
