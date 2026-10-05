@@ -72,6 +72,13 @@ The initial golden value is FNV-1a-64 `3a9dfdc6db5aacd7`; control pixels verify
 the background and primitive writes. The test also checks invalid dimensions,
 presentation before init, init/shutdown/re-init and global cleanup.
 
+The final ARM64 ELF audit retains `TGraphBufGR_Create`,
+`TGraphBufGR::AllocateNativePitch`, `BeginFramePresentation`,
+`EndFramePresentation`, `PresentScreenBuffer`, `InitializeSoftwareRenderer`,
+`PresentRgb565`, and the direct OKGF bridge entry points. It contains none of
+`Direct3DCreate9`, `IDirect3D9_CreateDevice`, `DirectSoundCreate`,
+`RegOpenKeyEx`, `SteamAPI` or `Rangers::ProgramMain`.
+
 The next reached boundary after M8 is release-compatible settings/runtime
 initialization for actual game-loop startup. Direct3D texture management,
 audio, registry, Steam and `ProgramMain` remain outside the reached path.

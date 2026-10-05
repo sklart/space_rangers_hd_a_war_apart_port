@@ -1,4 +1,4 @@
-# Current status — Milestone 8 software renderer in progress
+# Current status — Milestone 8 software renderer complete
 
 Baseline SHA-256 is verified: `83300344af802bc51e64389c58f047e5afdf195c133048098be3881fae29ed98`.
 
@@ -9,9 +9,10 @@ Baseline SHA-256 is verified: `83300344af802bc51e64389c58f047e5afdf195c133048098
 - Milestone 5: **HOST PASS / ARM64 BUILD PASS / HARDWARE PENDING**. The real translated `EC_Buf.cpp`, `EC_BlockPar.cpp`, `EC_Str.cpp`, `EC_Mem.cpp` and `aPacket.cpp` parse `INSTALL.TXT` plus a language install file, then load loose, language-mod, language, mod and base packages in upstream order.
 - Milestone 6: **HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE PENDING**. The NRO links and executes real `GR_Main::LoadLanguageAndPackages()` and `LoadSelectedModInstallBlocks()` after loading `INSTALL.TXT`; its real globals replace the former shim. A shared game-root resolver serves loose files and `SysUtilsImports::FileExists`, including Windows separators and case-insensitive layout lookup. Asset-free CI run `37322795965` passed.
 - Milestone 7: **HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE PENDING**. `runtime_platform` provides libnx/SDL timing and window bootstrap behind a logical `MainWindowHandle` token; the host backend is headless. The startup slice retains release configuration order after platform setup: real package collection, logical window, real install config, real language/package loader and `MessageText::TQuestMessages`. It has explicit shutdown and failure cleanup; no Direct3D, DirectSound, registry, Steam or `ProgramMain` enters the reached path. Asset-free CI run `37326293948` passed.
+- Milestone 8: **HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE PENDING**. Real `GR_GraphBuf` CPU RGB565 buffers, the retained translated frame presentation sequence and direct `libokgf.a` bridge are connected to an SDL RGB565 streaming texture on Switch; output is aspect-correct letterboxed. The headless host regression checks `3a9dfdc6db5aacd7`, primitives, nested presentation and init/shutdown/re-init. CI run `37333015418` passed.
 - Milestone 3.1: **HOST PASS / ARM64 BUILD PASS / HARDWARE PENDING**. Asset-free CI runs self/indirect-cycle, normal recursion, repeated completed offset, cleanup-after-failure, corrupt package and synthetic `ZL02` fixtures. ASan/UBSan are unavailable in the local devkitPro MSYS environment (missing sanitizer runtimes), so ordinary host regressions are the recorded local evidence.
 - Switch skeleton: PASS — `SpaceRangersHDAWarApart.nro` builds with SDL2/libnx.
 - OKGF: PASS for compile/link — the complete portable library and SoftFloat build for ARM64 with JPEG/PNG/zlib; NRO calls `OKGR_Fill_WORD` on a CPU framebuffer. Hardware presentation remains unverified.
 - MatrixGame: BLOCKED as documented separate Windows/D3D9 x86 DLL.
 
-Hardware validation remains PENDING and is tracked separately. It does not block host/cross development through Milestone 7; no gameplay path is hardware-verified before a real Switch run.
+Hardware validation remains PENDING and is tracked separately. It does not block host/cross development through Milestone 8; no gameplay path is hardware-verified before a real Switch run.
