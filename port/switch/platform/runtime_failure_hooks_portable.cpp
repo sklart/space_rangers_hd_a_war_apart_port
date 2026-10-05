@@ -44,12 +44,6 @@ std::uint32_t RandSeed{};
 }  // namespace System
 #endif
 
-#if !defined(__SWITCH__)
-namespace WindowsImports {
-std::uint32_t PAS_STDCALL GetTickCount() { return 0; }
-}  // namespace WindowsImports
-#endif
-
 namespace WindowsSdk {
 std::int32_t PAS_STDCALL RegCloseKey(HKEY) { return 1; }
 
