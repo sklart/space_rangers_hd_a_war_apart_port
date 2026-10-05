@@ -72,6 +72,9 @@ void LoadUserSettings() {
     GR_Main::UserSettingsConfig->LoadFromTextFileWithEncodingProbe(path.pchar(), true);
   } else {
     GR_Main::UserSettingsConfig->LoadFromTextFileWithEncodingProbe(const_cast<char16_t*>(u"cfg.txt"), false);
+    // Materialize the shipped template in the portable writable root before
+    // applying migrations, matching the release copy-then-open lifecycle.
+    GR_Main::UserSettingsConfig->SaveTextFile(path.pchar(), true, false);
   }
   bool changed = !exists;
   if (!HasParam(GR_Main::UserSettingsConfig, u"CurrentVersion")) {
