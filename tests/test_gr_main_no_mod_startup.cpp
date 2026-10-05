@@ -49,6 +49,14 @@ int main() {
       packages->GetPackByIndex(0)->UseLooseFiles &&
       packages->GetPackByIndex(1)->PackagePath == "DATA\\language.pkg" &&
       packages->GetPackByIndex(2)->PackagePath == "DATA\\base.pkg" && !packages->GetPackByIndex(3);
+  if (!ok) {
+    std::fprintf(stderr, "no-mod startup mismatch: mods=%d language-mods=%d pack1=%s pack2=%s pack3=%p\n",
+                 pas::list_count(GR_Main::ModInstallConfigs),
+                 pas::list_count(GR_Main::ModLanguageInstallConfigs),
+                 packages->GetPackByIndex(1) ? packages->GetPackByIndex(1)->PackagePath.c_str() : "<null>",
+                 packages->GetPackByIndex(2) ? packages->GetPackByIndex(2)->PackagePath.c_str() : "<null>",
+                 static_cast<void*>(packages->GetPackByIndex(3)));
+  }
   aPacket::FinalizePackageCollection();
   FreeConfigs();
   std::filesystem::remove_all(root);
