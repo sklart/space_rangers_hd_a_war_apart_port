@@ -11,7 +11,7 @@ struct PackEntryDisk { uint32_t stored_size, data_size; char upper_name[63], ori
 static_assert(sizeof(PackEntryDisk) == 158);
 struct Entry { uint32_t stored_size{}, data_size{}, target_offset{}; int32_t kind{}, kind_copy{}; uint32_t flags{}; std::string upper_name, original_name; std::unique_ptr<struct Folder> child; };
 struct Folder { std::vector<Entry> entries; };
-struct Summary { uint32_t folders{}, files{}, entries{}, max_depth{}; std::vector<std::string> paths; };
+struct Summary { uint32_t folders{}, files{}, entries{}, max_depth{}; uint64_t tree_hash{}; std::vector<std::string> paths; };
 class Package {
  public:
   bool Open(const std::string& path, std::string* error);
