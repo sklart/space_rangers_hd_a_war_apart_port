@@ -157,10 +157,14 @@ void ApplyPortableRuntimeSettings() {
   GlobalsV::MusicInPlanetEnabled = ReadEnabled(settings, u"MusicInPlanet", GlobalsV::MusicInPlanetEnabled != 0);
   GlobalsV::MusicVolume = ReadClampedVolume(settings, u"MusicVolume", GlobalsV::MusicVolume);
   GlobalsV::RobotMusicVolume = ReadClampedVolume(settings, u"RobotMusicVolume", GlobalsV::RobotMusicVolume);
-  if (!GR_Main::IsInstallFeatureEnabled(u"Sound")) GlobalsV::SoundEnabled = false;
-  if (!GR_Main::IsInstallFeatureEnabled(u"SoundInSpace")) GlobalsV::SoundInSpaceEnabled = false;
-  if (!GR_Main::IsInstallFeatureEnabled(u"Music")) GlobalsV::MusicEnabled = false;
-  if (!GR_Main::IsInstallFeatureEnabled(u"MusicInSpace")) GlobalsV::MusicInSpaceEnabled = false;
+  // The synthetic DAT harness deliberately has no InstallConfig. A real
+  // startup has it by this point, where these gates retain the release policy.
+  if (GR_Main::InstallConfig) {
+    if (!GR_Main::IsInstallFeatureEnabled(u"Sound")) GlobalsV::SoundEnabled = false;
+    if (!GR_Main::IsInstallFeatureEnabled(u"SoundInSpace")) GlobalsV::SoundInSpaceEnabled = false;
+    if (!GR_Main::IsInstallFeatureEnabled(u"Music")) GlobalsV::MusicEnabled = false;
+    if (!GR_Main::IsInstallFeatureEnabled(u"MusicInSpace")) GlobalsV::MusicInSpaceEnabled = false;
+  }
 }
 std::string DescribeInitializationFailure(const char* phase) {
   std::string result = "portable DAT/runtime configuration failed phase=";
