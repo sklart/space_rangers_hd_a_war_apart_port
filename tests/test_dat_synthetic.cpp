@@ -1,12 +1,15 @@
 #include "ec_file_adapter.hpp"
 #include "runtime_settings_slice.hpp"
 #include "units/EC_BlockPar.hpp"
+#include "units/EC_Buf.hpp"
+#include "units/EC_Cache.hpp"
 #include "units/EC_Data.hpp"
 #include "units/GR_Main.hpp"
 #include "units/aPacket.hpp"
 
 #include <array>
 #include <cstdint>
+#include <cstring>
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
@@ -272,24 +275,43 @@ int main() {
   pas::free(GR_Main::CCInterface);
   GR_Main::CCInterface = nullptr;
   srhd_awa::platform::ec_file::SetUserRoot((root / "user").string());
-  std::ofstream(root / "cfg.txt") << "VSync=True\nRenderModeScale=True\nDisableFrameLimit=False\n";
+  std::ofstream(root / "cfg.txt") << "VSync=True\nRenderModeScale=True\nDisableFrameLimit=False\nCacheSize=64\n";
   GR_Main::LanguageInstallConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
   GR_Main::LanguageInstallConfig->AddParam(u"Lang"_wref.get(), u"russian"_wref.get());
   std::string runtime_error;
   const bool runtime_once = srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error);
   if (!runtime_once) std::fprintf(stderr, "runtime initialization failed: %s\n", runtime_error.c_str());
   const bool runtime_state = runtime_once && GR_Main::GameDataConfig && GR_Main::UiStyleConfig && GR_Main::UiDepthConfig &&
-      GR_Main::WideCaseTable.length() == 1 && GR_Main::VSyncEnabled &&
+      GR_Main::WideCaseTable.length() == 1 && GR_Main::VSyncEnabled && GR_Main::GlobalCache &&
+      GR_Main::GlobalCache->ResidentByteLimit == 64 * 1024 * 1024 &&
       std::filesystem::is_regular_file(root / "user" / "config" / "CFG.TXT");
   if (!runtime_state) std::fprintf(stderr, "runtime state failed: game=%d style=%d depth=%d case=%d vsync=%d cfg=%d\n",
       GR_Main::GameDataConfig != nullptr, GR_Main::UiStyleConfig != nullptr, GR_Main::UiDepthConfig != nullptr,
       GR_Main::WideCaseTable.length(), GR_Main::VSyncEnabled,
       std::filesystem::is_regular_file(root / "user" / "config" / "CFG.TXT"));
   ok = ok && runtime_state;
+  bool global_cache_synthetic = false;
+  if (runtime_once && GR_Main::GlobalCache && GR_Main::GlobalCache->DataRoot == GR_Main::CacheDataRoot) {
+    EC_Buf::TBufEC* cached = nullptr;
+    try {
+      GR_Main::CCInterface->SetResourceChecksumFailed(false);
+      cached = GR_Main::GlobalCache->OpenDataBuffer(u"Base"_wref.get());
+      const char expected[] = "base";
+      const auto expected_crc = crc32(0, reinterpret_cast<const Bytef*>(expected), 4);
+      global_cache_synthetic = cached && cached->DataSize == 4 &&
+          std::memcmp(cached->Data, expected, 4) == 0 && cached->ComputeCrc32() == expected_crc &&
+          !GR_Main::CCInterface->GetResourceChecksumFailed();
+    } catch (...) {
+      global_cache_synthetic = false;
+    }
+    pas::free(cached);
+  }
+  if (!global_cache_synthetic) std::fputs("GlobalCache synthetic buffer regression failed\n", stderr);
+  ok = ok && global_cache_synthetic;
   srhd_awa::platform::runtime_settings_slice::Shutdown();
   std::ofstream(root / "user" / "config" / "CFG.TXT") << "CurrentVersion=2.1.1800\nCountFilmSave=30\n";
   const bool runtime_twice = srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error);
-  const bool migrated_1800 = runtime_twice &&
+  const bool migrated_1800 = runtime_twice && GR_Main::GlobalCache &&
       GR_Main::UserSettingsConfig->GetParam(u"CurrentVersion"sv) == GR_Main::GameVersionText &&
       GR_Main::UserSettingsConfig->GetParam(u"CountFilmSave"sv) == u"7";
   if (!migrated_1800) std::fprintf(stderr, "2.1.1800 CFG migration failed: %s\n", runtime_error.c_str());
@@ -312,12 +334,12 @@ int main() {
   srhd_awa::platform::runtime_settings_slice::Shutdown();
   FreeDatRoots();
   const bool runtime_cleanup = !GR_Main::CCInterface && !GR_Main::UserSettingsConfig && !GR_Main::NewGameSettingsConfig &&
-      !GR_Main::MainDataConfig && !GR_Main::LanguageDataConfig && !GR_Main::CacheDataRoot &&
+      !GR_Main::MainDataConfig && !GR_Main::LanguageDataConfig && !GR_Main::CacheDataRoot && !GR_Main::GlobalCache &&
       GR_Main::WideCaseTable.length() == 0;
-  if (!runtime_cleanup) std::fprintf(stderr, "runtime cleanup failed: cc=%d user=%d newgame=%d main=%d lang=%d cache=%d case=%d\n",
+  if (!runtime_cleanup) std::fprintf(stderr, "runtime cleanup failed: cc=%d user=%d newgame=%d main=%d lang=%d cache=%d global_cache=%d case=%d\n",
       GR_Main::CCInterface != nullptr, GR_Main::UserSettingsConfig != nullptr, GR_Main::NewGameSettingsConfig != nullptr,
       GR_Main::MainDataConfig != nullptr, GR_Main::LanguageDataConfig != nullptr, GR_Main::CacheDataRoot != nullptr,
-      GR_Main::WideCaseTable.length());
+      GR_Main::GlobalCache != nullptr, GR_Main::WideCaseTable.length());
   ok = ok && runtime_cleanup;
   aPacket::FinalizePackageCollection();
   std::filesystem::remove_all(root, error);

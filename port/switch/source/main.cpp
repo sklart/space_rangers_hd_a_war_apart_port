@@ -11,6 +11,8 @@
 #include "renderer_platform.hpp"
 #include "units/GR_GraphBuf.hpp"
 #include "units/EC_BlockPar.hpp"
+#include "units/EC_Buf.hpp"
+#include "units/EC_Cache.hpp"
 #include "units/EC_Data.hpp"
 #include "units/EC_File.hpp"
 #include "units/EC_HsFile.hpp"
@@ -99,6 +101,68 @@ void FingerprintDataImpl(EC_Data::TDataEC* data, Fingerprint* fp, std::uint32_t 
 }
 void FingerprintData(EC_Data::TDataEC* data, Fingerprint* fp, std::uint32_t depth) { std::vector<EC_Data::TDataEC*> active; FingerprintDataImpl(data, fp, depth, &active); }
 void CaptureRawCacheFingerprint(void* context) { FingerprintData(GR_Main::CacheDataRoot, static_cast<Fingerprint*>(context), 1); }
+struct CacheResource {
+  pas::WideString path;
+  pas::WideString source_file;
+};
+
+bool FindFirstCacheFile(EC_Data::TDataEC* data, const pas::WideString& prefix, std::uint32_t depth,
+                        std::uint32_t* entries, std::vector<EC_Data::TDataEC*>* active,
+                        CacheResource* result) {
+  if (!data || depth > kFingerprintMaxDepth || *entries >= kFingerprintMaxEntries ||
+      std::find(active->begin(), active->end(), data) != active->end()) return false;
+  active->push_back(data);
+  for (auto* entry = data->FirstEntry; entry && *entries < kFingerprintMaxEntries; entry = entry->Next) {
+    ++*entries;
+    const pas::WideString path = prefix.length() == 0 ? entry->Name : pas::concat_wide({prefix, u"."_wref.get(), entry->Name});
+    if (entry->Kind == EC_Data::dekFile &&
+        GR_Main::GlobalCache && GR_Main::GlobalCache->DataRoot->FileExistsByPath(path)) {
+      result->path = path;
+      if (entry->SharedFileRef && entry->SharedFileRef->FileRef) result->source_file = entry->SharedFileRef->FileRef->GetFileName();
+      active->pop_back();
+      return true;
+    }
+    if (entry->Kind == EC_Data::dekSubtree &&
+        FindFirstCacheFile(entry->ChildData, path, depth + 1, entries, active, result)) {
+      active->pop_back();
+      return true;
+    }
+  }
+  active->pop_back();
+  return false;
+}
+
+bool VerifyFirstCachedResource() {
+  if (!GR_Main::GlobalCache || !GR_Main::GlobalCache->DataRoot || !GR_Main::CCInterface) return false;
+  CacheResource resource;
+  std::uint32_t entries = 0;
+  std::vector<EC_Data::TDataEC*> active;
+  if (!FindFirstCacheFile(GR_Main::GlobalCache->DataRoot, pas::WideString{}, 1, &entries, &active, &resource)) return false;
+  EC_Buf::TBufEC* buffer = nullptr;
+  try {
+    GR_Main::CCInterface->SetResourceChecksumFailed(false);
+    buffer = GR_Main::GlobalCache->OpenDataBuffer(resource.path);
+    if (!buffer || buffer->DataSize < 0 || buffer->DataSize > 256 * 1024 * 1024) {
+      pas::free(buffer);
+      return false;
+    }
+    std::uint64_t fnv64 = UINT64_C(1469598103934665603);
+    const auto* bytes = static_cast<const std::uint8_t*>(buffer->Data);
+    for (std::int32_t index = 0; index < buffer->DataSize; ++index) fnv64 = (fnv64 ^ bytes[index]) * UINT64_C(1099511628211);
+    const auto crc32 = buffer->ComputeCrc32();
+    const bool checksum_failed = GR_Main::CCInterface->GetResourceChecksumFailed();
+    Log("[M11] resource path=%s file=%s size=%ld crc32=%08lx fnv64=%016llx checksum_failed=%u",
+        static_cast<const char*>(static_cast<pas::AnsiString>(resource.path).c_str()),
+        static_cast<const char*>(static_cast<pas::AnsiString>(resource.source_file).c_str()),
+        static_cast<long>(buffer->DataSize), static_cast<unsigned long>(crc32),
+        static_cast<unsigned long long>(fnv64), checksum_failed ? 1u : 0u);
+    pas::free(buffer);
+    return !checksum_failed;
+  } catch (...) {
+    pas::free(buffer);
+    return false;
+  }
+}
 
 bool ValidateReleaseAssets(const char* root) {
   StageBegin("release asset sanity");
@@ -354,6 +418,25 @@ int main(int argc, char** argv) {
     return 1;
   }
   Stage("DAT/runtime config", true);
+  StageBegin("GlobalCache");
+  const bool global_cache_ok = GR_Main::GlobalCache && GR_Main::GlobalCache->DataRoot == GR_Main::CacheDataRoot &&
+      GR_Main::GlobalCache->ResidentByteLimit > 0;
+  Log("[M11] GlobalCache %s budget_bytes=%ld", global_cache_ok ? "PASS" : "FAIL",
+      GR_Main::GlobalCache ? static_cast<long>(GR_Main::GlobalCache->ResidentByteLimit) : 0L);
+  Stage("GlobalCache", global_cache_ok);
+  if (!global_cache_ok) {
+    srhd_awa::platform::runtime_settings_slice::Shutdown();
+    srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
+  StageBegin("cached resource");
+  const bool cached_resource_ok = VerifyFirstCachedResource();
+  Stage("cached resource", cached_resource_ok);
+  if (!cached_resource_ok) {
+    srhd_awa::platform::runtime_settings_slice::Shutdown();
+    srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
   srhd_awa::platform::runtime_platform::PumpEvents(startup.platform);
   srhd_awa::platform::renderer_platform::SetNativeWindow(startup.platform.native_window);
   const bool renderer_ok = RunRendererSelfTest();

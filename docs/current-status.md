@@ -17,3 +17,7 @@ Baseline SHA-256 is verified: `83300344af802bc51e64389c58f047e5afdf195c133048098
 - MatrixGame: BLOCKED as documented separate Windows/D3D9 x86 DLL.
 
 Hardware validation remains PENDING and is tracked separately. It does not block host/cross development through Milestone 8; no gameplay path is hardware-verified before a real Switch run.
+
+## Milestone 11
+
+M11A/M11B is the bounded GlobalCache and first cached-resource diagnostic slice. Hardware validation remains PENDING; no M12/UI/audio/specialized cache work is included.

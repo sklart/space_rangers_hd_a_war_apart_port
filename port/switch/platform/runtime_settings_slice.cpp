@@ -1,6 +1,7 @@
 #include "runtime_settings_slice.hpp"
 
 #include "units/EC_BlockPar.hpp"
+#include "units/EC_Cache.hpp"
 #include "units/EC_Data.hpp"
 #include "units/EC_Str.hpp"
 #include "units/GI_Main.hpp"
@@ -31,6 +32,18 @@ void FreeOwnedConfigs() {
   GR_Main::WideCaseTable = nullptr;
 }
 
+void InitializeGlobalCache() {
+  constexpr std::int32_t kDefaultCacheMiB = 256;
+  constexpr std::int32_t kMaxCacheMiB = 2047;
+  std::int32_t cache_mib = kDefaultCacheMiB;
+  if (HasParam(GR_Main::UserSettingsConfig, u"CacheSize")) {
+    const auto configured = EC_Str::ExtractDigitsToIntW(GR_Main::UserSettingsConfig->GetParam(u"CacheSize"sv));
+    if (configured > 0 && configured <= kMaxCacheMiB) cache_mib = configured;
+  }
+  GR_Main::GlobalCache = pas::construct_call<EC_Cache::TCacheEC>(EC_Cache::TCacheEC_Create);
+  GR_Main::GlobalCache->SetDataRoot(GR_Main::CacheDataRoot);
+  GR_Main::GlobalCache->ResidentByteLimit = cache_mib * 1024 * 1024;
+}
 void BuildDerivedRuntimeState() {
   auto* main_data = GR_Main::MainDataConfig;
   auto* language_data = GR_Main::LanguageDataConfig;
@@ -116,7 +129,7 @@ void LoadUserSettings() {
 
 bool Initialize(std::string* error, BeforeDerivedRuntimeStateHook before_derived, void* hook_context) {
   if (GR_Main::MainDataConfig || GR_Main::LanguageDataConfig || GR_Main::CacheDataRoot ||
-      GR_Main::UserSettingsConfig || GR_Main::CCInterface) {
+      GR_Main::UserSettingsConfig || GR_Main::CCInterface || GR_Main::GlobalCache) {
     if (error) *error = "runtime settings slice is already initialized";
     return false;
   }
@@ -126,6 +139,7 @@ bool Initialize(std::string* error, BeforeDerivedRuntimeStateHook before_derived
     LoadUserSettings();
     if (before_derived) before_derived(hook_context);
     BuildDerivedRuntimeState();
+    InitializeGlobalCache();
     return true;
   } catch (...) {
     if (error) *error = "portable DAT/runtime configuration failed";
@@ -135,6 +149,8 @@ bool Initialize(std::string* error, BeforeDerivedRuntimeStateHook before_derived
 }
 
 void Shutdown() {
+  pas::free(GR_Main::GlobalCache);
+  GR_Main::GlobalCache = nullptr;
   FreeOwnedConfigs();
   GR_Main::FreeDatConfigRoots();
   pas::free(GR_Main::CCInterface);
