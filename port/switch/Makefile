@@ -216,7 +216,7 @@ host-gr-main-config-test: | $(BUILD)
 	@$(MAKE) host-config-harness TEST=../../tests/test_gr_main_config_startup.cpp OUTPUT=test_gr_main_config_startup ARGS=
 
 host-gr-main-release-config-test: | $(BUILD)
-	@$(MAKE) host-config-harness TEST=../../tests/test_gr_main_release_config.cpp OUTPUT=test_gr_main_release_config ARGS='../../windows/Space Rangers HD A War Apart'
+	@$(MAKE) host-config-harness TEST=../../tests/test_gr_main_release_config.cpp OUTPUT=test_gr_main_release_config ARGS='"../../windows/Space Rangers HD A War Apart"'
 
 .PHONY: host-config-harness
 host-config-harness: | $(BUILD)
