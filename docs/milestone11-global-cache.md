@@ -36,5 +36,7 @@ M9 DAT roots/settings/derived state
         -> package baseline
 ```
 
-Hardware validation remains pending. The final artifact provenance is recorded
-in `milestone10-build.md` after the final clean ARM64 build and CI run.
+Final clean ARM64 artifact: `SpaceRangersHDAWarApart.nro`, 7,125,421 bytes.
+SHA-256 `819BFA1B7565848217C3F3948A15E85DF107C1760D47E79A6B311B9697CB953B`.
+ELF64/AArch64, prohibited-symbol audit and ASET icon checks passed. Asset-free CI run
+`37414363538` passed. Hardware validation remains PENDING.

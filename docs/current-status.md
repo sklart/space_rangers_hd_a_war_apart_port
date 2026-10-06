@@ -20,4 +20,4 @@ Hardware validation remains PENDING and is tracked separately. It does not block
 
 ## Milestone 11
 
-M11A/M11B is the bounded GlobalCache and first cached-resource diagnostic slice. Hardware validation remains PENDING; no M12/UI/audio/specialized cache work is included.
+M11A/M11B GlobalCache and first cached-resource diagnostic slice: HOST PASS / ARM64 BUILD PASS / HARDWARE PENDING. No M12/UI/audio/specialized cache work is included.
