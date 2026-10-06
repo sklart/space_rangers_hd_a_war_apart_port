@@ -172,7 +172,7 @@ index 6aa8db1..b536fdf 100644
      void TCCInterface_Create(TCCInterface* Self) {
          pas::object_create(Self);
          Self->Lock = pas::make_critical_section<pas::CriticalSection>();
-@@ -3703,11 +3737,17 @@ namespace GR_Main {
+@@ -3703,10 +3737,16 @@ namespace GR_Main {
      EC_OKGF::POkgfReadContext OKGF_ReadStart_Buf(void* Source, std::int32_t SourceSize, std::int32_t& Width, std::int32_t& Height) {
 +#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
 +        return reinterpret_cast<EC_OKGF::POkgfReadContext>(srhd_awa::platform::okgf_bridge::BeginImageRead(Source, SourceSize, &Width, &Height));
