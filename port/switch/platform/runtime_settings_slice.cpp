@@ -125,6 +125,21 @@ void LoadUserSettings() {
     GR_Main::NewGameSettingsConfig->LoadFromTextFileWithEncodingProbe(new_game_path.pchar(), true);
   }
 }
+
+std::string DescribeInitializationFailure(const char* phase) {
+  std::string result = "portable DAT/runtime configuration failed phase=";
+  result += phase;
+  auto* caught = pas::caught_object();
+  if (const auto* exception = pas::class_cast_if<pas::Exception*>(caught)) {
+    result += " exception=";
+    result += static_cast<pas::AnsiString>(pas::class_name(pas::class_type(exception))).c_str();
+    result += " message=";
+    result += exception->message.c_str();
+  } else {
+    result += " exception=non-Delphi exception";
+  }
+  return result;
+}
 }  // namespace
 
 bool Initialize(std::string* error, BeforeDerivedRuntimeStateHook before_derived, void* hook_context) {
@@ -133,16 +148,22 @@ bool Initialize(std::string* error, BeforeDerivedRuntimeStateHook before_derived
     if (error) *error = "runtime settings slice is already initialized";
     return false;
   }
+  const char* phase = "construct CCInterface";
   try {
     GR_Main::CCInterface = pas::construct_call<GR_Main::TCCInterface>(GR_Main::TCCInterface_Create);
+    phase = "load DAT config and mod overrides";
     GR_Main::LoadDatConfigAndModOverrides();
+    phase = "load user settings";
     LoadUserSettings();
+    phase = "run before-derived hook";
     if (before_derived) before_derived(hook_context);
+    phase = "build derived runtime state";
     BuildDerivedRuntimeState();
+    phase = "initialize GlobalCache";
     InitializeGlobalCache();
     return true;
   } catch (...) {
-    if (error) *error = "portable DAT/runtime configuration failed";
+    if (error) *error = DescribeInitializationFailure(phase);
     Shutdown();
     return false;
   }
