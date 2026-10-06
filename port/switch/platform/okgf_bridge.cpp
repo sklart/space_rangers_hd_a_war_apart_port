@@ -14,12 +14,18 @@ void FillWord(void* p,std::int32_t q,std::int32_t w,std::int32_t h,std::uint16_t
 void Convert565ToBgra(void* s,std::int32_t sp,void* d,std::int32_t dp,std::int32_t w,std::int32_t h){::OKGF_Convert565toBGRA(s,sp,d,dp,w,h);}
 void PixelAlpha16(void* p,std::uint16_t c,std::uint8_t a){::OKGR_PixelAlpha_16(p,c,a);}
 void* BeginImageRead(void* source,std::int32_t size,std::int32_t* width,std::int32_t* height){
-  auto* context=::OKGF_ReadStart_Buf(source,size,width,height);
+  if(!width||!height) return nullptr;
+  *width=0;
+  *height=0;
+  std::int32_t decoded_width=0;
+  std::int32_t decoded_height=0;
+  auto* context=::OKGF_ReadStart_Buf(source,size,&decoded_width,&decoded_height);
   if(!context) return nullptr;
   constexpr std::uint64_t kMaxDecodedBytes=256ull*1024ull*1024ull;
-  const auto w=*width,h=*height;
-  const bool invalid=w<=0||h<=0||static_cast<std::uint64_t>(w)>kMaxDecodedBytes/4||static_cast<std::uint64_t>(h)>kMaxDecodedBytes/(static_cast<std::uint64_t>(w)*4);
+  const bool invalid=decoded_width<=0||decoded_height<=0||static_cast<std::uint64_t>(decoded_width)>kMaxDecodedBytes/4||static_cast<std::uint64_t>(decoded_height)>kMaxDecodedBytes/(static_cast<std::uint64_t>(decoded_width)*4);
   if(invalid){::okgf_cancel_read(context);return nullptr;}
+  *width=decoded_width;
+  *height=decoded_height;
   return context;
 }
 std::int32_t ReadImagePixels(void* context,void* pixels,std::int32_t pitch,std::uint32_t red,std::uint32_t green,std::uint32_t blue,std::uint32_t alpha,std::int32_t bpp){return ::OKGF_Read(static_cast<OkgfReadContext*>(context),pixels,pitch,red,green,blue,alpha,bpp);}
