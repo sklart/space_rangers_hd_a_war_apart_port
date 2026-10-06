@@ -78,7 +78,9 @@ bool RunOneFrame(State* state, const runtime_platform::State& platform, std::str
 bool Initialize(State* state, std::string* error) {
   if (!state || state->initialized) { if (error) *error = "runtime loop is already initialized"; return false; }
   try {
-    GR_Main::GR_DXInit();
+    // The normal Switch path enters with no renderer. The host regression
+    // installs a compact renderer fixture first, which is equally valid.
+    if (!renderer_platform::IsInitialized()) GR_Main::GR_DXInit();
     if (!ValidateFramebuffer()) { if (error) *error = "invalid RGB565 framebuffer"; renderer_platform::ShutdownSoftwareRenderer(); return false; }
     GR_Main::ScreenCenterX = static_cast<std::uint32_t>(GR_Main::GameScreenWidth / 2);
     GR_Main::ScreenCenterY = static_cast<std::uint32_t>(GR_Main::GameScreenHeight / 2);
