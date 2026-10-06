@@ -172,7 +172,13 @@ index 6aa8db1..b536fdf 100644
      void TCCInterface_Create(TCCInterface* Self) {
          pas::object_create(Self);
          Self->Lock = pas::make_critical_section<pas::CriticalSection>();
-@@ -3703,10 +3737,16 @@ namespace GR_Main {
+diff --git a/src/GR_Main.cpp "b/src/GR_Main.cpp"
+index 6aa8db1..9d80ea0 100644
+--- a/src/GR_Main.cpp
++++ "b/src/GR_Main.cpp"
+@@ -3701,15 +3701,23 @@ namespace GR_Main {
+     }
+ 
      EC_OKGF::POkgfReadContext OKGF_ReadStart_Buf(void* Source, std::int32_t SourceSize, std::int32_t& Width, std::int32_t& Height) {
 +#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
 +        return reinterpret_cast<EC_OKGF::POkgfReadContext>(srhd_awa::platform::okgf_bridge::BeginImageRead(Source, SourceSize, &Width, &Height));
@@ -192,3 +198,5 @@ index 6aa8db1..b536fdf 100644
          return cpp_import(Context, Pixels, PitchBytes, RedMask, GreenMask, BlueMask, AlphaMask, BytesPerPixel);
 +#endif
      }
+ 
+     EC_OKGF::POkgfReadContext OKGF_ReadStartPal_Buf(void* Source, std::int32_t SourceSize, std::int32_t& Width, std::int32_t& Height, std::int32_t& PaletteCount, std::int32_t& BytesPerPixel) {
