@@ -82,8 +82,15 @@ std::vector<std::uint8_t> Compress(const std::vector<std::uint8_t>& input) {
   return output;
 }
 
-std::vector<std::uint8_t> BuildDat(const std::vector<std::uint8_t>& decoded, std::uint32_t seed_key) {
+std::vector<std::uint8_t> BuildDat(const std::vector<std::uint8_t>& decoded, std::uint32_t seed_key,
+                                   bool zl01 = false) {
   auto encoded = Compress(decoded);
+  if (zl01) {
+    std::vector<std::uint8_t> framed{'Z', 'L', '0', '1'};
+    AppendU32(&framed, static_cast<std::uint32_t>(decoded.size()));
+    framed.insert(framed.end(), encoded.begin(), encoded.end());
+    encoded = std::move(framed);
+  }
   const std::uint32_t inner_crc = crc32(0, encoded.data(), static_cast<uInt>(encoded.size()));
   constexpr std::int32_t seed = 12345;
   ApplyDatCipher(&encoded, seed);
@@ -246,7 +253,7 @@ int main() {
   std::ofstream(root / "Mods" / "ModCFG.txt") << "CurrentMod=TestMod\n";
   std::ofstream(root / "base.bin") << "base";
   std::ofstream(root / "mod.bin") << "mod";
-  ok = ok && WriteFile(root / "CFG" / "Main.dat", BuildDat(BlockWith(main_entries, 3), kBlockSeedKey)) &&
+  ok = ok && WriteFile(root / "CFG" / "Main.dat", BuildDat(BlockWith(main_entries, 3), kBlockSeedKey, true)) &&
       WriteFile(root / "Mods" / "TestMod" / "CFG" / "Main.dat", BuildDat(BlockWith(mod_main_entries, 1), kBlockSeedKey)) &&
       WriteFile(root / "CFG" / "russian" / "Lang.dat", BuildDat(BlockWith(lang_entries, 2), kBlockSeedKey)) &&
       WriteFile(root / "Mods" / "TestMod" / "CFG" / "russian" / "Lang.dat", BuildDat(BlockWith(mod_lang_entries, 1), kBlockSeedKey)) &&
