@@ -47,19 +47,34 @@ function Write-DeploymentManifest([string]$AppRoot, [string]$Mode, [string]$Rang
   @('baseline=2.1.2500', "rangers_sha256=$RangersHash", "nro_sha256=$NroHash", "nro_size=$NroSize", "deployment_mode=$Mode") |
     Set-Content -LiteralPath (Join-Path $AppRoot 'runtime\deployment.txt') -Encoding ascii
 }
-function Collect-HardwareLogs([string]$AppRoot, [string]$DestinationRoot) {
-  $destination = Join-Path $DestinationRoot (Get-Date -Format 'yyyyMMdd-HHmmss'); [void](New-Item -ItemType Directory -Force -Path $destination)
-  $copied = 0
-  foreach ($name in @('port.log', 'port-prev.log', 'gr-main.log')) {
-    $source = Join-Path $AppRoot "logs\$name"
-    if (Test-Path -LiteralPath $source -PathType Leaf) { Copy-Item -LiteralPath $source -Destination (Join-Path $destination $name) -Force; ++$copied }
+function Normalize-RootPath([string]$Path) { (Resolve-Path -LiteralPath $Path).ProviderPath.TrimEnd([char[]]'\/') }
+function Test-SdRoot([string]$Path) {
+  if (-not (Test-Path -LiteralPath $Path -PathType Container)) { return $false }
+  $resolved = Normalize-RootPath $Path
+  $roots = @()
+  foreach ($drive in Get-PSDrive -PSProvider FileSystem) {
+    try { $roots += Normalize-RootPath $drive.Root } catch { }
   }
-  Write-Host "CollectLogs: PASS ($copied files) -> $destination"
+  return $roots -contains $resolved
+}
+function Collect-HardwareLogs([string]$AppRoot, [string]$DestinationRoot) {
+  if (-not (Test-Path -LiteralPath $AppRoot -PathType Container)) { throw 'SD application root is missing' }
+  $logs = Join-Path $AppRoot 'logs'
+  if (-not (Test-Path -LiteralPath $logs -PathType Container)) { throw 'NO LOGS FOUND' }
+  $sources = @()
+  foreach ($name in @('port.log', 'port-prev.log', 'gr-main.log')) {
+    $source = Join-Path $logs $name
+    if (Test-Path -LiteralPath $source -PathType Leaf) { $sources += $source }
+  }
+  if ($sources.Count -eq 0) { throw 'NO LOGS FOUND' }
+  $destination = Join-Path $DestinationRoot (Get-Date -Format 'yyyyMMdd-HHmmss'); [void](New-Item -ItemType Directory -Force -Path $destination)
+  foreach ($source in $sources) { Copy-Item -LiteralPath $source -Destination (Join-Path $destination (Split-Path -Leaf $source)) -Force }
+  Write-Host "CollectLogs: PASS ($($sources.Count) files) -> $destination"
 }
 
 try {
-  if (-not (Test-Path -LiteralPath $SdRoot -PathType Container)) { throw "SdRoot does not exist: $SdRoot" }
-  $sd = (Resolve-Path -LiteralPath $SdRoot).Path; $appRoot = Join-Path $sd "switch\$AppDirectoryName"
+  if (-not (Test-SdRoot $SdRoot)) { throw 'SdRoot must be a drive/filesystem root' }
+  $sd = (Resolve-Path -LiteralPath $SdRoot).ProviderPath; $appRoot = Join-Path $sd "switch\$AppDirectoryName"
   if ($CollectLogs) { Collect-HardwareLogs $appRoot $HardwareLogsRoot; exit 0 }
   if (($InitialGameCopy -and $UpdateOnly) -or (-not $InitialGameCopy -and -not $UpdateOnly)) { throw 'Choose exactly one mode: -InitialGameCopy or -UpdateOnly' }
   if ([string]::IsNullOrWhiteSpace($NroPath) -or -not (Test-Path -LiteralPath $NroPath -PathType Leaf)) { throw 'NroPath must name an existing NRO file' }

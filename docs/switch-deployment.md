@@ -12,9 +12,11 @@ Canonical SD layout:
   runtime/  deployment.txt
 ```
 
-`tools/deploy-switch.ps1` validates the 2.1.2500 release by the SHA-256 of
-`Rangers.exe` before it can copy `game/`. It never uses `/MIR`, `/PURGE` or
-`/MOVE`; ordinary updates do not traverse or copy the game tree.
+`SdRoot` must be the filesystem root of the SD card, for example `E:\`, or a
+PowerShell filesystem mount root. Nested directories such as `E:\temp` are
+rejected. `tools/deploy-switch.ps1` validates the 2.1.2500 release by the
+SHA-256 of `Rangers.exe` before it can copy `game/`. It never uses `/MIR`,
+`/PURGE` or `/MOVE`; ordinary updates do not traverse or copy the game tree.
 
 ```powershell
 # Первый раз: укажите корень SD и исходную установленную игру.
@@ -34,6 +36,7 @@ SD contents:
 ```
 
 It writes available `port.log`, `port-prev.log` and `gr-main.log` into a local
-timestamped `hardware-logs/` directory. Each deploy concludes with the compact
-preflight report and `READY FOR SWITCH LAUNCH`; failure reports `BLOCKED` and a
-nonzero exit code.
+timestamped `hardware-logs/` directory. Missing app root, missing `logs/`, or
+zero recognized logs returns nonzero (`BLOCKED`/`NO LOGS FOUND`), never a false
+PASS. Each deploy concludes with the compact preflight report and `READY FOR
+SWITCH LAUNCH`; failure reports `BLOCKED` and a nonzero exit code.
