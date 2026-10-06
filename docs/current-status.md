@@ -1,23 +1,16 @@
-# Current status — Milestone 9 runtime configuration in progress
+# Current status — M12 runtime loop in progress
 
-Baseline SHA-256 is verified: `83300344af802bc51e64389c58f047e5afdf195c133048098be3881fae29ed98`.
+Baseline SHA-256: `83300344af802bc51e64389c58f047e5afdf195c133048098be3881fae29ed98`.
 
-- FPC spike: BLOCKED — no `fpc` toolchain/Horizon target available locally; upstream supports Linux x86_64 and macOS ARM64, not Horizon.
-- C++ runtime: PARTIAL PASS — `CrcUnit.cpp`, `System.cpp` and `SystemImports.cpp` compile and link into the NRO. The entry calls the real `SystemImports::Randomize`; its two timing imports map to libnx ticks.
-- Resource loader: PASS locally — ARM64-safe disk/runtime split, recursive tree with active-offset cycle guard, case-insensitive lookup, logical handles, seek/read API and `ZL02` compressed payload decoder. Host tests validate tree hash, real payload CRC32, cycle fixtures and corrupt-input rejection. Payloads and folder entry arrays have explicit allocation limits before vector allocation.
-- Milestone 4: **HOST PASS / ARM64 BUILD PASS / HARDWARE PENDING**. The unmodified translated `EC_File.cpp` reads and seeks `DATA/Asteroid/00.gai` through the ordered portable package adapter; synthetic coverage includes raw and `ZL02` reads, missing paths, logical handle reuse and the per-package 16-slot boundary.
-- Milestone 5: **HOST PASS / ARM64 BUILD PASS / HARDWARE PENDING**. The real translated `EC_Buf.cpp`, `EC_BlockPar.cpp`, `EC_Str.cpp`, `EC_Mem.cpp` and `aPacket.cpp` parse `INSTALL.TXT` plus a language install file, then load loose, language-mod, language, mod and base packages in upstream order.
-- Milestone 6: **HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE PENDING**. The NRO links and executes real `GR_Main::LoadLanguageAndPackages()` and `LoadSelectedModInstallBlocks()` after loading `INSTALL.TXT`; its real globals replace the former shim. A shared game-root resolver serves loose files and `SysUtilsImports::FileExists`, including Windows separators and case-insensitive layout lookup. Asset-free CI run `37322795965` passed.
-- Milestone 7: **HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE PENDING**. `runtime_platform` provides libnx/SDL timing and window bootstrap behind a logical `MainWindowHandle` token; the host backend is headless. The startup slice retains release configuration order after platform setup: real package collection, logical window, real install config, real language/package loader and `MessageText::TQuestMessages`. It has explicit shutdown and failure cleanup; no Direct3D, DirectSound, registry, Steam or `ProgramMain` enters the reached path. Asset-free CI run `37326293948` passed.
-- Milestone 8: **HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE PENDING**. Real `GR_GraphBuf` CPU RGB565 buffers, the retained translated frame presentation sequence and direct `libokgf.a` bridge are connected to an SDL RGB565 streaming texture on Switch; output is aspect-correct letterboxed. The headless host regression checks `3a9dfdc6db5aacd7`, primitives, nested presentation and init/shutdown/re-init. CI run `37333471911` passed.
-- Milestone 9: **PORTABLE IMPLEMENTATION PASS / RELEASE VALIDATION BLOCKED / HARDWARE PENDING**. The portable runtime invokes real `GR_Main::LoadDatConfigAndModOverrides()` with a real `CCInterface`, encrypted DAT roots and a contained user root. Asset-free CI covers merging, corruption handling, CFG migration, writable handles and lifecycle. Release fingerprints and Switch evidence remain pending; the next dependency boundary is `EC_Cache`, audio/music, registry/platform probes, Forms/UI and the remaining `InitializeRuntimeAndSettings`.
-- Milestone 3.1: **HOST PASS / ARM64 BUILD PASS / HARDWARE PENDING**. Asset-free CI runs self/indirect-cycle, normal recursion, repeated completed offset, cleanup-after-failure, corrupt package and synthetic `ZL02` fixtures. ASan/UBSan are unavailable in the local devkitPro MSYS environment (missing sanitizer runtimes), so ordinary host regressions are the recorded local evidence.
-- Switch skeleton: PASS — `SpaceRangersHDAWarApart.nro` builds with SDL2/libnx.
-- OKGF: PASS for compile/link — the complete portable library and SoftFloat build for ARM64 with JPEG/PNG/zlib; NRO calls `OKGR_Fill_WORD` on a CPU framebuffer. Hardware presentation remains unverified.
-- MatrixGame: BLOCKED as documented separate Windows/D3D9 x86 DLL.
+- M7 startup/platform: **HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE PASS**.
+- M8 RGB565 + SDL presentation: **HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE PASS**.
+- M9 DAT, CFG and derived runtime state: **HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE PASS**.
+- M11 GlobalCache and cached real resource: **HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE PASS**.
 
-Hardware validation remains PENDING and is tracked separately. It does not block host/cross development through Milestone 8; no gameplay path is hardware-verified before a real Switch run.
+The physical Switch run has confirmed: packages → INSTALL/language → DAT → CFG → GlobalCache → cached resource → RGB565 → SDL present → clean shutdown. It does not confirm gameplay or UI.
 
-## Milestone 11
+## Milestone 12
 
-M11A/M11B GlobalCache and first cached-resource diagnostic slice: HOST PASS / ARM64 BUILD PASS / HARDWARE PENDING. No M12/UI/audio/specialized cache work is included.
+M12 replaces the diagnostic five-second frame hold with a persistent, portable runtime loop. It preserves M7–M11 selftests, loads scalar release settings without Windows probing, keeps audio/music backends deferred, initializes the RGB565 renderer and interface blend palette as runtime state, and exits cleanly on Switch `PLUS`. M13 UI initialization remains deferred pending its dependency analysis.
+
+Status before the next Switch run: **HOST/CI/ARM64 IN PROGRESS / HARDWARE PENDING**.

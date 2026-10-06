@@ -36,3 +36,7 @@ cross-build evidence.
 
 The local `tests/test_deploy_switch.ps1` deployment regression passed. After a
 successful preflight, the NRO is ready for the first Switch launch.
+
+## M12 Switch runtime test
+
+The M12 NRO must remain visible after startup. Confirm that the heartbeat changes, wait at least 15 seconds, then press `PLUS`. `port.log` must show `runtime ready`, `entering persistent loop`, `exit_reason=plus`, a nonzero frame/present summary, orderly shutdown and `[BOOT] COMPLETE`. Do not treat hbmenu Home handling as the M12 exit test.

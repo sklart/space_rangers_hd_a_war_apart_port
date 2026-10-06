@@ -1,5 +1,6 @@
 #include "runtime_settings_slice.hpp"
 
+#include <algorithm>
 #include <exception>
 
 #include "units/EC_BlockPar.hpp"
@@ -128,6 +129,39 @@ void LoadUserSettings() {
   }
 }
 
+float ReadClampedVolume(EC_BlockPar::TBlockParEC* block, const char16_t* name, float fallback) {
+  if (!HasParam(block, name)) return fallback;
+  const auto percent = EC_Str::ExtractDigitsToIntW(block->GetParamByPathOrMarker(name));
+  return std::clamp(static_cast<float>(percent) / 100.0f, 0.0f, 1.0f);
+}
+
+void ApplyPortableRuntimeSettings() {
+  auto* settings = GR_Main::UserSettingsConfig;
+  GR_Main::DisplayBrightness = HasParam(settings, u"Brightness") ? EC_Str::ParseDecimalToSingleW(settings->GetParamByPathOrMarker(u"Brightness")) : GR_Main::DisplayBrightness;
+  GR_Main::DisplayContrast = HasParam(settings, u"Contrast") ? EC_Str::ParseDecimalToSingleW(settings->GetParamByPathOrMarker(u"Contrast")) : GR_Main::DisplayContrast;
+  GR_Main::RobotBrightness = HasParam(settings, u"RobotBrightness") ? EC_Str::ParseDecimalToSingleW(settings->GetParamByPathOrMarker(u"RobotBrightness")) : GR_Main::RobotBrightness;
+  GR_Main::RobotContrast = HasParam(settings, u"RobotContrast") ? EC_Str::ParseDecimalToSingleW(settings->GetParamByPathOrMarker(u"RobotContrast")) : GR_Main::RobotContrast;
+  GlobalsV::ThreeDimensionalModeEnabled = ReadEnabled(settings, u"3D", GlobalsV::ThreeDimensionalModeEnabled != 0);
+  // Requested only: Switch deliberately does not call the upstream Win32 affinity policy.
+  GlobalsV::MultiThreadEnabled = ReadEnabled(settings, u"MultiThread", false);
+  GR_Main::PathGrowEnabled = ReadEnabled(settings, u"PathGrow", true);
+  GR_Main::ShowSystemMouse = ReadEnabled(settings, u"ShowSystemMouse", false);
+
+  GlobalsV::SoundEnabled = ReadEnabled(settings, u"Sound", GlobalsV::SoundEnabled != 0);
+  GlobalsV::SoundInSpaceEnabled = ReadEnabled(settings, u"SoundInSpace", GlobalsV::SoundInSpaceEnabled != 0);
+  GlobalsV::SoundVolume = ReadClampedVolume(settings, u"SoundVolume", GlobalsV::SoundVolume);
+  GlobalsV::RobotSoundVolume = ReadClampedVolume(settings, u"RobotSoundVolume", GlobalsV::RobotSoundVolume);
+  GlobalsV::MusicEnabled = ReadEnabled(settings, u"Music", GlobalsV::MusicEnabled != 0);
+  GlobalsV::MusicInSpaceEnabled = ReadEnabled(settings, u"MusicInSpace", GlobalsV::MusicInSpaceEnabled != 0);
+  GlobalsV::MusicInHyperEnabled = ReadEnabled(settings, u"MusicInHyper", GlobalsV::MusicInHyperEnabled != 0);
+  GlobalsV::MusicInPlanetEnabled = ReadEnabled(settings, u"MusicInPlanet", GlobalsV::MusicInPlanetEnabled != 0);
+  GlobalsV::MusicVolume = ReadClampedVolume(settings, u"MusicVolume", GlobalsV::MusicVolume);
+  GlobalsV::RobotMusicVolume = ReadClampedVolume(settings, u"RobotMusicVolume", GlobalsV::RobotMusicVolume);
+  if (!GR_Main::IsInstallFeatureEnabled(u"Sound")) GlobalsV::SoundEnabled = false;
+  if (!GR_Main::IsInstallFeatureEnabled(u"SoundInSpace")) GlobalsV::SoundInSpaceEnabled = false;
+  if (!GR_Main::IsInstallFeatureEnabled(u"Music")) GlobalsV::MusicEnabled = false;
+  if (!GR_Main::IsInstallFeatureEnabled(u"MusicInSpace")) GlobalsV::MusicInSpaceEnabled = false;
+}
 std::string DescribeInitializationFailure(const char* phase) {
   std::string result = "portable DAT/runtime configuration failed phase=";
   result += phase;
@@ -170,6 +204,8 @@ bool Initialize(std::string* error, BeforeDerivedRuntimeStateHook before_derived
     GR_Main::LoadDatConfigAndModOverrides();
     phase = "load user settings";
     LoadUserSettings();
+    phase = "apply portable runtime settings";
+    ApplyPortableRuntimeSettings();
     phase = "run before-derived hook";
     if (before_derived) before_derived(hook_context);
     phase = "build derived runtime state";

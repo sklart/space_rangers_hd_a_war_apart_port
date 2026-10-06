@@ -8,6 +8,7 @@
 #include "ec_file_adapter.hpp"
 #include "startup_slice.hpp"
 #include "runtime_settings_slice.hpp"
+#include "runtime_loop_slice.hpp"
 #include "renderer_platform.hpp"
 #include "units/GR_GraphBuf.hpp"
 #include "units/EC_BlockPar.hpp"
@@ -341,7 +342,7 @@ int main(int argc, char** argv) {
   BeginLogSession();
   Log("[BOOT] BEGIN Space Rangers HD: A War Apart");
   Log("[BOOT] Space Rangers HD: A War Apart");
-  Log("[BOOT] milestone=10-hardware-baseline");
+  Log("[BOOT] milestone=12-runtime-loop");
   Log("[BOOT] build_git=%s baseline_rangers_sha256=83300344af802bc51e64389c58f047e5afdf195c133048098be3881fae29ed98", BUILD_GIT_COMMIT);
   Log("[BOOT] runtime units=CrcUnit,System,SystemImports (SpaceRangersHD_CPP)");
   SystemImports::Randomize();
@@ -437,29 +438,49 @@ int main(int argc, char** argv) {
     srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
-  srhd_awa::platform::runtime_platform::PumpEvents(startup.platform);
-  srhd_awa::platform::renderer_platform::SetNativeWindow(startup.platform.native_window);
-  const bool renderer_ok = RunRendererSelfTest();
-  if (!renderer_ok) Stage("renderer self-test", false);
-#ifdef __SWITCH__
-  if (renderer_ok) {
-    Log("[M8] visible-frame hold BEGIN seconds=5");
-    int iterations = 0;
-    bool interrupted = false;
-    for (; iterations < 500; ++iterations) {
-      if (!appletMainLoop()) { interrupted = true; break; }
-      srhd_awa::platform::runtime_platform::PumpEvents(startup.platform);
-      svcSleepThread(10000000ULL);
-    }
-    if (interrupted) Log("[M8] visible-frame hold INTERRUPTED iterations=%d", iterations);
-    else Log("[M8] visible-frame hold PASS duration_ms=5000");
-  }
-#endif
+  StageBegin("package baseline");
   const bool resource_ok = ReadRequiredAsset(game_root);
   Stage("package baseline", resource_ok);
-  Log("[FILESYSTEM] %s game-root", resource_ok && renderer_ok ? "PASS" : "FAIL");
-  Log("[M7] startup boundary %s", resource_ok ? "reached" : "failed");
-  srhd_awa::platform::renderer_platform::ShutdownSoftwareRenderer();
+  if (!resource_ok) {
+    srhd_awa::platform::runtime_settings_slice::Shutdown();
+    srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
+
+  srhd_awa::platform::renderer_platform::SetNativeWindow(startup.platform.native_window);
+  srhd_awa::platform::runtime_loop_slice::State runtime_loop;
+  std::string m12_error;
+  if (!srhd_awa::platform::runtime_loop_slice::Initialize(&runtime_loop, &m12_error)) {
+    Log("[M12] FAIL runtime init=%s", m12_error.c_str());
+    Stage("runtime loop", false, m12_error.c_str());
+    srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
+    srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
+    srhd_awa::platform::runtime_settings_slice::Shutdown();
+    srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
+  const auto* framebuffer = GR_Main::ScreenRenderBuffer;
+  Log("[M12] runtime ready");
+  Log("[M12] framebuffer=%ldx%ld pitch=%ld pixel=RGB565", static_cast<long>(framebuffer->Width),
+      static_cast<long>(framebuffer->Height), static_cast<long>(framebuffer->PitchBytes));
+  Log("[M12] audio requested=%u", GlobalsV::SoundEnabled ? 1u : 0u);
+  Log("[M12] music requested=%u", GlobalsV::MusicEnabled ? 1u : 0u);
+  Log("[M12] audio backend=deferred music backend=deferred");
+  if (GR_Main::UserSettingsConfig->CountParamsByPath(u"FilmBufSize"_wref.get()) > 0)
+    Log("[M12] FilmBufSize deferred");
+  StageBegin("runtime loop");
+  Log("[M12] entering persistent loop");
+  const bool loop_ok = srhd_awa::platform::runtime_loop_slice::RunPersistent(&runtime_loop, startup.platform, &m12_error);
+  const auto loop_stats = runtime_loop.statistics;
+  if (!loop_ok) Log("[STAGE] runtime loop FAIL reason=%s", m12_error.c_str());
+  else {
+    Log("[M12] exit_reason=%s", srhd_awa::platform::runtime_loop_slice::ExitReasonName(loop_stats.exit_reason));
+    Log("[M12] loop frames=%llu loop duration_ms=%llu presents=%llu",
+        static_cast<unsigned long long>(loop_stats.frames), static_cast<unsigned long long>(loop_stats.duration_ms),
+        static_cast<unsigned long long>(loop_stats.presents));
+    Stage("runtime loop", true);
+  }
+  srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
   srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
   srhd_awa::platform::runtime_settings_slice::Shutdown();
   srhd_awa::platform::startup_slice::Shutdown(&startup);
@@ -467,5 +488,5 @@ int main(int argc, char** argv) {
   Log("[SHUTDOWN] runtime settings PASS");
   Log("[SHUTDOWN] startup PASS");
   Log("[BOOT] COMPLETE");
-  return resource_ok && renderer_ok ? 0 : 1;
+  return loop_ok ? 0 : 1;
 }
