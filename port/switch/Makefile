@@ -15,6 +15,7 @@ BUILD_GIT_COMMIT := $(shell git -C ../.. rev-parse --short HEAD)
 HOST_EC_PATCH_FILE := $(abspath platform/msys-runtime-text.patch)
 GR_MAIN_PORTABLE_PATCH_FILE := $(abspath platform/gr_main_portable.patch)
 GR_MAIN_ZLIB_PORTABLE_PATCH_FILE := $(abspath platform/gr_main_zlib_portable.patch)
+DAT_ZLIB_GUARD_PATCH_FILE := $(abspath platform/dat_zlib_guard.patch)
 
 CC := $(DEVKITA64)/bin/aarch64-none-elf-gcc
 CXX := $(DEVKITA64)/bin/aarch64-none-elf-g++
@@ -90,11 +91,11 @@ $(BUILD)/EC_Buf.o: $(GAME_CPP_ROOT)/src/EC_Buf.cpp | $(BUILD)
 $(BUILD)/EC_Cache.o: $(GAME_CPP_ROOT)/src/EC_Cache.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(BUILD)/EC_BlockPar.o: $(GAME_CPP_ROOT)/src/EC_BlockPar.cpp | $(BUILD)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(BUILD)/EC_BlockPar.o: $(GAME_CPP_ROOT)/src/EC_BlockPar.cpp $(DAT_ZLIB_GUARD_PATCH_FILE) | $(BUILD)
+	@patched=0; git -C $(GAME_CPP_ROOT) apply $(DAT_ZLIB_GUARD_PATCH_FILE) || exit $?; patched=1; $(CXX) $(CXXFLAGS) -c $< -o $@; result=$?; if test $patched -eq 1; then git -C $(GAME_CPP_ROOT) apply -R $(DAT_ZLIB_GUARD_PATCH_FILE) || exit $?; fi; exit $result
 
-$(BUILD)/EC_Data.o: $(GAME_CPP_ROOT)/src/EC_Data.cpp | $(BUILD)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(BUILD)/EC_Data.o: $(GAME_CPP_ROOT)/src/EC_Data.cpp $(DAT_ZLIB_GUARD_PATCH_FILE) | $(BUILD)
+	@patched=0; git -C $(GAME_CPP_ROOT) apply $(DAT_ZLIB_GUARD_PATCH_FILE) || exit $?; patched=1; $(CXX) $(CXXFLAGS) -c $< -o $@; result=$?; if test $patched -eq 1; then git -C $(GAME_CPP_ROOT) apply -R $(DAT_ZLIB_GUARD_PATCH_FILE) || exit $?; fi; exit $result
 
 $(BUILD)/EC_Str.o: $(GAME_CPP_ROOT)/src/EC_Str.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@

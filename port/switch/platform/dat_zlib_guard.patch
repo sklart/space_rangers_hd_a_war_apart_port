@@ -1,0 +1,28 @@
+diff --git a/src/EC_BlockPar.cpp b/src/EC_BlockPar.cpp
+--- a/src/EC_BlockPar.cpp
++++ b/src/EC_BlockPar.cpp
+@@ -1253,7 +1253,9 @@ namespace EC_BlockPar {
+         FileObj->ReadBuffer(Buf->Data, Buf->DataSize);
+         Buf->ApplyDatXorCipher(Seed);
+         if (Buf->ComputeCrc32() == Crc) {
+-            Buf->ExpandZlibPayloadInPlace();
++            if (!Buf->ExpandZlibPayloadInPlace()) {
++                pas::raise(pas::make_exception<pas::Exception>("DAT zlib decompression failed"_a));
++            }
+             Buf->SetPosition(0);
+             LoadFromDecodedBuffer(Buf);
+         }
+diff --git a/src/EC_Data.cpp b/src/EC_Data.cpp
+--- a/src/EC_Data.cpp
++++ b/src/EC_Data.cpp
+@@ -873,7 +873,9 @@ namespace EC_Data {
+         FileObj->ReadBuffer(Buf->Data, Buf->DataSize);
+         Buf->ApplyDatXorCipher(Seed);
+         if (Buf->ComputeCrc32() == Crc) {
+-            Buf->ExpandZlibPayloadInPlace();
++            if (!Buf->ExpandZlibPayloadInPlace()) {
++                pas::raise(pas::make_exception<pas::Exception>("DAT zlib decompression failed"_a));
++            }
+             Buf->SetPosition(0);
+             LoadFromDecodedBuffer(Buf);
+         }
