@@ -147,6 +147,12 @@ std::string DescribeInitializationFailure(const char* phase) {
       result += " exception=non-Delphi exception";
     }
   }
+  result += " roots main=";
+  result += GR_Main::MainDataConfig ? "1" : "0";
+  result += " lang=";
+  result += GR_Main::LanguageDataConfig ? "1" : "0";
+  result += " cache=";
+  result += GR_Main::CacheDataRoot ? "1" : "0";
   return result;
 }
 }  // namespace

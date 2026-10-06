@@ -318,7 +318,8 @@ int main() {
       !srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error, ThrowSyntheticStdException) &&
       runtime_error.find("phase=run before-derived hook") != std::string::npos &&
       runtime_error.find("exception=std::exception") != std::string::npos &&
-      runtime_error.find("synthetic runtime-settings exception") != std::string::npos;
+      runtime_error.find("synthetic runtime-settings exception") != std::string::npos &&
+      runtime_error.find("roots main=1 lang=1 cache=1") != std::string::npos;
   if (!runtime_std_exception) std::fprintf(stderr, "runtime exception diagnostic failed: %s\n", runtime_error.c_str());
   ok = ok && runtime_std_exception;
   srhd_awa::platform::runtime_settings_slice::Shutdown();
