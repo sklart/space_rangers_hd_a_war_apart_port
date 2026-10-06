@@ -92,10 +92,10 @@ $(BUILD)/EC_Cache.o: $(GAME_CPP_ROOT)/src/EC_Cache.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(BUILD)/EC_BlockPar.o: $(GAME_CPP_ROOT)/src/EC_BlockPar.cpp $(DAT_ZLIB_GUARD_PATCH_FILE) | $(BUILD)
-	@patched=0; git -C $(GAME_CPP_ROOT) apply $(DAT_ZLIB_GUARD_PATCH_FILE) || exit $?; patched=1; $(CXX) $(CXXFLAGS) -c $< -o $@; result=$?; if test $patched -eq 1; then git -C $(GAME_CPP_ROOT) apply -R $(DAT_ZLIB_GUARD_PATCH_FILE) || exit $?; fi; exit $result
+	@patched=0; git -C $(GAME_CPP_ROOT) apply $(DAT_ZLIB_GUARD_PATCH_FILE) || exit $$?; patched=1; $(CXX) $(CXXFLAGS) -c $< -o $@; result=$$?; if test $$patched -eq 1; then git -C $(GAME_CPP_ROOT) apply -R $(DAT_ZLIB_GUARD_PATCH_FILE) || exit $$?; fi; exit $$result
 
 $(BUILD)/EC_Data.o: $(GAME_CPP_ROOT)/src/EC_Data.cpp $(DAT_ZLIB_GUARD_PATCH_FILE) | $(BUILD)
-	@patched=0; git -C $(GAME_CPP_ROOT) apply $(DAT_ZLIB_GUARD_PATCH_FILE) || exit $?; patched=1; $(CXX) $(CXXFLAGS) -c $< -o $@; result=$?; if test $patched -eq 1; then git -C $(GAME_CPP_ROOT) apply -R $(DAT_ZLIB_GUARD_PATCH_FILE) || exit $?; fi; exit $result
+	@patched=0; git -C $(GAME_CPP_ROOT) apply $(DAT_ZLIB_GUARD_PATCH_FILE) || exit $$?; patched=1; $(CXX) $(CXXFLAGS) -c $< -o $@; result=$$?; if test $$patched -eq 1; then git -C $(GAME_CPP_ROOT) apply -R $(DAT_ZLIB_GUARD_PATCH_FILE) || exit $$?; fi; exit $$result
 
 $(BUILD)/EC_Str.o: $(GAME_CPP_ROOT)/src/EC_Str.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
