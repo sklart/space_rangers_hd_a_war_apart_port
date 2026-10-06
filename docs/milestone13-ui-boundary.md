@@ -16,3 +16,19 @@ The synthetic guard covers empty, truncated, invalid and `0x7fffffff × 0x7fffff
 Status: **HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE NOT REQUIRED**.
 
 M12 remains **HARDWARE PENDING**.  M14 is not part of this milestone.
+## M13 completion matrix
+
+| Slice | Status | Evidence/boundary |
+|---|---|---|
+| A. Scalar/user settings | PASS (M12) | portable CFG and derived runtime state |
+| B. Font/resource metadata | PASS | 17 fixed keys, `FontSmooth` true/false and alias regression |
+| C. Cache loader/thread | DEFERRED | `AcquireDataFromConfig` is intentionally not called |
+| D1. Bitmap cache | PASS | bounded direct CPU decode and corrupt-state regression |
+| D2. Alpha/TBitmap | DEFERRED | not entered |
+| D3. GI | ANALYZED / DEFERRED | CPU boundary documented; no implementation |
+| D4. GAI | DEFERRED | not entered |
+| E. Script runtime | DEFERRED | not entered |
+| F. Screen registration | DEFERRED | not entered |
+| G. Real first screen | DEFERRED | not entered |
+
+The local-only `host-bitmap-cache-release-test` accepts the original game root and a disposable user root. It prints all 17 `CacheData.dat` font resolutions and selects the first decodable real file deterministically (font-related keys first, then UI/panel keys, then lexical key order). It records source and decoded fingerprints without writing game assets or pixels. It is deliberately excluded from asset-free CI.
