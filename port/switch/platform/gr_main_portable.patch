@@ -171,4 +171,23 @@ index 6aa8db1..b536fdf 100644
 +
      void TCCInterface_Create(TCCInterface* Self) {
          pas::object_create(Self);
-         Self->Lock = pas::make_critical_section<pas::CriticalSection>();
+         Self->Lock = pas::make_critical_section<pas::CriticalSection>();@@ -3703,11 +3737,17 @@ namespace GR_Main {
+     EC_OKGF::POkgfReadContext OKGF_ReadStart_Buf(void* Source, std::int32_t SourceSize, std::int32_t& Width, std::int32_t& Height) {
++#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
++        return reinterpret_cast<EC_OKGF::POkgfReadContext>(srhd_awa::platform::okgf_bridge::BeginImageRead(Source, SourceSize, &Width, &Height));
++#else
+         using CppImport = EC_OKGF::POkgfReadContext (PAS_CDECL *)(void*, std::int32_t, std::int32_t*, std::int32_t*);
+         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_ReadStart_Buf");
+         return cpp_import(Source, SourceSize, &Width, &Height);
++#endif
+     }
+ 
+     std::int32_t OKGF_Read(EC_OKGF::POkgfReadContext Context, void* Pixels, std::int32_t PitchBytes, std::uint32_t RedMask, std::uint32_t GreenMask, std::uint32_t BlueMask, std::uint32_t AlphaMask, std::int32_t BytesPerPixel) {
++#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
++        return srhd_awa::platform::okgf_bridge::ReadImagePixels(Context, Pixels, PitchBytes, RedMask, GreenMask, BlueMask, AlphaMask, BytesPerPixel);
++#else
+         using CppImport = std::int32_t (PAS_CDECL *)(EC_OKGF::POkgfReadContext, void*, std::int32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t, std::int32_t);
+         static const auto cpp_import = pas::win::load_import<CppImport>("okgf.dll", "OKGF_Read");
+         return cpp_import(Context, Pixels, PitchBytes, RedMask, GreenMask, BlueMask, AlphaMask, BytesPerPixel);
++#endif
+     }
