@@ -14,6 +14,7 @@
 | user settings | `runtime_settings_slice` → `CFG.TXT` | contained writable user `config/`, `TFileEC::CreateNew` | no Win32 Documents/registry dependency | M9: host/CI/ARM64 PASS |
 | runtime config state | DAT roots → `GameDataConfig`, `UiStyleConfig`, `UiDepthConfig`, `WideCaseTable` | real `Main.dat`, language DAT, cache root | GlobalCache/audio/global UI intentionally not entered | M9: host/CI/ARM64 PASS |
 | renderer bootstrap | `GR_DXInit` and Direct3D/OKGF bridge | renderer device and presentation | Direct3D semantics have no reached portable backend | M8: PASS |
+| M13 metadata/bitmap slice | `ui_metadata_slice` and direct `TCBitmapEC::LoadFromConfigBuffer` | M9/M11 roots, CPU OKGF bridge, existing software renderer | no Forms, worker, D3D surface, script or audio entry | HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE NOT REQUIRED |
 | audio | DirectSound path | audio device | intentionally deferred | DEFERRED |
 | resource | `CrcUnit.cpp`: `ComputeCrc32` | portable Delphi helpers | none on compiled path | PASS: linked ARM64 |
 | renderer | `GR_Main`, `EC_OKGF`, OKGF | window, `okgf.dll` ABI | game-facing adapter incomplete | portable OKGF is fully built, linked and fills a CPU framebuffer |

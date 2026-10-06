@@ -350,9 +350,27 @@ int main() {
   ok = ok && smoothing_aliases;
   if (!release_font_names) std::fprintf(stderr, "M13 release font metadata failed: %s\n", runtime_error.c_str());
   ok = ok && release_font_names;
+  auto* metadata_cache = GR_Main::GlobalCache;
+  auto* metadata_root = GR_Main::CacheDataRoot;
+  auto* metadata_config = GR_Main::UserSettingsConfig;
   srhd_awa::platform::ui_metadata_slice::Shutdown();
-  const bool metadata_reinit = srhd_awa::platform::ui_metadata_slice::Initialize(&runtime_error) &&
+  const bool metadata_shutdown_preserves_runtime = GR_Main::GlobalCache == metadata_cache &&
+      GR_Main::CacheDataRoot == metadata_root && GR_Main::UserSettingsConfig == metadata_config;
+  if (!metadata_shutdown_preserves_runtime) std::fputs("M13 metadata shutdown damaged runtime state\n", stderr);
+  ok = ok && metadata_shutdown_preserves_runtime;
+  srhd_awa::platform::runtime_settings_slice::Shutdown();
+  std::ofstream(root / "user" / "config" / "CFG.TXT") << "FontSmooth=False\n";
+  const bool runtime_font_smoothing_off = srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error);
+  const bool metadata_reinit = runtime_font_smoothing_off &&
+      srhd_awa::platform::ui_metadata_slice::Initialize(&runtime_error) &&
       srhd_awa::platform::ui_metadata_slice::FontResolutions().size() == 17;
+  auto* disabled_font_control = pas::construct_call<EC_Cache::TCacheControlEC>(EC_Cache::TCacheControlEC_Create);
+  disabled_font_control->SetCacheKey(GlobalsV::SmallFontName);
+  const bool smoothing_disabled = metadata_reinit && !GlobalsV::FontSmoothingEnabled &&
+      disabled_font_control->CacheKey == GlobalsV::SmallFontName;
+  pas::free(disabled_font_control);
+  if (!smoothing_disabled) std::fputs("M13 FontSmooth=False behavior failed\n", stderr);
+  ok = ok && smoothing_disabled;
   if (!metadata_reinit) std::fprintf(stderr, "M13 metadata reinit failed: %s\n", runtime_error.c_str());
   ok = ok && metadata_reinit;
   srhd_awa::platform::ui_metadata_slice::Shutdown();

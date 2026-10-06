@@ -45,8 +45,9 @@ void RecordResolution(const pas::WideString& key) {
   FontResolution result{.key = Narrow(key)};
   auto* entry = GR_Main::CacheDataRoot->FindEntryByPath(key);
   result.found = entry != nullptr;
+  if (entry) result.kind = static_cast<std::uint32_t>(entry->Kind);
   if (entry && entry->Kind == EC_Data::dekFile) {
-    result.file = GR_Main::CacheDataRoot->FileExistsByPath(key) != 0;
+    result.file_exists = GR_Main::CacheDataRoot->FileExistsByPath(key) != 0;
     if (entry->SharedFileRef && entry->SharedFileRef->FileRef)
       result.filename = Narrow(entry->SharedFileRef->FileRef->FileName);
   }

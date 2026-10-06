@@ -446,7 +446,8 @@ int main(int argc, char** argv) {
   }
   Log("[M13] font smoothing=%u", GlobalsV::FontSmoothingEnabled ? 1u : 0u);
   for (const auto& font : srhd_awa::platform::ui_metadata_slice::FontResolutions()) {
-    Log("[M13] font key=%s found=%u file=%s", font.key.c_str(), font.found ? 1u : 0u,
+    Log("[M13] font key=%s found=%u kind=%lu file_exists=%u file=%s", font.key.c_str(), font.found ? 1u : 0u,
+        static_cast<unsigned long>(font.kind), font.file_exists ? 1u : 0u,
         font.filename.empty() ? "" : font.filename.c_str());
   }
   Stage("M13 UI metadata", true);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -8,7 +9,8 @@ namespace srhd_awa::platform::ui_metadata_slice {
 struct FontResolution {
   std::string key;
   bool found{};
-  bool file{};
+  bool file_exists{};
+  std::uint32_t kind{};
   std::string filename;
 };
 
