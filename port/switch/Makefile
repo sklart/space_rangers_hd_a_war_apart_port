@@ -25,7 +25,7 @@ NACP := $(BUILD)/$(TARGET).nacp
 NACP_NAME := Space Rangers HD: A War Apart
 NACP_AUTHOR := sklart
 NACP_VERSION := 0.0.1
-NRO_DISPLAY_NAME := Space Rangers HD - A War Apart.nro
+NRO_OUTPUT := Space\ Rangers\ HD\ -\ A\ War\ Apart.nro
 ICON_VALIDATOR := ../../tools/validate-switch-icon.py
 PYTHON ?= python3
 
@@ -46,7 +46,7 @@ PLATFORM_OFILES := $(PLATFORM_CPPFILES:platform/%.cpp=$(BUILD)/platform_%.o)
 GAME_OFILES := $(BUILD)/CrcUnit.o $(BUILD)/System.o $(BUILD)/SystemImports.o $(BUILD)/BlockParException.o $(BUILD)/GI_Main.o $(BUILD)/GlobalsV.o $(BUILD)/aMyFunction.o $(BUILD)/EC_File.o $(BUILD)/EC_Struct.o $(BUILD)/EC_Buf.o $(BUILD)/EC_Cache.o $(BUILD)/EC_BlockPar.o $(BUILD)/EC_Data.o $(BUILD)/EC_Str.o $(BUILD)/EC_Mem.o $(BUILD)/aPacket.o $(BUILD)/MessageText.o $(BUILD)/GR_GraphBuf.o $(BUILD)/GR_Main.o $(BUILD)/runtime.o
 
 .PHONY: all clean host-package-test host-package-cycle-test host-ec-file-test host-ec-file-synthetic-test host-blockpar-synthetic-test host-dat-config-test host-global-cache-synthetic-test host-configured-package-test host-gr-main-no-mod-test host-gr-main-config-test host-gr-main-release-config-test host-platform-startup-test host-renderer-software-test host-user-writable-test host-runtime-config-slice-test host-milestone4-regression host-milestone5-regression host-milestone6-regression host-milestone7-regression host-milestone8-regression host-milestone9-regression
-all: $(TARGET).nro
+all: $(NRO_OUTPUT)
 
 $(BUILD):
 	mkdir -p $(BUILD)
@@ -127,13 +127,12 @@ $(BUILD)/$(TARGET).elf: $(OFILES) $(PLATFORM_OFILES) $(GAME_OFILES) $(OKGF_LIB)
 $(NACP): | $(BUILD)
 	$(NACPTOOL) --create "$(NACP_NAME)" "$(NACP_AUTHOR)" "$(NACP_VERSION)" $@
 
-$(TARGET).nro: $(BUILD)/$(TARGET).elf $(NRO_ICON) $(NACP)
+$(NRO_OUTPUT): $(BUILD)/$(TARGET).elf $(NRO_ICON) $(NACP)
 	$(PYTHON) $(ICON_VALIDATOR) $(NRO_ICON)
-	$(ELF2NRO) $< $@ --nacp=$(NACP) --icon=$(NRO_ICON)
-	cp $@ "$(NRO_DISPLAY_NAME)"
+	$(ELF2NRO) $< "$@" --nacp=$(NACP) --icon=$(NRO_ICON)
 
 clean:
-	rm -rf $(BUILD) $(TARGET).nro "$(NRO_DISPLAY_NAME)"
+	rm -rf $(BUILD) $(NRO_OUTPUT)
 
 host-package-test: | $(BUILD)
 	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_package_probe.cpp platform/filesystem.cpp -o $(BUILD)/test_package_probe
