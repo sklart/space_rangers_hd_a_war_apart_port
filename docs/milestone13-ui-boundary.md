@@ -13,7 +13,7 @@ M13 is a CPU-only, non-interactive slice.  It must not initialize Forms, screen 
 
 The synthetic guard covers empty, truncated, invalid and `0x7fffffff × 0x7fffffff` BMP input.  Each failure leaves bitmap state clean.  Valid fixture semantics remain default `2/4/8`, RGBA `4/8/16`, RGB `3/6/12`, Gray `1/4/8` (`bpp/pitch/resident`), with deterministic repeat decode.
 
-Status: **HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE NOT REQUIRED**.
+Status: **SYNTHETIC HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE NOT REQUIRED**. M13 final closure additionally requires recording the local release-probe result.
 
 M12 remains **HARDWARE PENDING**.  M14 is not part of this milestone.
 ## M13 completion matrix
@@ -23,7 +23,7 @@ M12 remains **HARDWARE PENDING**.  M14 is not part of this milestone.
 | A. Scalar/user settings | PASS (M12) | portable CFG and derived runtime state |
 | B. Font/resource metadata | PASS | 17 fixed keys, `FontSmooth` true/false and alias regression |
 | C. Cache loader/thread | DEFERRED | `AcquireDataFromConfig` is intentionally not called |
-| D1. Bitmap cache | PASS | bounded direct CPU decode and corrupt-state regression |
+| D1. Bitmap cache | SYNTHETIC PASS; release probe pending | bounded direct CPU decode; local release probe awaits host JPEG/PNG development libraries |
 | D2. Alpha/TBitmap | DEFERRED | not entered |
 | D3. GI | ANALYZED / DEFERRED | CPU boundary documented; no implementation |
 | D4. GAI | DEFERRED | not entered |
