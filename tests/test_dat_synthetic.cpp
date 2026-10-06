@@ -1,10 +1,12 @@
 #include "ec_file_adapter.hpp"
 #include "runtime_settings_slice.hpp"
+#include "ui_metadata_slice.hpp"
 #include "units/EC_BlockPar.hpp"
 #include "units/EC_Buf.hpp"
 #include "units/EC_Cache.hpp"
 #include "units/EC_Data.hpp"
 #include "units/GR_Main.hpp"
+#include "units/GlobalsV.hpp"
 #include "units/aPacket.hpp"
 
 #include <array>
@@ -287,7 +289,7 @@ int main() {
   pas::free(GR_Main::CCInterface);
   GR_Main::CCInterface = nullptr;
   srhd_awa::platform::ec_file::SetUserRoot((root / "user").string());
-  std::ofstream(root / "cfg.txt") << "VSync=True\nRenderModeScale=True\nDisableFrameLimit=False\nCacheSize=64\n";
+  std::ofstream(root / "cfg.txt") << "VSync=True\nRenderModeScale=True\nDisableFrameLimit=False\nFontSmooth=True\nCacheSize=64\n";
   GR_Main::LanguageInstallConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
   GR_Main::LanguageInstallConfig->AddParam(u"Lang"_wref.get(), u"russian"_wref.get());
   std::string runtime_error;
@@ -320,6 +322,40 @@ int main() {
   }
   if (!global_cache_synthetic) std::fputs("GlobalCache synthetic buffer regression failed\n", stderr);
   ok = ok && global_cache_synthetic;
+  const bool metadata_once = runtime_once && srhd_awa::platform::ui_metadata_slice::Initialize(&runtime_error);
+  const auto& font_resolutions = srhd_awa::platform::ui_metadata_slice::FontResolutions();
+  const bool release_font_names = metadata_once &&
+      GlobalsV::RangerFontName == u"Font.2Ranger" && GlobalsV::MiniFontName == u"Font.2Mini" &&
+      GlobalsV::SmallFontName == u"Font.2Small" && GlobalsV::SmallBoldFontName == u"Font.2SmallBold" &&
+      GlobalsV::NormalFontName == u"Font.2Normal" && GlobalsV::NormalBoldFontName == u"Font.2NormalBold" &&
+      GlobalsV::BigFontName == u"Font.2Big" && GlobalsV::HugeFontName == u"Font.2Huge" &&
+      GlobalsV::IntroFontName == u"Font.2Intro" && GlobalsV::AuthorsFontName == u"Font.2Authors" &&
+      GlobalsV::SmoothSmallFontName == u"Font.Verdana8" && GlobalsV::SmoothSmallBoldFontName == u"Font.Verdana8bold" &&
+      GlobalsV::SmoothNormalFontName == u"Font.Verdana9" && GlobalsV::SmoothNormalBoldFontName == u"Font.Verdana9bold" &&
+      GlobalsV::SmoothBigFontName == u"Font.Verdana11" && GlobalsV::SmoothHugeFontName == u"Font.Verdana12" &&
+      GlobalsV::SmoothIntroFontName == u"Font.Verdana13" && font_resolutions.size() == 17;
+  auto* font_control = pas::construct_call<EC_Cache::TCacheControlEC>(EC_Cache::TCacheControlEC_Create);
+  font_control->SetCacheKey(GlobalsV::SmallFontName);
+  const bool small_alias = font_control->CacheKey == GlobalsV::SmoothSmallFontName;
+  font_control->SetCacheKey(GlobalsV::SmallBoldFontName);
+  const bool small_bold_alias = font_control->CacheKey == GlobalsV::SmoothSmallBoldFontName;
+  font_control->SetCacheKey(GlobalsV::NormalFontName);
+  const bool normal_alias = font_control->CacheKey == GlobalsV::SmoothNormalFontName;
+  font_control->SetCacheKey(GlobalsV::NormalBoldFontName);
+  const bool normal_bold_alias = font_control->CacheKey == GlobalsV::SmoothNormalBoldFontName;
+  pas::free(font_control);
+  const bool smoothing_aliases = metadata_once && GlobalsV::FontSmoothingEnabled && small_alias &&
+      small_bold_alias && normal_alias && normal_bold_alias;
+  if (!smoothing_aliases) std::fputs("M13 font smoothing aliases failed\n", stderr);
+  ok = ok && smoothing_aliases;
+  if (!release_font_names) std::fprintf(stderr, "M13 release font metadata failed: %s\n", runtime_error.c_str());
+  ok = ok && release_font_names;
+  srhd_awa::platform::ui_metadata_slice::Shutdown();
+  const bool metadata_reinit = srhd_awa::platform::ui_metadata_slice::Initialize(&runtime_error) &&
+      srhd_awa::platform::ui_metadata_slice::FontResolutions().size() == 17;
+  if (!metadata_reinit) std::fprintf(stderr, "M13 metadata reinit failed: %s\n", runtime_error.c_str());
+  ok = ok && metadata_reinit;
+  srhd_awa::platform::ui_metadata_slice::Shutdown();
   srhd_awa::platform::runtime_settings_slice::Shutdown();
   const bool runtime_std_exception =
       !srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error, ThrowSyntheticStdException) &&

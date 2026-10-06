@@ -8,6 +8,7 @@
 #include "ec_file_adapter.hpp"
 #include "startup_slice.hpp"
 #include "runtime_settings_slice.hpp"
+#include "ui_metadata_slice.hpp"
 #include "runtime_loop_slice.hpp"
 #include "renderer_platform.hpp"
 #include "units/GR_GraphBuf.hpp"
@@ -402,7 +403,8 @@ int main(int argc, char** argv) {
   } catch (...) {
     Log("[M9] CFG FAIL writable persistence");
     Stage("DAT/runtime config", false, "CFG persistence");
-    srhd_awa::platform::runtime_settings_slice::Shutdown();
+    srhd_awa::platform::ui_metadata_slice::Shutdown();
+  srhd_awa::platform::runtime_settings_slice::Shutdown();
     srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
@@ -414,7 +416,8 @@ int main(int argc, char** argv) {
   Log("[M9] CaseConv count=%ld", static_cast<long>(GR_Main::WideCaseTable.length()));
   if (!derived_ok) {
     Stage("DAT/runtime config", false, "derived M9 state");
-    srhd_awa::platform::runtime_settings_slice::Shutdown();
+    srhd_awa::platform::ui_metadata_slice::Shutdown();
+  srhd_awa::platform::runtime_settings_slice::Shutdown();
     srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
@@ -426,15 +429,33 @@ int main(int argc, char** argv) {
       GR_Main::GlobalCache ? static_cast<long>(GR_Main::GlobalCache->ResidentByteLimit) : 0L);
   Stage("GlobalCache", global_cache_ok);
   if (!global_cache_ok) {
-    srhd_awa::platform::runtime_settings_slice::Shutdown();
+    srhd_awa::platform::ui_metadata_slice::Shutdown();
+  srhd_awa::platform::runtime_settings_slice::Shutdown();
     srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
+  StageBegin("M13 UI metadata");
+  std::string m13_error;
+  if (!srhd_awa::platform::ui_metadata_slice::Initialize(&m13_error)) {
+    Log("[M13] FAIL UI metadata=%s", m13_error.c_str());
+    Stage("M13 UI metadata", false, m13_error.c_str());
+    srhd_awa::platform::ui_metadata_slice::Shutdown();
+  srhd_awa::platform::runtime_settings_slice::Shutdown();
+    srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
+  Log("[M13] font smoothing=%u", GlobalsV::FontSmoothingEnabled ? 1u : 0u);
+  for (const auto& font : srhd_awa::platform::ui_metadata_slice::FontResolutions()) {
+    Log("[M13] font key=%s found=%u file=%s", font.key.c_str(), font.found ? 1u : 0u,
+        font.filename.empty() ? "" : font.filename.c_str());
+  }
+  Stage("M13 UI metadata", true);
   StageBegin("cached resource");
   const bool cached_resource_ok = VerifyFirstCachedResource();
   Stage("cached resource", cached_resource_ok);
   if (!cached_resource_ok) {
-    srhd_awa::platform::runtime_settings_slice::Shutdown();
+    srhd_awa::platform::ui_metadata_slice::Shutdown();
+  srhd_awa::platform::runtime_settings_slice::Shutdown();
     srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
@@ -442,7 +463,8 @@ int main(int argc, char** argv) {
   const bool resource_ok = ReadRequiredAsset(game_root);
   Stage("package baseline", resource_ok);
   if (!resource_ok) {
-    srhd_awa::platform::runtime_settings_slice::Shutdown();
+    srhd_awa::platform::ui_metadata_slice::Shutdown();
+  srhd_awa::platform::runtime_settings_slice::Shutdown();
     srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
@@ -455,7 +477,8 @@ int main(int argc, char** argv) {
     Stage("runtime loop", false, m12_error.c_str());
     srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
     srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
-    srhd_awa::platform::runtime_settings_slice::Shutdown();
+    srhd_awa::platform::ui_metadata_slice::Shutdown();
+  srhd_awa::platform::runtime_settings_slice::Shutdown();
     srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
@@ -482,6 +505,7 @@ int main(int argc, char** argv) {
   }
   srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
   srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
+  srhd_awa::platform::ui_metadata_slice::Shutdown();
   srhd_awa::platform::runtime_settings_slice::Shutdown();
   srhd_awa::platform::startup_slice::Shutdown(&startup);
   Log("[SHUTDOWN] renderer PASS");
