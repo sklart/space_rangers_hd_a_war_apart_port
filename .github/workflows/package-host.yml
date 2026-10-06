@@ -4,6 +4,10 @@ on:
   push:
   pull_request:
 
+concurrency:
+  group: package-host-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   host-regression:
     runs-on: ubuntu-latest
