@@ -10,7 +10,7 @@
 | --- | --- |
 | Сборка ARM64/NRO | PASS |
 | CI `package-host` | PASS |
-| Иконка, NACP и метаданные NRO | PASS — имя, автор `sklart`, JPEG в ASET |
+| Иконка, NACP и метаданные NRO | PASS — имя, JPEG в ASET |
 | Package filesystem и `common.pkg` | host PASS, ARM64 build PASS |
 | Переведённый `EC_File` | host PASS, ARM64 build PASS |
 | Загрузка INSTALL.TXT, language/mod packages | host/CI PASS, ARM64 build PASS |
