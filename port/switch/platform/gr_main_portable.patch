@@ -83,7 +83,7 @@ index 6aa8db1..b536fdf 100644
          pas::critical_leave(SessionLogLock);
      }
  
-+#if !defined(SRHD_PORTABLE_RUNTIME_SLICE) || defined(__SWITCH__)
++#if !defined(SRHD_PORTABLE_RUNTIME_SLICE) || defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
      void LogMemoryUsage() {
          TMemoryStatusEx Status{};
          Status.Length = static_cast<std::int32_t>(sizeof(TMemoryStatusEx));
