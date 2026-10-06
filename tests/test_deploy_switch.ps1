@@ -4,7 +4,7 @@ Set-StrictMode -Version Latest
 $repo = Split-Path -Parent $PSScriptRoot
 $script = Join-Path $repo 'tools\deploy-switch.ps1'
 $baselineExe = Join-Path $repo 'windows\Space Rangers HD A War Apart\Rangers.exe'
-$nro = Join-Path $repo 'port\switch\SpaceRangersHDAWarApart.nro'
+$nro = Join-Path $repo 'port\switch\Space Rangers HD - A War Apart.nro'
 if (-not (Test-Path -LiteralPath $baselineExe) -or -not (Test-Path -LiteralPath $nro)) { throw 'local deployment fixture is unavailable' }
 function Invoke-Deploy([string[]]$DeployArguments) {
   $quoted = $DeployArguments | ForEach-Object { if ($_.StartsWith('-')) { $_ } else { "'$_'" } }
@@ -41,7 +41,7 @@ try {
   New-Item -ItemType HardLink -Path (Join-Path $source 'Rangers.exe') -Target $baselineExe | Out-Null
   $initial = Invoke-Deploy -DeployArguments @('-SdRoot', $sdRoot, '-NroPath', $nro, '-GameSource', $source, '-InitialGameCopy')
   if ($initial.ExitCode -ne 0 -or $initial.Text -notmatch 'READY FOR SWITCH LAUNCH') { throw "initial deployment failed: $($initial.Text)" }
-  $game = Join-Path $app 'game'; $destinationNro = Join-Path $app 'SpaceRangersHDAWarApart.nro'; $sourceHash = (Get-FileHash -LiteralPath $nro -Algorithm SHA256).Hash
+  $game = Join-Path $app 'game'; $destinationNro = Join-Path $app 'Space Rangers HD - A War Apart.nro'; $sourceHash = (Get-FileHash -LiteralPath $nro -Algorithm SHA256).Hash
   if ((Get-FileHash -LiteralPath $destinationNro -Algorithm SHA256).Hash -ne $sourceHash) { throw 'NRO destination hash mismatch' }
   $repeat = Invoke-Deploy -DeployArguments @('-SdRoot', $sdRoot, '-NroPath', $nro, '-GameSource', $source, '-InitialGameCopy')
   if ($repeat.ExitCode -ne 0 -or $repeat.Text -notmatch 'GAME COPY SKIPPED') { throw "repeat-copy protection failed: $($repeat.Text)" }

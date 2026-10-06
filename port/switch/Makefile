@@ -19,7 +19,13 @@ GR_MAIN_ZLIB_PORTABLE_PATCH_FILE := $(abspath platform/gr_main_zlib_portable.pat
 CC := $(DEVKITA64)/bin/aarch64-none-elf-gcc
 CXX := $(DEVKITA64)/bin/aarch64-none-elf-g++
 ELF2NRO := $(DEVKITPRO)/tools/bin/elf2nro
+NACPTOOL := $(DEVKITPRO)/tools/bin/nacptool
 NRO_ICON := assets/icon.jpg
+NACP := $(BUILD)/$(TARGET).nacp
+NACP_NAME := Space Rangers HD: A War Apart
+NACP_AUTHOR := sklart
+NACP_VERSION := 0.0.1
+NRO_DISPLAY_NAME := Space Rangers HD - A War Apart.nro
 ICON_VALIDATOR := ../../tools/validate-switch-icon.py
 PYTHON ?= python3
 
@@ -118,12 +124,16 @@ $(OKGF_LIB):
 $(BUILD)/$(TARGET).elf: $(OFILES) $(PLATFORM_OFILES) $(GAME_OFILES) $(OKGF_LIB)
 	$(CXX) $(OFILES) $(PLATFORM_OFILES) $(GAME_OFILES) $(LIBDIRS) $(LDFLAGS) $(LIBS) -o $@
 
-$(TARGET).nro: $(BUILD)/$(TARGET).elf $(NRO_ICON)
+$(NACP): | $(BUILD)
+	$(NACPTOOL) --create "$(NACP_NAME)" "$(NACP_AUTHOR)" "$(NACP_VERSION)" $@
+
+$(TARGET).nro: $(BUILD)/$(TARGET).elf $(NRO_ICON) $(NACP)
 	$(PYTHON) $(ICON_VALIDATOR) $(NRO_ICON)
-	$(ELF2NRO) $< $@ --nacp=SpaceRangersHDAWarApart.nacp --icon=$(NRO_ICON)
+	$(ELF2NRO) $< $@ --nacp=$(NACP) --icon=$(NRO_ICON)
+	cp $@ "$(NRO_DISPLAY_NAME)"
 
 clean:
-	rm -rf $(BUILD) $(TARGET).nro
+	rm -rf $(BUILD) $(TARGET).nro "$(NRO_DISPLAY_NAME)"
 
 host-package-test: | $(BUILD)
 	g++ -std=c++20 -Wall -Wextra -Iplatform ../../tests/test_package_probe.cpp platform/filesystem.cpp -o $(BUILD)/test_package_probe

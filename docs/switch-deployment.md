@@ -4,7 +4,7 @@ Canonical SD layout:
 
 ```text
 <SD>/switch/space-rangers-hd-a-war-apart/
-  SpaceRangersHDAWarApart.nro
+  Space Rangers HD - A War Apart.nro
   game/     original game installation, copied once and then preserved
   config/
   save/
@@ -20,10 +20,10 @@ SHA-256 of `Rangers.exe` before it can copy `game/`. It never uses `/MIR`,
 
 ```powershell
 # Первый раз: укажите корень SD и исходную установленную игру.
-.\tools\deploy-switch.ps1 -SdRoot 'E:\' -NroPath .\port\switch\SpaceRangersHDAWarApart.nro -GameSource 'D:\Games\Space Rangers HD A War Apart' -InitialGameCopy
+.\tools\deploy-switch.ps1 -SdRoot 'E:\' -NroPath .\port\switch\Space Rangers HD - A War Apart.nro -GameSource 'D:\Games\Space Rangers HD A War Apart' -InitialGameCopy
 
 # Все следующие сборки: заменяется только NRO и runtime/deployment.txt.
-.\tools\deploy-switch.ps1 -SdRoot 'E:\' -NroPath .\port\switch\SpaceRangersHDAWarApart.nro -UpdateOnly
+.\tools\deploy-switch.ps1 -SdRoot 'E:\' -NroPath .\port\switch\Space Rangers HD - A War Apart.nro -UpdateOnly
 ```
 
 If a valid `game\Rangers.exe` already exists, a repeated initial command reports

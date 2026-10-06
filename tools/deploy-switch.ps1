@@ -16,7 +16,7 @@ $ErrorActionPreference = 'Stop'
 $Baseline = '83300344AF802BC51E64389C58F047E5AFDF195C133048098BE3881FAE29ED98'
 $RequiredReleaseFiles = @('install.txt', 'cfg.txt', 'install_russian.txt', 'DATA\common.pkg', 'CFG\Main.dat', 'CFG\russian\Lang.dat', 'CFG\CacheData.dat')
 $AppDirectoryName = 'space-rangers-hd-a-war-apart'
-$NroName = 'SpaceRangersHDAWarApart.nro'
+$NroName = 'Space Rangers HD - A War Apart.nro'
 
 function Fail([string]$Message) { Write-Host "BLOCKED: $Message" -ForegroundColor Red; exit 1 }
 function Get-PathHash([string]$Path) { (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToUpperInvariant() }

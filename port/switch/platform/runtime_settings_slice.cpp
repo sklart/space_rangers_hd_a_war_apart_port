@@ -1,5 +1,7 @@
 #include "runtime_settings_slice.hpp"
 
+#include <exception>
+
 #include "units/EC_BlockPar.hpp"
 #include "units/EC_Cache.hpp"
 #include "units/EC_Data.hpp"
@@ -136,7 +138,14 @@ std::string DescribeInitializationFailure(const char* phase) {
     result += " message=";
     result += exception->message.c_str();
   } else {
-    result += " exception=non-Delphi exception";
+    try {
+      std::rethrow_exception(std::current_exception());
+    } catch (const std::exception& exception) {
+      result += " exception=std::exception message=";
+      result += exception.what();
+    } catch (...) {
+      result += " exception=non-Delphi exception";
+    }
   }
   return result;
 }

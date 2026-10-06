@@ -8,10 +8,10 @@ complete original game once; later commands replace only the NRO.
 
 ```powershell
 # Первый раз
-.\tools\deploy-switch.ps1 -SdRoot 'E:\' -NroPath .\port\switch\SpaceRangersHDAWarApart.nro -GameSource 'D:\Games\Space Rangers HD A War Apart' -InitialGameCopy
+.\tools\deploy-switch.ps1 -SdRoot 'E:\' -NroPath .\port\switch\Space Rangers HD - A War Apart.nro -GameSource 'D:\Games\Space Rangers HD A War Apart' -InitialGameCopy
 
 # Все следующие сборки
-.\tools\deploy-switch.ps1 -SdRoot 'E:\' -NroPath .\port\switch\SpaceRangersHDAWarApart.nro -UpdateOnly
+.\tools\deploy-switch.ps1 -SdRoot 'E:\' -NroPath .\port\switch\Space Rangers HD - A War Apart.nro -UpdateOnly
 ```
 
 Pass the SD filesystem root (for example `E:\`) as `SdRoot`; nested folders are

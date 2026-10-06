@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <stdexcept>
 #include <vector>
 
 #include <zlib.h>
@@ -22,6 +23,10 @@ constexpr std::uint32_t kCrcKey1 = 0x7db6c99du;
 constexpr std::uint32_t kCrcKey2 = 0xc83fcbf3u;
 constexpr std::uint32_t kBlockSeedKey = 0xb1e8c689u;
 constexpr std::uint32_t kDataSeedKey = 0xea8f3f37u;
+
+void ThrowSyntheticStdException(void*) {
+  throw std::runtime_error("synthetic runtime-settings exception");
+}
 
 void AppendU32(std::vector<std::uint8_t>* out, std::uint32_t value) {
   for (int byte = 0; byte != 4; ++byte) out->push_back(static_cast<std::uint8_t>(value >> (byte * 8)));
@@ -308,6 +313,14 @@ int main() {
   }
   if (!global_cache_synthetic) std::fputs("GlobalCache synthetic buffer regression failed\n", stderr);
   ok = ok && global_cache_synthetic;
+  srhd_awa::platform::runtime_settings_slice::Shutdown();
+  const bool runtime_std_exception =
+      !srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error, ThrowSyntheticStdException) &&
+      runtime_error.find("phase=run before-derived hook") != std::string::npos &&
+      runtime_error.find("exception=std::exception") != std::string::npos &&
+      runtime_error.find("synthetic runtime-settings exception") != std::string::npos;
+  if (!runtime_std_exception) std::fprintf(stderr, "runtime exception diagnostic failed: %s\n", runtime_error.c_str());
+  ok = ok && runtime_std_exception;
   srhd_awa::platform::runtime_settings_slice::Shutdown();
   std::ofstream(root / "user" / "config" / "CFG.TXT") << "CurrentVersion=2.1.1800\nCountFilmSave=30\n";
   const bool runtime_twice = srhd_awa::platform::runtime_settings_slice::Initialize(&runtime_error);

@@ -4,6 +4,6 @@
 
 Игровые assets и оригинальные binaries в репозиторий не входят. Нужна собственная установленная копия игры. Клонирование: `git clone --recursive https://github.com/sklart/space_rangers_hd_a_war_apart_port.git`.
 
-Зависимости: pinned `SpaceRangersHD_CPP`, `okgf`, devkitPro/devkitA64, libnx, SDL2, JPEG, PNG и zlib. В devkitPro MSYS: `cd port/switch && make -f Makefile`. На SD: `sdmc:/switch/space-rangers-hd-a-war-apart/SpaceRangersHDAWarApart.nro` и пользовательская игра в `game/` рядом.
+Зависимости: pinned `SpaceRangersHD_CPP`, `okgf`, devkitPro/devkitA64, libnx, SDL2, JPEG, PNG и zlib. В devkitPro MSYS: `cd port/switch && make -f Makefile`. На SD: `sdmc:/switch/space-rangers-hd-a-war-apart/Space Rangers HD - A War Apart.nro` и пользовательская игра в `game/` рядом.
 
 Текущий статус — Milestone 3: package filesystem в работе. См. [current status](docs/current-status.md).
