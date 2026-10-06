@@ -1,29 +1,32 @@
-# M10 Switch hardware baseline
+# M11C Switch hardware smoke
 
-## Первичная установка
+## Deploy
 
-1. Создайте `sdmc:/switch/space-rangers-hd-a-war-apart/`.
-2. Скопируйте всю оригинальную игру в `game/`.
-3. Скопируйте `SpaceRangersHDAWarApart.nro` в корень каталога.
+Use the deployment helper rather than manually copying individual release
+files. The first command validates the known release baseline and copies the
+complete original game once; later commands replace only the NRO.
 
-## Каждый следующий тест
+```powershell
+# Первый раз
+.\tools\deploy-switch.ps1 -SdRoot 'E:\' -NroPath .\port\switch\SpaceRangersHDAWarApart.nro -GameSource 'D:\Games\Space Rangers HD A War Apart' -InitialGameCopy
 
-Заменяйте только `SpaceRangersHDAWarApart.nro`; `game/` не трогайте.
+# Все следующие сборки
+.\tools\deploy-switch.ps1 -SdRoot 'E:\' -NroPath .\port\switch\SpaceRangersHDAWarApart.nro -UpdateOnly
+```
 
-После запуска заберите `logs/port.log`. Сообщите, появилась ли diagnostic
-frame с линиями и треугольником, нормальны ли цвета и aspect ratio, и вернулся
-ли NRO самостоятельно в hbmenu.
+The preflight must end with `READY FOR SWITCH LAUNCH`. It requires the checked
+`Rangers.exe`, all M9 release files, equal NRO source/destination SHA-256 and
+all writable directories. A failure is a deployment blocker, not a reason to
+modify runtime code.
 
-Ожидаются строки `[BOOT]`, `[STAGE]`, `[M7]`, `[M8]`, `[M9]`, `[PACKAGE]`,
-`[RESOURCE]` и `[SHUTDOWN]`. До загрузки DAT log отдельно проверяет
-`install.txt`, `cfg.txt`, `DATA/common.pkg` и `install_russian.txt`.
+## First launch evidence
 
-Успешный M10 log последовательно содержит package collection, `INSTALL.TXT`,
-language/packages (`configured sources=18`), Main/Lang/CacheData DAT semantic
-fingerprints, `CFG create/save/reload`, derived M9 state, RGB565 framebuffer,
-SDL renderer/texture, output/destination, present, package baseline и
-`[BOOT] COMPLETE`. При первом запуске допустимо `CFG create PASS`; при
-следующем — `CFG create SKIP existing`, но fingerprints и package baseline
-должны совпадать. Для baseline пакета package log должен содержать
-51 папку, 1890 файлов, 1940 записей, depth 4, hash `9c74d6b37be3edd2`,
-`DATA/Asteroid/00.gai` и CRC32 `045269e4`.
+After launch, collect logs without touching SD content:
+
+```powershell
+.\tools\deploy-switch.ps1 -SdRoot 'E:\' -CollectLogs
+```
+
+Inspect `[BOOT]`, `[M9]`, `[M11] GlobalCache PASS`, `[M11] resource`, `[M8]`,
+package baseline and `[BOOT] COMPLETE`. Hardware observations remain separate
+from host and cross-build evidence.
