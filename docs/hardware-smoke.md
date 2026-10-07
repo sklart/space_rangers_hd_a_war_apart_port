@@ -51,9 +51,9 @@ The M12 NRO must remain visible after startup. Confirm that the heartbeat change
 
 The tested `Space Rangers HD - A War Apart.nro` was 7,158,064 bytes with SHA-256 `1CDFFC96A8505BA6D9114222F46CF32B4A16E80C93C93735D13198293E61D97E`. `port.log` confirms embedded `build_git`; the deploy preflight/manifest confirms the NRO SHA-256.
 
-## M15 planned hardware evidence
+## Recorded M15 hardware result
 
-M15 runs after M14P and before the persistent M12 loop. The expected log has `[STAGE] M15 GAI BEGIN`, the fixed `DATA/BGObj/bg00.gai` frame-0 metadata/fingerprints, and `[STAGE] M15 GAI PASS`; then the existing M12 heartbeat, frames/presents, `PLUS` exit, and `[BOOT] COMPLETE` must still be observed. Until the corrected NRO produces this sequence, M15 is **NOT PASS on hardware**.
+**PASS** — tested commit and embedded `build_git` `9d8d8bb`; NRO SHA-256 `EC4B1936E2CC7C0E39EBB9DF20FCD60979168BD05D283DDF3C91C5437C695D01`. After M14P, the fixed raw frame 0 of `DATA/BGObj/bg00.gai` passed container validation, GI extraction and Format-0 RGB565 CPU decode. Its GAI CRC32/FNV-1a is `9e05776f`/`03f332f6307d4031`, GI CRC32/FNV-1a `05d665d2`/`3ccdac34b2d0a2cc`, and decoded 2000x2000 BGRA CRC32/FNV-1a `3fc81562`/`ad9d67c6c7ad85b9`. The diagnostic then entered M12, presented 2,003 frames over 100,264 ms, exited through `PLUS`, shut down cleanly and reached `[BOOT] COMPLETE`.
 
 ## M15 first hardware attempt
 

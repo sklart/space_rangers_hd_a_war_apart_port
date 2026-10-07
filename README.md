@@ -2,7 +2,7 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Текущий аппаратный статус:** M14P portable GI Format-0 проверен на Switch. M15 добавляет CPU-only GAI container/frame path и имеет release baseline `DATA/BGObj/bg00.gai` (raw Format-0, 2000×2000 BGRA); его CI и Switch hardware evidence ведутся отдельно. Это не означает готовность игры к прохождению: UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
+> **Текущий аппаратный статус:** M14P и M15 portable CPU Format-0 diagnostics проверены на Switch. M15 валидирует и декодирует `DATA/BGObj/bg00.gai`, frame 0 (raw Format-0, 2000×2000 BGRA) без Direct3D и upstream GAI runtime. Это не означает готовность игры к прохождению: UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
 
 ## Что уже работает
 
@@ -18,7 +18,7 @@
 | DAT/runtime configuration, GlobalCache и M12 persistent loop | host/CI PASS, ARM64 build PASS, hardware PASS |
 | M13 bitmap metadata diagnostic | host/CI PASS, ARM64 build PASS, hardware PASS (17/17) |
 | M14P portable GI Format-0 CPU decode | host/CI/ARM64/hardware PASS; M14 COMPLETE |
-| M15 portable GAI container + one Format-0 frame | release baseline + CI + ARM64 build PASS; Switch retest pending after corrected FNV-1a oracle basis |
+| M15 portable GAI container + one Format-0 frame | release baseline + CI + ARM64 build + Switch hardware PASS; M15 COMPLETE |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.

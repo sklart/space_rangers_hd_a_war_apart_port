@@ -29,4 +29,4 @@ M15 does **not** implement animation playback, sequence timing, Flags!=0 cumulat
 
 ## Evidence state
 
-The release baseline, M15-specific GitHub Actions host regression, and a clean ARM64 build have passed for this implementation candidate. The first Switch attempt decoded the real frame and matched its CRC32 values but exposed a truncated FNV-1a offset basis in the runtime; the standard oracle-compatible basis is now used and requires a new hardware run. Switch proof remains separate and is not implied by the release probe, CI, or ARM64 link.
+The release baseline, M15-specific GitHub Actions host regression, clean ARM64 build, and Switch hardware test have passed. The first Switch attempt exposed a truncated FNV-1a offset basis; the corrected NRO `9d8d8bb` matched all oracle CRC32/FNV values for the real fixed frame, ran the M12 loop for 2,003 frames in 100,264 ms, exited through `PLUS`, and reached `[BOOT] COMPLETE`.
