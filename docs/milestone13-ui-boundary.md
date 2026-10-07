@@ -15,7 +15,7 @@ The synthetic guard covers empty, truncated, invalid and `0x7fffffff × 0x7fffff
 
 Status: **HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE NOT REQUIRED**. The release probe passed on Ubuntu 26.04 WSL (GCC/G++ 15.2.0, CMake 4.2.3, libpng 1.6.57, libjpeg 2.1.5). It selected `Bm.PQI.Build_00` / `data\PQI\Build_00.jpg`: source 39,671 B; decoded 343x394, 2 BPP, pitch 688, resident 271,072 B, CRC32 `a2870aca`, FNV-1a-64 `04bb5ed285e9e0d8`; repeat decode matched. All 17 release font resolutions were found and their backing files existed.
 
-M12 remains **HARDWARE PENDING**.  M14 is not part of this milestone.
+M12: **HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE PASS** (tested NRO embedded build `63e1f5f`; current master `a3e2a7a`; no ARM64 runtime inputs changed).  M14 is not part of this milestone.
 ## M13 completion matrix
 
 | Slice | Status | Evidence/boundary |

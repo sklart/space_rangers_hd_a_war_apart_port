@@ -9,6 +9,7 @@
 #include "startup_slice.hpp"
 #include "runtime_settings_slice.hpp"
 #include "ui_metadata_slice.hpp"
+#include "gi_format0_cpu.hpp"
 #include "runtime_loop_slice.hpp"
 #include "renderer_platform.hpp"
 #include "units/GR_GraphBuf.hpp"
@@ -160,6 +161,56 @@ bool VerifyFirstCachedResource() {
         static_cast<unsigned long long>(fnv64), checksum_failed ? 1u : 0u);
     pas::free(buffer);
     return !checksum_failed;
+  } catch (...) {
+    pas::free(buffer);
+    return false;
+  }
+}
+
+bool VerifyM14pGiFormat0() {
+  constexpr const char16_t kKey[] = u"Bm.Captain.2BlazerBi";
+  constexpr const char* kFile = "data\\Captain\\2BlazerB.gi";
+  constexpr std::uint32_t kSourceCrc32 = 0x1ad8b184u;
+  constexpr std::uint64_t kSourceFnv64 = UINT64_C(0x0ed39d004915cd6d);
+  constexpr std::uint32_t kPixelsCrc32 = 0xcf5b1d56u;
+  constexpr std::uint64_t kPixelsFnv64 = UINT64_C(0xa668e341bc42a6fb);
+  EC_Buf::TBufEC* buffer = nullptr;
+  try {
+    buffer = GR_Main::GlobalCache->OpenDataBuffer(pas::WideString(kKey));
+    srhd_awa::platform::gi_format0_cpu::Metadata metadata{};
+    srhd_awa::platform::gi_format0_cpu::CpuImage image;
+    std::string error;
+    const auto status = buffer ? srhd_awa::platform::gi_format0_cpu::Decode(
+        buffer->Data, static_cast<std::size_t>(buffer->DataSize), &metadata, &image, &error)
+        : srhd_awa::platform::gi_format0_cpu::Status::InvalidHeader;
+    if (status != srhd_awa::platform::gi_format0_cpu::Status::Ok) {
+      Log("[M14P] decode failed status=%u reason=%s", static_cast<unsigned>(status), error.c_str());
+      pas::free(buffer);
+      return false;
+    }
+    std::uint64_t source_fnv = UINT64_C(1469598103934665603);
+    const auto* source = static_cast<const std::uint8_t*>(buffer->Data);
+    for (std::int32_t i = 0; i < buffer->DataSize; ++i) source_fnv = (source_fnv ^ source[i]) * UINT64_C(1099511628211);
+    std::uint64_t pixels_fnv = UINT64_C(1469598103934665603);
+    for (std::uint8_t pixel : image.pixels) pixels_fnv = (pixels_fnv ^ pixel) * UINT64_C(1099511628211);
+    const auto source_crc = CrcUnit::ComputeCrc32(buffer->Data, buffer->DataSize);
+    const auto pixels_crc = CrcUnit::ComputeCrc32(image.pixels.data(), static_cast<std::int32_t>(image.pixels.size()));
+    const bool match = buffer->DataSize == 19440 && source_crc == kSourceCrc32 && source_fnv == kSourceFnv64 &&
+        metadata.version == 1 && metadata.plane_count == 1 && metadata.clip_rect_count == 0 &&
+        metadata.red_mask == 0x0000f800u && metadata.green_mask == 0x000007e0u &&
+        metadata.blue_mask == 0x0000001fu && metadata.alpha_mask == 0 &&
+        metadata.left == 0 && metadata.top == 0 && metadata.right == 93 && metadata.bottom == 104 &&
+        image.width == 93 && image.height == 104 && image.bytes_per_pixel == 4 && image.pitch == 372 &&
+        image.pixels.size() == 38688 && pixels_crc == kPixelsCrc32 && pixels_fnv == kPixelsFnv64;
+    Log("[M14P] key=%s file=%s source_size=%ld format=0 alpha_mask=%08lx planes=%ld bounds=%ld,%ld,%ld,%ld decoded=%ldx%ld bpp=%ld pitch=%ld crc32=%08lx fnv64=%016llx",
+        "Bm.Captain.2BlazerBi", kFile, static_cast<long>(buffer->DataSize), static_cast<unsigned long>(metadata.alpha_mask),
+        static_cast<long>(metadata.plane_count), static_cast<long>(metadata.left), static_cast<long>(metadata.top),
+        static_cast<long>(metadata.right), static_cast<long>(metadata.bottom), static_cast<long>(image.width),
+        static_cast<long>(image.height), static_cast<long>(image.bytes_per_pixel), static_cast<long>(image.pitch),
+        static_cast<unsigned long>(pixels_crc), static_cast<unsigned long long>(pixels_fnv));
+    image.Clear();
+    pas::free(buffer);
+    return match;
   } catch (...) {
     pas::free(buffer);
     return false;
@@ -451,6 +502,10 @@ int main(int argc, char** argv) {
         font.filename.empty() ? "" : font.filename.c_str());
   }
   Stage("M13 UI metadata", true);
+  StageBegin("M14P GI format0");
+  const bool m14p_ok = VerifyM14pGiFormat0();
+  Stage("M14P GI format0", m14p_ok);
+  if (!m14p_ok) { srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup); return 1; }
   StageBegin("cached resource");
   const bool cached_resource_ok = VerifyFirstCachedResource();
   Stage("cached resource", cached_resource_ok);

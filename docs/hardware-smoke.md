@@ -40,3 +40,7 @@ successful preflight, the NRO is ready for the first Switch launch.
 ## M12 Switch runtime test
 
 The M12 NRO must remain visible after startup. Confirm that the heartbeat changes, wait at least 15 seconds, then press `PLUS`. `port.log` must show `runtime ready`, `entering persistent loop`, `exit_reason=plus`, a nonzero frame/present summary, orderly shutdown and `[BOOT] COMPLETE`. Do not treat hbmenu Home handling as the M12 exit test.
+
+## Recorded M12 result
+
+**PASS** - build `63e1f5f`, 1,574 frames/presents over 78,817 ms, `PLUS` exit and `[BOOT] COMPLETE`. It applies to current master `a3e2a7a`, whose diff has no ARM64 runtime inputs.

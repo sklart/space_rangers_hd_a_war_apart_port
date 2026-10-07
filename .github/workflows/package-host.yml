@@ -64,3 +64,22 @@ jobs:
         run: make -C port/switch host-runtime-loop-test
       - name: Run M13 bitmap cache regression
         run: make -C port/switch host-bitmap-cache-test
+      - name: Run M14P GI Format-0 CPU regression
+        run: make -C port/switch host-gi-format0-cpu-test
+
+      - name: Audit M14P CPU binary symbols
+        shell: bash
+        run: |
+          set -euo pipefail
+          binary=port/switch/build/test_gi_format0_cpu
+          test -x "$binary"
+          forbidden='GR_DX|Direct3D|IDirect3DTexture9|TGraphBufGR|TCGiEC|GetOrCreateSurface|CreateTextureCache|GR_CreateTexture'
+          audit() {
+            if "$@" "$binary" | grep -E "$forbidden"; then
+              echo "forbidden M14P CPU symbol found" >&2
+              return 1
+            fi
+          }
+          audit nm -C
+          audit readelf -Ws
+          audit objdump -t

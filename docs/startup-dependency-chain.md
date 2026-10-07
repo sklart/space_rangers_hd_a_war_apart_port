@@ -27,3 +27,5 @@ The NRO runs the portable platform startup then the real GR_Main configuration s
 After M9/M11, the portable path applies release-compatible scalar CFG values (display/robot brightness and contrast, 3D, requested multithreading, path/mouse and clamped audio/music settings) without registry, OS, affinity, module or memory probing. `GR_DXInit` creates the existing RGB565 backend; M12 sets screen centres and the release `InterfaceBlendPalette`, then `runtime_loop_slice` pumps events, polls `PLUS`, draws an isolated heartbeat and presents through `GR_Main::BeginFramePresentation` / `EndFramePresentation`.
 
 Audio and music settings remain requests only; no DirectSound, Vorbis, audio thread or controller is constructed. `Globals::InitializeGlobalUiRuntime` and `Rangers::ProgramMain` remain deferred.
+
+M12 hardware PASS: the tested NRO embedded `63e1f5f` ran for 78.817 seconds, presented 1,574 frames, exited through `PLUS`, and reached `[BOOT] COMPLETE`. Current master `a3e2a7a` differs only in documentation and host-only test infrastructure, so this result applies to the current runtime state.
