@@ -2,7 +2,7 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Текущий аппаратный статус:** M12 persistent loop проверен на Switch: NRO с `build_git=63e1f5f` работал 78,8 с, отрисовал 1574 кадра/презентации, корректно завершился по `PLUS`, а M13 metadata diagnostic прошёл 17/17. Это не означает готовность игры к прохождению: M14P portable GI Format-0 находится в host/CI-проверке, а дальнейшие игровые подсистемы ещё не подключены.
+> **Текущий аппаратный статус:** M14P portable GI Format-0 проверен на Switch. NRO с `build_git=46330b4` декодировал реальный ключ `Bm.Captain.2BlazerBi` в 93×104 BGRA (pitch 372, CRC32 `cf5b1d56`, FNV-1a `a668e341bc42a6fb`), после чего M12 loop отработал 1 506 кадров за 73,472 с и штатно завершился по `PLUS`. Это не означает готовность игры к прохождению: UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
 
 ## Что уже работает
 
@@ -17,7 +17,7 @@
 | CPU RGB565 / SDL presentation | host/CI PASS, ARM64 build PASS |
 | DAT/runtime configuration, GlobalCache и M12 persistent loop | host/CI PASS, ARM64 build PASS, hardware PASS |
 | M13 bitmap metadata diagnostic | host/CI PASS, ARM64 build PASS, hardware PASS (17/17) |
-| M14P portable GI Format-0 CPU decode | реализация и synthetic host gate подготовлены; host/CI/hardware ещё не подтверждены |
+| M14P portable GI Format-0 CPU decode | host/CI/ARM64/hardware PASS; M14 COMPLETE |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
@@ -56,7 +56,7 @@ git submodule update --init --recursive
 - CMake и Python 3;
 - Git.
 
-Linux host-регрессии (`make -C port/switch host-...`) запускайте только из clean clone на native WSL ext4, например `/home/<user>/src/space-rangers-hd-a-war-apart-port-host`. Не запускайте Linux `make`, `cmake` или `g++` из `/mnt/c`, `/mnt/d` или другого drvfs/9P mount: Windows working copy допустима как источник WIP, но не как WSL host build directory.
+Linux host-регрессии выполняет GitHub Actions `ubuntu-24.04`; локальный WSL для этого проекта не является validation environment. Windows working copy допустима как источник WIP, а ARM64-сборку нужно выполнять в отдельном clean clone через devkitPro MSYS.
 
 Сборку Switch ARM64 нужно запускать из оболочки devkitPro MSYS, а не из обычного `cmd.exe`.
 
@@ -127,19 +127,21 @@ port/switch/Space Rangers HD - A War Apart.nro
 
 При подключении по DBI/MTP/Wi-Fi скопируйте NRO и каталог `game/` в ту же структуру вручную. После запуска сохраняйте `port.log` и `gr-main.log` до следующего запуска: они нужны для аппаратной диагностики.
 
-## Диагностика текущего аппаратного blocker’а
+## Границы подтверждённого аппаратного пути
 
-Последняя подтверждённая точка остановки — M9 (`DAT/runtime config`) после успешной загрузки package collection, INSTALL.TXT и language packages. Новый guard запрещает передавать нераспакованный DAT-буфер в парсер: при неудачной распаковке ожидается запись вида:
+M7, M8, M9, M11, M12 и M14P имеют hardware PASS. M13 завершён как metadata diagnostic и не требует отдельного hardware gate. M14 direct upstream path остаётся заблокированным широким `GR_DX` fan-out, а M14R — Direct3D COM state в layout `TGraphBufGR`; M14P решает Format-0 без этих типов.
+
+Аппаратно протестированный NRO имел размер 7 158 064 bytes, SHA-256 `1CDFFC96A8505BA6D9114222F46CF32B4A16E80C93C93735D13198293E61D97E` и embedded `build_git=46330b4`. `port.log` подтверждает build Git, а deploy preflight/manifest — SHA-256. При ошибке декодера ожидается запись вида:
 
 ```text
 [M9] FAIL runtime config=... DAT zlib decompression failed
 ```
 
-Это диагностический отказ, а не успешный игровой старт. Если экран перестал отвечать либо Home не открывает системное меню, удерживайте кнопку питания для безопасного перезапуска и приложите оба лога к отчёту.
+Это диагностический отказ, а не успешный игровой старт. Если экран перестал отвечать либо Home не открывает системное меню, удерживайте кнопку питания для безопасного перезапуска и приложите оба лога к отчёту. M15 не начат.
 
 ## Проверки
 
-GitHub Actions workflow `package-host` выполняет asset-free host-регрессии, включая corrupt package, циклы каталогов, `ZL02`, portable `EC_File`, synthetic DAT/runtime settings и проверку иконки. Последний merge в `master` прошёл этот workflow.
+GitHub Actions workflow `package-host` выполняет asset-free host-регрессии, включая corrupt package, циклы каталогов, `ZL02`, portable `EC_File`, synthetic DAT/runtime settings, M8 golden, M12, M13, M14P Format-0 и проверку запрещённых M14P symbols.
 
 Локальная ARM64-сборка проверяет создание NRO. Дополнительно для финального артефакта следует подтвердить:
 
