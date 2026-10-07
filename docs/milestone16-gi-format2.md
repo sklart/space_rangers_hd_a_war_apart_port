@@ -24,3 +24,12 @@ changing that already-hardware-tested renderer boundary.
 GitHub Actions run `37623625785` passed the synthetic decoder, corrupt stream
 suite and the separate M16 host symbol audit. Switch hardware evidence is
 still required before declaring M16 complete.
+
+## Switch hardware result
+
+**Runtime PASS** — the Switch log recorded `build_git=50b778c`, then decoded
+all 100 frames with frame 0 CRC32/FNV `83f66519`/`eb000366ca288b23` and
+aggregate CRC32/FNV `9e4059ce`/`a028ffbf04472afa`. The M12 loop subsequently
+ran 943 frames/presents for 47,272 ms, exited through `PLUS` and reached
+`[BOOT] COMPLETE`. The copied logs do not include the deployed NRO hash, so
+hash-bound SD deployment provenance remains to be recorded separately.
