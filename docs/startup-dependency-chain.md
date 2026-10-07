@@ -16,7 +16,7 @@
 | renderer bootstrap | `GR_DXInit` and Direct3D/OKGF bridge | renderer device and presentation | Direct3D semantics have no reached portable backend | M8: PASS |
 | M13 metadata/bitmap slice | `ui_metadata_slice` and direct `TCBitmapEC::LoadFromConfigBuffer` | M9/M11 roots, CPU OKGF bridge, existing software renderer | no Forms, worker, D3D surface, script or audio entry | COMPLETE / HARDWARE NOT REQUIRED |
 | M14P GI Format-0 | `GlobalCache::OpenDataBuffer` → structural validator → CPU decoder | M11 cache, OKGF RGB565 bridge | direct M14 GR_DX and M14R `TGraphBufGR` routes remain excluded | HOST/CI/ARM64/HARDWARE PASS; 93x104 BGRA fingerprint verified |
-| M15 GAI Format-0 frame | `common.pkg` → GAI validator → frame directory → raw/ZL payload → M14P decoder | package reader, zlib bridge, M14P | no `TCGaiEC`, `GI_GAIFile`, surfaces, Direct3D, playback, or UI | release baseline and ARM64 build PASS; CI/hardware pending |
+| M15 GAI Format-0 frame | `common.pkg` → GAI validator → frame directory → raw/ZL payload → M14P decoder | package reader, zlib bridge, M14P | no `TCGaiEC`, `GI_GAIFile`, surfaces, Direct3D, playback, or UI | release baseline, CI and ARM64 build PASS; hardware pending |
 | audio | DirectSound path | audio device | intentionally deferred | DEFERRED |
 | resource | `CrcUnit.cpp`: `ComputeCrc32` | portable Delphi helpers | none on compiled path | PASS: linked ARM64 |
 | renderer | `GR_Main`, `EC_OKGF`, OKGF | window, `okgf.dll` ABI | game-facing adapter incomplete | portable OKGF is fully built, linked and fills a CPU framebuffer |

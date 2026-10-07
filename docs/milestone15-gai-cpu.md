@@ -29,4 +29,4 @@ M15 does **not** implement animation playback, sequence timing, Flags!=0 cumulat
 
 ## Evidence state
 
-The release baseline and a clean ARM64 build have been obtained for the implementation candidate. CI and Switch hardware proof are tracked separately; neither is implied by the release probe or ARM64 link.
+The release baseline, M15-specific GitHub Actions host regression, and a clean ARM64 build have passed for this implementation candidate. Switch hardware proof remains separate and is still required; it is not implied by the release probe, CI, or ARM64 link.
