@@ -31,5 +31,5 @@ still required before declaring M16 complete.
 all 100 frames with frame 0 CRC32/FNV `83f66519`/`eb000366ca288b23` and
 aggregate CRC32/FNV `9e4059ce`/`a028ffbf04472afa`. The M12 loop subsequently
 ran 943 frames/presents for 47,272 ms, exited through `PLUS` and reached
-`[BOOT] COMPLETE`. The copied logs do not include the deployed NRO hash, so
-hash-bound SD deployment provenance remains to be recorded separately.
+`[BOOT] COMPLETE`. The tested `Space Rangers HD - A War Apart.nro` has SHA-256
+`470246273738C66777672E0D88A3449DA3FF47398AC08C16BB3175B5CAE8E08E`.

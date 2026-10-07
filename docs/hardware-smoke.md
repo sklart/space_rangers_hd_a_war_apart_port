@@ -61,4 +61,4 @@ The tested `Space Rangers HD - A War Apart.nro` was 7,158,064 bytes with SHA-256
 
 ## M16 Switch test
 
-**RUNTIME PASS.** The log for `build_git=50b778c` records `[STAGE] M16 GI format2 PASS`, all 100 frames, frame 0 CRC32/FNV `83f66519`/`eb000366ca288b23` and aggregate CRC32/FNV `9e4059ce`/`a028ffbf04472afa`. M12 then ran 943 frames/presents for 47,272 ms, exited with `PLUS`, and reached `[BOOT] COMPLETE`. The NRO SHA-256 is not present in the copied logs and must be retained from deployment evidence before a hash-bound hardware release claim.
+**PASS.** The tested `Space Rangers HD - A War Apart.nro` SHA-256 is `470246273738C66777672E0D88A3449DA3FF47398AC08C16BB3175B5CAE8E08E`, with `build_git=50b778c`. The log records `[STAGE] M16 GI format2 PASS`, all 100 frames, frame 0 CRC32/FNV `83f66519`/`eb000366ca288b23` and aggregate CRC32/FNV `9e4059ce`/`a028ffbf04472afa`. M12 then ran 943 frames/presents for 47,272 ms, exited with `PLUS`, and reached `[BOOT] COMPLETE`.
