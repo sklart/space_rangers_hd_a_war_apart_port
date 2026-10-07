@@ -47,10 +47,10 @@ The M12 NRO must remain visible after startup. Confirm that the heartbeat change
 
 ## Recorded M14P hardware result
 
-## M15 planned hardware evidence
-
-M15 runs after M14P and before the persistent M12 loop. The expected log has `[STAGE] M15 GAI BEGIN`, the fixed `DATA/BGObj/bg00.gai` frame-0 metadata/fingerprints, and `[STAGE] M15 GAI PASS`; then the existing M12 heartbeat, frames/presents, `PLUS` exit, and `[BOOT] COMPLETE` must still be observed. Until that exact NRO is tested, M15 is **NOT TESTED on hardware**.
-
 **PASS** - tested commit and embedded `build_git` `46330b4`. The real GI key `Bm.Captain.2BlazerBi` (`data\\Captain\\2BlazerB.gi`) decoded as Format 0 RGB565 to a 93x104 BGRA CPU image with pitch 372, CRC32 `cf5b1d56`, and FNV-1a `a668e341bc42a6fb`. M13 metadata passed, then the M12 loop ran for 1,506 frames/presents over 73,472 ms, exited through `PLUS`, and reached `[BOOT] COMPLETE`.
 
 The tested `Space Rangers HD - A War Apart.nro` was 7,158,064 bytes with SHA-256 `1CDFFC96A8505BA6D9114222F46CF32B4A16E80C93C93735D13198293E61D97E`. `port.log` confirms embedded `build_git`; the deploy preflight/manifest confirms the NRO SHA-256.
+
+## M15 planned hardware evidence
+
+M15 runs after M14P and before the persistent M12 loop. The expected log has `[STAGE] M15 GAI BEGIN`, the fixed `DATA/BGObj/bg00.gai` frame-0 metadata/fingerprints, and `[STAGE] M15 GAI PASS`; then the existing M12 heartbeat, frames/presents, `PLUS` exit, and `[BOOT] COMPLETE` must still be observed. Until that exact NRO is tested, M15 is **NOT TESTED on hardware**.

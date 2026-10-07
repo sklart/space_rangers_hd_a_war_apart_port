@@ -132,8 +132,10 @@ Status ValidateGai(const void* source, std::size_t source_size, GaiMetadata* met
   for (std::int32_t i = 0; i < parsed.frame_count; ++i) {
     const auto entry = kHeaderSize + static_cast<std::size_t>(i) * kFrameEntrySize;
     const auto offset = I32(data + entry), frame_size = I32(data + entry + 4);
+    if (frame_size < 0)
+      return Fail(Status::InvalidFrame, metadata, nullptr, nullptr, nullptr, nullptr, error, "negative frame size");
     if (offset == 0) continue;
-    if (offset < 0 || frame_size <= 0 || !Range(static_cast<std::uint32_t>(offset), static_cast<std::uint32_t>(frame_size), source_size))
+    if (offset < 0 || frame_size == 0 || !Range(static_cast<std::uint32_t>(offset), static_cast<std::uint32_t>(frame_size), source_size))
       return Fail(Status::InvalidFrame, metadata, nullptr, nullptr, nullptr, nullptr, error, "frame range");
   }
   const auto status = ValidateSequence(data, source_size, &parsed, error);
