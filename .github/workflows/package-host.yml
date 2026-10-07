@@ -70,6 +70,17 @@ jobs:
       - name: Run M15 GAI CPU regression
         run: make -C port/switch host-gai-cpu-test
 
+      - name: Run M16 GI Format-2 CPU regression
+        run: make -C port/switch host-gi-format2-cpu-test
+
+      - name: Audit M16 GI Format-2 CPU symbols
+        shell: bash
+        run: |
+          set -euo pipefail
+          binary=port/switch/build/test_gi_format2_cpu
+          test -x "$binary"
+          ! nm -C "$binary" | grep -E 'GR_DX|Direct3D|IDirect3DTexture9|TGraphBufGR|TgiGR|TCGiEC|TCGaiEC|GI_GAIFile'
+
       - name: Audit M14P CPU binary symbols
         shell: bash
         run: |

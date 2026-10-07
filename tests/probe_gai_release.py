@@ -1,214 +1,190 @@
-"""Independent, asset-only oracle for the first portable GAI frame decode."""
+"""Independent Python oracle for M16 GI Format-2 in DATA/Asteroid/00.gai."""
 from __future__ import annotations
-
 import argparse
 import json
 import pathlib
 import struct
-import sys
 import zlib
 
-HEADER = 48
-FRAME = 8
-MAX_DECODED = 256 * 1024 * 1024
+HEADER, FRAME, PLANE, RLE = 48, 8, 32, 16
+MAX_BYTES = 256 * 1024 * 1024
+FNV_OFFSET, FNV_PRIME = 0xCBF29CE484222325, 0x100000001B3
 
 
-def u32(data: bytes, at: int) -> int:
-    return struct.unpack_from("<I", data, at)[0]
+def u32(data, at): return struct.unpack_from("<I", data, at)[0]
+def i32(data, at): return struct.unpack_from("<i", data, at)[0]
+def fp(data):
+    value = FNV_OFFSET
+    for byte in data: value = ((value ^ byte) * FNV_PRIME) & 0xffffffffffffffff
+    return {"size": len(data), "crc32": f"{zlib.crc32(data):08x}", "fnv64": f"{value:016x}"}
 
 
-def i32(data: bytes, at: int) -> int:
-    return struct.unpack_from("<i", data, at)[0]
-
-
-def fnv64(data: bytes) -> str:
-    value = 0xCBF29CE484222325
-    for byte in data:
-        value = (value ^ byte) * 0x100000001B3 & 0xFFFFFFFFFFFFFFFF
-    return f"{value:016x}"
-
-
-def fingerprint(data: bytes) -> dict[str, object]:
-    return {"size": len(data), "crc32": f"{zlib.crc32(data):08x}", "fnv64": fnv64(data)}
-
-
-def package_entries(data: bytes, folder_at: int, prefix: str = ""):
-    _, count, record_size = struct.unpack_from("<III", data, folder_at)
-    if record_size != 158:
-        raise ValueError("unexpected package record size")
+def entries(data, folder, prefix=""):
+    _, count, record = struct.unpack_from("<III", data, folder)
+    if record != 158: raise ValueError("package record")
     for index in range(count):
-        at = folder_at + 12 + index * record_size
-        name = data[at + 71 : at + 134].split(b"\0", 1)[0].decode("ascii")
-        kind = i32(data, at + 134)
-        path = f"{prefix}/{name}" if prefix else name
-        if kind == 3:
-            yield from package_entries(data, u32(data, at + 150), path)
-        else:
-            yield path, kind, u32(data, at), u32(data, at + 4), u32(data, at + 150)
+        at = folder + 12 + index * record
+        name = data[at + 71:at + 134].split(bytes([0]), 1)[0].decode("ascii")
+        path, kind = (f"{prefix}/{name}" if prefix else name), i32(data, at + 134)
+        if kind == 3: yield from entries(data, u32(data, at + 150), path)
+        else: yield path, kind, u32(data, at), u32(data, at + 4), u32(data, at + 150)
 
 
-def package_payload(data: bytes, kind: int, size: int, position: int) -> bytes:
+def payload(data, kind, size, position):
     at = position + 4
-    if kind != 2:
-        return data[at : at + size]
-    output = bytearray()
-    while len(output) < size:
-        stored = u32(data, at)
-        at += 4
-        block = data[at : at + stored]
-        if len(block) != stored or stored < 8 or block[:4] != b"ZL02":
-            raise ValueError("invalid package ZL02 block")
-        if u32(block, 4) == 0:
-            raise ValueError("zero package ZL02 size")
-        output.extend(zlib.decompress(block[8:]))
-        at += stored
-    if len(output) != size:
-        raise ValueError("package payload size mismatch")
-    return bytes(output)
+    if kind != 2: return data[at:at + size]
+    result = bytearray()
+    while len(result) < size:
+        stored = u32(data, at); at += 4; block = data[at:at + stored]
+        if len(block) != stored or stored < 8 or block[:4] != b"ZL02" or not u32(block, 4): raise ValueError("package ZL02")
+        result.extend(zlib.decompress(block[8:])); at += stored
+    if len(result) != size: raise ValueError("package payload")
+    return bytes(result)
 
 
-def gai_metadata(data: bytes) -> dict[str, object]:
-    if len(data) < HEADER or data[:4] != b"gai\0":
-        raise ValueError("invalid GAI header")
-    version = i32(data, 4)
-    left, top, right, bottom = struct.unpack_from("<4i", data, 8)
-    frames = i32(data, 24)
-    flags = u32(data, 28)
+def gai(data):
+    if len(data) < HEADER or data[:4] != b"gai\x00": raise ValueError("GAI header")
+    version = i32(data, 4); bounds = list(struct.unpack_from("<4i", data, 8)); frames, flags = i32(data, 24), u32(data, 28)
     sequence_offset, sequence_size = struct.unpack_from("<2i", data, 32)
-    if version != 1 or frames <= 0 or frames > 100000 or right <= left or bottom <= top:
-        raise ValueError("invalid GAI fields")
-    if HEADER + frames * FRAME > len(data):
-        raise ValueError("truncated frame directory")
-    sequence_count = 0
+    if version != 1 or not 0 < frames <= 100000 or bounds[2] <= bounds[0] or bounds[3] <= bounds[1] or HEADER + frames * FRAME > len(data): raise ValueError("GAI fields")
+    sequences = []
     if sequence_offset:
-        if sequence_offset < 0 or sequence_size < 8 or sequence_offset + sequence_size > len(data):
-            raise ValueError("invalid sequence table")
-        sequence_count = i32(data, sequence_offset)
-        if sequence_count < 0 or sequence_count > 100000 or 8 + sequence_count * 8 > sequence_size:
-            raise ValueError("invalid sequence directory")
-        for index in range(sequence_count):
-            block_offset = i32(data, sequence_offset + 8 + index * 8)
-            if block_offset < 0 or block_offset + 4 > sequence_size:
-                raise ValueError("invalid sequence block")
-            frame_count = i32(data, sequence_offset + block_offset)
-            if frame_count < 0 or block_offset + 4 + frame_count * 8 > sequence_size:
-                raise ValueError("invalid sequence frames")
-            for frame in range(frame_count):
-                source = i32(data, sequence_offset + block_offset + 4 + frame * 8)
-                if source < 0 or source >= frames:
-                    raise ValueError("invalid sequence source")
-    elif sequence_size:
-        raise ValueError("sequence size without offset")
-    return {"version": version, "bounds": [left, top, right, bottom], "frame_count": frames,
-            "flags": flags, "sequence_table_offset": sequence_offset, "sequence_table_size": sequence_size,
-            "sequence_count": sequence_count}
+        if sequence_offset < 0 or sequence_size < 8 or sequence_offset + sequence_size > len(data): raise ValueError("sequence table")
+        count = i32(data, sequence_offset)
+        if not 0 <= count <= 100000 or 8 + count * 8 > sequence_size: raise ValueError("sequence directory")
+        for index in range(count):
+            block = i32(data, sequence_offset + 8 + index * 8)
+            if block < 0 or block + 4 > sequence_size: raise ValueError("sequence block")
+            count2 = i32(data, sequence_offset + block)
+            if not 0 <= count2 <= 100000 or block + 4 + count2 * 8 > sequence_size: raise ValueError("sequence frames")
+            pairs = [struct.unpack_from("<ii", data, sequence_offset + block + 4 + step * 8) for step in range(count2)]
+            if any(source < 0 or source >= frames for source, _ in pairs): raise ValueError("sequence source")
+            sequences.append({"frame_count": count2, "source_indices": [item[0] for item in pairs], "frame_delays": [item[1] for item in pairs]})
+    elif sequence_size: raise ValueError("sequence size")
+    return {"version": version, "bounds": bounds, "frame_count": frames, "flags": flags, "sequence_count": len(sequences), "sequences": sequences}
 
 
-def extract_frame(data: bytes, meta: dict[str, object], index: int) -> tuple[str, bytes, int, int]:
-    frames = int(meta["frame_count"])
-    if index < 0 or index >= frames:
-        raise ValueError("invalid frame index")
-    at = HEADER + index * FRAME
-    offset, size = struct.unpack_from("<ii", data, at)
-    if offset == 0:
-        return "EMPTY", b"", offset, size
-    if offset < 0 or size <= 0 or offset + size > len(data):
-        raise ValueError("invalid frame range")
-    stored = data[offset : offset + size]
-    if stored[:2] == b"gi":
-        return "RAW_GI", stored, offset, size
-    if len(stored) < 8 or stored[:2] != b"ZL":
-        return "UNKNOWN", b"", offset, size
-    expected = u32(stored, 4)
-    if not expected or expected > MAX_DECODED:
-        raise ValueError("invalid compressed frame size")
-    if stored[:4] not in (b"ZL01", b"ZL02"):
-        return f"OTHER_{stored[:4].decode('latin1')}", b"", offset, size
-    decoded = zlib.decompress(stored[8:])
-    if len(decoded) != expected:
-        raise ValueError("compressed frame size mismatch")
-    return stored[:4].decode("ascii"), decoded, offset, size
+def frame(data, meta, index):
+    offset, size = struct.unpack_from("<ii", data, HEADER + index * FRAME)
+    if offset == 0: return "EMPTY", b"", offset, size
+    if offset < 0 or size <= 0 or offset + size > len(data): raise ValueError("frame range")
+    blob = data[offset:offset + size]
+    if blob[:2] == b"gi": return "RAW_GI", blob, offset, size
+    if len(blob) < 8 or blob[:2] != b"ZL" or blob[:4] not in (b"ZL01", b"ZL02") or not u32(blob, 4): raise ValueError("frame encoding")
+    decoded = zlib.decompress(blob[8:])
+    if len(decoded) != u32(blob, 4) or len(decoded) > MAX_BYTES: raise ValueError("frame inflate")
+    return blob[:4].decode("ascii"), decoded, offset, size
 
 
-def decode_gi_format0(data: bytes) -> tuple[dict[str, object], bytes]:
-    if len(data) < 96 or data[:2] != b"gi" or i32(data, 4) != 1:
-        raise ValueError("invalid embedded GI")
-    left, top, right, bottom = struct.unpack_from("<4i", data, 8)
-    red, green, blue, alpha = struct.unpack_from("<4I", data, 24)
+def header(data):
+    if len(data) < 64 or data[:2] != b"gi" or i32(data, 4) != 1: raise ValueError("GI header")
+    bounds = list(struct.unpack_from("<4i", data, 8)); masks = list(struct.unpack_from("<4I", data, 24))
     fmt, planes, clips, clip_offset = struct.unpack_from("<4i", data, 40)
-    if fmt != 0 or planes < 1 or right <= left or bottom <= top or 64 + planes * 32 > len(data):
-        raise ValueError("unsupported or invalid GI")
-    offset, stored_size = struct.unpack_from("<2i", data, 64)
-    width, height = right - left, bottom - top
-    required = width * height * (4 if alpha else 2)
-    if offset <= 0 or stored_size < required or offset + required > len(data):
-        raise ValueError("invalid GI payload")
-    if clips < 0 or (clips and (clip_offset < 0 or clip_offset + clips * 8 > len(data))):
-        raise ValueError("invalid GI clips")
-    source = data[offset : offset + required]
-    if alpha:
-        pixels = source
-    else:
-        pixels = bytearray(width * height * 4)
-        for pixel in range(width * height):
-            value = struct.unpack_from("<H", source, pixel * 2)[0]
-            pixels[pixel * 4 : pixel * 4 + 4] = bytes(((value << 3) & 0xF8, (value >> 3) & 0xFC,
-                                                         (value >> 8) & 0xF8, 255))
-        pixels = bytes(pixels)
-    return {"version": 1, "format": fmt, "bounds": [left, top, right, bottom], "planes": planes,
-            "clips": clips, "masks": [f"{red:08x}", f"{green:08x}", f"{blue:08x}", f"{alpha:08x}"],
-            "decoded": {"width": width, "height": height, "bpp": 4, "pitch": width * 4}}, pixels
+    if bounds[2] <= bounds[0] or bounds[3] <= bounds[1] or planes < 0 or clips < 0 or 64 + planes * PLANE > len(data): raise ValueError("GI fields")
+    if clips and (clip_offset < 0 or clip_offset + clips * 8 > len(data)): raise ValueError("GI clips")
+    return {"version": 1, "format": fmt, "bounds": bounds, "planes": planes, "clips": clips, "masks": [f"{value:08x}" for value in masks]}
 
 
-def analyze(path: str, payload: bytes) -> dict[str, object]:
-    meta = gai_metadata(payload)
-    inventory = {"EMPTY": 0, "RAW_GI": 0, "ZL01": 0, "ZL02": 0, "OTHER_ZL": 0, "UNKNOWN": 0}
-    formats: dict[str, int] = {str(index): 0 for index in range(7)}
-    selected = None
-    for index in range(int(meta["frame_count"])):
-        encoding, gi, offset, stored_size = extract_frame(payload, meta, index)
-        key = "OTHER_ZL" if encoding.startswith("OTHER_") else encoding
-        inventory[key] = inventory.get(key, 0) + 1
-        if not gi:
-            continue
-        try:
-            header_format = i32(gi, 40) if len(gi) >= 44 and gi[:2] == b"gi" else None
-            formats[str(header_format) if header_format in range(7) else "unknown"] = formats.get(str(header_format) if header_format in range(7) else "unknown", 0) + 1
-            gi_meta, pixels = decode_gi_format0(gi)
-        except ValueError:
-            continue
-        if selected is None:
-            selected = {"index": index, "offset": offset, "stored_size": stored_size, "encoding": encoding,
-                        "decoded_gi": fingerprint(gi), "gi": gi_meta, "pixels": fingerprint(pixels)}
-    return {"resource": path, "gai": fingerprint(payload) | meta, "inventory": inventory,
-            "gi_formats": formats, "selected_frame": selected}
+def plane(data, image, index):
+    offset, size, left, top, right, bottom = struct.unpack_from("<6i", data, 64 + index * PLANE)
+    if offset == 0: return None
+    if offset < 0 or size < RLE or offset > len(data) or size > len(data) - offset: raise ValueError("plane range")
+    stream_bytes, width, height, info = struct.unpack_from("<iiiI", data, offset)
+    if stream_bytes < 0 or width <= 0 or height <= 0 or RLE + stream_bytes > size: raise ValueError("RLE header")
+    x, y = left - image["bounds"][0], top - image["bounds"][1]
+    iw, ih = image["bounds"][2] - image["bounds"][0], image["bounds"][3] - image["bounds"][1]
+    if x < 0 or y < 0 or x + width > iw or y + height > ih: raise ValueError("RLE placement")
+    return {"bounds": [left, top, right, bottom], "origin": [x, y], "size": size, "stream_bytes": stream_bytes, "rle_width": width, "rle_height": height, "format_info": info, "stream": data[offset + RLE:offset + RLE + stream_bytes]}
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("game_root", type=pathlib.Path)
-    parser.add_argument("--json", action="store_true")
-    args = parser.parse_args()
+def validate(stream, width, height, literal_size):
+    at = 0
+    for _ in range(height):
+        x = 0
+        while True:
+            if at >= len(stream): raise ValueError("RLE rows")
+            command = stream[at]; at += 1
+            if command == 0:
+                if x != width: raise ValueError("RLE short row")
+                break
+            if command == 128:
+                if x: raise ValueError("RLE blank row")
+                break
+            count = command & 127
+            if x + count > width: raise ValueError("RLE width")
+            if command & 128:
+                size = count * literal_size
+                if size > len(stream) - at: raise ValueError("RLE literal")
+                at += size
+            x += count
+    if at != len(stream): raise ValueError("RLE trailing")
+
+
+def draw(pixels, pitch, data, mode):
+    stream, width, height = data["stream"], data["rle_width"], data["rle_height"]
+    validate(stream, width, height, 1 if mode == 2 else 2)
+    base_x, base_y, at = data["origin"][0], data["origin"][1], 0
+    for row in range(height):
+        x = 0
+        while True:
+            command = stream[at]; at += 1
+            if command == 0 or command == 128: break
+            count = command & 127
+            if command < 128: x += count; continue
+            for _ in range(count):
+                target = (base_y + row) * pitch + (base_x + x) * 4
+                if mode == 2: pixels[target + 3] = 252 - 4 * stream[at]; at += 1
+                else:
+                    value = struct.unpack_from("<H", stream, at)[0]; at += 2
+                    blue, green, red = (value & 31) << 3, (value >> 3) & 252, (value >> 8) & 248
+                    if mode == 1 and pixels[target + 3]:
+                        alpha = pixels[target + 3]; blue, green, red = blue * 255 // alpha, green * 255 // alpha, red * 255 // alpha
+                    pixels[target:target + 3] = bytes((blue & 255, green & 255, red & 255))
+                    if mode == 0: pixels[target + 3] = 255
+                x += 1
+
+
+def decode2(data):
+    meta = header(data)
+    if meta["format"] != 2 or meta["planes"] < 3: raise ValueError("not Format-2")
+    width, height = meta["bounds"][2] - meta["bounds"][0], meta["bounds"][3] - meta["bounds"][1]
+    pitch = width * 4
+    if pitch * height > MAX_BYTES: raise ValueError("output limit")
+    planes = [plane(data, meta, index) for index in range(3)]
+    pixels = bytearray(pitch * height)
+    for index in (2, 1, 0):
+        if planes[index] is not None: draw(pixels, pitch, planes[index], index)
+    meta["decoded"] = {"width": width, "height": height, "bpp": 4, "pitch": pitch}
+    meta["plane_details"] = [None if item is None else {key: value for key, value in item.items() if key != "stream"} for item in planes]
+    return meta, bytes(pixels)
+
+
+def record(index, meta, pixels):
+    left, top, right, bottom = meta["bounds"]; decoded = meta["decoded"]
+    return struct.pack("<IiiiiIIII", index, left, top, right, bottom, decoded["width"], decoded["height"], decoded["pitch"], len(pixels)) + pixels
+
+
+def analyze(path, source):
+    meta, formats, rows, aggregate = gai(source), {str(index): 0 for index in range(7)}, [], bytearray()
+    for index in range(meta["frame_count"]):
+        encoding, gi, offset, stored = frame(source, meta, index)
+        if not gi: continue
+        gi_meta = header(gi); formats[str(gi_meta["format"])] = formats.get(str(gi_meta["format"]), 0) + 1
+        if gi_meta["format"] != 2: continue
+        decoded, pixels = decode2(gi)
+        rows.append({"index": index, "offset": offset, "stored_size": stored, "encoding": encoding, "gi": fp(gi) | decoded, "pixels": fp(pixels)})
+        aggregate.extend(record(index, decoded, pixels))
+    if not rows: raise ValueError("no Format-2 frames")
+    return {"resource": path, "gai": fp(source) | meta, "gi_formats": formats, "format2": {"decoded_frames": len(rows), "frame0": rows[0], "aggregate": fp(bytes(aggregate))}}
+
+
+def main():
+    parser = argparse.ArgumentParser(); parser.add_argument("game_root", type=pathlib.Path); args = parser.parse_args()
     package = (args.game_root / "DATA" / "common.pkg").read_bytes()
-    entries = sorted(package_entries(package, u32(package, 0)), key=lambda entry: entry[0].upper())
-    preferred = next((entry for entry in entries if entry[0].upper() == "DATA/ASTEROID/00.GAI"), None)
-    if not preferred:
-        raise ValueError("missing DATA/Asteroid/00.gai")
-    preferred_result = analyze(preferred[0], package_payload(package, preferred[1], preferred[3], preferred[4]))
-    if preferred_result["selected_frame"] is not None:
-        print(json.dumps({"asteroid_00_inventory": preferred_result, "baseline": preferred_result}, indent=2, sort_keys=True))
-        return 0
-    candidates = [entry for entry in entries if entry[0].upper().endswith(".GAI") and entry[0] != preferred[0]]
-    for path, kind, _, size, position in candidates:
-        try:
-            result = analyze(path, package_payload(package, kind, size, position))
-            if result["selected_frame"] is not None:
-                print(json.dumps({"asteroid_00_inventory": preferred_result, "baseline": result}, indent=2, sort_keys=True))
-                return 0
-        except (ValueError, struct.error, zlib.error) as error:
-            print(f"skip path={path} reason={error}", file=sys.stderr)
-    return 1
+    match = next((item for item in entries(package, u32(package, 0)) if item[0].upper() == "DATA/ASTEROID/00.GAI"), None)
+    if not match: raise ValueError("missing DATA/Asteroid/00.gai")
+    print(json.dumps(analyze(match[0], payload(package, match[1], match[3], match[4])), indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    main()

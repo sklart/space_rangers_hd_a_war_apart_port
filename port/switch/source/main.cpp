@@ -10,6 +10,7 @@
 #include "runtime_settings_slice.hpp"
 #include "ui_metadata_slice.hpp"
 #include "gi_format0_cpu.hpp"
+#include "gi_format2_cpu.hpp"
 #include "gai_cpu.hpp"
 #include "runtime_loop_slice.hpp"
 #include "renderer_platform.hpp"
@@ -301,6 +302,36 @@ bool VerifyM15GaiFormat0(const char* game_root) {
     Log("[M15] exception");
     return false;
   }
+}
+
+bool VerifyM16GaiFormat2(const char* game_root) {
+  constexpr const char* kResource = "DATA/Asteroid/00.gai";
+  constexpr std::uint32_t kAggregateCrc = 0x9e4059ceu;
+  constexpr std::uint64_t kAggregateFnv = UINT64_C(0xa028ffbf04472afa);
+  constexpr std::uint32_t kFrame0Crc = 0x83f66519u;
+  constexpr std::uint64_t kFrame0Fnv = UINT64_C(0xeb000366ca288b23);
+  try {
+    srhd_awa::package::Package package; std::string error; std::vector<std::uint8_t> gai, canonical;
+    const auto path = (std::filesystem::path(game_root) / "DATA" / "common.pkg").string();
+    const auto* entry = package.Open(path, &error) ? package.Resolve(kResource) : nullptr;
+    if (!entry || !package.ReadPayload(*entry, &gai, &error)) { Log("[M16] open failed reason=%s", error.c_str()); return false; }
+    srhd_awa::platform::gai_cpu::GaiMetadata gm{};
+    if (srhd_awa::platform::gai_cpu::ValidateGai(gai.data(), gai.size(), &gm, &error) != srhd_awa::platform::gai_cpu::Status::Ok) return false;
+    auto add = [&canonical](std::uint32_t v) { for (unsigned s=0;s<32;s+=8) canonical.push_back(static_cast<std::uint8_t>(v>>s)); };
+    auto fnv = [](const std::uint8_t* b,std::size_t n) { std::uint64_t h=UINT64_C(14695981039346656037); for(std::size_t i=0;i<n;++i) h=(h^b[i])*UINT64_C(1099511628211); return h; };
+    std::uint32_t f0crc{}; std::uint64_t f0fnv{}; std::size_t f0size{}; srhd_awa::platform::gi_format2_cpu::Metadata f0{};
+    for (std::int32_t index=0; index<gm.frame_count; ++index) {
+      srhd_awa::platform::gai_cpu::GaiFramePayload payload; srhd_awa::platform::gi_format2_cpu::Metadata meta{}; srhd_awa::platform::gi_format2_cpu::CpuImage image;
+      if (srhd_awa::platform::gai_cpu::ExtractGaiFrame(gai.data(),gai.size(),index,&payload,&error)!=srhd_awa::platform::gai_cpu::Status::Ok || payload.info.encoding!=srhd_awa::platform::gai_cpu::FrameEncoding::RawGi || srhd_awa::platform::gi_format2_cpu::Decode(payload.gi_bytes.data(),payload.gi_bytes.size(),&meta,&image,&error)!=srhd_awa::platform::gi_format2_cpu::Status::Ok) return false;
+      add(index); add(meta.left); add(meta.top); add(meta.right); add(meta.bottom); add(image.width); add(image.height); add(image.pitch); add(static_cast<std::uint32_t>(image.pixels.size())); canonical.insert(canonical.end(),image.pixels.begin(),image.pixels.end());
+      if (!index) { f0=meta; f0size=payload.gi_bytes.size(); f0crc=CrcUnit::ComputeCrc32(image.pixels.data(),static_cast<std::int32_t>(image.pixels.size())); f0fnv=fnv(image.pixels.data(),image.pixels.size()); }
+      image.Clear();
+    }
+    const auto crc=CrcUnit::ComputeCrc32(canonical.data(),static_cast<std::int32_t>(canonical.size())); const auto hash=fnv(canonical.data(),canonical.size());
+    const bool ok=gai.size()==246863 && gm.frame_count==100 && gm.flags==0 && gm.sequence_count==1 && f0size==2622 && f0.left==9 && f0.top==4 && f0.right==42 && f0.bottom==44 && f0crc==kFrame0Crc && f0fnv==kFrame0Fnv && crc==kAggregateCrc && hash==kAggregateFnv;
+    Log("[M16] resource=%s gai_size=%zu",kResource,gai.size()); Log("[M16] frames=%ld flags=%08lx sequences=%ld",static_cast<long>(gm.frame_count),static_cast<unsigned long>(gm.flags),static_cast<long>(gm.sequence_count)); Log("[M16] frame0 gi_format=2 decoded=%ldx%ld pitch=%ld crc32=%08lx fnv64=%016llx",static_cast<long>(f0.width),static_cast<long>(f0.height),static_cast<long>(f0.width*4),static_cast<unsigned long>(f0crc),static_cast<unsigned long long>(f0fnv)); Log("[M16] decoded_frames=%ld aggregate_crc32=%08lx aggregate_fnv64=%016llx",static_cast<long>(gm.frame_count),static_cast<unsigned long>(crc),static_cast<unsigned long long>(hash));
+    return ok;
+  } catch (...) { Log("[M16] exception"); return false; }
 }
 
 bool ValidateReleaseAssets(const char* root) {
@@ -596,6 +627,10 @@ int main(int argc, char** argv) {
   const bool m15_ok = VerifyM15GaiFormat0(game_root);
   Stage("M15 GAI", m15_ok);
   if (!m15_ok) { srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup); return 1; }
+  StageBegin("M16 GI format2");
+  const bool m16_ok = VerifyM16GaiFormat2(game_root);
+  Stage("M16 GI format2", m16_ok);
+  if (!m16_ok) { srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup); return 1; }
   StageBegin("cached resource");
   const bool cached_resource_ok = VerifyFirstCachedResource();
   Stage("cached resource", cached_resource_ok);

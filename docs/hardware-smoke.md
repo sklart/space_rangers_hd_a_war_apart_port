@@ -58,3 +58,7 @@ The tested `Space Rangers HD - A War Apart.nro` was 7,158,064 bytes with SHA-256
 ## M15 first hardware attempt
 
 **NOT PASS.** NRO `73bc577` reached `DecodeGaiFormat0Frame` for the fixed real frame and logged matching GAI, GI and pixel CRC32 values, but emitted `[STAGE] M15 GAI FAIL unknown`. The reported FNV-1a values revealed a truncated offset-basis literal in the runtime, whereas the independent release oracle uses the standard 64-bit value. The NRO must be replaced with the correction and retested; this run is not evidence for M15 PASS.
+
+## M16 Switch test
+
+**PENDING.** Confirm `[STAGE] M16 GI format2 PASS` after 100 decoded frames of `DATA/Asteroid/00.gai`, frame 0 CRC32/FNV `83f66519`/`eb000366ca288b23`, aggregate CRC32/FNV `9e4059ce`/`a028ffbf04472afa`, then retain the M12 15-second loop, `PLUS` exit and `[BOOT] COMPLETE` checks.

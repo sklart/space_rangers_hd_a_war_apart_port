@@ -163,6 +163,7 @@ GitHub Actions workflow `package-host` выполняет asset-free host-рег
 - [M14 portability boundary](docs/milestone14-gi-portability.md)
 - [M14P portable GI Format-0](docs/milestone14p-gi-format0.md)
 - [M15 portable GAI CPU](docs/milestone15-gai-cpu.md)
+- [M16 portable GI Format-2 CPU](docs/milestone16-gi-format2.md)
 
 ## Лицензирование и обратная связь
 
