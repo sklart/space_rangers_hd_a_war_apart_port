@@ -2,7 +2,7 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Текущий аппаратный статус:** NRO собирается и запускается на Switch, но игра пока не готова к прохождению. Последний реальный запуск остановился на этапе загрузки зашифрованной DAT-конфигурации (M9). В код добавлен безопасный отказ вместо разбора нераспакованных данных; его аппаратная проверка ещё требуется.
+> **Текущий аппаратный статус:** M12 persistent loop проверен на Switch: NRO с `build_git=63e1f5f` работал 78,8 с, отрисовал 1574 кадра/презентации, корректно завершился по `PLUS`, а M13 metadata diagnostic прошёл 17/17. Это не означает готовность игры к прохождению: M14P portable GI Format-0 находится в host/CI-проверке, а дальнейшие игровые подсистемы ещё не подключены.
 
 ## Что уже работает
 
@@ -15,7 +15,9 @@
 | Переведённый `EC_File` | host PASS, ARM64 build PASS |
 | Загрузка INSTALL.TXT, language/mod packages | host/CI PASS, ARM64 build PASS |
 | CPU RGB565 / SDL presentation | host/CI PASS, ARM64 build PASS |
-| DAT/runtime configuration и GlobalCache diagnostic slice | host/CI PASS, ARM64 build PASS; hardware pending |
+| DAT/runtime configuration, GlobalCache и M12 persistent loop | host/CI PASS, ARM64 build PASS, hardware PASS |
+| M13 bitmap metadata diagnostic | host/CI PASS, ARM64 build PASS, hardware PASS (17/17) |
+| M14P portable GI Format-0 CPU decode | реализация и synthetic host gate подготовлены; host/CI/hardware ещё не подтверждены |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
@@ -54,7 +56,9 @@ git submodule update --init --recursive
 - CMake и Python 3;
 - Git.
 
-Сборку нужно запускать из оболочки devkitPro MSYS, а не из обычного `cmd.exe`.
+Linux host-регрессии (`make -C port/switch host-...`) запускайте только из clean clone на native WSL ext4, например `/home/<user>/src/space-rangers-hd-a-war-apart-port-host`. Не запускайте Linux `make`, `cmake` или `g++` из `/mnt/c`, `/mnt/d` или другого drvfs/9P mount: Windows working copy допустима как источник WIP, но не как WSL host build directory.
+
+Сборку Switch ARM64 нужно запускать из оболочки devkitPro MSYS, а не из обычного `cmd.exe`.
 
 ```bash
 cd port/switch
@@ -153,6 +157,8 @@ GitHub Actions workflow `package-host` выполняет asset-free host-рег
 - [Milestone 10: build и hardware baseline](docs/milestone10-build.md)
 - [Milestone 11: GlobalCache diagnostic slice](docs/milestone11-global-cache.md)
 - [Цепочка зависимостей startup](docs/startup-dependency-chain.md)
+- [M14 portability boundary](docs/milestone14-gi-portability.md)
+- [M14P portable GI Format-0](docs/milestone14p-gi-format0.md)
 
 ## Лицензирование и обратная связь
 
