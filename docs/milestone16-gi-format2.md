@@ -20,3 +20,7 @@ The M16 ARM64 objects have no `GR_DX`, Direct3D, `TGraphBufGR`, `TgiGR`,
 still contains `GR_DX`/`TGraphBufGR` for its pre-existing RGB565 renderer, so
 a full-binary absence audit is not an M16 PASS criterion without separately
 changing that already-hardware-tested renderer boundary.
+
+GitHub Actions run `37623625785` passed the synthetic decoder, corrupt stream
+suite and the separate M16 host symbol audit. Switch hardware evidence is
+still required before declaring M16 complete.
