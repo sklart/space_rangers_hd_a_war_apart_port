@@ -33,7 +33,7 @@ std::vector<unsigned char> Gai(bool sequence=true) {
   if(sequence){W32(&b,table,1); W32(&b,table+8,16); W32(&b,table+16,2); W32(&b,table+20,0); W32(&b,table+24,20); W32(&b,table+28,1); W32(&b,table+32,40);} return b;
 }
 std::uint32_t C(const std::vector<std::uint8_t>&v){std::uint32_t c=~0u;for(auto b:v){c^=b;for(int n=0;n<8;++n)c=(c>>1)^((c&1)?0xedb88320u:0);}return~c;}
-std::uint64_t F(const std::vector<std::uint8_t>&v){std::uint64_t h=1469598103934665603ull;for(auto b:v)h=(h^b)*1099511628211ull;return h;}
+std::uint64_t F(const std::vector<std::uint8_t>&v){std::uint64_t h=14695981039346656037ull;for(auto b:v)h=(h^b)*1099511628211ull;return h;}
 bool Empty(const gi::CpuImage&i){return !i.width&&!i.height&&!i.pitch&&!i.bytes_per_pixel&&i.pixels.empty();}
 bool Reject(std::vector<unsigned char>b,const char*label,int frame=0){GaiFramePayload p;gi::CpuImage image;std::string error; if(DecodeGaiFormat0Frame(b.empty()?nullptr:b.data(),b.size(),frame,nullptr,nullptr,nullptr,&image,&error)==Status::Ok||!Empty(image)||!p.gi_bytes.empty()){std::printf("accepted corrupt %s\n",label);return false;}return true;}
 }
@@ -42,7 +42,7 @@ int main(){
   const auto validate_status=ValidateGai(b.data(),b.size(),&meta); const auto raw_status=ReadGaiFrameInfo(b.data(),b.size(),0,&raw); const auto compressed_status=ReadGaiFrameInfo(b.data(),b.size(),1,&compressed); const auto empty_status=ReadGaiFrameInfo(b.data(),b.size(),2,&empty); const auto raw_decode_status=DecodeGaiFormat0Frame(b.data(),b.size(),0,&meta,&raw,&ga,&a); const auto compressed_decode_status=DecodeGaiFormat0Frame(b.data(),b.size(),1,nullptr,&compressed,&gb,&c);
   const bool valid_path=validate_status==Status::Ok&&meta.version==1&&meta.frame_count==3&&meta.flags==0&&meta.sequence_table_present&&meta.sequence_count==1&&
     raw_status==Status::Ok&&raw.encoding==FrameEncoding::RawGi&&compressed_status==Status::Ok&&compressed.encoding==FrameEncoding::Zl01&&empty_status==Status::Ok&&empty.encoding==FrameEncoding::Empty&&
-    raw_decode_status==Status::Ok&&compressed_decode_status==Status::Ok&&a.pixels==c.pixels&&ga.width==gb.width&&ga.height==gb.height&&a.width==2&&a.height==2&&a.pitch==8&&a.bytes_per_pixel==4&&C(a.pixels)==0xf8a05355u&&F(a.pixels)==0x27d6eb722a47841bull;
+    raw_decode_status==Status::Ok&&compressed_decode_status==Status::Ok&&a.pixels==c.pixels&&ga.width==gb.width&&ga.height==gb.height&&a.width==2&&a.height==2&&a.pitch==8&&a.bytes_per_pixel==4&&C(a.pixels)==0xf8a05355u&&F(a.pixels)==0x2774951ee33e6f0dull;
   if (!valid_path) std::fprintf(stderr,"valid path failed v=%u r=%u c=%u e=%u dr=%u dc=%u meta=%d/%d seq=%d/%d enc=%u/%u/%u image=%d,%d,%d,%d crc=%08x fnv=%016llx\n",static_cast<unsigned>(validate_status),static_cast<unsigned>(raw_status),static_cast<unsigned>(compressed_status),static_cast<unsigned>(empty_status),static_cast<unsigned>(raw_decode_status),static_cast<unsigned>(compressed_decode_status),meta.version,meta.frame_count,meta.sequence_table_present?1:0,meta.sequence_count,static_cast<unsigned>(raw.encoding),static_cast<unsigned>(compressed.encoding),static_cast<unsigned>(empty.encoding),a.width,a.height,a.pitch,a.bytes_per_pixel,C(a.pixels),static_cast<unsigned long long>(F(a.pixels)));
   bool ok=valid_path;
   GaiFramePayload p;std::string error; ok=ok&&ExtractGaiFrame(b.data(),b.size(),2,&p,&error)==Status::EmptyFrame&&p.gi_bytes.empty()&&DecodeGaiFormat0Frame(b.data(),b.size(),1,nullptr,nullptr,nullptr,&c,&error)==Status::Ok&&Empty(c)==false;

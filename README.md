@@ -18,7 +18,7 @@
 | DAT/runtime configuration, GlobalCache и M12 persistent loop | host/CI PASS, ARM64 build PASS, hardware PASS |
 | M13 bitmap metadata diagnostic | host/CI PASS, ARM64 build PASS, hardware PASS (17/17) |
 | M14P portable GI Format-0 CPU decode | host/CI/ARM64/hardware PASS; M14 COMPLETE |
-| M15 portable GAI container + one Format-0 frame | release baseline + CI + ARM64 build PASS; Switch hardware pending |
+| M15 portable GAI container + one Format-0 frame | release baseline + CI + ARM64 build PASS; Switch retest pending after corrected FNV-1a oracle basis |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.

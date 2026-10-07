@@ -247,7 +247,9 @@ bool VerifyM15GaiFormat0(const char* game_root) {
       return false;
     }
     auto hash = [](const std::uint8_t* bytes, std::size_t count) {
-      std::uint64_t value = UINT64_C(1469598103934665603);
+      // Standard 64-bit FNV-1a offset basis.  Keep this identical to the
+      // independent release oracle rather than to older diagnostic hashes.
+      std::uint64_t value = UINT64_C(14695981039346656037);
       for (std::size_t i = 0; i < count; ++i) value = (value ^ bytes[i]) * UINT64_C(1099511628211);
       return value;
     };
@@ -285,6 +287,15 @@ bool VerifyM15GaiFormat0(const char* game_root) {
         static_cast<unsigned long>(gi_metadata.blue_mask), static_cast<unsigned long>(gi_metadata.alpha_mask),
         static_cast<long>(image.width), static_cast<long>(image.height), static_cast<long>(image.bytes_per_pixel), static_cast<long>(image.pitch),
         static_cast<unsigned long>(pixels_crc), static_cast<unsigned long long>(pixels_fnv));
+    if (!match) {
+      const char* reason = "metadata";
+      if (gai.size() != 8000152 || gai_crc != kGaiCrc32 || gai_fnv != kGaiFnv64) reason = "GAI fingerprint";
+      else if (frame.index != 0 || frame.data_offset != 56 || frame.data_size != 8000096 ||
+               frame.encoding != srhd_awa::platform::gai_cpu::FrameEncoding::RawGi) reason = "frame directory";
+      else if (payload.gi_bytes.size() != 8000096 || payload_crc != kGiCrc32 || payload_fnv != kGiFnv64) reason = "GI fingerprint";
+      else if (image.pixels.size() != 16000000 || pixels_crc != kPixelsCrc32 || pixels_fnv != kPixelsFnv64) reason = "decoded-pixel fingerprint";
+      Log("[M15] verification failed reason=%s", reason);
+    }
     return match;
   } catch (...) {
     Log("[M15] exception");

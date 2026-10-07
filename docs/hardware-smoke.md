@@ -53,4 +53,8 @@ The tested `Space Rangers HD - A War Apart.nro` was 7,158,064 bytes with SHA-256
 
 ## M15 planned hardware evidence
 
-M15 runs after M14P and before the persistent M12 loop. The expected log has `[STAGE] M15 GAI BEGIN`, the fixed `DATA/BGObj/bg00.gai` frame-0 metadata/fingerprints, and `[STAGE] M15 GAI PASS`; then the existing M12 heartbeat, frames/presents, `PLUS` exit, and `[BOOT] COMPLETE` must still be observed. Until that exact NRO is tested, M15 is **NOT TESTED on hardware**.
+M15 runs after M14P and before the persistent M12 loop. The expected log has `[STAGE] M15 GAI BEGIN`, the fixed `DATA/BGObj/bg00.gai` frame-0 metadata/fingerprints, and `[STAGE] M15 GAI PASS`; then the existing M12 heartbeat, frames/presents, `PLUS` exit, and `[BOOT] COMPLETE` must still be observed. Until the corrected NRO produces this sequence, M15 is **NOT PASS on hardware**.
+
+## M15 first hardware attempt
+
+**NOT PASS.** NRO `73bc577` reached `DecodeGaiFormat0Frame` for the fixed real frame and logged matching GAI, GI and pixel CRC32 values, but emitted `[STAGE] M15 GAI FAIL unknown`. The reported FNV-1a values revealed a truncated offset-basis literal in the runtime, whereas the independent release oracle uses the standard 64-bit value. The NRO must be replaced with the correction and retested; this run is not evidence for M15 PASS.
