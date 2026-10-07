@@ -10,6 +10,7 @@
 #include "runtime_settings_slice.hpp"
 #include "ui_metadata_slice.hpp"
 #include "gi_format0_cpu.hpp"
+#include "gai_cpu.hpp"
 #include "runtime_loop_slice.hpp"
 #include "renderer_platform.hpp"
 #include "units/GR_GraphBuf.hpp"
@@ -213,6 +214,80 @@ bool VerifyM14pGiFormat0() {
     return match;
   } catch (...) {
     pas::free(buffer);
+    return false;
+  }
+}
+
+bool VerifyM15GaiFormat0(const char* game_root) {
+  constexpr const char* kResource = "DATA/BGObj/bg00.gai";
+  constexpr std::uint32_t kGaiCrc32 = 0x9e05776fu;
+  constexpr std::uint64_t kGaiFnv64 = UINT64_C(0x03f332f6307d4031);
+  constexpr std::uint32_t kGiCrc32 = 0x05d665d2u;
+  constexpr std::uint64_t kGiFnv64 = UINT64_C(0x3ccdac34b2d0a2cc);
+  constexpr std::uint32_t kPixelsCrc32 = 0x3fc81562u;
+  constexpr std::uint64_t kPixelsFnv64 = UINT64_C(0xad9d67c6c7ad85b9);
+  try {
+    srhd_awa::package::Package package;
+    std::string error;
+    const auto package_path = (std::filesystem::path(game_root) / "DATA" / "common.pkg").string();
+    const auto* entry = package.Open(package_path, &error) ? package.Resolve(kResource) : nullptr;
+    std::vector<std::uint8_t> gai;
+    if (!entry || !package.ReadPayload(*entry, &gai, &error)) {
+      Log("[M15] open failed resource=%s reason=%s", kResource, error.c_str());
+      return false;
+    }
+    srhd_awa::platform::gai_cpu::GaiMetadata gai_metadata{};
+    srhd_awa::platform::gai_cpu::GaiFrameInfo frame{};
+    srhd_awa::platform::gi_format0_cpu::Metadata gi_metadata{};
+    srhd_awa::platform::gi_format0_cpu::CpuImage image;
+    const auto status = srhd_awa::platform::gai_cpu::DecodeGaiFormat0Frame(
+        gai.data(), gai.size(), 0, &gai_metadata, &frame, &gi_metadata, &image, &error);
+    if (status != srhd_awa::platform::gai_cpu::Status::Ok) {
+      Log("[M15] decode failed status=%u reason=%s", static_cast<unsigned>(status), error.c_str());
+      return false;
+    }
+    auto hash = [](const std::uint8_t* bytes, std::size_t count) {
+      std::uint64_t value = UINT64_C(1469598103934665603);
+      for (std::size_t i = 0; i < count; ++i) value = (value ^ bytes[i]) * UINT64_C(1099511628211);
+      return value;
+    };
+    const auto gai_crc = CrcUnit::ComputeCrc32(gai.data(), static_cast<std::int32_t>(gai.size()));
+    const auto gai_fnv = hash(gai.data(), gai.size());
+    srhd_awa::platform::gai_cpu::GaiFramePayload payload;
+    if (srhd_awa::platform::gai_cpu::ExtractGaiFrame(gai.data(), gai.size(), 0, &payload, &error) !=
+        srhd_awa::platform::gai_cpu::Status::Ok) return false;
+    const auto payload_crc = CrcUnit::ComputeCrc32(payload.gi_bytes.data(), static_cast<std::int32_t>(payload.gi_bytes.size()));
+    const auto payload_fnv = hash(payload.gi_bytes.data(), payload.gi_bytes.size());
+    const auto pixels_crc = CrcUnit::ComputeCrc32(image.pixels.data(), static_cast<std::int32_t>(image.pixels.size()));
+    const auto pixels_fnv = hash(image.pixels.data(), image.pixels.size());
+    const bool match = gai.size() == 8000152 && gai_crc == kGaiCrc32 && gai_fnv == kGaiFnv64 &&
+        gai_metadata.version == 1 && gai_metadata.left == 0 && gai_metadata.top == 0 &&
+        gai_metadata.right == 2000 && gai_metadata.bottom == 2000 && gai_metadata.frame_count == 1 &&
+        gai_metadata.flags == 0 && !gai_metadata.sequence_table_present && gai_metadata.sequence_count == 0 &&
+        frame.index == 0 && frame.data_offset == 56 && frame.data_size == 8000096 &&
+        frame.encoding == srhd_awa::platform::gai_cpu::FrameEncoding::RawGi &&
+        payload.gi_bytes.size() == 8000096 && payload_crc == kGiCrc32 && payload_fnv == kGiFnv64 &&
+        gi_metadata.version == 1 && gi_metadata.width == 2000 && gi_metadata.height == 2000 &&
+        gi_metadata.plane_count == 1 && gi_metadata.clip_rect_count == 0 && gi_metadata.red_mask == 0x0000f800u &&
+        gi_metadata.green_mask == 0x000007e0u && gi_metadata.blue_mask == 0x0000001fu && gi_metadata.alpha_mask == 0 &&
+        image.width == 2000 && image.height == 2000 && image.bytes_per_pixel == 4 && image.pitch == 8000 &&
+        image.pixels.size() == 16000000 && pixels_crc == kPixelsCrc32 && pixels_fnv == kPixelsFnv64;
+    Log("[M15] resource=%s gai_size=%zu gai_crc32=%08lx gai_fnv64=%016llx", kResource, gai.size(),
+        static_cast<unsigned long>(gai_crc), static_cast<unsigned long long>(gai_fnv));
+    Log("[M15] version=%ld frames=%ld flags=%08lx bounds=%ld,%ld,%ld,%ld sequences=%ld", static_cast<long>(gai_metadata.version),
+        static_cast<long>(gai_metadata.frame_count), static_cast<unsigned long>(gai_metadata.flags), static_cast<long>(gai_metadata.left),
+        static_cast<long>(gai_metadata.top), static_cast<long>(gai_metadata.right), static_cast<long>(gai_metadata.bottom), static_cast<long>(gai_metadata.sequence_count));
+    Log("[M15] frame_index=%ld encoding=%s frame_size=%ld gi_size=%zu gi_crc32=%08lx gi_fnv64=%016llx", static_cast<long>(frame.index),
+        srhd_awa::platform::gai_cpu::FrameEncodingName(frame.encoding), static_cast<long>(frame.data_size), payload.gi_bytes.size(),
+        static_cast<unsigned long>(payload_crc), static_cast<unsigned long long>(payload_fnv));
+    Log("[M15] gi_format=0 masks=%08lx,%08lx,%08lx,%08lx decoded=%ldx%ld bpp=%ld pitch=%ld crc32=%08lx fnv64=%016llx",
+        static_cast<unsigned long>(gi_metadata.red_mask), static_cast<unsigned long>(gi_metadata.green_mask),
+        static_cast<unsigned long>(gi_metadata.blue_mask), static_cast<unsigned long>(gi_metadata.alpha_mask),
+        static_cast<long>(image.width), static_cast<long>(image.height), static_cast<long>(image.bytes_per_pixel), static_cast<long>(image.pitch),
+        static_cast<unsigned long>(pixels_crc), static_cast<unsigned long long>(pixels_fnv));
+    return match;
+  } catch (...) {
+    Log("[M15] exception");
     return false;
   }
 }
@@ -506,6 +581,10 @@ int main(int argc, char** argv) {
   const bool m14p_ok = VerifyM14pGiFormat0();
   Stage("M14P GI format0", m14p_ok);
   if (!m14p_ok) { srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup); return 1; }
+  StageBegin("M15 GAI");
+  const bool m15_ok = VerifyM15GaiFormat0(game_root);
+  Stage("M15 GAI", m15_ok);
+  if (!m15_ok) { srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup); return 1; }
   StageBegin("cached resource");
   const bool cached_resource_ok = VerifyFirstCachedResource();
   Stage("cached resource", cached_resource_ok);

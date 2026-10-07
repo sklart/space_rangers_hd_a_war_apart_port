@@ -1,6 +1,7 @@
 #include "zlib_bridge.hpp"
 
 #include <array>
+#include <cstring>
 #include <limits>
 
 #include <zlib.h>
@@ -86,6 +87,22 @@ std::int32_t Uncompress(void* destination, std::int32_t destination_capacity,
     return 0;
   }
   return static_cast<std::int32_t>(total);
+}
+
+std::int32_t UncompressZl02(void* destination, std::int32_t destination_capacity,
+                            void* source, std::int32_t source_size) {
+  if (!destination || !source || source_size <= 8 || destination_capacity <= 0) return 0;
+  const auto* bytes = static_cast<const Bytef*>(source);
+  if (std::memcmp(bytes, "ZL02", 4) != 0) return 0;
+  const auto expected = static_cast<std::uint32_t>(bytes[4]) |
+                        (static_cast<std::uint32_t>(bytes[5]) << 8) |
+                        (static_cast<std::uint32_t>(bytes[6]) << 16) |
+                        (static_cast<std::uint32_t>(bytes[7]) << 24);
+  if (!expected || expected > kMaxResult || expected != static_cast<std::uint32_t>(destination_capacity)) return 0;
+  uLongf written = static_cast<uLong>(destination_capacity);
+  if (uncompress(static_cast<Bytef*>(destination), &written, bytes + 8,
+                 static_cast<uLong>(source_size - 8)) != Z_OK || written != expected) return 0;
+  return static_cast<std::int32_t>(written);
 }
 
 }  // namespace srhd_awa::platform::zlib_bridge

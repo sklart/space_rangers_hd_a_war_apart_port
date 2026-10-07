@@ -26,4 +26,6 @@ M14 direct upstream `TgiGR::DecodeToGraphBuf` remains **BLOCKED** by the broad `
 
 M14P status: **HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE PASS**. The hardware-tested NRO embedded `build_git=46330b4` and decoded real key `Bm.Captain.2BlazerBi` as 93x104 BGRA with pitch 372, CRC32 `cf5b1d56`, and FNV-1a `a668e341bc42a6fb`. The same run completed the M12 loop with 1,506 frames/presents in 73,472 ms, exited through `PLUS`, and reached `[BOOT] COMPLETE`.
 
+M15 is an **implementation candidate**, not yet a hardware claim. It keeps GAI parsing and one selected frame fully CPU-only: bounded header/directory/sequence validation, bounded raw/ZL01/ZL02 extraction, then the existing M14P Format-0 decoder. The independent release oracle records that `DATA/Asteroid/00.gai` is Flags=0 but Format-2-only; deterministic lexical fallback selects raw Format-0 `DATA/BGObj/bg00.gai`, frame 0, whose 2000x2000 BGRA fingerprint is recorded in `milestone15-gai-cpu.md`. Animation, timing, cumulative Flags!=0 composition, surfaces and cache/UI workers are deliberately absent.
+
 The tested NRO was `Space Rangers HD - A War Apart.nro`, 7,158,064 bytes, SHA-256 `1CDFFC96A8505BA6D9114222F46CF32B4A16E80C93C93735D13198293E61D97E`. `port.log` proves the embedded build Git; deployment preflight/manifest proves the NRO SHA-256. M14 is **COMPLETE**. M15 is **NOT STARTED**.

@@ -2,7 +2,7 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Текущий аппаратный статус:** M14P portable GI Format-0 проверен на Switch. NRO с `build_git=46330b4` декодировал реальный ключ `Bm.Captain.2BlazerBi` в 93×104 BGRA (pitch 372, CRC32 `cf5b1d56`, FNV-1a `a668e341bc42a6fb`), после чего M12 loop отработал 1 506 кадров за 73,472 с и штатно завершился по `PLUS`. Это не означает готовность игры к прохождению: UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
+> **Текущий аппаратный статус:** M14P portable GI Format-0 проверен на Switch. M15 добавляет CPU-only GAI container/frame path и имеет release baseline `DATA/BGObj/bg00.gai` (raw Format-0, 2000×2000 BGRA); его CI и Switch hardware evidence ведутся отдельно. Это не означает готовность игры к прохождению: UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
 
 ## Что уже работает
 
@@ -18,6 +18,7 @@
 | DAT/runtime configuration, GlobalCache и M12 persistent loop | host/CI PASS, ARM64 build PASS, hardware PASS |
 | M13 bitmap metadata diagnostic | host/CI PASS, ARM64 build PASS, hardware PASS (17/17) |
 | M14P portable GI Format-0 CPU decode | host/CI/ARM64/hardware PASS; M14 COMPLETE |
+| M15 portable GAI container + one Format-0 frame | implementation candidate: release baseline + ARM64 build PASS; CI/hardware pending |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
@@ -141,7 +142,7 @@ M7, M8, M9, M11, M12 и M14P имеют hardware PASS. M13 завершён ка
 
 ## Проверки
 
-GitHub Actions workflow `package-host` выполняет asset-free host-регрессии, включая corrupt package, циклы каталогов, `ZL02`, portable `EC_File`, synthetic DAT/runtime settings, M8 golden, M12, M13, M14P Format-0 и проверку запрещённых M14P symbols.
+GitHub Actions workflow `package-host` выполняет asset-free host-регрессии, включая corrupt package, циклы каталогов, `ZL02`, portable `EC_File`, synthetic DAT/runtime settings, M8 golden, M12, M13, M14P Format-0 и M15 GAI container/Format-0 regression. M15 symbol audit запрещает графические и upstream GAI runtime symbols.
 
 Локальная ARM64-сборка проверяет создание NRO. Дополнительно для финального артефакта следует подтвердить:
 
@@ -161,6 +162,7 @@ GitHub Actions workflow `package-host` выполняет asset-free host-рег
 - [Цепочка зависимостей startup](docs/startup-dependency-chain.md)
 - [M14 portability boundary](docs/milestone14-gi-portability.md)
 - [M14P portable GI Format-0](docs/milestone14p-gi-format0.md)
+- [M15 portable GAI CPU](docs/milestone15-gai-cpu.md)
 
 ## Лицензирование и обратная связь
 
