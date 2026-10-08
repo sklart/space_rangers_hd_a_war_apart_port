@@ -32,5 +32,14 @@ PASS` и итоговый `[STAGE] M18 compositor PASS`.
 
 ## Статус
 
-Реализация и ARM64 build готовы; Switch hardware proof ещё требуется. До него
-M18 не считается COMPLETE и не является доказательством игрового UI или gameplay.
+**COMPLETE — HOST PASS / CI PASS / ARM64 BUILD PASS / HARDWARE PASS.** GitHub
+Actions run `37739330544` passed the compositor regression and symbol audit. The
+tested NRO was 7,199,024 bytes, SHA-256
+`D2322AB4881796FFE3EB55CF493A6191A54547B636EBA10C24EC3FBF91BE9DDB`, with
+embedded `build_git=f9833a5`. On Switch it decoded frame 0 as 33x40 BGRA/pitch
+132 (`83f66519`/`eb000366ca288b23`), composited it at 623,340 in 1280x720,
+and logged both M18 PASS markers. The supplied screenshot confirms the Asteroid
+was visibly displayed. M12 ran 3,331 frames/presents for 166,725 ms, exited by
+`PLUS`, and reached `[BOOT] COMPLETE`; the retained M17 first cycle also passed
+in 5042 ms. M18 remains a narrow compositor diagnostic, not a game UI or
+gameplay implementation.

@@ -2,7 +2,7 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Текущий аппаратный статус:** M14P, M15, M16 и M17 проверены на Switch. M18 реализован и накладывает первый реальный BGRA кадр `DATA/Asteroid/00.gai` в RGB565 framebuffer, но ожидает отдельного Switch-теста. Это не означает готовность игры к прохождению: UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
+> **Текущий аппаратный статус:** M14P–M18 проверены на Switch. M18 CPU-only накладывает первый реальный BGRA кадр `DATA/Asteroid/00.gai` в RGB565 framebuffer; скриншот и журнал подтвердили его видимость, presentation, `PLUS` и чистый shutdown. Это не означает готовность игры к прохождению: UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
 
 ## Что уже работает
 
@@ -21,7 +21,7 @@
 | M15 portable GAI container + one Format-0 frame | release baseline + CI + ARM64 build + Switch hardware PASS; M15 COMPLETE |
 | M16 portable GAI Format-2 decode | host/CI/ARM64/Switch hardware PASS; M16 COMPLETE |
 | M17 portable GAI sequence playback | host/CI/ARM64/Switch hardware PASS; one `Flags == 0` cycle matches oracle; M17 COMPLETE |
-| M18 portable software compositor | host/CI/ARM64 PASS; Switch hardware proof pending |
+| M18 portable software compositor | host/CI/ARM64/Switch hardware PASS; M18 COMPLETE |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
@@ -133,9 +133,9 @@ port/switch/Space Rangers HD - A War Apart.nro
 
 ## Границы подтверждённого аппаратного пути
 
-M7, M8, M9, M11, M12, M14P, M15, M16 и M17 имеют hardware PASS. M13 завершён как metadata diagnostic и не требует отдельного hardware gate. M18 CPU-only композитит единственный decoded Format-2 BGRA кадр поверх M12 heartbeat в RGB565 framebuffer; его Switch hardware gate ещё не пройден. M14 direct upstream path остаётся заблокированным широким `GR_DX` fan-out, а M14R — Direct3D COM state в layout `TGraphBufGR`.
+M7, M8, M9, M11, M12, M14P, M15, M16, M17 и M18 имеют hardware PASS. M13 завершён как metadata diagnostic и не требует отдельного hardware gate. M18 CPU-only композитит единственный decoded Format-2 BGRA кадр поверх M12 heartbeat в RGB565 framebuffer; screenshot подтвердил реальную видимость кадра. M14 direct upstream path остаётся заблокированным широким `GR_DX` fan-out, а M14R — Direct3D COM state в layout `TGraphBufGR`.
 
-Последний аппаратно протестированный NRO (M17) имел размер 7 194 928 bytes, SHA-256 `E753BFEAA6BF71C48086C98BB8A27307A0929ECB05B362D343CFA7B8777DCD0D` и embedded `build_git=13ad513`. `port.log` подтвердил sequence CRC32/FNV `4b1c6ebf`/`47cdc8c73fc1ce61`, cycle CRC32/FNV `5b7bc7e9`/`f70813ac799a25b3`, первый цикл 5033 ms при допуске 134 ms, затем `PLUS` и `[BOOT] COMPLETE`. Deploy preflight/manifest подтверждает SHA-256.
+Последний аппаратно протестированный NRO (M18) имел размер 7 199 024 bytes, SHA-256 `D2322AB4881796FFE3EB55CF493A6191A54547B636EBA10C24EC3FBF91BE9DDB` и embedded `build_git=f9833a5`. `port.log` подтвердил M18 decoded 33x40 BGRA (`CRC32=83f66519`, `FNV=eb000366ca288b23`) в точке 623,340, `[M18] compositor PASS`, M17 cycle `5042 ms`, `PLUS`, 3,331 presents за 166,725 ms и `[BOOT] COMPLETE`; screenshot подтвердил видимость кадра. Deploy preflight/manifest подтверждает SHA-256.
 
 ```text
 [M9] FAIL runtime config=... DAT zlib decompression failed
