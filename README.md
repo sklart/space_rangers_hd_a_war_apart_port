@@ -2,7 +2,7 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Текущий аппаратный статус:** M14P и M15 portable CPU Format-0 diagnostics проверены на Switch. M15 валидирует и декодирует `DATA/BGObj/bg00.gai`, frame 0 (raw Format-0, 2000×2000 BGRA) без Direct3D и upstream GAI runtime. Это не означает готовность игры к прохождению: UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
+> **Текущий аппаратный статус:** M14P, M15, M16 и M17 проверены на Switch. M17 portable CPU-only воспроизводит embedded sequence 0 из `DATA/Asteroid/00.gai`, декодируя выбранные Format-2 кадры без Direct3D и upstream GAI runtime; первый полный цикл совпал с независимым oracle. Это не означает готовность игры к прохождению: UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
 
 ## Что уже работает
 
@@ -19,6 +19,8 @@
 | M13 bitmap metadata diagnostic | host/CI PASS, ARM64 build PASS, hardware PASS (17/17) |
 | M14P portable GI Format-0 CPU decode | host/CI/ARM64/hardware PASS; M14 COMPLETE |
 | M15 portable GAI container + one Format-0 frame | release baseline + CI + ARM64 build + Switch hardware PASS; M15 COMPLETE |
+| M16 portable GAI Format-2 decode | host/CI/ARM64/Switch hardware PASS; M16 COMPLETE |
+| M17 portable GAI sequence playback | host/CI/ARM64/Switch hardware PASS; one `Flags == 0` cycle matches oracle; M17 COMPLETE |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
@@ -132,13 +134,13 @@ port/switch/Space Rangers HD - A War Apart.nro
 
 M7, M8, M9, M11, M12, M14P, M15, M16 и M17 имеют hardware PASS. M13 завершён как metadata diagnostic и не требует отдельного hardware gate. M14 direct upstream path остаётся заблокированным широким `GR_DX` fan-out, а M14R — Direct3D COM state в layout `TGraphBufGR`; M14P решает Format-0 без этих типов. M17 подтверждает CPU-only playback sequence 0 из `DATA/Asteroid/00.gai`: один полный цикл совпал с независимым oracle, после чего M12 продолжил работу до `PLUS` и чистого shutdown.
 
-Аппаратно протестированный NRO имел размер 7 158 064 bytes, SHA-256 `1CDFFC96A8505BA6D9114222F46CF32B4A16E80C93C93735D13198293E61D97E` и embedded `build_git=46330b4`. `port.log` подтверждает build Git, а deploy preflight/manifest — SHA-256. При ошибке декодера ожидается запись вида:
+Последний аппаратно протестированный NRO (M17) имел размер 7 194 928 bytes, SHA-256 `E753BFEAA6BF71C48086C98BB8A27307A0929ECB05B362D343CFA7B8777DCD0D` и embedded `build_git=13ad513`. `port.log` подтвердил sequence CRC32/FNV `4b1c6ebf`/`47cdc8c73fc1ce61`, cycle CRC32/FNV `5b7bc7e9`/`f70813ac799a25b3`, первый цикл 5033 ms при допуске 134 ms, затем `PLUS` и `[BOOT] COMPLETE`. Deploy preflight/manifest подтверждает SHA-256.
 
 ```text
 [M9] FAIL runtime config=... DAT zlib decompression failed
 ```
 
-Это диагностический отказ, а не успешный игровой старт. Если экран перестал отвечать либо Home не открывает системное меню, удерживайте кнопку питания для безопасного перезапуска и приложите оба лога к отчёту. M15 не начат.
+Это диагностический отказ, а не успешный игровой старт. Если экран перестал отвечать либо Home не открывает системное меню, удерживайте кнопку питания для безопасного перезапуска и приложите оба лога к отчёту.
 
 ## Проверки
 
