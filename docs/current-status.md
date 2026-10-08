@@ -3,9 +3,11 @@
 M20 remains complete. M21 has a committed CPU foundation and a local/CI host
 gate. Its release-config inventory, independent Simple Python oracle and
 synthetic mixed M20/M21 frame-A/frame-B checkpoint now exist, but M21 is
-**not complete**: the release-integrated scene fingerprints, CI run, clean
-ARM64 evidence and the one final Switch test are still pending. No M21
-hardware claim is made here.
+**not complete**. The first Switch run (`build_git=6fb6e98`) reached the M21
+release-scene check and cleanly failed because the Python oracle's RGB565
+channel expansion differed from the ARM64 compositor before alpha blending.
+The corrected fingerprint is committed below; CI and a new hash-bound Switch
+test are still required. No M21 hardware PASS is claimed here.
 
 The synthetic presentation checkpoint uses one M20 GIObject plus M21 Simple,
 keyed Trans and partial-alpha Alpha in stable layer order. Its C++ and
@@ -20,8 +22,9 @@ references have no mapping in base `CacheData.dat` or language DAT, therefore
 they are release **NOT PRESENT**, not substituted with arbitrary assets.
 The M21 runtime integration verifies the same Simple source and
 decoded fingerprints, then compares its fixed first mixed M20/M21 frame with
-the independent `7f09befb`/`6ac7a80e017915b3` oracle. This is implementation
-evidence only; CI and final hardware gates remain pending.
+the independent `86628c05`/`ade254343b228964` oracle. This is implementation
+evidence only; the prior hardware attempt is a clean diagnostic FAIL, and CI
+plus a new hash-bound hardware run remain required.
 
 Baseline SHA-256: `83300344af802bc51e64389c58f047e5afdf195c133048098be3881fae29ed98`.
 

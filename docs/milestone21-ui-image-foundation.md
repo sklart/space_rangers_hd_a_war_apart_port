@@ -5,9 +5,11 @@
 **IN PROGRESS.** Host-путь для статичных изображений существует и проходит
 `host-m21-ui-image-regression`, но это не M21 PASS. Release inventory,
 независимый Simple oracle и synthetic integrated checkpoint теперь есть,
-однако release-integrated fingerprint, CI, clean ARM64 build и один финальный
-аппаратный тест ещё не получены. До них NRO на Switch не развёртывается и
-hardware evidence не запрашивается.
+однако M21 ещё не завершён. Первый Switch запуск embedded `build_git=6fb6e98`
+чисто завершился с diagnostic failure: Python oracle расширял RGB565 через
+сдвиг, тогда как ARM64 compositor масштабирует каналы до 255 перед alpha
+blend. Oracle и runtime expectation исправлены; нужны CI и повторный
+hash-bound аппаратный тест нового NRO.
 
 ## Границы
 
@@ -109,10 +111,12 @@ release они логируются как `NOT_PRESENT`.
 
 Первый fixed logical frame включает heartbeat frame 0, три M20 GIObject и
 этот Simple image. `tests/probe_m21_release_scene.py` независимо получает
-RGB565 framebuffer `1,843,200` bytes, CRC32 `7f09befb`,
-FNV64 `6ac7a80e017915b3`; runtime сравнивает тот же fingerprint до обычной
-animation. Это не даёт hardware PASS само по себе: до финального единственного
-Switch запуска остаются terminal CI, clean build/аудит и полный preflight.
+RGB565 framebuffer `1,843,200` bytes, CRC32 `86628c05`,
+FNV64 `ade254343b228964`; runtime сравнивает тот же fingerprint до обычной
+animation. Первый Switch запуск старого expectation корректно зафиксировал
+несовпадение и выполнил clean shutdown; это **FAIL**, а не crash Homebrew и не
+hardware PASS. Для исправленного NRO остаются terminal CI и повторный
+hash-bound Switch test.
 
 ## Что не заявляется
 

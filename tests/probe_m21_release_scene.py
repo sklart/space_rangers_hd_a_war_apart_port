@@ -25,7 +25,10 @@ def pack565(red, green, blue):
 
 
 def unpack565(value):
-    return ((value >> 11) & 31) << 3, ((value >> 5) & 63) << 2, (value & 31) << 3
+    # Keep this byte expansion identical to software_compositor::Unpack565.
+    # The 255-based scale, rather than a left shift, affects the later alpha
+    # blend of the M20 overlay and therefore the release-frame fingerprint.
+    return ((value >> 11) & 31) * 255 // 31, ((value >> 5) & 63) * 255 // 63, (value & 31) * 255 // 31
 
 
 def blend(source, destination, alpha):
