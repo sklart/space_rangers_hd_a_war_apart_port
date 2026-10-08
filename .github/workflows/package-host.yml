@@ -131,6 +131,9 @@ jobs:
       - name: Run M22 UI tree structural oracle
         run: python3 tests/probe_m22_ui_tree.py
 
+      - name: Check M22 release-backed probe syntax
+        run: python3 -m py_compile tests/probe_m22_ui_release.py tests/probe_m22_runtime_oracle.py
+
       - name: Run M21 mixed presentation-scene oracle
         run: python3 tests/probe_m21_presentation_scene.py
 
