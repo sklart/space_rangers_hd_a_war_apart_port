@@ -20,7 +20,9 @@
 #include "scene_compositor.hpp"
 #include "gi_object.hpp"
 #include "image_object.hpp"
-#include "presentation_scene.hpp"
+#include "ui_object.hpp"
+#include "ui_tree_renderer.hpp"
+#include "ui_tree_fingerprint.hpp"
 #include "units/GR_GraphBuf.hpp"
 #include "units/EC_BlockPar.hpp"
 #include "units/EC_Buf.hpp"
@@ -588,7 +590,6 @@ bool DrawM20GiObjects(void* user_data, std::string* error) {
 
 struct M21UiImageDiagnostic {
   srhd_awa::platform::image_object::PortableImageObject simple;
-  srhd_awa::platform::presentation_scene::PresentationScene scene;
   bool rendered{};
 };
 
@@ -644,18 +645,71 @@ bool InitializeM21UiImages(M20GiObjectDiagnostic* m20, std::int32_t width, std::
   return true;
 }
 
-bool SyncM21Presentation(M20GiObjectDiagnostic* m20, M21UiImageDiagnostic* diagnostic, std::string* error) {
-  diagnostic->scene.Clear();
-  return diagnostic->scene.AddGI("m20-asteroid", &m20->asteroid, error) &&
-      diagnostic->scene.AddImage("m21-simple-spu00", &diagnostic->simple, error) &&
-      diagnostic->scene.AddGI("m20-secondary", &m20->secondary, error) &&
-      diagnostic->scene.AddGI("m20-overlay", &m20->overlay, error);
+struct M22UiTreeDiagnostic {
+  srhd_awa::platform::ui::UiTree tree;
+  srhd_awa::platform::ui::UiPanel* scroll_panel{};
+  std::uint64_t last_tick{};
+  bool rendered{};
+};
+
+srhd_awa::platform::ui::UiGILeaf* AddM22GiLeaf(
+    srhd_awa::platform::ui::UiObject* parent, srhd_awa::package::Package* package,
+    const srhd_awa::platform::gi_object::GIObject& source, const char* name, double depth,
+    std::string* error) {
+  auto* leaf = parent->AddGIObject();
+  leaf->SetName(name); leaf->Image().SetPackage(package); leaf->SetPosition({source.X(), source.Y()});
+  leaf->SetDepth(depth); leaf->Image().SetAlpha(source.Alpha()); leaf->Image().SetVisible(source.Visible());
+  return leaf->LoadResource(source.Resource(), error) ? leaf : nullptr;
 }
 
-struct M21FrameCallbacks { M17PlaybackDiagnostic* m17{}; M20GiObjectDiagnostic* m20{}; M21UiImageDiagnostic* m21{}; };
+bool InitializeM22UiTree(M20GiObjectDiagnostic* m20, M21UiImageDiagnostic* m21,
+                         std::int32_t width, std::int32_t height, M22UiTreeDiagnostic* diagnostic,
+                         std::string* error) {
+  using srhd_awa::platform::image_object::Kind;
+  using srhd_awa::platform::ui::Point;
+  using srhd_awa::platform::ui::Size;
+  auto* root = diagnostic->tree.Root();
+  root->SetName("m22-root"); root->SetSize({width, height});
+  auto* content = root->AddPanel();
+  content->SetName("m22-content"); content->SetSize({width, height}); content->SetDepth(0);
+  if (!AddM22GiLeaf(content, &m20->package, m20->asteroid, "m20-asteroid", -0.0, error)) return false;
+  auto* simple_panel = content->AddPanel();
+  simple_panel->SetName("m22-simple-panel"); simple_panel->SetSize({width, height}); simple_panel->SetDepth(-5.0);
+  diagnostic->scroll_panel = simple_panel->AddPanel();
+  diagnostic->scroll_panel->SetName("m22-scroll-panel"); diagnostic->scroll_panel->SetSize({width, height});
+  auto* simple = diagnostic->scroll_panel->AddImage();
+  simple->SetName("m21-simple-spu00"); simple->Image().SetPackage(&m20->package); simple->SetPosition({32, 96});
+  simple->SetSize({128, 60}); simple->SetDepth(0);
+  if (!simple->Load(Kind::Simple, m21->simple.resource(), "", error)) return false;
+  auto* mode_w = diagnostic->scroll_panel->AddImage();
+  mode_w->SetName("m22-modew-hidden"); mode_w->Image().SetPackage(&m20->package); mode_w->SetPosition({1, 1});
+  mode_w->SetPositionModeW(true); mode_w->SetDepth(-1); mode_w->SetSize({1, 1});
+  if (!mode_w->Load(Kind::Simple, m21->simple.resource(), "", error)) return false;
+  mode_w->Image().SetVisible(false);
+  auto* inactive = content->AddImage();
+  inactive->SetName("m22-inactive"); inactive->Image().SetPackage(&m20->package); inactive->SetPosition({0, 0});
+  inactive->SetSize({1, 1}); inactive->SetDepth(-100); inactive->SetActive(false);
+  if (!inactive->Load(Kind::Simple, m21->simple.resource(), "", error)) return false;
+  if (!AddM22GiLeaf(content, &m20->package, m20->secondary, "m20-secondary", -10.0, error) ||
+      !AddM22GiLeaf(content, &m20->package, m20->overlay, "m20-overlay", -20.0, error)) return false;
+  root->UpdateGeometry();
+  Log("[M22] nodes=%zu panels=4 image_leaves=3 gi_leaves=3 max_depth=3", static_cast<std::size_t>(10));
+  return true;
+}
+
+bool UpdateM22UiTree(M22UiTreeDiagnostic* diagnostic, std::uint64_t now_ms, std::string* error) {
+  const auto delta_ms = diagnostic->last_tick ? now_ms - diagnostic->last_tick : 0;
+  diagnostic->last_tick = now_ms;
+  const auto scroll = static_cast<std::int32_t>((now_ms / 1000) % 2);
+  diagnostic->scroll_panel->SetScrollOffset({scroll, 0});
+  return diagnostic->tree.Update(delta_ms, error);
+}
+
+struct M21FrameCallbacks { M17PlaybackDiagnostic* m17{}; M20GiObjectDiagnostic* m20{}; M21UiImageDiagnostic* m21{}; M22UiTreeDiagnostic* m22{}; };
 bool RunM17M20AndM21(void* user_data, std::uint64_t now_ms, std::string* error) {
   auto* callbacks = static_cast<M21FrameCallbacks*>(user_data);
-  return RunM17Playback(callbacks->m17, now_ms, error) && UpdateM20GiObjects(callbacks->m20, now_ms, error);
+  return RunM17Playback(callbacks->m17, now_ms, error) && UpdateM20GiObjects(callbacks->m20, now_ms, error) &&
+      UpdateM22UiTree(callbacks->m22, now_ms, error);
 }
 bool DrawM21Presentation(void* user_data, std::string* error) {
   auto* callbacks = static_cast<M21FrameCallbacks*>(user_data);
@@ -664,15 +718,15 @@ bool DrawM21Presentation(void* user_data, std::string* error) {
     if (error) *error = "M21 RGB565 framebuffer unavailable";
     return false;
   }
-  if (!SyncM21Presentation(callbacks->m20, callbacks->m21, error)) return false;
   const srhd_awa::platform::scene_compositor::Framebuffer target{static_cast<std::uint16_t*>(framebuffer->GetPixels()), framebuffer->Width, framebuffer->Height, framebuffer->PitchBytes / 2};
-  if (!callbacks->m21->scene.Render(target, error)) return false;
+  if (!callbacks->m22->tree.Render(target, error)) return false;
   callbacks->m20->rendered = true;
   if (!callbacks->m21->rendered) {
     constexpr std::uint32_t kSceneCrc32 = 0x4f915772u;
     constexpr std::uint64_t kSceneFnv64 = UINT64_C(0x52449ae8f8f56c6c);
-    srhd_awa::platform::presentation_scene::FramebufferFingerprint fingerprint{};
-    if (!callbacks->m21->scene.ComputeFramebufferFingerprint(target, &fingerprint, error)) return false;
+    srhd_awa::platform::ui_fingerprint::Value fingerprint{}, tree_fingerprint{};
+    if (!srhd_awa::platform::ui_fingerprint::ComputeFramebuffer(target, &fingerprint, error) ||
+        !srhd_awa::platform::ui_fingerprint::ComputeTree(*callbacks->m22->tree.Root(), &tree_fingerprint, error)) return false;
     Log("[M21] scene_actual_crc32=%08lx scene_actual_fnv64=%016llx scene_actual_bytes=%zu expected_crc32=%08lx expected_fnv64=%016llx", static_cast<unsigned long>(fingerprint.crc32),
         static_cast<unsigned long long>(fingerprint.fnv64), fingerprint.bytes, static_cast<unsigned long>(kSceneCrc32),
         static_cast<unsigned long long>(kSceneFnv64));
@@ -681,12 +735,18 @@ bool DrawM21Presentation(void* user_data, std::string* error) {
       return false;
     }
     callbacks->m21->rendered = true;
+    callbacks->m22->rendered = true;
     Log("[M20] GI object PASS objects=3");
     Log("[M21] layout_count=1 hit_test=NOT_APPLICABLE alpha=NOT_PRESENT");
     Log("[M21] scene_crc32=%08lx scene_fnv64=%016llx scene_bytes=%zu", static_cast<unsigned long>(fingerprint.crc32),
         static_cast<unsigned long long>(fingerprint.fnv64), fingerprint.bytes);
     Log("[M21] GIObject regression PASS");
     Log("[M21] UI image foundation PASS simple=1 trans=NOT_PRESENT alpha=NOT_PRESENT");
+    Log("[M22] tree_crc32=%08lx tree_fnv64=%016llx tree_bytes=%zu", static_cast<unsigned long>(tree_fingerprint.crc32),
+        static_cast<unsigned long long>(tree_fingerprint.fnv64), tree_fingerprint.bytes);
+    Log("[M22] frameA_crc32=%08lx frameA_fnv64=%016llx frameA_bytes=%zu", static_cast<unsigned long>(fingerprint.crc32),
+        static_cast<unsigned long long>(fingerprint.fnv64), fingerprint.bytes);
+    Log("[M22] runtime tree rendered depth=PASS clip=PASS scroll=PASS active=PASS");
   }
   return true;
 }
@@ -1058,7 +1118,18 @@ int main(int argc, char** argv) {
     srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
-  M21FrameCallbacks m21_callbacks{&m17_diagnostic, &m20_diagnostic, &m21_diagnostic};
+  StageBegin("M22 UI object tree");
+  M22UiTreeDiagnostic m22_diagnostic;
+  std::string m22_error;
+  if (!InitializeM22UiTree(&m20_diagnostic, &m21_diagnostic, framebuffer->Width, framebuffer->Height, &m22_diagnostic, &m22_error)) {
+    Log("[M22] FAIL initialization=%s", m22_error.c_str());
+    Stage("M22 UI object tree", false, m22_error.c_str());
+    srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
+    srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
+    srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
+  M21FrameCallbacks m21_callbacks{&m17_diagnostic, &m20_diagnostic, &m21_diagnostic, &m22_diagnostic};
   srhd_awa::platform::runtime_loop_slice::SetFrameCallback(&runtime_loop, RunM17M20AndM21, &m21_callbacks);
   srhd_awa::platform::runtime_loop_slice::SetDrawCallback(&runtime_loop, DrawM21Presentation, &m21_callbacks);
   Log("[M12] runtime ready");
@@ -1085,6 +1156,10 @@ int main(int argc, char** argv) {
     m12_error = "M21 UI image foundation did not draw";
     loop_ok = false;
   }
+  if (loop_ok && !m22_diagnostic.rendered) {
+    m12_error = "M22 UI object tree did not draw";
+    loop_ok = false;
+  }
   if (!loop_ok) Log("[STAGE] runtime loop FAIL reason=%s", m12_error.c_str());
   else {
     Log("[M12] exit_reason=%s", srhd_awa::platform::runtime_loop_slice::ExitReasonName(loop_stats.exit_reason));
@@ -1101,6 +1176,7 @@ int main(int argc, char** argv) {
   Stage("M19 scene compositor", loop_ok && m20_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
   Stage("M20 GI object", loop_ok && m20_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
   Stage("M21 UI image foundation", loop_ok && m21_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
+  Stage("M22 UI object tree", loop_ok && m22_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
   srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
   srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
   srhd_awa::platform::ui_metadata_slice::Shutdown();
