@@ -28,6 +28,7 @@ void* BeginImageRead(void* source,std::int32_t size,std::int32_t* width,std::int
   *height=decoded_height;
   return context;
 }
+void CancelImageRead(void* context){if(context)::okgf_cancel_read(static_cast<OkgfReadContext*>(context));}
 std::int32_t ReadImagePixels(void* context,void* pixels,std::int32_t pitch,std::uint32_t red,std::uint32_t green,std::uint32_t blue,std::uint32_t alpha,std::int32_t bpp){return ::OKGF_Read(static_cast<OkgfReadContext*>(context),pixels,pitch,red,green,blue,alpha,bpp);}
 void LineIp16(void* p,std::int32_t q,std::int32_t x,std::int32_t y,std::uint32_t c,std::int32_t x2,std::int32_t y2,std::uint32_t c2){::OKGF_LineIp_16(p,q,x,y,c,x2,y2,c2);}
 void Triangle16(void* p,std::int32_t q,std::int32_t x,std::int32_t y,std::uint32_t c,std::int32_t x2,std::int32_t y2,std::uint32_t c2,std::int32_t x3,std::int32_t y3,std::uint32_t c3,const WindowsSdk::TRect* r){
