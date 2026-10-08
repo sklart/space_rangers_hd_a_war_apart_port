@@ -19,6 +19,13 @@ bool UiImageLeaf::Load(image_object::Kind kind, const std::string& resource, con
     SetSize({image_.natural_width(), image_.natural_height()});
   return true;
 }
+bool UiImageLeaf::LoadBytes(image_object::Kind kind, const std::uint8_t* bytes, std::size_t size,
+                            const std::string& resource, const std::string& option, std::string* error) {
+  if (!image_.LoadBytes(kind, bytes, size, resource, option, error)) return false;
+  if (ClientSize().width <= 0 || ClientSize().height <= 0)
+    SetSize({image_.natural_width(), image_.natural_height()});
+  return true;
+}
 bool UiImageLeaf::Render(const scene_compositor::Framebuffer& target, Rect clip, std::string* error) const {
   const Rect bounds = HitTestBounds();
   return image_.DrawFramebufferAt(target.pixels, target.width, target.height, target.pitch_pixels,
@@ -27,6 +34,13 @@ bool UiImageLeaf::Render(const scene_compositor::Framebuffer& target, Rect clip,
 }
 bool UiGILeaf::LoadResource(const std::string& resource, std::string* error) {
   if (!image_.LoadResource(resource, error)) return false;
+  if (ClientSize().width <= 0 || ClientSize().height <= 0)
+    SetSize({image_.Image().width, image_.Image().height});
+  return true;
+}
+bool UiGILeaf::LoadBytes(const std::uint8_t* bytes, std::size_t size,
+                         const std::string& resource, std::string* error) {
+  if (!image_.LoadBytes(bytes, size, resource, error)) return false;
   if (ClientSize().width <= 0 || ClientSize().height <= 0)
     SetSize({image_.Image().width, image_.Image().height});
   return true;

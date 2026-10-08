@@ -24,7 +24,8 @@
 | M20 GI object layer | package resource → `GIObject` metadata/current frame → M17 playback advance → `GIObject::Draw(Scene)` → M18 CPU RGB565 compositor | M15 package reader, M16 decoder, M17 playback, M19 scene, M12 callbacks | no Forms/UI/game objects/`EC_Cache`/threads/audio/Direct3D; no global image cache | COMPLETE — HOST/CI/ARM64/HARDWARE PASS; Switch build `73340fc`, 172,463 ms, PLUS/BOOT COMPLETE |
 | M21 static image foundation | package resource → `PortableImageObject` → Simple/Trans/Alpha CPU representation → layout → M19 framebuffer | portable OKGF, M18 compositor, M20 retained animated scene | no Forms/UI controls/cache/worker/Direct3D; release Trans/Alpha are not substituted when absent | COMPLETE — host/CI/ARM64/oracle/hardware PASS; Switch build `fc8adfc`, 172,747 ms, PLUS/BOOT COMPLETE |
 | M22 UI object/layout | config adapter → `UiTree` parent/child geometry/depth/clip/Panel scroll → image/GI leaves → RGB565 framebuffer | M20 `GIObject`, M21 `PortableImageObject`, M12 callback | no MessageLoop, Forms/events/text/cache/Direct3D; incremental scroll optimization deferred | COMPLETE — host/Python oracle, CI `37783935697`, clean ARM64/symbol audit and Switch hardware PASS; `de807a7`, 111,702 ms, PLUS/BOOT COMPLETE |
-| M23 AFT/text/Label | M13 font cache key → validated AFT → tagged layout → `UiLabelLeaf` in M22 tree → RGB565 framebuffer | M13 metadata, M21 image, M22 tree, M12 callback | no `TCFontEC`, font worker, system fonts, embedded-control callbacks, Forms or Direct3D | software validation in progress; Python/C++ synthetic and real Label oracle PASS; CI/clean ARM64/RC pending; hardware PENDING |
+| M23 AFT/text/Label | M13 font cache key → validated AFT → tagged layout → `UiLabelLeaf` in M22 tree → RGB565 framebuffer | M13 metadata, M21 image, M22 tree, M12 callback | no `TCFontEC`, font worker, system fonts, embedded-control callbacks, Forms or Direct3D | SOFTWARE COMPLETE / HARDWARE PENDING; CI `37803515979`, clean ARM64 and RC recorded |
+| M24 GraphButton/Window/Zone | M22 tree + M21 images + M23 caption → portable state, border layout, hit tests → RGB565 framebuffer | M21 image, M22 tree, M23 font/Label, M12 callback | no input dispatcher, callbacks, button audio, GI generic image substitution, Forms or Direct3D | local host/Python oracle and symbol audit PASS; CI/clean ARM64/RC pending; hardware PENDING |
 | audio | DirectSound path | audio device | intentionally deferred | DEFERRED |
 | resource | `CrcUnit.cpp`: `ComputeCrc32` | portable Delphi helpers | none on compiled path | PASS: linked ARM64 |
 | renderer | `GR_Main`, `EC_OKGF`, OKGF | window, `okgf.dll` ABI | game-facing adapter incomplete | portable OKGF is fully built, linked and fills a CPU framebuffer |
@@ -64,5 +65,12 @@ resolver, then checks font, UTF-16 text, tree and RGB565 frame fingerprints
 against an independent Python oracle. During the loop the prepared Label is
 drawn after the retained M21/M22 first-frame checksum, so their established
 checkpoint remains separately verifiable. M23 hardware validation is pending.
+
+M24 runs its fixed in-memory Window/GraphButton/Zone checkpoint after the M23
+fixed real Label check and before the dynamic loop. The M24 Window layout,
+Zone hits, tree, GraphButton state, and RGB565 frame match independent Python
+hashes. Its dynamic control scene then uses the existing M12 update/draw hooks
+and cycles Normal/Hover/Down/Disabled while M23 and earlier diagnostics remain
+active. M24 hardware validation is pending.
 
 M12 hardware PASS: the M14P-tested NRO embedded `46330b4` ran for 73.472 seconds, presented 1,506 frames, exited through `PLUS`, and reached `[BOOT] COMPLETE`. Before the loop it also completed the M13 metadata diagnostic and M14P `Bm.Captain.2BlazerBi` Format-0 decode with the recorded 93x104 BGRA fingerprint.

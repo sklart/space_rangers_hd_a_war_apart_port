@@ -137,3 +137,17 @@ Current M23 hardware validation: **PENDING — Switch unavailable**.
 The M23 RC is `Space Rangers HD - A War Apart.nro`, 7,641,392 bytes,
 SHA-256 `877F15D0B6187B033490815FBBC21229983AA9040FAE27B2F395995C528A2792`,
 embedded `build_git=19eb6a5`. CI run `37803515979` and clean ARM64 passed.
+
+## Future M24 cumulative Switch validation — PENDING
+
+M24 is a software-phase result; the Switch has not been run. A future test must
+use the final hash-bound cumulative M24 NRO and compare its embedded
+`build_git` and SHA-256 with the M24 evidence document. The fixed M23 font,
+localized text, tree, and RGB565 hashes above must still match. The M24 fixed
+Window layout must match `80b94d87`/`77ccd5f317a573d6`, Circle Zone hits
+`8ae2e69e`/`d34c2faf3f348e0f`, tree `6f65eea5`/`11b73bf4b18ab6fb`,
+GraphButton state `6bff73cb`/`e1747b752476d6d6`, and RGB565 frame
+`015d1589`/`5523d509a3a9384d`. Require the dynamic M24 stage, retained
+M17/M20/M21/M22/M23 evidence, nonzero M12 frames/presents, `PLUS` exit, and
+`[BOOT] COMPLETE`. Hardware validation remains **PENDING** until those logs
+come from the actual Switch.

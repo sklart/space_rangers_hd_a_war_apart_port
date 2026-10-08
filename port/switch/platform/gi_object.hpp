@@ -5,6 +5,7 @@
 #include "gi_format0_cpu.hpp"
 
 #include <cstdint>
+#include <cstddef>
 #include <string>
 #include <utility>
 #include <vector>
@@ -21,6 +22,8 @@ class GIObject {
   void SetPackage(package::Package* package) { package_ = package; }
   void SetId(std::string id) { id_ = std::move(id); }
   bool LoadResource(const std::string& resource, std::string* error = nullptr);
+  bool LoadBytes(const std::uint8_t* bytes, std::size_t size,
+                 const std::string& resource, std::string* error = nullptr);
   void SetPosition(std::int32_t x, std::int32_t y) { x_ = x; y_ = y; }
   void SetLayer(std::int32_t layer) { layer_ = layer; }
   void SetAlpha(std::uint8_t alpha) { alpha_ = alpha; }
@@ -45,6 +48,8 @@ class GIObject {
   bool Visible() const { return visible_; }
 
  private:
+  bool LoadDecoded(std::vector<std::uint8_t> bytes, const std::string& resource,
+                   std::string* error);
   bool DecodeCurrentFrame(std::string* error);
 
   package::Package* package_{};

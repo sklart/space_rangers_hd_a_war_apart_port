@@ -160,6 +160,29 @@ jobs:
             ! nm -C "$object" | grep -E 'TCFontEC|TCFontControlEC|GI_Label|TLabelGI|GI_MessageLoop|GR_DX|Direct3D|TGraphBufGR|CreateFont|TextOut|Forms'
           done
 
+      - name: Run M24 Portable GraphButton / Window / Zone regression
+        run: make -C port/switch host-m24-ui-regression
+
+      - name: Check M24 probes and independent controls oracle
+        run: |
+          python3 -m py_compile tests/probe_m24_controls_release.py tests/probe_m24_controls.py
+          python3 tests/probe_m24_controls_release.py --self-test
+          python3 tests/probe_m24_controls.py
+
+      - name: Audit M24 portable production symbols
+        shell: bash
+        run: |
+          set -euo pipefail
+          objects=$(mktemp -d)
+          trap 'rm -rf "$objects"' EXIT
+          for name in ui_graph_button ui_window ui_zone ui_controls_fingerprint ui_controls_checkpoint; do
+            g++ -std=c++20 -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime -Iupstream/okgf/include \
+              -c "port/switch/platform/$name.cpp" -o "$objects/$name.o"
+          done
+          for object in "$objects"/*.o; do
+            ! nm -C "$object" | grep -E 'GI_GraphButton|TGraphButtonGI|GI_Window|TWindowGI|GI_Zone|TZoneGI|GI_MessageLoop|GR_DX|Direct3D|TGraphBufGR|Forms|SoundManager'
+          done
+
       - name: Run M21 mixed presentation-scene oracle
         run: python3 tests/probe_m21_presentation_scene.py
 

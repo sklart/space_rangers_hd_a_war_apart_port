@@ -42,6 +42,7 @@ class UiLabelLeaf final : public UiObject {
   std::uint16_t TextColor() const { return text_color_; }
   std::int32_t TextBorderWidth() const { return text_border_width_; }
   std::int32_t TextShadowOffset() const { return text_shadow_offset_; }
+  std::uint16_t TextShadowColor() const { return text_shadow_color_; }
   bool BorderEnabled() const { return border_enabled_; }
   tagged_text::Bounds ContentBounds() const { return content_bounds_; }
   Size ContentSize() const { return content_size_; }

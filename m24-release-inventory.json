@@ -1,0 +1,511 @@
+{
+  "count_note": "Physical config occurrences differ from overlapping M23 candidate-subtree blocker counts.",
+  "fully_supported_real_subtree": "NOT FOUND",
+  "graph_button": {
+    "caption": 80,
+    "configured_child_controls": 0,
+    "distinct_resource_keys": 748,
+    "eligible": 0,
+    "first_eligible_path": "NOT FOUND",
+    "font": 91,
+    "image_modes": {
+      "GI": 2035
+    },
+    "ineligible": 619,
+    "ineligible_examples": [
+      {
+        "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Panel#1/GraphButton#0",
+        "reasons": [
+          "ImageDisable: unsupported image mode GI",
+          "ImageDown: unsupported image mode GI",
+          "ImageNormal: unsupported image mode GI",
+          "ImageNormalA: unsupported image mode GI",
+          "unsupported property MVUpdate",
+          "unsupported property MouseBlocking",
+          "unsupported property MouseBlockingTest"
+        ]
+      },
+      {
+        "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Panel#1/GraphButton#1",
+        "reasons": [
+          "ImageDisable: unsupported image mode GI",
+          "ImageDown: unsupported image mode GI",
+          "ImageNormal: unsupported image mode GI",
+          "ImageNormalA: unsupported image mode GI",
+          "unsupported property MVUpdate",
+          "unsupported property MouseBlocking",
+          "unsupported property MouseBlockingTest"
+        ]
+      },
+      {
+        "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Panel#1/GraphButton#2",
+        "reasons": [
+          "ImageDisable: unsupported image mode GI",
+          "ImageDown: unsupported image mode GI",
+          "ImageNormal: unsupported image mode GI",
+          "ImageNormalA: unsupported image mode GI",
+          "unsupported property MVUpdate",
+          "unsupported property MouseBlocking",
+          "unsupported property MouseBlockingTest"
+        ]
+      },
+      {
+        "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Panel#1/GraphButton#3",
+        "reasons": [
+          "ImageDisable: unsupported image mode GI",
+          "ImageDown: unsupported image mode GI",
+          "ImageNormal: unsupported image mode GI",
+          "ImageNormalA: unsupported image mode GI",
+          "unsupported property MVUpdate",
+          "unsupported property MouseBlocking",
+          "unsupported property MouseBlockingTest"
+        ]
+      },
+      {
+        "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Panel#1/GraphButton#4",
+        "reasons": [
+          "ImageDisable: unsupported image mode GI",
+          "ImageDown: unsupported image mode GI",
+          "ImageNormal: unsupported image mode GI",
+          "ImageNormalA: unsupported image mode GI",
+          "unsupported property MVUpdate",
+          "unsupported property MouseBlocking",
+          "unsupported property MouseBlockingTest"
+        ]
+      },
+      {
+        "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Panel#1/GraphButton#5",
+        "reasons": [
+          "ImageDown: unsupported image mode GI",
+          "ImageNormal: unsupported image mode GI",
+          "ImageNormalA: unsupported image mode GI",
+          "unsupported property Help"
+        ]
+      },
+      {
+        "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Panel#1/GraphButton#6",
+        "reasons": [
+          "ImageDown: unsupported image mode GI",
+          "ImageNormal: unsupported image mode GI",
+          "ImageNormalA: unsupported image mode GI",
+          "unsupported property Help"
+        ]
+      },
+      {
+        "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Panel#1/GraphButton#7",
+        "reasons": [
+          "ImageDown: unsupported image mode GI",
+          "ImageNormal: unsupported image mode GI",
+          "ImageNormalA: unsupported image mode GI",
+          "unsupported property Help"
+        ]
+      }
+    ],
+    "ineligible_reasons": {
+      "ImageDisable: unsupported image mode GI": 180,
+      "ImageDown: unsupported image mode GI": 603,
+      "ImageDownA: unsupported image mode GI": 121,
+      "ImageNormal: unsupported image mode GI": 524,
+      "ImageNormalA: unsupported image mode GI": 607,
+      "unsupported property Enabled": 1,
+      "unsupported property Help": 285,
+      "unsupported property MVUpdate": 5,
+      "unsupported property MouseBlocking": 10,
+      "unsupported property MouseBlockingTest": 5
+    },
+    "kind": {
+      "Disable": 175,
+      "Fix": 216,
+      "FixDisable": 4,
+      "Normal": 224
+    },
+    "kind_hit": {
+      "Graph": 339,
+      "Rect": 280
+    },
+    "localized_caption": 77,
+    "on_press_code": 0,
+    "physical_occurrences": 619,
+    "property_counts": {
+      "Active": 14,
+      "Auto": 53,
+      "Caption": 80,
+      "CaptionAlignX": 10,
+      "CaptionColorDisable": 15,
+      "CaptionColorDisableA": 15,
+      "CaptionColorDown": 91,
+      "CaptionColorDownA": 89,
+      "CaptionColorNormal": 91,
+      "CaptionColorNormalA": 91,
+      "CaptionShadow": 13,
+      "CaptionShadowColorDisable": 10,
+      "CaptionShadowColorDisableA": 10,
+      "CaptionShadowColorDown": 13,
+      "CaptionShadowColorDownA": 13,
+      "CaptionShadowColorNormal": 13,
+      "CaptionShadowColorNormalA": 13,
+      "CaptionSme": 91,
+      "Disable": 1,
+      "Down": 28,
+      "Enabled": 1,
+      "Font": 91,
+      "Help": 285,
+      "ImageDisable": 180,
+      "ImageDown": 603,
+      "ImageDownA": 121,
+      "ImageNormal": 524,
+      "ImageNormalA": 607,
+      "Kind": 619,
+      "KindHit": 619,
+      "MVUpdate": 5,
+      "MouseBlocking": 10,
+      "MouseBlockingTest": 5,
+      "Name": 619,
+      "Pos": 580,
+      "PosZ": 39,
+      "Size": 566,
+      "SoundClick": 601,
+      "SoundEnter": 601,
+      "SoundLeave": 601,
+      "Style": 601,
+      "UpOnlyDown": 165
+    },
+    "resource_resolved": 2032,
+    "resource_unresolved": 3,
+    "slot_counts": {
+      "ImageDisable": 180,
+      "ImageDown": 603,
+      "ImageDownA": 121,
+      "ImageNormal": 524,
+      "ImageNormalA": 607
+    },
+    "styles": {
+      "(none)": 18,
+      "Style.GB.SoundNormal": 601
+    }
+  },
+  "hypothetical_unique_subtrees": {
+    "All M24": 0,
+    "GraphButton": 0,
+    "GraphButton+Window": 0,
+    "GraphButton+Zone": 0,
+    "M23": 0,
+    "Window": 0,
+    "Zone": 0
+  },
+  "language": "Rus",
+  "m23_blocker_occurrences": {
+    "GraphButton": 1682,
+    "Window": 68,
+    "Zone": 255
+  },
+  "read_only": true,
+  "remaining_eligibility_blockers": [
+    {
+      "candidate_subtrees_blocked": 244,
+      "control": "Image",
+      "overlapping_occurrences": 3686
+    },
+    {
+      "candidate_subtrees_blocked": 153,
+      "control": "GraphButton",
+      "overlapping_occurrences": 1684
+    },
+    {
+      "candidate_subtrees_blocked": 67,
+      "control": "Label",
+      "overlapping_occurrences": 246
+    },
+    {
+      "candidate_subtrees_blocked": 55,
+      "control": "Window",
+      "overlapping_occurrences": 91
+    }
+  ],
+  "remaining_type_blockers": [
+    {
+      "candidate_subtrees_blocked": 74,
+      "control": "GAI",
+      "overlapping_occurrences": 393
+    },
+    {
+      "candidate_subtrees_blocked": 64,
+      "control": "GraphBuf",
+      "overlapping_occurrences": 115
+    },
+    {
+      "candidate_subtrees_blocked": 43,
+      "control": "PanelScrollBar",
+      "overlapping_occurrences": 56
+    },
+    {
+      "candidate_subtrees_blocked": 24,
+      "control": "Edit",
+      "overlapping_occurrences": 145
+    },
+    {
+      "candidate_subtrees_blocked": 7,
+      "control": "ShrLight",
+      "overlapping_occurrences": 10
+    },
+    {
+      "candidate_subtrees_blocked": 6,
+      "control": "StarField",
+      "overlapping_occurrences": 6
+    },
+    {
+      "candidate_subtrees_blocked": 4,
+      "control": "MultiImage",
+      "overlapping_occurrences": 6
+    },
+    {
+      "candidate_subtrees_blocked": 4,
+      "control": "StarFieldImg",
+      "overlapping_occurrences": 4
+    },
+    {
+      "candidate_subtrees_blocked": 4,
+      "control": "SpaceImg",
+      "overlapping_occurrences": 4
+    },
+    {
+      "candidate_subtrees_blocked": 4,
+      "control": "StarFieldM",
+      "overlapping_occurrences": 4
+    },
+    {
+      "candidate_subtrees_blocked": 4,
+      "control": "Circle",
+      "overlapping_occurrences": 8
+    },
+    {
+      "candidate_subtrees_blocked": 4,
+      "control": "XviD",
+      "overlapping_occurrences": 4
+    },
+    {
+      "candidate_subtrees_blocked": 3,
+      "control": "ScrollBar",
+      "overlapping_occurrences": 7
+    },
+    {
+      "candidate_subtrees_blocked": 2,
+      "control": "Frame",
+      "overlapping_occurrences": 2
+    },
+    {
+      "candidate_subtrees_blocked": 2,
+      "control": "SpaceCircle",
+      "overlapping_occurrences": 10
+    }
+  ],
+  "source": "CFG/Main.dat",
+  "unique_control_paths": {
+    "after_m24_release_eligible": 231,
+    "m23_release_eligible": 226,
+    "m23_supported_by_type": 377,
+    "new_m24_release_eligible": 5,
+    "total": 599
+  },
+  "window": {
+    "configured_child_controls": 186,
+    "distinct_resource_keys": 63,
+    "eligible": 0,
+    "first_eligible_path": "NOT FOUND",
+    "image_modes": {
+      "GI": 378
+    },
+    "ineligible": 42,
+    "ineligible_examples": [
+      {
+        "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Window#0",
+        "reasons": [
+          "ImageBottom: unsupported image mode GI",
+          "ImageBottomLeft: unsupported image mode GI",
+          "ImageBottomRight: unsupported image mode GI",
+          "ImageLeft: unsupported image mode GI",
+          "ImageRight: unsupported image mode GI",
+          "ImageTexture: unsupported image mode GI",
+          "ImageTop: unsupported image mode GI",
+          "ImageTopLeft: unsupported image mode GI",
+          "ImageTopRight: unsupported image mode GI",
+          "unsupported property MVUpdate",
+          "unsupported property MouseBlocking"
+        ]
+      },
+      {
+        "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Window#1",
+        "reasons": [
+          "ImageBottom: unsupported image mode GI",
+          "ImageBottomLeft: unsupported image mode GI",
+          "ImageBottomRight: unsupported image mode GI",
+          "ImageLeft: unsupported image mode GI",
+          "ImageRight: unsupported image mode GI",
+          "ImageTexture: unsupported image mode GI",
+          "ImageTop: unsupported image mode GI",
+          "ImageTopLeft: unsupported image mode GI",
+          "ImageTopRight: unsupported image mode GI",
+          "unsupported property MVUpdate",
+          "unsupported property MouseBlocking"
+        ]
+      },
+      {
+        "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Window#2",
+        "reasons": [
+          "ImageBottom: unsupported image mode GI",
+          "ImageBottomLeft: unsupported image mode GI",
+          "ImageBottomRight: unsupported image mode GI",
+          "ImageLeft: unsupported image mode GI",
+          "ImageRight: unsupported image mode GI",
+          "ImageTexture: unsupported image mode GI",
+          "ImageTop: unsupported image mode GI",
+          "ImageTopLeft: unsupported image mode GI",
+          "ImageTopRight: unsupported image mode GI",
+          "unsupported property MVUpdate"
+        ]
+      },
+      {
+        "path": "ML#0/EquipmentShop#0/Panel#0/Panel#0/Window#0",
+        "reasons": [
+          "ImageBottom: unsupported image mode GI",
+          "ImageBottomLeft: unsupported image mode GI",
+          "ImageBottomRight: unsupported image mode GI",
+          "ImageLeft: unsupported image mode GI",
+          "ImageRight: unsupported image mode GI",
+          "ImageTexture: unsupported image mode GI",
+          "ImageTop: unsupported image mode GI",
+          "ImageTopLeft: unsupported image mode GI",
+          "ImageTopRight: unsupported image mode GI"
+        ]
+      },
+      {
+        "path": "ML#0/EquipmentShop#0/Panel#0/Window#0",
+        "reasons": [
+          "ImageBottom: unsupported image mode GI",
+          "ImageBottomLeft: unsupported image mode GI",
+          "ImageBottomRight: unsupported image mode GI",
+          "ImageLeft: unsupported image mode GI",
+          "ImageRight: unsupported image mode GI",
+          "ImageTexture: unsupported image mode GI",
+          "ImageTop: unsupported image mode GI",
+          "ImageTopLeft: unsupported image mode GI",
+          "ImageTopRight: unsupported image mode GI"
+        ]
+      },
+      {
+        "path": "ML#0/EquipmentShop#0/Panel#0/Window#1",
+        "reasons": [
+          "ImageBottom: unsupported image mode GI",
+          "ImageBottomLeft: unsupported image mode GI",
+          "ImageBottomRight: unsupported image mode GI",
+          "ImageLeft: unsupported image mode GI",
+          "ImageRight: unsupported image mode GI",
+          "ImageTexture: unsupported image mode GI",
+          "ImageTop: unsupported image mode GI",
+          "ImageTopLeft: unsupported image mode GI",
+          "ImageTopRight: unsupported image mode GI"
+        ]
+      },
+      {
+        "path": "ML#0/Galaxy#0/Panel#0/Panel#0/Window#0",
+        "reasons": [
+          "ImageBottom: unsupported image mode GI",
+          "ImageBottomLeft: unsupported image mode GI",
+          "ImageBottomRight: unsupported image mode GI",
+          "ImageLeft: unsupported image mode GI",
+          "ImageRight: unsupported image mode GI",
+          "ImageTexture: unsupported image mode GI",
+          "ImageTop: unsupported image mode GI",
+          "ImageTopLeft: unsupported image mode GI",
+          "ImageTopRight: unsupported image mode GI"
+        ]
+      },
+      {
+        "path": "ML#0/Galaxy#0/Panel#0/Window#0",
+        "reasons": [
+          "ImageBottom: unsupported image mode GI",
+          "ImageBottomLeft: unsupported image mode GI",
+          "ImageBottomRight: unsupported image mode GI",
+          "ImageLeft: unsupported image mode GI",
+          "ImageRight: unsupported image mode GI",
+          "ImageTexture: unsupported image mode GI",
+          "ImageTop: unsupported image mode GI",
+          "ImageTopLeft: unsupported image mode GI",
+          "ImageTopRight: unsupported image mode GI",
+          "unsupported property MVUpdate",
+          "unsupported property MouseBlocking"
+        ]
+      }
+    ],
+    "ineligible_reasons": {
+      "ImageBottom: unsupported image mode GI": 42,
+      "ImageBottomLeft: unsupported image mode GI": 42,
+      "ImageBottomRight: unsupported image mode GI": 42,
+      "ImageLeft: unsupported image mode GI": 42,
+      "ImageRight: unsupported image mode GI": 42,
+      "ImageTexture: unsupported image mode GI": 42,
+      "ImageTop: unsupported image mode GI": 42,
+      "ImageTopLeft: unsupported image mode GI": 42,
+      "ImageTopRight: unsupported image mode GI": 42,
+      "unsupported property MVUpdate": 12,
+      "unsupported property MouseBlocking": 10
+    },
+    "min_size": 18,
+    "physical_occurrences": 42,
+    "property_counts": {
+      "Active": 41,
+      "ImageBottom": 42,
+      "ImageBottomLeft": 42,
+      "ImageBottomRight": 42,
+      "ImageLeft": 42,
+      "ImageRight": 42,
+      "ImageTexture": 42,
+      "ImageTop": 42,
+      "ImageTopLeft": 42,
+      "ImageTopRight": 42,
+      "MVUpdate": 12,
+      "MinSize": 18,
+      "MouseBlocking": 10,
+      "Name": 42,
+      "Pos": 42,
+      "Size": 42,
+      "Style": 42,
+      "WorkSubRect": 42
+    },
+    "resource_resolved": 378,
+    "resource_unresolved": 0,
+    "slot_counts": {
+      "ImageBottom": 42,
+      "ImageBottomLeft": 42,
+      "ImageBottomRight": 42,
+      "ImageLeft": 42,
+      "ImageRight": 42,
+      "ImageTexture": 42,
+      "ImageTop": 42,
+      "ImageTopLeft": 42,
+      "ImageTopRight": 42
+    },
+    "styles": {
+      "Style.Window.2Hull": 3,
+      "Style.Window.2Item": 6,
+      "Style.Window.2Normal": 1,
+      "Style.Window.2Normal2": 1,
+      "Style.Window.2PQuestPar": 1,
+      "Style.Window.2Simple": 17,
+      "Style.Window.2Tips": 13
+    },
+    "work_sub_rect": 42
+  },
+  "zone": {
+    "eligible": 61,
+    "ineligible_reasons": {},
+    "kind": {
+      "Circle": 46,
+      "Rect": 15
+    },
+    "physical_occurrences": 61,
+    "styles": {
+      "(none)": 61
+    }
+  }
+}

@@ -98,18 +98,21 @@ void UiObject::SetPosition(Point value) {
   MarkSubtreeDirty();
   local_position_ = value;
   RefreshActiveSubtree();
+  OnGeometryChanged();
   MarkSubtreeDirty();
 }
 void UiObject::SetSize(Size value) {
   MarkSubtreeDirty();
   client_size_ = value;
   RefreshActiveSubtree();
+  OnGeometryChanged();
   MarkSubtreeDirty();
 }
 void UiObject::SetOrigin(Point value) {
   MarkSubtreeDirty();
   origin_ = value;
   RefreshActiveSubtree();
+  OnGeometryChanged();
   MarkSubtreeDirty();
 }
 void UiObject::SetDepth(double value) {
@@ -172,9 +175,9 @@ void UiObject::RefreshActiveSubtreeFrom(Point absolute) {
   absolute_position_ = absolute;
   hit_test_bounds_ = {absolute.x - origin_.x, absolute.y - origin_.y,
                       absolute.x - origin_.x + client_size_.width, absolute.y - origin_.y + client_size_.height};
-  if (!active_) return;
+  OnAbsoluteGeometryChanged();
   for (const auto& child : children_) {
-    if (child->active_) child->RefreshActiveSubtreeFrom(ChildAbsolutePosition(*child));
+    child->RefreshActiveSubtreeFrom(ChildAbsolutePosition(*child));
   }
 }
 void UiObject::AddDirty(Rect rect) {

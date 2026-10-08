@@ -25,6 +25,7 @@
 #include "ui_tree_fingerprint.hpp"
 #include "ui_config.hpp"
 #include "ui_label.hpp"
+#include "ui_controls_checkpoint.hpp"
 #include "font_repository.hpp"
 #include "units/GR_GraphBuf.hpp"
 #include "units/EC_BlockPar.hpp"
@@ -844,11 +845,11 @@ bool InitializeM23Text(M23TextDiagnostic* diagnostic, std::string* error) {
   return true;
 }
 
-struct M21FrameCallbacks { M17PlaybackDiagnostic* m17{}; M20GiObjectDiagnostic* m20{}; M21UiImageDiagnostic* m21{}; M22UiTreeDiagnostic* m22{}; M23TextDiagnostic* m23{}; };
+struct M21FrameCallbacks { M17PlaybackDiagnostic* m17{}; M20GiObjectDiagnostic* m20{}; M21UiImageDiagnostic* m21{}; M22UiTreeDiagnostic* m22{}; M23TextDiagnostic* m23{}; srhd_awa::platform::ui_controls_checkpoint::Checkpoint* m24{}; };
 bool RunM17M20AndM21(void* user_data, std::uint64_t now_ms, std::string* error) {
   auto* callbacks = static_cast<M21FrameCallbacks*>(user_data);
   return RunM17Playback(callbacks->m17, now_ms, error) && UpdateM20GiObjects(callbacks->m20, now_ms, error) &&
-      UpdateM22UiTree(callbacks->m22, now_ms, error);
+      UpdateM22UiTree(callbacks->m22, now_ms, error) && callbacks->m24->Update(now_ms, error);
 }
 bool DrawM21Presentation(void* user_data, std::string* error) {
   auto* callbacks = static_cast<M21FrameCallbacks*>(user_data);
@@ -896,6 +897,8 @@ bool DrawM21Presentation(void* user_data, std::string* error) {
   }
   if (!callbacks->m23->tree.Render(target, error)) return false;
   callbacks->m23->rendered = true;
+  if (!callbacks->m24->Render(target, error)) return false;
+  callbacks->m24->MarkRendered();
   return true;
 }
 
@@ -1288,7 +1291,34 @@ int main(int argc, char** argv) {
     srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
-  M21FrameCallbacks m21_callbacks{&m17_diagnostic, &m20_diagnostic, &m21_diagnostic, &m22_diagnostic, &m23_diagnostic};
+  StageBegin("M24 UI controls");
+  srhd_awa::platform::ui_controls_checkpoint::Checkpoint m24_diagnostic;
+  srhd_awa::platform::ui_controls_checkpoint::Evidence m24_evidence{};
+  std::string m24_error;
+  if (!m24_diagnostic.Initialize(&m24_error) ||
+      !m24_diagnostic.VerifyFixed(&m24_evidence, &m24_error) ||
+      !m24_diagnostic.StartDynamic(&m24_error)) {
+    Log("[M24] FAIL initialization=%s", m24_error.c_str());
+    Stage("M24 UI controls", false, m24_error.c_str());
+    srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
+    srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
+    srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
+  Log("[M24] expected tree=6f65eea5/11b73bf4b18ab6fb frame=015d1589/5523d509a3a9384d actual tree=%08lx/%016llx frame=%08lx/%016llx",
+      static_cast<unsigned long>(m24_evidence.tree.crc32),
+      static_cast<unsigned long long>(m24_evidence.tree.fnv64),
+      static_cast<unsigned long>(m24_evidence.frame.crc32),
+      static_cast<unsigned long long>(m24_evidence.frame.fnv64));
+  Log("[M24] window=%08lx/%016llx graph=%08lx/%016llx zone=%08lx/%016llx",
+      static_cast<unsigned long>(m24_evidence.window_layout.crc32),
+      static_cast<unsigned long long>(m24_evidence.window_layout.fnv64),
+      static_cast<unsigned long>(m24_evidence.graph_state.crc32),
+      static_cast<unsigned long long>(m24_evidence.graph_state.fnv64),
+      static_cast<unsigned long>(m24_evidence.zone_hits.crc32),
+      static_cast<unsigned long long>(m24_evidence.zone_hits.fnv64));
+  Log("[M24] PASS structure=MATCH window=MATCH graph=MATCH zone=MATCH framebuffer=MATCH");
+  M21FrameCallbacks m21_callbacks{&m17_diagnostic, &m20_diagnostic, &m21_diagnostic, &m22_diagnostic, &m23_diagnostic, &m24_diagnostic};
   srhd_awa::platform::runtime_loop_slice::SetFrameCallback(&runtime_loop, RunM17M20AndM21, &m21_callbacks);
   srhd_awa::platform::runtime_loop_slice::SetDrawCallback(&runtime_loop, DrawM21Presentation, &m21_callbacks);
   Log("[M12] runtime ready");
@@ -1323,6 +1353,10 @@ int main(int argc, char** argv) {
     m12_error = "M23 Label did not draw";
     loop_ok = false;
   }
+  if (loop_ok && !m24_diagnostic.Rendered()) {
+    m12_error = "M24 controls did not draw";
+    loop_ok = false;
+  }
   if (!loop_ok) Log("[STAGE] runtime loop FAIL reason=%s", m12_error.c_str());
   else {
     Log("[M12] exit_reason=%s", srhd_awa::platform::runtime_loop_slice::ExitReasonName(loop_stats.exit_reason));
@@ -1341,6 +1375,7 @@ int main(int argc, char** argv) {
   Stage("M21 UI image foundation", loop_ok && m21_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
   Stage("M22 UI object tree", loop_ok && m22_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
   Stage("M23 text/label", loop_ok && m23_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
+  Stage("M24 UI controls", loop_ok && m24_diagnostic.Rendered(), loop_ok ? nullptr : m12_error.c_str());
   srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
   srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
   srhd_awa::platform::ui_metadata_slice::Shutdown();

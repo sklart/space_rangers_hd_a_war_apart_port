@@ -4,6 +4,8 @@
 #include "scene_compositor.hpp"
 #include "ui_tree_fingerprint.hpp"
 #include "ui_tree_renderer.hpp"
+#include "ui_window.hpp"
+#include "ui_graph_button.hpp"
 
 #include <cstdio>
 #include <cstdlib>
@@ -65,5 +67,65 @@ int main() {
   const std::vector<std::uint16_t> expected_a = {0x001f,0x001f,0x001f,0x001f,0x001f,0x001f, 0x001f,0x780f,0x07e0,0x001f,0x001f,0x001f, 0x001f,0x001f,0xf800,0xf800,0x001f,0x001f, 0x001f,0x001f,0x001f,0x001f,0x001f,0x001f}; Check(pixels == expected_a, "nested clip/origin/simple/trans/alpha/GI frame A"); CheckValue(tree_a, 0xab1bff76u, 0x6f04e776692c26f3ull, 496, "Python tree A oracle"); CheckValue(frame_a, 0x800cafb4u, 0xe1e077394c109d07ull, 48, "Python frame A oracle");
   panel_b->SetScrollOffset({1, 0}); gi->SetDepth(6); Check(tree.Update(10, &error), error.c_str()); pixels.assign(24, 0); Check(tree.Render(framebuffer, &error), error.c_str()); Check(srhd_awa::platform::ui_fingerprint::ComputeTree(*root, &tree_b, &error), error.c_str()); Check(srhd_awa::platform::ui_fingerprint::ComputeFramebuffer(framebuffer, &frame_b, &error), error.c_str());
   const std::vector<std::uint16_t> expected_b = {0x001f,0x001f,0x001f,0x001f,0x001f,0x001f, 0x001f,0x001f,0x07e0,0x001f,0x001f,0x001f, 0x001f,0x001f,0x07e0,0x07e0,0x001f,0x001f, 0x001f,0x001f,0x001f,0x001f,0x001f,0x001f}; Check(pixels == expected_b && alpha->AbsolutePosition() == Point{1, 1}, "ModeW scroll/GI update/depth frame B"); CheckValue(tree_b, 0xe21f4881u, 0xda9cf654e3bf116aull, 496, "Python tree B oracle"); CheckValue(frame_b, 0x1d127015u, 0xe2076f2b18e93b07ull, 48, "Python frame B oracle");
+  UiTree window_tree; window_tree.SetRootSize({8, 6});
+  auto* window = window_tree.Root()->AddWindow(); window->SetSize({5, 4});
+  window->SetMinimumSize({6, 5}); window->SetWorkSubRect({1, 1, 4, 3});
+  for (int i = 0; i < 9; ++i) {
+    auto border = std::make_unique<UiImageLeaf>(&package);
+    Check(border->Load(Kind::Simple, "S.BMP", "", &error), error.c_str());
+    Check(window->AddBorderImage(static_cast<srhd_awa::platform::ui::WindowSlot>(i),
+                                 std::move(border), &error), error.c_str());
+  }
+  Check(window->FinalizeLayout(&error) && window->ClientSize() == Size{6, 5} &&
+      window->WorkSubRect() == srhd_awa::platform::ui::Rect{1, 1, 4, 3},
+      "Window MinSize alignment and WorkSubRect");
+  using srhd_awa::platform::ui::WindowSlot;
+  Check(window->BorderImage(WindowSlot::TopRight)->LocalPosition() == Point{5, 0} &&
+      window->BorderImage(WindowSlot::BottomLeft)->LocalPosition() == Point{0, 4} &&
+      window->BorderImage(WindowSlot::Top)->ClientSize() == Size{4, 1} &&
+      window->BorderImage(WindowSlot::Left)->ClientSize() == Size{1, 3} &&
+      window->BorderImage(WindowSlot::Texture)->ClientSize() == Size{4, 3},
+      "Window corner edge and texture layout");
+  AddImage(window, &package, Kind::Simple, "I.BMP", {0, 0}, {1, 1}, 0, "over-border");
+  std::vector<std::uint16_t> window_pixels(48, 0);
+  Framebuffer window_frame{window_pixels.data(), 8, 6, 8};
+  Check(window_tree.Render(window_frame, &error) && window_pixels[0] == 0xf800 &&
+      window_pixels[1] == 0x001f, "Window child draws over high-depth border");
+  UiTree button_tree; button_tree.SetRootSize({5, 3});
+  auto* button = button_tree.Root()->AddGraphButton();
+  button->SetPosition({1, 1}); button->SetSize({2, 1});
+  const auto add_state = [&](srhd_awa::platform::ui::GraphButtonSlot slot,
+                             Kind kind, const char* resource) {
+    auto image = std::make_unique<UiImageLeaf>(&package);
+    Check(image->Load(kind, resource, "", &error), error.c_str());
+    Check(button->AddStateImage(slot, std::move(image), &error), error.c_str());
+  };
+  using srhd_awa::platform::ui::GraphButtonSlot;
+  add_state(GraphButtonSlot::Normal, Kind::Simple, "S.BMP");
+  add_state(GraphButtonSlot::NormalA, Kind::Simple, "I.BMP");
+  add_state(GraphButtonSlot::Down, Kind::Trans, "T.BMP");
+  add_state(GraphButtonSlot::DisableA, Kind::Alpha, "A.PSD");
+  add_state(GraphButtonSlot::Hit, Kind::Alpha, "A.PSD");
+  std::vector<std::uint16_t> button_pixels(15, 0);
+  Framebuffer button_frame{button_pixels.data(), 5, 3, 5};
+  Check(button_tree.Render(button_frame, &error) && button_pixels[6] == 0x001f,
+      "GraphButton normal child image");
+  button->SetHovered(true); button_pixels.assign(15, 0);
+  Check(button_tree.Render(button_frame, &error) && button_pixels[6] == 0xf800,
+      "GraphButton hovered child image");
+  button->SetDown(true); button_pixels.assign(15, 0);
+  Check(button->VisualSlot() == GraphButtonSlot::Down &&
+      button_tree.Render(button_frame, &error) && button_pixels[7] == 0x07e0,
+      "GraphButton missing DownA fallback and Trans image");
+  button->SetDown(false); button->SetHovered(false);
+  button->SetHitKind(srhd_awa::platform::ui::GraphButtonHitKind::Graph);
+  Check(button->HitTest({1, 1}) && !button->HitTest({0, 1}),
+      "GraphButton Graph hit checks inactive Alpha state");
+  button->SetHitKind(srhd_awa::platform::ui::GraphButtonHitKind::ImageHit);
+  Check(button->HitTest({1, 1}) && !button->StateImage(GraphButtonSlot::Hit)->Active(),
+      "GraphButton ImageHit is hit-only");
+  button->SetPosition({2, 1});
+  Check(button->HitTest({2, 1}) && !button->HitTest({1, 1}),
+      "GraphButton hit image follows button move");
   std::remove(path); std::puts("UI TREE RENDER TEST PASS");
 }

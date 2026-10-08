@@ -4,6 +4,7 @@
 #include "simple_bitmap_cpu.hpp"
 #include "trans_bitmap_cpu.hpp"
 #include <cstdint>
+#include <cstddef>
 #include <string>
 #include <variant>
 namespace srhd_awa::package { class Package; }
@@ -16,6 +17,9 @@ class PortableImageObject {
   PortableImageObject(PortableImageObject&&)=default; PortableImageObject& operator=(PortableImageObject&&)=default;
   void SetPackage(package::Package* package){package_=package;} void SetId(std::string id){id_=std::move(id);} void SetPosition(std::int32_t x,std::int32_t y){x_=x;y_=y;} void SetOrigin(std::int32_t x,std::int32_t y){origin_x_=x;origin_y_=y;} void SetSize(std::int32_t w,std::int32_t h){client_width_=w;client_height_=h;} void SetModes(image_layout::XMode x,image_layout::YMode y){x_mode_=x;y_mode_=y;} void SetHalfAlpha(bool value){half_alpha_=value;} void SetVisible(bool value){visible_=value;} void SetLayer(std::int32_t value){layer_=value;}
   bool Load(Kind kind,const std::string& resource,const std::string& load_option,std::string* error=nullptr);
+  bool LoadBytes(Kind kind, const std::uint8_t* bytes, std::size_t size,
+                 const std::string& resource, const std::string& load_option,
+                 std::string* error = nullptr);
   bool DrawFramebuffer(std::uint16_t* pixels,std::int32_t width,std::int32_t height,std::int32_t pitch,const okgf_rle_bridge::Rect& clip,std::string* error=nullptr)const;
   bool DrawFramebufferAt(std::uint16_t* pixels,std::int32_t width,std::int32_t height,std::int32_t pitch,
                          std::int32_t x,std::int32_t y,std::int32_t client_width,std::int32_t client_height,

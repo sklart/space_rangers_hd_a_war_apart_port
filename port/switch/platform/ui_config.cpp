@@ -5,10 +5,14 @@
 #include "font_repository.hpp"
 #include "package.hpp"
 #include "ui_label.hpp"
+#include "ui_graph_button.hpp"
 #include "ui_tree_renderer.hpp"
+#include "ui_zone.hpp"
+#include "ui_window.hpp"
 #include "units/EC_BlockPar.hpp"
 
 #include <charconv>
+#include <array>
 #include <cstdlib>
 #include <memory>
 #include <unordered_set>
@@ -124,6 +128,18 @@ bool ApplyImageProperties(ui::UiImageLeaf* leaf, EC_BlockPar::TBlockParEC* block
   if (!load_resource || resource.empty()) return true;
   if (!context.resources) return Fail(error, "UI image resource resolver is null");
   return context.resources->LoadImage(leaf, kind, resource, option, error);
+}
+bool ApplyZoneProperties(ui::UiZone* zone, EC_BlockPar::TBlockParEC* block,
+                         const Context& context, std::string* error) {
+  std::unordered_set<const EC_BlockPar::TBlockParEC*> active;
+  return VisitStyleChain(block, context, &active, 0, [&](EC_BlockPar::TBlockParEC* source) {
+    if (!Has(source, u"Kind")) return true;
+    const auto kind = Text(source->GetParam(u"Kind"sv));
+    if (kind == "Rect") zone->SetZoneKind(ui::ZoneKind::Rect);
+    else if (kind == "Circle") zone->SetZoneKind(ui::ZoneKind::Circle);
+    else return Fail(error, "invalid Zone Kind");
+    return true;
+  }, error);
 }
 bool IsEventBlock(const std::string& name) {
   return name == "OnPressCode" || name == "OnMouseEnterCode" || name == "OnMouseLeaveCode" ||
@@ -258,6 +274,179 @@ bool ApplyLabelProperties(ui::UiLabelLeaf* label, EC_BlockPar::TBlockParEC* bloc
   }
   return label->Prepare(error);
 }
+bool ApplyGraphButtonProperties(ui::UiGraphButton* button, EC_BlockPar::TBlockParEC* block,
+                                const Context& context, std::string* error) {
+  constexpr const char16_t* slots[] = {u"ImageNormal", u"ImageNormalA", u"ImageDown",
+      u"ImageDownA", u"ImageDisable", u"ImageDisableA", u"ImageHit"};
+  constexpr const char16_t* colors[] = {u"CaptionColorNormal", u"CaptionColorNormalA",
+      u"CaptionColorDown", u"CaptionColorDownA", u"CaptionColorDisable", u"CaptionColorDisableA"};
+  constexpr const char16_t* shadows[] = {u"CaptionShadowColorNormal", u"CaptionShadowColorNormalA",
+      u"CaptionShadowColorDown", u"CaptionShadowColorDownA", u"CaptionShadowColorDisable", u"CaptionShadowColorDisableA"};
+  std::array<std::string, 7> images;
+  std::array<ui::Point, 7> offsets{};
+  std::array<bool, 7> has_offset{};
+  std::array<std::uint16_t, 6> caption_colors{0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff};
+  std::array<std::uint16_t, 6> caption_shadows{};
+  std::string font_key, sound_enter, sound_leave, sound_click, auto_flags;
+  std::u16string caption;
+  ui::LabelAlignX align_x = ui::LabelAlignX::Center;
+  ui::LabelAlignY align_y = ui::LabelAlignY::CenterEx;
+  ui::Point caption_normal{}, caption_down{};
+  std::int32_t shadow_offset{};
+  std::unordered_set<const EC_BlockPar::TBlockParEC*> active;
+  const auto visit = [&](EC_BlockPar::TBlockParEC* source) {
+    if (Has(source, u"Kind")) {
+      const auto value = Text(source->GetParam(u"Kind"sv));
+      if (value == "Normal") button->SetButtonKind(ui::GraphButtonKind::Normal);
+      else if (value == "Fix") button->SetButtonKind(ui::GraphButtonKind::Fix);
+      else if (value == "Disable") button->SetButtonKind(ui::GraphButtonKind::Disable);
+      else if (value == "FixDisable") button->SetButtonKind(ui::GraphButtonKind::FixDisable);
+      else return Fail(error, "invalid GraphButton Kind");
+    }
+    if (Has(source, u"KindHit")) {
+      const auto value = Text(source->GetParam(u"KindHit"sv));
+      if (value == "Rect") button->SetHitKind(ui::GraphButtonHitKind::Rect);
+      else if (value == "Graph") button->SetHitKind(ui::GraphButtonHitKind::Graph);
+      else if (value == "ImageHit") button->SetHitKind(ui::GraphButtonHitKind::ImageHit);
+      else return Fail(error, "invalid GraphButton KindHit");
+    }
+    if (Has(source, u"Font")) font_key = Text(source->GetParam(u"Font"sv));
+    if (Has(source, u"Caption")) caption = Wide(source->GetParam(u"Caption"sv));
+    if (Has(source, u"CaptionColor")) {
+      std::uint16_t color{};
+      if (!ParseColor(Text(source->GetParam(u"CaptionColor"sv)), &color)) return Fail(error, "invalid GraphButton CaptionColor");
+      caption_colors.fill(color);
+    }
+    if (Has(source, u"CaptionShadow") &&
+        (!Number(Text(source->GetParam(u"CaptionShadow"sv)), &shadow_offset) || shadow_offset < 0))
+      return Fail(error, "invalid GraphButton CaptionShadow");
+    for (std::size_t i{}; i < 6; ++i) {
+      if (Has(source, colors[i]) && !ParseColor(Text(source->GetParam(std::u16string_view(colors[i]))), &caption_colors[i]))
+        return Fail(error, "invalid GraphButton state caption color");
+      if (Has(source, shadows[i]) && !ParseColor(Text(source->GetParam(std::u16string_view(shadows[i]))), &caption_shadows[i]))
+        return Fail(error, "invalid GraphButton state caption shadow color");
+    }
+    if (Has(source, u"CaptionAlignX") && !LabelX(Text(source->GetParam(u"CaptionAlignX"sv)), &align_x))
+      return Fail(error, "invalid GraphButton CaptionAlignX");
+    if (Has(source, u"CaptionAlignY") && !LabelY(Text(source->GetParam(u"CaptionAlignY"sv)), &align_y))
+      return Fail(error, "invalid GraphButton CaptionAlignY");
+    if (Has(source, u"CaptionSme")) {
+      const auto values = Split(Text(source->GetParam(u"CaptionSme"sv)));
+      if (values.size() != 4 || !Number(values[0], &caption_normal.x) ||
+          !Number(values[1], &caption_normal.y) || !Number(values[2], &caption_down.x) ||
+          !Number(values[3], &caption_down.y)) return Fail(error, "invalid GraphButton CaptionSme");
+    }
+    for (std::size_t i{}; i < images.size(); ++i) {
+      if (Has(source, slots[i])) images[i] = Text(source->GetParam(std::u16string_view(slots[i])));
+      const auto offset_name = std::u16string(slots[i]) + u"_Pos";
+      if (Has(source, offset_name.c_str())) {
+        const auto values = Split(Text(source->GetParam(std::u16string_view(offset_name))));
+        if (values.size() != 2 || !Number(values[0], &offsets[i].x) ||
+            !Number(values[1], &offsets[i].y)) return Fail(error, "invalid GraphButton image offset");
+        has_offset[i] = true;
+      }
+    }
+    if (Has(source, u"Disable")) button->SetDisabled(Enabled(Text(source->GetParam(u"Disable"sv))));
+    if (Has(source, u"Down")) button->SetDown(Enabled(Text(source->GetParam(u"Down"sv))));
+    if (Has(source, u"UpOnlyDown")) button->SetUpOnlyDown(Enabled(Text(source->GetParam(u"UpOnlyDown"sv))));
+    if (Has(source, u"Auto")) auto_flags = Text(source->GetParam(u"Auto"sv));
+    if (Has(source, u"SoundEnter")) sound_enter = Text(source->GetParam(u"SoundEnter"sv));
+    if (Has(source, u"SoundLeave")) sound_leave = Text(source->GetParam(u"SoundLeave"sv));
+    if (Has(source, u"SoundClick")) sound_click = Text(source->GetParam(u"SoundClick"sv));
+    if (source->CountBlocks(u"OnPressCode"_wref.get()) > 0) button->SetHasOnPressCode(true);
+    return true;
+  };
+  if (!VisitStyleChain(block, context, &active, 0, visit, error)) return false;
+  button->SetCaptionColors(caption_colors);
+  button->SetCaptionShadowColors(caption_shadows);
+  button->SetCaptionShadowOffset(shadow_offset);
+  button->SetCaptionOffsets(caption_normal, caption_down);
+  button->SetSoundMetadata(sound_enter, sound_leave, sound_click);
+  for (std::size_t i{}; i < images.size(); ++i) {
+    if (images[i].empty()) continue;
+    image_object::Kind kind{}; std::string resource;
+    if (!ParseGenericImage(images[i], &kind, &resource, error)) return false;
+    if (!context.resources) return Fail(error, "GraphButton image resolver is null");
+    auto image = std::make_unique<ui::UiImageLeaf>();
+    if (!context.resources->LoadImage(image.get(), kind, resource, "", error)) return false;
+    const auto slot = static_cast<ui::GraphButtonSlot>(i);
+    if (!button->AddStateImage(slot, std::move(image), error)) return false;
+    if (has_offset[i]) button->SetStateOffset(slot,
+        {offsets[i].x - button->LocalPosition().x, offsets[i].y - button->LocalPosition().y});
+  }
+  if (!caption.empty() && context.language && context.language->CountParamsByPath(pas::WideString(caption.c_str())) > 0)
+    caption = Wide(context.language->GetParamByPathOrMarker(pas::WideString(caption.c_str())));
+  if (!font_key.empty() || !caption.empty()) {
+    if (context.resolve_label_font_alias) font_key = context.resolve_label_font_alias(font_key);
+    if (!context.fonts) return Fail(error, "GraphButton font repository is null");
+    std::shared_ptr<const aft_font::AftFont> font;
+    if (!context.fonts->Acquire(font_key, &font, nullptr, error)) return false;
+    auto label = std::make_unique<ui::UiLabelLeaf>();
+    label->SetFont(font_key, std::move(font));
+    label->SetTextLines({caption});
+    label->SetAlignX(align_x); label->SetAlignY(align_y);
+    if (!button->AddCaption(std::move(label), error)) return false;
+    if (!button->Caption()->Prepare(error)) return false;
+  }
+  bool auto_position{}, auto_size{};
+  if (!auto_flags.empty()) {
+    for (const auto& flag : Split(auto_flags)) {
+      if (flag == "Pos") auto_position = true;
+      else if (flag == "Size") auto_size = true;
+      else return Fail(error, "invalid GraphButton Auto");
+    }
+    button->UpdateAutoGeometry(auto_position, auto_size);
+  }
+  return true;
+}
+bool ApplyWindowProperties(ui::UiWindow* window, EC_BlockPar::TBlockParEC* block,
+                           const Context& context, std::string* error) {
+  constexpr const char16_t* slots[] = {u"ImageTopLeft", u"ImageTopRight",
+      u"ImageBottomLeft", u"ImageBottomRight", u"ImageLeft", u"ImageRight",
+      u"ImageTop", u"ImageBottom", u"ImageTexture"};
+  std::array<std::string, 9> images;
+  std::unordered_set<const EC_BlockPar::TBlockParEC*> active;
+  const auto visit = [&](EC_BlockPar::TBlockParEC* source) {
+    for (std::size_t i{}; i < images.size(); ++i)
+      if (Has(source, slots[i])) images[i] = Text(source->GetParam(std::u16string_view(slots[i])));
+    if (Has(source, u"MinSize")) {
+      const auto values = Split(Text(source->GetParam(u"MinSize"sv)));
+      ui::Size minimum{};
+      if (values.size() != 2 || !Number(values[0], &minimum.width) ||
+          !Number(values[1], &minimum.height) || minimum.width < 0 || minimum.height < 0)
+        return Fail(error, "invalid Window MinSize");
+      window->SetMinimumSize(minimum);
+    }
+    if (Has(source, u"WorkSubRect")) {
+      const auto values = Split(Text(source->GetParam(u"WorkSubRect"sv)));
+      ui::Rect rect{};
+      if (values.size() != 4 || !Number(values[0], &rect.left) ||
+          !Number(values[1], &rect.top) || !Number(values[2], &rect.right) ||
+          !Number(values[3], &rect.bottom)) return Fail(error, "invalid Window WorkSubRect");
+      window->SetWorkSubRect(rect);
+    }
+    return true;
+  };
+  if (!VisitStyleChain(block, context, &active, 0, visit, error)) return false;
+  std::array<image_object::Kind, 9> image_kinds{};
+  std::array<std::string, 9> resources;
+  for (std::size_t i{}; i < images.size(); ++i)
+    if (!images[i].empty() &&
+        !ParseGenericImage(images[i], &image_kinds[i], &resources[i], error)) return false;
+  constexpr ui::WindowSlot upstream_order[] = {ui::WindowSlot::Left, ui::WindowSlot::Right,
+      ui::WindowSlot::Top, ui::WindowSlot::Bottom, ui::WindowSlot::TopLeft,
+      ui::WindowSlot::TopRight, ui::WindowSlot::BottomLeft,
+      ui::WindowSlot::BottomRight, ui::WindowSlot::Texture};
+  for (const auto slot : upstream_order) {
+    const auto i = static_cast<std::size_t>(slot);
+    if (images[i].empty()) return Fail(error, "Window border image is missing");
+    if (!context.resources) return Fail(error, "Window image resolver is null");
+    auto image = std::make_unique<ui::UiImageLeaf>();
+    if (!context.resources->LoadImage(image.get(), image_kinds[i], resources[i], "", error)) return false;
+    if (!window->AddBorderImage(slot, std::move(image), error)) return false;
+  }
+  return window->FinalizeLayout(error);
+}
 bool LoadOne(ui::UiObject* parent, const std::string& name, EC_BlockPar::TBlockParEC* block,
              const Context& context, LoadMode mode, LoadReport* report, std::string* error) {
   if (IsEventBlock(name)) { if (report) report->skipped_events.push_back(name); return true; }
@@ -265,6 +454,9 @@ bool LoadOne(ui::UiObject* parent, const std::string& name, EC_BlockPar::TBlockP
   std::unique_ptr<ui::UiObject> node;
   image_object::Kind image_kind = image_object::Kind::Simple;
   if (name == "Panel") node = std::make_unique<ui::UiPanel>();
+  else if (name == "Window") node = std::make_unique<ui::UiWindow>();
+  else if (name == "GraphButton") node = std::make_unique<ui::UiGraphButton>();
+  else if (name == "Zone") node = std::make_unique<ui::UiZone>();
   else if (name == "Label") node = std::make_unique<ui::UiLabelLeaf>();
   else if (name == "SimpleImage") { node = std::make_unique<ui::UiImageLeaf>(); image_kind = image_object::Kind::Simple; }
   else if (name == "TransImage") { node = std::make_unique<ui::UiImageLeaf>(); image_kind = image_object::Kind::Trans; }
@@ -295,9 +487,24 @@ bool LoadOne(ui::UiObject* parent, const std::string& name, EC_BlockPar::TBlockP
   }
   if (auto* label = dynamic_cast<ui::UiLabelLeaf*>(node.get()))
     if (!ApplyLabelProperties(label, block, context, error)) return false;
+  bool control_ready = true;
+  if (auto* zone = dynamic_cast<ui::UiZone*>(node.get()))
+    control_ready = ApplyZoneProperties(zone, block, context, error);
+  if (auto* button = dynamic_cast<ui::UiGraphButton*>(node.get()))
+    control_ready = ApplyGraphButtonProperties(button, block, context, error);
+  if (auto* window = dynamic_cast<ui::UiWindow*>(node.get()))
+    control_ready = ApplyWindowProperties(window, block, context, error);
+  if (!control_ready) {
+    if (mode == LoadMode::Strict) return false;
+    if (report) report->unsupported_controls.push_back(name);
+    if (error) error->clear();
+    return true;
+  }
   auto* attached = node.get();
   if (!parent->Attach(std::move(node), error)) return false;
-  if (attached->Kind() == ui::NodeKind::Panel && !LoadChildren(attached, block, context, mode, report, error)) return false;
+  if ((attached->Kind() == ui::NodeKind::Panel || attached->Kind() == ui::NodeKind::Zone ||
+       attached->Kind() == ui::NodeKind::GraphButton || attached->Kind() == ui::NodeKind::Window) &&
+      !LoadChildren(attached, block, context, mode, report, error)) return false;
   return true;
 }
 }  // namespace

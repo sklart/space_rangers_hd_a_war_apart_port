@@ -40,9 +40,21 @@ bool GIObject::LoadResource(const std::string& resource, std::string* error) {
   if (!package_) return Fail(error, "GI object package is null");
   const auto* entry = package_->Resolve(resource);
   std::vector<std::uint8_t> bytes;
+  if (!entry || !package_->ReadPayload(*entry, &bytes, error)) return false;
+  return LoadDecoded(std::move(bytes), resource, error);
+}
+
+bool GIObject::LoadBytes(const std::uint8_t* source, std::size_t size,
+                         const std::string& resource, std::string* error) {
+  if (error) error->clear();
+  if (!source || size == 0 || size > (256u << 20)) return Fail(error, "GI object source bytes are invalid");
+  return LoadDecoded(std::vector<std::uint8_t>(source, source + size), resource, error);
+}
+
+bool GIObject::LoadDecoded(std::vector<std::uint8_t> bytes,
+                           const std::string& resource, std::string* error) {
   gai_cpu::GaiMetadata metadata{};
-  if (!entry || !package_->ReadPayload(*entry, &bytes, error) ||
-      gai_cpu::ValidateGai(bytes.data(), bytes.size(), &metadata, error) != gai_cpu::Status::Ok)
+  if (gai_cpu::ValidateGai(bytes.data(), bytes.size(), &metadata, error) != gai_cpu::Status::Ok)
     return false;
   gai_cpu::GaiSequence sequence;
   if (metadata.sequence_table_present && metadata.sequence_count > 0) {

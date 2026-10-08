@@ -6,6 +6,7 @@
 #include "ui_object.hpp"
 
 #include <cstdint>
+#include <cstddef>
 #include <string>
 
 namespace srhd_awa::package { class Package; }
@@ -19,6 +20,9 @@ class UiImageLeaf final : public UiObject {
   const image_object::PortableImageObject& Image() const { return image_; }
   bool Load(image_object::Kind kind, const std::string& resource, const std::string& option,
             std::string* error = nullptr);
+  bool LoadBytes(image_object::Kind kind, const std::uint8_t* bytes, std::size_t size,
+                 const std::string& resource, const std::string& option,
+                 std::string* error = nullptr);
   bool Render(const scene_compositor::Framebuffer& target, Rect clip, std::string* error = nullptr) const;
 
  private:
@@ -32,6 +36,8 @@ class UiGILeaf final : public UiObject {
   gi_object::GIObject& Image() { return image_; }
   const gi_object::GIObject& Image() const { return image_; }
   bool LoadResource(const std::string& resource, std::string* error = nullptr);
+  bool LoadBytes(const std::uint8_t* bytes, std::size_t size,
+                 const std::string& resource, std::string* error = nullptr);
   bool Update(std::uint64_t delta_ms, std::string* error = nullptr);
   bool Render(const scene_compositor::Framebuffer& target, Rect clip, std::string* error = nullptr) const;
 

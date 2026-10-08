@@ -39,7 +39,7 @@ constexpr bool Contains(Rect value, Point point) {
 Rect Intersect(Rect left, Rect right);
 Rect Union(Rect left, Rect right);
 
-enum class NodeKind { Object, Panel, ImageLeaf, GILeaf, LabelLeaf };
+enum class NodeKind { Object, Panel, ImageLeaf, GILeaf, LabelLeaf, GraphButton, Window, Zone };
 enum class ScrollType { Simple, All, Obj, View };
 
 class UiObject {
@@ -67,6 +67,9 @@ class UiObject {
   class UiImageLeaf* AddImage();
   class UiGILeaf* AddGIObject();
   class UiLabelLeaf* AddLabel();
+  class UiZone* AddZone();
+  class UiGraphButton* AddGraphButton();
+  class UiWindow* AddWindow();
 
   void SetPosition(Point value);
   void SetSize(Size value);
@@ -106,6 +109,8 @@ class UiObject {
   void RefreshActiveSubtree();
   void RefreshActiveSubtreeFrom(Point absolute);
   void MarkSubtreeDirty();
+  virtual void OnGeometryChanged() {}
+  virtual void OnAbsoluteGeometryChanged() {}
 
  private:
   friend class UiPanel;
@@ -131,7 +136,7 @@ class UiObject {
   std::vector<Rect> dirty_rects_;
 };
 
-class UiPanel final : public UiObject {
+class UiPanel : public UiObject {
  public:
   NodeKind Kind() const override { return NodeKind::Panel; }
   void SetScrollOffset(Point value);
