@@ -59,7 +59,7 @@ int main() {
   auto* scrolling = AddImage(panel, &package, "RED.BMP", {0, 0}, {4, 2}, 0); scrolling->SetPositionModeW(true);
   AddImage(root, &package, "RED.BMP", {0, 0}, {4, 2}, -100, false);
   std::vector<std::uint16_t> pixels(8, 0); Framebuffer framebuffer{pixels.data(), 4, 2, 4};
-  Check(UiTreeRenderer::Render(*root, framebuffer, &error), error.c_str());
+  Check(tree.Render(framebuffer, &error), error.c_str());
   Check(pixels[0] == 0x001f && pixels[1] == 0xf800 && pixels[2] == 0xf800 && pixels[3] == 0x001f, "panel clip and depth traversal");
   Check(pixels[4] == 0x001f && pixels[5] == 0xf800 && pixels[6] == 0xf800 && pixels[7] == 0x001f, "inactive leaf skipped");
   srhd_awa::platform::ui_fingerprint::Value fingerprint{};
@@ -67,7 +67,7 @@ int main() {
         fingerprint.crc32 == 0x8a1cd0aeu && fingerprint.fnv64 == 0xba73de32de60cdd5ull && fingerprint.bytes == 16,
         "Python oracle framebuffer A");
   pixels.assign(8, 0x001f); panel->SetScrollOffset({1, 0});
-  Check(UiTreeRenderer::Render(*root, framebuffer, &error), error.c_str());
+  Check(tree.Render(framebuffer, &error), error.c_str());
   Check(srhd_awa::platform::ui_fingerprint::ComputeFramebuffer(framebuffer, &fingerprint, &error) && fingerprint.crc32 == 0x8a1cd0aeu && fingerprint.fnv64 == 0xba73de32de60cdd5ull && fingerprint.bytes == 16, "Python oracle framebuffer B");
   Check(scrolling->AbsolutePosition() == Point{0, 0} && pixels[1] == 0xf800 && pixels[2] == 0xf800, "ModeW scroll remains parent-clipped");
   std::remove(path); std::puts("UI TREE RENDER TEST PASS");

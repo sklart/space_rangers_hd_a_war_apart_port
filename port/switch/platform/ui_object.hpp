@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+namespace srhd_awa::platform::scene_compositor { struct Framebuffer; }
+
 namespace srhd_awa::platform::ui {
 
 struct Point {
@@ -151,6 +153,8 @@ class UiTree {
   const UiPanel* Root() const { return root_.get(); }
   void SetRootSize(Size size) { root_->SetSize(size); }
   void UpdateGeometry() { root_->UpdateGeometry(); }
+  bool Update(std::uint64_t delta_ms, std::string* error = nullptr);
+  bool Render(const scene_compositor::Framebuffer& target, std::string* error = nullptr) const;
   const std::vector<Rect>& DirtyRects() const { return root_->DirtyRects(); }
   void ClearDirtyRects() { root_->ClearDirtyRects(); }
 

@@ -56,4 +56,7 @@ bool UiTreeRenderer::RenderNode(const UiObject& node, const scene_compositor::Fr
   return true;
 }
 
+bool UiTree::Update(std::uint64_t delta_ms, std::string* error) { return UiTreeRenderer::Update(*root_, delta_ms, error); }
+bool UiTree::Render(const scene_compositor::Framebuffer& target, std::string* error) const { return UiTreeRenderer::Render(*root_, target, error); }
+
 }  // namespace srhd_awa::platform::ui
