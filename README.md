@@ -22,7 +22,7 @@
 | M16 portable GAI Format-2 decode | host/CI/ARM64/Switch hardware PASS; M16 COMPLETE |
 | M17 portable GAI sequence playback | host/CI/ARM64/Switch hardware PASS; one `Flags == 0` cycle matches oracle; M17 COMPLETE |
 | M18 portable software compositor | host/CI/ARM64/Switch hardware PASS; M18 COMPLETE |
-| M19 portable scene compositor | host/ARM64/Switch hardware/Python oracle PASS; CI pending |
+| M19 portable scene compositor | host/CI/ARM64/Switch hardware/Python oracle PASS; M19 COMPLETE |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
@@ -136,7 +136,7 @@ port/switch/Space Rangers HD - A War Apart.nro
 
 M7, M8, M9, M11, M12, M14P, M15, M16, M17 и M18 имеют hardware PASS. M13 завершён как metadata diagnostic и не требует отдельного hardware gate. M18 CPU-only композитит единственный decoded Format-2 BGRA кадр поверх M12 heartbeat в RGB565 framebuffer; screenshot подтвердил реальную видимость кадра. M14 direct upstream path остаётся заблокированным широким `GR_DX` fan-out, а M14R — Direct3D COM state в layout `TGraphBufGR`.
 
-Последний аппаратно протестированный NRO (M19) имел размер 7 219 504 bytes, SHA-256 `E05B83F0675548D25911AC497541EDFF1C8D0EE66CD5FD26922FA9D57EE131FF` и embedded `build_git=3b337cd`. Он показал три sprites: Asteroid frame 0, лексически выбранный `DATA/Asteroid/01.gai` frame 0 и 50%-alpha Asteroid overlay; scene fingerprint `CRC32=ba977214`, `FNV64=240b58539a257627`. M12 представил 594 кадров за 29,993 ms, вышел через `PLUS` и достиг `[BOOT] COMPLETE`. Независимый Python-оракул подтвердил тот же ресурсный набор и fingerprint; CI остаётся отдельным незавершённым gate.
+Последний аппаратно протестированный NRO (M19) имел размер 7 219 504 bytes, SHA-256 `E05B83F0675548D25911AC497541EDFF1C8D0EE66CD5FD26922FA9D57EE131FF` и embedded `build_git=3b337cd`. Он показал три sprites: Asteroid frame 0, лексически выбранный `DATA/Asteroid/01.gai` frame 0 и 50%-alpha Asteroid overlay; scene fingerprint `CRC32=ba977214`, `FNV64=240b58539a257627`. M12 представил 594 кадров за 29,993 ms, вышел через `PLUS` и достиг `[BOOT] COMPLETE`. Независимый Python-оракул подтвердил тот же ресурсный набор и fingerprint; CI `37745110922` успешно прошёл M19 regression и M19 symbol audit. M19 COMPLETE.
 
 ```text
 [M9] FAIL runtime config=... DAT zlib decompression failed
