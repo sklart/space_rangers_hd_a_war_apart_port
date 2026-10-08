@@ -12,9 +12,13 @@ retained gates, M21 regression and M21 symbol audit.
 
 M22 is **IN PROGRESS**. Its portable object/layout core, config adapter,
 mixed C++/Python tree oracle, read-only release inventory and runtime `UiTree`
-integration exist. M22 has host evidence and one intermediate ARM64 build only;
-terminal CI, clean ARM64/symbol audit, fixed runtime oracle and the single
-Switch test are still pending. No M22 hardware claim is made here.
+integration exist. GitHub Actions run `37783935697` passed the retained suite,
+M22 regression, tree oracle and release-probe syntax check. A clean ARM64 build
+of `de807a7` produced ELF64/AArch64 with zero undefined symbols and zero
+forbidden-symbol hits across the new M22 objects. Its NRO is 7,559,472 bytes,
+SHA-256 `ED08444B2B41056C214D8A809E4FA2A5B72C31E372844119191D68863FCC3716`,
+with embedded `build_git=de807a7`. The sole Switch test remains pending; no M22
+hardware claim is made here.
 
 The synthetic presentation checkpoint uses one M20 GIObject plus M21 Simple,
 keyed Trans and partial-alpha Alpha in stable layer order. Its C++ and

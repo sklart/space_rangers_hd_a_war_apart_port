@@ -108,9 +108,11 @@ already passed before this one physical test.
 
 ## M22 final Switch test — not yet run
 
-M22 has exactly one planned hardware run, only after terminal CI, clean ARM64
-build/symbol audit and a hash-bound NRO. Do not substitute a screenshot or an
-earlier M21 log. The eventual log must contain `[STAGE] M22 UI object tree
+M22 has exactly one planned hardware run. Its prerequisites are now satisfied:
+terminal CI `37783935697`, clean ARM64 build/symbol audit and the 7,559,472-byte
+NRO with SHA-256 `ED08444B2B41056C214D8A809E4FA2A5B72C31E372844119191D68863FCC3716`
+and embedded `build_git=de807a7`. Do not substitute a screenshot or an earlier
+M21 log. The eventual log must contain `[STAGE] M22 UI object tree
 BEGIN`, node/panel/leaf counts, tree and fixed-frame fingerprints, depth/clip/
 scroll/active PASS lines, `[STAGE] M22 UI object tree PASS`, retained M12/M17
 evidence, a 60+ second duration, `PLUS` and `[BOOT] COMPLETE`. The user moves

@@ -25,7 +25,7 @@
 | M19 portable scene compositor | host/CI/ARM64/Switch hardware/Python oracle PASS; M19 COMPLETE |
 | M20 portable GI object layer | host/CI/ARM64/Switch hardware PASS; M20 COMPLETE |
 | M21 portable UI image foundation | host/CI/ARM64/Switch hardware PASS; real Simple oracle matches; Trans/Alpha release baselines are genuinely NOT PRESENT; M21 COMPLETE |
-| M22 portable UI object/layout foundation | host mixed-tree/Python oracle PASS; release inventory and runtime integration готовы; CI/final ARM64/Switch ещё не выполнены |
+| M22 portable UI object/layout foundation | host mixed-tree/Python oracle, CI `37783935697`, clean ARM64 and symbol audit PASS; hash-bound NRO ready; Switch ещё не выполнен |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.

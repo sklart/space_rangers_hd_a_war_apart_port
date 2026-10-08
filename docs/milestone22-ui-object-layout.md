@@ -1,6 +1,7 @@
 # M22 — portable UI object/layout foundation
 
-Статус: **IN PROGRESS — host regression и промежуточная ARM64 сборка PASS; CI и Switch не запускались.**
+Статус: **IN PROGRESS — host/CI/clean ARM64 и symbol audit PASS; финальный
+Switch test ещё не запускался.**
 
 M22 реализует CPU-only подмножество observable-семантики `TObjectGI` и
 минимального `TPanelGI`, нужное для последующей сборки UI. Это не перенос
@@ -43,9 +44,13 @@ release screen за поддержанный.
 Runtime `UiTree` заменяет ручное размещение entries в `PresentationScene` и
 сохраняет M12 callback boundary. Внутри есть nested panels, cloned M20 GI
 leaves, M21 Simple leaf, active hidden ModeW scroll leaf и inactive leaf.
-Промежуточная ARM64 сборка доказывает linkability; она не является ни CI, ни
-hardware PASS. До единственного финального Switch запуска требуются полный
-terminal CI, clean ARM64/symbol audit и hash-bound NRO.
+GitHub Actions run `37783935697` прошёл retained M12–M21 gates, M22 regression,
+tree structural oracle и syntax check release probes. Чистая ARM64-сборка
+`de807a7` дала ELF64/AArch64 без undefined symbols; новые M22 objects не
+содержат запрещённых GUI/Direct3D символов. Полученный NRO имеет 7,559,472
+bytes, SHA-256 `ED08444B2B41056C214D8A809E4FA2A5B72C31E372844119191D68863FCC3716`
+и embedded `build_git=de807a7`. Это не hardware PASS: следующий и единственный
+физический Switch-запуск остаётся обязательным.
 
 `tests/probe_m22_runtime_oracle.py` независим от production C++ и читает
 оригинальный release package. Он фиксирует первый tree: CRC32 `caab2979`,
