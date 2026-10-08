@@ -6,6 +6,13 @@ bool Fail(std::string* error, const char* message) { if (error) *error = message
 okgf_rle_bridge::Rect ToImageRect(Rect value) { return {value.left, value.top, value.right, value.bottom}; }
 }  // namespace
 
+UiImageLeaf* UiObject::AddImage() {
+  auto child = std::make_unique<UiImageLeaf>(); auto* result = child.get(); Attach(std::move(child)); return result;
+}
+UiGILeaf* UiObject::AddGIObject() {
+  auto child = std::make_unique<UiGILeaf>(); auto* result = child.get(); Attach(std::move(child)); return result;
+}
+
 bool UiImageLeaf::Load(image_object::Kind kind, const std::string& resource, const std::string& option, std::string* error) {
   if (!image_.Load(kind, resource, option, error)) return false;
   if (ClientSize().width <= 0 || ClientSize().height <= 0)

@@ -62,6 +62,8 @@ class UiObject {
 
   UiObject* AddObject();
   class UiPanel* AddPanel();
+  class UiImageLeaf* AddImage();
+  class UiGILeaf* AddGIObject();
 
   void SetPosition(Point value);
   void SetSize(Size value);

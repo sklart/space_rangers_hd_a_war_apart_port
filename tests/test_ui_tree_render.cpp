@@ -45,9 +45,9 @@ bool WritePackage(const char* path) {
 }
 void Check(bool value, const char* what) { if (!value) { std::fprintf(stderr, "FAIL: %s\n", what); std::exit(1); } }
 UiImageLeaf* AddImage(srhd_awa::platform::ui::UiObject* parent, Package* package, const char* resource, Point position, Size size, double depth, bool active = true) {
-  auto leaf = std::make_unique<UiImageLeaf>(package); auto* result = leaf.get(); result->SetPosition(position); result->SetSize(size); result->SetDepth(depth); result->SetActive(active);
+  auto* result = parent->AddImage(); result->Image().SetPackage(package); result->SetPosition(position); result->SetSize(size); result->SetDepth(depth); result->SetActive(active);
   result->Image().SetModes(srhd_awa::platform::image_layout::XMode::LeftFill, srhd_awa::platform::image_layout::YMode::TopFill);
-  std::string error; Check(result->Load(Kind::Simple, resource, "", &error), error.c_str()); Check(parent->Attach(std::move(leaf), &error), error.c_str()); return result;
+  std::string error; Check(result->Load(Kind::Simple, resource, "", &error), error.c_str()); return result;
 }
 }  // namespace
 
