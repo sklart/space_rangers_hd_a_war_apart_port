@@ -11,3 +11,7 @@ M19 adds a deliberately small CPU-only scene layer. `Scene` owns only the decode
 At runtime M19 uses Asteroid frame 0, one lexically selected second real GAI frame 0, and a 50%-alpha Asteroid overlay. The log records `[M19] scene compositor BEGIN`, every resource/position/layer, the canonical scene CRC32/FNV64 and `[M19] scene PASS`. A Switch result is valid only after at least 10 seconds of presentation, `PLUS`, nonzero frames/presents and `[BOOT] COMPLETE`.
 
 M19 does not implement UI framework, Forms, game objects, input routing, EC_Cache, audio or gameplay. M20 is not started by this milestone.
+
+## Switch evidence
+
+The Switch-tested NRO SHA-256 `E05B83F0675548D25911AC497541EDFF1C8D0EE66CD5FD26922FA9D57EE131FF` embeds `build_git=3b337cd`. It selected `DATA/Asteroid/01.gai` as the lexical secondary resource and logged the three-sprite canonical fingerprint `CRC32=ba977214`, `FNV64=240b58539a257627`, `canonical_bytes=14244`. The captured screen visibly contains the Asteroid and a second real resource. After 29,993 ms and 594 presentations, the diagnostic exited through `PLUS` and reached `[BOOT] COMPLETE`. This is hardware evidence only; it does not replace the pending independent Python-oracle match or CI result.
