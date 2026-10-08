@@ -22,8 +22,8 @@ a full-binary absence audit is not an M16 PASS criterion without separately
 changing that already-hardware-tested renderer boundary.
 
 GitHub Actions run `37623625785` passed the synthetic decoder, corrupt stream
-suite and the separate M16 host symbol audit. Switch hardware evidence is
-still required before declaring M16 complete.
+suite and the separate M16 host symbol audit. M16 is complete: the Switch
+hardware result below matches the independent oracle.
 
 ## Switch hardware result
 

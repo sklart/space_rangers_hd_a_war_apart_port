@@ -17,7 +17,8 @@
 | M13 metadata/bitmap slice | `ui_metadata_slice` and direct `TCBitmapEC::LoadFromConfigBuffer` | M9/M11 roots, CPU OKGF bridge, existing software renderer | no Forms, worker, D3D surface, script or audio entry | COMPLETE / HARDWARE NOT REQUIRED |
 | M14P GI Format-0 | `GlobalCache::OpenDataBuffer` → structural validator → CPU decoder | M11 cache, OKGF RGB565 bridge | direct M14 GR_DX and M14R `TGraphBufGR` routes remain excluded | HOST/CI/ARM64/HARDWARE PASS; 93x104 BGRA fingerprint verified |
 | M15 GAI Format-0 frame | `common.pkg` → GAI validator → frame directory → raw/ZL payload → M14P decoder | package reader, zlib bridge, M14P | no `TCGaiEC`, `GI_GAIFile`, surfaces, Direct3D, playback, or UI | RELEASE BASELINE/CI/ARM64/HARDWARE PASS; fixed 2000x2000 BGRA fingerprint verified |
-| M16 GAI Format-2 frames | `common.pkg` → GAI validator → 100 raw frames → RLE validator → OKGF CPU draw | package reader, M16 decoder, OKGF RLE | no `TgiGR`, `TGraphBufGR`, Direct3D, playback, cache or UI | HOST/ARM64 PASS; hardware pending |
+| M16 GAI Format-2 frames | `common.pkg` → GAI validator → 100 raw frames → RLE validator → OKGF CPU draw | package reader, M16 decoder, OKGF RLE | no `TgiGR`, `TGraphBufGR`, Direct3D, playback, cache or UI | HOST/CI/ARM64/HARDWARE PASS |
+| M17 embedded GAI playback | sequence 0 → portable state → selected frame → M16 Format-2 decode | M15 parser, M16 decoder, M12 opt-in monotonic callback | no UI, compositing, cache, audio, `GI_GAI` or Direct3D | HOST/ARM64 PASS; hardware pending |
 | audio | DirectSound path | audio device | intentionally deferred | DEFERRED |
 | resource | `CrcUnit.cpp`: `ComputeCrc32` | portable Delphi helpers | none on compiled path | PASS: linked ARM64 |
 | renderer | `GR_Main`, `EC_OKGF`, OKGF | window, `okgf.dll` ABI | game-facing adapter incomplete | portable OKGF is fully built, linked and fills a CPU framebuffer |
@@ -30,5 +31,9 @@ The NRO runs the portable platform startup then the real GR_Main configuration s
 After M9/M11, the portable path applies release-compatible scalar CFG values (display/robot brightness and contrast, 3D, requested multithreading, path/mouse and clamped audio/music settings) without registry, OS, affinity, module or memory probing. `GR_DXInit` creates the existing RGB565 backend; M12 sets screen centres and the release `InterfaceBlendPalette`, then `runtime_loop_slice` pumps events, polls `PLUS`, draws an isolated heartbeat and presents through `GR_Main::BeginFramePresentation` / `EndFramePresentation`.
 
 Audio and music settings remain requests only; no DirectSound, Vorbis, audio thread or controller is constructed. `Globals::InitializeGlobalUiRuntime` and `Rangers::ProgramMain` remain deferred.
+
+## M17 diagnostic hook
+
+The normal M12 loop has no callback by default. For M17 it invokes one opt-in diagnostic callback once after input/exit polling and before heartbeat presentation, passing the same monotonic `now_ms` that it uses for loop accounting. A callback failure is reported as `diagnostic_failure`, not as a renderer failure. The M17 callback decodes only initial and transitioned frames; it does not draw them.
 
 M12 hardware PASS: the M14P-tested NRO embedded `46330b4` ran for 73.472 seconds, presented 1,506 frames, exited through `PLUS`, and reached `[BOOT] COMPLETE`. Before the loop it also completed the M13 metadata diagnostic and M14P `Bm.Captain.2BlazerBi` Format-0 decode with the recorded 93x104 BGRA fingerprint.

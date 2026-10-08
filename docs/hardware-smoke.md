@@ -62,3 +62,9 @@ The tested `Space Rangers HD - A War Apart.nro` was 7,158,064 bytes with SHA-256
 ## M16 Switch test
 
 **PASS.** The tested `Space Rangers HD - A War Apart.nro` SHA-256 is `470246273738C66777672E0D88A3449DA3FF47398AC08C16BB3175B5CAE8E08E`, with `build_git=50b778c`. The log records `[STAGE] M16 GI format2 PASS`, all 100 frames, frame 0 CRC32/FNV `83f66519`/`eb000366ca288b23` and aggregate CRC32/FNV `9e4059ce`/`a028ffbf04472afa`. M12 then ran 943 frames/presents for 47,272 ms, exited with `PLUS`, and reached `[BOOT] COMPLETE`.
+
+## M17 Switch test
+
+Deploy the newly built NRO with `-UpdateOnly`, launch it, and leave it running for at least 15 seconds (the nominal first sequence cycle is 5000 ms). Do not press `PLUS` before the M17 stage passes. Then press `PLUS` and collect both logs.
+
+`port.log` must contain `[STAGE] M17 GAI playback BEGIN`, sequence 0 metadata, sequence CRC/FNV, initial frame information, first-cycle actual duration, max tick gap, cycle CRC/FNV, `[M17] PASS sequence=0 cycle=1`, `[STAGE] M17 GAI playback PASS`, `exit_reason=plus`, nonzero frames/presents, and `[BOOT] COMPLETE`. Any `diagnostic_failure`, missing first-cycle PASS, or mismatch is a failed hardware run, not a partial pass.

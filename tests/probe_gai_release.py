@@ -175,7 +175,22 @@ def analyze(path, source):
         rows.append({"index": index, "offset": offset, "stored_size": stored, "encoding": encoding, "gi": fp(gi) | decoded, "pixels": fp(pixels)})
         aggregate.extend(record(index, decoded, pixels))
     if not rows: raise ValueError("no Format-2 frames")
-    return {"resource": path, "gai": fp(source) | meta, "gi_formats": formats, "format2": {"decoded_frames": len(rows), "frame0": rows[0], "aggregate": fp(bytes(aggregate))}}
+    sequence = meta["sequences"][0]
+    delays, sources = sequence["frame_delays"], sequence["source_indices"]
+    if not delays or len(delays) != len(sources): raise ValueError("sequence 0")
+    sequence_bytes = struct.pack("<II", 0, len(delays)) + b"".join(struct.pack("<ii", source_index, delay) for source_index, delay in zip(sources, delays))
+    decoded = {row["index"]: row for row in rows}
+    cycle = bytearray()
+    for position, (source_index, delay) in enumerate(zip(sources, delays)):
+        row = decoded[source_index]; gi = header(frame(source, meta, source_index)[1]); image, pixels = decode2(frame(source, meta, source_index)[1])
+        info = image["decoded"]
+        cycle.extend(struct.pack("<IIIIIII", position, source_index, delay, info["width"], info["height"], info["pitch"], len(pixels)))
+        cycle.extend(pixels)
+    m17 = {"sequence_index": 0, "frame_count": len(delays), "source_indices": sources, "frame_delays": delays,
+           "delay_min": min(delays), "delay_max": max(delays), "nominal_cycle_ms": sum(delays),
+           "zero_delays": sum(delay == 0 for delay in delays), "negative_delays": sum(delay < 0 for delay in delays),
+           "sequence_fingerprint": fp(sequence_bytes), "cycle_fingerprint": fp(bytes(cycle))}
+    return {"resource": path, "gai": fp(source) | meta, "gi_formats": formats, "format2": {"decoded_frames": len(rows), "frame0": rows[0], "aggregate": fp(bytes(aggregate))}, "m17": m17}
 
 
 def main():

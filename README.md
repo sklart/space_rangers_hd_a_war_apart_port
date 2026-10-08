@@ -130,7 +130,7 @@ port/switch/Space Rangers HD - A War Apart.nro
 
 ## Границы подтверждённого аппаратного пути
 
-M7, M8, M9, M11, M12 и M14P имеют hardware PASS. M13 завершён как metadata diagnostic и не требует отдельного hardware gate. M14 direct upstream path остаётся заблокированным широким `GR_DX` fan-out, а M14R — Direct3D COM state в layout `TGraphBufGR`; M14P решает Format-0 без этих типов.
+M7, M8, M9, M11, M12, M14P, M15 и M16 имеют hardware PASS. M13 завершён как metadata diagnostic и не требует отдельного hardware gate. M14 direct upstream path остаётся заблокированным широким `GR_DX` fan-out, а M14R — Direct3D COM state в layout `TGraphBufGR`; M14P решает Format-0 без этих типов. M17 добавляет CPU-only playback для sequence 0 из `DATA/Asteroid/00.gai`; до Switch-проверки его статус остаётся pending hardware.
 
 Аппаратно протестированный NRO имел размер 7 158 064 bytes, SHA-256 `1CDFFC96A8505BA6D9114222F46CF32B4A16E80C93C93735D13198293E61D97E` и embedded `build_git=46330b4`. `port.log` подтверждает build Git, а deploy preflight/manifest — SHA-256. При ошибке декодера ожидается запись вида:
 
@@ -142,7 +142,7 @@ M7, M8, M9, M11, M12 и M14P имеют hardware PASS. M13 завершён ка
 
 ## Проверки
 
-GitHub Actions workflow `package-host` выполняет asset-free host-регрессии, включая corrupt package, циклы каталогов, `ZL02`, portable `EC_File`, synthetic DAT/runtime settings, M8 golden, M12, M13, M14P Format-0 и M15 GAI container/Format-0 regression. M15 symbol audit запрещает графические и upstream GAI runtime symbols.
+GitHub Actions workflow `package-host` выполняет asset-free host-регрессии, включая corrupt package, циклы каталогов, `ZL02`, portable `EC_File`, synthetic DAT/runtime settings, M8 golden, M12, M13, M14P Format-0, M15 GAI container, M16 Format-2 и M17 pure playback. M17 sequence/playback checks запрещают графические, upstream GAI runtime и sound-loop symbols.
 
 Локальная ARM64-сборка проверяет создание NRO. Дополнительно для финального артефакта следует подтвердить:
 
@@ -164,6 +164,7 @@ GitHub Actions workflow `package-host` выполняет asset-free host-рег
 - [M14P portable GI Format-0](docs/milestone14p-gi-format0.md)
 - [M15 portable GAI CPU](docs/milestone15-gai-cpu.md)
 - [M16 portable GI Format-2 CPU](docs/milestone16-gi-format2.md)
+- [M17 portable GAI playback](docs/milestone17-gai-playback.md)
 
 ## Лицензирование и обратная связь
 

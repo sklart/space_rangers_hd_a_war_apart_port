@@ -63,6 +63,13 @@ bool RunOneFrame(State* state, const runtime_platform::State& platform, std::str
   if (padGetButtonsDown(&pad) & HidNpadButton_Plus) { state->statistics.exit_reason = ExitReason::plus; return true; }
 #endif
   if (state->exit_requested) { state->statistics.exit_reason = ExitReason::requested; return true; }
+  if (state->frame_callback) {
+    const std::uint64_t now_ms = NowMilliseconds();
+    if (!state->frame_callback(state->frame_callback_user, now_ms, error)) {
+      state->statistics.exit_reason = ExitReason::diagnostic_failure;
+      return true;
+    }
+  }
   DrawRuntimeHeartbeat(state->statistics.frames);
   if (!GR_Main::BeginFramePresentation()) { if (error) *error = "frame presentation rejected"; return false; }
   GR_Main::EndFramePresentation();
@@ -95,6 +102,12 @@ bool Initialize(State* state, std::string* error) {
   }
 }
 
+void SetFrameCallback(State* state, FrameCallback callback, void* user_data) {
+  if (!state) return;
+  state->frame_callback = callback;
+  state->frame_callback_user = user_data;
+}
+
 bool RunFrames(State* state, const runtime_platform::State& platform, std::uint64_t frame_count, std::string* error) {
   if (!state || !state->initialized) { if (error) *error = "runtime loop is not initialized"; return false; }
   while (state->statistics.exit_reason == ExitReason::none && state->statistics.frames < frame_count) {
@@ -102,7 +115,7 @@ bool RunFrames(State* state, const runtime_platform::State& platform, std::uint6
   }
   if (state->statistics.exit_reason == ExitReason::none && state->statistics.frames >= frame_count) state->statistics.exit_reason = ExitReason::requested;
   state->statistics.duration_ms = NowMilliseconds() - state->started_tick;
-  return true;
+  return state->statistics.exit_reason != ExitReason::diagnostic_failure;
 }
 
 bool RunPersistent(State* state, const runtime_platform::State& platform, std::string* error) {
@@ -111,7 +124,7 @@ bool RunPersistent(State* state, const runtime_platform::State& platform, std::s
     if (!RunOneFrame(state, platform, error)) { state->statistics.exit_reason = ExitReason::presentation_failure; return false; }
   }
   state->statistics.duration_ms = NowMilliseconds() - state->started_tick;
-  return true;
+  return state->statistics.exit_reason != ExitReason::diagnostic_failure;
 }
 
 void RequestExit(State* state) { if (state) state->exit_requested = true; }
@@ -121,6 +134,6 @@ void Shutdown(State* state) {
   if (state) *state = {};
 }
 const char* ExitReasonName(ExitReason reason) {
-  switch (reason) { case ExitReason::requested: return "requested"; case ExitReason::plus: return "plus"; case ExitReason::applet: return "applet"; case ExitReason::presentation_failure: return "presentation_failure"; default: return "none"; }
+  switch (reason) { case ExitReason::requested: return "requested"; case ExitReason::plus: return "plus"; case ExitReason::applet: return "applet"; case ExitReason::presentation_failure: return "presentation_failure"; case ExitReason::diagnostic_failure: return "diagnostic_failure"; default: return "none"; }
 }
 }  // namespace srhd_awa::platform::runtime_loop_slice

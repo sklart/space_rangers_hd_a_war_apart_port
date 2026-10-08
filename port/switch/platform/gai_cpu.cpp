@@ -184,6 +184,40 @@ Status ExtractGaiFrame(const void* source, std::size_t source_size, std::int32_t
   return Status::Ok;
 }
 
+Status ReadGaiSequence(const void* source, std::size_t source_size, std::int32_t sequence_index,
+                       GaiSequence* sequence, std::string* error) {
+  if (sequence) sequence->Clear();
+  GaiMetadata metadata{};
+  const auto status = ValidateGai(source, source_size, &metadata, error);
+  if (status != Status::Ok) return status;
+  if (!sequence || !metadata.sequence_table_present || sequence_index < 0 ||
+      sequence_index >= metadata.sequence_count) {
+    if (error) *error = "sequence index";
+    return Status::InvalidFrame;
+  }
+  const auto* data = static_cast<const std::uint8_t*>(source);
+  const auto table = static_cast<std::size_t>(metadata.sequence_table_offset);
+  const auto directory = table + kSequenceHeaderSize +
+      static_cast<std::size_t>(sequence_index) * kSequenceDirectoryEntrySize;
+  const auto relative = I32(data + directory);
+  const auto block = table + static_cast<std::size_t>(relative);
+  const auto count = I32(data + block);
+  if (count <= 0 || static_cast<std::uint64_t>(count) > kMaxFrames) {
+    if (error) *error = "sequence frame count";
+    return Status::InvalidFrame;
+  }
+  GaiSequence parsed{};
+  parsed.index = sequence_index;
+  parsed.frames.reserve(static_cast<std::size_t>(count));
+  for (std::int32_t index = 0; index < count; ++index) {
+    const auto entry = block + kSequenceDataHeaderSize +
+        static_cast<std::size_t>(index) * kSequenceFrameEntrySize;
+    parsed.frames.push_back({I32(data + entry), I32(data + entry + 4)});
+  }
+  *sequence = std::move(parsed);
+  return Status::Ok;
+}
+
 Status DecodeGaiFormat0Frame(const void* source, std::size_t source_size, std::int32_t index,
                              GaiMetadata* gai_metadata, GaiFrameInfo* frame_info,
                              gi_format0_cpu::Metadata* gi_metadata, gi_format0_cpu::CpuImage* image, std::string* error) {

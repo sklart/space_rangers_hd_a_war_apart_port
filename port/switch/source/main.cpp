@@ -12,6 +12,7 @@
 #include "gi_format0_cpu.hpp"
 #include "gi_format2_cpu.hpp"
 #include "gai_cpu.hpp"
+#include "gai_playback_cpu.hpp"
 #include "runtime_loop_slice.hpp"
 #include "renderer_platform.hpp"
 #include "units/GR_GraphBuf.hpp"
@@ -334,6 +335,121 @@ bool VerifyM16GaiFormat2(const char* game_root) {
   } catch (...) { Log("[M16] exception"); return false; }
 }
 
+struct M17PlaybackDiagnostic {
+  std::vector<std::uint8_t> gai;
+  srhd_awa::platform::gai_cpu::GaiSequence sequence;
+  srhd_awa::platform::gai_playback_cpu::State playback;
+  std::vector<std::uint8_t> cycle_canonical;
+  std::uint64_t previous_tick{};
+  std::uint64_t cycle_started_tick{};
+  std::uint64_t max_tick_gap{};
+  bool clock_started{};
+  bool initial_cycle_verified{};
+  bool sequence_pass{};
+  bool cycle_pass{};
+  bool timing_pass{};
+};
+
+void AppendM17U32(std::vector<std::uint8_t>* bytes, std::uint32_t value) {
+  for (unsigned shift = 0; shift < 32; shift += 8) bytes->push_back(static_cast<std::uint8_t>(value >> shift));
+}
+
+std::uint64_t M17Fnv(const std::uint8_t* bytes, std::size_t size) {
+  std::uint64_t value = UINT64_C(14695981039346656037);
+  for (std::size_t index = 0; index < size; ++index) value = (value ^ bytes[index]) * UINT64_C(1099511628211);
+  return value;
+}
+
+bool DecodeM17Frame(M17PlaybackDiagnostic* diagnostic, std::int32_t sequence_frame, std::int32_t source_frame,
+                    std::int32_t delay_ms, bool append_canonical, std::string* error) {
+  srhd_awa::platform::gai_cpu::GaiFramePayload payload;
+  srhd_awa::platform::gi_format2_cpu::Metadata metadata{};
+  srhd_awa::platform::gi_format2_cpu::CpuImage image;
+  if (srhd_awa::platform::gai_cpu::ExtractGaiFrame(diagnostic->gai.data(), diagnostic->gai.size(), source_frame, &payload, error) !=
+          srhd_awa::platform::gai_cpu::Status::Ok ||
+      payload.info.encoding != srhd_awa::platform::gai_cpu::FrameEncoding::RawGi ||
+      srhd_awa::platform::gi_format2_cpu::Decode(payload.gi_bytes.data(), payload.gi_bytes.size(), &metadata, &image, error) !=
+          srhd_awa::platform::gi_format2_cpu::Status::Ok) return false;
+  if (append_canonical) {
+    AppendM17U32(&diagnostic->cycle_canonical, static_cast<std::uint32_t>(sequence_frame));
+    AppendM17U32(&diagnostic->cycle_canonical, static_cast<std::uint32_t>(source_frame));
+    AppendM17U32(&diagnostic->cycle_canonical, static_cast<std::uint32_t>(delay_ms));
+    AppendM17U32(&diagnostic->cycle_canonical, static_cast<std::uint32_t>(image.width));
+    AppendM17U32(&diagnostic->cycle_canonical, static_cast<std::uint32_t>(image.height));
+    AppendM17U32(&diagnostic->cycle_canonical, static_cast<std::uint32_t>(image.pitch));
+    AppendM17U32(&diagnostic->cycle_canonical, static_cast<std::uint32_t>(image.pixels.size()));
+    diagnostic->cycle_canonical.insert(diagnostic->cycle_canonical.end(), image.pixels.begin(), image.pixels.end());
+  }
+  return true;
+}
+
+bool InitializeM17Playback(const char* game_root, M17PlaybackDiagnostic* diagnostic, std::string* error) {
+  constexpr const char* kResource = "DATA/Asteroid/00.gai";
+  constexpr std::uint32_t kSequenceCrc = 0x4b1c6ebfu;
+  constexpr std::uint64_t kSequenceFnv = UINT64_C(0x47cdc8c73fc1ce61);
+  srhd_awa::package::Package package;
+  const auto path = (std::filesystem::path(game_root) / "DATA" / "common.pkg").string();
+  const auto* entry = package.Open(path, error) ? package.Resolve(kResource) : nullptr;
+  if (!entry || !package.ReadPayload(*entry, &diagnostic->gai, error)) return false;
+  if (srhd_awa::platform::gai_cpu::ReadGaiSequence(diagnostic->gai.data(), diagnostic->gai.size(), 0, &diagnostic->sequence, error) !=
+      srhd_awa::platform::gai_cpu::Status::Ok) return false;
+  if (diagnostic->sequence.frames.empty() || diagnostic->sequence.frames.size() != 100) { if (error) *error = "unexpected sequence 0 frame count"; return false; }
+  std::vector<std::uint8_t> sequence_canonical;
+  AppendM17U32(&sequence_canonical, 0); AppendM17U32(&sequence_canonical, static_cast<std::uint32_t>(diagnostic->sequence.frames.size()));
+  std::int32_t min_delay = diagnostic->sequence.frames.front().delay_ms, max_delay = min_delay;
+  std::uint64_t nominal_ms{}; std::uint32_t zero_delays{}, negative_delays{};
+  for (const auto& frame : diagnostic->sequence.frames) {
+    AppendM17U32(&sequence_canonical, static_cast<std::uint32_t>(frame.source_frame_index));
+    AppendM17U32(&sequence_canonical, static_cast<std::uint32_t>(frame.delay_ms));
+    min_delay = std::min(min_delay, frame.delay_ms); max_delay = std::max(max_delay, frame.delay_ms);
+    if (frame.delay_ms == 0) ++zero_delays;
+    if (frame.delay_ms < 0) ++negative_delays;
+    else nominal_ms += static_cast<std::uint32_t>(frame.delay_ms);
+  }
+  const auto sequence_crc = CrcUnit::ComputeCrc32(sequence_canonical.data(), static_cast<std::int32_t>(sequence_canonical.size()));
+  const auto sequence_fnv = M17Fnv(sequence_canonical.data(), sequence_canonical.size());
+  diagnostic->sequence_pass = sequence_crc == kSequenceCrc && sequence_fnv == kSequenceFnv && min_delay == 50 && max_delay == 50 && nominal_ms == 5000 && zero_delays == 0 && negative_delays == 0;
+  Log("[M17] resource=%s", kResource);
+  Log("[M17] sequence=0 sequence_frames=%zu nominal_cycle_ms=%llu delay_min=%ld delay_max=%ld zero_delays=%lu negative_delays=%lu", diagnostic->sequence.frames.size(), static_cast<unsigned long long>(nominal_ms), static_cast<long>(min_delay), static_cast<long>(max_delay), static_cast<unsigned long>(zero_delays), static_cast<unsigned long>(negative_delays));
+  Log("[M17] sequence_crc32=%08lx sequence_fnv64=%016llx", static_cast<unsigned long>(sequence_crc), static_cast<unsigned long long>(sequence_fnv));
+  if (!diagnostic->sequence_pass) { if (error) *error = "sequence fingerprint or timing metadata"; return false; }
+  if (!srhd_awa::platform::gai_playback_cpu::Initialize(&diagnostic->playback, diagnostic->sequence, error)) return false;
+  const auto& initial = diagnostic->sequence.frames.front();
+  Log("[M17] initial_sequence_frame=0 initial_source_frame=%ld", static_cast<long>(initial.source_frame_index));
+  return DecodeM17Frame(diagnostic, 0, initial.source_frame_index, initial.delay_ms, true, error);
+}
+
+bool RunM17Playback(void* user_data, std::uint64_t now_ms, std::string* error) {
+  constexpr std::uint32_t kCycleCrc = 0x5b7bc7e9u;
+  constexpr std::uint64_t kCycleFnv = UINT64_C(0xf70813ac799a25b3);
+  constexpr std::uint64_t kNominalCycleMs = 5000;
+  auto* diagnostic = static_cast<M17PlaybackDiagnostic*>(user_data);
+  if (!diagnostic->clock_started) { diagnostic->clock_started = true; diagnostic->previous_tick = now_ms; diagnostic->cycle_started_tick = now_ms; return true; }
+  if (now_ms < diagnostic->previous_tick) { if (error) *error = "non-monotonic M12 tick"; return false; }
+  const auto delta = now_ms - diagnostic->previous_tick;
+  diagnostic->max_tick_gap = std::max(diagnostic->max_tick_gap, delta);
+  diagnostic->previous_tick = now_ms;
+  std::vector<srhd_awa::platform::gai_playback_cpu::Step> steps;
+  if (!srhd_awa::platform::gai_playback_cpu::AdvanceBy(&diagnostic->playback, diagnostic->sequence, delta, &steps, error)) return false;
+  for (const auto& step : steps) {
+    if (step.wrapped && !diagnostic->initial_cycle_verified) {
+      const auto cycle_crc = CrcUnit::ComputeCrc32(diagnostic->cycle_canonical.data(), static_cast<std::int32_t>(diagnostic->cycle_canonical.size()));
+      const auto cycle_fnv = M17Fnv(diagnostic->cycle_canonical.data(), diagnostic->cycle_canonical.size());
+      const auto actual_ms = now_ms - diagnostic->cycle_started_tick;
+      diagnostic->cycle_pass = cycle_crc == kCycleCrc && cycle_fnv == kCycleFnv;
+      diagnostic->timing_pass = actual_ms >= kNominalCycleMs && actual_ms - kNominalCycleMs <= diagnostic->max_tick_gap + 5;
+      diagnostic->initial_cycle_verified = true;
+      Log("[M17] cycle_crc32=%08lx cycle_fnv64=%016llx cycle_bytes=%zu", static_cast<unsigned long>(cycle_crc), static_cast<unsigned long long>(cycle_fnv), diagnostic->cycle_canonical.size());
+      Log("[M17] first_cycle_actual_ms=%llu nominal_cycle_ms=%llu max_tick_gap_ms=%llu transitions=%zu tolerance_ms=%llu", static_cast<unsigned long long>(actual_ms), static_cast<unsigned long long>(kNominalCycleMs), static_cast<unsigned long long>(diagnostic->max_tick_gap), diagnostic->sequence.frames.size(), static_cast<unsigned long long>(diagnostic->max_tick_gap + 5));
+      if (!diagnostic->cycle_pass || !diagnostic->timing_pass) { if (error) *error = "cycle fingerprint or timing tolerance"; return false; }
+      Log("[M17] PASS sequence=0 cycle=1");
+      diagnostic->cycle_canonical.clear(); diagnostic->cycle_started_tick = now_ms;
+    }
+    if (!DecodeM17Frame(diagnostic, step.sequence_frame, step.source_frame_index, step.delay_ms, !step.wrapped, error)) return false;
+  }
+  return true;
+}
+
 bool ValidateReleaseAssets(const char* root) {
   StageBegin("release asset sanity");
   const std::filesystem::path base(root);
@@ -631,6 +747,15 @@ int main(int argc, char** argv) {
   const bool m16_ok = VerifyM16GaiFormat2(game_root);
   Stage("M16 GI format2", m16_ok);
   if (!m16_ok) { srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup); return 1; }
+  StageBegin("M17 GAI playback");
+  M17PlaybackDiagnostic m17_diagnostic;
+  std::string m17_error;
+  if (!InitializeM17Playback(game_root, &m17_diagnostic, &m17_error)) {
+    Log("[M17] FAIL initialization=%s", m17_error.c_str());
+    Stage("M17 GAI playback", false, m17_error.c_str());
+    srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
   StageBegin("cached resource");
   const bool cached_resource_ok = VerifyFirstCachedResource();
   Stage("cached resource", cached_resource_ok);
@@ -663,6 +788,7 @@ int main(int argc, char** argv) {
     srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
+  srhd_awa::platform::runtime_loop_slice::SetFrameCallback(&runtime_loop, RunM17Playback, &m17_diagnostic);
   const auto* framebuffer = GR_Main::ScreenRenderBuffer;
   Log("[M12] runtime ready");
   Log("[M12] framebuffer=%ldx%ld pitch=%ld pixel=RGB565", static_cast<long>(framebuffer->Width),
@@ -674,8 +800,12 @@ int main(int argc, char** argv) {
     Log("[M12] FilmBufSize deferred");
   StageBegin("runtime loop");
   Log("[M12] entering persistent loop");
-  const bool loop_ok = srhd_awa::platform::runtime_loop_slice::RunPersistent(&runtime_loop, startup.platform, &m12_error);
+  bool loop_ok = srhd_awa::platform::runtime_loop_slice::RunPersistent(&runtime_loop, startup.platform, &m12_error);
   const auto loop_stats = runtime_loop.statistics;
+  if (loop_ok && !m17_diagnostic.initial_cycle_verified) {
+    m12_error = "M17 first cycle not completed";
+    loop_ok = false;
+  }
   if (!loop_ok) Log("[STAGE] runtime loop FAIL reason=%s", m12_error.c_str());
   else {
     Log("[M12] exit_reason=%s", srhd_awa::platform::runtime_loop_slice::ExitReasonName(loop_stats.exit_reason));
@@ -684,6 +814,10 @@ int main(int argc, char** argv) {
         static_cast<unsigned long long>(loop_stats.presents));
     Stage("runtime loop", true);
   }
+  if (m17_diagnostic.initial_cycle_verified && m17_diagnostic.sequence_pass && m17_diagnostic.cycle_pass && m17_diagnostic.timing_pass)
+    Stage("M17 GAI playback", true);
+  else
+    Stage("M17 GAI playback", false, loop_ok ? "incomplete" : m12_error.c_str());
   srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
   srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
   srhd_awa::platform::ui_metadata_slice::Shutdown();

@@ -73,6 +73,22 @@ jobs:
       - name: Run M16 GI Format-2 CPU regression
         run: make -C port/switch host-gi-format2-cpu-test
 
+      - name: Run M17 GAI sequence parser regression
+        run: make -C port/switch host-gai-sequence-cpu-test
+
+      - name: Run M17 GAI playback timing regression
+        run: make -C port/switch host-gai-playback-cpu-test
+
+      - name: Audit M17 CPU symbols
+        shell: bash
+        run: |
+          set -euo pipefail
+          forbidden='GR_DX|Direct3D|IDirect3DTexture9|TGraphBufGR|TgiGR|TCGiEC|TCGaiEC|GI_GAIFile|GI_GAI|GI_MessageLoop|SoundManager'
+          for binary in port/switch/build/test_gai_sequence_cpu port/switch/build/test_gai_playback_cpu; do
+            test -x "$binary"
+            ! nm -C "$binary" | grep -E "$forbidden"
+          done
+
       - name: Audit M16 GI Format-2 CPU symbols
         shell: bash
         run: |

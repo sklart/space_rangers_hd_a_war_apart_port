@@ -43,12 +43,25 @@ struct GaiFramePayload {
   void Clear() { info = {}; gi_bytes.clear(); }
 };
 
+struct GaiSequenceFrame {
+  std::int32_t source_frame_index{};
+  std::int32_t delay_ms{};
+};
+
+struct GaiSequence {
+  std::int32_t index{};
+  std::vector<GaiSequenceFrame> frames;
+  void Clear() { index = 0; frames.clear(); }
+};
+
 Status ValidateGai(const void* source, std::size_t source_size, GaiMetadata* metadata,
                    std::string* error = nullptr);
 Status ReadGaiFrameInfo(const void* source, std::size_t source_size, std::int32_t index,
                         GaiFrameInfo* info, std::string* error = nullptr);
 Status ExtractGaiFrame(const void* source, std::size_t source_size, std::int32_t index,
                        GaiFramePayload* payload, std::string* error = nullptr);
+Status ReadGaiSequence(const void* source, std::size_t source_size, std::int32_t sequence_index,
+                       GaiSequence* sequence, std::string* error = nullptr);
 Status DecodeGaiFormat0Frame(const void* source, std::size_t source_size, std::int32_t index,
                              GaiMetadata* gai_metadata, GaiFrameInfo* frame_info,
                              gi_format0_cpu::Metadata* gi_metadata,
