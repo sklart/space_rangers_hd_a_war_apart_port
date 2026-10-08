@@ -88,10 +88,32 @@ bool AlphaBitmap::Draw(std::uint16_t* destination, std::int32_t destination_widt
       clip.right < clip.left || clip.bottom < clip.top || clip.right > destination_width ||
       clip.bottom > destination_height) return Fail(error, "invalid alpha bitmap draw");
   const auto pitch = pitch_pixels * static_cast<std::int32_t>(sizeof(std::uint16_t));
-  // This is the original TCAlphaBitmapEC order; changing it changes translucent pixels.
+  // The upstream alpha-cache order is observable for translucent pixels.
   okgf_rle_bridge::DrawAlphaBuf565Clip(destination, pitch, x, y, alpha_.data(), clip);
   okgf_rle_bridge::DrawTransAlphaBuf565Clip(destination, pitch, x, y, trans_alpha_.data(), clip);
   okgf_rle_bridge::DrawTransBuf565Clip(destination, pitch, x, y, trans_.data(), clip);
+  if (error) error->clear();
+  return true;
+}
+
+bool AlphaBitmap::DecodeToBGRA(std::vector<std::uint8_t>* destination, std::int32_t* pitch,
+                               std::string* error) const {
+  if (!destination || !pitch) return Fail(error, "null alpha BGRA destination");
+  destination->clear();
+  *pitch = 0;
+  if (!loaded()) return Fail(error, "alpha bitmap is not loaded");
+  const auto byte_count = static_cast<std::uint64_t>(width_) * height_ * 4;
+  if (byte_count > kMaxBytes || byte_count > std::numeric_limits<std::size_t>::max())
+    return Fail(error, "alpha BGRA output exceeds CPU limit");
+  try { destination->assign(static_cast<std::size_t>(byte_count), 0); }
+  catch (const std::bad_alloc&) { return Fail(error, "alpha BGRA allocation failed"); }
+  const auto output_pitch = width_ * 4;
+  // Keep this order in lockstep with Draw(): alpha, partially transparent,
+  // then opaque pixels.
+  okgf_rle_bridge::DrawAlphaBufRgba(destination->data(), output_pitch, alpha_.data());
+  okgf_rle_bridge::DrawTransAlphaBufRgba(destination->data(), output_pitch, trans_alpha_.data());
+  okgf_rle_bridge::DrawTransBufRgba(destination->data(), output_pitch, trans_.data());
+  *pitch = output_pitch;
   if (error) error->clear();
   return true;
 }

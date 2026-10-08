@@ -122,6 +122,18 @@ jobs:
           test -x "$binary"
           ! nm -C "$binary" | grep -E 'GR_DX|Direct3D|TGraphBufGR|TgiGR|TCGiEC|TCGaiEC|GI_GAI|Forms'
 
+      - name: Run M21 Portable UI Image Foundation regression
+        run: make -C port/switch host-m21-ui-image-regression
+
+      - name: Audit M21 CPU symbols
+        shell: bash
+        run: |
+          set -euo pipefail
+          for binary in port/switch/build/test_image_cpu port/switch/build/test_alpha_bitmap_cpu port/switch/build/test_trans_bitmap_cpu port/switch/build/test_simple_bitmap_cpu port/switch/build/test_image_layout port/switch/build/test_image_object; do
+            test -x "$binary"
+            ! nm -C "$binary" | grep -E 'GR_DX|Direct3D|IDirect3DTexture9|TGraphBufGR|TCBitmapEC|TCTBitmapEC|TCAlphaBitmapEC|TImageGI|TSimpleImageGI|TTransImageGI|TAlphaImageGI|GI_MessageLoop|Forms'
+          done
+
       - name: Audit M16 GI Format-2 CPU symbols
         shell: bash
         run: |

@@ -21,6 +21,10 @@ class AlphaBitmap {
             std::int32_t destination_height, std::int32_t pitch_pixels,
             std::int32_t x, std::int32_t y, const okgf_rle_bridge::Rect& clip,
             std::string* error = nullptr) const;
+  // Reconstructs the source image using the same three passes as the upstream
+  // alpha-cache path.  The output is BGRA8888 with pitch == width * 4.
+  bool DecodeToBGRA(std::vector<std::uint8_t>* destination, std::int32_t* pitch,
+                    std::string* error = nullptr) const;
 
   std::int32_t width() const { return width_; }
   std::int32_t height() const { return height_; }

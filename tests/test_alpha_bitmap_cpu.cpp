@@ -32,8 +32,11 @@ bool TestLifecycle() {
   AlphaBitmap bitmap; std::string error; const auto bmp=Bmp();
   if (!Expect(bitmap.Load(bmp.data(),static_cast<std::int32_t>(bmp.size()),&error),"load") || !Expect(bitmap.width()==1&&bitmap.height()==1&&bitmap.resident_bytes()>0,"metadata")) return false;
   std::uint16_t pixel=0x001f; if (!Expect(bitmap.Draw(&pixel,1,1,1,0,0,{0,0,1,1},&error),"draw")) return false;
+  std::vector<std::uint8_t> decoded; std::int32_t pitch{};
+  if (!Expect(bitmap.DecodeToBGRA(&decoded,&pitch,&error) && pitch==4 && decoded.size()==4,"decode BGRA")) return false;
   const std::uint8_t bad[]={'B','M'};
   if (!Expect(!bitmap.Load(bad,sizeof bad,&error)&&!bitmap.loaded()&&bitmap.resident_bytes()==0,"failure clears")) return false;
+  if (!Expect(!bitmap.DecodeToBGRA(&decoded,&pitch,&error)&&decoded.empty()&&pitch==0,"unloaded decode clears")) return false;
   return Expect(bitmap.Load(bmp.data(),static_cast<std::int32_t>(bmp.size()),&error),"reload");
 }
 }
