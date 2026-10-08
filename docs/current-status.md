@@ -1,4 +1,4 @@
-# Current status — M21 Portable UI Image Foundation complete
+# Current status — M22 Portable UI Object/Layout Foundation in progress
 
 M20 remains complete. M21 is **COMPLETE**: the CPU foundation, release-config
 inventory, independent Simple Python oracle and synthetic mixed M20/M21
@@ -9,6 +9,12 @@ ran for 172,747 ms with 3,824 frames/presents before `PLUS` and `[BOOT]
 COMPLETE`. Its actual M21 scene fingerprint matched the independent oracle:
 `CRC32=4f915772`, `FNV64=52449ae8f8f56c6c`. CI run `37770073920` passed the
 retained gates, M21 regression and M21 symbol audit.
+
+M22 is **IN PROGRESS**. Its portable object/layout core, config adapter,
+mixed C++/Python tree oracle, read-only release inventory and runtime `UiTree`
+integration exist. M22 has host evidence and one intermediate ARM64 build only;
+terminal CI, clean ARM64/symbol audit, fixed runtime oracle and the single
+Switch test are still pending. No M22 hardware claim is made here.
 
 The synthetic presentation checkpoint uses one M20 GIObject plus M21 Simple,
 keyed Trans and partial-alpha Alpha in stable layer order. Its C++ and

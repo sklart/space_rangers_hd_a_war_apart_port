@@ -2,7 +2,7 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Текущий аппаратный статус:** M14P–M21 проверены на Switch. Это не означает готовность игры к прохождению: полный UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
+> **Текущий аппаратный статус:** M14P–M21 проверены на Switch. M22 находится в разработке и ещё не тестировался на Switch. Это не означает готовность игры к прохождению: полный UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
 
 ## Что уже работает
 
@@ -25,6 +25,7 @@
 | M19 portable scene compositor | host/CI/ARM64/Switch hardware/Python oracle PASS; M19 COMPLETE |
 | M20 portable GI object layer | host/CI/ARM64/Switch hardware PASS; M20 COMPLETE |
 | M21 portable UI image foundation | host/CI/ARM64/Switch hardware PASS; real Simple oracle matches; Trans/Alpha release baselines are genuinely NOT PRESENT; M21 COMPLETE |
+| M22 portable UI object/layout foundation | host mixed-tree/Python oracle PASS; release inventory and runtime integration готовы; CI/final ARM64/Switch ещё не выполнены |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
@@ -177,6 +178,7 @@ M20 добавляет `host-gi-object-test` и отдельный symbol audit:
 - [M19 portable scene compositor](docs/milestone19-scene-compositor.md)
 - [M20 portable GI object layer](docs/milestone20-gi-object-layer.md)
 - [M21 portable UI image foundation](docs/milestone21-ui-image-foundation.md) — COMPLETE
+- [M22 portable UI object/layout foundation](docs/milestone22-ui-object-layout.md) — IN PROGRESS
 
 ## Лицензирование и обратная связь
 

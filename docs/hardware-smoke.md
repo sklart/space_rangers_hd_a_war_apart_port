@@ -105,3 +105,14 @@ then `PLUS` caused a clean shutdown and `[BOOT] COMPLETE`. `gr-main.log`
 contains only its expected `Start` marker. The screenshot is supplementary
 visual evidence, not a required hardware criterion. CI `37770073920` had
 already passed before this one physical test.
+
+## M22 final Switch test — not yet run
+
+M22 has exactly one planned hardware run, only after terminal CI, clean ARM64
+build/symbol audit and a hash-bound NRO. Do not substitute a screenshot or an
+earlier M21 log. The eventual log must contain `[STAGE] M22 UI object tree
+BEGIN`, node/panel/leaf counts, tree and fixed-frame fingerprints, depth/clip/
+scroll/active PASS lines, `[STAGE] M22 UI object tree PASS`, retained M12/M17
+evidence, a 60+ second duration, `PLUS` and `[BOOT] COMPLETE`. The user moves
+the NRO and game files; this repository workflow must not inspect removable
+media.
