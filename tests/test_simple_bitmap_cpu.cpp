@@ -1,0 +1,6 @@
+#include "simple_bitmap_cpu.hpp"
+#include <cstdint>
+#include <cstdio>
+#include <string>
+#include <vector>
+namespace {using srhd_awa::platform::simple_bitmap_cpu::SimpleBitmap;bool E(bool v,const char*s){if(!v)std::fprintf(stderr,"FAIL: %s\n",s);return v;}void W(std::vector<std::uint8_t>*b,int p,std::uint32_t v){for(int i=0;i<4;++i)(*b)[p+i]=static_cast<std::uint8_t>(v>>(8*i));}std::vector<std::uint8_t>B(){std::vector<std::uint8_t>b(58);b[0]='B';b[1]='M';W(&b,2,58);W(&b,10,54);W(&b,14,40);W(&b,18,1);W(&b,22,1);b[26]=1;b[28]=24;W(&b,34,4);b[56]=255;return b;}bool T(){auto b=B();SimpleBitmap x;std::string e;if(!E(x.Load(b.data(),b.size(),false,&e),"load"))return false;std::uint16_t d=0x001f;if(!E(x.Draw(&d,1,1,1,0,0,false,{0,0,1,1},&e)&&d==0xf800,"copy"))return false;d=0x001f;if(!E(x.Draw(&d,1,1,1,0,0,true,{0,0,1,1},&e)&&d==0x780f,"half"))return false;if(!E(x.Load(b.data(),b.size(),true,&e)&&x.source_rgba(),"rgba source"))return false;d=0x001f;if(!E(x.Draw(&d,1,1,1,0,0,true,{0,0,1,1},&e)&&d==0x001f,"RGBA bypasses HalfAlpha"))return false;return E(!x.Draw(&d,1,1,1,0,0,false,{1,0,0,1},&e),"bad clip");}}int main(){if(!T())return 1;std::puts("SIMPLE BITMAP CPU PASS");return 0;}
