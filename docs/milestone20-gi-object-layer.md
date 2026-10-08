@@ -25,10 +25,12 @@ Switch-диагностика открывает `DATA/common.pkg`, выбира
 проверяет загрузку, переход кадра, порядок слоя, точный полупрозрачный RGB565
 пиксель `0x03ef`, visibility и детерминированный fingerprint. На Windows/MSYS
 цель компилирует только нужные CPU-модули OKGF, поэтому ей не требуется JPEG
-host SDK. ARM64 NRO успешно собран локально. GitHub Actions `37750429898`
-прошёл M20 host-регрессию и отдельный symbol-audit. Switch hardware evidence
-пока отсутствует: M20 не следует считать complete до 30–60 секунд показа,
-`PLUS`, ненулевых frames/presents и `[BOOT] COMPLETE` на физическом Switch.
+host SDK. ARM64 NRO успешно собран локально. GitHub Actions `37753205358`
+прошёл M20 host-регрессию и отдельный symbol-audit. Hash-bound Switch NRO
+`73340fc` (SHA-256 `0F7B909287B28B4D6DD7CE3617DF73E869907ED9F328F9E6A71AF81970523243`)
+запустил три реальных `DATA/Asteroid/*.gai`, сохранил alpha/layer, прошёл M20
+и M17, выполнил 3,824 presents за 172,463 ms, затем `PLUS` и `[BOOT] COMPLETE`.
+M20 COMPLETE.
 
 ## Граница M21 AlphaBitmap
 
