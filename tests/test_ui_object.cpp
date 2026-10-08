@@ -1,4 +1,5 @@
 #include "ui_object.hpp"
+#include "ui_tree_fingerprint.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -87,6 +88,8 @@ void TestNamesAndCycleGuard() {
   Check(root->FindByNameRecursive("target") == second, "name follows depth child order");
   std::string error;
   Check(!first->Reparent(nested, &error), "descendant reparent rejected");
+  srhd_awa::platform::ui_fingerprint::Value fingerprint{};
+  Check(srhd_awa::platform::ui_fingerprint::ComputeTree(*root, &fingerprint, &error) && fingerprint.bytes > 0 && fingerprint.crc32 != 0 && fingerprint.fnv64 != 0, "tree fingerprint");
 }
 }  // namespace
 
