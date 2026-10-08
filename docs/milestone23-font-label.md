@@ -96,16 +96,29 @@ frame hashes, then overlays the prepared Label during the existing dynamic
 M12/M17/M20/M21/M22 loop. The M21/M22 first-frame oracle is checked before
 that overlay.
 
-At this writing the local M23 host regression and real release probes pass.
-Terminal CI, retained-gate completion, clean ARM64 build, symbol audit and RC
-NRO provenance are still pending. This document will record their run IDs and
-artifact hashes when they exist.
+The local M23 host regression, synthetic Python oracle, all 17 release-font
+Python/C++ comparisons and the real Russian Label Python/C++ oracle pass.
+GitHub Actions `package-host` run
+[`37803515979`](https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/37803515979)
+finished `success` on M23 RC commit
+`19eb6a5414e8ca59df3439fe484bb4ce59f0822e`. It passed the retained
+M12–M22 regressions, M23 host regression, independent Python oracle, release
+probe self-tests and separate M23 portable-object symbol audit.
+
+After terminal CI PASS, a clean local ARM64 build produced an ELF64 AArch64
+position-independent executable with **zero undefined symbols**. All six new
+M23 production objects (`aft_font`, `font_renderer`, `font_repository`,
+`font_cache_resolver`, `tagged_text`, `ui_label`) passed the forbidden-symbol
+audit. The hardware-ready RC is `Space Rangers HD - A War Apart.nro`,
+7,641,392 bytes, SHA-256
+`877F15D0B6187B033490815FBBC21229983AA9040FAE27B2F395995C528A2792`,
+with embedded `build_git=19eb6a5`. This exact NRO was not deployed or run on
+Switch.
 
 ## Hardware validation
 
-**PENDING — Switch unavailable.** M23 will remain `SOFTWARE COMPLETE /
-HARDWARE PENDING` only after all software, CI, ARM64 and RC gates pass. It
-must not be marked `COMPLETE` until a future hash-bound M23 or cumulative NRO
+**PENDING — Switch unavailable.** M23 is **SOFTWARE COMPLETE / HARDWARE
+PENDING**. It must not be marked `COMPLETE` until a future hash-bound M23 or cumulative NRO
 matches font/tree/frame checkpoints on physical Switch, continues the dynamic
 loop, exits with `PLUS`, and reaches `[BOOT] COMPLETE`. No deployment is part
 of this phase.

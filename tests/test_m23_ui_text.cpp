@@ -14,6 +14,7 @@
 #include <cstring>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -176,6 +177,15 @@ void CheckRealLabel(const std::string& game_root) {
         font->centering_height() == 11 && font->above_baseline() == 16 &&
         font->below_baseline() == 2 && font->max_glyph_advance() == 16,
         "Python real AFT metrics oracle");
+  for (const std::u16string_view text : {u"Привет", u"Космические рейнджеры",
+                                       u"Ёжик", u"Торговый центр"}) {
+    for (const auto code : text) Check(font->Find(code) != nullptr, "real Cyrillic corpus glyph");
+    srhd_awa::platform::tagged_text::Bounds corpus_bounds{};
+    Check(srhd_awa::platform::tagged_text::MeasureTaggedTextBounds(*font, text,
+                                                                   &corpus_bounds, nullptr, &error),
+          error.c_str());
+    Check(corpus_bounds.right > corpus_bounds.left, "real Cyrillic corpus measure");
+  }
   UiTree tree; auto* root = tree.Root(); root->SetName("m23-root"); root->SetSize({1024, 60});
   auto* label = AddLabel(root, "WinText", font, {0, 10}, {1024, 40}, 8,
                          u"\u0412 \u044b  \u043f \u043e \u0431 \u0435 \u0434 \u0438 \u043b \u0438 !",

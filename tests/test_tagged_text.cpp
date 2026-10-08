@@ -55,10 +55,17 @@ int main() {
   assert(lines.size() >= 2);
   assert(tagged_text::WrapTaggedTextIntoLines(font, u"ABC", 2, &lines, &error));
   assert(!lines.empty() && lines.size() <= 3);
+  assert(tagged_text::WrapTaggedTextIntoLines(font, u"<color=255,0,0>AB</color>", 5,
+                                             &lines, &error));
+  assert(lines.size() == 2 && lines[0] == u"<color=255,0,0>A" &&
+         lines[1] == u"B</color>");
   std::array<std::uint16_t, 32 * 8> pixels{};
   font_renderer::Target target{pixels.data(), 32, 8, 32, {0, 0, 32, 8}};
   assert(tagged_text::DrawJustifiedTaggedText16(font, u"A B", {}, target, 0, 1, 24, &error));
   assert(pixels[32 + 19] != 0 && pixels[32 + 9] == 0);
+  pixels.fill(0);
+  assert(tagged_text::DrawJustifiedTaggedText16(font, u"A B C", {}, target, 0, 1, 31, &error));
+  assert(pixels[32 + 13] != 0 && pixels[32 + 26] != 0 && pixels[32 + 9] == 0);
   pixels.fill(0);
   assert(tagged_text::DrawJustifiedTaggedText16(font, u" A B", {}, target, 0, 1, 24, &error));
   assert(pixels[32 + 19] != 0 && pixels[32 + 9] == 0);

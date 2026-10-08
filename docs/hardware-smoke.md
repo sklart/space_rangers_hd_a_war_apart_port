@@ -134,3 +134,6 @@ font/tree/frame match, dynamic M17/M20/M21/M22/M23 evidence, nonzero M12
 frames and presents, `PLUS` exit and `[BOOT] COMPLETE`. A screenshot is useful
 for Cyrillic baseline and clipping inspection but is not a formal PASS gate.
 Current M23 hardware validation: **PENDING — Switch unavailable**.
+The M23 RC is `Space Rangers HD - A War Apart.nro`, 7,641,392 bytes,
+SHA-256 `877F15D0B6187B033490815FBBC21229983AA9040FAE27B2F395995C528A2792`,
+embedded `build_git=19eb6a5`. CI run `37803515979` and clean ARM64 passed.

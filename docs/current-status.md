@@ -1,14 +1,17 @@
-# Current status — M23 Portable AFT/Text/Label software validation
+# Current status — M23 SOFTWARE COMPLETE / HARDWARE PENDING
 
-M23 is in progress in a separate worktree. Synthetic AFT/tagged-text/Label
+M23 software is complete in a separate worktree. Synthetic AFT/tagged-text/Label
 host gates, the independent mixed-tree Python oracle and the Russian real
 `Font.2Intro` Label oracle pass locally. All 17 release AFT resources validate
 with 3,831 glyphs and zero duplicate codepoints. The selected real Label's
 fixed tree and RGB565 frame fingerprints are known before Switch access:
 `ef3ef436`/`6022c76fb3cb9306` and `b36cfe2f`/`6b916c3b29d2a194`.
 The runtime stage now compares these values before the M12 dynamic loop.
-Terminal CI, retained gates, clean ARM64, symbol audit and the hash-bound RC
-NRO are pending. **M23 hardware validation is PENDING**; M23 is not COMPLETE.
+GitHub Actions run `37803515979` passed M12–M23, the Python oracle and M23
+symbol audit. Clean ARM64 produced ELF64 AArch64 with zero undefined symbols.
+The RC NRO embeds `build_git=19eb6a5`, is 7,641,392 bytes, and has SHA-256
+`877F15D0B6187B033490815FBBC21229983AA9040FAE27B2F395995C528A2792`.
+**M23 hardware validation is PENDING**; M23 is not COMPLETE.
 See [the M23 evidence document](milestone23-font-label.md).
 
 M20 remains complete. M21 is **COMPLETE**: the CPU foundation, release-config
