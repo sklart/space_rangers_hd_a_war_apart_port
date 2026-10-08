@@ -4,9 +4,13 @@
 #include "scene_compositor.hpp"
 #include "ui_object.hpp"
 #include "ui_config.hpp"
+#include "ui_cache_resolver.hpp"
+#include "ui_gai.hpp"
 #include "ui_tree_fingerprint.hpp"
 #include "ui_tree_renderer.hpp"
 #include "units/EC_BlockPar.hpp"
+#include "units/EC_Data.hpp"
+#include "units/GR_Main.hpp"
 #include "units/aPacket.hpp"
 
 #include <array>
@@ -30,27 +34,6 @@ EC_BlockPar::TBlockParEC* Child(EC_BlockPar::TBlockParEC* parent,
   }
   return nullptr;
 }
-class ReleaseResolver final : public ui_config::IUiResourceResolver {
- public:
-  explicit ReleaseResolver(srhd_awa::package::Package* package) : package_(package) {}
-  bool LoadImage(ui::UiImageLeaf* leaf, image_object::Kind kind,
-                 const std::string& resource, const std::string& option,
-                 std::string* error) override {
-    if (!leaf || kind != image_object::Kind::GI || !option.empty()) return false;
-    std::string path;
-    if (resource == "Bm.FormLoad2.2BarLeft") path = "DATA/FormLoad2/2BarLeft.gi";
-    else if (resource == "Bm.FormLoad2.2BarCenter") path = "DATA/FormLoad2/2BarCenter.gi";
-    else if (resource == "Bm.FormLoad2.2BarRight") path = "DATA/FormLoad2/2BarRight.gi";
-    else { if (error) *error = "unexpected Main.dat GI resource: " + resource; return false; }
-    const auto* entry = package_->Resolve(path);
-    if (!entry) { if (error) *error = "missing package resource: " + path; return false; }
-    std::vector<std::uint8_t> bytes;
-    return package_->ReadPayload(*entry, &bytes, error) &&
-           leaf->LoadBytes(kind, bytes.data(), bytes.size(), resource, option, error);
-  }
- private:
-  srhd_awa::package::Package* package_{};
-};
 }
 
 int main(int argc, char** argv) {
@@ -59,6 +42,10 @@ int main(int argc, char** argv) {
   std::fprintf(stderr, "M25 REAL UI: init\n");
   srhd_awa::platform::ec_file::SetGameRoot(argv[1]);
   Check(aPacket::InitializePackageCollection(), "package collection initialization");
+  GR_Main::InstallConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
+  GR_Main::InstallConfig->LoadFromTextFileWithEncodingProbe(const_cast<char16_t*>(u"install.txt"), false);
+  GR_Main::SelectedLanguage = u"russian"_w;
+  GR_Main::LoadLanguageAndPackages();
   std::fprintf(stderr, "M25 REAL UI: load Main.dat\n");
   auto* config = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
   try { config->LoadFromEncryptedDatFile(u"CFG/Main.dat"); }
@@ -78,10 +65,10 @@ int main(int argc, char** argv) {
   }
   Check(selected->CountParams(u"Name") == 1 && selected->GetParam(u"Name") == u"PLBar",
         "selected Main.dat subtree changed");
-  srhd_awa::package::Package package;
-  std::fprintf(stderr, "M25 REAL UI: package\n");
-  Check(package.Open(std::string(argv[1]) + "/DATA/forms.pkg", &error), error);
-  ReleaseResolver resolver(&package);
+  std::fprintf(stderr, "M25 REAL UI: CacheData.dat\n");
+  auto* cache_data = pas::construct_call<EC_Data::TDataEC>(EC_Data::TDataEC_Create);
+  cache_data->LoadFromEncryptedDatFile(u"CFG/CacheData.dat");
+  ui_cache_resolver::CacheUiResourceResolver resolver(cache_data);
   ui::UiTree tree;
   tree.SetRootSize({321, 37});
   auto panel = std::make_unique<ui::UiPanel>();
@@ -114,7 +101,20 @@ int main(int argc, char** argv) {
         "independent Python tree oracle mismatch");
   Check(frame_hash.crc32 == 0x9cec8dc2u && frame_hash.fnv64 == 0x39c2ccfd0deb5fbbull,
         "independent Python RGB565 oracle mismatch");
+  ui::UiGaiLeaf gai;
+  Check(resolver.LoadGai(&gai, "Bm.PI.PathEndMove", &error) &&
+        gai.SelectEmbeddedSequence(0, &error), error);
+  std::array<std::uint16_t, 32 * 32> gai_pixels{};
+  const scene_compositor::Framebuffer gai_frame{gai_pixels.data(), 32, 32, 32};
+  ui_fingerprint::Value gai_hash{};
+  Check(gai.Render(gai_frame, {0, 0, 32, 32}, &error) &&
+        ui_fingerprint::ComputeFramebuffer(gai_frame, &gai_hash, &error), error);
+  Check(gai_hash.crc32 == 0x71b457cdu && gai_hash.fnv64 == 0xd75029d766f2bdedull,
+        "CacheData GAI frame differs from Python oracle");
   pas::free(config);
+  pas::free(cache_data);
+  pas::free(GR_Main::InstallConfig);
+  pas::free(GR_Main::LanguageInstallConfig);
   aPacket::FinalizePackageCollection();
   std::puts("M25 REAL UI PASS");
 }

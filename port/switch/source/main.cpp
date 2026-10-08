@@ -24,6 +24,7 @@
 #include "ui_tree_renderer.hpp"
 #include "ui_tree_fingerprint.hpp"
 #include "ui_config.hpp"
+#include "ui_cache_resolver.hpp"
 #include "ui_label.hpp"
 #include "ui_gai.hpp"
 #include "ui_graph_button.hpp"
@@ -849,39 +850,25 @@ bool InitializeM23Text(M23TextDiagnostic* diagnostic, std::string* error) {
   return true;
 }
 
-class M25ReleaseResolver final : public srhd_awa::platform::ui_config::IUiResourceResolver {
- public:
-  explicit M25ReleaseResolver(srhd_awa::package::Package* package) : package_(package) {}
-  bool LoadImage(srhd_awa::platform::ui::UiImageLeaf* leaf,
-                 srhd_awa::platform::image_object::Kind kind, const std::string& key,
-                 const std::string& option, std::string* error) override {
-    if (!leaf || kind != srhd_awa::platform::image_object::Kind::GI || !option.empty()) {
-      if (error) *error = "M25 selected subtree contains an unexpected image kind";
+bool VerifyM25RawSources(srhd_awa::package::Package* forms, std::string* error) {
+  struct Asset { const char* path; std::size_t size; std::uint32_t crc; std::uint64_t fnv; };
+  constexpr Asset assets[] = {
+      {"DATA/FormLoad2/2BarLeft.gi", 3147, 0x2c4ef025u, UINT64_C(0x8c50d78299733f7d)},
+      {"DATA/FormLoad2/2BarCenter.gi", 2976, 0x19267238u, UINT64_C(0xdebceda99798e0e0)},
+      {"DATA/FormLoad2/2BarRight.gi", 3147, 0xacd0cc19u, UINT64_C(0xd2e03950066b6825)}};
+  for (const auto& asset : assets) {
+    const auto* entry = forms->Resolve(asset.path);
+    std::vector<std::uint8_t> bytes;
+    if (!entry || !forms->ReadPayload(*entry, &bytes, error)) return false;
+    if (bytes.size() != asset.size ||
+        CrcUnit::ComputeCrc32(bytes.data(), static_cast<std::int32_t>(bytes.size())) != asset.crc ||
+        M17Fnv(bytes.data(), bytes.size()) != asset.fnv) {
+      if (error) *error = "M25 raw GI source differs from Python oracle";
       return false;
     }
-    struct Asset { const char* key; const char* path; std::size_t size; std::uint32_t crc; std::uint64_t fnv; };
-    constexpr Asset assets[] = {
-        {"Bm.FormLoad2.2BarLeft", "DATA/FormLoad2/2BarLeft.gi", 3147, 0x2c4ef025u, UINT64_C(0x8c50d78299733f7d)},
-        {"Bm.FormLoad2.2BarCenter", "DATA/FormLoad2/2BarCenter.gi", 2976, 0x19267238u, UINT64_C(0xdebceda99798e0e0)},
-        {"Bm.FormLoad2.2BarRight", "DATA/FormLoad2/2BarRight.gi", 3147, 0xacd0cc19u, UINT64_C(0xd2e03950066b6825)}};
-    for (const auto& asset : assets) if (key == asset.key) {
-      const auto* entry = package_->Resolve(asset.path);
-      std::vector<std::uint8_t> bytes;
-      if (!entry || !package_->ReadPayload(*entry, &bytes, error)) return false;
-      if (bytes.size() != asset.size ||
-          CrcUnit::ComputeCrc32(bytes.data(), static_cast<std::int32_t>(bytes.size())) != asset.crc ||
-          M17Fnv(bytes.data(), bytes.size()) != asset.fnv) {
-        if (error) *error = "M25 raw GI source differs from release oracle";
-        return false;
-      }
-      return leaf->LoadBytes(kind, bytes.data(), bytes.size(), key, option, error);
-    }
-    if (error) *error = "M25 selected subtree GI key is unknown";
-    return false;
   }
- private:
-  srhd_awa::package::Package* package_{};
-};
+  return true;
+}
 
 struct M25ReleaseDiagnostic {
   srhd_awa::package::Package forms, common;
@@ -987,8 +974,9 @@ bool InitializeM25Release(const char* game_root, std::int32_t screen_width,
   }
   if (!diagnostic->forms.Open((std::filesystem::path(game_root) / "DATA/forms.pkg").string(), error) ||
       !diagnostic->common.Open((std::filesystem::path(game_root) / "DATA/common.pkg").string(), error)) return false;
+  if (!VerifyM25RawSources(&diagnostic->forms, error)) return false;
   if (!VerifyM25ReleaseControls(&diagnostic->forms, error)) return false;
-  M25ReleaseResolver resolver(&diagnostic->forms);
+  srhd_awa::platform::ui_cache_resolver::CacheUiResourceResolver resolver(GR_Main::CacheDataRoot);
   srhd_awa::platform::ui_config::Context context{};
   context.resources = &resolver;
   context.styles = GR_Main::UiStyleConfig;
