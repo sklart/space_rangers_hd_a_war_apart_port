@@ -91,6 +91,15 @@ void TestNamesAndCycleGuard() {
   srhd_awa::platform::ui_fingerprint::Value fingerprint{};
   Check(srhd_awa::platform::ui_fingerprint::ComputeTree(*root, &fingerprint, &error) && fingerprint.bytes > 0 && fingerprint.crc32 != 0 && fingerprint.fnv64 != 0, "tree fingerprint");
 }
+
+void TestOracleFixture() {
+  UiTree tree; auto* root = tree.Root(); root->SetName("root"); root->SetSize({4, 3});
+  auto* old = root->AddObject(); old->SetName("old"); old->SetPosition({1, 0}); old->SetSize({1, 1}); old->SetDepth(5.0);
+  auto* newer = root->AddObject(); newer->SetName("new"); newer->SetPosition({2, 0}); newer->SetSize({1, 1}); newer->SetDepth(5.0);
+  std::string error; srhd_awa::platform::ui_fingerprint::Value fingerprint{};
+  Check(root->Children().at(0).get() == newer && srhd_awa::platform::ui_fingerprint::ComputeTree(*root, &fingerprint, &error), "oracle fixture tree");
+  Check(fingerprint.crc32 == 0x9dc4ec99u && fingerprint.fnv64 == 0x90e44c6a95e84c93ull && fingerprint.bytes == 178, "Python oracle tree fingerprint");
+}
 }  // namespace
 
 int main() {
@@ -98,5 +107,6 @@ int main() {
   TestGeometryAndState();
   TestPanelScrollAndInvalidation();
   TestNamesAndCycleGuard();
+  TestOracleFixture();
   std::cout << "UI OBJECT TEST PASS\n";
 }

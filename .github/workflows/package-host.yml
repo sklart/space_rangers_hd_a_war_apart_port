@@ -128,6 +128,9 @@ jobs:
       - name: Run M22 Portable UI Object/Layout Foundation regression
         run: make -C port/switch host-m22-ui-regression
 
+      - name: Run M22 UI tree structural oracle
+        run: python3 tests/probe_m22_ui_tree.py
+
       - name: Run M21 mixed presentation-scene oracle
         run: python3 tests/probe_m21_presentation_scene.py
 
