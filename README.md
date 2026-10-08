@@ -21,7 +21,7 @@
 | M15 portable GAI container + one Format-0 frame | release baseline + CI + ARM64 build + Switch hardware PASS; M15 COMPLETE |
 | M16 portable GAI Format-2 decode | host/CI/ARM64/Switch hardware PASS; M16 COMPLETE |
 | M17 portable GAI sequence playback | host/CI/ARM64/Switch hardware PASS; one `Flags == 0` cycle matches oracle; M17 COMPLETE |
-| M18 portable software compositor | host PASS, ARM64 build PASS; CI и Switch hardware proof pending |
+| M18 portable software compositor | host/CI/ARM64 PASS; Switch hardware proof pending |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
