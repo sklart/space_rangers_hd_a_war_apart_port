@@ -5,8 +5,10 @@ import argparse
 import json
 import pathlib
 import struct
+import sys
 import zlib
 
+sys.path.insert(0, str(pathlib.Path(__file__.replace("\\", "/")).resolve().parent))
 from probe_gai_release import decode2, entries, fp, frame, gai, payload, u32
 
 FNV_OFFSET, FNV_PRIME = 0xCBF29CE484222325, 0x100000001B3
