@@ -99,9 +99,16 @@ Disable state resources; its normal/hover/down framebuffer CRC32/FNV64 are
 `1c585c8f/7f23dbb7c1d8df15`, `1a6eae32/46793341f42dd912` and
 `663cb736/c45ecedf7f592470`. The release Window candidate is inactive in
 Main.dat; its separately forced-active nine-GI border oracle is
-`87e5a68f/8020187c43bbcc26`. Both tests exercise the M24 controls on actual
-release resources, without claiming active Window appearance in the original
-scene.
+`87e5a68f/8020187c43bbcc26`. The release-backed factory test additionally
+resolves nested `Style.GB.SoundNormal` and `Style.Window.2Simple` paths,
+constructs `F1` and the isolated `InfoPanel` border through CacheData keys,
+and matches those same independent frame hashes. It reads real
+`MVUpdate=True`, `MouseBlocking=True`, `MouseBlockingTest=False` on `F1`,
+`MouseBlocking=False` on `InfoPanel`, and localized `Help.ButAI` on `ButAuto`;
+removing Help from a copied config leaves the rendered frame unchanged.
+The original InfoPanel remains inactive and its GraphBuf child remains
+unsupported; the forced-active border proof does not claim original-scene
+appearance.
 
 ## Validation boundary
 
@@ -113,12 +120,12 @@ Direct3D, Forms and SoundManager symbols. A clean ARM64 build and physical
 Switch M23/M24/M25 cumulative checkpoint require separate evidence; host and
 CI results alone do not grant hardware PASS.
 The local retained host run and all three release tests pass. CI run
-`37848525417` passed for production commit `87bef36`, including the M25
+`37851721838` passed for production commit `e2334a4`, including the M25
 portable object symbol audit. The subsequent clean ARM64 build produced an
 ELF64 AArch64 executable with zero undefined symbols and an NRO of 7,727,408
 bytes, SHA-256
-`282A5355E8B3DB43DF36597D2074EE196FE3F41EEF405D600513DA0A2D53596E`,
-embedded `build_git=87bef36`; the six new M25 objects have zero forbidden
+`F9D1E7A5C91DFA24433A0BD1AEB69009BD393CD864EE21C4FB177701D46989CC`,
+embedded `build_git=e2334a4`; the six new M25 objects have zero forbidden
 symbol matches. The M25 runtime stage additionally requires an observed GAI
 source-frame transition during the live UI tree update; the pre-loop frame-1
 oracle alone cannot satisfy that gate. A physical Switch run, SD transfer
@@ -130,7 +137,12 @@ source/destination SHA-256. No physical SD transfer is inferred from this test.
 The next subtree unlock should be chosen from the measured blockers. Current
 roots include GraphBuf 65, PanelScrollBar 43, Edit 24 and Image 104; Image
 must first be split by actual unsupported mode/resource before selecting M26.
-GraphBuf is the current M26 recommendation because it is one missing control
-type at 65 blocked roots, versus a two-control PanelScrollBar/ScrollBar path
-or an input-heavy Edit path. This is a recommendation from root counts, not
-a measured marginal candidate gain; M26 has not been started.
+An upper-bound what-if count over the recorded 267 structural panel/window
+roots finds 45 roots blocked only by `Image`, 19 only by `GAI`, 16 only by
+`Edit`, nine only by `GraphBuf`, and seven only by `PanelScrollBar`.
+The 45 `Image` roots involve unresolved/dynamic Simple or GI resources, not
+one missing image mode; GAI includes cumulative PBuf, while Edit requires the
+deferred input layer. GraphBuf remains the tentative M26 recommendation as a
+single reusable missing control type, but its nine-root figure is only a
+best-case upper bound and its CPU implementation cost is not yet measured.
+M26 has not been started.

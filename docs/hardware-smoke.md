@@ -2,10 +2,10 @@
 
 ## M25 cumulative checkpoint (pending physical run)
 
-The software-gated source is `87bef36`; the clean ARM64 NRO is 7,727,408
+The software-gated source is `e2334a4`; the clean ARM64 NRO is 7,727,408
 bytes, SHA-256
-`282A5355E8B3DB43DF36597D2074EE196FE3F41EEF405D600513DA0A2D53596E`,
-with embedded `build_git=87bef36`. CI run `37848525417` passed. No physical
+`F9D1E7A5C91DFA24433A0BD1AEB69009BD393CD864EE21C4FB177701D46989CC`,
+with embedded `build_git=e2334a4`. CI run `37851721838` passed. No physical
 SD destination hash or Switch log has been measured for M25 yet.
 
 After terminal M25 CI and a clean ARM64 build, record the NRO's local path,
