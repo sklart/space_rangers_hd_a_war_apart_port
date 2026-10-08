@@ -106,15 +106,14 @@ contains only its expected `Start` marker. The screenshot is supplementary
 visual evidence, not a required hardware criterion. CI `37770073920` had
 already passed before this one physical test.
 
-## M22 final Switch test — not yet run
+## Recorded M22 Switch result
 
-M22 has exactly one planned hardware run. Its prerequisites are now satisfied:
-terminal CI `37783935697`, clean ARM64 build/symbol audit and the 7,559,472-byte
-NRO with SHA-256 `ED08444B2B41056C214D8A809E4FA2A5B72C31E372844119191D68863FCC3716`
-and embedded `build_git=de807a7`. Do not substitute a screenshot or an earlier
-M21 log. The eventual log must contain `[STAGE] M22 UI object tree
-BEGIN`, node/panel/leaf counts, tree and fixed-frame fingerprints, depth/clip/
-scroll/active PASS lines, `[STAGE] M22 UI object tree PASS`, retained M12/M17
-evidence, a 60+ second duration, `PLUS` and `[BOOT] COMPLETE`. The user moves
-the NRO and game files; this repository workflow must not inspect removable
-media.
+**HARDWARE PASS.** The sole test used the 7,559,472-byte NRO with SHA-256
+`ED08444B2B41056C214D8A809E4FA2A5B72C31E372844119191D68863FCC3716` and
+embedded `build_git=de807a7`. It reported 10 nodes (4 panels, 3 image leaves,
+3 GI leaves), max depth 3, tree CRC32/FNV64 `caab2979`/`0e5557af167f16ec`
+(691 bytes), and first-frame CRC32/FNV64 `4f915772`/`52449ae8f8f56c6c`
+(1,843,200 bytes). The depth/clip/scroll/active oracle checks all passed.
+M17's first cycle took 5,039 ms; M12 presented 2,277 frames over 111,702 ms,
+then `PLUS` produced a clean shutdown and `[BOOT] COMPLETE`. `gr-main.log`
+contains only its expected `Start` marker. Screenshot evidence is not required.

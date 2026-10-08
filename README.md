@@ -2,7 +2,7 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Текущий аппаратный статус:** M14P–M21 проверены на Switch. M22 находится в разработке и ещё не тестировался на Switch. Это не означает готовность игры к прохождению: полный UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
+> **Текущий аппаратный статус:** M14P–M22 проверены на Switch. Это не означает готовность игры к прохождению: полный UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
 
 ## Что уже работает
 
@@ -25,7 +25,7 @@
 | M19 portable scene compositor | host/CI/ARM64/Switch hardware/Python oracle PASS; M19 COMPLETE |
 | M20 portable GI object layer | host/CI/ARM64/Switch hardware PASS; M20 COMPLETE |
 | M21 portable UI image foundation | host/CI/ARM64/Switch hardware PASS; real Simple oracle matches; Trans/Alpha release baselines are genuinely NOT PRESENT; M21 COMPLETE |
-| M22 portable UI object/layout foundation | host mixed-tree/Python oracle, CI `37783935697`, clean ARM64 and symbol audit PASS; hash-bound NRO ready; Switch ещё не выполнен |
+| M22 portable UI object/layout foundation | host mixed-tree/Python oracle, CI `37783935697`, clean ARM64, symbol audit и Switch hardware PASS; M22 COMPLETE |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
@@ -137,7 +137,7 @@ port/switch/Space Rangers HD - A War Apart.nro
 
 ## Границы подтверждённого аппаратного пути
 
-M7, M8, M9, M11, M12, M14P–M21 имеют hardware PASS. M13 завершён как metadata diagnostic и не требует отдельного hardware gate. M18 CPU-only композитит единственный decoded Format-2 BGRA кадр поверх M12 heartbeat в RGB565 framebuffer; screenshot подтвердил реальную видимость кадра. M14 direct upstream path остаётся заблокированным широким `GR_DX` fan-out, а M14R — Direct3D COM state в layout `TGraphBufGR`.
+M7, M8, M9, M11, M12, M14P–M22 имеют hardware PASS. M13 завершён как metadata diagnostic и не требует отдельного hardware gate. M18 CPU-only композитит единственный decoded Format-2 BGRA кадр поверх M12 heartbeat в RGB565 framebuffer; screenshot подтвердил реальную видимость кадра. M14 direct upstream path остаётся заблокированным широким `GR_DX` fan-out, а M14R — Direct3D COM state в layout `TGraphBufGR`.
 
 Последний аппаратно протестированный NRO (M21) имел размер 7 547 184 bytes, SHA-256 `6D387610DAD7DA57C1D9F21F00ABF84C67F9AA266421CF54C98567656C8FA3F1` и embedded `build_git=fc8adfc`. Он проверил real Simple `DATA/Planet/Spu00.png` (128×60), корректно зафиксировал отсутствие release Trans/Alpha без подстановки ресурсов и сопоставил integrated RGB565 scene с независимым oracle: `CRC32=4f915772`, `FNV64=52449ae8f8f56c6c`. M12 представил 3 824 кадра за 172 747 ms, вышел через `PLUS` и достиг `[BOOT] COMPLETE`; M17 также завершил полный цикл. CI `37770073920` успешно прошёл M21 regression и symbol audit. M21 COMPLETE.
 
@@ -178,7 +178,7 @@ M20 добавляет `host-gi-object-test` и отдельный symbol audit:
 - [M19 portable scene compositor](docs/milestone19-scene-compositor.md)
 - [M20 portable GI object layer](docs/milestone20-gi-object-layer.md)
 - [M21 portable UI image foundation](docs/milestone21-ui-image-foundation.md) — COMPLETE
-- [M22 portable UI object/layout foundation](docs/milestone22-ui-object-layout.md) — IN PROGRESS
+- [M22 portable UI object/layout foundation](docs/milestone22-ui-object-layout.md) — COMPLETE
 
 ## Лицензирование и обратная связь
 

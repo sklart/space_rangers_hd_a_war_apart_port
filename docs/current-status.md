@@ -1,4 +1,4 @@
-# Current status — M22 Portable UI Object/Layout Foundation in progress
+# Current status — M22 Portable UI Object/Layout Foundation complete
 
 M20 remains complete. M21 is **COMPLETE**: the CPU foundation, release-config
 inventory, independent Simple Python oracle and synthetic mixed M20/M21
@@ -10,15 +10,17 @@ COMPLETE`. Its actual M21 scene fingerprint matched the independent oracle:
 `CRC32=4f915772`, `FNV64=52449ae8f8f56c6c`. CI run `37770073920` passed the
 retained gates, M21 regression and M21 symbol audit.
 
-M22 is **IN PROGRESS**. Its portable object/layout core, config adapter,
+M22 is **COMPLETE**. Its portable object/layout core, config adapter,
 mixed C++/Python tree oracle, read-only release inventory and runtime `UiTree`
 integration exist. GitHub Actions run `37783935697` passed the retained suite,
 M22 regression, tree oracle and release-probe syntax check. A clean ARM64 build
 of `de807a7` produced ELF64/AArch64 with zero undefined symbols and zero
 forbidden-symbol hits across the new M22 objects. Its NRO is 7,559,472 bytes,
 SHA-256 `ED08444B2B41056C214D8A809E4FA2A5B72C31E372844119191D68863FCC3716`,
-with embedded `build_git=de807a7`. The sole Switch test remains pending; no M22
-hardware claim is made here.
+with embedded `build_git=de807a7`. The sole Switch test passed: tree and frame
+fingerprints matched, all depth/clip/scroll/active invariants passed, M17's first
+cycle took 5,039 ms, M12 ran 2,277 frames/presents over 111,702 ms, then `PLUS`
+led to `[BOOT] COMPLETE`; `gr-main.log` contains only `Start`.
 
 The synthetic presentation checkpoint uses one M20 GIObject plus M21 Simple,
 keyed Trans and partial-alpha Alpha in stable layer order. Its C++ and
