@@ -113,15 +113,17 @@ Direct3D, Forms and SoundManager symbols. A clean ARM64 build and physical
 Switch M23/M24/M25 cumulative checkpoint require separate evidence; host and
 CI results alone do not grant hardware PASS.
 The local retained host run and all three release tests pass. CI run
-`37845660034` passed for production commit `a68bd6f`, including the M25
+`37848525417` passed for production commit `87bef36`, including the M25
 portable object symbol audit. The subsequent clean ARM64 build produced an
 ELF64 AArch64 executable with zero undefined symbols and an NRO of 7,727,408
 bytes, SHA-256
-`A82869C315FAD2166F7587132356836109735B0C2F72D36698E7982719C4D2BA`,
-embedded `build_git=a68bd6f`; the six new M25 objects have zero forbidden
-symbol matches. A physical Switch run, SD transfer proof, and screenshot are
-still pending. The synthetic
-deployment regression also passes with a read-only licensed Rangers.exe
+`282A5355E8B3DB43DF36597D2074EE196FE3F41EEF405D600513DA0A2D53596E`,
+embedded `build_git=87bef36`; the six new M25 objects have zero forbidden
+symbol matches. The M25 runtime stage additionally requires an observed GAI
+source-frame transition during the live UI tree update; the pre-loop frame-1
+oracle alone cannot satisfy that gate. A physical Switch run, SD transfer
+proof, and screenshot are still pending. The synthetic deployment regression
+also passes with a read-only licensed Rangers.exe
 fixture and an isolated fake SD root; it checks the manifest and equal NRO
 source/destination SHA-256. No physical SD transfer is inferred from this test.
 

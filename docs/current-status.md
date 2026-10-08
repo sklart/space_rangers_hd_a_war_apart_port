@@ -6,7 +6,7 @@ M24 was fast-forwarded to `master` at
 and supported GAI UI path have local synthetic and release-backed host tests.
 The first real release subtree is the 18-node `PLBar` panel from Main.dat,
 with 17 real Format 2 GI leaves and independent tree/frame hashes. CI run
-`37845660034` passed for production commit `a68bd6f`; the clean ARM64 build
+`37848525417` passed for production commit `87bef36`; the clean ARM64 build
 produced an ELF64 AArch64 NRO with zero undefined symbols. A cumulative
 physical Switch run is still pending. The scope, inventory and limits are in
 [the M25 evidence document](milestone25-gi-gai-real-ui.md).
