@@ -11,7 +11,7 @@ BUILD := build
 SOURCES := source
 INCLUDES := include
 GAME_CPP_ROOT := ../../upstream/cpp
-BUILD_GIT_COMMIT := $(shell git -C ../.. rev-parse --short HEAD)
+BUILD_GIT_HEADER := $(BUILD)/build_git_commit.hpp
 HOST_EC_PATCH_FILE := $(abspath platform/msys-runtime-text.patch)
 GR_MAIN_PORTABLE_PATCH_FILE := $(abspath platform/gr_main_portable.patch)
 GR_MAIN_ZLIB_PORTABLE_PATCH_FILE := $(abspath platform/gr_main_zlib_portable.patch)
@@ -35,11 +35,11 @@ NRO_OUTPUT := Space\ Rangers\ HD\ -\ A\ War\ Apart.nro
 ICON_VALIDATOR := ../../tools/validate-switch-icon.py
 PYTHON ?= python3
 
-INCLUDE := -I$(LIBNX)/include -I$(PORTLIBS)/include -I$(INCLUDES) -Iplatform -I$(GAME_CPP_ROOT)/src -I$(GAME_CPP_ROOT)/runtime -I../../upstream/okgf/include
+INCLUDE := -I$(LIBNX)/include -I$(PORTLIBS)/include -I$(BUILD) -I$(INCLUDES) -Iplatform -I$(GAME_CPP_ROOT)/src -I$(GAME_CPP_ROOT)/runtime -I../../upstream/okgf/include
 LIBDIRS := -L$(LIBNX)/lib -L$(PORTLIBS)/lib
 ARCH := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 CFLAGS := -g -O2 -Wall -Wextra $(ARCH) -ffunction-sections -fdata-sections $(INCLUDE) -D__SWITCH__
-CXXFLAGS := $(CFLAGS) -std=gnu++20 -DSRHD_PORTABLE_RUNTIME_SLICE -DBUILD_GIT_COMMIT=\"$(BUILD_GIT_COMMIT)\"
+CXXFLAGS := $(CFLAGS) -std=gnu++20 -DSRHD_PORTABLE_RUNTIME_SLICE
 LDFLAGS := -specs=$(LIBNX)/switch.specs -g $(ARCH) -Wl,-Map,$(BUILD)/$(TARGET).map -Wl,--gc-sections
 OKGF_LIB := $(BUILD)/okgf/libokgf.a
 OKGF_SOFTFLOAT_LIB := $(BUILD)/okgf/vendor/softfloat/libokgf_softfloat.a
@@ -51,11 +51,18 @@ PLATFORM_CPPFILES := $(wildcard platform/*.cpp)
 PLATFORM_OFILES := $(PLATFORM_CPPFILES:platform/%.cpp=$(BUILD)/platform_%.o)
 GAME_OFILES := $(BUILD)/CrcUnit.o $(BUILD)/System.o $(BUILD)/SystemImports.o $(BUILD)/BlockParException.o $(BUILD)/GI_Main.o $(BUILD)/GlobalsV.o $(BUILD)/aMyFunction.o $(BUILD)/EC_File.o $(BUILD)/EC_Struct.o $(BUILD)/EC_Buf.o $(BUILD)/EC_Cache.o $(BUILD)/EC_CacheBitmap.o $(BUILD)/EC_BlockPar.o $(BUILD)/EC_Data.o $(BUILD)/EC_Str.o $(BUILD)/EC_Mem.o $(BUILD)/aPacket.o $(BUILD)/MessageText.o $(BUILD)/GR_GraphBuf.o $(BUILD)/GR_Main.o $(BUILD)/runtime.o
 
-.PHONY: all clean host-package-test host-package-cycle-test host-ec-file-test host-ec-file-synthetic-test host-blockpar-synthetic-test host-dat-config-test host-global-cache-synthetic-test host-configured-package-test host-gr-main-no-mod-test host-gr-main-config-test host-gr-main-release-config-test host-platform-startup-test host-renderer-software-test host-user-writable-test host-runtime-config-slice-test host-milestone4-regression host-milestone5-regression host-milestone6-regression host-milestone7-regression host-milestone8-regression host-milestone9-regression host-runtime-loop-test host-milestone12-regression host-bitmap-cache-test host-bitmap-cache-release-test host-milestone13-regression host-gi-format0-cpu-test host-gi-format0-release-test host-gai-cpu-test host-gai-sequence-cpu-test host-gi-format2-cpu-test host-gai-playback-cpu-test host-milestone17-regression host-software-compositor-test host-milestone18-regression host-scene-compositor-test host-milestone19-regression host-gi-object-test host-milestone20-regression
+.PHONY: all clean FORCE host-package-test host-package-cycle-test host-ec-file-test host-ec-file-synthetic-test host-blockpar-synthetic-test host-dat-config-test host-global-cache-synthetic-test host-configured-package-test host-gr-main-no-mod-test host-gr-main-config-test host-gr-main-release-config-test host-platform-startup-test host-renderer-software-test host-user-writable-test host-runtime-config-slice-test host-milestone4-regression host-milestone5-regression host-milestone6-regression host-milestone7-regression host-milestone8-regression host-milestone9-regression host-runtime-loop-test host-milestone12-regression host-bitmap-cache-test host-bitmap-cache-release-test host-milestone13-regression host-gi-format0-cpu-test host-gi-format0-release-test host-gai-cpu-test host-gai-sequence-cpu-test host-gi-format2-cpu-test host-gai-playback-cpu-test host-milestone17-regression host-software-compositor-test host-milestone18-regression host-scene-compositor-test host-milestone19-regression host-gi-object-test host-milestone20-regression
 all: $(NRO_OUTPUT)
 
 $(BUILD):
 	mkdir -p $(BUILD)
+
+FORCE:
+
+$(BUILD_GIT_HEADER): FORCE | $(BUILD)
+	@commit="$$(git -C ../.. rev-parse --short HEAD)"; { printf '%s\n' '#pragma once'; printf '#define SRHD_BUILD_GIT_COMMIT "%s"\n' "$$commit"; } > $@.tmp; if test -f $@ && cmp -s $@.tmp $@; then rm -f $@.tmp; else mv $@.tmp $@; fi
+
+$(BUILD)/main.o: $(BUILD_GIT_HEADER)
 
 $(BUILD)/%.o: $(SOURCES)/%.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
