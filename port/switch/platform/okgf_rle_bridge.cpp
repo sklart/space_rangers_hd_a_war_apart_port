@@ -20,6 +20,11 @@ std::int32_t BuildAlphaBufFromBgra(const void* source, std::int32_t pitch,
                                    std::int32_t width, std::int32_t height, void* destination) {
   return OKGR_AlphaBuf_BuildFromRGBA(source, pitch, width, height, destination);
 }
+std::int32_t BuildTransBufWord(const void* source, std::int32_t pitch,
+                               std::int32_t width, std::int32_t height, void* destination,
+                               std::uint16_t transparent) {
+  return OKGR_TransBuf_Build_WORD(source, pitch, width, height, destination, transparent);
+}
 
 void DrawAlphaBufRgba(void* destination, std::int32_t pitch, const void* source) {
   OKGR_AlphaBuf_Draw_RGBA(destination, pitch, static_cast<const OkgfRleHeader*>(source));
@@ -46,6 +51,12 @@ void DrawTransBuf565Clip(void* destination, std::int32_t pitch, std::int32_t x, 
                          const void* source, const Rect& clip) {
   const auto native = ToOkgfRect(clip);
   OKGR_TransBuf_DrawClip_WORD(destination, pitch, x, y,
+                               static_cast<const OkgfRleHeader*>(source), &native);
+}
+void DrawTransBufHalf565Clip(void* destination, std::int32_t pitch, std::int32_t x, std::int32_t y,
+                             const void* source, const Rect& clip) {
+  const auto native = ToOkgfRect(clip);
+  OKGR_TransBuf_HADrawClip_16(destination, pitch, x, y,
                                static_cast<const OkgfRleHeader*>(source), &native);
 }
 
