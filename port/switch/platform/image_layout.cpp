@@ -1,0 +1,8 @@
+#include "image_layout.hpp"
+#include <limits>
+namespace srhd_awa::platform::image_layout { namespace {
+bool Good(const okgf_rle_bridge::Rect&r){return r.right>=r.left&&r.bottom>=r.top;}
+bool AxisX(const okgf_rle_bridge::Rect&b,const okgf_rle_bridge::Rect&c,std::int32_t n,XMode m,std::int32_t*first,std::int32_t*end){if(m==XMode::CenterFill)return false;if(m==XMode::LeftFill){*first=b.left;*end=b.right;}else if(m==XMode::RightFill){*end=b.right;*first=*end;while(*first>c.left)*first-=n;}else if(m==XMode::Left){*first=b.left;*end=*first+n;}else if(m==XMode::Right){*end=b.right;*first=*end-n;}else{*first=(b.right-b.left)/2+b.left-n/2;*end=*first+n;}return true;}
+bool AxisY(const okgf_rle_bridge::Rect&b,const okgf_rle_bridge::Rect&c,std::int32_t n,YMode m,std::int32_t*first,std::int32_t*end){if(m==YMode::CenterFill)return false;if(m==YMode::TopFill){*first=b.top;*end=b.bottom;}else if(m==YMode::BottomFill){*end=b.bottom;*first=*end;while(*first>c.top)*first-=n;}else if(m==YMode::Top){*first=b.top;*end=*first+n;}else if(m==YMode::Bottom){*end=b.bottom;*first=*end-n;}else{*first=(b.bottom-b.top)/2+b.top-n/2;*end=*first+n;}return true;}
+}}
+namespace srhd_awa::platform::image_layout {Plan MakePlan(const okgf_rle_bridge::Rect&b,const okgf_rle_bridge::Rect&c,std::int32_t w,std::int32_t h,XMode xm,YMode ym){Plan p{};if(!Good(b)||!Good(c)||w<=0||h<=0)return p;if(!AxisX(b,c,w,xm,&p.first_x,&p.end_x)||!AxisY(b,c,h,ym,&p.first_y,&p.end_y))return p;p.supported=true;p.step_x=w;p.step_y=h;for(std::int32_t y=p.first_y;y<p.end_y;y+=h)for(std::int32_t x=p.first_x;x<p.end_x;x+=w)p.tiles.push_back({x,y});return p;}}
