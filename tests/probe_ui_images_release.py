@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Read-only M21 inventory for image references in SRHD DAT containers."""
 from __future__ import annotations
-import argparse, json, pathlib, struct, zlib
+import argparse, json, pathlib, re, struct, zlib
 from collections import Counter
 
 RECORD=158
+BLOCK_DAT_SEED_KEY=0xb1e8c689
 def u32(b, at=0): return struct.unpack_from('<I', b, at)[0]
 def text(b): return b.split(b'\0',1)[0].decode('cp1251','replace')
 def entries(blob):
@@ -46,18 +47,62 @@ def classify(line):
     for name in ('graphbuf','anim','gai','alpha','trans','simple'):
         if name in lower: return name.title() if name!='gai' else 'GAI'
     return None
+def dat_xor(data, seed):
+    out=bytearray(data); state=seed
+    for i in range(len(out)):
+        state=16807*(state%127773)-2836*(state//127773)
+        if state<=0: state+=2147483647
+        out[i]^=(state-1)&0xff
+    return bytes(out)
+
+def decode_dat(path):
+    blob=path.read_bytes()
+    if len(blob)<16: raise ValueError('DAT header is truncated')
+    byte_count=u32(blob)^0x7db6c99d^0xc83fcbf3
+    if byte_count!=len(blob)-8: raise ValueError('DAT byte count mismatch')
+    expected=u32(blob,8); seed=u32(blob,12)^BLOCK_DAT_SEED_KEY
+    if seed>=0x80000000: seed-=0x100000000
+    encoded=dat_xor(blob[16:],seed)
+    if zlib.crc32(encoded)&0xffffffff!=expected: raise ValueError('DAT inner CRC mismatch')
+    if encoded.startswith(b'ZL01'):
+        if len(encoded)<8: raise ValueError('DAT ZL01 header is truncated')
+        wanted=u32(encoded,4); decoded=zlib.decompress(encoded[8:])
+        if len(decoded)!=wanted: raise ValueError('DAT ZL01 size mismatch')
+        return decoded
+    return zlib.decompress(encoded)
+
+def block_entries(decoded):
+    def wide(at):
+        end=at
+        while end+1<len(decoded) and decoded[end:end+2]!=b'\0\0': end+=2
+        if end+1>=len(decoded): raise ValueError('unterminated UTF-16 string')
+        return decoded[at:end].decode('utf-16le','strict'),end+2
+    def block(at,prefix):
+        if at+5>len(decoded): raise ValueError('truncated block header')
+        sorted_index=decoded[at]; count=struct.unpack_from('<I',decoded,at+1)[0]; at+=5
+        if sorted_index not in (0,1) or count>1000000: raise ValueError('invalid block header')
+        for _ in range(count):
+            if sorted_index:
+                if at+8>len(decoded): raise ValueError('truncated sorted block entry')
+                at+=8
+            if at>=len(decoded): raise ValueError('truncated block entry')
+            kind=decoded[at]; at+=1; name,at=wide(at); path=prefix+'/'+name if prefix else name
+            if kind==1:
+                value,at=wide(at); yield path,name,value
+            elif kind==2:
+                at=yield from block(at,path)
+            elif kind!=0: raise ValueError('unknown block entry kind')
+        return at
+    yield from block(0,'')
+
+RESOURCE=re.compile(r'(?i)(?:DATA[\\/])?[^\s\[\]{};,"\']+\.(?:bmp|png|jpe?g|psd|gi|gai)')
 def scan(path):
-    blob=path.read_bytes(); refs=[]; entry_count=0; decoded_count=0
-    for e in entries(blob):
-        entry_count+=1
-        if not e[0].lower().endswith(('.txt','.cfg','.ini','.style','.dat')): continue
-        data=payload(blob,e)
-        if not data: continue
-        decoded_count+=1
-        for raw in data.decode('cp1251','replace').splitlines():
-            mode=classify(raw)
-            if mode and ('image' in raw.lower() or ',' in raw): refs.append({'container':path.name,'entry':e[0],'mode':mode,'text':raw.strip()})
-    return refs, {'path':str(path),'entries':entry_count,'decoded_config_entries':decoded_count}
+    decoded=decode_dat(path); refs=[]
+    for block_path,name,value in block_entries(decoded):
+        context=' '.join((block_path,name,value)); mode=classify(context) or 'Unclassified'
+        for found in RESOURCE.findall(value):
+            refs.append({'container':path.name,'entry':block_path,'name':name,'mode':mode,'resource':found.replace('\\','/') ,'option':value})
+    return refs, {'path':str(path),'decoded_bytes':len(decoded),'entries':sum(1 for _ in block_entries(decoded))}
 def image_candidates(path):
     try: blob=path.read_bytes()
     except OSError: return []
@@ -74,8 +119,7 @@ def main():
     for p in candidates:
         if p.exists():
             found, detail=scan(p); refs.extend(found); stats.append(detail)
-    refs.sort(key=lambda r:(r['mode'],r['text'],r['container'],r['entry']))
-    encrypted=any(item['entries']==0 for item in stats)
+    refs.sort(key=lambda r:(r['mode'],r['resource'].lower(),r['option'],r['container'],r['entry']))
     packages=[ns.game_root/'DATA'/'common.pkg']
     candidates=[]
     for package in packages:
@@ -84,7 +128,7 @@ def main():
     selected=[]
     for extension in sorted(candidate_counts):
         selected.append(next(item for item in candidates if item['extension']==extension))
-    result={'containers':stats,'references':refs,'counts':dict(sorted(Counter(r['mode'] for r in refs).items())),'unique_resources':len({r['text'] for r in refs}),'release_presence':bool(refs),'status':'UNSUPPORTED_ENCRYPTED_CONFIG' if encrypted else ('PRESENT' if refs else 'NOT_PRESENT'),'unclassified_candidate_counts':dict(sorted(candidate_counts.items())),'selected_unclassified_candidates':selected}
+    result={'containers':stats,'references':refs,'counts':dict(sorted(Counter(r['mode'] for r in refs).items())),'unique_resources':len({r['resource'].lower() for r in refs}),'release_presence':bool(refs),'status':'PRESENT' if refs else 'NOT_PRESENT','unclassified_candidate_counts':dict(sorted(candidate_counts.items())),'selected_unclassified_candidates':selected}
     print(json.dumps(result,ensure_ascii=False,indent=2))
     if ns.json: ns.json.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 if __name__=='__main__': main()

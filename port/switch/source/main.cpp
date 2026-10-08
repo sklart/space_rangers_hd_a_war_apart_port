@@ -18,7 +18,6 @@
 #include "renderer_platform.hpp"
 #include "software_compositor.hpp"
 #include "scene_compositor.hpp"
-#include "image_object.hpp"
 #include "gi_object.hpp"
 #include "units/GR_GraphBuf.hpp"
 #include "units/EC_BlockPar.hpp"
@@ -520,7 +519,6 @@ struct M20ObjectReport { const char* id{}; };
 struct M20GiObjectDiagnostic {
   srhd_awa::package::Package package;
   srhd_awa::platform::gi_object::GIObject asteroid, secondary, overlay;
-  srhd_awa::platform::image_object::PortableImageObject simple, trans, alpha;
   srhd_awa::platform::scene_compositor::Scene scene;
   srhd_awa::platform::scene_compositor::Fingerprint fingerprint{};
   std::uint64_t last_tick{};
@@ -554,16 +552,6 @@ bool InitializeM20GiObjects(const char* game_root, std::int32_t width, std::int3
   diagnostic->overlay.SetPackage(&diagnostic->package); diagnostic->overlay.SetId("m20-overlay");
   if (!diagnostic->asteroid.LoadResource(resources[0], error) || !diagnostic->secondary.LoadResource(resources[1], error) ||
       !diagnostic->overlay.LoadResource(resources[2], error)) return false;
-  using srhd_awa::platform::image_object::Kind;
-  diagnostic->simple.SetPackage(&diagnostic->package); diagnostic->simple.SetId("m21-simple");
-  diagnostic->trans.SetPackage(&diagnostic->package); diagnostic->trans.SetId("m21-trans");
-  diagnostic->alpha.SetPackage(&diagnostic->package); diagnostic->alpha.SetId("m21-alpha");
-  if (!diagnostic->simple.Load(Kind::Simple, "DATA/PUMaps/01x120.jpg", "", error) ||
-      !diagnostic->trans.Load(Kind::Trans, "DATA/Asteroid/Map.png", "", error) ||
-      !diagnostic->alpha.Load(Kind::Alpha, "DATA/Planet2/120/01x120.psd", "", error)) return false;
-  diagnostic->simple.SetPosition(12, height - diagnostic->simple.natural_height() - 12);
-  diagnostic->trans.SetPosition(width - diagnostic->trans.natural_width() - 12, height - diagnostic->trans.natural_height() - 12);
-  diagnostic->alpha.SetPosition(width / 2 - diagnostic->alpha.natural_width() / 2, 12);
   const auto asteroid_x = width / 2 - diagnostic->asteroid.Image().width - 24;
   const auto asteroid_y = height / 2 - diagnostic->asteroid.Image().height / 2;
   diagnostic->asteroid.SetPosition(asteroid_x, asteroid_y); diagnostic->asteroid.SetLayer(0); diagnostic->asteroid.SetAlpha(255);
@@ -575,10 +563,6 @@ bool InitializeM20GiObjects(const char* game_root, std::int32_t width, std::int3
   const srhd_awa::platform::gi_object::GIObject* objects[]{&diagnostic->asteroid, &diagnostic->secondary, &diagnostic->overlay};
   for (std::size_t index = 0; index < 3; ++index) { const auto& object = *objects[index]; Log("[M20] object%zu id=%s resource=%s frame=%ld source_frame=%ld x=%ld y=%ld layer=%ld alpha=%u", index, reports[index].id, object.Resource().c_str(), static_cast<long>(object.SequenceFrame()), static_cast<long>(object.SourceFrame()), static_cast<long>(object.X()), static_cast<long>(object.Y()), static_cast<long>(object.Layer()), object.Alpha()); }
   Log("[M20] scene_crc32=%08lx scene_fnv64=%016llx canonical_bytes=%zu", static_cast<unsigned long>(diagnostic->fingerprint.crc32), static_cast<unsigned long long>(diagnostic->fingerprint.fnv64), diagnostic->fingerprint.canonical_bytes);
-  Log("[M21] static objects BEGIN count=3");
-  const srhd_awa::platform::image_object::PortableImageObject* static_objects[]{&diagnostic->simple, &diagnostic->trans, &diagnostic->alpha};
-  const char* static_kinds[]{"Simple", "Trans", "Alpha"};
-  for (std::size_t index=0;index<3;++index) Log("[M21] object%zu kind=%s resource=%s size=%ldx%ld resident=%zu", index, static_kinds[index], static_objects[index]->resource().c_str(), static_cast<long>(static_objects[index]->natural_width()), static_cast<long>(static_objects[index]->natural_height()), static_objects[index]->resident_bytes());
   return true;
 }
 
@@ -596,11 +580,6 @@ bool DrawM20GiObjects(void* user_data, std::string* error) {
   if (!SyncM20Scene(diagnostic, error)) return false;
   const srhd_awa::platform::scene_compositor::Framebuffer target{static_cast<std::uint16_t*>(framebuffer->GetPixels()), framebuffer->Width, framebuffer->Height, framebuffer->PitchBytes / 2};
   if (!diagnostic->scene.Render(target, error)) return false;
-  const srhd_awa::platform::okgf_rle_bridge::Rect clip{0, 0, framebuffer->Width, framebuffer->Height};
-  if (!diagnostic->simple.DrawFramebuffer(target.pixels, target.width, target.height, target.pitch_pixels, clip, error) ||
-      !diagnostic->trans.DrawFramebuffer(target.pixels, target.width, target.height, target.pitch_pixels, clip, error) ||
-      !diagnostic->alpha.DrawFramebuffer(target.pixels, target.width, target.height, target.pitch_pixels, clip, error)) return false;
-  if (!diagnostic->rendered) Log("[M21] static objects PASS count=3");
   if (!diagnostic->rendered) { diagnostic->rendered = true; Log("[M20] GI object PASS objects=3"); }
   return true;
 }
