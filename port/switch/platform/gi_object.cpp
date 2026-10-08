@@ -3,6 +3,7 @@
 #include "gi_format2_cpu.hpp"
 #include "package.hpp"
 #include "scene_compositor.hpp"
+#include "software_compositor.hpp"
 
 namespace srhd_awa::platform::gi_object {
 namespace {
@@ -85,6 +86,24 @@ bool GIObject::Draw(scene_compositor::Scene& scene, std::string* error) const {
   scene.RemoveSprite(id_);
   scene_compositor::SceneSprite sprite{id_, image_, x_, y_, alpha_, layer_, visible_};
   return scene.AddSprite(std::move(sprite), error);
+}
+
+bool GIObject::DrawFramebufferAt(std::uint16_t* pixels, std::int32_t width, std::int32_t height, std::int32_t pitch,
+                                 std::int32_t x, std::int32_t y, std::int32_t clip_left, std::int32_t clip_top,
+                                 std::int32_t clip_right, std::int32_t clip_bottom, std::string* error) const {
+  if (!loaded_) return Fail(error, "GI object is not loaded");
+  if (!visible_) return true;
+  if (!pixels || width <= 0 || height <= 0 || pitch < width) return Fail(error, "GI object framebuffer is invalid");
+  const software_compositor::Rect clip{clip_left, clip_top, clip_right, clip_bottom};
+  const auto mode = alpha_ == 255 ? software_compositor::BlendMode::Opaque : software_compositor::BlendMode::Alpha;
+  if (mode == software_compositor::BlendMode::Opaque)
+    return software_compositor::CompositeBGRA(pixels, width, height, pitch, image_.pixels.data(), image_.width,
+                                               image_.height, image_.pitch, x, y, mode, &clip, error);
+  std::vector<std::uint8_t> alpha_pixels = image_.pixels;
+  for (std::size_t index = 3; index < alpha_pixels.size(); index += 4)
+    alpha_pixels[index] = static_cast<std::uint8_t>((static_cast<std::uint16_t>(alpha_pixels[index]) * alpha_ + 127u) / 255u);
+  return software_compositor::CompositeBGRA(pixels, width, height, pitch, alpha_pixels.data(), image_.width,
+                                             image_.height, image_.pitch, x, y, mode, &clip, error);
 }
 
 }  // namespace srhd_awa::platform::gi_object

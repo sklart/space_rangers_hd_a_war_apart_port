@@ -27,6 +27,9 @@ class GIObject {
   void SetVisible(bool visible) { visible_ = visible; }
   bool Update(std::uint64_t delta_ms, std::string* error = nullptr);
   bool Draw(scene_compositor::Scene& scene, std::string* error = nullptr) const;
+  bool DrawFramebufferAt(std::uint16_t* pixels, std::int32_t width, std::int32_t height, std::int32_t pitch,
+                         std::int32_t x, std::int32_t y, std::int32_t clip_left, std::int32_t clip_top,
+                         std::int32_t clip_right, std::int32_t clip_bottom, std::string* error = nullptr) const;
 
   bool IsLoaded() const { return loaded_; }
   const std::string& Id() const { return id_; }
