@@ -700,7 +700,9 @@ bool InitializeM22UiTree(M20GiObjectDiagnostic* m20, M21UiImageDiagnostic* m21,
 bool UpdateM22UiTree(M22UiTreeDiagnostic* diagnostic, std::uint64_t now_ms, std::string* error) {
   const auto delta_ms = diagnostic->last_tick ? now_ms - diagnostic->last_tick : 0;
   diagnostic->last_tick = now_ms;
-  const auto scroll = static_cast<std::int32_t>((now_ms / 1000) % 2);
+  // The first draw is the independent fixed checkpoint. Dynamic scroll starts
+  // only after it has been fingerprinted.
+  const auto scroll = diagnostic->rendered ? static_cast<std::int32_t>((now_ms / 1000) % 2) : 0;
   diagnostic->scroll_panel->SetScrollOffset({scroll, 0});
   return diagnostic->tree.Update(delta_ms, error);
 }
@@ -724,6 +726,8 @@ bool DrawM21Presentation(void* user_data, std::string* error) {
   if (!callbacks->m21->rendered) {
     constexpr std::uint32_t kSceneCrc32 = 0x4f915772u;
     constexpr std::uint64_t kSceneFnv64 = UINT64_C(0x52449ae8f8f56c6c);
+    constexpr std::uint32_t kM22TreeCrc32 = 0xcaab2979u;
+    constexpr std::uint64_t kM22TreeFnv64 = UINT64_C(0x0e5557af167f16ec);
     srhd_awa::platform::ui_fingerprint::Value fingerprint{}, tree_fingerprint{};
     if (!srhd_awa::platform::ui_fingerprint::ComputeFramebuffer(target, &fingerprint, error) ||
         !srhd_awa::platform::ui_fingerprint::ComputeTree(*callbacks->m22->tree.Root(), &tree_fingerprint, error)) return false;
@@ -732,6 +736,11 @@ bool DrawM21Presentation(void* user_data, std::string* error) {
         static_cast<unsigned long long>(kSceneFnv64));
     if (fingerprint.bytes != 1843200 || fingerprint.crc32 != kSceneCrc32 || fingerprint.fnv64 != kSceneFnv64) {
       if (error) *error = "M21 first logical runtime frame differs from release oracle";
+      return false;
+    }
+    if (tree_fingerprint.bytes != 691 || tree_fingerprint.crc32 != kM22TreeCrc32 ||
+        tree_fingerprint.fnv64 != kM22TreeFnv64) {
+      if (error) *error = "M22 fixed runtime tree differs from release oracle";
       return false;
     }
     callbacks->m21->rendered = true;
@@ -746,7 +755,7 @@ bool DrawM21Presentation(void* user_data, std::string* error) {
         static_cast<unsigned long long>(tree_fingerprint.fnv64), tree_fingerprint.bytes);
     Log("[M22] frameA_crc32=%08lx frameA_fnv64=%016llx frameA_bytes=%zu", static_cast<unsigned long>(fingerprint.crc32),
         static_cast<unsigned long long>(fingerprint.fnv64), fingerprint.bytes);
-    Log("[M22] runtime tree rendered depth=PASS clip=PASS scroll=PASS active=PASS");
+    Log("[M22] oracle MATCH depth=PASS clip=PASS scroll=PASS active=PASS");
   }
   return true;
 }

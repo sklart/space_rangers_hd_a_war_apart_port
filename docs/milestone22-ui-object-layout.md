@@ -45,4 +45,11 @@ Runtime `UiTree` заменяет ручное размещение entries в `
 leaves, M21 Simple leaf, active hidden ModeW scroll leaf и inactive leaf.
 Промежуточная ARM64 сборка доказывает linkability; она не является ни CI, ни
 hardware PASS. До единственного финального Switch запуска требуются полный
-terminal CI, clean ARM64/symbol audit, hash-bound NRO и fixed runtime oracle.
+terminal CI, clean ARM64/symbol audit и hash-bound NRO.
+
+`tests/probe_m22_runtime_oracle.py` независим от production C++ и читает
+оригинальный release package. Он фиксирует первый tree: CRC32 `caab2979`,
+FNV64 `0e5557af167f16ec`, 691 bytes; выбраны `DATA/Asteroid/00.gai`, `01.gai`,
+`02.gai`. Его framebuffer остаётся release-backed
+`4f915772`/`52449ae8f8f56c6c`, 1,843,200 bytes. Runtime отвергает mismatch
+tree/frame до перехода к dynamic scroll phase.
