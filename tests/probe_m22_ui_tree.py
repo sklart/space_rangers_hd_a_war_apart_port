@@ -23,5 +23,10 @@ def main():
     frame=struct.pack('<8H',0x001f,0xf800,0xf800,0x001f,0x001f,0xf800,0xf800,0x001f)
     frame_crc=zlib.crc32(frame)&0xffffffff; frame_hash=fnv(frame)
     assert (frame_crc,frame_hash,len(frame))==(0x8a1cd0ae,0xba73de32de60cdd5,16)
-    print(f'M22 UI TREE ORACLE PASS tree_crc32={crc:08x} tree_fnv64={hash:016x} frame_a_crc32={frame_crc:08x} frame_a_fnv64={frame_hash:016x}')
+    # ModeW moves the leaf left, but the parent clip remains x=[1,3), so the
+    # visible Frame B is intentionally identical to Frame A.
+    frame_b=frame
+    b_crc=zlib.crc32(frame_b)&0xffffffff; b_hash=fnv(frame_b)
+    assert (b_crc,b_hash,len(frame_b))==(0x8a1cd0ae,0xba73de32de60cdd5,16)
+    print(f'M22 UI TREE ORACLE PASS tree_crc32={crc:08x} tree_fnv64={hash:016x} frame_a_crc32={frame_crc:08x} frame_a_fnv64={frame_hash:016x} frame_b_crc32={b_crc:08x} frame_b_fnv64={b_hash:016x}')
 if __name__=='__main__': main()

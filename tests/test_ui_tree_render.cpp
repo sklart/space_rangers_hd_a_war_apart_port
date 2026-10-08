@@ -56,7 +56,7 @@ int main() {
   Package package; std::string error; Check(package.Open(path, &error), error.c_str()); UiTree tree; auto* root = tree.Root(); root->SetSize({4, 2});
   AddImage(root, &package, "BLUE.BMP", {0, 0}, {4, 2}, 100);
   auto* panel = root->AddPanel(); panel->SetPosition({1, 0}); panel->SetSize({2, 2}); panel->SetDepth(0);
-  AddImage(panel, &package, "RED.BMP", {0, 0}, {4, 2}, 0);
+  auto* scrolling = AddImage(panel, &package, "RED.BMP", {0, 0}, {4, 2}, 0); scrolling->SetPositionModeW(true);
   AddImage(root, &package, "RED.BMP", {0, 0}, {4, 2}, -100, false);
   std::vector<std::uint16_t> pixels(8, 0); Framebuffer framebuffer{pixels.data(), 4, 2, 4};
   Check(UiTreeRenderer::Render(*root, framebuffer, &error), error.c_str());
@@ -66,5 +66,9 @@ int main() {
   Check(srhd_awa::platform::ui_fingerprint::ComputeFramebuffer(framebuffer, &fingerprint, &error) &&
         fingerprint.crc32 == 0x8a1cd0aeu && fingerprint.fnv64 == 0xba73de32de60cdd5ull && fingerprint.bytes == 16,
         "Python oracle framebuffer A");
+  pixels.assign(8, 0x001f); panel->SetScrollOffset({1, 0});
+  Check(UiTreeRenderer::Render(*root, framebuffer, &error), error.c_str());
+  Check(srhd_awa::platform::ui_fingerprint::ComputeFramebuffer(framebuffer, &fingerprint, &error) && fingerprint.crc32 == 0x8a1cd0aeu && fingerprint.fnv64 == 0xba73de32de60cdd5ull && fingerprint.bytes == 16, "Python oracle framebuffer B");
+  Check(scrolling->AbsolutePosition() == Point{0, 0} && pixels[1] == 0xf800 && pixels[2] == 0xf800, "ModeW scroll remains parent-clipped");
   std::remove(path); std::puts("UI TREE RENDER TEST PASS");
 }
