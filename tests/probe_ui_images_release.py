@@ -143,6 +143,26 @@ def image_candidates(path):
         if suffix in ('.bmp','.png','.jpg','.jpeg','.psd'):
             result.append({'resource':path_name,'extension':suffix,'source_bytes':size})
     return sorted(result,key=lambda item:(item['resource'].lower(),item['source_bytes']))
+
+def locate_resources(data_root, wanted):
+    """Return package/source metadata for exactly the config-selected paths.
+
+    This deliberately reads package indexes only.  It neither extracts image bytes
+    nor treats an arbitrary image in a package as a configured UI resource.
+    """
+    remaining={item.casefold() for item in wanted}
+    locations={}
+    scanned=[]
+    for package in sorted(data_root.glob('*.pkg'),key=lambda p:p.name.casefold()):
+        scanned.append(package.name)
+        if not remaining:
+            continue
+        for name, _, size, _ in entries(package.read_bytes()):
+            key=name.replace('\\','/').casefold()
+            if key in remaining:
+                locations[key]={'package':package.name,'path':name,'source_bytes':size}
+                remaining.remove(key)
+    return scanned,locations
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument('game_root',type=pathlib.Path); ap.add_argument('--json',type=pathlib.Path); ns=ap.parse_args()
     cfg=ns.game_root/'CFG'; candidates=[cfg/'Main.dat',cfg/'Eng'/'Lang.dat',cfg/'Rus'/'Lang.dat']
@@ -173,8 +193,15 @@ def main():
     for mode in ('Simple','Trans','Alpha'):
         choices=sorted((r for r in static_refs if r['mode']==mode),key=lambda r:(r['resource'].casefold(),r['resource_key'].casefold(),r['entry'].casefold()))
         if choices: selected_static.append({'mode':mode,'resource':choices[0]['resource'],'resource_key':choices[0]['resource_key'],'option':choices[0]['option'],'entry':choices[0]['entry']})
-    unresolved=sorted({r['resource_key'] for r in refs if r['mode'] in ('Simple','Trans','Alpha') and r['resource']==r['resource_key']},key=str.casefold)
-    result={'containers':stats,'cache_entries':len(cache_paths),'references':refs,'counts':dict(sorted(Counter(r['mode'] for r in refs).items())),'static_counts':dict(sorted(static_counts.items())),'selected_static_resources':selected_static,'unresolved_static_keys':unresolved,'unique_resources':len({r['resource'].lower() for r in refs}),'release_presence':bool(refs),'status':'PRESENT' if refs else 'NOT_PRESENT','unclassified_candidate_counts':dict(sorted(candidate_counts.items())),'selected_unclassified_candidates':selected}
+    modes=('Simple','Trans','Alpha')
+    unresolved_refs=sorted(({'mode':r['mode'],'resource_key':r['resource_key'],'entry':r['entry'],'option':r['option']} for r in refs if r['mode'] in modes and r['resource']==r['resource_key']),key=lambda r:(r['mode'],r['resource_key'].casefold(),r['entry'].casefold()))
+    selected_paths=[item['resource'] for item in selected_static]
+    scanned_packages,locations=locate_resources(ns.game_root/'DATA',selected_paths)
+    for item in selected_static:
+        item['source_location']=locations.get(item['resource'].casefold())
+    mode_ref_counts=Counter(r['mode'] for r in refs if r['mode'] in modes)
+    unresolved_by_mode=Counter(r['mode'] for r in unresolved_refs)
+    result={'containers':stats,'cache_entries':len(cache_paths),'references':refs,'counts':dict(sorted(Counter(r['mode'] for r in refs).items())),'static_counts':dict(sorted(static_counts.items())),'static_mode_reference_counts':dict(sorted(mode_ref_counts.items())),'selected_static_resources':selected_static,'unresolved_static_refs':unresolved_refs,'unresolved_static_counts':dict(sorted(unresolved_by_mode.items())),'release_static_presence':{mode: any(r['mode']==mode for r in static_refs) for mode in modes},'packages_scanned_for_selected_resources':scanned_packages,'unique_resources':len({r['resource'].lower() for r in refs}),'release_presence':bool(refs),'status':'PRESENT' if refs else 'NOT_PRESENT','unclassified_candidate_counts':dict(sorted(candidate_counts.items())),'selected_unclassified_candidates':selected}
     print(json.dumps(result,ensure_ascii=False,indent=2))
     if ns.json: ns.json.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 if __name__=='__main__': main()

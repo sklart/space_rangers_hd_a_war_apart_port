@@ -1,9 +1,17 @@
 # Current status — M21 Portable UI Image Foundation in progress
 
 M20 remains complete. M21 has a committed CPU foundation and a local/CI host
-gate, but is **not complete**: release-config inventory, independent oracle,
-integrated scene fingerprints, CI run, clean ARM64 evidence and the one final
-Switch test are still pending. No M21 hardware claim is made here.
+gate. Its release-config inventory and independent Simple Python oracle now
+exist, but M21 is **not complete**: the integrated scene fingerprints, CI run,
+clean ARM64 evidence and the one final Switch test are still pending. No M21
+hardware claim is made here.
+
+M21 inventory resolves `Bm.Planet.T.Spu00` to `DATA/Planet/Spu00.png` in
+`common.pkg`; the independent PNG/Adam7 RGB565 oracle records source
+`a3721a9c`/`32ebfdd05d7fa674` and decoded `51e16db2`/`ffeaf550d3c28655`.
+The base release has no `Trans` reference. Its six `Alpha` `Bitmap.BGObj.*`
+references have no mapping in base `CacheData.dat` or language DAT, therefore
+they are release **NOT PRESENT**, not substituted with arbitrary assets.
 
 Baseline SHA-256: `83300344af802bc51e64389c58f047e5afdf195c133048098be3881fae29ed98`.
 

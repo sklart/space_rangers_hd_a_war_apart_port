@@ -3,10 +3,10 @@
 ## Статус
 
 **IN PROGRESS.** Host-путь для статичных изображений существует и проходит
-`host-m21-ui-image-regression`, но это не M21 PASS. До завершения остаются
-release inventory, независимый Python oracle и интегрированная fingerprint
-сцены, CI, clean ARM64 build и один финальный аппаратный тест. До них NRO на
-Switch не развёртывается и hardware evidence не запрашивается.
+`host-m21-ui-image-regression`, но это не M21 PASS. Release inventory и
+независимый Simple oracle теперь есть, однако интегрированная fingerprint
+сцены, CI, clean ARM64 build и один финальный аппаратный тест ещё не получены.
+До них NRO на Switch не развёртывается и hardware evidence не запрашивается.
 
 ## Границы
 
@@ -58,6 +58,35 @@ tests. Four-channel uncompressed PSD fixtures проверяют реальну�
 
 Этот gate и M21 symbol audit добавлены в `package-host` CI. Он не является
 подменой release corpus/oracle, ARM64 или Switch проверки.
+
+## Release inventory и независимый oracle
+
+`tests/probe_ui_images_release.py` read-only декодирует `Main.dat`, оба
+language DAT и `CacheData.dat`, а затем выбирает только static resources,
+которые реально разрешаются из конфигурации. В базовом 2.1.2500 релизе он
+нашёл 800 `Simple` и 6 `Alpha` mode-ссылок, но ни одной `Trans` mode-ссылки.
+Единственный детерминированный static Simple baseline —
+`Bm.Planet.T.Spu00` из `Data/SE/Sputnik/00/Image`, сопоставленный с
+`DATA/Planet/Spu00.png` в `common.pkg` (7,389 bytes).
+
+`tests/probe_m21_simple_oracle.py` независимо читает package, проверяет PNG
+chunks/CRC, сам применяет PNG filters и Adam7 passes и переводит indexed RGB
+в little-endian RGB565. Для этого baseline он фиксирует source
+`CRC32=a3721a9c`, `FNV64=32ebfdd05d7fa674` и decoded RGB565
+128x60/pitch 256, `CRC32=51e16db2`, `FNV64=ffeaf550d3c28655`.
+
+В исходном release config `Trans` имеет **NOT PRESENT**. Шесть `Alpha`
+ссылок `Bitmap.BGObj.O1/O11/O12/O13/O14/O15` существуют в `Main.dat`, но не
+имеют mapping в базовом `CacheData.dat`, `Rus/Lang.dat` или `Eng/Lang.dat`;
+для M21 они обозначаются **release resource NOT PRESENT**, а не заменяются
+произвольной PNG/PSD из package. Synthetic Alpha/Trans coverage остаётся
+обязательной и проходит в host gate.
+
+`host-m21-simple-release-test` предназначен для ПК с libpng development
+headers: он сравнивает полный C++ PNG decode с указанным Python oracle. На
+текущем Windows/MSYS host эта проверка пока BLOCKED (нет `png.h`/libpng
+development package); это не выдаётся за C++ release PASS и не включается в
+CI target, потому что CI не содержит локальную коммерческую game tree.
 
 ## Что не заявляется
 
