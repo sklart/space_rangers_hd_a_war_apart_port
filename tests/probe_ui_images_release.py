@@ -58,6 +58,15 @@ def scan(path):
             mode=classify(raw)
             if mode and ('image' in raw.lower() or ',' in raw): refs.append({'container':path.name,'entry':e[0],'mode':mode,'text':raw.strip()})
     return refs, {'path':str(path),'entries':entry_count,'decoded_config_entries':decoded_count}
+def image_candidates(path):
+    try: blob=path.read_bytes()
+    except OSError: return []
+    result=[]
+    for path_name, _, size, _ in entries(blob):
+        suffix=pathlib.PurePosixPath(path_name).suffix.lower()
+        if suffix in ('.bmp','.png','.jpg','.jpeg','.psd'):
+            result.append({'resource':path_name,'extension':suffix,'source_bytes':size})
+    return sorted(result,key=lambda item:(item['resource'].lower(),item['source_bytes']))
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument('game_root',type=pathlib.Path); ap.add_argument('--json',type=pathlib.Path); ns=ap.parse_args()
     cfg=ns.game_root/'CFG'; candidates=[cfg/'Main.dat',cfg/'Eng'/'Lang.dat',cfg/'Rus'/'Lang.dat']
@@ -67,7 +76,15 @@ def main():
             found, detail=scan(p); refs.extend(found); stats.append(detail)
     refs.sort(key=lambda r:(r['mode'],r['text'],r['container'],r['entry']))
     encrypted=any(item['entries']==0 for item in stats)
-    result={'containers':stats,'references':refs,'counts':dict(sorted(Counter(r['mode'] for r in refs).items())),'unique_resources':len({r['text'] for r in refs}),'release_presence':bool(refs),'status':'UNSUPPORTED_ENCRYPTED_CONFIG' if encrypted else ('PRESENT' if refs else 'NOT_PRESENT')}
+    packages=[ns.game_root/'DATA'/'common.pkg']
+    candidates=[]
+    for package in packages:
+        if package.exists(): candidates.extend(image_candidates(package))
+    candidate_counts=Counter(item['extension'] for item in candidates)
+    selected=[]
+    for extension in sorted(candidate_counts):
+        selected.append(next(item for item in candidates if item['extension']==extension))
+    result={'containers':stats,'references':refs,'counts':dict(sorted(Counter(r['mode'] for r in refs).items())),'unique_resources':len({r['text'] for r in refs}),'release_presence':bool(refs),'status':'UNSUPPORTED_ENCRYPTED_CONFIG' if encrypted else ('PRESENT' if refs else 'NOT_PRESENT'),'unclassified_candidate_counts':dict(sorted(candidate_counts.items())),'selected_unclassified_candidates':selected}
     print(json.dumps(result,ensure_ascii=False,indent=2))
     if ns.json: ns.json.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 if __name__=='__main__': main()
