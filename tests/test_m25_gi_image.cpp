@@ -92,6 +92,8 @@ int main() {
   Check(Reject(bad), "oversized decoded bounds");
   bad = bytes; Put(&bad, 64, 0x7fffffff); Check(Reject(bad), "plane offset overflow");
   bad = bytes; Put(&bad, 68, 0x7fffffff); Check(Reject(bad), "plane size overflow");
+  bad = bytes; Put(&bad, 64, 0); Check(Reject(bad), "missing plane with nonzero size");
+  bad = bytes; Put(&bad, 80, 10); Check(Reject(bad), "plane bounds outside image");
   bad = bytes; Put(&bad, 44, 100); Check(Reject(bad), "plane table overflow");
   auto format2 = Format2();
   Check(image.LoadBytes(format2.data(), format2.size(), &error) && image.format() == 2 &&

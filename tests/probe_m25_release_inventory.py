@@ -98,12 +98,31 @@ def inventory(root: Path) -> dict:
                     try:
                         metadata = gai_oracle.gai(source)
                         frame_formats: Counter[str] = Counter()
-                        if metadata["flags"] == 0:
-                            for index in range(metadata["frame_count"]):
-                                encoding, gi_bytes, _, _ = gai_oracle.frame(source, metadata, index)
-                                frame_formats["empty" if not gi_bytes else
-                                              str(gai_oracle.header(gi_bytes)["format"])] += 1
+                        largest_frame_source = largest_frame_decoded = 0
+                        for index in range(metadata["frame_count"]):
+                            encoding, gi_bytes, _, _ = gai_oracle.frame(source, metadata, index)
+                            largest_frame_source = max(largest_frame_source, len(gi_bytes))
+                            if not gi_bytes:
+                                frame_formats["empty"] += 1
+                                continue
+                            try:
+                                image = gai_oracle.header(gi_bytes)
+                            except ValueError:
+                                if metadata["flags"] == 0: raise
+                                # Cumulative GAI can carry delta frames without
+                                # ordinary standalone GI bounds. It is deferred.
+                                frame_formats["cumulative_delta"] += 1
+                                continue
+                            frame_formats[str(image["format"])] += 1
+                            left, top, right, bottom = image["bounds"]
+                            largest_frame_decoded = max(largest_frame_decoded,
+                                                        (right - left) * (bottom - top) * 4)
+                        left, top, right, bottom = metadata["bounds"]
                         gai_resources[path] = {"status": "valid", "source_size": len(source),
+                                               "bounds": metadata["bounds"],
+                                               "canvas_bgra_bytes": (right - left) * (bottom - top) * 4,
+                                               "largest_frame_source": largest_frame_source,
+                                               "largest_frame_decoded": largest_frame_decoded,
                                                "frame_count": metadata["frame_count"],
                                                "flags": metadata["flags"],
                                                "sequence_count": metadata["sequence_count"],
@@ -139,6 +158,12 @@ def inventory(root: Path) -> dict:
                                                  "ImageFirst" not in c["properties"]
                                                  for c in gai_controls),
                     "largest_source": max((c.get("source_size", 0) for c in gai_controls), default=0),
+                    "largest_frame_source": max((c.get("container", {}).get("largest_frame_source", 0)
+                                                 for c in gai_controls), default=0),
+                    "largest_frame_decoded": max((c.get("container", {}).get("largest_frame_decoded", 0)
+                                                  for c in gai_controls), default=0),
+                    "largest_pbuf_canvas_bgra": max((c.get("container", {}).get("canvas_bgra_bytes", 0)
+                                                     for c in gai_controls if "PBuf" in c["properties"]), default=0),
                     "flag_counts": dict(sorted(Counter(c["container"]["flags"] for c in gai_controls
                                                        if c.get("container", {}).get("status") == "valid").items())),
                     "controls": gai_controls},

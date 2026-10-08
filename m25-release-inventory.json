@@ -11,11 +11,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            150,
+            150
+          ],
+          "canvas_bgra_bytes": 90000,
           "flags": 0,
           "frame_count": 101,
           "frame_formats": {
             "2": 101
           },
+          "largest_frame_decoded": 73980,
+          "largest_frame_source": 30541,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -38,11 +47,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            150,
+            150
+          ],
+          "canvas_bgra_bytes": 90000,
           "flags": 0,
           "frame_count": 101,
           "frame_formats": {
             "2": 101
           },
+          "largest_frame_decoded": 73980,
+          "largest_frame_source": 30541,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -65,11 +83,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            32,
+            32
+          ],
+          "canvas_bgra_bytes": 4096,
           "flags": 0,
           "frame_count": 20,
           "frame_formats": {
             "2": 20
           },
+          "largest_frame_decoded": 2100,
+          "largest_frame_source": 1369,
           "sequence_count": 1,
           "sequence_lengths": [
             20
@@ -98,11 +125,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            543,
+            241
+          ],
+          "canvas_bgra_bytes": 523452,
           "flags": 0,
           "frame_count": 36,
           "frame_formats": {
             "2": 36
           },
+          "largest_frame_decoded": 523452,
+          "largest_frame_source": 202117,
           "sequence_count": 1,
           "sequence_lengths": [
             36
@@ -128,11 +164,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            543,
+            241
+          ],
+          "canvas_bgra_bytes": 523452,
           "flags": 0,
           "frame_count": 36,
           "frame_formats": {
             "2": 36
           },
+          "largest_frame_decoded": 523452,
+          "largest_frame_source": 202117,
           "sequence_count": 1,
           "sequence_lengths": [
             36
@@ -158,11 +203,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            289,
+            587,
+            385,
+            624
+          ],
+          "canvas_bgra_bytes": 14208,
           "flags": 0,
           "frame_count": 7,
           "frame_formats": {
             "2": 7
           },
+          "largest_frame_decoded": 14208,
+          "largest_frame_source": 7767,
           "sequence_count": 1,
           "sequence_lengths": [
             7
@@ -188,11 +242,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            50,
+            50
+          ],
+          "canvas_bgra_bytes": 10000,
           "flags": 0,
           "frame_count": 20,
           "frame_formats": {
             "2": 20
           },
+          "largest_frame_decoded": 9408,
+          "largest_frame_source": 3505,
           "sequence_count": 1,
           "sequence_lengths": [
             20
@@ -221,11 +284,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            29,
+            29
+          ],
+          "canvas_bgra_bytes": 3364,
           "flags": 0,
           "frame_count": 16,
           "frame_formats": {
             "2": 16
           },
+          "largest_frame_decoded": 3364,
+          "largest_frame_source": 1959,
           "sequence_count": 1,
           "sequence_lengths": [
             30
@@ -254,11 +326,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            543,
+            241
+          ],
+          "canvas_bgra_bytes": 523452,
           "flags": 0,
           "frame_count": 36,
           "frame_formats": {
             "2": 36
           },
+          "largest_frame_decoded": 523452,
+          "largest_frame_source": 202117,
           "sequence_count": 1,
           "sequence_lengths": [
             36
@@ -303,11 +384,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            543,
+            241
+          ],
+          "canvas_bgra_bytes": 523452,
           "flags": 0,
           "frame_count": 36,
           "frame_formats": {
             "2": 36
           },
+          "largest_frame_decoded": 523452,
+          "largest_frame_source": 202117,
           "sequence_count": 1,
           "sequence_lengths": [
             36
@@ -371,11 +461,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            543,
+            241
+          ],
+          "canvas_bgra_bytes": 523452,
           "flags": 0,
           "frame_count": 36,
           "frame_formats": {
             "2": 36
           },
+          "largest_frame_decoded": 523452,
+          "largest_frame_source": 202117,
           "sequence_count": 1,
           "sequence_lengths": [
             36
@@ -401,9 +500,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            501,
+            134,
+            895,
+            768
+          ],
+          "canvas_bgra_bytes": 999184,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 994112,
+          "largest_frame_source": 237020,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -444,9 +555,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            500,
+            132,
+            894,
+            768
+          ],
+          "canvas_bgra_bytes": 1002336,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 999792,
+          "largest_frame_source": 338951,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -487,9 +610,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            492,
+            792
+          ],
+          "canvas_bgra_bytes": 1558656,
           "flags": 1,
           "frame_count": 98,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 97,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1552320,
+          "largest_frame_source": 258918,
           "sequence_count": 1,
           "sequence_lengths": [
             98
@@ -530,9 +665,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            492,
+            792
+          ],
+          "canvas_bgra_bytes": 1558656,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1552320,
+          "largest_frame_source": 305780,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -573,9 +720,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            598,
+            78,
+            902,
+            768
+          ],
+          "canvas_bgra_bytes": 839040,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 827148,
+          "largest_frame_source": 171749,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -616,9 +775,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            545,
+            45,
+            929,
+            768
+          ],
+          "canvas_bgra_bytes": 1110528,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1081344,
+          "largest_frame_source": 304545,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -659,9 +830,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            480,
+            903
+          ],
+          "canvas_bgra_bytes": 1733760,
           "flags": 1,
           "frame_count": 97,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 96,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1733760,
+          "largest_frame_source": 148431,
           "sequence_count": 1,
           "sequence_lengths": [
             97
@@ -702,9 +885,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            480,
+            903
+          ],
+          "canvas_bgra_bytes": 1733760,
           "flags": 1,
           "frame_count": 98,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 97,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1733760,
+          "largest_frame_source": 254680,
           "sequence_count": 1,
           "sequence_lengths": [
             98
@@ -745,9 +940,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            563,
+            97,
+            908,
+            768
+          ],
+          "canvas_bgra_bytes": 925980,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 729960,
+          "largest_frame_source": 256941,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -785,9 +992,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            514,
+            91,
+            926,
+            768
+          ],
+          "canvas_bgra_bytes": 1115696,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 953440,
+          "largest_frame_source": 223033,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -825,9 +1044,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            515,
+            846
+          ],
+          "canvas_bgra_bytes": 1742760,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1742760,
+          "largest_frame_source": 200043,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -865,9 +1096,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            515,
+            846
+          ],
+          "canvas_bgra_bytes": 1742760,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1742760,
+          "largest_frame_source": 205943,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -905,9 +1148,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            611,
+            74,
+            900,
+            768
+          ],
+          "canvas_bgra_bytes": 802264,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 796712,
+          "largest_frame_source": 120606,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -945,9 +1200,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            541,
+            67,
+            959,
+            768
+          ],
+          "canvas_bgra_bytes": 1172072,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1134000,
+          "largest_frame_source": 266492,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -985,9 +1252,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            522,
+            876
+          ],
+          "canvas_bgra_bytes": 1829088,
           "flags": 1,
           "frame_count": 102,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 101,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1829088,
+          "largest_frame_source": 198040,
           "sequence_count": 1,
           "sequence_lengths": [
             102
@@ -1025,9 +1304,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            522,
+            876
+          ],
+          "canvas_bgra_bytes": 1829088,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1829088,
+          "largest_frame_source": 408829,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -1065,9 +1356,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            474,
+            115,
+            820,
+            768
+          ],
+          "canvas_bgra_bytes": 903752,
           "flags": 1,
           "frame_count": 81,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 80,
+            "empty": 1
+          },
+          "largest_frame_decoded": 891296,
+          "largest_frame_source": 25125,
           "sequence_count": 1,
           "sequence_lengths": [
             81
@@ -1105,9 +1408,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            409,
+            114,
+            845,
+            768
+          ],
+          "canvas_bgra_bytes": 1140576,
           "flags": 1,
           "frame_count": 81,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 80,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1135344,
+          "largest_frame_source": 327294,
           "sequence_count": 1,
           "sequence_lengths": [
             81
@@ -1145,9 +1460,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            545,
+            817
+          ],
+          "canvas_bgra_bytes": 1781060,
           "flags": 1,
           "frame_count": 81,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 80,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1781060,
+          "largest_frame_source": 74028,
           "sequence_count": 1,
           "sequence_lengths": [
             81
@@ -1185,9 +1512,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            545,
+            817
+          ],
+          "canvas_bgra_bytes": 1781060,
           "flags": 1,
           "frame_count": 81,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 80,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1781060,
+          "largest_frame_source": 491909,
           "sequence_count": 1,
           "sequence_lengths": [
             81
@@ -1225,9 +1564,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            533,
+            169,
+            859,
+            768
+          ],
+          "canvas_bgra_bytes": 781096,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 781096,
+          "largest_frame_source": 262126,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -1265,9 +1616,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            502,
+            163,
+            867,
+            768
+          ],
+          "canvas_bgra_bytes": 883300,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 871620,
+          "largest_frame_source": 420006,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -1305,9 +1668,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            456,
+            756
+          ],
+          "canvas_bgra_bytes": 1378944,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1378944,
+          "largest_frame_source": 170703,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -1345,9 +1720,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            456,
+            756
+          ],
+          "canvas_bgra_bytes": 1378944,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1378944,
+          "largest_frame_source": 318001,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -1385,11 +1772,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            2,
+            23,
+            626,
+            346
+          ],
+          "canvas_bgra_bytes": 806208,
           "flags": 0,
           "frame_count": 40,
           "frame_formats": {
             "2": 40
           },
+          "largest_frame_decoded": 788736,
+          "largest_frame_source": 431755,
           "sequence_count": 1,
           "sequence_lengths": [
             40
@@ -1415,11 +1811,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            2,
+            23,
+            626,
+            346
+          ],
+          "canvas_bgra_bytes": 806208,
           "flags": 0,
           "frame_count": 24,
           "frame_formats": {
             "2": 24
           },
+          "largest_frame_decoded": 788736,
+          "largest_frame_source": 433071,
           "sequence_count": 1,
           "sequence_lengths": [
             24
@@ -1445,11 +1850,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -1475,11 +1889,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7278,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -1505,11 +1928,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            543,
+            241
+          ],
+          "canvas_bgra_bytes": 523452,
           "flags": 0,
           "frame_count": 36,
           "frame_formats": {
             "2": 36
           },
+          "largest_frame_decoded": 523452,
+          "largest_frame_source": 202117,
           "sequence_count": 1,
           "sequence_lengths": [
             36
@@ -1573,11 +2005,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            543,
+            241
+          ],
+          "canvas_bgra_bytes": 523452,
           "flags": 0,
           "frame_count": 36,
           "frame_formats": {
             "2": 36
           },
+          "largest_frame_decoded": 523452,
+          "largest_frame_source": 202117,
           "sequence_count": 1,
           "sequence_lengths": [
             36
@@ -1641,11 +2082,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            543,
+            241
+          ],
+          "canvas_bgra_bytes": 523452,
           "flags": 0,
           "frame_count": 36,
           "frame_formats": {
             "2": 36
           },
+          "largest_frame_decoded": 523452,
+          "largest_frame_source": 202117,
           "sequence_count": 1,
           "sequence_lengths": [
             36
@@ -1693,11 +2143,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            543,
+            241
+          ],
+          "canvas_bgra_bytes": 523452,
           "flags": 0,
           "frame_count": 36,
           "frame_formats": {
             "2": 36
           },
+          "largest_frame_decoded": 523452,
+          "largest_frame_source": 202117,
           "sequence_count": 1,
           "sequence_lengths": [
             36
@@ -1723,11 +2182,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            543,
+            241
+          ],
+          "canvas_bgra_bytes": 523452,
           "flags": 0,
           "frame_count": 36,
           "frame_formats": {
             "2": 36
           },
+          "largest_frame_decoded": 523452,
+          "largest_frame_source": 202117,
           "sequence_count": 1,
           "sequence_lengths": [
             36
@@ -1753,11 +2221,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            543,
+            241
+          ],
+          "canvas_bgra_bytes": 523452,
           "flags": 0,
           "frame_count": 36,
           "frame_formats": {
             "2": 36
           },
+          "largest_frame_decoded": 523452,
+          "largest_frame_source": 202117,
           "sequence_count": 1,
           "sequence_lengths": [
             36
@@ -1783,11 +2260,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            838,
+            679,
+            901,
+            742
+          ],
+          "canvas_bgra_bytes": 15876,
           "flags": 0,
           "frame_count": 34,
           "frame_formats": {
             "2": 34
           },
+          "largest_frame_decoded": 15120,
+          "largest_frame_source": 7412,
           "sequence_count": 1,
           "sequence_lengths": [
             34
@@ -1816,11 +2302,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            87,
+            10,
+            151,
+            51
+          ],
+          "canvas_bgra_bytes": 10496,
           "flags": 0,
           "frame_count": 1,
           "frame_formats": {
             "2": 1
           },
+          "largest_frame_decoded": 10496,
+          "largest_frame_source": 5664,
           "sequence_count": 1,
           "sequence_lengths": [
             1
@@ -1872,11 +2367,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            543,
+            241
+          ],
+          "canvas_bgra_bytes": 523452,
           "flags": 0,
           "frame_count": 36,
           "frame_formats": {
             "2": 36
           },
+          "largest_frame_decoded": 523452,
+          "largest_frame_source": 202117,
           "sequence_count": 1,
           "sequence_lengths": [
             36
@@ -1902,11 +2406,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            543,
+            241
+          ],
+          "canvas_bgra_bytes": 523452,
           "flags": 0,
           "frame_count": 36,
           "frame_formats": {
             "2": 36
           },
+          "largest_frame_decoded": 523452,
+          "largest_frame_source": 202117,
           "sequence_count": 1,
           "sequence_lengths": [
             36
@@ -1932,11 +2445,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            543,
+            241
+          ],
+          "canvas_bgra_bytes": 523452,
           "flags": 0,
           "frame_count": 36,
           "frame_formats": {
             "2": 36
           },
+          "largest_frame_decoded": 523452,
+          "largest_frame_source": 202117,
           "sequence_count": 1,
           "sequence_lengths": [
             36
@@ -1962,11 +2484,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            242,
+            245,
+            893,
+            530
+          ],
+          "canvas_bgra_bytes": 742140,
           "flags": 0,
           "frame_count": 88,
           "frame_formats": {
             "3": 88
           },
+          "largest_frame_decoded": 100320,
+          "largest_frame_source": 24187,
           "sequence_count": 1,
           "sequence_lengths": [
             88
@@ -1989,11 +2520,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            93,
+            104
+          ],
+          "canvas_bgra_bytes": 38688,
           "flags": 0,
           "frame_count": 40,
           "frame_formats": {
             "2": 40
           },
+          "largest_frame_decoded": 38688,
+          "largest_frame_source": 19728,
           "sequence_count": 1,
           "sequence_lengths": [
             40
@@ -2038,11 +2578,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            93,
+            104
+          ],
+          "canvas_bgra_bytes": 38688,
           "flags": 0,
           "frame_count": 40,
           "frame_formats": {
             "2": 40
           },
+          "largest_frame_decoded": 38688,
+          "largest_frame_source": 19728,
           "sequence_count": 1,
           "sequence_lengths": [
             40
@@ -2087,11 +2636,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            93,
+            104
+          ],
+          "canvas_bgra_bytes": 38688,
           "flags": 0,
           "frame_count": 40,
           "frame_formats": {
             "2": 40
           },
+          "largest_frame_decoded": 38688,
+          "largest_frame_source": 19728,
           "sequence_count": 1,
           "sequence_lengths": [
             40
@@ -2136,11 +2694,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            543,
+            241
+          ],
+          "canvas_bgra_bytes": 523452,
           "flags": 0,
           "frame_count": 36,
           "frame_formats": {
             "2": 36
           },
+          "largest_frame_decoded": 523452,
+          "largest_frame_source": 202117,
           "sequence_count": 1,
           "sequence_lengths": [
             36
@@ -2166,9 +2733,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            516,
+            127,
+            922,
+            768
+          ],
+          "canvas_bgra_bytes": 1040984,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1020472,
+          "largest_frame_source": 521716,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -2209,9 +2788,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            461,
+            114,
+            928,
+            768
+          ],
+          "canvas_bgra_bytes": 1221672,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1161492,
+          "largest_frame_source": 609817,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -2252,9 +2843,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            583,
+            817
+          ],
+          "canvas_bgra_bytes": 1905244,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1905244,
+          "largest_frame_source": 553554,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -2295,9 +2898,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            583,
+            817
+          ],
+          "canvas_bgra_bytes": 1905244,
           "flags": 1,
           "frame_count": 102,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 101,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1905244,
+          "largest_frame_source": 466821,
           "sequence_count": 1,
           "sequence_lengths": [
             102
@@ -2338,9 +2953,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            516,
+            127,
+            922,
+            768
+          ],
+          "canvas_bgra_bytes": 1040984,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1020472,
+          "largest_frame_source": 521716,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -2381,9 +3008,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            461,
+            114,
+            928,
+            768
+          ],
+          "canvas_bgra_bytes": 1221672,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1161492,
+          "largest_frame_source": 609817,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -2424,9 +3063,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            583,
+            817
+          ],
+          "canvas_bgra_bytes": 1905244,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1905244,
+          "largest_frame_source": 553554,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -2467,9 +3118,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            583,
+            817
+          ],
+          "canvas_bgra_bytes": 1905244,
           "flags": 1,
           "frame_count": 102,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 101,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1905244,
+          "largest_frame_source": 466821,
           "sequence_count": 1,
           "sequence_lengths": [
             102
@@ -2510,9 +3173,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            598,
+            78,
+            902,
+            768
+          ],
+          "canvas_bgra_bytes": 839040,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 827148,
+          "largest_frame_source": 171749,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -2553,9 +3228,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            545,
+            45,
+            929,
+            768
+          ],
+          "canvas_bgra_bytes": 1110528,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1081344,
+          "largest_frame_source": 304545,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -2596,9 +3283,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            480,
+            903
+          ],
+          "canvas_bgra_bytes": 1733760,
           "flags": 1,
           "frame_count": 97,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 96,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1733760,
+          "largest_frame_source": 148431,
           "sequence_count": 1,
           "sequence_lengths": [
             97
@@ -2639,9 +3338,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            480,
+            903
+          ],
+          "canvas_bgra_bytes": 1733760,
           "flags": 1,
           "frame_count": 98,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 97,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1733760,
+          "largest_frame_source": 254680,
           "sequence_count": 1,
           "sequence_lengths": [
             98
@@ -2682,9 +3393,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            598,
+            78,
+            902,
+            768
+          ],
+          "canvas_bgra_bytes": 839040,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 827148,
+          "largest_frame_source": 171749,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -2725,9 +3448,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            545,
+            45,
+            929,
+            768
+          ],
+          "canvas_bgra_bytes": 1110528,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1081344,
+          "largest_frame_source": 304545,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -2768,9 +3503,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            480,
+            903
+          ],
+          "canvas_bgra_bytes": 1733760,
           "flags": 1,
           "frame_count": 97,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 96,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1733760,
+          "largest_frame_source": 148431,
           "sequence_count": 1,
           "sequence_lengths": [
             97
@@ -2811,9 +3558,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            480,
+            903
+          ],
+          "canvas_bgra_bytes": 1733760,
           "flags": 1,
           "frame_count": 98,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 97,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1733760,
+          "largest_frame_source": 254680,
           "sequence_count": 1,
           "sequence_lengths": [
             98
@@ -2854,9 +3613,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            533,
+            169,
+            859,
+            768
+          ],
+          "canvas_bgra_bytes": 781096,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 781096,
+          "largest_frame_source": 262126,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -2894,9 +3665,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            502,
+            163,
+            867,
+            768
+          ],
+          "canvas_bgra_bytes": 883300,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 871620,
+          "largest_frame_source": 420006,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -2934,9 +3717,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            456,
+            756
+          ],
+          "canvas_bgra_bytes": 1378944,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1378944,
+          "largest_frame_source": 170703,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -2974,9 +3769,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            456,
+            756
+          ],
+          "canvas_bgra_bytes": 1378944,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1378944,
+          "largest_frame_source": 318001,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -3014,9 +3821,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            611,
+            74,
+            900,
+            768
+          ],
+          "canvas_bgra_bytes": 802264,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 796712,
+          "largest_frame_source": 120606,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -3054,9 +3873,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            541,
+            67,
+            959,
+            768
+          ],
+          "canvas_bgra_bytes": 1172072,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1134000,
+          "largest_frame_source": 266492,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -3094,9 +3925,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            522,
+            876
+          ],
+          "canvas_bgra_bytes": 1829088,
           "flags": 1,
           "frame_count": 102,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 101,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1829088,
+          "largest_frame_source": 198040,
           "sequence_count": 1,
           "sequence_lengths": [
             102
@@ -3134,9 +3977,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            522,
+            876
+          ],
+          "canvas_bgra_bytes": 1829088,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1829088,
+          "largest_frame_source": 408829,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -3174,9 +4029,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            611,
+            74,
+            900,
+            768
+          ],
+          "canvas_bgra_bytes": 802264,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 796712,
+          "largest_frame_source": 120606,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -3214,9 +4081,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            541,
+            67,
+            959,
+            768
+          ],
+          "canvas_bgra_bytes": 1172072,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1134000,
+          "largest_frame_source": 266492,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -3254,9 +4133,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            522,
+            876
+          ],
+          "canvas_bgra_bytes": 1829088,
           "flags": 1,
           "frame_count": 102,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 101,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1829088,
+          "largest_frame_source": 198040,
           "sequence_count": 1,
           "sequence_lengths": [
             102
@@ -3294,9 +4185,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            522,
+            876
+          ],
+          "canvas_bgra_bytes": 1829088,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1829088,
+          "largest_frame_source": 408829,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -3334,9 +4237,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            474,
+            115,
+            820,
+            768
+          ],
+          "canvas_bgra_bytes": 903752,
           "flags": 1,
           "frame_count": 81,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 80,
+            "empty": 1
+          },
+          "largest_frame_decoded": 891296,
+          "largest_frame_source": 25125,
           "sequence_count": 1,
           "sequence_lengths": [
             81
@@ -3374,9 +4289,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            409,
+            114,
+            845,
+            768
+          ],
+          "canvas_bgra_bytes": 1140576,
           "flags": 1,
           "frame_count": 81,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 80,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1135344,
+          "largest_frame_source": 327294,
           "sequence_count": 1,
           "sequence_lengths": [
             81
@@ -3414,9 +4341,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            545,
+            817
+          ],
+          "canvas_bgra_bytes": 1781060,
           "flags": 1,
           "frame_count": 81,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 80,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1781060,
+          "largest_frame_source": 74028,
           "sequence_count": 1,
           "sequence_lengths": [
             81
@@ -3454,9 +4393,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            545,
+            817
+          ],
+          "canvas_bgra_bytes": 1781060,
           "flags": 1,
           "frame_count": 81,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 80,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1781060,
+          "largest_frame_source": 491909,
           "sequence_count": 1,
           "sequence_lengths": [
             81
@@ -3494,9 +4445,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            556,
+            111,
+            886,
+            768
+          ],
+          "canvas_bgra_bytes": 867240,
           "flags": 1,
           "frame_count": 151,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 150,
+            "empty": 1
+          },
+          "largest_frame_decoded": 850176,
+          "largest_frame_source": 75133,
           "sequence_count": 1,
           "sequence_lengths": [
             151
@@ -3534,9 +4497,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            474,
+            107,
+            887,
+            768
+          ],
+          "canvas_bgra_bytes": 1091972,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1073800,
+          "largest_frame_source": 120027,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -3574,9 +4549,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            516,
+            821
+          ],
+          "canvas_bgra_bytes": 1694544,
           "flags": 1,
           "frame_count": 151,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 150,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1201232,
+          "largest_frame_source": 74645,
           "sequence_count": 1,
           "sequence_lengths": [
             151
@@ -3614,9 +4601,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            516,
+            821
+          ],
+          "canvas_bgra_bytes": 1694544,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1694544,
+          "largest_frame_source": 139653,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -3654,9 +4653,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            474,
+            115,
+            820,
+            768
+          ],
+          "canvas_bgra_bytes": 903752,
           "flags": 1,
           "frame_count": 81,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 80,
+            "empty": 1
+          },
+          "largest_frame_decoded": 891296,
+          "largest_frame_source": 25125,
           "sequence_count": 1,
           "sequence_lengths": [
             81
@@ -3694,9 +4705,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            409,
+            114,
+            845,
+            768
+          ],
+          "canvas_bgra_bytes": 1140576,
           "flags": 1,
           "frame_count": 81,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 80,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1135344,
+          "largest_frame_source": 327294,
           "sequence_count": 1,
           "sequence_lengths": [
             81
@@ -3734,9 +4757,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            545,
+            817
+          ],
+          "canvas_bgra_bytes": 1781060,
           "flags": 1,
           "frame_count": 81,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 80,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1781060,
+          "largest_frame_source": 74028,
           "sequence_count": 1,
           "sequence_lengths": [
             81
@@ -3774,9 +4809,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            545,
+            817
+          ],
+          "canvas_bgra_bytes": 1781060,
           "flags": 1,
           "frame_count": 81,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 80,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1781060,
+          "largest_frame_source": 491909,
           "sequence_count": 1,
           "sequence_lengths": [
             81
@@ -3814,9 +4861,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            563,
+            97,
+            908,
+            768
+          ],
+          "canvas_bgra_bytes": 925980,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 729960,
+          "largest_frame_source": 256941,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -3854,9 +4913,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            514,
+            91,
+            926,
+            768
+          ],
+          "canvas_bgra_bytes": 1115696,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 953440,
+          "largest_frame_source": 223033,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -3894,9 +4965,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            515,
+            846
+          ],
+          "canvas_bgra_bytes": 1742760,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1742760,
+          "largest_frame_source": 200043,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -3934,9 +5017,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            515,
+            846
+          ],
+          "canvas_bgra_bytes": 1742760,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1742760,
+          "largest_frame_source": 205943,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -3974,9 +5069,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            398,
+            654
+          ],
+          "canvas_bgra_bytes": 1041168,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 686172,
+          "largest_frame_source": 124416,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -4014,9 +5121,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            398,
+            654
+          ],
+          "canvas_bgra_bytes": 1041168,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 911904,
+          "largest_frame_source": 303185,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -4054,9 +5173,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            497,
+            817
+          ],
+          "canvas_bgra_bytes": 1624196,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1069432,
+          "largest_frame_source": 201324,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -4094,9 +5225,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            497,
+            817
+          ],
+          "canvas_bgra_bytes": 1624196,
           "flags": 1,
           "frame_count": 100,
-          "frame_formats": {},
+          "frame_formats": {
+            "6": 99,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1431456,
+          "largest_frame_source": 465840,
           "sequence_count": 1,
           "sequence_lengths": [
             100
@@ -4134,9 +5277,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            418,
+            720
+          ],
+          "canvas_bgra_bytes": 1203840,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 737060,
+          "largest_frame_source": 112149,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -4174,9 +5329,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            418,
+            720
+          ],
+          "canvas_bgra_bytes": 1203840,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 954080,
+          "largest_frame_source": 260868,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -4214,9 +5381,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            522,
+            900
+          ],
+          "canvas_bgra_bytes": 1879200,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1049220,
+          "largest_frame_source": 166924,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -4254,9 +5433,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            522,
+            900
+          ],
+          "canvas_bgra_bytes": 1879200,
           "flags": 1,
           "frame_count": 101,
-          "frame_formats": {},
+          "frame_formats": {
+            "5": 100,
+            "empty": 1
+          },
+          "largest_frame_decoded": 1468628,
+          "largest_frame_source": 376792,
           "sequence_count": 1,
           "sequence_lengths": [
             101
@@ -4294,11 +5485,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            644,
+            67,
+            946,
+            511
+          ],
+          "canvas_bgra_bytes": 536352,
           "flags": 0,
           "frame_count": 10,
           "frame_formats": {
             "4": 10
           },
+          "largest_frame_decoded": 536352,
+          "largest_frame_source": 134592,
           "sequence_count": 1,
           "sequence_lengths": [
             10
@@ -4324,9 +5524,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            24,
+            17,
+            307,
+            232
+          ],
+          "canvas_bgra_bytes": 243380,
           "flags": 1,
           "frame_count": 67,
-          "frame_formats": {},
+          "frame_formats": {
+            "1": 66,
+            "cumulative_delta": 1
+          },
+          "largest_frame_decoded": 234780,
+          "largest_frame_source": 4834,
           "sequence_count": 1,
           "sequence_lengths": [
             67
@@ -4355,9 +5567,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            1,
+            334,
+            249
+          ],
+          "canvas_bgra_bytes": 331328,
           "flags": 1,
           "frame_count": 76,
-          "frame_formats": {},
+          "frame_formats": {
+            "1": 75,
+            "cumulative_delta": 1
+          },
+          "largest_frame_decoded": 311520,
+          "largest_frame_source": 17553,
           "sequence_count": 1,
           "sequence_lengths": [
             76
@@ -4386,11 +5610,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            52,
+            52
+          ],
+          "canvas_bgra_bytes": 10816,
           "flags": 0,
           "frame_count": 42,
           "frame_formats": {
             "0": 42
           },
+          "largest_frame_decoded": 10816,
+          "largest_frame_source": 5504,
           "sequence_count": 1,
           "sequence_lengths": [
             42
@@ -4545,11 +5778,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            52,
+            52
+          ],
+          "canvas_bgra_bytes": 10816,
           "flags": 0,
           "frame_count": 42,
           "frame_formats": {
             "0": 42
           },
+          "largest_frame_decoded": 10816,
+          "largest_frame_source": 5504,
           "sequence_count": 1,
           "sequence_lengths": [
             42
@@ -4575,9 +5817,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            24,
+            17,
+            307,
+            232
+          ],
+          "canvas_bgra_bytes": 243380,
           "flags": 1,
           "frame_count": 67,
-          "frame_formats": {},
+          "frame_formats": {
+            "1": 66,
+            "cumulative_delta": 1
+          },
+          "largest_frame_decoded": 234780,
+          "largest_frame_source": 4834,
           "sequence_count": 1,
           "sequence_lengths": [
             67
@@ -4606,9 +5860,21 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            1,
+            334,
+            249
+          ],
+          "canvas_bgra_bytes": 331328,
           "flags": 1,
           "frame_count": 76,
-          "frame_formats": {},
+          "frame_formats": {
+            "1": 75,
+            "cumulative_delta": 1
+          },
+          "largest_frame_decoded": 311520,
+          "largest_frame_source": 17553,
           "sequence_count": 1,
           "sequence_lengths": [
             76
@@ -4637,11 +5903,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            52,
+            52
+          ],
+          "canvas_bgra_bytes": 10816,
           "flags": 0,
           "frame_count": 120,
           "frame_formats": {
             "0": 120
           },
+          "largest_frame_decoded": 10816,
+          "largest_frame_source": 5504,
           "sequence_count": 1,
           "sequence_lengths": [
             120
@@ -4667,11 +5942,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -4703,11 +5987,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -4739,11 +6032,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -4775,11 +6077,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -4811,11 +6122,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -4847,11 +6167,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -4883,11 +6212,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -4919,11 +6257,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -4955,11 +6302,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -4991,11 +6347,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -5027,11 +6392,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -5063,11 +6437,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -5099,11 +6482,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -5129,11 +6521,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -5159,11 +6560,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -5189,11 +6599,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -5219,11 +6638,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            48,
+            48
+          ],
+          "canvas_bgra_bytes": 9216,
           "flags": 0,
           "frame_count": 50,
           "frame_formats": {
             "2": 50
           },
+          "largest_frame_decoded": 9216,
+          "largest_frame_source": 7283,
           "sequence_count": 1,
           "sequence_lengths": [
             50
@@ -5268,11 +6696,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            10,
+            290,
+            155,
+            332
+          ],
+          "canvas_bgra_bytes": 24360,
           "flags": 0,
           "frame_count": 10,
           "frame_formats": {
             "2": 10
           },
+          "largest_frame_decoded": 24360,
+          "largest_frame_source": 12482,
           "sequence_count": 1,
           "sequence_lengths": [
             10
@@ -5298,11 +6735,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            10,
+            396,
+            155,
+            438
+          ],
+          "canvas_bgra_bytes": 24360,
           "flags": 0,
           "frame_count": 10,
           "frame_formats": {
             "2": 10
           },
+          "largest_frame_decoded": 24360,
+          "largest_frame_source": 12482,
           "sequence_count": 1,
           "sequence_lengths": [
             10
@@ -5328,11 +6774,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            10,
+            343,
+            155,
+            385
+          ],
+          "canvas_bgra_bytes": 24360,
           "flags": 0,
           "frame_count": 10,
           "frame_formats": {
             "2": 10
           },
+          "largest_frame_decoded": 24360,
+          "largest_frame_source": 12482,
           "sequence_count": 1,
           "sequence_lengths": [
             10
@@ -5358,11 +6813,20 @@
       {
         "base_properties": {},
         "container": {
+          "bounds": [
+            0,
+            0,
+            543,
+            241
+          ],
+          "canvas_bgra_bytes": 523452,
           "flags": 0,
           "frame_count": 36,
           "frame_formats": {
             "2": 36
           },
+          "largest_frame_decoded": 523452,
+          "largest_frame_source": 202117,
           "sequence_count": 1,
           "sequence_lengths": [
             36
@@ -5423,6 +6887,9 @@
       "0": 56,
       "1": 80
     },
+    "largest_frame_decoded": 1905244,
+    "largest_frame_source": 609817,
+    "largest_pbuf_canvas_bgra": 1905244,
     "largest_source": 30750866,
     "physical_controls": 178,
     "resolved_controls": 136,

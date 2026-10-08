@@ -1,10 +1,12 @@
+param([string]$ReleaseRoot, [string]$NroFixturePath)
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $repo = Split-Path -Parent $PSScriptRoot
+$release = if ($ReleaseRoot) { (Resolve-Path -LiteralPath $ReleaseRoot).Path } else { $repo }
 $script = Join-Path $repo 'tools\deploy-switch.ps1'
-$baselineExe = Join-Path $repo 'windows\Space Rangers HD A War Apart\Rangers.exe'
-$nro = Join-Path $repo 'port\switch\Space Rangers HD - A War Apart.nro'
+$baselineExe = Join-Path $release 'windows\Space Rangers HD A War Apart\Rangers.exe'
+$nro = if ($NroFixturePath) { (Resolve-Path -LiteralPath $NroFixturePath).Path } else { Join-Path $repo 'port\switch\Space Rangers HD - A War Apart.nro' }
 if (-not (Test-Path -LiteralPath $baselineExe) -or -not (Test-Path -LiteralPath $nro)) { throw 'local deployment fixture is unavailable' }
 function Invoke-Deploy([string[]]$DeployArguments) {
   $quoted = $DeployArguments | ForEach-Object { if ($_.StartsWith('-')) { $_ } else { "'$_'" } }

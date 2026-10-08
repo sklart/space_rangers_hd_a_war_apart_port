@@ -63,9 +63,18 @@ bool GiImage::LoadBytes(const std::uint8_t* bytes, std::size_t size, std::string
   for (std::int32_t index = 0; index < plane_count; ++index) {
     const auto offset = I32(bytes + 64 + static_cast<std::size_t>(index) * 32);
     const auto plane_size = I32(bytes + 68 + static_cast<std::size_t>(index) * 32);
+    const auto plane_left = I32(bytes + 72 + static_cast<std::size_t>(index) * 32);
+    const auto plane_top = I32(bytes + 76 + static_cast<std::size_t>(index) * 32);
+    const auto plane_right = I32(bytes + 80 + static_cast<std::size_t>(index) * 32);
+    const auto plane_bottom = I32(bytes + 84 + static_cast<std::size_t>(index) * 32);
     if (offset < 0 || plane_size < 0 ||
+        (offset == 0 && plane_size != 0) ||
         (offset && (static_cast<std::uint64_t>(offset) > size ||
-                    static_cast<std::uint64_t>(plane_size) > size - offset)))
+                    static_cast<std::uint64_t>(plane_size) > size - offset ||
+                    plane_size == 0 || plane_left < I32(bytes + 8) ||
+                    plane_top < I32(bytes + 12) || plane_right > I32(bytes + 16) ||
+                    plane_bottom > I32(bytes + 20) ||
+                    plane_right <= plane_left || plane_bottom <= plane_top)))
       return Fail(error, "raw GI plane range is invalid");
   }
   const auto format = I32(bytes + 40);

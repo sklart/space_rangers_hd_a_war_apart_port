@@ -99,6 +99,74 @@ def inventory(root: Path, source: dict) -> dict:
         if node.name == "GAI": return stage == "after_gai" and gai_ok(node)
         return False
 
+    def classify(node: m23.Node, stage: str) -> dict:
+        props = effective[id(node)]
+        kind = node.name
+        supported_types = {"Panel", "Zone", "GraphButton", "Window", "Label", *m24.IMAGE_TYPES}
+        type_supported = kind in supported_types or (kind == "GAI" and stage == "after_gai")
+        resource_supported = kind in ("Panel", "Zone")
+        if kind == "GraphButton":
+            resource_supported = all(image_ok(raw, stage) for slot in m24.BUTTON_SLOTS
+                                     for raw in props.get(slot, []))
+            if m24.final(props, "Caption"):
+                resource_supported &= bool(fonts.get(m24.final(props, "Font")))
+        elif kind == "Window":
+            resource_supported = all(props.get(slot) and
+                                     all(image_ok(raw, stage) for raw in props[slot])
+                                     for slot in m24.WINDOW_SLOTS)
+        elif kind in m24.IMAGE_TYPES:
+            mode, key = m23.image_reference(node, styles)
+            resource_supported = image_ok(f"{mode},{key}", stage)
+        elif kind == "Label":
+            resource_supported = bool(fonts.get(m24.final(props, "Font")))
+            if m24.final(props, "Image"):
+                resource_supported &= image_ok(m24.final(props, "Image"), stage)
+        elif kind == "GAI":
+            record = gai.get(node.unique_path, {})
+            container = record.get("container", {})
+            resource_supported = bool(record.get("resolved") and
+                                      container.get("status") == "valid" and
+                                      container.get("flags") == 0 and
+                                      container.get("frame_formats") and
+                                      all(fmt in ("0", "2") for fmt in container["frame_formats"]))
+        base = m24.BASE | BASE_METADATA
+        render_semantics_supported = False
+        if kind == "Panel": render_semantics_supported = True
+        elif kind == "Zone":
+            render_semantics_supported = (set(props) <= m24.ZONE_PROPERTIES | BASE_METADATA and
+                                          m24.final(props, "Kind", "Rect") in ("Rect", "Circle"))
+        elif kind == "GraphButton":
+            render_semantics_supported = (set(props) <= m24.BUTTON_PROPERTIES | BASE_METADATA and
+                                          m24.final(props, "KindHit", "Rect") in ("Rect", "Graph", "ImageHit"))
+        elif kind == "Window":
+            render_semantics_supported = set(props) <= m24.WINDOW_PROPERTIES | BASE_METADATA
+        elif kind in m24.IMAGE_TYPES:
+            render_semantics_supported = set(props) <= base | frozenset((
+                "Image", "KindX", "KindY", "AlignX", "AlignY", "HalfAlpha", "Alpha", "Auto"))
+        elif kind == "Label":
+            render_semantics_supported = set(props) <= m23.LABEL_PROPERTIES | BASE_METADATA
+        elif kind == "GAI" and stage == "after_gai":
+            record = gai.get(node.unique_path, {})
+            gai_props = record.get("properties", {})
+            render_semantics_supported = ("PBuf" not in gai_props and
+                                          "ImageFirst" not in gai_props and
+                                          resource_supported and gai_ok(node))
+        eligible = render_ok(node, stage)
+        interaction_semantics_supported = False  # no mouse/event dispatcher in M25
+        category = "RENDER_ONLY" if eligible else "UNSUPPORTED"
+        reasons = []
+        if not type_supported: reasons.append("control_type_deferred")
+        if not resource_supported: reasons.append("resource_unresolved_or_unsupported")
+        if type_supported and resource_supported and not render_semantics_supported:
+            reasons.append("instance_render_semantics_deferred")
+        if eligible: reasons.append("input_dispatcher_deferred")
+        return {"path": node.unique_path, "type": kind,
+                "type_supported": type_supported,
+                "resource_supported": resource_supported,
+                "render_semantics_supported": render_semantics_supported,
+                "interaction_semantics_supported": interaction_semantics_supported,
+                "category": category, "reasons": reasons}
+
     result = {}
     for stage in ("after_gi", "after_gai"):
         candidates = []
@@ -126,7 +194,8 @@ def inventory(root: Path, source: dict) -> dict:
                          "selected": selected, "largest": largest,
                          "most_common_root": Counter(c["path"].split("/")[1] for c in candidates).most_common(1),
                          "eligible_controls": dict(sorted(eligible_controls.items())),
-                         "blocker_root_counts": dict(sorted(blockers.items()))}
+                         "blocker_root_counts": dict(sorted(blockers.items())),
+                         "controls": [classify(node, stage) for node in controls]}
     return result
 
 
