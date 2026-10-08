@@ -1,5 +1,28 @@
 # M11C Switch hardware smoke
 
+## M25 cumulative checkpoint (pending physical run)
+
+The software-gated source is `a68bd6f`; the clean ARM64 NRO is 7,727,408
+bytes, SHA-256
+`A82869C315FAD2166F7587132356836109735B0C2F72D36698E7982719C4D2BA`,
+with embedded `build_git=a68bd6f`. CI run `37845660034` passed. No physical
+SD destination hash or Switch log has been measured for M25 yet.
+
+After terminal M25 CI and a clean ARM64 build, record the NRO's local path,
+size, SHA-256, embedded `build_git` and timestamp before deployment. The
+deployment helper verifies source and SD destination SHA-256 when the SD
+filesystem is accessible. If destination hashing is unavailable, mark it
+`NOT MEASURED` and retain the local hash, build ID and runtime fingerprints.
+For deployment with `tools/deploy-switch.ps1`, pass the exact embedded
+`-BuildGit <commit>` value; `runtime/deployment.txt` records both source and
+destination hashes with the UTC timestamp. The helper checks those hashes
+immediately after copying the NRO.
+The Switch run must retain exact M23/M24 fixed checkpoints, match the M25 raw
+GI, real GraphButton/Window, GAI and real-subtree oracles, show GAI progress,
+then report positive frames/presents, `PLUS` exit and `[BOOT] COMPLETE`.
+Capture a screenshot if the selected subtree is actually shown. A local
+321×37 subtree hash alone does not demonstrate its appearance in the game.
+
 ## Deploy
 
 Use the deployment helper rather than manually copying individual release

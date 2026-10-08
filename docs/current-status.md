@@ -1,4 +1,15 @@
-# Current status — M24 COMPLETE / HARDWARE PASS
+# Current status — M25 SOFTWARE COMPLETE / HARDWARE PENDING
+
+M24 was fast-forwarded to `master` at
+`6193878a71341c9726a0935643c0170305032c6b`; the exact commit was tagged
+`m24-hardware-pass`. M25 runs on `codex/m25-gi-gai-ui`. Its portable raw GI
+and supported GAI UI path have local synthetic and release-backed host tests.
+The first real release subtree is the 18-node `PLBar` panel from Main.dat,
+with 17 real Format 2 GI leaves and independent tree/frame hashes. CI run
+`37845660034` passed for production commit `a68bd6f`; the clean ARM64 build
+produced an ELF64 AArch64 NRO with zero undefined symbols. A cumulative
+physical Switch run is still pending. The scope, inventory and limits are in
+[the M25 evidence document](milestone25-gi-gai-real-ui.md).
 
 M24 adds portable GraphButton, Window, and Zone controls on the M22/M23 tree.
 The local retained host regression, independent three-state Python oracle,
