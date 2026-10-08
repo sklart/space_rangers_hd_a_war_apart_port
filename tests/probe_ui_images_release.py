@@ -55,12 +55,12 @@ def dat_xor(data, seed):
         out[i]^=(state-1)&0xff
     return bytes(out)
 
-def decode_dat(path):
+def decode_dat(path, seed_key=BLOCK_DAT_SEED_KEY):
     blob=path.read_bytes()
     if len(blob)<16: raise ValueError('DAT header is truncated')
     byte_count=u32(blob)^0x7db6c99d^0xc83fcbf3
     if byte_count!=len(blob)-8: raise ValueError('DAT byte count mismatch')
-    expected=u32(blob,8); seed=u32(blob,12)^BLOCK_DAT_SEED_KEY
+    expected=u32(blob,8); seed=u32(blob,12)^seed_key
     if seed>=0x80000000: seed-=0x100000000
     encoded=dat_xor(blob[16:],seed)
     if zlib.crc32(encoded)&0xffffffff!=expected: raise ValueError('DAT inner CRC mismatch')
@@ -96,12 +96,43 @@ def block_entries(decoded):
     yield from block(0,'')
 
 RESOURCE=re.compile(r'(?i)(?:DATA[\\/])?[^\s\[\]{};,"\']+\.(?:bmp|png|jpe?g|psd|gi|gai)')
+IMAGE_MODES={'simple':'Simple','trans':'Trans','alpha':'Alpha','gi':'GI','gai':'GAI','anim':'Anim','graphbuf':'GraphBuf'}
+def data_entries(decoded):
+    def wide(at):
+        end=at
+        while end+1<len(decoded) and decoded[end:end+2]!=b'\0\0': end+=2
+        if end+1>=len(decoded): raise ValueError('unterminated data UTF-16 string')
+        return decoded[at:end].decode('utf-16le','strict'),end+2
+    def node(at,prefix):
+        if at+4>len(decoded): raise ValueError('truncated data node')
+        count=u32(decoded,at); at+=4
+        if count>1000000: raise ValueError('invalid data node count')
+        for _ in range(count):
+            if at>=len(decoded): raise ValueError('truncated data entry')
+            kind=decoded[at]; at+=1; name,at=wide(at); path=prefix+'/'+name if prefix else name
+            if kind==1:
+                file_name,at=wide(at); yield path,file_name
+            elif kind==2:
+                at=yield from node(at,path)
+            else: raise ValueError('unknown data entry kind')
+        return at
+    yield from node(0,'')
+
+def split_image(value):
+    first,sep,rest=value.partition(',')
+    mode=IMAGE_MODES.get(first.strip().lower())
+    if mode: return mode,rest.strip()
+    return 'Simple',value.strip()
 def scan(path):
     decoded=decode_dat(path); refs=[]
     for block_path,name,value in block_entries(decoded):
+        if name.casefold()=='image':
+            mode,key=split_image(value)
+            refs.append({'container':path.name,'entry':block_path,'name':name,'mode':mode,'resource_key':key,'resource':key,'option':value})
+            continue
         context=' '.join((block_path,name,value)); mode=classify(context) or 'Unclassified'
         for found in RESOURCE.findall(value):
-            refs.append({'container':path.name,'entry':block_path,'name':name,'mode':mode,'resource':found.replace('\\','/') ,'option':value})
+            refs.append({'container':path.name,'entry':block_path,'name':name,'mode':mode,'resource_key':found.replace('\\','/'),'resource':found.replace('\\','/') ,'option':value})
     return refs, {'path':str(path),'decoded_bytes':len(decoded),'entries':sum(1 for _ in block_entries(decoded))}
 def image_candidates(path):
     try: blob=path.read_bytes()
@@ -119,6 +150,14 @@ def main():
     for p in candidates:
         if p.exists():
             found, detail=scan(p); refs.extend(found); stats.append(detail)
+    cache_paths={}
+    cache_file=cfg/'CacheData.dat'
+    if cache_file.exists():
+        for key,file_name in data_entries(decode_dat(cache_file,0xea8f3f37)):
+            cache_paths[key.casefold()]=file_name.replace('\\','/')
+    for ref in refs:
+        key=ref['resource_key'].casefold()
+        ref['resource']=cache_paths.get(key,cache_paths.get(key.replace('.','/'),ref['resource_key']))
     refs.sort(key=lambda r:(r['mode'],r['resource'].lower(),r['option'],r['container'],r['entry']))
     packages=[ns.game_root/'DATA'/'common.pkg']
     candidates=[]
@@ -128,7 +167,14 @@ def main():
     selected=[]
     for extension in sorted(candidate_counts):
         selected.append(next(item for item in candidates if item['extension']==extension))
-    result={'containers':stats,'references':refs,'counts':dict(sorted(Counter(r['mode'] for r in refs).items())),'unique_resources':len({r['resource'].lower() for r in refs}),'release_presence':bool(refs),'status':'PRESENT' if refs else 'NOT_PRESENT','unclassified_candidate_counts':dict(sorted(candidate_counts.items())),'selected_unclassified_candidates':selected}
+    static_refs=[r for r in refs if pathlib.PurePosixPath(r['resource']).suffix.lower() in ('.bmp','.png','.jpg','.jpeg','.psd')]
+    static_counts=Counter(r['mode'] for r in static_refs)
+    selected_static=[]
+    for mode in ('Simple','Trans','Alpha'):
+        choices=sorted((r for r in static_refs if r['mode']==mode),key=lambda r:(r['resource'].casefold(),r['resource_key'].casefold(),r['entry'].casefold()))
+        if choices: selected_static.append({'mode':mode,'resource':choices[0]['resource'],'resource_key':choices[0]['resource_key'],'option':choices[0]['option'],'entry':choices[0]['entry']})
+    unresolved=sorted({r['resource_key'] for r in refs if r['mode'] in ('Simple','Trans','Alpha') and r['resource']==r['resource_key']},key=str.casefold)
+    result={'containers':stats,'cache_entries':len(cache_paths),'references':refs,'counts':dict(sorted(Counter(r['mode'] for r in refs).items())),'static_counts':dict(sorted(static_counts.items())),'selected_static_resources':selected_static,'unresolved_static_keys':unresolved,'unique_resources':len({r['resource'].lower() for r in refs}),'release_presence':bool(refs),'status':'PRESENT' if refs else 'NOT_PRESENT','unclassified_candidate_counts':dict(sorted(candidate_counts.items())),'selected_unclassified_candidates':selected}
     print(json.dumps(result,ensure_ascii=False,indent=2))
     if ns.json: ns.json.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 if __name__=='__main__': main()
