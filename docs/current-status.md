@@ -18,6 +18,10 @@ M21 inventory resolves `Bm.Planet.T.Spu00` to `DATA/Planet/Spu00.png` in
 The base release has no `Trans` reference. Its six `Alpha` `Bitmap.BGObj.*`
 references have no mapping in base `CacheData.dat` or language DAT, therefore
 they are release **NOT PRESENT**, not substituted with arbitrary assets.
+The M21 runtime integration verifies the same Simple source and
+decoded fingerprints, then compares its fixed first mixed M20/M21 frame with
+the independent `7f09befb`/`6ac7a80e017915b3` oracle. This is implementation
+evidence only; CI and final hardware gates remain pending.
 
 Baseline SHA-256: `83300344af802bc51e64389c58f047e5afdf195c133048098be3881fae29ed98`.
 

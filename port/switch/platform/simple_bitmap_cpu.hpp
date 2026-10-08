@@ -19,9 +19,11 @@ class SimpleBitmap {
             std::string* error = nullptr) const;
   std::int32_t width() const { return width_; }
   std::int32_t height() const { return height_; }
+  std::int32_t pitch() const { return pitch_; }
   bool source_rgba() const { return source_rgba_; }
   bool loaded() const { return !pixels_.empty(); }
   std::size_t resident_bytes() const { return pixels_.size(); }
+  const std::vector<std::uint8_t>& pixels() const { return pixels_; }
  private:
   std::int32_t width_{}, height_{}, pitch_{};
   bool source_rgba_{};

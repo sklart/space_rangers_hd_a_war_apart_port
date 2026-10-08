@@ -99,6 +99,21 @@ headers: он сравнивает полный C++ PNG decode с указанн
 development package); это не выдаётся за C++ release PASS и не включается в
 CI target, потому что CI не содержит локальную коммерческую game tree.
 
+## Runtime diagnostic integration
+
+Диагностический runtime загружает ровно выбранный release `Simple`
+`DATA/Planet/Spu00.png` через `PortableImageObject`, удерживает его decoded
+RGB565 representation и до запуска persistent loop сверяет source и decoded
+fingerprint с independent oracle. `Trans` и `Alpha` не подменяются: в текущем
+release они логируются как `NOT_PRESENT`.
+
+Первый fixed logical frame включает heartbeat frame 0, три M20 GIObject и
+этот Simple image. `tests/probe_m21_release_scene.py` независимо получает
+RGB565 framebuffer `1,843,200` bytes, CRC32 `7f09befb`,
+FNV64 `6ac7a80e017915b3`; runtime сравнивает тот же fingerprint до обычной
+animation. Это не даёт hardware PASS само по себе: до финального единственного
+Switch запуска остаются terminal CI, clean build/аудит и полный preflight.
+
 ## Что не заявляется
 
 M21 не переносит полный `TImageGI`. После него всё ещё будут отдельными

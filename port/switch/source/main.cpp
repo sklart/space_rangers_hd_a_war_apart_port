@@ -19,6 +19,8 @@
 #include "software_compositor.hpp"
 #include "scene_compositor.hpp"
 #include "gi_object.hpp"
+#include "image_object.hpp"
+#include "presentation_scene.hpp"
 #include "units/GR_GraphBuf.hpp"
 #include "units/EC_BlockPar.hpp"
 #include "units/EC_Buf.hpp"
@@ -584,6 +586,108 @@ bool DrawM20GiObjects(void* user_data, std::string* error) {
   return true;
 }
 
+struct M21UiImageDiagnostic {
+  srhd_awa::platform::image_object::PortableImageObject simple;
+  srhd_awa::platform::presentation_scene::PresentationScene scene;
+  bool rendered{};
+};
+
+bool InitializeM21UiImages(M20GiObjectDiagnostic* m20, std::int32_t width, std::int32_t height,
+                           M21UiImageDiagnostic* diagnostic, std::string* error) {
+  constexpr const char* kSimpleResource = "DATA/Planet/Spu00.png";
+  constexpr std::uint32_t kSimpleSourceCrc32 = 0xa3721a9cu;
+  constexpr std::uint64_t kSimpleSourceFnv64 = UINT64_C(0x32ebfdd05d7fa674);
+  constexpr std::uint32_t kSimpleDecodedCrc32 = 0x51e16db2u;
+  constexpr std::uint64_t kSimpleDecodedFnv64 = UINT64_C(0xffeaf550d3c28655);
+  const auto* entry = m20->package.Resolve(kSimpleResource);
+  std::vector<std::uint8_t> source;
+  if (!entry || !m20->package.ReadPayload(*entry, &source, error)) return false;
+  const auto source_crc32 = CrcUnit::ComputeCrc32(source.data(), static_cast<std::int32_t>(source.size()));
+  const auto source_fnv64 = M17Fnv(source.data(), source.size());
+  if (source.size() != 7389 || source_crc32 != kSimpleSourceCrc32 || source_fnv64 != kSimpleSourceFnv64) {
+    if (error) *error = "M21 Simple release source differs from oracle";
+    return false;
+  }
+  diagnostic->simple.SetPackage(&m20->package);
+  diagnostic->simple.SetId("m21-simple-spu00");
+  diagnostic->simple.SetPosition(32, 96);
+  diagnostic->simple.SetSize(128, 60);
+  diagnostic->simple.SetLayer(5);
+  if (!diagnostic->simple.Load(srhd_awa::platform::image_object::Kind::Simple, kSimpleResource, "", error)) return false;
+  if (diagnostic->simple.natural_width() != 128 || diagnostic->simple.natural_height() != 60 ||
+      diagnostic->simple.natural_width() > width || diagnostic->simple.natural_height() > height) {
+    if (error) *error = "M21 configured Simple dimensions differ from release oracle";
+    return false;
+  }
+  const std::uint8_t* decoded{};
+  std::size_t decoded_bytes{};
+  std::int32_t decoded_pitch{};
+  if (!diagnostic->simple.GetSimpleNative565(&decoded, &decoded_bytes, &decoded_pitch, error)) return false;
+  const auto decoded_crc32 = CrcUnit::ComputeCrc32(const_cast<std::uint8_t*>(decoded), static_cast<std::int32_t>(decoded_bytes));
+  const auto decoded_fnv64 = M17Fnv(decoded, decoded_bytes);
+  if (decoded_pitch != 256 || decoded_bytes != 15360 || decoded_crc32 != kSimpleDecodedCrc32 ||
+      decoded_fnv64 != kSimpleDecodedFnv64) {
+    if (error) *error = "M21 Simple decoded pixels differ from oracle";
+    return false;
+  }
+  Log("[M21] UI image foundation BEGIN");
+  Log("[M21] simple_resource=%s simple_size=%ldx%ld simple_mode=Simple", kSimpleResource,
+      static_cast<long>(diagnostic->simple.natural_width()), static_cast<long>(diagnostic->simple.natural_height()));
+  Log("[M21] simple_source_bytes=%zu simple_source_crc32=%08lx simple_source_fnv64=%016llx",
+      source.size(), static_cast<unsigned long>(source_crc32), static_cast<unsigned long long>(source_fnv64));
+  Log("[M21] simple_decoded_pitch=%ld simple_decoded_bytes=%zu simple_decoded_crc32=%08lx simple_decoded_fnv64=%016llx",
+      static_cast<long>(decoded_pitch), decoded_bytes, static_cast<unsigned long>(decoded_crc32),
+      static_cast<unsigned long long>(decoded_fnv64));
+  Log("[M21] trans_resource=NOT_PRESENT trans_option=NOT_PRESENT");
+  Log("[M21] alpha_resource=NOT_PRESENT alpha_trans_bytes=0 alpha_transalpha_bytes=0 alpha_alpha_bytes=0");
+  Log("[M21] release_inventory trans=NOT_PRESENT alpha=NOT_PRESENT");
+  return true;
+}
+
+bool SyncM21Presentation(M20GiObjectDiagnostic* m20, M21UiImageDiagnostic* diagnostic, std::string* error) {
+  diagnostic->scene.Clear();
+  return diagnostic->scene.AddGI("m20-asteroid", &m20->asteroid, error) &&
+      diagnostic->scene.AddImage("m21-simple-spu00", &diagnostic->simple, error) &&
+      diagnostic->scene.AddGI("m20-secondary", &m20->secondary, error) &&
+      diagnostic->scene.AddGI("m20-overlay", &m20->overlay, error);
+}
+
+struct M21FrameCallbacks { M17PlaybackDiagnostic* m17{}; M20GiObjectDiagnostic* m20{}; M21UiImageDiagnostic* m21{}; };
+bool RunM17M20AndM21(void* user_data, std::uint64_t now_ms, std::string* error) {
+  auto* callbacks = static_cast<M21FrameCallbacks*>(user_data);
+  return RunM17Playback(callbacks->m17, now_ms, error) && UpdateM20GiObjects(callbacks->m20, now_ms, error);
+}
+bool DrawM21Presentation(void* user_data, std::string* error) {
+  auto* callbacks = static_cast<M21FrameCallbacks*>(user_data);
+  auto* framebuffer = GR_Main::ScreenRenderBuffer;
+  if (!framebuffer || !framebuffer->GetPixels() || framebuffer->PitchBytes % 2 != 0) {
+    if (error) *error = "M21 RGB565 framebuffer unavailable";
+    return false;
+  }
+  if (!SyncM21Presentation(callbacks->m20, callbacks->m21, error)) return false;
+  const srhd_awa::platform::scene_compositor::Framebuffer target{static_cast<std::uint16_t*>(framebuffer->GetPixels()), framebuffer->Width, framebuffer->Height, framebuffer->PitchBytes / 2};
+  if (!callbacks->m21->scene.Render(target, error)) return false;
+  callbacks->m20->rendered = true;
+  if (!callbacks->m21->rendered) {
+    constexpr std::uint32_t kSceneCrc32 = 0x7f09befbu;
+    constexpr std::uint64_t kSceneFnv64 = UINT64_C(0x6ac7a80e017915b3);
+    srhd_awa::platform::presentation_scene::FramebufferFingerprint fingerprint{};
+    if (!callbacks->m21->scene.ComputeFramebufferFingerprint(target, &fingerprint, error)) return false;
+    if (fingerprint.bytes != 1843200 || fingerprint.crc32 != kSceneCrc32 || fingerprint.fnv64 != kSceneFnv64) {
+      if (error) *error = "M21 first logical runtime frame differs from release oracle";
+      return false;
+    }
+    callbacks->m21->rendered = true;
+    Log("[M20] GI object PASS objects=3");
+    Log("[M21] layout_count=1 hit_test=NOT_APPLICABLE alpha=NOT_PRESENT");
+    Log("[M21] scene_crc32=%08lx scene_fnv64=%016llx scene_bytes=%zu", static_cast<unsigned long>(fingerprint.crc32),
+        static_cast<unsigned long long>(fingerprint.fnv64), fingerprint.bytes);
+    Log("[M21] GIObject regression PASS");
+    Log("[M21] UI image foundation PASS simple=1 trans=NOT_PRESENT alpha=NOT_PRESENT");
+  }
+  return true;
+}
+
 struct M20FrameCallbacks { M17PlaybackDiagnostic* m17{}; M20GiObjectDiagnostic* m20{}; };
 bool RunM17AndM20(void* user_data, std::uint64_t now_ms, std::string* error) {
   auto* callbacks = static_cast<M20FrameCallbacks*>(user_data);
@@ -940,9 +1044,20 @@ int main(int argc, char** argv) {
     srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
-  M20FrameCallbacks m20_callbacks{&m17_diagnostic, &m20_diagnostic};
-  srhd_awa::platform::runtime_loop_slice::SetFrameCallback(&runtime_loop, RunM17AndM20, &m20_callbacks);
-  srhd_awa::platform::runtime_loop_slice::SetDrawCallback(&runtime_loop, DrawM20GiObjects, &m20_diagnostic);
+  StageBegin("M21 UI image foundation");
+  M21UiImageDiagnostic m21_diagnostic;
+  std::string m21_error;
+  if (!InitializeM21UiImages(&m20_diagnostic, framebuffer->Width, framebuffer->Height, &m21_diagnostic, &m21_error)) {
+    Log("[M21] FAIL initialization=%s", m21_error.c_str());
+    Stage("M21 UI image foundation", false, m21_error.c_str());
+    srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
+    srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
+    srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
+  M21FrameCallbacks m21_callbacks{&m17_diagnostic, &m20_diagnostic, &m21_diagnostic};
+  srhd_awa::platform::runtime_loop_slice::SetFrameCallback(&runtime_loop, RunM17M20AndM21, &m21_callbacks);
+  srhd_awa::platform::runtime_loop_slice::SetDrawCallback(&runtime_loop, DrawM21Presentation, &m21_callbacks);
   Log("[M12] runtime ready");
   Log("[M12] framebuffer=%ldx%ld pitch=%ld pixel=RGB565", static_cast<long>(framebuffer->Width),
       static_cast<long>(framebuffer->Height), static_cast<long>(framebuffer->PitchBytes));
@@ -963,6 +1078,10 @@ int main(int argc, char** argv) {
     m12_error = "M20 GI objects did not draw";
     loop_ok = false;
   }
+  if (loop_ok && !m21_diagnostic.rendered) {
+    m12_error = "M21 UI image foundation did not draw";
+    loop_ok = false;
+  }
   if (!loop_ok) Log("[STAGE] runtime loop FAIL reason=%s", m12_error.c_str());
   else {
     Log("[M12] exit_reason=%s", srhd_awa::platform::runtime_loop_slice::ExitReasonName(loop_stats.exit_reason));
@@ -978,6 +1097,7 @@ int main(int argc, char** argv) {
   Stage("M18 compositor", loop_ok && m20_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
   Stage("M19 scene compositor", loop_ok && m20_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
   Stage("M20 GI object", loop_ok && m20_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
+  Stage("M21 UI image foundation", loop_ok && m21_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
   srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
   srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
   srhd_awa::platform::ui_metadata_slice::Shutdown();

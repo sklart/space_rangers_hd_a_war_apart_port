@@ -18,6 +18,10 @@ class PortableImageObject {
   bool Load(Kind kind,const std::string& resource,const std::string& load_option,std::string* error=nullptr);
   bool DrawFramebuffer(std::uint16_t* pixels,std::int32_t width,std::int32_t height,std::int32_t pitch,const okgf_rle_bridge::Rect& clip,std::string* error=nullptr)const;
   bool HitTest(std::int32_t x,std::int32_t y,std::string* error=nullptr)const;
+  // Read-only diagnostic access for a loaded, native-RGB565 Simple image.
+  // It does not expose Trans/Alpha RLE internals to the runtime owner.
+  bool GetSimpleNative565(const std::uint8_t** pixels, std::size_t* bytes,
+                          std::int32_t* pitch, std::string* error=nullptr) const;
   bool loaded()const{return !std::holds_alternative<std::monostate>(data_);} Kind kind()const{return kind_;} const std::string& id()const{return id_;} const std::string& resource()const{return resource_;} std::int32_t layer()const{return layer_;} bool visible()const{return visible_;} std::int32_t natural_width()const; std::int32_t natural_height()const;
  private:
   package::Package* package_{}; std::string id_,resource_; Kind kind_{Kind::Simple}; std::variant<std::monostate,simple_bitmap_cpu::SimpleBitmap,trans_bitmap_cpu::TransBitmap,alpha_bitmap_cpu::AlphaBitmap> data_; std::int32_t x_{},y_{},origin_x_{},origin_y_{},client_width_{},client_height_{},layer_{}; image_layout::XMode x_mode_{image_layout::XMode::Center};image_layout::YMode y_mode_{image_layout::YMode::Center};bool half_alpha_{};bool visible_{true};
