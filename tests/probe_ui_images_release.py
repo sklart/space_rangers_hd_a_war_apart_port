@@ -97,6 +97,9 @@ def block_entries(decoded):
 
 RESOURCE=re.compile(r'(?i)(?:DATA[\\/])?[^\s\[\]{};,"\']+\.(?:bmp|png|jpe?g|psd|gi|gai)')
 IMAGE_MODES={'simple':'Simple','trans':'Trans','alpha':'Alpha','gi':'GI','gai':'GAI','anim':'Anim','graphbuf':'GraphBuf'}
+# Exact names handled by upstream GI_Main::CreateControlByName. This probe
+# counts only matching block names; other blocks remain groups/unknowns.
+KNOWN_CONTROLS=frozenset(('Panel','PanelScrollBar','Window','SimpleImage','TransImage','AlphaImage','RotateImage','RotateImage2','RotateImage5','RotateImageGAI','Image','InfiniteImage','AImage','GI','GAI','GAIFile','MultiImage','Door','SimpleButton','TextButton','GraphButton','Zone','Label','Edit','ScrollBar','CountBar','SBPath','StatusBar','Planet','PlanetButton','CheckBox','RadioGroup','Grid','Line','Circle','Frame','ShrLight','GraphBuf','StarField','StarFieldM','StarFieldImg','SpaceCircle','SpaceImg','PolyLine','XviD'))
 def data_entries(decoded):
     def wide(at):
         end=at
@@ -124,8 +127,10 @@ def split_image(value):
     if mode: return mode,rest.strip()
     return 'Simple',value.strip()
 def scan(path):
-    decoded=decode_dat(path); refs=[]
+    decoded=decode_dat(path); refs=[]; blocks=set()
     for block_path,name,value in block_entries(decoded):
+        parent=block_path.rsplit('/',1)[0] if '/' in block_path else ''
+        if parent: blocks.add(parent)
         if name.casefold()=='image':
             mode,key=split_image(value)
             refs.append({'container':path.name,'entry':block_path,'name':name,'mode':mode,'resource_key':key,'resource':key,'option':value})
@@ -133,7 +138,8 @@ def scan(path):
         context=' '.join((block_path,name,value)); mode=classify(context) or 'Unclassified'
         for found in RESOURCE.findall(value):
             refs.append({'container':path.name,'entry':block_path,'name':name,'mode':mode,'resource_key':found.replace('\\','/'),'resource':found.replace('\\','/') ,'option':value})
-    return refs, {'path':str(path),'decoded_bytes':len(decoded),'entries':sum(1 for _ in block_entries(decoded))}
+    block_names=Counter(pathlib.PurePosixPath(item).name for item in blocks)
+    return refs, {'path':str(path),'decoded_bytes':len(decoded),'entries':sum(1 for _ in block_entries(decoded)),'block_name_counts':dict(sorted(block_names.items()))}
 def image_candidates(path):
     try: blob=path.read_bytes()
     except OSError: return []
@@ -201,7 +207,9 @@ def main():
         item['source_location']=locations.get(item['resource'].casefold())
     mode_ref_counts=Counter(r['mode'] for r in refs if r['mode'] in modes)
     unresolved_by_mode=Counter(r['mode'] for r in unresolved_refs)
-    result={'containers':stats,'cache_entries':len(cache_paths),'references':refs,'counts':dict(sorted(Counter(r['mode'] for r in refs).items())),'static_counts':dict(sorted(static_counts.items())),'static_mode_reference_counts':dict(sorted(mode_ref_counts.items())),'selected_static_resources':selected_static,'unresolved_static_refs':unresolved_refs,'unresolved_static_counts':dict(sorted(unresolved_by_mode.items())),'release_static_presence':{mode: any(r['mode']==mode for r in static_refs) for mode in modes},'packages_scanned_for_selected_resources':scanned_packages,'unique_resources':len({r['resource'].lower() for r in refs}),'release_presence':bool(refs),'status':'PRESENT' if refs else 'NOT_PRESENT','unclassified_candidate_counts':dict(sorted(candidate_counts.items())),'selected_unclassified_candidates':selected}
+    block_names=Counter(); [block_names.update(item['block_name_counts']) for item in stats]
+    known_controls=Counter({name:count for name,count in block_names.items() if name in KNOWN_CONTROLS})
+    result={'containers':stats,'cache_entries':len(cache_paths),'references':refs,'counts':dict(sorted(Counter(r['mode'] for r in refs).items())),'block_name_counts':dict(sorted(block_names.items())),'known_control_name_counts':dict(sorted(known_controls.items())),'static_counts':dict(sorted(static_counts.items())),'static_mode_reference_counts':dict(sorted(mode_ref_counts.items())),'selected_static_resources':selected_static,'unresolved_static_refs':unresolved_refs,'unresolved_static_counts':dict(sorted(unresolved_by_mode.items())),'release_static_presence':{mode: any(r['mode']==mode for r in static_refs) for mode in modes},'packages_scanned_for_selected_resources':scanned_packages,'unique_resources':len({r['resource'].lower() for r in refs}),'release_presence':bool(refs),'status':'PRESENT' if refs else 'NOT_PRESENT','unclassified_candidate_counts':dict(sorted(candidate_counts.items())),'selected_unclassified_candidates':selected}
     print(json.dumps(result,ensure_ascii=False,indent=2))
     if ns.json: ns.json.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 if __name__=='__main__': main()
