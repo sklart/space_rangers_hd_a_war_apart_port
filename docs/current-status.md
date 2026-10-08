@@ -1,4 +1,4 @@
-# Current status — M24 software validation / HARDWARE PENDING
+# Current status — M24 SOFTWARE COMPLETE / HARDWARE PENDING
 
 M24 adds portable GraphButton, Window, and Zone controls on the M22/M23 tree.
 The local retained host regression, independent three-state Python oracle,
@@ -6,8 +6,13 @@ read-only release inventory, and portable-object symbol audit pass. Physical
 release instances are GraphButton 619, Window 42, Zone 61; all real GraphButton
 state images and Window border images use unsupported generic `GI` mode, while
 all Zones are eligible. A fully supported real subtree is formally NOT FOUND.
-Terminal CI, clean ARM64, and the cumulative NRO remain pending. Switch was
-not run. See [the M24 evidence document](milestone24-ui-controls.md).
+Terminal CI `37823081354` passed the retained M12–M23 suite, M24 oracle and
+symbol audit. A subsequent clean ARM64 build produced ELF64 AArch64 with zero
+undefined symbols. The cumulative 7,698,736-byte NRO embeds `build_git=00808c1`
+and has SHA-256
+`93E7A6AA4B4EE71A9C1F6AE93F72B75F63E193152D61F944E4DA2947187B3C89`.
+Switch was not run; M24 hardware validation remains PENDING. See
+[the M24 evidence document](milestone24-ui-controls.md).
 
 M23 software is complete in a separate worktree. Synthetic AFT/tagged-text/Label
 host gates, the independent mixed-tree Python oracle and the Russian real

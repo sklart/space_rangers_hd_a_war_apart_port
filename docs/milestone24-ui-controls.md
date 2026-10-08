@@ -99,8 +99,11 @@ before starting that dynamic cycle.
 
 Local `host-m24-ui-regression` passed with the retained M22/M23 tests, config
 factory checks, state/hit/layout cases, and the independent synthetic oracle.
-The five M24 production objects passed the forbidden-symbol audit. Terminal
-CI and a clean ARM64 build are recorded below when complete.
+Terminal GitHub Actions [`37823081354`](https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/37823081354)
+completed `success` on production commit
+`00808c188649a39ece82ad66f17a7e61fcd872f7`. It passed the retained
+M12–M23 suite, M24 regression, independent Python oracle, release-probe
+self-test, and portable-object symbol audit.
 
 ## Software and hardware provenance
 
@@ -110,8 +113,16 @@ embedded `build_git=19eb6a5`; it was not rebuilt. The cumulative M24 NRO
 retains the M23 source/structure/text/tree/frame expectations and adds the
 fixed M24 Window/Zone/tree/GraphButton/frame hashes above.
 
-M24 CI, clean ARM64, final NRO identity, and embedded build commit: pending.
-Switch was not run. Hardware validation remains **PENDING**.
+After terminal CI PASS, a clean local ARM64 build produced an ELF64 AArch64
+position-independent executable with **zero undefined symbols**. All five
+new M24 production objects (`ui_graph_button`, `ui_window`, `ui_zone`,
+`ui_controls_fingerprint`, `ui_controls_checkpoint`) passed the host and ARM64
+forbidden-symbol audits. The hardware-ready cumulative NRO is
+`Space Rangers HD - A War Apart.nro`, 7,698,736 bytes, SHA-256
+`93E7A6AA4B4EE71A9C1F6AE93F72B75F63E193152D61F944E4DA2947187B3C89`,
+with embedded `build_git=00808c1`. The final documentation-only commit does
+not alter that NRO's runtime inputs. Switch was not run. M24 is **SOFTWARE
+COMPLETE / HARDWARE PENDING**, not COMPLETE.
 
 The full mouse dispatcher, focus, keyboard, callbacks, `OnPressCode`, button
 audio, GAI/GraphBuf controls, PanelScrollBar, ScrollBar, Edit, Forms lifecycle,

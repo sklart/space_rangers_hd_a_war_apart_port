@@ -141,8 +141,9 @@ embedded `build_git=19eb6a5`. CI run `37803515979` and clean ARM64 passed.
 ## Future M24 cumulative Switch validation — PENDING
 
 M24 is a software-phase result; the Switch has not been run. A future test must
-use the final hash-bound cumulative M24 NRO and compare its embedded
-`build_git` and SHA-256 with the M24 evidence document. The fixed M23 font,
+use the 7,698,736-byte cumulative M24 NRO, embedded `build_git=00808c1`,
+SHA-256 `93E7A6AA4B4EE71A9C1F6AE93F72B75F63E193152D61F944E4DA2947187B3C89`.
+The fixed M23 font,
 localized text, tree, and RGB565 hashes above must still match. The M24 fixed
 Window layout must match `80b94d87`/`77ccd5f317a573d6`, Circle Zone hits
 `8ae2e69e`/`d34c2faf3f348e0f`, tree `6f65eea5`/`11b73bf4b18ab6fb`,
