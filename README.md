@@ -22,6 +22,7 @@
 | M16 portable GAI Format-2 decode | host/CI/ARM64/Switch hardware PASS; M16 COMPLETE |
 | M17 portable GAI sequence playback | host/CI/ARM64/Switch hardware PASS; one `Flags == 0` cycle matches oracle; M17 COMPLETE |
 | M18 portable software compositor | host/CI/ARM64/Switch hardware PASS; M18 COMPLETE |
+| M19 portable scene compositor | implementation/host test PASS; CI, real-resource oracle, ARM64 artifact and Switch test pending |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
@@ -145,7 +146,7 @@ M7, M8, M9, M11, M12, M14P, M15, M16, M17 и M18 имеют hardware PASS. M13 �
 
 ## Проверки
 
-GitHub Actions workflow `package-host` выполняет asset-free host-регрессии, включая corrupt package, циклы каталогов, `ZL02`, portable `EC_File`, synthetic DAT/runtime settings, M8 golden, M12, M13, M14P Format-0, M15 GAI container, M16 Format-2, M17 pure playback и M18 software compositor. M18 symbol audit запрещает графические/upstream GAI runtime типы в чистом композиторном binary.
+GitHub Actions workflow `package-host` выполняет asset-free host-регрессии, включая corrupt package, циклы каталогов, `ZL02`, portable `EC_File`, synthetic DAT/runtime settings, M8 golden, M12, M13, M14P Format-0, M15 GAI container, M16 Format-2, M17 pure playback, M18 software compositor и M19 scene compositor. M18/M19 symbol audit запрещает графические/upstream GAI runtime типы в чистых CPU-композиторных binary.
 
 Локальная ARM64-сборка проверяет создание NRO. Дополнительно для финального артефакта следует подтвердить:
 
@@ -169,6 +170,7 @@ GitHub Actions workflow `package-host` выполняет asset-free host-рег
 - [M16 portable GI Format-2 CPU](docs/milestone16-gi-format2.md)
 - [M17 portable GAI playback](docs/milestone17-gai-playback.md)
 - [M18 portable software compositor](docs/milestone18-software-compositor.md)
+- [M19 portable scene compositor](docs/milestone19-scene-compositor.md)
 
 ## Лицензирование и обратная связь
 

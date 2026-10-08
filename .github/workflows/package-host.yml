@@ -100,6 +100,17 @@ jobs:
           test -x "$binary"
           ! nm -C "$binary" | grep -E 'GR_DX|Direct3D|TGraphBufGR|TgiGR|TCGiEC|TCGaiEC|GI_GAI'
 
+      - name: Run M19 scene compositor regression
+        run: make -C port/switch host-scene-compositor-test
+
+      - name: Audit M19 CPU symbols
+        shell: bash
+        run: |
+          set -euo pipefail
+          binary=port/switch/build/test_scene_compositor
+          test -x "$binary"
+          ! nm -C "$binary" | grep -E 'GR_DX|Direct3D|TGraphBufGR|TgiGR|TCGiEC|TCGaiEC|GI_GAI|Forms'
+
       - name: Audit M16 GI Format-2 CPU symbols
         shell: bash
         run: |

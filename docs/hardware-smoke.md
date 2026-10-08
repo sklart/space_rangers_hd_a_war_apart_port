@@ -72,3 +72,7 @@ For a re-test, deploy a hash-verified NRO with `-UpdateOnly`, wait at least 15 s
 ## Recorded M18 Switch result
 
 **PASS.** The tested 7,199,024-byte NRO had SHA-256 `D2322AB4881796FFE3EB55CF493A6191A54547B636EBA10C24EC3FBF91BE9DDB` and embedded `build_git=f9833a5`. `port.log` records `DATA/Asteroid/00.gai`, sequence 0 / source frame 0, decoded 33x40 BGRA with pitch 132 and CRC32/FNV `83f66519`/`eb000366ca288b23`, then centred destination 623,340 in the 1280x720 RGB565 framebuffer and `[M18] compositor PASS`. The supplied Switch screenshot shows the real Asteroid visibly composited over the moving M12 heartbeat. M17 still matched its cycle CRC/FNV `5b7bc7e9`/`f70813ac799a25b3`; its first cycle took 5042 ms with max tick gap 140 ms and tolerance 145 ms. M12 ran 3,331 frames/presents for 166,725 ms, exited through `PLUS`, and reached `[BOOT] COMPLETE`.
+
+## M19 Switch test (pending)
+
+Deploy only the NRO whose `port.log` reports the new committed `build_git`; an old `f9833a5` log is M18 evidence only. Leave the scene visible for at least 10 seconds, then press `PLUS` and collect both logs. A M19 PASS requires `[M19] scene compositor BEGIN`, exactly three logged sprites (Asteroid, deterministic second GAI and alpha overlay), `scene_crc32`/`scene_fnv64`, `[M19] scene PASS`, retained M17 cycle evidence, nonzero frames and presents, `exit_reason=plus`, and `[BOOT] COMPLETE`. Capture a screenshot where more than one real resource is visible.
