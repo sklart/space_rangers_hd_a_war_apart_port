@@ -1,16 +1,14 @@
-# Current status — M21 Portable UI Image Foundation in progress
+# Current status — M21 Portable UI Image Foundation complete
 
-M20 remains complete. M21 has a committed CPU foundation and a local/CI host
-gate. Its release-config inventory, independent Simple Python oracle and
-synthetic mixed M20/M21 frame-A/frame-B checkpoint now exist, but M21 is
-**not complete**. Two Switch runs (`build_git=6fb6e98` and `4c7012b`) reached
-the M21 release-scene check and cleanly failed. The first exposed an RGB565
-channel-expansion discrepancy in the Python oracle. The instrumented run
-`82aa2e9` then reported the actual frame fingerprint and exposed the remaining
-mistake: the Python heartbeat omitted 719 pixels of its full-height red marker.
-The corrected independent oracle now matches that observed frame; final CI,
-ARM64 artifact and a full-duration hash-bound Switch run are still required.
-No M21 hardware PASS is claimed here.
+M20 remains complete. M21 is **COMPLETE**: the CPU foundation, release-config
+inventory, independent Simple Python oracle and synthetic mixed M20/M21
+frame-A/frame-B checkpoint passed on host and in CI. The final hash-bound
+Switch NRO embedded `build_git=fc8adfc`, was 7,547,184 bytes with SHA-256
+`6D387610DAD7DA57C1D9F21F00ABF84C67F9AA266421CF54C98567656C8FA3F1`, and
+ran for 172,747 ms with 3,824 frames/presents before `PLUS` and `[BOOT]
+COMPLETE`. Its actual M21 scene fingerprint matched the independent oracle:
+`CRC32=4f915772`, `FNV64=52449ae8f8f56c6c`. CI run `37770073920` passed the
+retained gates, M21 regression and M21 symbol audit.
 
 The synthetic presentation checkpoint uses one M20 GIObject plus M21 Simple,
 keyed Trans and partial-alpha Alpha in stable layer order. Its C++ and
@@ -23,13 +21,12 @@ M21 inventory resolves `Bm.Planet.T.Spu00` to `DATA/Planet/Spu00.png` in
 The base release has no `Trans` reference. Its six `Alpha` `Bitmap.BGObj.*`
 references have no mapping in base `CacheData.dat` or language DAT, therefore
 they are release **NOT PRESENT**, not substituted with arbitrary assets.
-The M21 runtime integration verifies the same Simple source and
-decoded fingerprints, then compares its fixed first mixed M20/M21 frame with
-the independent `4f915772`/`52449ae8f8f56c6c` oracle. This is implementation
-evidence only; the prior hardware attempts are clean diagnostic FAILs. The
-instrumented `82aa2e9` Switch run produced the same actual fingerprint, but a
-new CI/ARM64-bound NRO must still complete the final full-duration hardware
-gate.
+The M21 runtime integration verifies the same Simple source and decoded
+fingerprints, then compares its fixed first mixed M20/M21 frame with the
+independent `4f915772`/`52449ae8f8f56c6c` oracle. Earlier runs `6fb6e98`,
+`4c7012b` and `82aa2e9` remain diagnostic failures only: they corrected the
+RGB565 expansion and full-height heartbeat-marker modelling in the Python
+oracle. The final `fc8adfc` hardware run is the only M21 PASS evidence.
 
 Baseline SHA-256: `83300344af802bc51e64389c58f047e5afdf195c133048098be3881fae29ed98`.
 

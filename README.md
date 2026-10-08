@@ -2,7 +2,7 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Текущий аппаратный статус:** M14P–M20 проверены на Switch. Это не означает готовность игры к прохождению: UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
+> **Текущий аппаратный статус:** M14P–M21 проверены на Switch. Это не означает готовность игры к прохождению: полный UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
 
 ## Что уже работает
 
@@ -24,7 +24,7 @@
 | M18 portable software compositor | host/CI/ARM64/Switch hardware PASS; M18 COMPLETE |
 | M19 portable scene compositor | host/CI/ARM64/Switch hardware/Python oracle PASS; M19 COMPLETE |
 | M20 portable GI object layer | host/CI/ARM64/Switch hardware PASS; M20 COMPLETE |
-| M21 portable UI image foundation | synthetic host + mixed M20/M21 scene oracle PASS; real Simple Python oracle PASS; Trans/Alpha release baselines NOT PRESENT; Switch diagnostic reconciled the first-frame fingerprint after fixing the full-height heartbeat marker in the Python oracle; final CI/ARM64/hash-bound hardware run still required |
+| M21 portable UI image foundation | host/CI/ARM64/Switch hardware PASS; real Simple oracle matches; Trans/Alpha release baselines are genuinely NOT PRESENT; M21 COMPLETE |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
@@ -136,9 +136,9 @@ port/switch/Space Rangers HD - A War Apart.nro
 
 ## Границы подтверждённого аппаратного пути
 
-M7, M8, M9, M11, M12, M14P, M15, M16, M17 и M18 имеют hardware PASS. M13 завершён как metadata diagnostic и не требует отдельного hardware gate. M18 CPU-only композитит единственный decoded Format-2 BGRA кадр поверх M12 heartbeat в RGB565 framebuffer; screenshot подтвердил реальную видимость кадра. M14 direct upstream path остаётся заблокированным широким `GR_DX` fan-out, а M14R — Direct3D COM state в layout `TGraphBufGR`.
+M7, M8, M9, M11, M12, M14P–M21 имеют hardware PASS. M13 завершён как metadata diagnostic и не требует отдельного hardware gate. M18 CPU-only композитит единственный decoded Format-2 BGRA кадр поверх M12 heartbeat в RGB565 framebuffer; screenshot подтвердил реальную видимость кадра. M14 direct upstream path остаётся заблокированным широким `GR_DX` fan-out, а M14R — Direct3D COM state в layout `TGraphBufGR`.
 
-Последний аппаратно протестированный NRO (M19) имел размер 7 219 504 bytes, SHA-256 `E05B83F0675548D25911AC497541EDFF1C8D0EE66CD5FD26922FA9D57EE131FF` и embedded `build_git=3b337cd`. Он показал три sprites: Asteroid frame 0, лексически выбранный `DATA/Asteroid/01.gai` frame 0 и 50%-alpha Asteroid overlay; scene fingerprint `CRC32=ba977214`, `FNV64=240b58539a257627`. M12 представил 594 кадров за 29,993 ms, вышел через `PLUS` и достиг `[BOOT] COMPLETE`. Независимый Python-оракул подтвердил тот же ресурсный набор и fingerprint; CI `37745110922` успешно прошёл M19 regression и M19 symbol audit. M19 COMPLETE.
+Последний аппаратно протестированный NRO (M21) имел размер 7 547 184 bytes, SHA-256 `6D387610DAD7DA57C1D9F21F00ABF84C67F9AA266421CF54C98567656C8FA3F1` и embedded `build_git=fc8adfc`. Он проверил real Simple `DATA/Planet/Spu00.png` (128×60), корректно зафиксировал отсутствие release Trans/Alpha без подстановки ресурсов и сопоставил integrated RGB565 scene с независимым oracle: `CRC32=4f915772`, `FNV64=52449ae8f8f56c6c`. M12 представил 3 824 кадра за 172 747 ms, вышел через `PLUS` и достиг `[BOOT] COMPLETE`; M17 также завершил полный цикл. CI `37770073920` успешно прошёл M21 regression и symbol audit. M21 COMPLETE.
 
 ```text
 [M9] FAIL runtime config=... DAT zlib decompression failed
@@ -176,7 +176,7 @@ M20 добавляет `host-gi-object-test` и отдельный symbol audit:
 - [M18 portable software compositor](docs/milestone18-software-compositor.md)
 - [M19 portable scene compositor](docs/milestone19-scene-compositor.md)
 - [M20 portable GI object layer](docs/milestone20-gi-object-layer.md)
-- [M21 portable UI image foundation](docs/milestone21-ui-image-foundation.md) — in progress
+- [M21 portable UI image foundation](docs/milestone21-ui-image-foundation.md) — COMPLETE
 
 ## Лицензирование и обратная связь
 

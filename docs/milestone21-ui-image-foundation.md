@@ -2,16 +2,18 @@
 
 ## Статус
 
-**IN PROGRESS.** Host-путь для статичных изображений существует и проходит
-`host-m21-ui-image-regression`, но это не M21 PASS. Release inventory,
-независимый Simple oracle и synthetic integrated checkpoint теперь есть,
-однако M21 ещё не завершён. Первый Switch запуск embedded `build_git=6fb6e98`
-чисто завершился с diagnostic failure и выявил разницу в расширении RGB565
-каналов перед alpha blend. Исправленный второй NRO (`build_git=4c7012b`) также
-корректно отказался на release-scene checkpoint. Instrumented `82aa2e9`
-зафиксировал actual fingerprint: Python oracle рисовал только пересечение
-heartbeat markers, а runtime — полный вертикальный marker. Oracle исправлен,
-но hardware PASS пока не заявляется.
+**COMPLETE.** `host-m21-ui-image-regression`, independent release oracle and
+CI `37770073920` passed before the only physical test. The final 7,547,184-byte
+NRO SHA-256 was `6D387610DAD7DA57C1D9F21F00ABF84C67F9AA266421CF54C98567656C8FA3F1`
+with embedded `build_git=fc8adfc`. On Switch, actual and expected M21 RGB565
+scene fingerprints matched: CRC32 `4f915772`, FNV64 `52449ae8f8f56c6c`,
+1,843,200 bytes. It ran 172,747 ms and presented 3,824 frames, retained the
+M17 cycle evidence, exited via `PLUS` and reached `[BOOT] COMPLETE`.
+
+Earlier `6fb6e98`, `4c7012b` and `82aa2e9` executions remain clean diagnostic
+FAILs, not additional M21 hardware checkpoints: they exposed the Python
+oracle's RGB565 expansion and full-height heartbeat-marker mistakes. `fc8adfc`
+is the sole final hardware PASS.
 
 ## Границы
 

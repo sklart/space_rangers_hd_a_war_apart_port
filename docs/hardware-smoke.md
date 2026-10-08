@@ -87,13 +87,21 @@ Deploy only the committed M20 NRO whose startup log reports its new `build_git`.
 
 **HARDWARE PASS.** The tested NRO embedded `build_git=73340fc` and SHA-256 `0F7B909287B28B4D6DD7CE3617DF73E869907ED9F328F9E6A71AF81970523243`. It logged `DATA/Asteroid/00.gai`, `01.gai`, and a 50%-alpha `02.gai` overlay at layers 0/10/20; scene CRC32/FNV64 was `462de41f`/`694d6066b47b99a5`. M20 and the retained M17 cycle passed; M12 produced 3,824 frames/presents in 172,463 ms, exited through `PLUS`, and reached `[BOOT] COMPLETE`. CI `37753205358` passed the M20 regression and symbol audit.
 
-## M21 Switch test (not yet authorised to run)
+## Recorded M21 Switch result
 
-M21 has no hardware result. Do not deploy an intermediate NRO. The one final
-test is permitted only after release inventory and Python oracle match, CI
-terminal PASS and clean ARM64 evidence. It must show the fixed checkpoint scene
-with one M20 animated GIObject plus one real Simple, Trans and Alpha resource;
-then run at least 60 seconds, exit with `PLUS`, and provide `port.log` and
-`gr-main.log` containing M21 fingerprint match, nonzero frames/presents and
-`[BOOT] COMPLETE`. A screenshot is useful only for visual anomalies and is not
-a required PASS artifact.
+**HARDWARE PASS.** The one final NRO was 7,547,184 bytes, SHA-256
+`6D387610DAD7DA57C1D9F21F00ABF84C67F9AA266421CF54C98567656C8FA3F1`, with
+embedded `build_git=fc8adfc`. It logged the deterministic real Simple
+`DATA/Planet/Spu00.png` at 128×60, source CRC/FNV `a3721a9c`/
+`32ebfdd05d7fa674` and decoded RGB565 CRC/FNV `51e16db2`/
+`ffeaf550d3c28655`. The release inventory honestly reported Trans and Alpha
+as `NOT_PRESENT`; no arbitrary resource was substituted.
+
+The integrated M20/M21 RGB565 checkpoint matched the independent oracle:
+actual and expected CRC32 `4f915772`, FNV64 `52449ae8f8f56c6c`, 1,843,200
+bytes. M20 GIObject and M21 both passed; retained M17 completed sequence 0 in
+5,008 ms. The persistent loop produced 3,824 frames/presents over 172,747 ms,
+then `PLUS` caused a clean shutdown and `[BOOT] COMPLETE`. `gr-main.log`
+contains only its expected `Start` marker. The screenshot is supplementary
+visual evidence, not a required hardware criterion. CI `37770073920` had
+already passed before this one physical test.
