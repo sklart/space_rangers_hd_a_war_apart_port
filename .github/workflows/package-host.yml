@@ -89,6 +89,17 @@ jobs:
             ! nm -C "$binary" | grep -E "$forbidden"
           done
 
+      - name: Run M18 software compositor regression
+        run: make -C port/switch host-software-compositor-test
+
+      - name: Audit M18 CPU symbols
+        shell: bash
+        run: |
+          set -euo pipefail
+          binary=port/switch/build/test_software_compositor
+          test -x "$binary"
+          ! nm -C "$binary" | grep -E 'GR_DX|Direct3D|TGraphBufGR|TgiGR|TCGiEC|TCGaiEC|GI_GAI'
+
       - name: Audit M16 GI Format-2 CPU symbols
         shell: bash
         run: |

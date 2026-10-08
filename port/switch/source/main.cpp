@@ -15,6 +15,7 @@
 #include "gai_playback_cpu.hpp"
 #include "runtime_loop_slice.hpp"
 #include "renderer_platform.hpp"
+#include "software_compositor.hpp"
 #include "units/GR_GraphBuf.hpp"
 #include "units/EC_BlockPar.hpp"
 #include "units/EC_Buf.hpp"
@@ -450,6 +451,67 @@ bool RunM17Playback(void* user_data, std::uint64_t now_ms, std::string* error) {
   return true;
 }
 
+struct M18CompositorDiagnostic {
+  std::vector<std::uint8_t> gai;
+  srhd_awa::platform::gai_cpu::GaiSequence sequence;
+  srhd_awa::platform::gi_format2_cpu::CpuImage image;
+  std::int32_t source_frame{};
+  std::int32_t x{};
+  std::int32_t y{};
+  bool composited{};
+};
+
+bool InitializeM18Compositor(const char* game_root, M18CompositorDiagnostic* diagnostic, std::string* error) {
+  constexpr const char* kResource = "DATA/Asteroid/00.gai";
+  srhd_awa::package::Package package;
+  const auto path = (std::filesystem::path(game_root) / "DATA" / "common.pkg").string();
+  const auto* entry = package.Open(path, error) ? package.Resolve(kResource) : nullptr;
+  if (!entry || !package.ReadPayload(*entry, &diagnostic->gai, error) ||
+      srhd_awa::platform::gai_cpu::ReadGaiSequence(diagnostic->gai.data(), diagnostic->gai.size(), 0, &diagnostic->sequence, error) !=
+          srhd_awa::platform::gai_cpu::Status::Ok || diagnostic->sequence.frames.empty()) return false;
+  const auto& initial = diagnostic->sequence.frames.front();
+  diagnostic->source_frame = initial.source_frame_index;
+  srhd_awa::platform::gai_cpu::GaiFramePayload payload;
+  srhd_awa::platform::gi_format2_cpu::Metadata metadata{};
+  if (srhd_awa::platform::gai_cpu::ExtractGaiFrame(diagnostic->gai.data(), diagnostic->gai.size(), diagnostic->source_frame, &payload, error) !=
+          srhd_awa::platform::gai_cpu::Status::Ok ||
+      srhd_awa::platform::gi_format2_cpu::Decode(payload.gi_bytes.data(), payload.gi_bytes.size(), &metadata,
+                                                   &diagnostic->image, error) !=
+          srhd_awa::platform::gi_format2_cpu::Status::Ok) return false;
+  if (diagnostic->image.bytes_per_pixel != 4 || diagnostic->image.width <= 0 || diagnostic->image.height <= 0 ||
+      diagnostic->image.pitch < diagnostic->image.width * 4) {
+    if (error) *error = "decoded GI image is not a valid BGRA surface";
+    return false;
+  }
+  const auto crc = CrcUnit::ComputeCrc32(diagnostic->image.pixels.data(), static_cast<std::int32_t>(diagnostic->image.pixels.size()));
+  const auto fnv = M17Fnv(diagnostic->image.pixels.data(), diagnostic->image.pixels.size());
+  Log("[M18] resource=%s", kResource);
+  Log("[M18] sequence=0 sequence_frame=0 source_frame=%ld", static_cast<long>(diagnostic->source_frame));
+  Log("[M18] decoded=%ldx%ld pitch=%ld bytes=%zu crc32=%08lx fnv64=%016llx", static_cast<long>(diagnostic->image.width),
+      static_cast<long>(diagnostic->image.height), static_cast<long>(diagnostic->image.pitch), diagnostic->image.pixels.size(),
+      static_cast<unsigned long>(crc), static_cast<unsigned long long>(fnv));
+  return true;
+}
+
+bool DrawM18Compositor(void* user_data, std::string* error) {
+  auto* diagnostic = static_cast<M18CompositorDiagnostic*>(user_data);
+  auto* framebuffer = GR_Main::ScreenRenderBuffer;
+  if (!framebuffer || !framebuffer->GetPixels() || framebuffer->PitchBytes % 2 != 0) {
+    if (error) *error = "M18 RGB565 framebuffer unavailable";
+    return false;
+  }
+  if (!srhd_awa::platform::software_compositor::CompositeBGRA(
+          static_cast<std::uint16_t*>(framebuffer->GetPixels()), framebuffer->Width, framebuffer->Height,
+          framebuffer->PitchBytes / 2, diagnostic->image.pixels.data(), diagnostic->image.width,
+          diagnostic->image.height, diagnostic->image.pitch, diagnostic->x, diagnostic->y,
+          srhd_awa::platform::software_compositor::BlendMode::Alpha, nullptr, error)) return false;
+  if (!diagnostic->composited) {
+    diagnostic->composited = true;
+    Log("[M18] compositor PASS x=%ld y=%ld", static_cast<long>(diagnostic->x), static_cast<long>(diagnostic->y));
+  }
+  return true;
+}
+
 bool ValidateReleaseAssets(const char* root) {
   StageBegin("release asset sanity");
   const std::filesystem::path base(root);
@@ -756,6 +818,15 @@ int main(int argc, char** argv) {
     srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
+  StageBegin("M18 compositor");
+  M18CompositorDiagnostic m18_diagnostic;
+  std::string m18_error;
+  if (!InitializeM18Compositor(game_root, &m18_diagnostic, &m18_error)) {
+    Log("[M18] FAIL initialization=%s", m18_error.c_str());
+    Stage("M18 compositor", false, m18_error.c_str());
+    srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
   StageBegin("cached resource");
   const bool cached_resource_ok = VerifyFirstCachedResource();
   Stage("cached resource", cached_resource_ok);
@@ -790,6 +861,11 @@ int main(int argc, char** argv) {
   }
   srhd_awa::platform::runtime_loop_slice::SetFrameCallback(&runtime_loop, RunM17Playback, &m17_diagnostic);
   const auto* framebuffer = GR_Main::ScreenRenderBuffer;
+  m18_diagnostic.x = (framebuffer->Width - m18_diagnostic.image.width) / 2;
+  m18_diagnostic.y = (framebuffer->Height - m18_diagnostic.image.height) / 2;
+  Log("[M18] destination x=%ld y=%ld framebuffer=%ldx%ld blend=alpha", static_cast<long>(m18_diagnostic.x),
+      static_cast<long>(m18_diagnostic.y), static_cast<long>(framebuffer->Width), static_cast<long>(framebuffer->Height));
+  srhd_awa::platform::runtime_loop_slice::SetDrawCallback(&runtime_loop, DrawM18Compositor, &m18_diagnostic);
   Log("[M12] runtime ready");
   Log("[M12] framebuffer=%ldx%ld pitch=%ld pixel=RGB565", static_cast<long>(framebuffer->Width),
       static_cast<long>(framebuffer->Height), static_cast<long>(framebuffer->PitchBytes));
@@ -806,6 +882,10 @@ int main(int argc, char** argv) {
     m12_error = "M17 first cycle not completed";
     loop_ok = false;
   }
+  if (loop_ok && !m18_diagnostic.composited) {
+    m12_error = "M18 compositor did not draw";
+    loop_ok = false;
+  }
   if (!loop_ok) Log("[STAGE] runtime loop FAIL reason=%s", m12_error.c_str());
   else {
     Log("[M12] exit_reason=%s", srhd_awa::platform::runtime_loop_slice::ExitReasonName(loop_stats.exit_reason));
@@ -818,6 +898,7 @@ int main(int argc, char** argv) {
     Stage("M17 GAI playback", true);
   else
     Stage("M17 GAI playback", false, loop_ok ? "incomplete" : m12_error.c_str());
+  Stage("M18 compositor", loop_ok && m18_diagnostic.composited, loop_ok ? nullptr : m12_error.c_str());
   srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
   srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
   srhd_awa::platform::ui_metadata_slice::Shutdown();

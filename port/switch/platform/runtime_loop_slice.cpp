@@ -71,6 +71,10 @@ bool RunOneFrame(State* state, const runtime_platform::State& platform, std::str
     }
   }
   DrawRuntimeHeartbeat(state->statistics.frames);
+  if (state->draw_callback && !state->draw_callback(state->draw_callback_user, error)) {
+    state->statistics.exit_reason = ExitReason::diagnostic_failure;
+    return true;
+  }
   if (!GR_Main::BeginFramePresentation()) { if (error) *error = "frame presentation rejected"; return false; }
   GR_Main::EndFramePresentation();
   ++state->statistics.frames;
@@ -106,6 +110,12 @@ void SetFrameCallback(State* state, FrameCallback callback, void* user_data) {
   if (!state) return;
   state->frame_callback = callback;
   state->frame_callback_user = user_data;
+}
+
+void SetDrawCallback(State* state, DrawCallback callback, void* user_data) {
+  if (!state) return;
+  state->draw_callback = callback;
+  state->draw_callback_user = user_data;
 }
 
 bool RunFrames(State* state, const runtime_platform::State& platform, std::uint64_t frame_count, std::string* error) {

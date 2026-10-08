@@ -51,7 +51,7 @@ PLATFORM_CPPFILES := $(wildcard platform/*.cpp)
 PLATFORM_OFILES := $(PLATFORM_CPPFILES:platform/%.cpp=$(BUILD)/platform_%.o)
 GAME_OFILES := $(BUILD)/CrcUnit.o $(BUILD)/System.o $(BUILD)/SystemImports.o $(BUILD)/BlockParException.o $(BUILD)/GI_Main.o $(BUILD)/GlobalsV.o $(BUILD)/aMyFunction.o $(BUILD)/EC_File.o $(BUILD)/EC_Struct.o $(BUILD)/EC_Buf.o $(BUILD)/EC_Cache.o $(BUILD)/EC_CacheBitmap.o $(BUILD)/EC_BlockPar.o $(BUILD)/EC_Data.o $(BUILD)/EC_Str.o $(BUILD)/EC_Mem.o $(BUILD)/aPacket.o $(BUILD)/MessageText.o $(BUILD)/GR_GraphBuf.o $(BUILD)/GR_Main.o $(BUILD)/runtime.o
 
-.PHONY: all clean host-package-test host-package-cycle-test host-ec-file-test host-ec-file-synthetic-test host-blockpar-synthetic-test host-dat-config-test host-global-cache-synthetic-test host-configured-package-test host-gr-main-no-mod-test host-gr-main-config-test host-gr-main-release-config-test host-platform-startup-test host-renderer-software-test host-user-writable-test host-runtime-config-slice-test host-milestone4-regression host-milestone5-regression host-milestone6-regression host-milestone7-regression host-milestone8-regression host-milestone9-regression host-runtime-loop-test host-milestone12-regression host-bitmap-cache-test host-bitmap-cache-release-test host-milestone13-regression host-gi-format0-cpu-test host-gi-format0-release-test host-gai-cpu-test host-gai-sequence-cpu-test host-gi-format2-cpu-test host-gai-playback-cpu-test host-milestone17-regression
+.PHONY: all clean host-package-test host-package-cycle-test host-ec-file-test host-ec-file-synthetic-test host-blockpar-synthetic-test host-dat-config-test host-global-cache-synthetic-test host-configured-package-test host-gr-main-no-mod-test host-gr-main-config-test host-gr-main-release-config-test host-platform-startup-test host-renderer-software-test host-user-writable-test host-runtime-config-slice-test host-milestone4-regression host-milestone5-regression host-milestone6-regression host-milestone7-regression host-milestone8-regression host-milestone9-regression host-runtime-loop-test host-milestone12-regression host-bitmap-cache-test host-bitmap-cache-release-test host-milestone13-regression host-gi-format0-cpu-test host-gi-format0-release-test host-gai-cpu-test host-gai-sequence-cpu-test host-gi-format2-cpu-test host-gai-playback-cpu-test host-milestone17-regression host-software-compositor-test host-milestone18-regression
 all: $(NRO_OUTPUT)
 
 $(BUILD):
@@ -266,3 +266,9 @@ host-gai-sequence-cpu-test: | $(BUILD)
 
 host-milestone17-regression: host-gai-sequence-cpu-test host-gai-playback-cpu-test
 	@echo MILESTONE 17 HOST REGRESSION PASS
+
+host-software-compositor-test: | $(BUILD)
+	@g++ -std=c++20 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_software_compositor.cpp platform/software_compositor.cpp -o $(BUILD)/test_software_compositor && $(BUILD)/test_software_compositor && ! nm -C $(BUILD)/test_software_compositor | grep -E 'GR_DX|Direct3D|TGraphBufGR|TgiGR|TCGiEC|TCGaiEC|GI_GAI'
+
+host-milestone18-regression: host-milestone17-regression host-software-compositor-test
+	@echo MILESTONE 18 HOST REGRESSION PASS
