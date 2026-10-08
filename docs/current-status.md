@@ -1,4 +1,4 @@
-# Current status — M24 SOFTWARE COMPLETE / HARDWARE PENDING
+# Current status — M24 COMPLETE / HARDWARE PASS
 
 M24 adds portable GraphButton, Window, and Zone controls on the M22/M23 tree.
 The local retained host regression, independent three-state Python oracle,
@@ -6,12 +6,17 @@ read-only release inventory, and portable-object symbol audit pass. Physical
 release instances are GraphButton 619, Window 42, Zone 61; all real GraphButton
 state images and Window border images use unsupported generic `GI` mode, while
 all Zones are eligible. A fully supported real subtree is formally NOT FOUND.
-Terminal CI `37823081354` passed the retained M12–M23 suite, M24 oracle and
+Terminal CI `37823081354` (production) and `37825116392` (final software
+commit) passed the retained M12–M23 suite, M24 oracle and
 symbol audit. A subsequent clean ARM64 build produced ELF64 AArch64 with zero
 undefined symbols. The cumulative 7,698,736-byte NRO embeds `build_git=00808c1`
 and has SHA-256
 `93E7A6AA4B4EE71A9C1F6AE93F72B75F63E193152D61F944E4DA2947187B3C89`.
-Switch was not run; M24 hardware validation remains PENDING. See
+The user-supplied physical Switch `port.log` reports `build_git=00808c1`,
+matching M23 and M24 fixed checkpoints, 1,322 frames/presents in 66,151 ms,
+`exit_reason=plus`, all shutdown stages, and `[BOOT] COMPLETE`. The M24
+dynamic render gate passed. M24 is **COMPLETE / HARDWARE PASS**. The SD copy's
+SHA-256 was not independently measured after manual transfer. See
 [the M24 evidence document](milestone24-ui-controls.md).
 
 M23 software is complete in a separate worktree. Synthetic AFT/tagged-text/Label
@@ -25,7 +30,9 @@ GitHub Actions run `37803515979` passed M12–M23, the Python oracle and M23
 symbol audit. Clean ARM64 produced ELF64 AArch64 with zero undefined symbols.
 The RC NRO embeds `build_git=19eb6a5`, is 7,641,392 bytes, and has SHA-256
 `877F15D0B6187B033490815FBBC21229983AA9040FAE27B2F395995C528A2792`.
-**M23 hardware validation is PENDING**; M23 is not COMPLETE.
+The same cumulative M24 Switch run matched the M23 font/text/tree/frame
+checkpoint and passed its dynamic render gate. M23 is **COMPLETE / HARDWARE
+PASS**; its earlier standalone RC remains a historical unrun artifact.
 See [the M23 evidence document](milestone23-font-label.md).
 
 M20 remains complete. M21 is **COMPLETE**: the CPU foundation, release-config

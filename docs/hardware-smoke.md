@@ -118,37 +118,30 @@ M17's first cycle took 5,039 ms; M12 presented 2,277 frames over 111,702 ms,
 then `PLUS` produced a clean shutdown and `[BOOT] COMPLETE`. `gr-main.log`
 contains only its expected `Start` marker. Screenshot evidence is not required.
 
-## Future M23 Switch validation — PENDING
+## Recorded cumulative M23/M24 Switch result
 
-Do not deploy or wait for a Switch during the M23 software phase. The M23
-runtime stage is prepared to compare the real Russian `Font.2Intro` source
-CRC32/FNV64 `93df743f`/`4c320b6bc6048343`, AFT structure
-`7ecfe087`/`1a1527c347b838c2`, UTF-16 localized text
+**HARDWARE PASS.** The user manually transferred the cumulative M24 NRO and
+supplied physical Switch `port.log` and `gr-main.log`. The local source NRO is
+7,698,736 bytes, SHA-256
+`93E7A6AA4B4EE71A9C1F6AE93F72B75F63E193152D61F944E4DA2947187B3C89`;
+`port.log` confirms embedded `build_git=00808c1` and the expected release
+baseline. The SD destination file was not independently rehashed after manual
+transfer.
+
+M23 matched the real Russian font source `93df743f`/`4c320b6bc6048343`,
+AFT structure `7ecfe087`/`1a1527c347b838c2`, UTF-16 localized text
 `b64f251b`/`780519c70238915f`, fixed tree
-`ef3ef436`/`6022c76fb3cb9306`, and fixed `1024×60` RGB565 frame
-`b36cfe2f`/`6b916c3b29d2a194` with the independent Python oracle.
+`ef3ef436`/`6022c76fb3cb9306`, and RGB565 frame
+`b36cfe2f`/`6b916c3b29d2a194`. The standalone M23 RC with
+`build_git=19eb6a5` remains historical and was not run on Switch.
 
-When the hardware becomes available, test the recorded hash-bound M23 RC NRO
-or a later cumulative NRO retaining this exact checkpoint. Require the M23
-font/tree/frame match, dynamic M17/M20/M21/M22/M23 evidence, nonzero M12
-frames and presents, `PLUS` exit and `[BOOT] COMPLETE`. A screenshot is useful
-for Cyrillic baseline and clipping inspection but is not a formal PASS gate.
-Current M23 hardware validation: **PENDING — Switch unavailable**.
-The M23 RC is `Space Rangers HD - A War Apart.nro`, 7,641,392 bytes,
-SHA-256 `877F15D0B6187B033490815FBBC21229983AA9040FAE27B2F395995C528A2792`,
-embedded `build_git=19eb6a5`. CI run `37803515979` and clean ARM64 passed.
-
-## Future M24 cumulative Switch validation — PENDING
-
-M24 is a software-phase result; the Switch has not been run. A future test must
-use the 7,698,736-byte cumulative M24 NRO, embedded `build_git=00808c1`,
-SHA-256 `93E7A6AA4B4EE71A9C1F6AE93F72B75F63E193152D61F944E4DA2947187B3C89`.
-The fixed M23 font,
-localized text, tree, and RGB565 hashes above must still match. The M24 fixed
-Window layout must match `80b94d87`/`77ccd5f317a573d6`, Circle Zone hits
-`8ae2e69e`/`d34c2faf3f348e0f`, tree `6f65eea5`/`11b73bf4b18ab6fb`,
-GraphButton state `6bff73cb`/`e1747b752476d6d6`, and RGB565 frame
-`015d1589`/`5523d509a3a9384d`. Require the dynamic M24 stage, retained
-M17/M20/M21/M22/M23 evidence, nonzero M12 frames/presents, `PLUS` exit, and
-`[BOOT] COMPLETE`. Hardware validation remains **PENDING** until those logs
-come from the actual Switch.
+M24 matched Window layout `80b94d87`/`77ccd5f317a573d6`, Circle Zone hits
+`8ae2e69e`/`d34c2faf3f348e0f`, tree
+`6f65eea5`/`11b73bf4b18ab6fb`, GraphButton state
+`6bff73cb`/`e1747b752476d6d6`, and RGB565 frame
+`015d1589`/`5523d509a3a9384d`. `[M23] PASS` and `[M24] PASS` preceded the
+dynamic loop. M17 completed one cycle in 5,036 ms; M12 produced 1,322 frames
+and presents over 66,151 ms, exited through `PLUS`, then logged dynamic M23
+and M24 stage PASS, all shutdown PASS lines, and `[BOOT] COMPLETE`.
+`gr-main.log` contains only its expected `Start` marker. M23 and M24 are
+**COMPLETE / HARDWARE PASS**.

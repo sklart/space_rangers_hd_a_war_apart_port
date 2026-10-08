@@ -120,9 +120,29 @@ new M24 production objects (`ui_graph_button`, `ui_window`, `ui_zone`,
 forbidden-symbol audits. The hardware-ready cumulative NRO is
 `Space Rangers HD - A War Apart.nro`, 7,698,736 bytes, SHA-256
 `93E7A6AA4B4EE71A9C1F6AE93F72B75F63E193152D61F944E4DA2947187B3C89`,
-with embedded `build_git=00808c1`. The final documentation-only commit does
-not alter that NRO's runtime inputs. Switch was not run. M24 is **SOFTWARE
-COMPLETE / HARDWARE PENDING**, not COMPLETE.
+with embedded `build_git=00808c1`. The final software documentation commit
+did not alter that NRO's runtime inputs. CI also passed on that final commit:
+[`37825116392`](https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/37825116392).
+
+## Physical Switch validation
+
+The user manually copied the cumulative NRO and supplied `port.log` and
+`gr-main.log` from the physical Switch. `port.log` identifies
+`build_git=00808c1` and the expected release baseline. The M23 fixed
+font/text/tree/frame oracle matched. M24 logged matching tree
+`6f65eea5`/`11b73bf4b18ab6fb`, frame
+`015d1589`/`5523d509a3a9384d`, Window layout
+`80b94d87`/`77ccd5f317a573d6`, GraphButton state
+`6bff73cb`/`e1747b752476d6d6`, and Circle Zone hits
+`8ae2e69e`/`d34c2faf3f348e0f`. `[M24] PASS` preceded the dynamic loop;
+`[STAGE] M24 UI controls PASS` confirms its render gate after the loop.
+
+M17 completed its first cycle in 5,036 ms. M12 presented 1,322 frames in
+66,151 ms, exited through `PLUS`, and reached all shutdown PASS lines and
+`[BOOT] COMPLETE`. `gr-main.log` contains only its expected `Start` marker.
+M23 and M24 are **COMPLETE / HARDWARE PASS**. The SD destination NRO SHA-256
+was not independently rehashed after the manual transfer; the local source
+artifact SHA-256 above and the Switch embedded build ID are recorded separately.
 
 The full mouse dispatcher, focus, keyboard, callbacks, `OnPressCode`, button
 audio, GAI/GraphBuf controls, PanelScrollBar, ScrollBar, Edit, Forms lifecycle,

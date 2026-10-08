@@ -2,7 +2,7 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Текущий аппаратный статус:** M14P–M22 проверены на Switch. M23 AFT/text/Label и M24 GraphButton/Window/Zone — SOFTWARE COMPLETE / HARDWARE PENDING. Это не означает готовность игры к прохождению: полный UI, audio/music и gameplay ещё не подключены.
+> **Текущий аппаратный статус:** M14P–M24 проверены на Switch. M23 и M24 прошли в одном cumulative NRO. Это не означает готовность игры к прохождению: полный UI, audio/music и gameplay ещё не подключены.
 
 ## Что уже работает
 
@@ -26,8 +26,8 @@
 | M20 portable GI object layer | host/CI/ARM64/Switch hardware PASS; M20 COMPLETE |
 | M21 portable UI image foundation | host/CI/ARM64/Switch hardware PASS; real Simple oracle matches; Trans/Alpha release baselines are genuinely NOT PRESENT; M21 COMPLETE |
 | M22 portable UI object/layout foundation | host mixed-tree/Python oracle, CI `37783935697`, clean ARM64, symbol audit и Switch hardware PASS; M22 COMPLETE |
-| M23 portable AFT/text/Label foundation | host/Python oracle PASS, CI `37803515979` PASS, clean ARM64/symbol audit PASS; RC NRO зафиксирован, hardware PENDING |
-| M24 portable GraphButton/Window/Zone foundation | host/Python oracle, CI `37823081354`, clean ARM64 и symbol audit PASS; NRO SHA-256 зафиксирован, hardware PENDING |
+| M23 portable AFT/text/Label foundation | host/Python oracle, CI `37803515979`, clean ARM64/symbol audit PASS; cumulative M24 Switch log: checkpoint и dynamic stage PASS; M23 COMPLETE |
+| M24 portable GraphButton/Window/Zone foundation | host/Python oracle, CI `37823081354` и `37825116392`, clean ARM64/symbol audit PASS; cumulative Switch log: checkpoint, dynamic stage, PLUS и shutdown PASS; M24 COMPLETE |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
@@ -181,8 +181,8 @@ M20 добавляет `host-gi-object-test` и отдельный symbol audit:
 - [M20 portable GI object layer](docs/milestone20-gi-object-layer.md)
 - [M21 portable UI image foundation](docs/milestone21-ui-image-foundation.md) — COMPLETE
 - [M22 portable UI object/layout foundation](docs/milestone22-ui-object-layout.md) — COMPLETE
-- [M23 portable AFT/text/Label foundation](docs/milestone23-font-label.md) — SOFTWARE COMPLETE / HARDWARE PENDING
-- [M24 portable GraphButton/Window/Zone foundation](docs/milestone24-ui-controls.md) — SOFTWARE COMPLETE / HARDWARE PENDING
+- [M23 portable AFT/text/Label foundation](docs/milestone23-font-label.md) — COMPLETE / HARDWARE PASS in cumulative M24 run
+- [M24 portable GraphButton/Window/Zone foundation](docs/milestone24-ui-controls.md) — COMPLETE / HARDWARE PASS
 
 ## Лицензирование и обратная связь
 

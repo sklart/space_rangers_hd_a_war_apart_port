@@ -86,8 +86,9 @@ No fully supported real subtree meets the required two-level, three-visual-leaf
 threshold with all resources resolved. The leading blockers by candidate
 subtrees are GraphButton 151 (1,682 occurrences), GAI 90 (454), GraphBuf 51
 (102), PanelScrollBar 44 (58), Window 32 (68), Edit 24 (145), and Zone 16
-(255). These are inventory data for a separate M24 specification; M24 has not
-started.
+(255). These historical inventory data motivated the later M24 control selection;
+see [the M24 evidence](milestone24-ui-controls.md) for physical instance counts
+and the updated blocker ranking.
 
 The runtime M23 stage loads the real font from the current cache mapping,
 checks source/structural/metrics/UTF-16 fingerprints, builds `WinText` from
@@ -117,11 +118,16 @@ Switch.
 
 ## Hardware validation
 
-**PENDING — Switch unavailable.** M23 is **SOFTWARE COMPLETE / HARDWARE
-PENDING**. It must not be marked `COMPLETE` until a future hash-bound M23 or cumulative NRO
-matches font/tree/frame checkpoints on physical Switch, continues the dynamic
-loop, exits with `PLUS`, and reaches `[BOOT] COMPLETE`. No deployment is part
-of this phase.
+**HARDWARE PASS in the cumulative M24 Switch run.** The user-supplied
+`port.log` from physical Switch reports embedded `build_git=00808c1`, source
+CRC32/FNV `93df743f`/`4c320b6bc6048343`, AFT structure
+`7ecfe087`/`1a1527c347b838c2`, localized UTF-16 text
+`b64f251b`/`780519c70238915f`, matching fixed tree
+`ef3ef436`/`6022c76fb3cb9306`, and matching RGB565 frame
+`b36cfe2f`/`6b916c3b29d2a194`. `[M23] PASS` preceded the dynamic loop;
+`[STAGE] M23 text/label PASS` followed 1,322 frames/presents, `PLUS` exit,
+and `[BOOT] COMPLETE`. M23 is **COMPLETE**. Its standalone RC with
+`build_git=19eb6a5` remains historical and was never run on Switch.
 
 ## Deferred after M23
 
