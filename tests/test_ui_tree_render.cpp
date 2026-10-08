@@ -2,6 +2,7 @@
 #include "package.hpp"
 #include "scene_compositor.hpp"
 #include "ui_tree_renderer.hpp"
+#include "ui_tree_fingerprint.hpp"
 
 #include <cstdio>
 #include <cstdlib>
@@ -61,5 +62,9 @@ int main() {
   Check(UiTreeRenderer::Render(*root, framebuffer, &error), error.c_str());
   Check(pixels[0] == 0x001f && pixels[1] == 0xf800 && pixels[2] == 0xf800 && pixels[3] == 0x001f, "panel clip and depth traversal");
   Check(pixels[4] == 0x001f && pixels[5] == 0xf800 && pixels[6] == 0xf800 && pixels[7] == 0x001f, "inactive leaf skipped");
+  srhd_awa::platform::ui_fingerprint::Value fingerprint{};
+  Check(srhd_awa::platform::ui_fingerprint::ComputeFramebuffer(framebuffer, &fingerprint, &error) &&
+        fingerprint.crc32 == 0x8a1cd0aeu && fingerprint.fnv64 == 0xba73de32de60cdd5ull && fingerprint.bytes == 16,
+        "Python oracle framebuffer A");
   std::remove(path); std::puts("UI TREE RENDER TEST PASS");
 }
