@@ -3,10 +3,11 @@
 ## Статус
 
 **IN PROGRESS.** Host-путь для статичных изображений существует и проходит
-`host-m21-ui-image-regression`, но это не M21 PASS. Release inventory и
-независимый Simple oracle теперь есть, однако интегрированная fingerprint
-сцены, CI, clean ARM64 build и один финальный аппаратный тест ещё не получены.
-До них NRO на Switch не развёртывается и hardware evidence не запрашивается.
+`host-m21-ui-image-regression`, но это не M21 PASS. Release inventory,
+независимый Simple oracle и synthetic integrated checkpoint теперь есть,
+однако release-integrated fingerprint, CI, clean ARM64 build и один финальный
+аппаратный тест ещё не получены. До них NRO на Switch не развёртывается и
+hardware evidence не запрашивается.
 
 ## Границы
 
@@ -55,6 +56,16 @@ pixel hit-test использует rendering в один RGB565 pixel и про
 M12–M20 host regressions с image CPU, Alpha, Trans, Simple, layout и object
 tests. Four-channel uncompressed PSD fixtures проверяют реальную partial-alpha
 ветку portable OKGF без игровых файлов и без host JPEG/PNG dev dependencies.
+
+`PresentationScene` — минимальная borrowed-entry сцена без ownership
+renderer-а: она стабильно сортирует M20 `GIObject` и M21 `PortableImageObject`
+по layer и рисует их в один RGB565 framebuffer. `test_m21_presentation_scene`
+использует один GIObject, Simple, keyed Trans и partial-alpha Alpha, проверяет
+repeat на чистом logical framebuffer и фиксирует два кадра: A
+`1a829653`/`658ac816b5479db3`, B после GI transition
+`383a8729`/`69ffb049d0071ebb`. Независимый
+`tests/probe_m21_presentation_scene.py` воспроизводит этот synthetic
+checkpoint без C++ и зафиксирован в CI.
 
 Этот gate и M21 symbol audit добавлены в `package-host` CI. Он не является
 подменой release corpus/oracle, ARM64 или Switch проверки.

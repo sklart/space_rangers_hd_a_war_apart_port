@@ -1,10 +1,16 @@
 # Current status — M21 Portable UI Image Foundation in progress
 
 M20 remains complete. M21 has a committed CPU foundation and a local/CI host
-gate. Its release-config inventory and independent Simple Python oracle now
-exist, but M21 is **not complete**: the integrated scene fingerprints, CI run,
-clean ARM64 evidence and the one final Switch test are still pending. No M21
+gate. Its release-config inventory, independent Simple Python oracle and
+synthetic mixed M20/M21 frame-A/frame-B checkpoint now exist, but M21 is
+**not complete**: the release-integrated scene fingerprints, CI run, clean
+ARM64 evidence and the one final Switch test are still pending. No M21
 hardware claim is made here.
+
+The synthetic presentation checkpoint uses one M20 GIObject plus M21 Simple,
+keyed Trans and partial-alpha Alpha in stable layer order. Its C++ and
+independent Python oracle both record frame A `1a829653`/`658ac816b5479db3`
+and frame B `383a8729`/`69ffb049d0071ebb`; it is not a real-release scene.
 
 M21 inventory resolves `Bm.Planet.T.Spu00` to `DATA/Planet/Spu00.png` in
 `common.pkg`; the independent PNG/Adam7 RGB565 oracle records source

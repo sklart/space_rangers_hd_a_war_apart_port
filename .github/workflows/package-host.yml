@@ -125,11 +125,14 @@ jobs:
       - name: Run M21 Portable UI Image Foundation regression
         run: make -C port/switch host-m21-ui-image-regression
 
+      - name: Run M21 mixed presentation-scene oracle
+        run: python3 tests/probe_m21_presentation_scene.py
+
       - name: Audit M21 CPU symbols
         shell: bash
         run: |
           set -euo pipefail
-          for binary in port/switch/build/test_image_cpu port/switch/build/test_alpha_bitmap_cpu port/switch/build/test_trans_bitmap_cpu port/switch/build/test_simple_bitmap_cpu port/switch/build/test_image_layout port/switch/build/test_image_object; do
+          for binary in port/switch/build/test_image_cpu port/switch/build/test_alpha_bitmap_cpu port/switch/build/test_trans_bitmap_cpu port/switch/build/test_simple_bitmap_cpu port/switch/build/test_image_layout port/switch/build/test_image_object port/switch/build/test_m21_presentation_scene; do
             test -x "$binary"
             ! nm -C "$binary" | grep -E 'GR_DX|Direct3D|IDirect3DTexture9|TGraphBufGR|TCBitmapEC|TCTBitmapEC|TCAlphaBitmapEC|TImageGI|TSimpleImageGI|TTransImageGI|TAlphaImageGI|GI_MessageLoop|Forms'
           done
