@@ -125,6 +125,9 @@ jobs:
       - name: Run M21 Portable UI Image Foundation regression
         run: make -C port/switch host-m21-ui-image-regression
 
+      - name: Run M22 Portable UI Object/Layout Foundation regression
+        run: make -C port/switch host-m22-ui-regression
+
       - name: Run M21 mixed presentation-scene oracle
         run: python3 tests/probe_m21_presentation_scene.py
 
