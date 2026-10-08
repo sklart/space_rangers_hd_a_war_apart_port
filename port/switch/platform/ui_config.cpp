@@ -1,9 +1,14 @@
 #include "ui_config.hpp"
 
+#include "image_layout.hpp"
+#include "image_object.hpp"
+#include "package.hpp"
+#include "ui_tree_renderer.hpp"
 #include "units/EC_BlockPar.hpp"
 
 #include <charconv>
 #include <cstdlib>
+#include <memory>
 #include <unordered_set>
 #include <vector>
 
@@ -27,6 +32,29 @@ bool Number(const std::string& value, std::int32_t* result) {
 }
 bool Decimal(const std::string& value, double* result) {
   char* end{}; *result = std::strtod(value.c_str(), &end); return end && *end == '\0';
+}
+bool Enabled(const std::string& value) {
+  return value == "Yes" || value == "yes" || value == "True" || value == "true" || value == "TRUE" || value == "1";
+}
+bool XMode(const std::string& value, image_layout::XMode* mode) {
+  if (value == "LeftFill") *mode = image_layout::XMode::LeftFill;
+  else if (value == "CenterFill") *mode = image_layout::XMode::CenterFill;
+  else if (value == "RightFill") *mode = image_layout::XMode::RightFill;
+  else if (value == "Left") *mode = image_layout::XMode::Left;
+  else if (value == "Center") *mode = image_layout::XMode::Center;
+  else if (value == "Right") *mode = image_layout::XMode::Right;
+  else return false;
+  return true;
+}
+bool YMode(const std::string& value, image_layout::YMode* mode) {
+  if (value == "TopFill") *mode = image_layout::YMode::TopFill;
+  else if (value == "CenterFill") *mode = image_layout::YMode::CenterFill;
+  else if (value == "BottomFill") *mode = image_layout::YMode::BottomFill;
+  else if (value == "Top") *mode = image_layout::YMode::Top;
+  else if (value == "Center") *mode = image_layout::YMode::Center;
+  else if (value == "Bottom") *mode = image_layout::YMode::Bottom;
+  else return false;
+  return true;
 }
 EC_BlockPar::TBlockParEC* StyleByName(EC_BlockPar::TBlockParEC* styles, const std::string& name) {
   if (!styles) return nullptr;
@@ -60,6 +88,100 @@ bool ApplyRecursive(ui::UiObject* object, EC_BlockPar::TBlockParEC* block, const
   active->erase(block);
   return ApplyOne(object, block, context, error);
 }
+bool VisitStyleChain(EC_BlockPar::TBlockParEC* block, const Context& context,
+                     std::unordered_set<const EC_BlockPar::TBlockParEC*>* active,
+                     unsigned depth, const std::function<bool(EC_BlockPar::TBlockParEC*)>& visit,
+                     std::string* error) {
+  if (!block || depth >= 32 || !active->insert(block).second) return Fail(error, "UI Style recursion");
+  if (Has(block, u"Style")) {
+    auto* style = StyleByName(context.styles, Text(block->GetParam(u"Style"sv)));
+    if (!style || !VisitStyleChain(style, context, active, depth + 1, visit, error)) return false;
+  }
+  active->erase(block);
+  return visit(block);
+}
+bool ApplyImageProperties(ui::UiImageLeaf* leaf, EC_BlockPar::TBlockParEC* block, const Context& context,
+                          image_object::Kind kind, bool load_resource, std::string* error) {
+  std::string resource, option;
+  image_layout::XMode x_mode = image_layout::XMode::Center;
+  image_layout::YMode y_mode = image_layout::YMode::Center;
+  bool half_alpha{};
+  std::unordered_set<const EC_BlockPar::TBlockParEC*> active;
+  const auto visit = [&](EC_BlockPar::TBlockParEC* source) {
+    if (Has(source, u"Image")) resource = Text(source->GetParam(u"Image"sv));
+    if (Has(source, u"KindX") && !XMode(Text(source->GetParam(u"KindX"sv)), &x_mode)) return Fail(error, "invalid UI KindX");
+    if (Has(source, u"AlignX") && !XMode(Text(source->GetParam(u"AlignX"sv)), &x_mode)) return Fail(error, "invalid UI AlignX");
+    if (Has(source, u"KindY") && !YMode(Text(source->GetParam(u"KindY"sv)), &y_mode)) return Fail(error, "invalid UI KindY");
+    if (Has(source, u"AlignY") && !YMode(Text(source->GetParam(u"AlignY"sv)), &y_mode)) return Fail(error, "invalid UI AlignY");
+    if (Has(source, u"HalfAlpha")) half_alpha = Enabled(Text(source->GetParam(u"HalfAlpha"sv)));
+    return true;
+  };
+  if (!VisitStyleChain(block, context, &active, 0, visit, error)) return false;
+  leaf->Image().SetModes(x_mode, y_mode);
+  leaf->Image().SetHalfAlpha(half_alpha);
+  if (!load_resource || resource.empty()) return true;
+  if (!context.resources) return Fail(error, "UI image resource resolver is null");
+  return context.resources->LoadImage(leaf, kind, resource, option, error);
+}
+bool IsEventBlock(const std::string& name) {
+  return name == "OnPressCode" || name == "OnMouseEnterCode" || name == "OnMouseLeaveCode" ||
+         name == "OnMouseRightClick" || name == "OnKey";
+}
+bool IsKnownControl(const std::string& name) {
+  static const char* const names[] = {"Panel", "PanelScrollBar", "Window", "SimpleImage", "TransImage", "AlphaImage", "RotateImage", "RotateImage2", "RotateImage5", "RotateImageGAI", "Image", "InfiniteImage", "AImage", "GI", "GAI", "GAIFile", "MultiImage", "Door", "SimpleButton", "TextButton", "GraphButton", "Zone", "Label", "Edit", "ScrollBar", "CountBar", "SBPath", "StatusBar", "Planet", "PlanetButton", "CheckBox", "RadioGroup", "Grid", "Line", "Circle", "Frame", "ShrLight", "GraphBuf", "StarField", "StarFieldM", "StarFieldImg", "SpaceCircle", "SpaceImg", "PolyLine", "XviD"};
+  for (const char* candidate : names) if (name == candidate) return true;
+  return false;
+}
+bool ParseGenericImage(const std::string& image, image_object::Kind* kind, std::string* resource, std::string* error) {
+  const auto parts = Split(image);
+  if (parts.empty() || parts[0].empty()) return Fail(error, "generic Image is empty");
+  if (parts.size() == 1) { *kind = image_object::Kind::Simple; *resource = parts[0]; return true; }
+  if (parts[0] == "Simple") *kind = image_object::Kind::Simple;
+  else if (parts[0] == "Trans") *kind = image_object::Kind::Trans;
+  else if (parts[0] == "Alpha") *kind = image_object::Kind::Alpha;
+  else return Fail(error, "unsupported generic Image mode");
+  *resource = parts[1];
+  return resource->empty() ? Fail(error, "generic Image resource is empty") : true;
+}
+bool LoadOne(ui::UiObject* parent, const std::string& name, EC_BlockPar::TBlockParEC* block,
+             const Context& context, LoadMode mode, LoadReport* report, std::string* error) {
+  if (IsEventBlock(name)) { if (report) report->skipped_events.push_back(name); return true; }
+  if (!IsKnownControl(name)) return LoadChildren(parent, block, context, mode, report, error);
+  std::unique_ptr<ui::UiObject> node;
+  image_object::Kind image_kind = image_object::Kind::Simple;
+  if (name == "Panel") node = std::make_unique<ui::UiPanel>();
+  else if (name == "SimpleImage") { node = std::make_unique<ui::UiImageLeaf>(); image_kind = image_object::Kind::Simple; }
+  else if (name == "TransImage") { node = std::make_unique<ui::UiImageLeaf>(); image_kind = image_object::Kind::Trans; }
+  else if (name == "AlphaImage") { node = std::make_unique<ui::UiImageLeaf>(); image_kind = image_object::Kind::Alpha; }
+  else if (name == "Image") {
+    std::string raw;
+    std::unordered_set<const EC_BlockPar::TBlockParEC*> active;
+    if (!VisitStyleChain(block, context, &active, 0, [&](EC_BlockPar::TBlockParEC* source) { if (Has(source, u"Image")) raw = Text(source->GetParam(u"Image"sv)); return true; }, error)) return false;
+    std::string resource;
+    if (!ParseGenericImage(raw, &image_kind, &resource, error)) return false;
+    node = std::make_unique<ui::UiImageLeaf>();
+  } else {
+    if (report) report->unsupported_controls.push_back(name);
+    if (mode == LoadMode::Inventory) return true;
+    if (error) *error = "unsupported UI control: " + name;
+    return false;
+  }
+  if (!ApplyBaseProperties(node.get(), block, context, error)) return false;
+  if (auto* image = dynamic_cast<ui::UiImageLeaf*>(node.get())) {
+    if (name == "Image") {
+      std::string raw, resource;
+      std::unordered_set<const EC_BlockPar::TBlockParEC*> active;
+      if (!VisitStyleChain(block, context, &active, 0, [&](EC_BlockPar::TBlockParEC* source) { if (Has(source, u"Image")) raw = Text(source->GetParam(u"Image"sv)); return true; }, error) || !ParseGenericImage(raw, &image_kind, &resource, error)) return false;
+      if (!ApplyImageProperties(image, block, context, image_kind, false, error)) return false;
+      if (!context.resources) return Fail(error, "UI image resource resolver is null");
+      if (!context.resources->LoadImage(image, image_kind, resource, "", error)) return false;
+    } else if (!ApplyImageProperties(image, block, context, image_kind, true, error)) return false;
+  }
+  auto* attached = node.get();
+  if (!parent->Attach(std::move(node), error)) return false;
+  if (attached->Kind() == ui::NodeKind::Panel && !LoadChildren(attached, block, context, mode, report, error)) return false;
+  return true;
+}
 }  // namespace
 
 bool ApplyBaseProperties(ui::UiObject* object, EC_BlockPar::TBlockParEC* block, const Context& context, std::string* error) {
@@ -71,6 +193,22 @@ bool ResolveRuntimeDepth(EC_BlockPar::TBlockParEC* depth_config, const std::stri
     if (Text(depth_config->GetParamName(index)) == name) return Decimal(Text(depth_config->GetParamValue(index)), value);
   }
   return Decimal(name, value);
+}
+
+bool PackageUiResourceResolver::LoadImage(ui::UiImageLeaf* leaf, image_object::Kind kind,
+                                          const std::string& resource, const std::string& option,
+                                          std::string* error) {
+  if (!leaf || !package_) return Fail(error, "UI package resource resolver is null");
+  leaf->Image().SetPackage(package_);
+  return leaf->Load(kind, resource, option, error);
+}
+bool LoadChildren(ui::UiObject* parent, EC_BlockPar::TBlockParEC* block, const Context& context,
+                  LoadMode mode, LoadReport* report, std::string* error) {
+  if (!parent || !block) return Fail(error, "UI config parent or block is null");
+  for (std::int32_t index{}; index < block->GetBlockCount(); ++index) {
+    if (!LoadOne(parent, Text(block->GetBlockNameByIndex(index)), block->GetBlockByIndex(index), context, mode, report, error)) return false;
+  }
+  return true;
 }
 
 }  // namespace srhd_awa::platform::ui_config
