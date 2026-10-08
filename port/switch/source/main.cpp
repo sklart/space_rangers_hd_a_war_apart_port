@@ -669,8 +669,8 @@ bool DrawM21Presentation(void* user_data, std::string* error) {
   if (!callbacks->m21->scene.Render(target, error)) return false;
   callbacks->m20->rendered = true;
   if (!callbacks->m21->rendered) {
-    constexpr std::uint32_t kSceneCrc32 = 0x86628c05u;
-    constexpr std::uint64_t kSceneFnv64 = UINT64_C(0xade254343b228964);
+    constexpr std::uint32_t kSceneCrc32 = 0x4f915772u;
+    constexpr std::uint64_t kSceneFnv64 = UINT64_C(0x52449ae8f8f56c6c);
     srhd_awa::platform::presentation_scene::FramebufferFingerprint fingerprint{};
     if (!callbacks->m21->scene.ComputeFramebufferFingerprint(target, &fingerprint, error)) return false;
     Log("[M21] scene_actual_crc32=%08lx scene_actual_fnv64=%016llx scene_actual_bytes=%zu expected_crc32=%08lx expected_fnv64=%016llx", static_cast<unsigned long>(fingerprint.crc32),

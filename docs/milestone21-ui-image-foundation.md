@@ -8,9 +8,10 @@
 однако M21 ещё не завершён. Первый Switch запуск embedded `build_git=6fb6e98`
 чисто завершился с diagnostic failure и выявил разницу в расширении RGB565
 каналов перед alpha blend. Исправленный второй NRO (`build_git=4c7012b`) также
-корректно отказался на release-scene checkpoint, поэтому до следующего
-hash-bound теста runtime логирует фактический fingerprint кадра. Hardware PASS
-не заявляется.
+корректно отказался на release-scene checkpoint. Instrumented `82aa2e9`
+зафиксировал actual fingerprint: Python oracle рисовал только пересечение
+heartbeat markers, а runtime — полный вертикальный marker. Oracle исправлен,
+но hardware PASS пока не заявляется.
 
 ## Границы
 
@@ -112,12 +113,13 @@ release они логируются как `NOT_PRESENT`.
 
 Первый fixed logical frame включает heartbeat frame 0, три M20 GIObject и
 этот Simple image. `tests/probe_m21_release_scene.py` независимо получает
-RGB565 framebuffer `1,843,200` bytes, CRC32 `86628c05`,
-FNV64 `ade254343b228964`; runtime сравнивает тот же fingerprint до обычной
-animation. Первый Switch запуск старого expectation корректно зафиксировал
-несовпадение и выполнил clean shutdown; это **FAIL**, а не crash Homebrew и не
-hardware PASS. Для исправленного NRO остаются terminal CI и повторный
-hash-bound Switch test.
+RGB565 framebuffer `1,843,200` bytes, CRC32 `4f915772`,
+FNV64 `52449ae8f8f56c6c`; runtime сравнивает тот же fingerprint до обычной
+animation. Instrumented Switch run `82aa2e9` получил эти же actual значения:
+исправление oracle добавляет полный vertical heartbeat marker, прежде
+ошибочно пропущенный вне `(0,0)`. Предыдущие clean shutdown остаются
+diagnostic **FAIL**, а не crash Homebrew и не hardware PASS. Для исправленного
+NRO остаются terminal CI и повторный hash-bound Switch test.
 
 ## Что не заявляется
 

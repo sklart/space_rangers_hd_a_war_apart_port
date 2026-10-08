@@ -5,9 +5,12 @@ gate. Its release-config inventory, independent Simple Python oracle and
 synthetic mixed M20/M21 frame-A/frame-B checkpoint now exist, but M21 is
 **not complete**. Two Switch runs (`build_git=6fb6e98` and `4c7012b`) reached
 the M21 release-scene check and cleanly failed. The first exposed an RGB565
-channel-expansion discrepancy in the Python oracle; correcting it was
-insufficient, so the runtime now logs its actual fingerprint before rejecting
-the frame. No M21 hardware PASS is claimed here.
+channel-expansion discrepancy in the Python oracle. The instrumented run
+`82aa2e9` then reported the actual frame fingerprint and exposed the remaining
+mistake: the Python heartbeat omitted 719 pixels of its full-height red marker.
+The corrected independent oracle now matches that observed frame; final CI,
+ARM64 artifact and a full-duration hash-bound Switch run are still required.
+No M21 hardware PASS is claimed here.
 
 The synthetic presentation checkpoint uses one M20 GIObject plus M21 Simple,
 keyed Trans and partial-alpha Alpha in stable layer order. Its C++ and
@@ -22,10 +25,11 @@ references have no mapping in base `CacheData.dat` or language DAT, therefore
 they are release **NOT PRESENT**, not substituted with arbitrary assets.
 The M21 runtime integration verifies the same Simple source and
 decoded fingerprints, then compares its fixed first mixed M20/M21 frame with
-the independent `86628c05`/`ade254343b228964` oracle. This is implementation
+the independent `4f915772`/`52449ae8f8f56c6c` oracle. This is implementation
 evidence only; the prior hardware attempts are clean diagnostic FAILs. The
-next instrumented hash-bound run is required to reconcile the remaining
-runtime/oracle difference.
+instrumented `82aa2e9` Switch run produced the same actual fingerprint, but a
+new CI/ARM64-bound NRO must still complete the final full-duration hardware
+gate.
 
 Baseline SHA-256: `83300344af802bc51e64389c58f047e5afdf195c133048098be3881fae29ed98`.
 

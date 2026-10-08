@@ -99,9 +99,13 @@ def main():
 
     # First RunOneFrame: heartbeat frame 0, before M17/M20 have advanced.
     framebuffer = [CLEAR] * (WIDTH * HEIGHT)
-    framebuffer[0] = 0xF800
-    for x in range(1, WIDTH):
+    for x in range(WIDTH):
         framebuffer[x] = 0x07E0
+    # DrawRuntimeHeartbeat overlays the horizontal marker with a full-height
+    # vertical marker at x=0; reproducing only their intersection would leave
+    # 719 RGB565 pixels different from the portable runtime.
+    for y in range(HEIGHT):
+        framebuffer[y * WIDTH] = 0xF800
     asteroid_x, asteroid_y = WIDTH // 2 - images[0][0] - 24, HEIGHT // 2 - images[0][1] // 2
     draw_bgra(framebuffer, images[0], asteroid_x, asteroid_y, 255)
     for y in range(simple_height):
