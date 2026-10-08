@@ -16,6 +16,11 @@ HOST_EC_PATCH_FILE := $(abspath platform/msys-runtime-text.patch)
 GR_MAIN_PORTABLE_PATCH_FILE := $(abspath platform/gr_main_portable.patch)
 GR_MAIN_ZLIB_PORTABLE_PATCH_FILE := $(abspath platform/gr_main_zlib_portable.patch)
 DAT_ZLIB_GUARD_PATCH_FILE := $(abspath platform/dat_zlib_guard.patch)
+ifeq ($(shell uname -o),Msys)
+GIT_APPLY := /c/Program\ Files/Git/cmd/git.exe
+else
+GIT_APPLY := git
+endif
 
 CC := $(DEVKITA64)/bin/aarch64-none-elf-gcc
 CXX := $(DEVKITA64)/bin/aarch64-none-elf-g++
@@ -95,7 +100,7 @@ $(BUILD)/EC_CacheBitmap.o: $(GAME_CPP_ROOT)/src/EC_CacheBitmap.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(BUILD)/EC_BlockPar.o $(BUILD)/EC_Data.o &: $(GAME_CPP_ROOT)/src/EC_BlockPar.cpp $(GAME_CPP_ROOT)/src/EC_Data.cpp $(DAT_ZLIB_GUARD_PATCH_FILE) | $(BUILD)
-	@patched=0; git -C $(GAME_CPP_ROOT) apply --ignore-space-change $(DAT_ZLIB_GUARD_PATCH_FILE) || exit $$?; patched=1; $(CXX) $(CXXFLAGS) -c $(GAME_CPP_ROOT)/src/EC_BlockPar.cpp -o $(BUILD)/EC_BlockPar.o; result=$$?; if test $$result -eq 0; then $(CXX) $(CXXFLAGS) -c $(GAME_CPP_ROOT)/src/EC_Data.cpp -o $(BUILD)/EC_Data.o; result=$$?; fi; if test $$patched -eq 1; then git -C $(GAME_CPP_ROOT) apply -R --ignore-space-change $(DAT_ZLIB_GUARD_PATCH_FILE) || exit $$?; fi; exit $$result
+	@patched=0; $(GIT_APPLY) -C $(GAME_CPP_ROOT) apply --ignore-space-change $(DAT_ZLIB_GUARD_PATCH_FILE) || exit $$?; patched=1; $(CXX) $(CXXFLAGS) -c $(GAME_CPP_ROOT)/src/EC_BlockPar.cpp -o $(BUILD)/EC_BlockPar.o; result=$$?; if test $$result -eq 0; then $(CXX) $(CXXFLAGS) -c $(GAME_CPP_ROOT)/src/EC_Data.cpp -o $(BUILD)/EC_Data.o; result=$$?; fi; if test $$patched -eq 1; then $(GIT_APPLY) -C $(GAME_CPP_ROOT) apply -R --ignore-space-change $(DAT_ZLIB_GUARD_PATCH_FILE) || exit $$?; fi; exit $$result
 
 $(BUILD)/EC_Str.o: $(GAME_CPP_ROOT)/src/EC_Str.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -110,7 +115,7 @@ $(BUILD)/MessageText.o: $(GAME_CPP_ROOT)/src/MessageText.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(BUILD)/GR_Main.o: $(GAME_CPP_ROOT)/src/GR_Main.cpp $(GR_MAIN_PORTABLE_PATCH_FILE) $(GR_MAIN_ZLIB_PORTABLE_PATCH_FILE) | $(BUILD)
-	@patched_gr=0; patched_zlib=0; git -C $(GAME_CPP_ROOT) apply --ignore-space-change $(GR_MAIN_PORTABLE_PATCH_FILE) || exit $$?; patched_gr=1; git -C $(GAME_CPP_ROOT) apply --ignore-space-change $(GR_MAIN_ZLIB_PORTABLE_PATCH_FILE) || exit $$?; patched_zlib=1; $(CXX) $(CXXFLAGS) -c $< -o $@; result=$$?; if test $$patched_zlib -eq 1; then git -C $(GAME_CPP_ROOT) apply -R --ignore-space-change $(GR_MAIN_ZLIB_PORTABLE_PATCH_FILE) || exit $$?; fi; if test $$patched_gr -eq 1; then git -C $(GAME_CPP_ROOT) apply -R --ignore-space-change $(GR_MAIN_PORTABLE_PATCH_FILE) || exit $$?; fi; exit $$result
+	@patched_gr=0; patched_zlib=0; $(GIT_APPLY) -C $(GAME_CPP_ROOT) apply --ignore-space-change $(GR_MAIN_PORTABLE_PATCH_FILE) || exit $$?; patched_gr=1; $(GIT_APPLY) -C $(GAME_CPP_ROOT) apply --ignore-space-change $(GR_MAIN_ZLIB_PORTABLE_PATCH_FILE) || exit $$?; patched_zlib=1; $(CXX) $(CXXFLAGS) -c $< -o $@; result=$$?; if test $$patched_zlib -eq 1; then $(GIT_APPLY) -C $(GAME_CPP_ROOT) apply -R --ignore-space-change $(GR_MAIN_ZLIB_PORTABLE_PATCH_FILE) || exit $$?; fi; if test $$patched_gr -eq 1; then $(GIT_APPLY) -C $(GAME_CPP_ROOT) apply -R --ignore-space-change $(GR_MAIN_PORTABLE_PATCH_FILE) || exit $$?; fi; exit $$result
 
 $(BUILD)/GR_GraphBuf.o: $(GAME_CPP_ROOT)/src/GR_GraphBuf.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
