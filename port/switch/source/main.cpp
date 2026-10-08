@@ -875,6 +875,7 @@ struct M25ReleaseDiagnostic {
   srhd_awa::platform::ui::UiTree tree;
   srhd_awa::platform::ui::UiGaiLeaf* gai{};
   bool rendered{}, advanced{};
+  std::int32_t previous_frame{-1};
   std::uint64_t last_tick{};
 };
 
@@ -1041,8 +1042,12 @@ bool InitializeM25Release(const char* game_root, std::int32_t screen_width,
     return false;
   }
   Log("[M25] raw GI=MATCH GAI frame0=MATCH GAI frame1=MATCH");
-  diagnostic->advanced = true;
   if (!diagnostic->gai->SetFramePosition(0, false, error)) return false;
+  diagnostic->previous_frame = diagnostic->gai->Animation().SourceFrame();
+  if (diagnostic->previous_frame != 0) {
+    if (error) *error = "M25 GAI did not reset to frame zero before runtime loop";
+    return false;
+  }
   diagnostic->tree.SetRootSize({screen_width, screen_height});
   subtree->SetPosition({(screen_width - 321) / 2, screen_height - 90});
   diagnostic->gai->SetPosition({(screen_width - 321) / 2 + 335, screen_height - 87});
@@ -1053,7 +1058,16 @@ bool UpdateM25Release(M25ReleaseDiagnostic* diagnostic, std::uint64_t now_ms,
                       std::string* error) {
   const auto delta = diagnostic->last_tick ? now_ms - diagnostic->last_tick : 0;
   diagnostic->last_tick = now_ms;
-  return diagnostic->tree.Update(delta, error);
+  if (!diagnostic->tree.Update(delta, error)) return false;
+  const auto current_frame = diagnostic->gai->Animation().SourceFrame();
+  if (!diagnostic->advanced && diagnostic->previous_frame >= 0 &&
+      current_frame != diagnostic->previous_frame) {
+    diagnostic->advanced = true;
+    Log("[M25] GAI runtime advance=%ld->%ld", static_cast<long>(diagnostic->previous_frame),
+        static_cast<long>(current_frame));
+  }
+  diagnostic->previous_frame = current_frame;
+  return true;
 }
 
 struct M21FrameCallbacks { M17PlaybackDiagnostic* m17{}; M20GiObjectDiagnostic* m20{}; M21UiImageDiagnostic* m21{}; M22UiTreeDiagnostic* m22{}; M23TextDiagnostic* m23{}; srhd_awa::platform::ui_controls_checkpoint::Checkpoint* m24{}; M25ReleaseDiagnostic* m25{}; };
