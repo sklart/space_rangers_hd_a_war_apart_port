@@ -1,46 +1,14 @@
 #include "alpha_bitmap_cpu.hpp"
 
 #include "image_cpu.hpp"
+#include "rle_validation.hpp"
 
 #include <limits>
 #include <new>
 
 namespace srhd_awa::platform::alpha_bitmap_cpu {
 namespace {
-constexpr std::size_t kHeaderBytes = 16;
 constexpr std::uint64_t kMaxBytes = 256ull * 1024ull * 1024ull;
-
-std::uint32_t Read32(const std::uint8_t* bytes) {
-  return static_cast<std::uint32_t>(bytes[0]) | (static_cast<std::uint32_t>(bytes[1]) << 8) |
-         (static_cast<std::uint32_t>(bytes[2]) << 16) | (static_cast<std::uint32_t>(bytes[3]) << 24);
-}
-bool ValidateRleInternal(const std::uint8_t* bytes, std::size_t byte_count, std::int32_t width,
-                         std::int32_t height, std::size_t literal_bytes) {
-  if (!bytes || byte_count < kHeaderBytes || width <= 0 || height <= 0 ||
-      Read32(bytes + 4) != static_cast<std::uint32_t>(width) ||
-      Read32(bytes + 8) != static_cast<std::uint32_t>(height)) return false;
-  const auto stream_bytes = static_cast<std::size_t>(Read32(bytes));
-  if (stream_bytes != byte_count - kHeaderBytes) return false;
-  std::size_t at = kHeaderBytes;
-  for (std::int32_t row = 0; row < height; ++row) {
-    std::int32_t x = 0;
-    for (;;) {
-      if (at == byte_count) return false;
-      const auto command = bytes[at++];
-      if (command == 0) { if (x != width) return false; break; }
-      if (command == 0x80) { if (x != 0) return false; break; }
-      const auto count = static_cast<std::int32_t>(command & 0x7f);
-      if (count <= 0 || count > width - x) return false;
-      if (command & 0x80) {
-        const auto count_bytes = static_cast<std::size_t>(count) * literal_bytes;
-        if (count_bytes > byte_count - at) return false;
-        at += count_bytes;
-      }
-      x += count;
-    }
-  }
-  return at == byte_count;
-}
 bool Fail(std::string* error, const char* message) { if (error) *error = message; return false; }
 
 template <class Builder>
@@ -55,7 +23,7 @@ bool Build(const image_cpu::Image& decoded, Builder builder, std::vector<std::ui
 
 bool ValidateRle(const std::uint8_t* bytes, std::size_t byte_count, std::int32_t width,
                  std::int32_t height, std::size_t literal_bytes) {
-  return ValidateRleInternal(bytes, byte_count, width, height, literal_bytes);
+  return rle_validation::ValidateBuffer(bytes, byte_count, width, height, literal_bytes);
 }
 
 void AlphaBitmap::Clear() { width_ = 0; height_ = 0; trans_.clear(); trans_alpha_.clear(); alpha_.clear(); }

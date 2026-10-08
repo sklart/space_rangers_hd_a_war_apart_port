@@ -1,4 +1,15 @@
-# Current status — M22 Portable UI Object/Layout Foundation complete
+# Current status — M23 Portable AFT/Text/Label software validation
+
+M23 is in progress in a separate worktree. Synthetic AFT/tagged-text/Label
+host gates, the independent mixed-tree Python oracle and the Russian real
+`Font.2Intro` Label oracle pass locally. All 17 release AFT resources validate
+with 3,831 glyphs and zero duplicate codepoints. The selected real Label's
+fixed tree and RGB565 frame fingerprints are known before Switch access:
+`ef3ef436`/`6022c76fb3cb9306` and `b36cfe2f`/`6b916c3b29d2a194`.
+The runtime stage now compares these values before the M12 dynamic loop.
+Terminal CI, retained gates, clean ARM64, symbol audit and the hash-bound RC
+NRO are pending. **M23 hardware validation is PENDING**; M23 is not COMPLETE.
+See [the M23 evidence document](milestone23-font-label.md).
 
 M20 remains complete. M21 is **COMPLETE**: the CPU foundation, release-config
 inventory, independent Simple Python oracle and synthetic mixed M20/M21

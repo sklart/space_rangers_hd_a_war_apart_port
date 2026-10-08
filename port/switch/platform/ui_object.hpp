@@ -39,7 +39,7 @@ constexpr bool Contains(Rect value, Point point) {
 Rect Intersect(Rect left, Rect right);
 Rect Union(Rect left, Rect right);
 
-enum class NodeKind { Object, Panel, ImageLeaf, GILeaf };
+enum class NodeKind { Object, Panel, ImageLeaf, GILeaf, LabelLeaf };
 enum class ScrollType { Simple, All, Obj, View };
 
 class UiObject {
@@ -52,6 +52,8 @@ class UiObject {
   UiObject& operator=(UiObject&&) = delete;
 
   virtual NodeKind Kind() const { return NodeKind::Object; }
+  virtual bool RenderLeaf(const scene_compositor::Framebuffer&, Rect,
+                          std::string* = nullptr) const { return true; }
   UiObject* Parent() const { return parent_; }
   const std::vector<std::unique_ptr<UiObject>>& Children() const { return children_; }
   std::size_t ChildCount() const { return children_.size(); }
@@ -64,6 +66,7 @@ class UiObject {
   class UiPanel* AddPanel();
   class UiImageLeaf* AddImage();
   class UiGILeaf* AddGIObject();
+  class UiLabelLeaf* AddLabel();
 
   void SetPosition(Point value);
   void SetSize(Size value);

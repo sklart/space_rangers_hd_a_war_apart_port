@@ -56,6 +56,7 @@ bool UiTreeRenderer::RenderNode(const UiObject& node, const scene_compositor::Fr
   if (!node.Active()) return true;
   if (auto* image = dynamic_cast<const UiImageLeaf*>(&node)) return image->Render(target, clip, error);
   if (auto* gi = dynamic_cast<const UiGILeaf*>(&node)) return gi->Render(target, clip, error);
+  if (node.Kind() == NodeKind::LabelLeaf) return node.RenderLeaf(target, clip, error);
   for (const auto& child : node.Children()) {
     const Rect child_clip = Intersect(clip, child->HitTestBounds());
     if (!IsEmpty(child_clip) && !RenderNode(*child, target, child_clip, error)) return false;

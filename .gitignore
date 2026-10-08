@@ -7,3 +7,4 @@
 *.nro
 *.elf
 *.log
+__pycache__/

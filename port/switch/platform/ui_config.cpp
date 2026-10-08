@@ -2,7 +2,9 @@
 
 #include "image_layout.hpp"
 #include "image_object.hpp"
+#include "font_repository.hpp"
 #include "package.hpp"
+#include "ui_label.hpp"
 #include "ui_tree_renderer.hpp"
 #include "units/EC_BlockPar.hpp"
 
@@ -143,6 +145,119 @@ bool ParseGenericImage(const std::string& image, image_object::Kind* kind, std::
   *resource = parts[1];
   return resource->empty() ? Fail(error, "generic Image resource is empty") : true;
 }
+std::u16string Wide(const pas::WideString& value) {
+  return {value.pchar(), static_cast<std::size_t>(value.length())};
+}
+std::u16string Trim(std::u16string value) {
+  const auto first = value.find_first_not_of(u" \t\r\n");
+  if (first == std::u16string::npos) return {};
+  const auto last = value.find_last_not_of(u" \t\r\n");
+  return value.substr(first, last - first + 1);
+}
+bool ParseColor(const std::string& text, std::uint16_t* color) {
+  const auto parts = Split(text); std::int32_t red{}, green{}, blue{};
+  if (parts.size() != 3 || !Number(parts[0], &red) || !Number(parts[1], &green) ||
+      !Number(parts[2], &blue) || red < 0 || green < 0 || blue < 0) return false;
+  *color = tagged_text::PackRgb565(red, green, blue); return true;
+}
+bool LabelX(const std::string& value, ui::LabelAlignX* out) {
+  if (value == "Left") *out = ui::LabelAlignX::Left;
+  else if (value == "Center") *out = ui::LabelAlignX::Center;
+  else if (value == "Right") *out = ui::LabelAlignX::Right;
+  else if (value == "Auto") *out = ui::LabelAlignX::Auto;
+  else return false;
+  return true;
+}
+bool LabelY(const std::string& value, ui::LabelAlignY* out) {
+  if (value == "Top") *out = ui::LabelAlignY::Top;
+  else if (value == "Center") *out = ui::LabelAlignY::Center;
+  else if (value == "CenterEx") *out = ui::LabelAlignY::CenterEx;
+  else if (value == "Bottom") *out = ui::LabelAlignY::Bottom;
+  else if (value == "Auto") *out = ui::LabelAlignY::Auto;
+  else return false;
+  return true;
+}
+bool ApplyLabelProperties(ui::UiLabelLeaf* label, EC_BlockPar::TBlockParEC* block,
+                          const Context& context, std::string* error) {
+  std::string font_key, image;
+  std::vector<std::u16string> lines;
+  std::uint16_t text_color = 0xffff, border_light = 0xffff,
+                border_dark = tagged_text::PackRgb565(55, 55, 55),
+                text_border_color = 0, text_shadow_color = 0;
+  std::int32_t text_border = 0, text_shadow = 0;
+  bool border = false, word_wrap = false;
+  ui::LabelAlignX align_x = ui::LabelAlignX::Center;
+  ui::LabelAlignY align_y = ui::LabelAlignY::Center;
+  image_layout::XMode image_x = image_layout::XMode::Center;
+  image_layout::YMode image_y = image_layout::YMode::Center;
+  std::unordered_set<const EC_BlockPar::TBlockParEC*> active;
+  const auto visit = [&](EC_BlockPar::TBlockParEC* source) {
+    if (Has(source, u"Font")) font_key = Text(source->GetParam(u"Font"sv));
+    if (Has(source, u"Text")) {
+      lines.clear();
+      const auto count = source->CountParams(u"Text");
+      for (std::int32_t i = 0; i < count; ++i) {
+        const auto path = pas::concat_wide({u"Text"_wref.get(), u":"_wref.get(), pas::wide_int_to_str(i)});
+        lines.push_back(Wide(source->GetParamByPath(path)));
+      }
+    }
+    if (Has(source, u"Image")) image = Text(source->GetParam(u"Image"sv));
+    if (Has(source, u"ImageKindX") && !XMode(Text(source->GetParam(u"ImageKindX"sv)), &image_x)) return Fail(error, "invalid Label ImageKindX");
+    if (Has(source, u"ImageKindY") && !YMode(Text(source->GetParam(u"ImageKindY"sv)), &image_y)) return Fail(error, "invalid Label ImageKindY");
+    if (Has(source, u"TextColor") && !ParseColor(Text(source->GetParam(u"TextColor"sv)), &text_color)) return Fail(error, "invalid Label TextColor");
+    if (Has(source, u"Border")) border = Text(source->GetParam(u"Border"sv)) == "True";
+    if (Has(source, u"BorderLightColor")) {
+      if (!ParseColor(Text(source->GetParam(u"BorderLightColor"sv)), &border_light)) return Fail(error, "invalid Label BorderLightColor");
+      border_dark = border_light;
+    }
+    if (Has(source, u"BorderDarkColor") && !ParseColor(Text(source->GetParam(u"BorderDarkColor"sv)), &border_dark)) return Fail(error, "invalid Label BorderDarkColor");
+    if (Has(source, u"WordWrap")) word_wrap = Enabled(Text(source->GetParam(u"WordWrap"sv)));
+    if (Has(source, u"AlignX") && !LabelX(Text(source->GetParam(u"AlignX"sv)), &align_x)) return Fail(error, "invalid Label AlignX");
+    if (Has(source, u"AlignY") && !LabelY(Text(source->GetParam(u"AlignY"sv)), &align_y)) return Fail(error, "invalid Label AlignY");
+    if (Has(source, u"TextBorder") && (!Number(Text(source->GetParam(u"TextBorder"sv)), &text_border) || text_border < 0)) return Fail(error, "invalid Label TextBorder");
+    if (Has(source, u"TextBorderColor") && !ParseColor(Text(source->GetParam(u"TextBorderColor"sv)), &text_border_color)) return Fail(error, "invalid Label TextBorderColor");
+    if (Has(source, u"TextShadow") && (!Number(Text(source->GetParam(u"TextShadow"sv)), &text_shadow) || text_shadow < 0)) return Fail(error, "invalid Label TextShadow");
+    if (Has(source, u"TextShadowColor") && !ParseColor(Text(source->GetParam(u"TextShadowColor"sv)), &text_shadow_color)) return Fail(error, "invalid Label TextShadowColor");
+    return true;
+  };
+  if (!VisitStyleChain(block, context, &active, 0, visit, error)) return false;
+  if (!lines.empty() && context.language) {
+    std::u16string key;
+    for (std::size_t i = 0; i < lines.size(); ++i) { if (i) key += u"\n"; key += lines[i]; }
+    key = Trim(std::move(key));
+    const auto count = context.language->CountParamsByPath(pas::WideString(key.c_str()));
+    if (count > 0) {
+      lines.clear();
+      for (std::int32_t i = 0; i < count; ++i) {
+        auto path = key + u":";
+        for (char digit : std::to_string(i)) path.push_back(static_cast<char16_t>(digit));
+        lines.push_back(Wide(context.language->GetParamByPathOrMarker(pas::WideString(path.c_str()))));
+      }
+    }
+  }
+  if (context.resolve_label_font_alias) font_key = context.resolve_label_font_alias(font_key);
+  if (!font_key.empty()) {
+    if (!context.fonts) return Fail(error, "Label font repository is null");
+    std::shared_ptr<const aft_font::AftFont> font;
+    if (!context.fonts->Acquire(font_key, &font, nullptr, error)) return false;
+    label->SetFont(font_key, std::move(font));
+  }
+  label->SetTextLines(std::move(lines)); label->SetTextColor(text_color);
+  label->SetBorder(border, border_light, border_dark);
+  label->SetWordWrap(word_wrap); label->SetAlignX(align_x); label->SetAlignY(align_y);
+  label->SetTextBorder(text_border, text_border_color);
+  label->SetTextShadow(text_shadow, text_shadow_color);
+  if (!image.empty()) {
+    image_object::Kind kind{}; std::string resource;
+    if (!ParseGenericImage(image, &kind, &resource, error)) return false;
+    if (!context.resources) return Fail(error, "Label image resolver is null");
+    ui::UiImageLeaf temporary;
+    temporary.Image().SetModes(image_x, image_y);
+    if (!context.resources->LoadImage(&temporary, kind, resource, "", error)) return false;
+    label->SetBackground(std::move(temporary.Image()));
+  }
+  return label->Prepare(error);
+}
 bool LoadOne(ui::UiObject* parent, const std::string& name, EC_BlockPar::TBlockParEC* block,
              const Context& context, LoadMode mode, LoadReport* report, std::string* error) {
   if (IsEventBlock(name)) { if (report) report->skipped_events.push_back(name); return true; }
@@ -150,6 +265,7 @@ bool LoadOne(ui::UiObject* parent, const std::string& name, EC_BlockPar::TBlockP
   std::unique_ptr<ui::UiObject> node;
   image_object::Kind image_kind = image_object::Kind::Simple;
   if (name == "Panel") node = std::make_unique<ui::UiPanel>();
+  else if (name == "Label") node = std::make_unique<ui::UiLabelLeaf>();
   else if (name == "SimpleImage") { node = std::make_unique<ui::UiImageLeaf>(); image_kind = image_object::Kind::Simple; }
   else if (name == "TransImage") { node = std::make_unique<ui::UiImageLeaf>(); image_kind = image_object::Kind::Trans; }
   else if (name == "AlphaImage") { node = std::make_unique<ui::UiImageLeaf>(); image_kind = image_object::Kind::Alpha; }
@@ -177,6 +293,8 @@ bool LoadOne(ui::UiObject* parent, const std::string& name, EC_BlockPar::TBlockP
       if (!context.resources->LoadImage(image, image_kind, resource, "", error)) return false;
     } else if (!ApplyImageProperties(image, block, context, image_kind, true, error)) return false;
   }
+  if (auto* label = dynamic_cast<ui::UiLabelLeaf*>(node.get()))
+    if (!ApplyLabelProperties(label, block, context, error)) return false;
   auto* attached = node.get();
   if (!parent->Attach(std::move(node), error)) return false;
   if (attached->Kind() == ui::NodeKind::Panel && !LoadChildren(attached, block, context, mode, report, error)) return false;
@@ -209,6 +327,10 @@ bool LoadChildren(ui::UiObject* parent, EC_BlockPar::TBlockParEC* block, const C
     if (!LoadOne(parent, Text(block->GetBlockNameByIndex(index)), block->GetBlockByIndex(index), context, mode, report, error)) return false;
   }
   return true;
+}
+bool LoadLabel(ui::UiObject* parent, EC_BlockPar::TBlockParEC* block,
+               const Context& context, std::string* error) {
+  return LoadOne(parent, "Label", block, context, LoadMode::Strict, nullptr, error);
 }
 
 }  // namespace srhd_awa::platform::ui_config

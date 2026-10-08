@@ -1,6 +1,7 @@
 #include "gi_format2_cpu.hpp"
 
 #include "okgf_rle_bridge.hpp"
+#include "rle_validation.hpp"
 
 #include <algorithm>
 #include <cstdint>
@@ -36,35 +37,6 @@ Status Fail(Status status, Metadata* metadata, CpuImage* image, std::string* err
   return status;
 }
 
-bool ValidateRle(const std::uint8_t* stream, std::size_t stream_bytes, std::int32_t width,
-                 std::int32_t height, std::size_t literal_bytes) {
-  std::size_t at = 0;
-  for (std::int32_t row = 0; row < height; ++row) {
-    std::int32_t x = 0;
-    for (;;) {
-      if (at >= stream_bytes) return false;
-      const std::uint8_t command = stream[at++];
-      if (command == 0) {
-        if (x != width) return false;
-        break;
-      }
-      if (command == 0x80) {
-        if (x != 0) return false;
-        break;
-      }
-      const std::int32_t count = command & 0x7f;
-      if (count <= 0 || count > width - x) return false;
-      if (command & 0x80) {
-        const auto bytes = static_cast<std::size_t>(count) * literal_bytes;
-        if (bytes > stream_bytes - at) return false;
-        at += bytes;
-      }
-      x += count;
-    }
-  }
-  return at == stream_bytes;
-}
-
 Status ReadPlane(const std::uint8_t* data, std::size_t source_size, const Metadata& header,
                  std::int32_t index, Plane* out) {
   *out = {};
@@ -86,7 +58,7 @@ Status ReadPlane(const std::uint8_t* data, std::size_t source_size, const Metada
   if (origin_x < 0 || origin_y < 0 || origin_x + width > header.width || origin_y + height > header.height)
     return Status::InvalidRle;
   const std::size_t literal_bytes = index == 2 ? 1 : 2;
-  if (!ValidateRle(rle + kRleHeaderBytes, static_cast<std::size_t>(stream_size), width, height, literal_bytes))
+  if (!rle_validation::ValidateStream(rle + kRleHeaderBytes, static_cast<std::size_t>(stream_size), width, height, literal_bytes))
     return Status::InvalidRle;
   out->present = true;
   out->offset = static_cast<std::size_t>(offset);

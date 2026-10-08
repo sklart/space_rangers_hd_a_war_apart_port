@@ -23,6 +23,9 @@
 #include "ui_object.hpp"
 #include "ui_tree_renderer.hpp"
 #include "ui_tree_fingerprint.hpp"
+#include "ui_config.hpp"
+#include "ui_label.hpp"
+#include "font_repository.hpp"
 #include "units/GR_GraphBuf.hpp"
 #include "units/EC_BlockPar.hpp"
 #include "units/EC_Buf.hpp"
@@ -39,8 +42,10 @@
 #include <cstdio>
 #include <cstring>
 #include <filesystem>
+#include <memory>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace {
@@ -707,7 +712,139 @@ bool UpdateM22UiTree(M22UiTreeDiagnostic* diagnostic, std::uint64_t now_ms, std:
   return diagnostic->tree.Update(delta_ms, error);
 }
 
-struct M21FrameCallbacks { M17PlaybackDiagnostic* m17{}; M20GiObjectDiagnostic* m20{}; M21UiImageDiagnostic* m21{}; M22UiTreeDiagnostic* m22{}; };
+struct M23TextDiagnostic {
+  srhd_awa::platform::font_repository::CacheFontResolver resolver{GR_Main::GlobalCache};
+  srhd_awa::platform::font_repository::Repository fonts{&resolver};
+  srhd_awa::platform::ui::UiTree tree;
+  bool rendered{};
+};
+
+EC_BlockPar::TBlockParEC* FindM23ReleaseLabel() {
+  constexpr const char16_t* names[] = {u"ML", u"AB", u"Panel", u"Panel",
+                                       u"Panel", u"Panel", u"Panel", u"Label"};
+  constexpr std::int32_t ordinals[] = {0, 0, 0, 0, 1, 4, 0, 0};
+  auto* block = GR_Main::MainDataConfig;
+  for (std::size_t depth = 0; depth < 8 && block; ++depth) {
+    std::int32_t seen = 0;
+    EC_BlockPar::TBlockParEC* selected = nullptr;
+    for (std::int32_t index = 0; index < block->GetBlockCount(); ++index) {
+      const auto name = block->GetBlockNameByIndex(index);
+      if (std::u16string_view(name.pchar(), name.length()) != names[depth]) continue;
+      if (seen++ == ordinals[depth]) { selected = block->GetBlockByIndex(index); break; }
+    }
+    block = selected;
+  }
+  return block;
+}
+
+bool InitializeM23Text(M23TextDiagnostic* diagnostic, std::string* error) {
+  if (!diagnostic || !GR_Main::MainDataConfig || !GR_Main::LanguageDataConfig ||
+      !GR_Main::GlobalCache) {
+    if (error) *error = "M23 runtime configuration or GlobalCache is unavailable";
+    return false;
+  }
+  if (std::u16string_view(GR_Main::SelectedLanguage.pchar(), GR_Main::SelectedLanguage.length()) != u"russian") {
+    if (error) *error = "M23 fixed release oracle requires the Russian runtime language";
+    return false;
+  }
+  auto* block = FindM23ReleaseLabel();
+  if (!block) { if (error) *error = "M23 selected release Label path is missing"; return false; }
+  std::vector<std::uint8_t> source;
+  std::string resolved_source;
+  if (!diagnostic->resolver.LoadFont("Font.2Intro", &source, &resolved_source, error)) return false;
+  constexpr std::uint32_t kSourceCrc = 0x93df743fu;
+  constexpr std::uint64_t kSourceFnv = UINT64_C(0x4c320b6bc6048343);
+  const auto source_crc = CrcUnit::ComputeCrc32(source.data(), static_cast<std::int32_t>(source.size()));
+  const auto source_fnv = M17Fnv(source.data(), source.size());
+  Log("[M23] font key=Font.2Intro source=%s bytes=%zu crc32=%08lx fnv64=%016llx",
+      resolved_source.c_str(), source.size(), static_cast<unsigned long>(source_crc),
+      static_cast<unsigned long long>(source_fnv));
+  if (source.size() != 26669 || source_crc != kSourceCrc || source_fnv != kSourceFnv) {
+    if (error) *error = "M23 release AFT source differs from Python oracle";
+    return false;
+  }
+  std::shared_ptr<const srhd_awa::platform::aft_font::AftFont> font;
+  if (!diagnostic->fonts.Acquire("Font.2Intro", &font, nullptr, error)) return false;
+  const auto structure = font->fingerprint();
+  Log("[M23] aft crc32=%08lx fnv64=%016llx glyphs=%zu line=%ld center=%ld above=%ld below=%ld max_advance=%ld",
+      static_cast<unsigned long>(structure.crc32), static_cast<unsigned long long>(structure.fnv64),
+      font->glyphs().size(), static_cast<long>(font->line_height()),
+      static_cast<long>(font->centering_height()), static_cast<long>(font->above_baseline()),
+      static_cast<long>(font->below_baseline()), static_cast<long>(font->max_glyph_advance()));
+  if (structure.crc32 != 0x7ecfe087u || structure.fnv64 != UINT64_C(0x1a1527c347b838c2) ||
+      font->glyphs().size() != 214 || font->line_height() != 16 ||
+      font->centering_height() != 11 || font->above_baseline() != 16 ||
+      font->below_baseline() != 2 || font->max_glyph_advance() != 16) {
+    if (error) *error = "M23 AFT structure or metrics differ from Python oracle";
+    return false;
+  }
+  auto* root = diagnostic->tree.Root();
+  root->SetName("m23-root"); root->SetSize({1024, 60});
+  srhd_awa::platform::ui_config::Context context{};
+  context.styles = GR_Main::UiStyleConfig;
+  context.language = GR_Main::LanguageDataConfig;
+  context.fonts = &diagnostic->fonts;
+  context.resolve_depth = [](const std::string& name, double* value) {
+    return srhd_awa::platform::ui_config::ResolveRuntimeDepth(GR_Main::UiDepthConfig, name, value);
+  };
+  context.resolve_label_font_alias = [](const std::string& key) {
+    return srhd_awa::platform::font_repository::ResolveLabelAlias(key,
+        GlobalsV::FontSmoothingEnabled);
+  };
+  if (!srhd_awa::platform::ui_config::LoadLabel(root, block, context, error)) return false;
+  auto* label = dynamic_cast<srhd_awa::platform::ui::UiLabelLeaf*>(root->FindByNameRecursive("WinText"));
+  if (!label || label->FontKey() != "Font.2Intro" || label->TextLines().size() != 1 ||
+      label->TextLines()[0] != u"\u0412 \u044b  \u043f \u043e \u0431 \u0435 \u0434 \u0438 \u043b \u0438 !" ||
+      label->AlignX() != srhd_awa::platform::ui::LabelAlignX::Center ||
+      label->AlignY() != srhd_awa::platform::ui::LabelAlignY::CenterEx ||
+      label->AbsolutePosition() != srhd_awa::platform::ui::Point{0, 10} ||
+      label->ClientSize() != srhd_awa::platform::ui::Size{1024, 40}) {
+    if (error) *error = "M23 release Label configuration or localization differs from oracle";
+    return false;
+  }
+  std::vector<std::uint8_t> text_utf16;
+  for (char16_t code : label->TextLines()[0]) {
+    text_utf16.push_back(static_cast<std::uint8_t>(code));
+    text_utf16.push_back(static_cast<std::uint8_t>(code >> 8));
+  }
+  const auto text_crc = CrcUnit::ComputeCrc32(text_utf16.data(), static_cast<std::int32_t>(text_utf16.size()));
+  const auto text_fnv = M17Fnv(text_utf16.data(), text_utf16.size());
+  Log("[M23] text_utf16_crc32=%08lx text_utf16_fnv64=%016llx lines=%zu",
+      static_cast<unsigned long>(text_crc), static_cast<unsigned long long>(text_fnv),
+      label->RenderedLineCount());
+  if (text_crc != 0xb64f251bu || text_fnv != UINT64_C(0x780519c70238915f)) {
+    if (error) *error = "M23 release Label localization differs from Python UTF-16 oracle";
+    return false;
+  }
+  const auto bounds = label->ContentBounds();
+  const auto content_size = label->ContentSize();
+  if (bounds.left != 1 || bounds.top != -12 || bounds.right != 156 || bounds.bottom != 2 ||
+      content_size.width != 156 || content_size.height != 17 || label->RenderedLineCount() != 1) {
+    if (error) *error = "M23 release Label measurement differs from Python oracle";
+    return false;
+  }
+  std::vector<std::uint16_t> fixed_pixels(1024u * 60u, 0);
+  const srhd_awa::platform::scene_compositor::Framebuffer fixed{
+      fixed_pixels.data(), 1024, 60, 1024};
+  if (!diagnostic->tree.Render(fixed, error)) return false;
+  srhd_awa::platform::ui_fingerprint::Value tree_value{}, frame_value{};
+  if (!srhd_awa::platform::ui_fingerprint::ComputeTree(*root, &tree_value, error) ||
+      !srhd_awa::platform::ui_fingerprint::ComputeFramebuffer(fixed, &frame_value, error)) return false;
+  Log("[M23] expected tree=%08lx/%016llx frame=%08lx/%016llx actual tree=%08lx/%016llx frame=%08lx/%016llx",
+      0xef3ef436ul, static_cast<unsigned long long>(UINT64_C(0x6022c76fb3cb9306)),
+      0xb36cfe2ful, static_cast<unsigned long long>(UINT64_C(0x6b916c3b29d2a194)),
+      static_cast<unsigned long>(tree_value.crc32), static_cast<unsigned long long>(tree_value.fnv64),
+      static_cast<unsigned long>(frame_value.crc32), static_cast<unsigned long long>(frame_value.fnv64));
+  if (tree_value.crc32 != 0xef3ef436u || tree_value.fnv64 != UINT64_C(0x6022c76fb3cb9306) ||
+      frame_value.crc32 != 0xb36cfe2fu || frame_value.fnv64 != UINT64_C(0x6b916c3b29d2a194)) {
+    if (error) *error = "M23 real Label fixed checkpoint differs from Python oracle";
+    return false;
+  }
+  Log("[M23] PASS font=Font.2Intro label=WinText tree=MATCH framebuffer=MATCH");
+  return true;
+}
+
+struct M21FrameCallbacks { M17PlaybackDiagnostic* m17{}; M20GiObjectDiagnostic* m20{}; M21UiImageDiagnostic* m21{}; M22UiTreeDiagnostic* m22{}; M23TextDiagnostic* m23{}; };
 bool RunM17M20AndM21(void* user_data, std::uint64_t now_ms, std::string* error) {
   auto* callbacks = static_cast<M21FrameCallbacks*>(user_data);
   return RunM17Playback(callbacks->m17, now_ms, error) && UpdateM20GiObjects(callbacks->m20, now_ms, error) &&
@@ -757,6 +894,8 @@ bool DrawM21Presentation(void* user_data, std::string* error) {
         static_cast<unsigned long long>(fingerprint.fnv64), fingerprint.bytes);
     Log("[M22] oracle MATCH depth=PASS clip=PASS scroll=PASS active=PASS");
   }
+  if (!callbacks->m23->tree.Render(target, error)) return false;
+  callbacks->m23->rendered = true;
   return true;
 }
 
@@ -1138,7 +1277,18 @@ int main(int argc, char** argv) {
     srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
-  M21FrameCallbacks m21_callbacks{&m17_diagnostic, &m20_diagnostic, &m21_diagnostic, &m22_diagnostic};
+  StageBegin("M23 text/label");
+  M23TextDiagnostic m23_diagnostic;
+  std::string m23_error;
+  if (!InitializeM23Text(&m23_diagnostic, &m23_error)) {
+    Log("[M23] FAIL initialization=%s", m23_error.c_str());
+    Stage("M23 text/label", false, m23_error.c_str());
+    srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
+    srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
+    srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
+  M21FrameCallbacks m21_callbacks{&m17_diagnostic, &m20_diagnostic, &m21_diagnostic, &m22_diagnostic, &m23_diagnostic};
   srhd_awa::platform::runtime_loop_slice::SetFrameCallback(&runtime_loop, RunM17M20AndM21, &m21_callbacks);
   srhd_awa::platform::runtime_loop_slice::SetDrawCallback(&runtime_loop, DrawM21Presentation, &m21_callbacks);
   Log("[M12] runtime ready");
@@ -1169,6 +1319,10 @@ int main(int argc, char** argv) {
     m12_error = "M22 UI object tree did not draw";
     loop_ok = false;
   }
+  if (loop_ok && !m23_diagnostic.rendered) {
+    m12_error = "M23 Label did not draw";
+    loop_ok = false;
+  }
   if (!loop_ok) Log("[STAGE] runtime loop FAIL reason=%s", m12_error.c_str());
   else {
     Log("[M12] exit_reason=%s", srhd_awa::platform::runtime_loop_slice::ExitReasonName(loop_stats.exit_reason));
@@ -1186,6 +1340,7 @@ int main(int argc, char** argv) {
   Stage("M20 GI object", loop_ok && m20_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
   Stage("M21 UI image foundation", loop_ok && m21_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
   Stage("M22 UI object tree", loop_ok && m22_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
+  Stage("M23 text/label", loop_ok && m23_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
   srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
   srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
   srhd_awa::platform::ui_metadata_slice::Shutdown();

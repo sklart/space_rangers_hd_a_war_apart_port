@@ -1,8 +1,14 @@
 #include "ui_config.hpp"
+#include "font_repository.hpp"
+#include "m23_aft_fixture.hpp"
+#include "ui_label.hpp"
 #include "ui_object.hpp"
 #include "ui_tree_renderer.hpp"
+#include "scene_compositor.hpp"
 #include "units/EC_BlockPar.hpp"
 
+#include <algorithm>
+#include <array>
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -20,6 +26,18 @@ class RecordingResolver final : public srhd_awa::platform::ui_config::IUiResourc
     calls.push_back({kind, resource, option}); return leaf != nullptr;
   }
   std::vector<Call> calls;
+};
+class FixtureFontResolver final : public srhd_awa::platform::font_repository::IFontResolver {
+ public:
+  bool LoadFont(const std::string& key, std::vector<std::uint8_t>* bytes,
+                std::string* source, std::string*) override {
+    if (key != "Font.fixture") return false;
+    ++loads;
+    *bytes = m23_test::AftFixture();
+    *source = "synthetic";
+    return true;
+  }
+  int loads{};
 };
 }
 
@@ -42,18 +60,133 @@ int main() {
   auto* simple = panel->AddChildBlock(u"SimpleImage"); Param(simple, u"Image", u"simple.bmp"); Param(simple, u"KindX", u"Left"); Param(simple, u"KindY", u"Bottom");
   auto* decorations = panel->AddChildBlock(u"Decorations"); auto* alpha = decorations->AddChildBlock(u"AlphaImage"); Param(alpha, u"Image", u"alpha.bmp"); Param(alpha, u"AlignX", u"Right"); Param(alpha, u"AlignY", u"Top");
   auto* generic = panel->AddChildBlock(u"Image"); Param(generic, u"Image", u"Trans, generic.bmp"); Param(generic, u"HalfAlpha", u"True");
-  panel->AddChildBlock(u"OnPressCode"); auto* unsupported = tree_config->AddChildBlock(u"Label"); unsupported->AddChildBlock(u"SimpleImage");
+  panel->AddChildBlock(u"OnPressCode"); auto* unsupported = tree_config->AddChildBlock(u"SimpleButton"); unsupported->AddChildBlock(u"SimpleImage");
   RecordingResolver resolver; context.styles = nullptr; context.resources = &resolver; srhd_awa::platform::ui::UiTree tree; srhd_awa::platform::ui_config::LoadReport report;
   Check(srhd_awa::platform::ui_config::LoadChildren(tree.Root(), tree_config, context, srhd_awa::platform::ui_config::LoadMode::Inventory, &report, &error), error.c_str());
   Check(tree.Root()->ChildCount() == 1 && tree.Root()->Children()[0]->Kind() == srhd_awa::platform::ui::NodeKind::Panel, "Panel factory and inventory skip");
   auto* built_panel = static_cast<srhd_awa::platform::ui::UiPanel*>(tree.Root()->Children()[0].get()); Check(built_panel->LocalPosition() == srhd_awa::platform::ui::Point{5, 6}, "factory base properties");
-  Check(built_panel->ChildCount() == 3 && report.unsupported_controls.size() == 1 && report.unsupported_controls[0] == "Label" && report.skipped_events.size() == 1, "grouping, unsupported and event handling");
+  Check(built_panel->ChildCount() == 3 && report.unsupported_controls.size() == 1 && report.unsupported_controls[0] == "SimpleButton" && report.skipped_events.size() == 1, "grouping, unsupported and event handling");
   auto* built_generic = static_cast<srhd_awa::platform::ui::UiImageLeaf*>(built_panel->Children()[0].get()); auto* built_alpha = static_cast<srhd_awa::platform::ui::UiImageLeaf*>(built_panel->Children()[1].get()); auto* built_simple = static_cast<srhd_awa::platform::ui::UiImageLeaf*>(built_panel->Children()[2].get());
   Check(built_simple->Image().x_mode() == srhd_awa::platform::image_layout::XMode::Left && built_simple->Image().y_mode() == srhd_awa::platform::image_layout::YMode::Bottom, "Kind image layout");
   Check(built_alpha->Image().x_mode() == srhd_awa::platform::image_layout::XMode::Right && built_alpha->Image().y_mode() == srhd_awa::platform::image_layout::YMode::Top, "Align image layout");
   Check(built_generic->Image().half_alpha(), "generic Image half alpha");
   Check(resolver.calls.size() == 3 && resolver.calls[0].kind == srhd_awa::platform::image_object::Kind::Simple && resolver.calls[1].kind == srhd_awa::platform::image_object::Kind::Alpha && resolver.calls[2].kind == srhd_awa::platform::image_object::Kind::Trans && resolver.calls[2].resource == "generic.bmp", "image factory kinds and resolver");
-  srhd_awa::platform::ui::UiTree strict_tree; Check(!srhd_awa::platform::ui_config::LoadChildren(strict_tree.Root(), tree_config, context, srhd_awa::platform::ui_config::LoadMode::Strict, &report, &error) && error == "unsupported UI control: Label", "strict known unsupported control");
+  srhd_awa::platform::ui::UiTree strict_tree; Check(!srhd_awa::platform::ui_config::LoadChildren(strict_tree.Root(), tree_config, context, srhd_awa::platform::ui_config::LoadMode::Strict, &report, &error) && error == "unsupported UI control: SimpleButton", "strict known unsupported control");
+  auto* label_styles = Block(); auto* label_style = label_styles->AddChildBlock(u"BaseLabel");
+  Param(label_style, u"Font", u"Font.fixture"); Param(label_style, u"TextColor", u"255,0,0");
+  Param(label_style, u"AlignX", u"Right"); Param(label_style, u"AlignY", u"CenterEx");
+  Param(label_style, u"Size", u"40,20");
+  auto* label_config = Block(); auto* repeated = label_config->AddChildBlock(u"Label");
+  Param(repeated, u"Name", u"repeated");
+  Param(repeated, u"Style", u"BaseLabel"); Param(repeated, u"Text", u"A");
+  Param(repeated, u"Text", u"B"); Param(repeated, u"AlignX", u"Left");
+  Param(repeated, u"Size", u"50,24");
+  auto* localized = label_config->AddChildBlock(u"Label");
+  Param(localized, u"Name", u"localized");
+  Param(localized, u"Style", u"BaseLabel"); Param(localized, u"Text", u"Greeting.Title");
+  auto* language = Block(); auto* greeting = language->AddChildBlock(u"Greeting");
+  Param(greeting, u"Title", u"AB");
+  FixtureFontResolver font_resolver;
+  srhd_awa::platform::font_repository::Repository fonts(&font_resolver);
+  srhd_awa::platform::ui_config::Context label_context{};
+  label_context.styles = label_styles; label_context.fonts = &fonts; label_context.language = language;
+  srhd_awa::platform::ui::UiTree label_tree;
+  Check(srhd_awa::platform::ui_config::LoadChildren(label_tree.Root(), label_config,
+      label_context, srhd_awa::platform::ui_config::LoadMode::Strict, nullptr, &error), error.c_str());
+  Check(label_tree.Root()->ChildCount() == 2, "Label factory creates both labels");
+  auto* first_label = static_cast<srhd_awa::platform::ui::UiLabelLeaf*>(label_tree.Root()->FindByNameRecursive("repeated"));
+  auto* second_label = static_cast<srhd_awa::platform::ui::UiLabelLeaf*>(label_tree.Root()->FindByNameRecursive("localized"));
+  Check(first_label && second_label, "Label names resolve after depth ordering");
+  Check(first_label->Kind() == srhd_awa::platform::ui::NodeKind::LabelLeaf,
+      "Label factory kind");
+  Check(first_label->FontKey() == "Font.fixture", "Label inherited font");
+  Check(first_label->TextColor() == 0xf800, "Label inherited color");
+  Check(first_label->AlignX() == srhd_awa::platform::ui::LabelAlignX::Left,
+      "Label local X alignment");
+  Check(first_label->AlignY() == srhd_awa::platform::ui::LabelAlignY::CenterEx,
+      "Label inherited Y alignment");
+  Check(first_label->ClientSize() == srhd_awa::platform::ui::Size{50, 24},
+      "Label local size override");
+  Check(first_label->TextLines() == std::vector<std::u16string>{u"A", u"B"},
+      "repeated Label Text preserves order");
+  Check(second_label->TextLines() == std::vector<std::u16string>{u"AB"},
+      "Label localization replaces a present key");
+  Check(font_resolver.loads == 1 && fonts.size() == 1, "Label font repository parses once");
+  std::shared_ptr<const srhd_awa::platform::aft_font::AftFont> fixture_font;
+  Check(fonts.Acquire("Font.fixture", &fixture_font, nullptr, &error), error.c_str());
+  srhd_awa::platform::ui::UiTree draw_tree;
+  draw_tree.SetRootSize({32, 16});
+  auto* drawn = draw_tree.Root()->AddLabel();
+  drawn->SetSize({16, 12}); drawn->SetFont("Font.fixture", fixture_font);
+  drawn->SetTextLines({u"A"}); drawn->SetAlignX(srhd_awa::platform::ui::LabelAlignX::Left);
+  drawn->SetAlignY(srhd_awa::platform::ui::LabelAlignY::Top);
+  drawn->SetTextColor(0xf800); drawn->SetTextShadow(1, 0x07e0);
+  drawn->SetTextBorder(0, 0x001f); drawn->SetBorder(true, 0xffff, 0x39e7);
+  draw_tree.UpdateGeometry();
+  std::array<std::uint16_t, 32 * 16> pixels{};
+  srhd_awa::platform::scene_compositor::Framebuffer target{pixels.data(), 32, 16, 32};
+  Check(draw_tree.Render(target, &error), error.c_str());
+  Check(pixels[0] == 0xffff && pixels[11 * 32 + 15] == 0x39e7,
+      "Label light and dark outer border");
+  Check(pixels[3 * 32 + 2] == 0xf800 && pixels[5 * 32 + 4] == 0x07e0,
+      "Label main glyph and shadow");
+  pixels.fill(0); drawn->SetTextBorder(1, 0x001f);
+  Check(draw_tree.Render(target, &error), error.c_str());
+  Check(pixels[3 * 32 + 2] == 0xf800 && pixels[5 * 32 + 4] == 0x001f &&
+      pixels[2 * 32 + 1] == 0x001f,
+      "Label diagonal outline overlays shadow before main glyph");
+  pixels.fill(0);
+  Check(drawn->Render(target, {0, 0, 3, 4}, &error), error.c_str());
+  Check(pixels[5 * 32 + 4] == 0, "Label draw respects half-open clip");
+  pixels.fill(0); drawn->SetActive(false);
+  Check(draw_tree.Render(target, &error), error.c_str());
+  Check(std::all_of(pixels.begin(), pixels.end(), [](auto pixel) { return pixel == 0; }),
+      "inactive Label is skipped by tree renderer");
+  drawn->SetActive(true); drawn->SetBorder(false, 0xffff, 0x39e7);
+  drawn->SetTextShadow(0, 0); drawn->SetTextBorder(0, 0);
+  drawn->SetAlignX(srhd_awa::platform::ui::LabelAlignX::Auto);
+  drawn->SetTextLines({u"A B", u"ABCA"});
+  Check(drawn->Prepare(&error) && drawn->ClientSize().width == 24,
+      "Label Auto width is measured width plus four");
+  pixels.fill(0);
+  Check(draw_tree.Render(target, &error), error.c_str());
+  Check(pixels[3 * 32 + 17] != 0 && pixels[3 * 32 + 11] == 0 &&
+      pixels[10 * 32 + 7] != 0,
+      "Label Auto justifies nonfinal line and leaves final line unexpanded");
+  auto first_pixel = [&]() {
+    for (int y = 0; y < 16; ++y) for (int x = 0; x < 32; ++x)
+      if (pixels[y * 32 + x]) return srhd_awa::platform::ui::Point{x, y};
+    return srhd_awa::platform::ui::Point{-1, -1};
+  };
+  drawn->SetTextLines({u"A"}); drawn->SetSize({20, 16});
+  drawn->SetAlignX(srhd_awa::platform::ui::LabelAlignX::Left);
+  drawn->SetAlignY(srhd_awa::platform::ui::LabelAlignY::Top);
+  pixels.fill(0); Check(draw_tree.Render(target, &error), error.c_str());
+  Check(first_pixel() == srhd_awa::platform::ui::Point{2, 3}, "Label Left/Top");
+  drawn->SetAlignX(srhd_awa::platform::ui::LabelAlignX::Center);
+  drawn->SetAlignY(srhd_awa::platform::ui::LabelAlignY::Center);
+  pixels.fill(0); Check(draw_tree.Render(target, &error), error.c_str());
+  Check(first_pixel() == srhd_awa::platform::ui::Point{8, 7}, "Label Center/Center");
+  drawn->SetAlignX(srhd_awa::platform::ui::LabelAlignX::Right);
+  drawn->SetAlignY(srhd_awa::platform::ui::LabelAlignY::Bottom);
+  pixels.fill(0); Check(draw_tree.Render(target, &error), error.c_str());
+  Check(first_pixel() == srhd_awa::platform::ui::Point{13, 11}, "Label Right/Bottom");
+  drawn->SetAlignY(srhd_awa::platform::ui::LabelAlignY::CenterEx);
+  pixels.fill(0); Check(draw_tree.Render(target, &error), error.c_str());
+  Check(first_pixel() == srhd_awa::platform::ui::Point{13, 10}, "Label CenterEx differs from Bottom");
+  drawn->SetAlignX(srhd_awa::platform::ui::LabelAlignX::Auto);
+  drawn->SetAlignY(srhd_awa::platform::ui::LabelAlignY::Auto);
+  Check(drawn->Prepare(&error) && drawn->ClientSize() == srhd_awa::platform::ui::Size{9, 8},
+      "Label Auto X/Y dimensions");
+  drawn->SetSize({14, 16}); drawn->SetAlignX(srhd_awa::platform::ui::LabelAlignX::Left);
+  drawn->SetAlignY(srhd_awa::platform::ui::LabelAlignY::Top);
+  drawn->SetWordWrap(true); drawn->SetTextLines({u"A B C"});
+  Check(drawn->Prepare(&error) && drawn->RenderedLineCount() >= 2,
+      "Label WordWrap uses client width minus four");
+  drawn->SetWordWrap(false); drawn->SetTextLines({u"\u0401\u044f"});
+  pixels.fill(0); Check(draw_tree.Render(target, &error), error.c_str());
+  Check(first_pixel().x >= 0, "Label fixture Cyrillic glyphs render");
+  pas::free(label_styles); pas::free(label_config); pas::free(language);
   pas::free(styles); pas::free(depth); pas::free(config); pas::free(cyclic); pas::free(cycle_config); pas::free(tree_config);
   std::cout << "UI CONFIG TEST PASS\n";
 }

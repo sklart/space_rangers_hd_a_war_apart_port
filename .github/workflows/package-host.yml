@@ -134,6 +134,32 @@ jobs:
       - name: Check M22 release-backed probe syntax
         run: python3 -m py_compile tests/probe_m22_ui_release.py tests/probe_m22_runtime_oracle.py
 
+      - name: Run M23 Portable AFT / Text / Label regression
+        run: make -C port/switch host-m23-ui-regression
+
+      - name: Check M23 release probes and occurrence inventory
+        run: |
+          python3 -m py_compile tests/probe_aft_release.py tests/probe_m23_text_release.py tests/probe_m23_ui_text.py tests/probe_m23_real_label.py
+          python3 tests/probe_m23_text_release.py --self-test
+          python3 tests/probe_m23_real_label.py --self-test
+
+      - name: Run independent M23 synthetic UI text oracle
+        run: python3 tests/probe_m23_ui_text.py
+
+      - name: Audit M23 portable production symbols
+        shell: bash
+        run: |
+          set -euo pipefail
+          objects=$(mktemp -d)
+          trap 'rm -rf "$objects"' EXIT
+          for name in aft_font font_renderer font_repository font_cache_resolver tagged_text ui_label; do
+            g++ -std=c++20 -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime -Iupstream/okgf/include \
+              -c "port/switch/platform/$name.cpp" -o "$objects/$name.o"
+          done
+          for object in "$objects"/*.o; do
+            ! nm -C "$object" | grep -E 'TCFontEC|TCFontControlEC|GI_Label|TLabelGI|GI_MessageLoop|GR_DX|Direct3D|TGraphBufGR|CreateFont|TextOut|Forms'
+          done
+
       - name: Run M21 mixed presentation-scene oracle
         run: python3 tests/probe_m21_presentation_scene.py
 

@@ -59,5 +59,17 @@ void DrawTransBufHalf565Clip(void* destination, std::int32_t pitch, std::int32_t
   OKGR_TransBuf_HADrawClip_16(destination, pitch, x, y,
                                static_cast<const OkgfRleHeader*>(source), &native);
 }
+void DrawMask565Clip(void* destination, std::int32_t pitch, std::int32_t x, std::int32_t y,
+                     const void* source, std::uint16_t color, const Rect& clip) {
+  const auto native = ToOkgfRect(clip);
+  OKGR_MaskBuf_DrawClip_WORD(destination, pitch, x, y,
+                             static_cast<const OkgfRleHeader*>(source), color, &native);
+}
+void FillAlpha565Clip(void* destination, std::int32_t pitch, std::int32_t x, std::int32_t y,
+                      const void* source, std::uint16_t color, const Rect& clip) {
+  const auto native = ToOkgfRect(clip);
+  OKGR_TransBuf_FillAlphaClip_16(destination, pitch, x, y,
+                                 static_cast<const OkgfRleHeader*>(source), &native, color);
+}
 
 }  // namespace srhd_awa::platform::okgf_rle_bridge

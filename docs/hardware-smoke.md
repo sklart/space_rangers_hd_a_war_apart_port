@@ -117,3 +117,20 @@ embedded `build_git=de807a7`. It reported 10 nodes (4 panels, 3 image leaves,
 M17's first cycle took 5,039 ms; M12 presented 2,277 frames over 111,702 ms,
 then `PLUS` produced a clean shutdown and `[BOOT] COMPLETE`. `gr-main.log`
 contains only its expected `Start` marker. Screenshot evidence is not required.
+
+## Future M23 Switch validation — PENDING
+
+Do not deploy or wait for a Switch during the M23 software phase. The M23
+runtime stage is prepared to compare the real Russian `Font.2Intro` source
+CRC32/FNV64 `93df743f`/`4c320b6bc6048343`, AFT structure
+`7ecfe087`/`1a1527c347b838c2`, UTF-16 localized text
+`b64f251b`/`780519c70238915f`, fixed tree
+`ef3ef436`/`6022c76fb3cb9306`, and fixed `1024×60` RGB565 frame
+`b36cfe2f`/`6b916c3b29d2a194` with the independent Python oracle.
+
+When the hardware becomes available, test the recorded hash-bound M23 RC NRO
+or a later cumulative NRO retaining this exact checkpoint. Require the M23
+font/tree/frame match, dynamic M17/M20/M21/M22/M23 evidence, nonzero M12
+frames and presents, `PLUS` exit and `[BOOT] COMPLETE`. A screenshot is useful
+for Cyrillic baseline and clipping inspection but is not a formal PASS gate.
+Current M23 hardware validation: **PENDING — Switch unavailable**.

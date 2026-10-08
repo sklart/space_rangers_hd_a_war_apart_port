@@ -27,5 +27,9 @@ void DrawTransBuf565Clip(void* destination, std::int32_t pitch, std::int32_t x, 
                          const void* source, const Rect& clip);
 void DrawTransBufHalf565Clip(void* destination, std::int32_t pitch, std::int32_t x, std::int32_t y,
                              const void* source, const Rect& clip);
+void DrawMask565Clip(void* destination, std::int32_t pitch, std::int32_t x, std::int32_t y,
+                     const void* source, std::uint16_t color, const Rect& clip);
+void FillAlpha565Clip(void* destination, std::int32_t pitch, std::int32_t x, std::int32_t y,
+                      const void* source, std::uint16_t color, const Rect& clip);
 
 }  // namespace srhd_awa::platform::okgf_rle_bridge
