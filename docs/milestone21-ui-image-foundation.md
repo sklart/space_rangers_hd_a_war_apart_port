@@ -6,10 +6,11 @@
 `host-m21-ui-image-regression`, но это не M21 PASS. Release inventory,
 независимый Simple oracle и synthetic integrated checkpoint теперь есть,
 однако M21 ещё не завершён. Первый Switch запуск embedded `build_git=6fb6e98`
-чисто завершился с diagnostic failure: Python oracle расширял RGB565 через
-сдвиг, тогда как ARM64 compositor масштабирует каналы до 255 перед alpha
-blend. Oracle и runtime expectation исправлены; нужны CI и повторный
-hash-bound аппаратный тест нового NRO.
+чисто завершился с diagnostic failure и выявил разницу в расширении RGB565
+каналов перед alpha blend. Исправленный второй NRO (`build_git=4c7012b`) также
+корректно отказался на release-scene checkpoint, поэтому до следующего
+hash-bound теста runtime логирует фактический fingerprint кадра. Hardware PASS
+не заявляется.
 
 ## Границы
 

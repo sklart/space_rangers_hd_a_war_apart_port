@@ -673,6 +673,9 @@ bool DrawM21Presentation(void* user_data, std::string* error) {
     constexpr std::uint64_t kSceneFnv64 = UINT64_C(0xade254343b228964);
     srhd_awa::platform::presentation_scene::FramebufferFingerprint fingerprint{};
     if (!callbacks->m21->scene.ComputeFramebufferFingerprint(target, &fingerprint, error)) return false;
+    Log("[M21] scene_actual_crc32=%08lx scene_actual_fnv64=%016llx scene_actual_bytes=%zu expected_crc32=%08lx expected_fnv64=%016llx", static_cast<unsigned long>(fingerprint.crc32),
+        static_cast<unsigned long long>(fingerprint.fnv64), fingerprint.bytes, static_cast<unsigned long>(kSceneCrc32),
+        static_cast<unsigned long long>(kSceneFnv64));
     if (fingerprint.bytes != 1843200 || fingerprint.crc32 != kSceneCrc32 || fingerprint.fnv64 != kSceneFnv64) {
       if (error) *error = "M21 first logical runtime frame differs from release oracle";
       return false;

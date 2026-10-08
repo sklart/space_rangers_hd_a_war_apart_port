@@ -24,7 +24,7 @@
 | M18 portable software compositor | host/CI/ARM64/Switch hardware PASS; M18 COMPLETE |
 | M19 portable scene compositor | host/CI/ARM64/Switch hardware/Python oracle PASS; M19 COMPLETE |
 | M20 portable GI object layer | host/CI/ARM64/Switch hardware PASS; M20 COMPLETE |
-| M21 portable UI image foundation | synthetic host + mixed M20/M21 scene oracle PASS; real Simple Python oracle PASS; Trans/Alpha release baselines NOT PRESENT; first Switch diagnostic cleanly failed only from an RGB565-oracle mismatch; corrected NRO awaits CI and a new hash-bound Switch test |
+| M21 portable UI image foundation | synthetic host + mixed M20/M21 scene oracle PASS; real Simple Python oracle PASS; Trans/Alpha release baselines NOT PRESENT; two Switch diagnostic runs cleanly rejected a mismatched first-frame oracle; actual-frame logging is being added; no hardware PASS claimed |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
