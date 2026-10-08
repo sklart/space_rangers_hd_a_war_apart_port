@@ -130,7 +130,7 @@ port/switch/Space Rangers HD - A War Apart.nro
 
 ## Границы подтверждённого аппаратного пути
 
-M7, M8, M9, M11, M12, M14P, M15 и M16 имеют hardware PASS. M13 завершён как metadata diagnostic и не требует отдельного hardware gate. M14 direct upstream path остаётся заблокированным широким `GR_DX` fan-out, а M14R — Direct3D COM state в layout `TGraphBufGR`; M14P решает Format-0 без этих типов. M17 добавляет CPU-only playback для sequence 0 из `DATA/Asteroid/00.gai`; до Switch-проверки его статус остаётся pending hardware.
+M7, M8, M9, M11, M12, M14P, M15, M16 и M17 имеют hardware PASS. M13 завершён как metadata diagnostic и не требует отдельного hardware gate. M14 direct upstream path остаётся заблокированным широким `GR_DX` fan-out, а M14R — Direct3D COM state в layout `TGraphBufGR`; M14P решает Format-0 без этих типов. M17 подтверждает CPU-only playback sequence 0 из `DATA/Asteroid/00.gai`: один полный цикл совпал с независимым oracle, после чего M12 продолжил работу до `PLUS` и чистого shutdown.
 
 Аппаратно протестированный NRO имел размер 7 158 064 bytes, SHA-256 `1CDFFC96A8505BA6D9114222F46CF32B4A16E80C93C93735D13198293E61D97E` и embedded `build_git=46330b4`. `port.log` подтверждает build Git, а deploy preflight/manifest — SHA-256. При ошибке декодера ожидается запись вида:
 

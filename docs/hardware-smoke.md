@@ -63,8 +63,8 @@ The tested `Space Rangers HD - A War Apart.nro` was 7,158,064 bytes with SHA-256
 
 **PASS.** The tested `Space Rangers HD - A War Apart.nro` SHA-256 is `470246273738C66777672E0D88A3449DA3FF47398AC08C16BB3175B5CAE8E08E`, with `build_git=50b778c`. The log records `[STAGE] M16 GI format2 PASS`, all 100 frames, frame 0 CRC32/FNV `83f66519`/`eb000366ca288b23` and aggregate CRC32/FNV `9e4059ce`/`a028ffbf04472afa`. M12 then ran 943 frames/presents for 47,272 ms, exited with `PLUS`, and reached `[BOOT] COMPLETE`.
 
-## M17 Switch test
+## Recorded M17 Switch result
 
-Deploy the newly built NRO with `-UpdateOnly`, launch it, and leave it running for at least 15 seconds (the nominal first sequence cycle is 5000 ms). Do not press `PLUS` before the M17 stage passes. Then press `PLUS` and collect both logs.
+**PASS.** The tested NRO was 7,194,928 bytes with SHA-256 `E753BFEAA6BF71C48086C98BB8A27307A0929ECB05B362D343CFA7B8777DCD0D` and embedded `build_git=13ad513`. `DATA/Asteroid/00.gai`, sequence 0, reported 100 positions with 50 ms delays, a 5000 ms nominal cycle, and matching sequence CRC32/FNV-1a `4b1c6ebf`/`47cdc8c73fc1ce61`. The first decoded cycle matched CRC32/FNV-1a `5b7bc7e9`/`f70813ac799a25b3`; its actual duration was 5033 ms, max tick gap 129 ms, and measured tolerance 134 ms. After `[STAGE] M17 GAI playback PASS`, M12 ran 832 frames/presents for 41,746 ms, exited through `PLUS`, and reached `[BOOT] COMPLETE`.
 
-`port.log` must contain `[STAGE] M17 GAI playback BEGIN`, sequence 0 metadata, sequence CRC/FNV, initial frame information, first-cycle actual duration, max tick gap, cycle CRC/FNV, `[M17] PASS sequence=0 cycle=1`, `[STAGE] M17 GAI playback PASS`, `exit_reason=plus`, nonzero frames/presents, and `[BOOT] COMPLETE`. Any `diagnostic_failure`, missing first-cycle PASS, or mismatch is a failed hardware run, not a partial pass.
+For a re-test, deploy a hash-verified NRO with `-UpdateOnly`, wait at least 15 seconds without pressing `PLUS`, then collect both logs after `PLUS`. A valid run must still contain the M17 fingerprints, `[M17] PASS sequence=0 cycle=1`, `[STAGE] M17 GAI playback PASS`, nonzero frames/presents and `[BOOT] COMPLETE`.

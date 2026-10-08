@@ -18,7 +18,7 @@
 | M14P GI Format-0 | `GlobalCache::OpenDataBuffer` → structural validator → CPU decoder | M11 cache, OKGF RGB565 bridge | direct M14 GR_DX and M14R `TGraphBufGR` routes remain excluded | HOST/CI/ARM64/HARDWARE PASS; 93x104 BGRA fingerprint verified |
 | M15 GAI Format-0 frame | `common.pkg` → GAI validator → frame directory → raw/ZL payload → M14P decoder | package reader, zlib bridge, M14P | no `TCGaiEC`, `GI_GAIFile`, surfaces, Direct3D, playback, or UI | RELEASE BASELINE/CI/ARM64/HARDWARE PASS; fixed 2000x2000 BGRA fingerprint verified |
 | M16 GAI Format-2 frames | `common.pkg` → GAI validator → 100 raw frames → RLE validator → OKGF CPU draw | package reader, M16 decoder, OKGF RLE | no `TgiGR`, `TGraphBufGR`, Direct3D, playback, cache or UI | HOST/CI/ARM64/HARDWARE PASS |
-| M17 embedded GAI playback | sequence 0 → portable state → selected frame → M16 Format-2 decode | M15 parser, M16 decoder, M12 opt-in monotonic callback | no UI, compositing, cache, audio, `GI_GAI` or Direct3D | HOST/ARM64 PASS; hardware pending |
+| M17 embedded GAI playback | sequence 0 → portable state → selected frame → M16 Format-2 decode | M15 parser, M16 decoder, M12 opt-in monotonic callback | no UI, compositing, cache, audio, `GI_GAI` or Direct3D | HOST/CI/ARM64/HARDWARE PASS; one full 5000 ms cycle matched oracle |
 | audio | DirectSound path | audio device | intentionally deferred | DEFERRED |
 | resource | `CrcUnit.cpp`: `ComputeCrc32` | portable Delphi helpers | none on compiled path | PASS: linked ARM64 |
 | renderer | `GR_Main`, `EC_OKGF`, OKGF | window, `okgf.dll` ABI | game-facing adapter incomplete | portable OKGF is fully built, linked and fills a CPU framebuffer |
