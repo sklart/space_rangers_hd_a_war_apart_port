@@ -48,7 +48,8 @@ bool CompositeBGRA(std::uint16_t* dst, std::int32_t dst_width,
                    const std::uint8_t* src, std::int32_t src_width,
                    std::int32_t src_height, std::int32_t src_pitch,
                    std::int32_t dst_x, std::int32_t dst_y, BlendMode mode,
-                   const Rect* clip, std::string* error) {
+                   const Rect* clip, std::string* error,
+                   std::uint8_t global_alpha) {
   if (!dst || !src) return Fail(error, "null compositor buffer");
   if (dst_width <= 0 || dst_height <= 0 || dst_pitch_pixels < dst_width ||
       src_width <= 0 || src_height <= 0 ||
@@ -92,7 +93,8 @@ bool CompositeBGRA(std::uint16_t* dst, std::int32_t dst_width,
       const std::uint8_t blue = pixel[0];
       const std::uint8_t green = pixel[1];
       const std::uint8_t red = pixel[2];
-      const std::uint8_t alpha = pixel[3];
+      const std::uint8_t alpha = static_cast<std::uint8_t>(
+          (static_cast<std::uint16_t>(pixel[3]) * global_alpha + 127u) / 255u);
       if (mode == BlendMode::Opaque) {
         destination_row[x] = Pack565(red, green, blue);
       } else if (alpha != 0) {

@@ -6,6 +6,7 @@
 #include "package.hpp"
 #include "ui_label.hpp"
 #include "ui_graph_button.hpp"
+#include "ui_gai.hpp"
 #include "ui_tree_renderer.hpp"
 #include "ui_zone.hpp"
 #include "ui_window.hpp"
@@ -81,6 +82,18 @@ bool ApplyOne(ui::UiObject* object, EC_BlockPar::TBlockParEC* block, const Conte
   if (Has(block, u"Sme")) { const auto parts = Split(Text(block->GetParam(u"Sme"sv))); std::int32_t x{}, y{}; if (parts.size() != 2 || !Number(parts[0], &x) || !Number(parts[1], &y)) return Fail(error, "invalid UI Sme"); object->SetOrigin({x, y}); }
   if (Has(block, u"Name")) object->SetName(Text(block->GetParam(u"Name"sv)));
   if (Has(block, u"Active")) object->SetActive(Text(block->GetParam(u"Active"sv)) != "False");
+  if (Has(block, u"Help")) {
+    const auto help_key = Text(block->GetParam(u"Help"sv));
+    std::string help_text = help_key;
+    if (context.language) {
+      const auto translated = context.language->GetParamByPathOrMarker(block->GetParam(u"Help"sv));
+      help_text = Text(translated);
+    }
+    object->SetHelp(help_key, help_text);
+  }
+  if (Has(block, u"MouseBlocking")) object->SetMouseBlocking(Enabled(Text(block->GetParam(u"MouseBlocking"sv))));
+  if (Has(block, u"MouseBlockingTest")) object->SetMouseBlockingTest(Enabled(Text(block->GetParam(u"MouseBlockingTest"sv))));
+  if (Has(block, u"MVUpdate")) object->SetMouseViewUpdates(Enabled(Text(block->GetParam(u"MVUpdate"sv))));
   return true;
 }
 bool ApplyRecursive(ui::UiObject* object, EC_BlockPar::TBlockParEC* block, const Context& context,
@@ -112,6 +125,7 @@ bool ApplyImageProperties(ui::UiImageLeaf* leaf, EC_BlockPar::TBlockParEC* block
   image_layout::XMode x_mode = image_layout::XMode::Center;
   image_layout::YMode y_mode = image_layout::YMode::Center;
   bool half_alpha{};
+  std::uint8_t alpha = 255;
   std::unordered_set<const EC_BlockPar::TBlockParEC*> active;
   const auto visit = [&](EC_BlockPar::TBlockParEC* source) {
     if (Has(source, u"Image")) resource = Text(source->GetParam(u"Image"sv));
@@ -120,14 +134,46 @@ bool ApplyImageProperties(ui::UiImageLeaf* leaf, EC_BlockPar::TBlockParEC* block
     if (Has(source, u"KindY") && !YMode(Text(source->GetParam(u"KindY"sv)), &y_mode)) return Fail(error, "invalid UI KindY");
     if (Has(source, u"AlignY") && !YMode(Text(source->GetParam(u"AlignY"sv)), &y_mode)) return Fail(error, "invalid UI AlignY");
     if (Has(source, u"HalfAlpha")) half_alpha = Enabled(Text(source->GetParam(u"HalfAlpha"sv)));
+    if (Has(source, u"Alpha")) {
+      std::int32_t parsed{};
+      if (!Number(Text(source->GetParam(u"Alpha"sv)), &parsed) || parsed < 0 || parsed > 255)
+        return Fail(error, "invalid UI image Alpha");
+      alpha = static_cast<std::uint8_t>(parsed);
+    }
     return true;
   };
   if (!VisitStyleChain(block, context, &active, 0, visit, error)) return false;
   leaf->Image().SetModes(x_mode, y_mode);
   leaf->Image().SetHalfAlpha(half_alpha);
+  leaf->Image().SetAlpha(alpha);
   if (!load_resource || resource.empty()) return true;
   if (!context.resources) return Fail(error, "UI image resource resolver is null");
   return context.resources->LoadImage(leaf, kind, resource, option, error);
+}
+bool ApplyImageAuto(ui::UiObject* parent, ui::UiImageLeaf* leaf,
+                    EC_BlockPar::TBlockParEC* block, const Context& context,
+                    std::string* error) {
+  std::string flags;
+  std::unordered_set<const EC_BlockPar::TBlockParEC*> active;
+  if (!VisitStyleChain(block, context, &active, 0,
+                       [&](EC_BlockPar::TBlockParEC* source) {
+                         if (Has(source, u"Auto")) flags = Text(source->GetParam(u"Auto"sv));
+                         return true;
+                       }, error)) return false;
+  if (flags.empty()) return true;
+  bool position{}, size{};
+  for (const auto& flag : Split(flags)) {
+    if (flag == "Pos") position = true;
+    else if (flag == "Size") size = true;
+    else return Fail(error, "invalid Image Auto");
+  }
+  if (position) {
+    const auto local = parent->ToLocalPoint({leaf->Image().natural_origin_x(),
+                                             leaf->Image().natural_origin_y()});
+    leaf->SetPosition(local);
+  }
+  if (size) leaf->SetSize({leaf->Image().natural_width(), leaf->Image().natural_height()});
+  return true;
 }
 bool ApplyZoneProperties(ui::UiZone* zone, EC_BlockPar::TBlockParEC* block,
                          const Context& context, std::string* error) {
@@ -157,6 +203,8 @@ bool ParseGenericImage(const std::string& image, image_object::Kind* kind, std::
   if (parts[0] == "Simple") *kind = image_object::Kind::Simple;
   else if (parts[0] == "Trans") *kind = image_object::Kind::Trans;
   else if (parts[0] == "Alpha") *kind = image_object::Kind::Alpha;
+  else if (parts[0] == "GI") *kind = image_object::Kind::GI;
+  else if (parts[0] == "GAI") *kind = image_object::Kind::GAI;
   else return Fail(error, "unsupported generic Image mode");
   *resource = parts[1];
   return resource->empty() ? Fail(error, "generic Image resource is empty") : true;
@@ -447,17 +495,74 @@ bool ApplyWindowProperties(ui::UiWindow* window, EC_BlockPar::TBlockParEC* block
   }
   return window->FinalizeLayout(error);
 }
+bool ApplyGaiProperties(ui::UiObject* parent, ui::UiGaiLeaf* leaf,
+                        EC_BlockPar::TBlockParEC* block, const Context& context,
+                        const std::string& generic_resource, std::string* error) {
+  std::string resource = generic_resource, frame, auto_flags, first_image;
+  std::int32_t frame_load = -1;
+  image_layout::XMode x_mode = image_layout::XMode::Center;
+  image_layout::YMode y_mode = image_layout::YMode::Center;
+  bool pbuf{}, stop{}, stop_cycle{};
+  std::uint8_t alpha = 255;
+  std::unordered_set<const EC_BlockPar::TBlockParEC*> active;
+  if (!VisitStyleChain(block, context, &active, 0, [&](EC_BlockPar::TBlockParEC* source) {
+    if (generic_resource.empty() && Has(source, u"Image")) resource = Text(source->GetParam(u"Image"sv));
+    if (Has(source, u"ImageFirst")) first_image = Text(source->GetParam(u"ImageFirst"sv));
+    if (Has(source, u"Frame")) frame = Text(source->GetParam(u"Frame"sv));
+    if (Has(source, u"FrameLoad") && !Number(Text(source->GetParam(u"FrameLoad"sv)), &frame_load))
+      return Fail(error, "invalid GAI FrameLoad");
+    if (Has(source, u"Auto")) auto_flags = Text(source->GetParam(u"Auto"sv));
+    if (Has(source, u"PBuf")) pbuf = Enabled(Text(source->GetParam(u"PBuf"sv)));
+    if (Has(source, u"Stop")) stop = Enabled(Text(source->GetParam(u"Stop"sv)));
+    if (Has(source, u"StopAfterOneCycle")) stop_cycle = Enabled(Text(source->GetParam(u"StopAfterOneCycle"sv)));
+    if (Has(source, u"KindX") && !XMode(Text(source->GetParam(u"KindX"sv)), &x_mode)) return Fail(error, "invalid GAI KindX");
+    if (Has(source, u"AlignX") && !XMode(Text(source->GetParam(u"AlignX"sv)), &x_mode)) return Fail(error, "invalid GAI AlignX");
+    if (Has(source, u"KindY") && !YMode(Text(source->GetParam(u"KindY"sv)), &y_mode)) return Fail(error, "invalid GAI KindY");
+    if (Has(source, u"AlignY") && !YMode(Text(source->GetParam(u"AlignY"sv)), &y_mode)) return Fail(error, "invalid GAI AlignY");
+    if (Has(source, u"Alpha")) {
+      std::int32_t parsed{};
+      if (!Number(Text(source->GetParam(u"Alpha"sv)), &parsed) || parsed < 0 || parsed > 255)
+        return Fail(error, "invalid GAI Alpha");
+      alpha = static_cast<std::uint8_t>(parsed);
+    }
+    if (Has(source, u"SoundStart")) leaf->SetSoundStart(Text(source->GetParam(u"SoundStart"sv)));
+    if (Has(source, u"TransColor")) leaf->SetTransColor(Text(source->GetParam(u"TransColor"sv)));
+    if (Has(source, u"SkipImageUpdateRect")) leaf->SetSkipImageUpdateRect(Enabled(Text(source->GetParam(u"SkipImageUpdateRect"sv))));
+    return true;
+  }, error)) return false;
+  if (pbuf) return Fail(error, "GAI PBuf composition is deferred");
+  if (!first_image.empty()) return Fail(error, "GAI ImageFirst composition is deferred");
+  if (resource.empty() || !context.resources) return Fail(error, "GAI resource is missing");
+  leaf->SetModes(x_mode, y_mode); leaf->SetAlpha(alpha);
+  if (!context.resources->LoadGai(leaf, resource, error)) return false;
+  if (frame_load >= 0) {
+    if (!leaf->SelectEmbeddedSequence(frame_load, error)) return false;
+  } else if (!frame.empty() && !leaf->SelectCustomSequence(frame, error)) return false;
+  leaf->SetStopAfterOneCycle(stop_cycle);
+  if (stop && !leaf->Stop(error)) return false;
+  for (const auto& flag : Split(auto_flags)) {
+    if (flag.empty()) continue;
+    if (flag == "Pos") leaf->SetPosition(parent->ToLocalPoint({leaf->ContentOriginX(), leaf->ContentOriginY()}));
+    else if (flag == "Size") {
+      const auto& meta = leaf->Animation().Metadata();
+      leaf->SetSize({meta.right - meta.left, meta.bottom - meta.top});
+    } else return Fail(error, "invalid GAI Auto");
+  }
+  return true;
+}
 bool LoadOne(ui::UiObject* parent, const std::string& name, EC_BlockPar::TBlockParEC* block,
              const Context& context, LoadMode mode, LoadReport* report, std::string* error) {
   if (IsEventBlock(name)) { if (report) report->skipped_events.push_back(name); return true; }
   if (!IsKnownControl(name)) return LoadChildren(parent, block, context, mode, report, error);
   std::unique_ptr<ui::UiObject> node;
+  std::string generic_gai_resource;
   image_object::Kind image_kind = image_object::Kind::Simple;
   if (name == "Panel") node = std::make_unique<ui::UiPanel>();
   else if (name == "Window") node = std::make_unique<ui::UiWindow>();
   else if (name == "GraphButton") node = std::make_unique<ui::UiGraphButton>();
   else if (name == "Zone") node = std::make_unique<ui::UiZone>();
   else if (name == "Label") node = std::make_unique<ui::UiLabelLeaf>();
+  else if (name == "GAI") node = std::make_unique<ui::UiGaiLeaf>();
   else if (name == "SimpleImage") { node = std::make_unique<ui::UiImageLeaf>(); image_kind = image_object::Kind::Simple; }
   else if (name == "TransImage") { node = std::make_unique<ui::UiImageLeaf>(); image_kind = image_object::Kind::Trans; }
   else if (name == "AlphaImage") { node = std::make_unique<ui::UiImageLeaf>(); image_kind = image_object::Kind::Alpha; }
@@ -467,7 +572,10 @@ bool LoadOne(ui::UiObject* parent, const std::string& name, EC_BlockPar::TBlockP
     if (!VisitStyleChain(block, context, &active, 0, [&](EC_BlockPar::TBlockParEC* source) { if (Has(source, u"Image")) raw = Text(source->GetParam(u"Image"sv)); return true; }, error)) return false;
     std::string resource;
     if (!ParseGenericImage(raw, &image_kind, &resource, error)) return false;
-    node = std::make_unique<ui::UiImageLeaf>();
+    if (image_kind == image_object::Kind::GAI) {
+      generic_gai_resource = resource;
+      node = std::make_unique<ui::UiGaiLeaf>();
+    } else node = std::make_unique<ui::UiImageLeaf>();
   } else {
     if (report) report->unsupported_controls.push_back(name);
     if (mode == LoadMode::Inventory) return true;
@@ -484,9 +592,17 @@ bool LoadOne(ui::UiObject* parent, const std::string& name, EC_BlockPar::TBlockP
       if (!context.resources) return Fail(error, "UI image resource resolver is null");
       if (!context.resources->LoadImage(image, image_kind, resource, "", error)) return false;
     } else if (!ApplyImageProperties(image, block, context, image_kind, true, error)) return false;
+    if (!ApplyImageAuto(parent, image, block, context, error)) return false;
   }
   if (auto* label = dynamic_cast<ui::UiLabelLeaf*>(node.get()))
     if (!ApplyLabelProperties(label, block, context, error)) return false;
+  if (auto* gai = dynamic_cast<ui::UiGaiLeaf*>(node.get()))
+    if (!ApplyGaiProperties(parent, gai, block, context, generic_gai_resource, error)) {
+      if (mode == LoadMode::Strict) return false;
+      if (report) report->unsupported_controls.push_back(name);
+      if (error) error->clear();
+      return true;
+    }
   bool control_ready = true;
   if (auto* zone = dynamic_cast<ui::UiZone*>(node.get()))
     control_ready = ApplyZoneProperties(zone, block, context, error);
@@ -526,6 +642,12 @@ bool PackageUiResourceResolver::LoadImage(ui::UiImageLeaf* leaf, image_object::K
   if (!leaf || !package_) return Fail(error, "UI package resource resolver is null");
   leaf->Image().SetPackage(package_);
   return leaf->Load(kind, resource, option, error);
+}
+bool PackageUiResourceResolver::LoadGai(ui::UiGaiLeaf* leaf, const std::string& resource,
+                                        std::string* error) {
+  if (!leaf || !package_) return Fail(error, "UI GAI package resolver is null");
+  leaf->SetPackage(package_);
+  return leaf->LoadResource(resource, error);
 }
 bool LoadChildren(ui::UiObject* parent, EC_BlockPar::TBlockParEC* block, const Context& context,
                   LoadMode mode, LoadReport* report, std::string* error) {

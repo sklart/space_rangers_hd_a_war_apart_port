@@ -1,4 +1,5 @@
 #include "ui_tree_renderer.hpp"
+#include "ui_gai.hpp"
 
 namespace srhd_awa::platform::ui {
 namespace {
@@ -58,6 +59,7 @@ bool UiTreeRenderer::Update(UiObject& root, std::uint64_t delta_ms, std::string*
 bool UiTreeRenderer::UpdateNode(UiObject& node, std::uint64_t delta_ms, std::string* error) {
   if (!node.Active()) return true;
   if (auto* gi = dynamic_cast<UiGILeaf*>(&node); gi && !gi->Update(delta_ms, error)) return false;
+  if (auto* gai = dynamic_cast<UiGaiLeaf*>(&node); gai && !gai->Update(delta_ms, error)) return false;
   for (const auto& child : node.Children()) if (!UpdateNode(*child, delta_ms, error)) return false;
   return true;
 }
@@ -70,6 +72,7 @@ bool UiTreeRenderer::RenderNode(const UiObject& node, const scene_compositor::Fr
   if (!node.Active()) return true;
   if (auto* image = dynamic_cast<const UiImageLeaf*>(&node)) return image->Render(target, clip, error);
   if (auto* gi = dynamic_cast<const UiGILeaf*>(&node)) return gi->Render(target, clip, error);
+  if (auto* gai = dynamic_cast<const UiGaiLeaf*>(&node)) return gai->Render(target, clip, error);
   if (node.Kind() == NodeKind::LabelLeaf) return node.RenderLeaf(target, clip, error);
   for (const auto& child : node.Children()) {
     const Rect child_clip = Intersect(clip, child->HitTestBounds());

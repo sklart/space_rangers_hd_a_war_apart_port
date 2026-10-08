@@ -1,0 +1,195 @@
+{
+  "screen": [
+    1280,
+    720
+  ],
+  "extra_width": 256,
+  "extra_height": -48,
+  "selected_subtree_fixups": [],
+  "matched_release_keys": 19,
+  "resources": [
+    {
+      "resource": "Bm.FormAbout2.Bg",
+      "condition_1280x720": "fallback",
+      "transformation": "full-screen RGBA rescale",
+      "status": "Format0",
+      "references": [
+        "ML#0/About#0/Panel#0/Image#0:Image"
+      ]
+    },
+    {
+      "resource": "Bm.FormEnd2.PanelBottom",
+      "condition_1280x720": "unconditional",
+      "transformation": "full-width rescale and raw GI encode",
+      "status": "Format0",
+      "references": [
+        "ML#0/GameEnd#0/Panel#0/Image#3:Image"
+      ]
+    },
+    {
+      "resource": "Bm.FormEnd2.PanelTop",
+      "condition_1280x720": "unconditional",
+      "transformation": "full-width rescale and raw GI encode",
+      "status": "Format0",
+      "references": [
+        "ML#0/GameEnd#0/Panel#0/Image#2:Image"
+      ]
+    },
+    {
+      "resource": "Bm.FormGameSet2.2Footer",
+      "condition_1280x720": "width>0",
+      "transformation": "three-region footer expansion",
+      "status": "Format2",
+      "references": [
+        "ML#0/GameSettings#0/Panel#0/Image#2:Image"
+      ]
+    },
+    {
+      "resource": "Bm.FormGameSet2.2bg",
+      "condition_1280x720": "fallback",
+      "transformation": "full-screen RGBA rescale",
+      "status": "Format0",
+      "references": [
+        "ML#0/GameSettings#0/Panel#0/Image#0:Image"
+      ]
+    },
+    {
+      "resource": "Bm.FormIntro2.PanelBottom",
+      "condition_1280x720": "width>0",
+      "transformation": "two-region horizontal panel expansion",
+      "status": "Format0",
+      "references": [
+        "ML#0/Introduction#0/Panel#0/Image#3:Image"
+      ]
+    },
+    {
+      "resource": "Bm.FormIntro2.PanelTop",
+      "condition_1280x720": "unconditional",
+      "transformation": "full-width rescale and raw GI encode",
+      "status": "Format0",
+      "references": [
+        "ML#0/Introduction#0/Panel#0/Image#2:Image"
+      ]
+    },
+    {
+      "resource": "Bm.FormMain2.2AnimMain",
+      "condition_1280x720": "width>0",
+      "transformation": "two nine-patch regions to 1280x768",
+      "status": "Format2",
+      "references": [
+        "ML#0/MainForm#0/Panel#0/Image#2:Image"
+      ]
+    },
+    {
+      "resource": "Bm.FormOptions2.2Bg",
+      "condition_1280x720": "fallback",
+      "transformation": "full-screen RGBA rescale",
+      "status": "Format0",
+      "references": [
+        "ML#0/CfgSettings#0/Panel#0/Image#0:Image"
+      ]
+    },
+    {
+      "resource": "Bm.FormPQuest2.2Panel",
+      "condition_1280x720": "width>0",
+      "transformation": "vertical two-region nine-patch into 1280x720",
+      "status": "Format2",
+      "references": [
+        "ML#0/PlanetQuest#0/Panel#0/Image#2:Image"
+      ]
+    },
+    {
+      "resource": "Bm.FormScore2.2bg",
+      "condition_1280x720": "fallback",
+      "transformation": "full-screen RGBA rescale",
+      "status": "Format0",
+      "references": [
+        "ML#0/Score#0/Panel#0/Image#0:Image"
+      ]
+    },
+    {
+      "resource": "Bm.FormShop2.2bg",
+      "condition_1280x720": "width>0, delta=198",
+      "transformation": "five nine-patch regions, +198 width",
+      "status": "Format2",
+      "references": [
+        "ML#0/EquipmentShop#0/Panel#0/Panel#4/Image#0:Image"
+      ]
+    },
+    {
+      "resource": "Bm.Gov.2FeiBGi",
+      "condition_1280x720": "fallback",
+      "transformation": "full-screen RGBA rescale",
+      "status": "Format0",
+      "references": [
+        "ML#0/Gov#0/Panel#0/Panel#7/Image#0:Image"
+      ]
+    },
+    {
+      "resource": "Bm.Gov.2GaalBGi",
+      "condition_1280x720": "fallback",
+      "transformation": "full-screen RGBA rescale",
+      "status": "Format0",
+      "references": [
+        "ML#0/Gov#0/Panel#0/Panel#8/Image#0:Image"
+      ]
+    },
+    {
+      "resource": "Bm.Gov.2MalocBGi",
+      "condition_1280x720": "fallback",
+      "transformation": "full-screen RGBA rescale",
+      "status": "Format0",
+      "references": [
+        "ML#0/Gov#0/Panel#0/Panel#4/Image#0:Image"
+      ]
+    },
+    {
+      "resource": "Bm.Gov.2PelengBGi",
+      "condition_1280x720": "fallback",
+      "transformation": "full-screen RGBA rescale",
+      "status": "Format0",
+      "references": [
+        "ML#0/Gov#0/Panel#0/Panel#5/Image#0:Image"
+      ]
+    },
+    {
+      "resource": "Bm.Gov.2PeopleBGi",
+      "condition_1280x720": "fallback",
+      "transformation": "full-screen RGBA rescale",
+      "status": "Format0",
+      "references": [
+        "ML#0/Gov#0/Panel#0/Panel#6/Image#0:Image"
+      ]
+    },
+    {
+      "resource": "Bm.Gov.PirateBG",
+      "condition_1280x720": "fallback",
+      "transformation": "full-screen RGBA rescale",
+      "status": "Format0",
+      "references": [
+        "ML#0/Gov#0/Panel#0/Panel#9/Image#0:Image"
+      ]
+    },
+    {
+      "resource": "Bm.PanelMain2.2BG",
+      "condition_1280x720": "width>0",
+      "transformation": "nine-patch to 1280, relocate origin",
+      "status": "Format2",
+      "references": [
+        "ML#0/EquipmentShop#0/Panel#0/Panel#0/Panel#1/Image#0:Image",
+        "ML#0/Galaxy#0/Panel#0/Panel#0/Panel#1/Image#0:Image",
+        "ML#0/GoodsShop#0/Panel#0/Panel#0/Panel#1/Image#0:Image",
+        "ML#0/Gov#0/Panel#0/Panel#0/Panel#1/Image#0:Image",
+        "ML#0/Hangar#0/Panel#0/Panel#0/Panel#1/Image#0:Image",
+        "ML#0/Info#0/Panel#0/Panel#0/Panel#1/Image#0:Image",
+        "ML#0/Journal#0/Panel#0/Panel#0/Panel#1/Image#0:Image",
+        "ML#0/Planet#0/Panel#0/Panel#0/Panel#1/Image#0:Image",
+        "ML#0/PlanetNO#0/Panel#0/Panel#0/Panel#1/Image#0:Image",
+        "ML#0/Rating#0/Panel#0/Panel#0/Panel#1/Image#0:Image",
+        "ML#0/RuinsTalk#0/Panel#0/Panel#0/Panel#1/Image#0:Image",
+        "ML#0/Ship#0/Panel#0/Panel#0/Panel#1/Image#0:Image",
+        "ML#0/StarMap#0/Panel#0/Panel#0/Panel#0/Panel#1/Image#0:Image"
+      ]
+    }
+  ]
+}

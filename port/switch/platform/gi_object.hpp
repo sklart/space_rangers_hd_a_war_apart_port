@@ -29,6 +29,11 @@ class GIObject {
   void SetAlpha(std::uint8_t alpha) { alpha_ = alpha; }
   void SetVisible(bool visible) { visible_ = visible; }
   bool Update(std::uint64_t delta_ms, std::string* error = nullptr);
+  bool SelectEmbeddedSequence(std::int32_t index, std::string* error = nullptr);
+  bool SelectCustomSequence(const std::string& text, std::string* error = nullptr);
+  bool SetFramePosition(std::int32_t frame, bool forward_only = false, std::string* error = nullptr);
+  bool Stop(std::string* error = nullptr);
+  void SetStopAfterOneCycle(bool value) { playback_.stop_after_one_cycle = value; }
   bool Draw(scene_compositor::Scene& scene, std::string* error = nullptr) const;
   bool DrawFramebufferAt(std::uint16_t* pixels, std::int32_t width, std::int32_t height, std::int32_t pitch,
                          std::int32_t x, std::int32_t y, std::int32_t clip_left, std::int32_t clip_top,
@@ -40,6 +45,10 @@ class GIObject {
   const gai_cpu::GaiMetadata& Metadata() const { return metadata_; }
   std::int32_t SequenceFrame() const { return playback_.sequence_frame; }
   std::int32_t SourceFrame() const { return source_frame_; }
+  std::int32_t FrameOffsetX() const { return frame_left_ - metadata_.left; }
+  std::int32_t FrameOffsetY() const { return frame_top_ - metadata_.top; }
+  bool Running() const { return playback_.running; }
+  std::uint64_t CyclesCompleted() const { return playback_.cycles_completed; }
   const gi_format0_cpu::CpuImage& Image() const { return image_; }
   std::int32_t X() const { return x_; }
   std::int32_t Y() const { return y_; }
@@ -51,6 +60,7 @@ class GIObject {
   bool LoadDecoded(std::vector<std::uint8_t> bytes, const std::string& resource,
                    std::string* error);
   bool DecodeCurrentFrame(std::string* error);
+  bool SelectSequence(gai_cpu::GaiSequence sequence, std::string* error);
 
   package::Package* package_{};
   std::string id_;
@@ -60,6 +70,7 @@ class GIObject {
   gai_cpu::GaiSequence sequence_{};
   gai_playback_cpu::State playback_{};
   std::int32_t source_frame_{};
+  std::int32_t frame_left_{}, frame_top_{};
   gi_format0_cpu::CpuImage image_;
   std::int32_t x_{}, y_{}, layer_{};
   std::uint8_t alpha_{255};

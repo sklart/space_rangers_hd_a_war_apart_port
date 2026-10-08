@@ -21,6 +21,7 @@ bool CompositeBGRA(std::uint16_t* dst, std::int32_t dst_width,
                    const std::uint8_t* src, std::int32_t src_width,
                    std::int32_t src_height, std::int32_t src_pitch,
                    std::int32_t dst_x, std::int32_t dst_y, BlendMode mode,
-                   const Rect* clip, std::string* error = nullptr);
+                   const Rect* clip, std::string* error = nullptr,
+                   std::uint8_t global_alpha = 255);
 
 }  // namespace srhd_awa::platform::software_compositor

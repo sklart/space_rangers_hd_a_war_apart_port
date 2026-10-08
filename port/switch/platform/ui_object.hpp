@@ -39,7 +39,7 @@ constexpr bool Contains(Rect value, Point point) {
 Rect Intersect(Rect left, Rect right);
 Rect Union(Rect left, Rect right);
 
-enum class NodeKind { Object, Panel, ImageLeaf, GILeaf, LabelLeaf, GraphButton, Window, Zone };
+enum class NodeKind { Object, Panel, ImageLeaf, GILeaf, LabelLeaf, GraphButton, Window, Zone, GaiLeaf };
 enum class ScrollType { Simple, All, Obj, View };
 
 class UiObject {
@@ -66,6 +66,7 @@ class UiObject {
   class UiPanel* AddPanel();
   class UiImageLeaf* AddImage();
   class UiGILeaf* AddGIObject();
+  class UiGaiLeaf* AddGai();
   class UiLabelLeaf* AddLabel();
   class UiZone* AddZone();
   class UiGraphButton* AddGraphButton();
@@ -79,6 +80,10 @@ class UiObject {
   void SetActive(bool value);
   void SetHitTestDisabled(bool value) { hit_test_disabled_ = value; }
   void SetName(std::string value) { name_ = std::move(value); }
+  void SetHelp(std::string key, std::string text) { help_key_ = std::move(key); help_text_ = std::move(text); }
+  void SetMouseBlocking(bool value) { mouse_blocking_ = value; }
+  void SetMouseBlockingTest(bool value) { mouse_blocking_test_ = value; }
+  void SetMouseViewUpdates(bool value) { mouse_view_updates_ = value; }
 
   Point LocalPosition() const { return local_position_; }
   Point AbsolutePosition() const { return absolute_position_; }
@@ -89,6 +94,11 @@ class UiObject {
   bool Active() const { return active_; }
   bool HitTestDisabled() const { return hit_test_disabled_; }
   const std::string& Name() const { return name_; }
+  const std::string& HelpKey() const { return help_key_; }
+  const std::string& HelpText() const { return help_text_; }
+  bool MouseBlocking() const { return mouse_blocking_; }
+  bool MouseBlockingTest() const { return mouse_blocking_test_; }
+  bool MouseViewUpdates() const { return mouse_view_updates_; }
   Rect LocalBounds() const;
   Rect HitTestBounds() const { return hit_test_bounds_; }
   bool ContainsPoint(Point point) const;
@@ -133,6 +143,8 @@ class UiObject {
   bool active_{true};
   bool hit_test_disabled_{};
   std::string name_;
+  std::string help_key_, help_text_;
+  bool mouse_blocking_{}, mouse_blocking_test_{true}, mouse_view_updates_{};
   std::vector<Rect> dirty_rects_;
 };
 

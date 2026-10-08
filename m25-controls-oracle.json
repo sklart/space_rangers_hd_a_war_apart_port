@@ -1,0 +1,358 @@
+{
+  "button": {
+    "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Panel#1/GraphButton#0",
+    "kind": "Disable",
+    "kind_hit": "Graph",
+    "size": [
+      53,
+      42
+    ],
+    "resources": {
+      "ImageNormal": "GI,Bm.FormAB2.2W1GN",
+      "ImageNormalA": "GI,Bm.FormAB2.2W1GA",
+      "ImageDown": "GI,Bm.FormAB2.2W1GD",
+      "ImageDisable": "GI,Bm.FormAB2.2W1H"
+    },
+    "frames": {
+      "normal": {
+        "size": 4452,
+        "crc32": "1c585c8f",
+        "fnv64": "7f23dbb7c1d8df15"
+      },
+      "hover": {
+        "size": 4452,
+        "crc32": "1a6eae32",
+        "fnv64": "46793341f42dd912"
+      },
+      "down": {
+        "size": 4452,
+        "crc32": "663cb736",
+        "fnv64": "c45ecedf7f592470"
+      }
+    }
+  },
+  "window": {
+    "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Window#0",
+    "resources": {
+      "ImageLeft": "GI,Bm.FormNote.2SimpleLeft",
+      "ImageRight": "GI,Bm.FormNote.2SimpleRight",
+      "ImageTop": "GI,Bm.FormNote.2SimpleTop",
+      "ImageBottom": "GI,Bm.FormNote.2SimpleBottom",
+      "ImageTopLeft": "GI,Bm.FormNote.2SimpleTopLeft",
+      "ImageTopRight": "GI,Bm.FormNote.2SimpleTopRight",
+      "ImageBottomLeft": "GI,Bm.FormNote.2SimpleBottomLeft",
+      "ImageBottomRight": "GI,Bm.FormNote.2SimpleBottomRight",
+      "ImageTexture": "GI,Bm.FormNote.2SimpleTexture"
+    },
+    "natural_sizes": {
+      "ImageLeft": [
+        119,
+        3
+      ],
+      "ImageRight": [
+        121,
+        3
+      ],
+      "ImageTop": [
+        3,
+        66
+      ],
+      "ImageBottom": [
+        3,
+        61
+      ],
+      "ImageTopLeft": [
+        119,
+        66
+      ],
+      "ImageTopRight": [
+        121,
+        66
+      ],
+      "ImageBottomLeft": [
+        119,
+        61
+      ],
+      "ImageBottomRight": [
+        121,
+        61
+      ],
+      "ImageTexture": [
+        3,
+        3
+      ]
+    },
+    "requested_size": [
+      280,
+      174
+    ],
+    "aligned_size": [
+      282,
+      175
+    ],
+    "work_sub_rect": "16,65,12,15",
+    "placements": {
+      "ImageTopLeft": [
+        0,
+        0,
+        119,
+        66,
+        false,
+        false
+      ],
+      "ImageTopRight": [
+        161,
+        0,
+        121,
+        66,
+        false,
+        false
+      ],
+      "ImageBottomLeft": [
+        0,
+        114,
+        119,
+        61,
+        false,
+        false
+      ],
+      "ImageBottomRight": [
+        161,
+        114,
+        121,
+        61,
+        false,
+        false
+      ],
+      "ImageTop": [
+        119,
+        0,
+        42,
+        66,
+        true,
+        false
+      ],
+      "ImageBottom": [
+        119,
+        114,
+        42,
+        61,
+        true,
+        false
+      ],
+      "ImageLeft": [
+        0,
+        66,
+        119,
+        48,
+        false,
+        true
+      ],
+      "ImageRight": [
+        161,
+        66,
+        121,
+        48,
+        false,
+        true
+      ],
+      "ImageTexture": [
+        119,
+        66,
+        42,
+        48,
+        true,
+        true
+      ]
+    },
+    "frame": {
+      "size": 98700,
+      "crc32": "87e5a68f",
+      "fnv64": "8020187c43bbcc26"
+    }
+  },
+  "sources": {
+    "Bm.FormAB2.2W1GA": {
+      "path": "DATA/FormAB2/2W1GA.gi",
+      "source": {
+        "size": 4619,
+        "crc32": "bd5a4892",
+        "fnv64": "f8635b40a053c607"
+      },
+      "bounds": [
+        341,
+        722,
+        394,
+        764
+      ]
+    },
+    "Bm.FormAB2.2W1GD": {
+      "path": "DATA/FormAB2/2W1GD.gi",
+      "source": {
+        "size": 4613,
+        "crc32": "43af2e37",
+        "fnv64": "55cf97eefc3cd531"
+      },
+      "bounds": [
+        341,
+        722,
+        394,
+        764
+      ]
+    },
+    "Bm.FormAB2.2W1GN": {
+      "path": "DATA/FormAB2/2W1GN.gi",
+      "source": {
+        "size": 4619,
+        "crc32": "9a9e03de",
+        "fnv64": "34ea872a2c34fae8"
+      },
+      "bounds": [
+        341,
+        722,
+        394,
+        764
+      ]
+    },
+    "Bm.FormAB2.2W1H": {
+      "path": "DATA/FormAB2/2W1H.gi",
+      "source": {
+        "size": 3905,
+        "crc32": "c8108bda",
+        "fnv64": "7eb3400d5e6ecc48"
+      },
+      "bounds": [
+        341,
+        722,
+        394,
+        764
+      ]
+    },
+    "Bm.FormNote.2SimpleBottom": {
+      "path": "DATA/FormNote/2SimpleBottom.gi",
+      "source": {
+        "size": 1050,
+        "crc32": "abc60a64",
+        "fnv64": "d3df1dda27a4594e"
+      },
+      "bounds": [
+        129,
+        81,
+        132,
+        142
+      ]
+    },
+    "Bm.FormNote.2SimpleBottomLeft": {
+      "path": "DATA/FormNote/2SimpleBottomLeft.gi",
+      "source": {
+        "size": 21266,
+        "crc32": "dfc40ce4",
+        "fnv64": "a131548a852e80e3"
+      },
+      "bounds": [
+        10,
+        81,
+        129,
+        142
+      ]
+    },
+    "Bm.FormNote.2SimpleBottomRight": {
+      "path": "DATA/FormNote/2SimpleBottomRight.gi",
+      "source": {
+        "size": 22331,
+        "crc32": "7ac99ef5",
+        "fnv64": "57e61f3fb276b936"
+      },
+      "bounds": [
+        132,
+        81,
+        253,
+        142
+      ]
+    },
+    "Bm.FormNote.2SimpleLeft": {
+      "path": "DATA/FormNote/2SimpleLeft.gi",
+      "source": {
+        "size": 1297,
+        "crc32": "8d418d5f",
+        "fnv64": "caa1961e9ec79740"
+      },
+      "bounds": [
+        10,
+        78,
+        129,
+        81
+      ]
+    },
+    "Bm.FormNote.2SimpleRight": {
+      "path": "DATA/FormNote/2SimpleRight.gi",
+      "source": {
+        "size": 1315,
+        "crc32": "103ba3db",
+        "fnv64": "0bd052464f321b9a"
+      },
+      "bounds": [
+        132,
+        78,
+        253,
+        81
+      ]
+    },
+    "Bm.FormNote.2SimpleTexture": {
+      "path": "DATA/FormNote/2SimpleTexture.gi",
+      "source": {
+        "size": 250,
+        "crc32": "2e1a8037",
+        "fnv64": "4af876c8bb63b220"
+      },
+      "bounds": [
+        129,
+        78,
+        132,
+        81
+      ]
+    },
+    "Bm.FormNote.2SimpleTop": {
+      "path": "DATA/FormNote/2SimpleTop.gi",
+      "source": {
+        "size": 1120,
+        "crc32": "af67d223",
+        "fnv64": "f1b20f3fbc35e407"
+      },
+      "bounds": [
+        129,
+        12,
+        132,
+        78
+      ]
+    },
+    "Bm.FormNote.2SimpleTopLeft": {
+      "path": "DATA/FormNote/2SimpleTopLeft.gi",
+      "source": {
+        "size": 23844,
+        "crc32": "12af67c9",
+        "fnv64": "464e1679a800e2c0"
+      },
+      "bounds": [
+        10,
+        12,
+        129,
+        78
+      ]
+    },
+    "Bm.FormNote.2SimpleTopRight": {
+      "path": "DATA/FormNote/2SimpleTopRight.gi",
+      "source": {
+        "size": 23718,
+        "crc32": "3529100f",
+        "fnv64": "ccf9f3e8eae80b37"
+      },
+      "bounds": [
+        132,
+        12,
+        253,
+        78
+      ]
+    }
+  }
+}

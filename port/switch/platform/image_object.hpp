@@ -1,5 +1,6 @@
 #pragma once
 #include "alpha_bitmap_cpu.hpp"
+#include "gi_image_cpu.hpp"
 #include "image_layout.hpp"
 #include "simple_bitmap_cpu.hpp"
 #include "trans_bitmap_cpu.hpp"
@@ -9,13 +10,13 @@
 #include <variant>
 namespace srhd_awa::package { class Package; }
 namespace srhd_awa::platform::image_object {
-enum class Kind { Simple, Trans, Alpha };
+enum class Kind { Simple, Trans, Alpha, GI, GAI };
 class PortableImageObject {
  public:
   explicit PortableImageObject(package::Package* package=nullptr):package_(package) {}
   PortableImageObject(const PortableImageObject&)=delete; PortableImageObject& operator=(const PortableImageObject&)=delete;
   PortableImageObject(PortableImageObject&&)=default; PortableImageObject& operator=(PortableImageObject&&)=default;
-  void SetPackage(package::Package* package){package_=package;} void SetId(std::string id){id_=std::move(id);} void SetPosition(std::int32_t x,std::int32_t y){x_=x;y_=y;} void SetOrigin(std::int32_t x,std::int32_t y){origin_x_=x;origin_y_=y;} void SetSize(std::int32_t w,std::int32_t h){client_width_=w;client_height_=h;} void SetModes(image_layout::XMode x,image_layout::YMode y){x_mode_=x;y_mode_=y;} void SetHalfAlpha(bool value){half_alpha_=value;} void SetVisible(bool value){visible_=value;} void SetLayer(std::int32_t value){layer_=value;}
+  void SetPackage(package::Package* package){package_=package;} void SetId(std::string id){id_=std::move(id);} void SetPosition(std::int32_t x,std::int32_t y){x_=x;y_=y;} void SetOrigin(std::int32_t x,std::int32_t y){origin_x_=x;origin_y_=y;} void SetSize(std::int32_t w,std::int32_t h){client_width_=w;client_height_=h;} void SetModes(image_layout::XMode x,image_layout::YMode y){x_mode_=x;y_mode_=y;} void SetHalfAlpha(bool value){half_alpha_=value;} void SetAlpha(std::uint8_t value){alpha_=value;} void SetVisible(bool value){visible_=value;} void SetLayer(std::int32_t value){layer_=value;}
   bool Load(Kind kind,const std::string& resource,const std::string& load_option,std::string* error=nullptr);
   bool LoadBytes(Kind kind, const std::uint8_t* bytes, std::size_t size,
                  const std::string& resource, const std::string& load_option,
@@ -29,9 +30,10 @@ class PortableImageObject {
   // It does not expose Trans/Alpha RLE internals to the runtime owner.
   bool GetSimpleNative565(const std::uint8_t** pixels, std::size_t* bytes,
                           std::int32_t* pitch, std::string* error=nullptr) const;
-  bool loaded()const{return !std::holds_alternative<std::monostate>(data_);} Kind kind()const{return kind_;} const std::string& id()const{return id_;} const std::string& resource()const{return resource_;} std::int32_t layer()const{return layer_;} bool visible()const{return visible_;} std::int32_t natural_width()const; std::int32_t natural_height()const;
+  bool loaded()const{return !std::holds_alternative<std::monostate>(data_);} Kind kind()const{return kind_;} const std::string& id()const{return id_;} const std::string& resource()const{return resource_;} std::int32_t layer()const{return layer_;} bool visible()const{return visible_;} std::int32_t natural_width()const; std::int32_t natural_height()const; std::int32_t natural_origin_x()const; std::int32_t natural_origin_y()const;
+  image_layout::Point GetVisualCenter(const okgf_rle_bridge::Rect& clip)const;
   image_layout::XMode x_mode() const { return x_mode_; } image_layout::YMode y_mode() const { return y_mode_; } bool half_alpha() const { return half_alpha_; }
  private:
-  package::Package* package_{}; std::string id_,resource_; Kind kind_{Kind::Simple}; std::variant<std::monostate,simple_bitmap_cpu::SimpleBitmap,trans_bitmap_cpu::TransBitmap,alpha_bitmap_cpu::AlphaBitmap> data_; std::int32_t x_{},y_{},origin_x_{},origin_y_{},client_width_{},client_height_{},layer_{}; image_layout::XMode x_mode_{image_layout::XMode::Center};image_layout::YMode y_mode_{image_layout::YMode::Center};bool half_alpha_{};bool visible_{true};
+  package::Package* package_{}; std::string id_,resource_; Kind kind_{Kind::Simple}; std::variant<std::monostate,simple_bitmap_cpu::SimpleBitmap,trans_bitmap_cpu::TransBitmap,alpha_bitmap_cpu::AlphaBitmap,gi_image_cpu::GiImage> data_; std::int32_t x_{},y_{},origin_x_{},origin_y_{},client_width_{},client_height_{},layer_{}; image_layout::XMode x_mode_{image_layout::XMode::Center};image_layout::YMode y_mode_{image_layout::YMode::Center};bool half_alpha_{};std::uint8_t alpha_{255};bool visible_{true};
 };
 }  // namespace srhd_awa::platform::image_object

@@ -3,6 +3,7 @@
 #include "m23_aft_fixture.hpp"
 #include "m24_checkpoint_fixture.hpp"
 #include "ui_label.hpp"
+#include "ui_gai.hpp"
 #include "ui_object.hpp"
 #include "ui_tree_renderer.hpp"
 #include "ui_graph_button.hpp"
@@ -40,6 +41,11 @@ class TinyResolver final : public srhd_awa::platform::ui_config::IUiResourceReso
     const auto bytes = srhd_awa::platform::m24_checkpoint_fixture::Bmp(0, 0, 255);
     return leaf && leaf->LoadBytes(kind, bytes.data(), bytes.size(), resource, option, error);
   }
+  bool LoadGai(srhd_awa::platform::ui::UiGaiLeaf* leaf, const std::string& resource,
+               std::string* error) override {
+    const auto bytes = srhd_awa::platform::m24_checkpoint_fixture::Gai();
+    return leaf && leaf->LoadBytes(bytes.data(), bytes.size(), resource, error);
+  }
 };
 class FixtureFontResolver final : public srhd_awa::platform::font_repository::IFontResolver {
  public:
@@ -67,6 +73,15 @@ int main() {
   Check(object.Origin() == srhd_awa::platform::ui::Point{3, 4}, "Sme origin");
   Check(object.Depth() == -10 && object.PositionModeW(), "symbolic depth and w");
   Check(object.Name() == "local" && !object.Active(), "Name and exact Active=False");
+  auto* metadata_language = Block(); Param(metadata_language, u"Hint", u"Localized hint");
+  context.language = metadata_language;
+  Param(config, u"Help", u"Hint"); Param(config, u"MouseBlocking", u"True");
+  Param(config, u"MouseBlockingTest", u"False"); Param(config, u"MVUpdate", u"True");
+  Check(srhd_awa::platform::ui_config::ApplyBaseProperties(&object, config, context, &error) &&
+        object.HelpKey() == "Hint" && object.HelpText() == "Localized hint" &&
+        object.MouseBlocking() && !object.MouseBlockingTest() && object.MouseViewUpdates(),
+        "M25 base metadata and language resolution");
+  context.language = nullptr;
   config->SetParam(u"Active", u"false"); Check(srhd_awa::platform::ui_config::ApplyBaseProperties(&object, config, context, &error) && object.Active(), "only exact False disables");
   auto* cyclic = Block(); auto* a = cyclic->AddChildBlock(u"A"); auto* b = cyclic->AddChildBlock(u"B"); Param(a, u"Style", u"B"); Param(b, u"Style", u"A"); auto* cycle_config = Block(); Param(cycle_config, u"Style", u"A");
   context.styles = cyclic; Check(!srhd_awa::platform::ui_config::ApplyBaseProperties(&object, cycle_config, context, &error), "Style cycle rejected");
@@ -84,6 +99,20 @@ int main() {
   Check(built_simple->Image().x_mode() == srhd_awa::platform::image_layout::XMode::Left && built_simple->Image().y_mode() == srhd_awa::platform::image_layout::YMode::Bottom, "Kind image layout");
   Check(built_alpha->Image().x_mode() == srhd_awa::platform::image_layout::XMode::Right && built_alpha->Image().y_mode() == srhd_awa::platform::image_layout::YMode::Top, "Align image layout");
   Check(built_generic->Image().half_alpha(), "generic Image half alpha");
+  TinyResolver gai_resolver;
+  auto* gai_config = Block();
+  auto* direct_gai = gai_config->AddChildBlock(u"GAI");
+  Param(direct_gai, u"Image", u"Bm.Test.Direct"); Param(direct_gai, u"Size", u"4,4");
+  auto* generic_gai = gai_config->AddChildBlock(u"Image");
+  Param(generic_gai, u"Image", u"GAI,Bm.Test.Generic"); Param(generic_gai, u"Size", u"4,4");
+  auto gai_context = context; gai_context.resources = &gai_resolver;
+  srhd_awa::platform::ui::UiTree gai_tree;
+  Check(srhd_awa::platform::ui_config::LoadChildren(gai_tree.Root(), gai_config, gai_context,
+      srhd_awa::platform::ui_config::LoadMode::Strict, nullptr, &error) &&
+      gai_tree.Root()->ChildCount() == 2 &&
+      gai_tree.Root()->Children()[0]->Kind() == srhd_awa::platform::ui::NodeKind::GaiLeaf &&
+      gai_tree.Root()->Children()[1]->Kind() == srhd_awa::platform::ui::NodeKind::GaiLeaf,
+      "direct and generic GAI factory");
   Check(resolver.calls.size() == 3 && resolver.calls[0].kind == srhd_awa::platform::image_object::Kind::Simple && resolver.calls[1].kind == srhd_awa::platform::image_object::Kind::Alpha && resolver.calls[2].kind == srhd_awa::platform::image_object::Kind::Trans && resolver.calls[2].resource == "generic.bmp", "image factory kinds and resolver");
   srhd_awa::platform::ui::UiTree strict_tree; Check(!srhd_awa::platform::ui_config::LoadChildren(strict_tree.Root(), tree_config, context, srhd_awa::platform::ui_config::LoadMode::Strict, &report, &error) && error == "unsupported UI control: SimpleButton", "strict known unsupported control");
   auto* zone_styles = Block(); auto* zone_style = zone_styles->AddChildBlock(u"ZoneBase");
@@ -134,16 +163,19 @@ int main() {
   Check(built_button->VisualSlot() == srhd_awa::platform::ui::GraphButtonSlot::NormalA,
       "GraphButton normal hovered state");
   button_block->SetParam(u"ImageNormal", u"GI,normal.bmp");
-  srhd_awa::platform::ui::UiTree rejected_button;
-  Check(!srhd_awa::platform::ui_config::LoadChildren(rejected_button.Root(), button_config, context,
+  srhd_awa::platform::ui::UiTree gi_button;
+  Check(srhd_awa::platform::ui_config::LoadChildren(gi_button.Root(), button_config, context,
       srhd_awa::platform::ui_config::LoadMode::Strict, nullptr, &error) &&
-      error == "unsupported generic Image mode", "GraphButton GI mode stays unsupported");
+      gi_button.Root()->ChildCount() == 1 &&
+      std::any_of(resolver.calls.begin(), resolver.calls.end(), [](const auto& call) {
+        return call.kind == srhd_awa::platform::image_object::Kind::GI && call.resource == "normal.bmp";
+      }), "GraphButton GI mode is routed to resource resolver");
   auto* window_config = Block(); auto* window_block = window_config->AddChildBlock(u"Window");
   Param(window_block, u"ImageTopLeft", u"GI,border.gi");
   srhd_awa::platform::ui::UiTree rejected_window;
   Check(!srhd_awa::platform::ui_config::LoadChildren(rejected_window.Root(), window_config,
       context, srhd_awa::platform::ui_config::LoadMode::Strict, nullptr, &error) &&
-      error == "unsupported generic Image mode", "Window GI mode stays unsupported");
+      error == "Window border image is missing", "Window requires all nine images after GI parsing");
   srhd_awa::platform::ui::UiTree inventoried_window;
   srhd_awa::platform::ui_config::LoadReport window_report;
   Check(srhd_awa::platform::ui_config::LoadChildren(inventoried_window.Root(), window_config,

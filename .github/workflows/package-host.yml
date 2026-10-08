@@ -183,6 +183,25 @@ jobs:
             ! nm -C "$object" | grep -E 'GI_GraphButton|TGraphButtonGI|GI_Window|TWindowGI|GI_Zone|TZoneGI|GI_MessageLoop|GR_DX|Direct3D|TGraphBufGR|Forms|SoundManager'
           done
 
+      - name: M25 Portable GI/GAI UI and real release subtree source gates
+        run: |
+          make -C port/switch host-m25-ui-regression
+          python3 -m py_compile tests/probe_m25_release_inventory.py tests/probe_m25_eligibility.py tests/probe_m25_real_ui.py tests/probe_m25_controls_release.py tests/probe_m25_gai.py tests/probe_m25_widescreen.py
+
+      - name: Audit M25 portable production symbols
+        shell: bash
+        run: |
+          set -euo pipefail
+          objects=$(mktemp -d)
+          trap 'rm -rf "$objects"' EXIT
+          for name in gi_image_cpu gai_frame_sequence_cpu ui_gai image_object ui_config; do
+            g++ -std=c++20 -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime -Iupstream/okgf/include \
+              -c "port/switch/platform/$name.cpp" -o "$objects/$name.o"
+          done
+          for object in "$objects"/*.o; do
+            ! nm -C "$object" | grep -E 'TgiGI|TgaiGI|TCGiEC|TCGaiEC|TGraphBufGR|GI_GI|GI_GAI|GI_Image|GI_MessageLoop|GR_DX|Direct3D|HeapAlloc|HeapFree|SoundManager|Forms'
+          done
+
       - name: Run M21 mixed presentation-scene oracle
         run: python3 tests/probe_m21_presentation_scene.py
 

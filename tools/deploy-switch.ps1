@@ -2,6 +2,7 @@
 param(
   [Parameter(Mandatory)] [ValidateNotNullOrEmpty()] [string]$SdRoot,
   [Parameter(ParameterSetName = 'Deploy')] [string]$NroPath,
+  [Parameter(ParameterSetName = 'Deploy')] [string]$BuildGit = 'NOT_RECORDED',
   [Parameter(ParameterSetName = 'Deploy')] [string]$GameSource,
   [Parameter(ParameterSetName = 'Deploy')] [switch]$InitialGameCopy,
   [Parameter(ParameterSetName = 'Deploy')] [switch]$UpdateOnly,
@@ -43,9 +44,9 @@ function Copy-GameTree([string]$Source, [string]$Destination) {
   & robocopy $Source $Destination /E /R:2 /W:1 | Out-Host
   if ($LASTEXITCODE -ge 8) { throw "robocopy failed with exit code $LASTEXITCODE" }
 }
-function Write-DeploymentManifest([string]$AppRoot, [string]$Mode, [string]$RangersHash, [string]$NroHash, [long]$NroSize) {
-  @('baseline=2.1.2500', "rangers_sha256=$RangersHash", "nro_sha256=$NroHash", "nro_size=$NroSize", "deployment_mode=$Mode") |
-    Set-Content -LiteralPath (Join-Path $AppRoot 'runtime\deployment.txt') -Encoding ascii
+function Write-DeploymentManifest([string]$AppRoot, [string]$Mode, [string]$RangersHash, [string]$NroHash, [long]$NroSize, [string]$SourcePath, [string]$BuildGit, [string]$TimestampUtc, [string]$DestinationHash) {
+  @('baseline=2.1.2500', "rangers_sha256=$RangersHash", "nro_sha256=$NroHash", "nro_size=$NroSize", "deployment_mode=$Mode", "nro_source_path=$SourcePath", "nro_source_sha256=$NroHash", "nro_destination_sha256=$DestinationHash", "build_git=$BuildGit", "timestamp_utc=$TimestampUtc") |
+    Set-Content -LiteralPath (Join-Path $AppRoot 'runtime\deployment.txt') -Encoding utf8
 }
 function Normalize-RootPath([string]$Path) { (Resolve-Path -LiteralPath $Path).ProviderPath.TrimEnd([char[]]'\/') }
 function Test-SdRoot([string]$Path) {
@@ -79,7 +80,9 @@ try {
   if (($InitialGameCopy -and $UpdateOnly) -or (-not $InitialGameCopy -and -not $UpdateOnly)) { throw 'Choose exactly one mode: -InitialGameCopy or -UpdateOnly' }
   if ([string]::IsNullOrWhiteSpace($NroPath) -or -not (Test-Path -LiteralPath $NroPath -PathType Leaf)) { throw 'NroPath must name an existing NRO file' }
   $nroSource = (Resolve-Path -LiteralPath $NroPath).Path; $nroHash = Get-PathHash $nroSource; $nroSize = (Get-Item -LiteralPath $nroSource).Length
-  Write-Host "NRO source SHA-256: $nroHash"
+  if ($BuildGit -ne 'NOT_RECORDED' -and $BuildGit -notmatch '^[0-9a-fA-F]{7,40}$') { throw 'BuildGit must be a Git commit ID' }
+  $timestampUtc = [DateTime]::UtcNow.ToString('o')
+  Write-Host "NRO source path: $nroSource"; Write-Host "NRO source size: $nroSize"; Write-Host "NRO source SHA-256: $nroHash"; Write-Host "NRO build_git: $BuildGit"; Write-Host "NRO timestamp UTC: $timestampUtc"
   $mode = if ($InitialGameCopy) { 'initial' } else { 'update' }; $gameRoot = Join-Path $appRoot 'game'; $rangersHash = $null
   if ($InitialGameCopy) {
     if ([string]::IsNullOrWhiteSpace($GameSource) -or -not (Test-Path -LiteralPath $GameSource -PathType Container)) { throw 'GameSource is required and must exist for -InitialGameCopy' }
@@ -91,7 +94,7 @@ try {
   } else { Test-DeploymentLayout $appRoot; $rangersHash = Test-ReleaseTree $gameRoot 'SD game root' }
   $nroDestination = Join-Path $appRoot $NroName; Copy-Item -LiteralPath $nroSource -Destination $nroDestination -Force
   $destinationHash = Get-PathHash $nroDestination; if ($destinationHash -ne $nroHash) { throw 'NRO destination SHA-256 differs from source' }
-  Write-DeploymentManifest $appRoot $mode $rangersHash $nroHash $nroSize
+  Write-DeploymentManifest $appRoot $mode $rangersHash $nroHash $nroSize $nroSource $BuildGit $timestampUtc $destinationHash
   Write-Host "`nSwitch deployment preflight"; Write-Host 'Game root: PASS'; Write-Host 'Rangers.exe baseline: PASS'; Write-Host 'Required release files: PASS'; Write-Host 'NRO copy: PASS'; Write-Host "NRO SHA-256: $nroHash"; Write-Host 'Writable directories: PASS'; Write-Host "`nMode: $($mode.ToUpperInvariant())"; Write-Host 'READY FOR SWITCH LAUNCH' -ForegroundColor Green
   exit 0
 } catch { Fail $_.Exception.Message }

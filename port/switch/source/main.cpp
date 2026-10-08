@@ -25,6 +25,9 @@
 #include "ui_tree_fingerprint.hpp"
 #include "ui_config.hpp"
 #include "ui_label.hpp"
+#include "ui_gai.hpp"
+#include "ui_graph_button.hpp"
+#include "ui_window.hpp"
 #include "ui_controls_checkpoint.hpp"
 #include "font_repository.hpp"
 #include "units/GR_GraphBuf.hpp"
@@ -40,6 +43,7 @@
 
 #include <cstdarg>
 #include <algorithm>
+#include <array>
 #include <cstdio>
 #include <cstring>
 #include <filesystem>
@@ -845,11 +849,231 @@ bool InitializeM23Text(M23TextDiagnostic* diagnostic, std::string* error) {
   return true;
 }
 
-struct M21FrameCallbacks { M17PlaybackDiagnostic* m17{}; M20GiObjectDiagnostic* m20{}; M21UiImageDiagnostic* m21{}; M22UiTreeDiagnostic* m22{}; M23TextDiagnostic* m23{}; srhd_awa::platform::ui_controls_checkpoint::Checkpoint* m24{}; };
+class M25ReleaseResolver final : public srhd_awa::platform::ui_config::IUiResourceResolver {
+ public:
+  explicit M25ReleaseResolver(srhd_awa::package::Package* package) : package_(package) {}
+  bool LoadImage(srhd_awa::platform::ui::UiImageLeaf* leaf,
+                 srhd_awa::platform::image_object::Kind kind, const std::string& key,
+                 const std::string& option, std::string* error) override {
+    if (!leaf || kind != srhd_awa::platform::image_object::Kind::GI || !option.empty()) {
+      if (error) *error = "M25 selected subtree contains an unexpected image kind";
+      return false;
+    }
+    struct Asset { const char* key; const char* path; std::size_t size; std::uint32_t crc; std::uint64_t fnv; };
+    constexpr Asset assets[] = {
+        {"Bm.FormLoad2.2BarLeft", "DATA/FormLoad2/2BarLeft.gi", 3147, 0x2c4ef025u, UINT64_C(0x8c50d78299733f7d)},
+        {"Bm.FormLoad2.2BarCenter", "DATA/FormLoad2/2BarCenter.gi", 2976, 0x19267238u, UINT64_C(0xdebceda99798e0e0)},
+        {"Bm.FormLoad2.2BarRight", "DATA/FormLoad2/2BarRight.gi", 3147, 0xacd0cc19u, UINT64_C(0xd2e03950066b6825)}};
+    for (const auto& asset : assets) if (key == asset.key) {
+      const auto* entry = package_->Resolve(asset.path);
+      std::vector<std::uint8_t> bytes;
+      if (!entry || !package_->ReadPayload(*entry, &bytes, error)) return false;
+      if (bytes.size() != asset.size ||
+          CrcUnit::ComputeCrc32(bytes.data(), static_cast<std::int32_t>(bytes.size())) != asset.crc ||
+          M17Fnv(bytes.data(), bytes.size()) != asset.fnv) {
+        if (error) *error = "M25 raw GI source differs from release oracle";
+        return false;
+      }
+      return leaf->LoadBytes(kind, bytes.data(), bytes.size(), key, option, error);
+    }
+    if (error) *error = "M25 selected subtree GI key is unknown";
+    return false;
+  }
+ private:
+  srhd_awa::package::Package* package_{};
+};
+
+struct M25ReleaseDiagnostic {
+  srhd_awa::package::Package forms, common;
+  srhd_awa::platform::ui::UiTree tree;
+  srhd_awa::platform::ui::UiGaiLeaf* gai{};
+  bool rendered{}, advanced{};
+  std::uint64_t last_tick{};
+};
+
+EC_BlockPar::TBlockParEC* FindM25ReleasePanel() {
+  constexpr const char16_t* names[] = {u"ML", u"AB", u"Panel", u"Panel", u"Panel", u"Panel", u"Panel"};
+  constexpr std::int32_t ordinals[] = {0, 0, 0, 0, 1, 0, 0};
+  auto* block = GR_Main::MainDataConfig;
+  for (std::size_t depth = 0; depth < 7 && block; ++depth) {
+    std::int32_t seen{};
+    EC_BlockPar::TBlockParEC* selected{};
+    for (std::int32_t index = 0; index < block->GetBlockCount(); ++index) {
+      const auto name = block->GetBlockNameByIndex(index);
+      if (std::u16string_view(name.pchar(), name.length()) != names[depth]) continue;
+      if (seen++ == ordinals[depth]) { selected = block->GetBlockByIndex(index); break; }
+    }
+    block = selected;
+  }
+  return block;
+}
+
+bool VerifyM25ReleaseControls(srhd_awa::package::Package* forms, std::string* error) {
+  using namespace srhd_awa::platform;
+  const auto image = [forms, error](const char* path) -> std::unique_ptr<ui::UiImageLeaf> {
+    auto leaf = std::make_unique<ui::UiImageLeaf>(forms);
+    return leaf->Load(image_object::Kind::GI, path, "", error) ? std::move(leaf) : nullptr;
+  };
+  const auto frame = [error](ui::UiTree* tree, std::int32_t width, std::int32_t height,
+                             std::uint32_t crc, std::uint64_t fnv) {
+    std::vector<std::uint16_t> pixels(static_cast<std::size_t>(width) * height, 0);
+    const scene_compositor::Framebuffer target{pixels.data(), width, height, width};
+    ui_fingerprint::Value hash{};
+    if (!tree->Render(target, error) || !ui_fingerprint::ComputeFramebuffer(target, &hash, error)) return false;
+    if (hash.crc32 == crc && hash.fnv64 == fnv) return true;
+    if (error) *error = "M25 release control frame differs from Python oracle";
+    return false;
+  };
+  ui::UiTree button_tree;
+  button_tree.SetRootSize({53, 42});
+  auto* button = button_tree.Root()->AddGraphButton();
+  button->SetName("F1"); button->SetSize({53, 42});
+  button->SetButtonKind(ui::GraphButtonKind::Disable);
+  button->SetHitKind(ui::GraphButtonHitKind::Graph);
+  constexpr struct { ui::GraphButtonSlot slot; const char* path; } states[] = {
+      {ui::GraphButtonSlot::Normal, "DATA/FormAB2/2W1GN.gi"},
+      {ui::GraphButtonSlot::NormalA, "DATA/FormAB2/2W1GA.gi"},
+      {ui::GraphButtonSlot::Down, "DATA/FormAB2/2W1GD.gi"},
+      {ui::GraphButtonSlot::Disable, "DATA/FormAB2/2W1H.gi"}};
+  for (const auto& state : states) {
+    auto leaf = image(state.path);
+    if (!leaf || !button->AddStateImage(state.slot, std::move(leaf), error)) return false;
+  }
+  if (!frame(&button_tree, 53, 42, 0x1c585c8fu, UINT64_C(0x7f23dbb7c1d8df15))) return false;
+  button->SetHovered(true);
+  if (!frame(&button_tree, 53, 42, 0x1a6eae32u, UINT64_C(0x46793341f42dd912))) return false;
+  button->SetDown(true);
+  if (!frame(&button_tree, 53, 42, 0x663cb736u, UINT64_C(0xc45ecedf7f592470)) ||
+      !button->HitTest({26, 20}, error)) return false;
+  ui::UiTree window_tree;
+  auto* window = window_tree.Root()->AddWindow();
+  window->SetName("InfoPanel"); window->SetSize({280, 174});
+  window->SetMinimumSize({250, 0}); window->SetWorkSubRect({16, 65, 12, 15});
+  constexpr struct { ui::WindowSlot slot; const char* path; } borders[] = {
+      {ui::WindowSlot::Left, "DATA/FormNote/2SimpleLeft.gi"},
+      {ui::WindowSlot::Right, "DATA/FormNote/2SimpleRight.gi"},
+      {ui::WindowSlot::Top, "DATA/FormNote/2SimpleTop.gi"},
+      {ui::WindowSlot::Bottom, "DATA/FormNote/2SimpleBottom.gi"},
+      {ui::WindowSlot::TopLeft, "DATA/FormNote/2SimpleTopLeft.gi"},
+      {ui::WindowSlot::TopRight, "DATA/FormNote/2SimpleTopRight.gi"},
+      {ui::WindowSlot::BottomLeft, "DATA/FormNote/2SimpleBottomLeft.gi"},
+      {ui::WindowSlot::BottomRight, "DATA/FormNote/2SimpleBottomRight.gi"},
+      {ui::WindowSlot::Texture, "DATA/FormNote/2SimpleTexture.gi"}};
+  for (const auto& border : borders) {
+    auto leaf = image(border.path);
+    if (!leaf || !window->AddBorderImage(border.slot, std::move(leaf), error)) return false;
+  }
+  if (!window->FinalizeLayout(error) || window->ClientSize() != ui::Size{282, 175}) {
+    if (error && error->empty()) *error = "M25 release Window geometry differs from oracle";
+    return false;
+  }
+  window_tree.SetRootSize(window->ClientSize());
+  if (!frame(&window_tree, 282, 175, 0x87e5a68fu, UINT64_C(0x8020187c43bbcc26))) return false;
+  Log("[M25] GraphButton normal=MATCH hover=MATCH down=MATCH hit=MATCH Window border=MATCH");
+  return true;
+}
+
+bool InitializeM25Release(const char* game_root, std::int32_t screen_width,
+                          std::int32_t screen_height, M25ReleaseDiagnostic* diagnostic,
+                          std::string* error) {
+  if (!diagnostic || !GR_Main::MainDataConfig) {
+    if (error) *error = "M25 Main.dat configuration is unavailable";
+    return false;
+  }
+  auto* selected = FindM25ReleasePanel();
+  if (!selected || selected->CountParams(u"Name") != 1 || selected->GetParam(u"Name") != u"PLBar") {
+    if (error) *error = "M25 release subtree path changed";
+    return false;
+  }
+  if (!diagnostic->forms.Open((std::filesystem::path(game_root) / "DATA/forms.pkg").string(), error) ||
+      !diagnostic->common.Open((std::filesystem::path(game_root) / "DATA/common.pkg").string(), error)) return false;
+  if (!VerifyM25ReleaseControls(&diagnostic->forms, error)) return false;
+  M25ReleaseResolver resolver(&diagnostic->forms);
+  srhd_awa::platform::ui_config::Context context{};
+  context.resources = &resolver;
+  context.styles = GR_Main::UiStyleConfig;
+  context.language = GR_Main::LanguageDataConfig;
+  context.resolve_depth = [](const std::string& name, double* value) {
+    return srhd_awa::platform::ui_config::ResolveRuntimeDepth(GR_Main::UiDepthConfig, name, value);
+  };
+  diagnostic->tree.SetRootSize({321, 37});
+  auto panel = std::make_unique<srhd_awa::platform::ui::UiPanel>();
+  if (!srhd_awa::platform::ui_config::ApplyBaseProperties(panel.get(), selected, context, error)) return false;
+  if (panel->ClientSize() != srhd_awa::platform::ui::Size{321, 37}) {
+    if (error) *error = "M25 release panel size changed";
+    return false;
+  }
+  panel->SetPosition({0, 0}); panel->SetDepth(0);
+  if (!srhd_awa::platform::ui_config::LoadChildren(panel.get(), selected, context,
+        srhd_awa::platform::ui_config::LoadMode::Strict, nullptr, error) || panel->ChildCount() != 17) return false;
+  auto* subtree = panel.get();
+  if (!diagnostic->tree.Root()->Attach(std::move(panel), error)) return false;
+  std::vector<std::uint16_t> pixels(321u * 37u, 0);
+  const srhd_awa::platform::scene_compositor::Framebuffer fixed{pixels.data(), 321, 37, 321};
+  srhd_awa::platform::ui_fingerprint::Value tree_hash{}, frame_hash{};
+  if (!diagnostic->tree.Render(fixed, error) ||
+      !srhd_awa::platform::ui_fingerprint::ComputeTree(*subtree, &tree_hash, error) ||
+      !srhd_awa::platform::ui_fingerprint::ComputeFramebuffer(fixed, &frame_hash, error)) return false;
+  Log("[M25] real UI tree=%08lx/%016llx frame=%08lx/%016llx",
+      static_cast<unsigned long>(tree_hash.crc32), static_cast<unsigned long long>(tree_hash.fnv64),
+      static_cast<unsigned long>(frame_hash.crc32), static_cast<unsigned long long>(frame_hash.fnv64));
+  if (tree_hash.crc32 != 0x73a25b4cu || tree_hash.fnv64 != UINT64_C(0x26d6a269e96b959b) ||
+      frame_hash.crc32 != 0x9cec8dc2u || frame_hash.fnv64 != UINT64_C(0x39c2ccfd0deb5fbb)) {
+    if (error) *error = "M25 release subtree differs from Python oracle";
+    return false;
+  }
+  const auto* entry = diagnostic->common.Resolve("DATA/PI/PathEndMove.gai");
+  std::vector<std::uint8_t> gai_source;
+  if (!entry || !diagnostic->common.ReadPayload(*entry, &gai_source, error)) return false;
+  if (gai_source.size() != 27402 ||
+      CrcUnit::ComputeCrc32(gai_source.data(), static_cast<std::int32_t>(gai_source.size())) != 0x3bf46ce9u ||
+      M17Fnv(gai_source.data(), gai_source.size()) != UINT64_C(0x7b4a7f853b191bc5)) {
+    if (error) *error = "M25 GAI source differs from Python oracle";
+    return false;
+  }
+  diagnostic->gai = diagnostic->tree.Root()->AddGai();
+  diagnostic->gai->SetSize({32, 32});
+  if (!diagnostic->gai->LoadBytes(gai_source.data(), gai_source.size(), "Bm.PI.PathEndMove", error)) return false;
+  std::vector<std::uint16_t> gai_pixels(32u * 32u, 0);
+  const srhd_awa::platform::scene_compositor::Framebuffer gai_frame{gai_pixels.data(), 32, 32, 32};
+  srhd_awa::platform::ui_fingerprint::Value gai_hash{};
+  if (!diagnostic->gai->Render(gai_frame, {0, 0, 32, 32}, error) ||
+      !srhd_awa::platform::ui_fingerprint::ComputeFramebuffer(gai_frame, &gai_hash, error) ||
+      gai_hash.crc32 != 0x71b457cdu || gai_hash.fnv64 != UINT64_C(0xd75029d766f2bded) ||
+      !diagnostic->gai->Update(70, error)) {
+    if (error && error->empty()) *error = "M25 GAI initial frame or first advance differs from oracle";
+    return false;
+  }
+  std::fill(gai_pixels.begin(), gai_pixels.end(), 0);
+  if (!diagnostic->gai->Render(gai_frame, {0, 0, 32, 32}, error) ||
+      !srhd_awa::platform::ui_fingerprint::ComputeFramebuffer(gai_frame, &gai_hash, error) ||
+      diagnostic->gai->Animation().SourceFrame() != 1 ||
+      gai_hash.crc32 != 0xed8aac30u || gai_hash.fnv64 != UINT64_C(0x4b7e19dd0fbc527a)) {
+    if (error && error->empty()) *error = "M25 GAI advanced frame differs from oracle";
+    return false;
+  }
+  Log("[M25] raw GI=MATCH GAI frame0=MATCH GAI frame1=MATCH");
+  diagnostic->advanced = true;
+  if (!diagnostic->gai->SetFramePosition(0, false, error)) return false;
+  diagnostic->tree.SetRootSize({screen_width, screen_height});
+  subtree->SetPosition({(screen_width - 321) / 2, screen_height - 90});
+  diagnostic->gai->SetPosition({(screen_width - 321) / 2 + 335, screen_height - 87});
+  return true;
+}
+
+bool UpdateM25Release(M25ReleaseDiagnostic* diagnostic, std::uint64_t now_ms,
+                      std::string* error) {
+  const auto delta = diagnostic->last_tick ? now_ms - diagnostic->last_tick : 0;
+  diagnostic->last_tick = now_ms;
+  return diagnostic->tree.Update(delta, error);
+}
+
+struct M21FrameCallbacks { M17PlaybackDiagnostic* m17{}; M20GiObjectDiagnostic* m20{}; M21UiImageDiagnostic* m21{}; M22UiTreeDiagnostic* m22{}; M23TextDiagnostic* m23{}; srhd_awa::platform::ui_controls_checkpoint::Checkpoint* m24{}; M25ReleaseDiagnostic* m25{}; };
 bool RunM17M20AndM21(void* user_data, std::uint64_t now_ms, std::string* error) {
   auto* callbacks = static_cast<M21FrameCallbacks*>(user_data);
   return RunM17Playback(callbacks->m17, now_ms, error) && UpdateM20GiObjects(callbacks->m20, now_ms, error) &&
-      UpdateM22UiTree(callbacks->m22, now_ms, error) && callbacks->m24->Update(now_ms, error);
+      UpdateM22UiTree(callbacks->m22, now_ms, error) && callbacks->m24->Update(now_ms, error) &&
+      UpdateM25Release(callbacks->m25, now_ms, error);
 }
 bool DrawM21Presentation(void* user_data, std::string* error) {
   auto* callbacks = static_cast<M21FrameCallbacks*>(user_data);
@@ -899,6 +1123,8 @@ bool DrawM21Presentation(void* user_data, std::string* error) {
   callbacks->m23->rendered = true;
   if (!callbacks->m24->Render(target, error)) return false;
   callbacks->m24->MarkRendered();
+  if (!callbacks->m25->tree.Render(target, error)) return false;
+  callbacks->m25->rendered = true;
   return true;
 }
 
@@ -1318,7 +1544,19 @@ int main(int argc, char** argv) {
       static_cast<unsigned long>(m24_evidence.zone_hits.crc32),
       static_cast<unsigned long long>(m24_evidence.zone_hits.fnv64));
   Log("[M24] PASS structure=MATCH window=MATCH graph=MATCH zone=MATCH framebuffer=MATCH");
-  M21FrameCallbacks m21_callbacks{&m17_diagnostic, &m20_diagnostic, &m21_diagnostic, &m22_diagnostic, &m23_diagnostic, &m24_diagnostic};
+  StageBegin("M25 GI/GAI UI");
+  M25ReleaseDiagnostic m25_diagnostic;
+  std::string m25_error;
+  if (!InitializeM25Release(game_root, framebuffer->Width, framebuffer->Height,
+                             &m25_diagnostic, &m25_error)) {
+    Log("[M25] FAIL initialization=%s", m25_error.c_str());
+    Stage("M25 GI/GAI UI", false, m25_error.c_str());
+    srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
+    srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
+    srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
+  M21FrameCallbacks m21_callbacks{&m17_diagnostic, &m20_diagnostic, &m21_diagnostic, &m22_diagnostic, &m23_diagnostic, &m24_diagnostic, &m25_diagnostic};
   srhd_awa::platform::runtime_loop_slice::SetFrameCallback(&runtime_loop, RunM17M20AndM21, &m21_callbacks);
   srhd_awa::platform::runtime_loop_slice::SetDrawCallback(&runtime_loop, DrawM21Presentation, &m21_callbacks);
   Log("[M12] runtime ready");
@@ -1357,6 +1595,10 @@ int main(int argc, char** argv) {
     m12_error = "M24 controls did not draw";
     loop_ok = false;
   }
+  if (loop_ok && (!m25_diagnostic.rendered || !m25_diagnostic.advanced)) {
+    m12_error = "M25 real UI or GAI did not complete";
+    loop_ok = false;
+  }
   if (!loop_ok) Log("[STAGE] runtime loop FAIL reason=%s", m12_error.c_str());
   else {
     Log("[M12] exit_reason=%s", srhd_awa::platform::runtime_loop_slice::ExitReasonName(loop_stats.exit_reason));
@@ -1376,6 +1618,8 @@ int main(int argc, char** argv) {
   Stage("M22 UI object tree", loop_ok && m22_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
   Stage("M23 text/label", loop_ok && m23_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
   Stage("M24 UI controls", loop_ok && m24_diagnostic.Rendered(), loop_ok ? nullptr : m12_error.c_str());
+  Stage("M25 GI/GAI UI", loop_ok && m25_diagnostic.rendered && m25_diagnostic.advanced,
+        loop_ok ? nullptr : m12_error.c_str());
   srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
   srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
   srhd_awa::platform::ui_metadata_slice::Shutdown();

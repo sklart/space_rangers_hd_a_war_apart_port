@@ -39,10 +39,15 @@ try {
   Assert-Failed $badBaseline 'Rangers.exe SHA-256 mismatch'
   if (Test-Path -LiteralPath (Join-Path $badSd 'switch\space-rangers-hd-a-war-apart\game')) { throw 'baseline rejection copied game/' }
   New-Item -ItemType HardLink -Path (Join-Path $source 'Rangers.exe') -Target $baselineExe | Out-Null
-  $initial = Invoke-Deploy -DeployArguments @('-SdRoot', $sdRoot, '-NroPath', $nro, '-GameSource', $source, '-InitialGameCopy')
+  $initial = Invoke-Deploy -DeployArguments @('-SdRoot', $sdRoot, '-NroPath', $nro, '-BuildGit', 'abcdef0', '-GameSource', $source, '-InitialGameCopy')
   if ($initial.ExitCode -ne 0 -or $initial.Text -notmatch 'READY FOR SWITCH LAUNCH') { throw "initial deployment failed: $($initial.Text)" }
   $game = Join-Path $app 'game'; $destinationNro = Join-Path $app 'Space Rangers HD - A War Apart.nro'; $sourceHash = (Get-FileHash -LiteralPath $nro -Algorithm SHA256).Hash
   if ((Get-FileHash -LiteralPath $destinationNro -Algorithm SHA256).Hash -ne $sourceHash) { throw 'NRO destination hash mismatch' }
+  $manifest = Get-Content -LiteralPath (Join-Path $app 'runtime\deployment.txt')
+  foreach ($expected in @("build_git=abcdef0", "nro_source_sha256=$sourceHash", "nro_destination_sha256=$sourceHash", "nro_size=$((Get-Item -LiteralPath $nro).Length)")) {
+    if ($manifest -notcontains $expected) { throw "deployment provenance missing: $expected" }
+  }
+  if (-not ($manifest -match '^nro_source_path=') -or -not ($manifest -match '^timestamp_utc=')) { throw 'deployment path or timestamp missing' }
   $repeat = Invoke-Deploy -DeployArguments @('-SdRoot', $sdRoot, '-NroPath', $nro, '-GameSource', $source, '-InitialGameCopy')
   if ($repeat.ExitCode -ne 0 -or $repeat.Text -notmatch 'GAME COPY SKIPPED') { throw "repeat-copy protection failed: $($repeat.Text)" }
   $gameSnapshot = Get-ChildItem -LiteralPath $game -Recurse -File | ForEach-Object { "$($_.FullName.Substring($game.Length))|$($_.Length)|$($_.LastWriteTimeUtc.Ticks)" }
