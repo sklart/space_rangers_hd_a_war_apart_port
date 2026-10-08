@@ -24,6 +24,7 @@
 | M18 portable software compositor | host/CI/ARM64/Switch hardware PASS; M18 COMPLETE |
 | M19 portable scene compositor | host/CI/ARM64/Switch hardware/Python oracle PASS; M19 COMPLETE |
 | M20 portable GI object layer | host/CI/ARM64/Switch hardware PASS; M20 COMPLETE |
+| M21 portable UI image foundation | implementation/host gate IN PROGRESS; final CI/ARM64/oracle/Switch evidence not yet collected |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
@@ -175,6 +176,7 @@ M20 добавляет `host-gi-object-test` и отдельный symbol audit:
 - [M18 portable software compositor](docs/milestone18-software-compositor.md)
 - [M19 portable scene compositor](docs/milestone19-scene-compositor.md)
 - [M20 portable GI object layer](docs/milestone20-gi-object-layer.md)
+- [M21 portable UI image foundation](docs/milestone21-ui-image-foundation.md) — in progress
 
 ## Лицензирование и обратная связь
 

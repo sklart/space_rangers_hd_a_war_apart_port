@@ -1,4 +1,9 @@
-# Current status — M20 GI object boundary
+# Current status — M21 Portable UI Image Foundation in progress
+
+M20 remains complete. M21 has a committed CPU foundation and a local/CI host
+gate, but is **not complete**: release-config inventory, independent oracle,
+integrated scene fingerprints, CI run, clean ARM64 evidence and the one final
+Switch test are still pending. No M21 hardware claim is made here.
 
 Baseline SHA-256: `83300344af802bc51e64389c58f047e5afdf195c133048098be3881fae29ed98`.
 
