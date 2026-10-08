@@ -2,7 +2,7 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Текущий аппаратный статус:** M14P–M18 проверены на Switch. M18 CPU-only накладывает первый реальный BGRA кадр `DATA/Asteroid/00.gai` в RGB565 framebuffer; скриншот и журнал подтвердили его видимость, presentation, `PLUS` и чистый shutdown. Это не означает готовность игры к прохождению: UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
+> **Текущий аппаратный статус:** M14P–M19 проверены на Switch. M20 GI object layer имеет host и ARM64 build proof, но ещё требует отдельного физического Switch-теста. Это не означает готовность игры к прохождению: UI, audio/music, `EC_Cache` и gameplay ещё не подключены.
 
 ## Что уже работает
 
@@ -23,6 +23,7 @@
 | M17 portable GAI sequence playback | host/CI/ARM64/Switch hardware PASS; one `Flags == 0` cycle matches oracle; M17 COMPLETE |
 | M18 portable software compositor | host/CI/ARM64/Switch hardware PASS; M18 COMPLETE |
 | M19 portable scene compositor | host/CI/ARM64/Switch hardware/Python oracle PASS; M19 COMPLETE |
+| M20 portable GI object layer | host PASS, ARM64 build PASS; CI и Switch hardware PENDING |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
@@ -148,6 +149,8 @@ M7, M8, M9, M11, M12, M14P, M15, M16, M17 и M18 имеют hardware PASS. M13 �
 
 GitHub Actions workflow `package-host` выполняет asset-free host-регрессии, включая corrupt package, циклы каталогов, `ZL02`, portable `EC_File`, synthetic DAT/runtime settings, M8 golden, M12, M13, M14P Format-0, M15 GAI container, M16 Format-2, M17 pure playback, M18 software compositor и M19 scene compositor. M18/M19 symbol audit запрещает графические/upstream GAI runtime типы в чистых CPU-композиторных binary.
 
+M20 добавляет `host-gi-object-test` и отдельный symbol audit: он покрывает resource → GIObject → animation → Scene → RGB565 framebuffer и запрещает возврат к UI/Direct3D/`TGraphBufGR`-пути в новом object layer.
+
 Локальная ARM64-сборка проверяет создание NRO. Дополнительно для финального артефакта следует подтвердить:
 
 - `ELF64 AArch64` у `build/SpaceRangersHDAWarApart.elf`;
@@ -171,6 +174,7 @@ GitHub Actions workflow `package-host` выполняет asset-free host-рег
 - [M17 portable GAI playback](docs/milestone17-gai-playback.md)
 - [M18 portable software compositor](docs/milestone18-software-compositor.md)
 - [M19 portable scene compositor](docs/milestone19-scene-compositor.md)
+- [M20 portable GI object layer](docs/milestone20-gi-object.md)
 
 ## Лицензирование и обратная связь
 

@@ -17,6 +17,7 @@
 #include "renderer_platform.hpp"
 #include "software_compositor.hpp"
 #include "scene_compositor.hpp"
+#include "gi_object.hpp"
 #include "units/GR_GraphBuf.hpp"
 #include "units/EC_BlockPar.hpp"
 #include "units/EC_Buf.hpp"
@@ -513,81 +514,79 @@ bool DrawM18Compositor(void* user_data, std::string* error) {
   return true;
 }
 
-struct M19SpriteReport { std::string id, resource; std::int32_t frame{}, x{}, y{}, layer{}; std::uint8_t alpha{255}; };
-struct M19SceneDiagnostic {
+struct M20ObjectReport { const char* id{}; };
+struct M20GiObjectDiagnostic {
+  srhd_awa::package::Package package;
+  srhd_awa::platform::gi_object::GIObject asteroid, secondary, overlay;
   srhd_awa::platform::scene_compositor::Scene scene;
-  std::vector<M19SpriteReport> reports;
   srhd_awa::platform::scene_compositor::Fingerprint fingerprint{};
+  std::uint64_t last_tick{};
   bool rendered{};
 };
 
-bool DecodeM19Format2(srhd_awa::package::Package& package, const std::string& resource,
-                      std::int32_t frame, srhd_awa::platform::gi_format2_cpu::CpuImage* image,
-                      std::string* error) {
-  const auto* entry = package.Resolve(resource);
-  std::vector<std::uint8_t> bytes;
-  srhd_awa::platform::gai_cpu::GaiFramePayload payload;
-  srhd_awa::platform::gi_format2_cpu::Metadata metadata{};
-  return entry && package.ReadPayload(*entry, &bytes, error) &&
-      srhd_awa::platform::gai_cpu::ExtractGaiFrame(bytes.data(), bytes.size(), frame, &payload, error) ==
-          srhd_awa::platform::gai_cpu::Status::Ok &&
-      srhd_awa::platform::gi_format2_cpu::Decode(payload.gi_bytes.data(), payload.gi_bytes.size(), &metadata, image, error) ==
-          srhd_awa::platform::gi_format2_cpu::Status::Ok;
+bool SyncM20Scene(M20GiObjectDiagnostic* diagnostic, std::string* error) {
+  diagnostic->scene.Clear();
+  return diagnostic->asteroid.Draw(diagnostic->scene, error) &&
+      diagnostic->secondary.Draw(diagnostic->scene, error) &&
+      diagnostic->overlay.Draw(diagnostic->scene, error);
 }
 
-bool InitializeM19Scene(const char* game_root, M18CompositorDiagnostic* m18, std::int32_t width,
-                        std::int32_t height, M19SceneDiagnostic* diagnostic, std::string* error) {
+bool InitializeM20GiObjects(const char* game_root, std::int32_t width, std::int32_t height,
+                            M20GiObjectDiagnostic* diagnostic, std::string* error) {
   constexpr const char* kAsteroid = "DATA/Asteroid/00.gai";
-  srhd_awa::package::Package package;
   const auto package_path = (std::filesystem::path(game_root) / "DATA" / "common.pkg").string();
-  if (!package.Open(package_path, error)) return false;
-  std::string selected;
-  srhd_awa::platform::gi_format2_cpu::CpuImage second;
-  for (const auto& record : package.Summarize().paths) {
-    const auto separator = record.find('|');
-    const auto resource = record.substr(0, separator);
+  if (!diagnostic->package.Open(package_path, error)) return false;
+  std::vector<std::string> resources{kAsteroid};
+  for (const auto& record : diagnostic->package.Summarize().paths) {
+    const auto resource = record.substr(0, record.find('|'));
     if (resource == kAsteroid || !resource.starts_with("DATA/") || !resource.ends_with(".gai")) continue;
+    srhd_awa::platform::gi_object::GIObject probe(&diagnostic->package);
     std::string candidate_error;
-    if (DecodeM19Format2(package, resource, 0, &second, &candidate_error)) { selected = resource; break; }
+    if (probe.LoadResource(resource, &candidate_error)) resources.push_back(resource);
+    if (resources.size() == 3) break;
   }
-  if (selected.empty()) { if (error) *error = "no lexical secondary Format-2 GAI resource"; return false; }
-  const auto asteroid_x = width / 2 - m18->image.width - 24;
-  const auto asteroid_y = height / 2 - m18->image.height / 2;
-  const auto second_x = width / 2 + 24;
-  const auto second_y = height / 2 - second.height / 2;
-  auto add = [&](const char* id, const std::string& resource, std::int32_t frame,
-                 srhd_awa::platform::gi_format2_cpu::CpuImage image, std::int32_t x,
-                 std::int32_t y, std::int32_t layer, std::uint8_t alpha) {
-    srhd_awa::platform::scene_compositor::SceneSprite sprite{ id, std::move(image), x, y, alpha, layer, true };
-    if (!diagnostic->scene.AddSprite(std::move(sprite), error)) return false;
-    diagnostic->reports.push_back({id, resource, frame, x, y, layer, alpha});
-    return true;
-  };
-  auto overlay = m18->image;
-  if (!add("asteroid", kAsteroid, m18->source_frame, std::move(m18->image), asteroid_x, asteroid_y, 0, 255) ||
-      !add("secondary", selected, 0, std::move(second), second_x, second_y, 10, 255) ||
-      !add("asteroid-overlay", kAsteroid, m18->source_frame, std::move(overlay), asteroid_x + 10, asteroid_y + 10, 20, 128) ||
-      !diagnostic->scene.ComputeFingerprint(&diagnostic->fingerprint, error)) return false;
-  Log("[M19] scene compositor BEGIN");
-  Log("[M19] scene begin sprites=%zu", diagnostic->reports.size());
-  for (std::size_t index = 0; index < diagnostic->reports.size(); ++index) {
-    const auto& sprite = diagnostic->reports[index];
-    Log("[M19] sprite%zu id=%s resource=%s frame=%ld x=%ld y=%ld layer=%ld alpha=%u", index, sprite.id.c_str(), sprite.resource.c_str(),
-        static_cast<long>(sprite.frame), static_cast<long>(sprite.x), static_cast<long>(sprite.y), static_cast<long>(sprite.layer), sprite.alpha);
-  }
-  Log("[M19] scene_crc32=%08lx scene_fnv64=%016llx canonical_bytes=%zu", static_cast<unsigned long>(diagnostic->fingerprint.crc32),
-      static_cast<unsigned long long>(diagnostic->fingerprint.fnv64), diagnostic->fingerprint.canonical_bytes);
+  if (resources.size() != 3) { if (error) *error = "fewer than three decodable GAI resources"; return false; }
+  diagnostic->asteroid.SetPackage(&diagnostic->package); diagnostic->asteroid.SetId("m20-asteroid");
+  diagnostic->secondary.SetPackage(&diagnostic->package); diagnostic->secondary.SetId("m20-secondary");
+  diagnostic->overlay.SetPackage(&diagnostic->package); diagnostic->overlay.SetId("m20-overlay");
+  if (!diagnostic->asteroid.LoadResource(resources[0], error) || !diagnostic->secondary.LoadResource(resources[1], error) ||
+      !diagnostic->overlay.LoadResource(resources[2], error)) return false;
+  const auto asteroid_x = width / 2 - diagnostic->asteroid.Image().width - 24;
+  const auto asteroid_y = height / 2 - diagnostic->asteroid.Image().height / 2;
+  diagnostic->asteroid.SetPosition(asteroid_x, asteroid_y); diagnostic->asteroid.SetLayer(0); diagnostic->asteroid.SetAlpha(255);
+  diagnostic->secondary.SetPosition(width / 2 + 24, height / 2 - diagnostic->secondary.Image().height / 2); diagnostic->secondary.SetLayer(10); diagnostic->secondary.SetAlpha(255);
+  diagnostic->overlay.SetPosition(asteroid_x + 10, asteroid_y + 10); diagnostic->overlay.SetLayer(20); diagnostic->overlay.SetAlpha(128);
+  if (!SyncM20Scene(diagnostic, error) || !diagnostic->scene.ComputeFingerprint(&diagnostic->fingerprint, error)) return false;
+  Log("[M20] GI object BEGIN"); Log("[M20] objects=3");
+  const M20ObjectReport reports[]{{"asteroid"}, {"secondary"}, {"overlay"}};
+  const srhd_awa::platform::gi_object::GIObject* objects[]{&diagnostic->asteroid, &diagnostic->secondary, &diagnostic->overlay};
+  for (std::size_t index = 0; index < 3; ++index) { const auto& object = *objects[index]; Log("[M20] object%zu id=%s resource=%s frame=%ld source_frame=%ld x=%ld y=%ld layer=%ld alpha=%u", index, reports[index].id, object.Resource().c_str(), static_cast<long>(object.SequenceFrame()), static_cast<long>(object.SourceFrame()), static_cast<long>(object.X()), static_cast<long>(object.Y()), static_cast<long>(object.Layer()), object.Alpha()); }
+  Log("[M20] scene_crc32=%08lx scene_fnv64=%016llx canonical_bytes=%zu", static_cast<unsigned long>(diagnostic->fingerprint.crc32), static_cast<unsigned long long>(diagnostic->fingerprint.fnv64), diagnostic->fingerprint.canonical_bytes);
   return true;
 }
 
-bool DrawM19Scene(void* user_data, std::string* error) {
-  auto* diagnostic = static_cast<M19SceneDiagnostic*>(user_data);
+bool UpdateM20GiObjects(void* user_data, std::uint64_t now_ms, std::string* error) {
+  auto* diagnostic = static_cast<M20GiObjectDiagnostic*>(user_data);
+  const auto delta_ms = diagnostic->last_tick ? now_ms - diagnostic->last_tick : 0;
+  diagnostic->last_tick = now_ms;
+  return diagnostic->asteroid.Update(delta_ms, error) && diagnostic->secondary.Update(delta_ms, error) && diagnostic->overlay.Update(delta_ms, error);
+}
+
+bool DrawM20GiObjects(void* user_data, std::string* error) {
+  auto* diagnostic = static_cast<M20GiObjectDiagnostic*>(user_data);
   auto* framebuffer = GR_Main::ScreenRenderBuffer;
-  if (!framebuffer || !framebuffer->GetPixels() || framebuffer->PitchBytes % 2 != 0) { if (error) *error = "M19 RGB565 framebuffer unavailable"; return false; }
+  if (!framebuffer || !framebuffer->GetPixels() || framebuffer->PitchBytes % 2 != 0) { if (error) *error = "M20 RGB565 framebuffer unavailable"; return false; }
+  if (!SyncM20Scene(diagnostic, error)) return false;
   const srhd_awa::platform::scene_compositor::Framebuffer target{static_cast<std::uint16_t*>(framebuffer->GetPixels()), framebuffer->Width, framebuffer->Height, framebuffer->PitchBytes / 2};
   if (!diagnostic->scene.Render(target, error)) return false;
-  if (!diagnostic->rendered) { diagnostic->rendered = true; Log("[M19] scene PASS sprites=%zu", diagnostic->reports.size()); }
+  if (!diagnostic->rendered) { diagnostic->rendered = true; Log("[M20] GI object PASS objects=3"); }
   return true;
+}
+
+struct M20FrameCallbacks { M17PlaybackDiagnostic* m17{}; M20GiObjectDiagnostic* m20{}; };
+bool RunM17AndM20(void* user_data, std::uint64_t now_ms, std::string* error) {
+  auto* callbacks = static_cast<M20FrameCallbacks*>(user_data);
+  return RunM17Playback(callbacks->m17, now_ms, error) && UpdateM20GiObjects(callbacks->m20, now_ms, error);
 }
 
 bool ValidateReleaseAssets(const char* root) {
@@ -896,16 +895,7 @@ int main(int argc, char** argv) {
     srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
-  StageBegin("M18 compositor");
-  M18CompositorDiagnostic m18_diagnostic;
-  std::string m18_error;
-  if (!InitializeM18Compositor(game_root, &m18_diagnostic, &m18_error)) {
-    Log("[M18] FAIL initialization=%s", m18_error.c_str());
-    Stage("M18 compositor", false, m18_error.c_str());
-    srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
-    return 1;
-  }
-  StageBegin("M19 scene compositor");
+  StageBegin("M20 GI object");
   StageBegin("cached resource");
   const bool cached_resource_ok = VerifyFirstCachedResource();
   Stage("cached resource", cached_resource_ok);
@@ -938,19 +928,20 @@ int main(int argc, char** argv) {
     srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
-  srhd_awa::platform::runtime_loop_slice::SetFrameCallback(&runtime_loop, RunM17Playback, &m17_diagnostic);
   const auto* framebuffer = GR_Main::ScreenRenderBuffer;
-  M19SceneDiagnostic m19_diagnostic;
-  std::string m19_error;
-  if (!InitializeM19Scene(game_root, &m18_diagnostic, framebuffer->Width, framebuffer->Height, &m19_diagnostic, &m19_error)) {
-    Log("[M19] FAIL initialization=%s", m19_error.c_str());
-    Stage("M19 scene compositor", false, m19_error.c_str());
+  M20GiObjectDiagnostic m20_diagnostic;
+  std::string m20_error;
+  if (!InitializeM20GiObjects(game_root, framebuffer->Width, framebuffer->Height, &m20_diagnostic, &m20_error)) {
+    Log("[M20] FAIL initialization=%s", m20_error.c_str());
+    Stage("M20 GI object", false, m20_error.c_str());
     srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
     srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
     srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
-  srhd_awa::platform::runtime_loop_slice::SetDrawCallback(&runtime_loop, DrawM19Scene, &m19_diagnostic);
+  M20FrameCallbacks m20_callbacks{&m17_diagnostic, &m20_diagnostic};
+  srhd_awa::platform::runtime_loop_slice::SetFrameCallback(&runtime_loop, RunM17AndM20, &m20_callbacks);
+  srhd_awa::platform::runtime_loop_slice::SetDrawCallback(&runtime_loop, DrawM20GiObjects, &m20_diagnostic);
   Log("[M12] runtime ready");
   Log("[M12] framebuffer=%ldx%ld pitch=%ld pixel=RGB565", static_cast<long>(framebuffer->Width),
       static_cast<long>(framebuffer->Height), static_cast<long>(framebuffer->PitchBytes));
@@ -967,8 +958,8 @@ int main(int argc, char** argv) {
     m12_error = "M17 first cycle not completed";
     loop_ok = false;
   }
-  if (loop_ok && !m19_diagnostic.rendered) {
-    m12_error = "M19 scene compositor did not draw";
+  if (loop_ok && !m20_diagnostic.rendered) {
+    m12_error = "M20 GI objects did not draw";
     loop_ok = false;
   }
   if (!loop_ok) Log("[STAGE] runtime loop FAIL reason=%s", m12_error.c_str());
@@ -983,8 +974,9 @@ int main(int argc, char** argv) {
     Stage("M17 GAI playback", true);
   else
     Stage("M17 GAI playback", false, loop_ok ? "incomplete" : m12_error.c_str());
-  Stage("M18 compositor", loop_ok && m19_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
-  Stage("M19 scene compositor", loop_ok && m19_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
+  Stage("M18 compositor", loop_ok && m20_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
+  Stage("M19 scene compositor", loop_ok && m20_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
+  Stage("M20 GI object", loop_ok && m20_diagnostic.rendered, loop_ok ? nullptr : m12_error.c_str());
   srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
   srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
   srhd_awa::platform::ui_metadata_slice::Shutdown();

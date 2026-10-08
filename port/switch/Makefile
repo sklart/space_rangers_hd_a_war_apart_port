@@ -51,7 +51,7 @@ PLATFORM_CPPFILES := $(wildcard platform/*.cpp)
 PLATFORM_OFILES := $(PLATFORM_CPPFILES:platform/%.cpp=$(BUILD)/platform_%.o)
 GAME_OFILES := $(BUILD)/CrcUnit.o $(BUILD)/System.o $(BUILD)/SystemImports.o $(BUILD)/BlockParException.o $(BUILD)/GI_Main.o $(BUILD)/GlobalsV.o $(BUILD)/aMyFunction.o $(BUILD)/EC_File.o $(BUILD)/EC_Struct.o $(BUILD)/EC_Buf.o $(BUILD)/EC_Cache.o $(BUILD)/EC_CacheBitmap.o $(BUILD)/EC_BlockPar.o $(BUILD)/EC_Data.o $(BUILD)/EC_Str.o $(BUILD)/EC_Mem.o $(BUILD)/aPacket.o $(BUILD)/MessageText.o $(BUILD)/GR_GraphBuf.o $(BUILD)/GR_Main.o $(BUILD)/runtime.o
 
-.PHONY: all clean host-package-test host-package-cycle-test host-ec-file-test host-ec-file-synthetic-test host-blockpar-synthetic-test host-dat-config-test host-global-cache-synthetic-test host-configured-package-test host-gr-main-no-mod-test host-gr-main-config-test host-gr-main-release-config-test host-platform-startup-test host-renderer-software-test host-user-writable-test host-runtime-config-slice-test host-milestone4-regression host-milestone5-regression host-milestone6-regression host-milestone7-regression host-milestone8-regression host-milestone9-regression host-runtime-loop-test host-milestone12-regression host-bitmap-cache-test host-bitmap-cache-release-test host-milestone13-regression host-gi-format0-cpu-test host-gi-format0-release-test host-gai-cpu-test host-gai-sequence-cpu-test host-gi-format2-cpu-test host-gai-playback-cpu-test host-milestone17-regression host-software-compositor-test host-milestone18-regression host-scene-compositor-test host-milestone19-regression
+.PHONY: all clean host-package-test host-package-cycle-test host-ec-file-test host-ec-file-synthetic-test host-blockpar-synthetic-test host-dat-config-test host-global-cache-synthetic-test host-configured-package-test host-gr-main-no-mod-test host-gr-main-config-test host-gr-main-release-config-test host-platform-startup-test host-renderer-software-test host-user-writable-test host-runtime-config-slice-test host-milestone4-regression host-milestone5-regression host-milestone6-regression host-milestone7-regression host-milestone8-regression host-milestone9-regression host-runtime-loop-test host-milestone12-regression host-bitmap-cache-test host-bitmap-cache-release-test host-milestone13-regression host-gi-format0-cpu-test host-gi-format0-release-test host-gai-cpu-test host-gai-sequence-cpu-test host-gi-format2-cpu-test host-gai-playback-cpu-test host-milestone17-regression host-software-compositor-test host-milestone18-regression host-scene-compositor-test host-milestone19-regression host-gi-object-test host-milestone20-regression
 all: $(NRO_OUTPUT)
 
 $(BUILD):
@@ -278,3 +278,15 @@ host-scene-compositor-test: | $(BUILD)
 
 host-milestone19-regression: host-milestone18-regression host-scene-compositor-test
 	@echo MILESTONE 19 HOST REGRESSION PASS
+
+host-gi-object-test: | $(BUILD)
+	@mkdir -p $(BUILD)/host-gi-object
+	@gcc -std=c11 -ffunction-sections -fdata-sections -I../../upstream/okgf/include -I../../upstream/okgf/src -c ../../upstream/okgf/src/rle.c -o $(BUILD)/host-gi-object/rle.o
+	@gcc -std=c11 -ffunction-sections -fdata-sections -I../../upstream/okgf/include -I../../upstream/okgf/src -c ../../upstream/okgf/src/pixels.c -o $(BUILD)/host-gi-object/pixels.o
+	@gcc -std=c11 -ffunction-sections -fdata-sections -I../../upstream/okgf/include -I../../upstream/okgf/src -c ../../upstream/okgf/src/alpha_buffers.c -o $(BUILD)/host-gi-object/alpha_buffers.o
+	@patched=0; if test "$$(uname -o)" = Msys; then git -C $(GAME_CPP_ROOT) apply $(HOST_EC_PATCH_FILE) || exit $$?; patched=1; fi; g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iplatform -I$(GAME_CPP_ROOT)/src -I$(GAME_CPP_ROOT)/runtime -I../../upstream/okgf/include ../../tests/test_gi_object.cpp platform/gi_object.cpp platform/package.cpp platform/gai_cpu.cpp platform/gai_playback_cpu.cpp platform/gi_format0_cpu.cpp platform/gi_format0_okgf_bridge.cpp platform/gi_format2_cpu.cpp platform/okgf_rle_bridge.cpp platform/scene_compositor.cpp platform/software_compositor.cpp platform/zlib_bridge.cpp $(BUILD)/host-gi-object/rle.o $(BUILD)/host-gi-object/pixels.o $(BUILD)/host-gi-object/alpha_buffers.o -Wl,--gc-sections -lz -lm -o $(BUILD)/test_gi_object; result=$$?; if test $$patched -eq 1; then git -C $(GAME_CPP_ROOT) apply -R $(HOST_EC_PATCH_FILE) || exit $$?; fi; exit $$result
+	@$(BUILD)/test_gi_object
+	@! nm -C $(BUILD)/test_gi_object | grep -E 'GR_DX|Direct3D|TGraphBufGR|TgiGR|TCGiEC|TCGaiEC|GI_GAI|Forms'
+
+host-milestone20-regression: host-milestone19-regression host-gi-object-test
+	@echo MILESTONE 20 HOST REGRESSION PASS

@@ -111,6 +111,17 @@ jobs:
           test -x "$binary"
           ! nm -C "$binary" | grep -E 'GR_DX|Direct3D|TGraphBufGR|TgiGR|TCGiEC|TCGaiEC|GI_GAI|Forms'
 
+      - name: Run M20 GI object regression
+        run: make -C port/switch host-gi-object-test
+
+      - name: Audit M20 CPU symbols
+        shell: bash
+        run: |
+          set -euo pipefail
+          binary=port/switch/build/test_gi_object
+          test -x "$binary"
+          ! nm -C "$binary" | grep -E 'GR_DX|Direct3D|TGraphBufGR|TgiGR|TCGiEC|TCGaiEC|GI_GAI|Forms'
+
       - name: Audit M16 GI Format-2 CPU symbols
         shell: bash
         run: |

@@ -21,6 +21,7 @@
 | M17 embedded GAI playback | sequence 0 → portable state → selected frame → M16 Format-2 decode | M15 parser, M16 decoder, M12 opt-in monotonic callback | no UI, compositing, cache, audio, `GI_GAI` or Direct3D | HOST/CI/ARM64/HARDWARE PASS; one full 5000 ms cycle matched oracle |
 | M18 software compositor | decoded BGRA source → clip/alpha CPU compositor → existing RGB565 `ScreenRenderBuffer` → existing presentation | M15 package reader, M16 decoder, M12 opt-in draw callback | no `TGraphBufGR`, `TgiGR`, `GI_GAI`, UI/cache/audio or Direct3D | HOST/CI/ARM64/HARDWARE PASS; visible 33x40 Asteroid screenshot and clean M12 lifecycle verified |
 | M19 scene compositor | two real decoded GAI frames + alpha overlay → stable layer ordering → M18 CPU RGB565 compositor → existing presentation | M15 package reader, M16 decoder, M18 compositor, M12 draw callback | no UI/Forms/game objects/input/cache/audio/Direct3D | COMPLETE — host/CI/ARM64/oracle/hardware PASS |
+| M20 GI object layer | package resource → `GIObject` metadata/current frame → M17 playback advance → `GIObject::Draw(Scene)` → M18 CPU RGB565 compositor | M15 package reader, M16 decoder, M17 playback, M19 scene, M12 callbacks | no Forms/UI/game objects/`EC_Cache`/threads/audio/Direct3D; no global image cache | HOST/ARM64 PASS; CI/hardware PENDING |
 | audio | DirectSound path | audio device | intentionally deferred | DEFERRED |
 | resource | `CrcUnit.cpp`: `ComputeCrc32` | portable Delphi helpers | none on compiled path | PASS: linked ARM64 |
 | renderer | `GR_Main`, `EC_OKGF`, OKGF | window, `okgf.dll` ABI | game-facing adapter incomplete | portable OKGF is fully built, linked and fills a CPU framebuffer |
@@ -45,5 +46,9 @@ After the heartbeat, but before the existing presentation, M12 optionally invoke
 ## M19 scene draw hook
 
 M19 reuses that single opt-in draw point after the M12 heartbeat. It clears no extra state and keeps M12 input, timing and presentation intact; each presentation re-renders the three current CPU sprites in stable layer order. It owns only those decoded images and has no cache or background work.
+
+## M20 GI object hook
+
+M20 keeps the same callback order. The frame callback advances M17 evidence and all three GIObjects with the same monotonic tick; the draw callback clears the transient scene and calls each object's `Draw`. Thus resource selection, decoded-frame ownership and animation state stay with GIObject, while Scene only represents the current frame for the existing CPU compositor.
 
 M12 hardware PASS: the M14P-tested NRO embedded `46330b4` ran for 73.472 seconds, presented 1,506 frames, exited through `PLUS`, and reached `[BOOT] COMPLETE`. Before the loop it also completed the M13 metadata diagnostic and M14P `Bm.Captain.2BlazerBi` Format-0 decode with the recorded 93x104 BGRA fingerprint.
