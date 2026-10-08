@@ -174,7 +174,7 @@ M20 добавляет `host-gi-object-test` и отдельный symbol audit:
 - [M17 portable GAI playback](docs/milestone17-gai-playback.md)
 - [M18 portable software compositor](docs/milestone18-software-compositor.md)
 - [M19 portable scene compositor](docs/milestone19-scene-compositor.md)
-- [M20 portable GI object layer](docs/milestone20-gi-object.md)
+- [M20 portable GI object layer](docs/milestone20-gi-object-layer.md)
 
 ## Лицензирование и обратная связь
 
