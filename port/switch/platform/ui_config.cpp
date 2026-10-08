@@ -64,10 +64,7 @@ bool YMode(const std::string& value, image_layout::YMode* mode) {
   return true;
 }
 EC_BlockPar::TBlockParEC* StyleByName(EC_BlockPar::TBlockParEC* styles, const std::string& name) {
-  if (!styles) return nullptr;
-  for (std::int32_t index{}; index < styles->GetBlockCount(); ++index)
-    if (Text(styles->GetBlockNameByIndex(index)) == name) return styles->GetBlockByIndex(index);
-  return nullptr;
+  return styles ? styles->FindBlockByPath(pas::WideString(name.c_str())) : nullptr;
 }
 bool ApplyOne(ui::UiObject* object, EC_BlockPar::TBlockParEC* block, const Context& context, std::string* error) {
   if (Has(block, u"Pos")) {
