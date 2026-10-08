@@ -23,7 +23,7 @@
 | M17 portable GAI sequence playback | host/CI/ARM64/Switch hardware PASS; one `Flags == 0` cycle matches oracle; M17 COMPLETE |
 | M18 portable software compositor | host/CI/ARM64/Switch hardware PASS; M18 COMPLETE |
 | M19 portable scene compositor | host/CI/ARM64/Switch hardware/Python oracle PASS; M19 COMPLETE |
-| M20 portable GI object layer | host PASS, ARM64 build PASS; CI и Switch hardware PENDING |
+| M20 portable GI object layer | host/CI PASS, ARM64 build PASS; Switch hardware PENDING |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
