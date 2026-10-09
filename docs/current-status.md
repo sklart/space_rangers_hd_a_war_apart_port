@@ -21,8 +21,10 @@ regressions and ARM64 compilation, but requires a new Switch run. See
 [the M26 evidence document](milestone26-graphbuf-scroll-edit-real-ui.md).
 
 A second physical run with `build_git=5289cde` still closed unexpectedly,
-after `[M26] PanelScrollBar loaded`. M26 and M27 hardware status remains
-**FAIL / NEEDS DIAGNOSIS**. The next build adds narrower runtime checkpoints.
+after `[M26] PanelScrollBar loaded`. Matching Atmosphère reports locate the
+fault in OKGF's C11 TLS access during M26 GraphBuf scaling. A Switch-only
+OKGF build fix is ready for validation; M26 and M27 hardware status remains
+**FAIL / FIX PENDING HARDWARE**.
 
 M24 was fast-forwarded to `master` at
 `6193878a71341c9726a0935643c0170305032c6b`; the exact commit was tagged
