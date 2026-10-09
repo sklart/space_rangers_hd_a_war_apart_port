@@ -1,4 +1,5 @@
 #include "renderer_platform.hpp"
+#include "e2e_clock.hpp"
 #include "e2e_stage.hpp"
 
 #include "units/GR_DX.hpp"
@@ -32,6 +33,8 @@ SDL_Texture* g_sdl_texture{};
 std::int32_t g_texture_width{};
 std::int32_t g_texture_height{};
 bool g_cursor_overlay_logged{};
+std::uint32_t g_rate_start_tick{};
+std::uint64_t g_rate_start_count{};
 
 bool DrawInputCursor(const SDL_Rect& destination, std::int32_t width,
                      std::int32_t height) {
@@ -268,6 +271,25 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   g_presentation_diagnostics.present_succeeded = true;
 #endif
   ++g_presentation_count;
+#if defined(__SWITCH__)
+  const auto now = e2e_clock::Milliseconds();
+  if (!g_rate_start_tick) {
+    g_rate_start_tick = now;
+    g_rate_start_count = g_presentation_count;
+  } else if (static_cast<std::uint32_t>(now - g_rate_start_tick) >= 5000u) {
+    const auto elapsed = static_cast<std::uint32_t>(now - g_rate_start_tick);
+    const auto frames = g_presentation_count - g_rate_start_count;
+    const auto fps_x100 = frames * UINT64_C(100000) / elapsed;
+    char detail[128]{};
+    std::snprintf(detail, sizeof(detail),
+                  "presentation rate frames=%llu elapsed_ms=%u fps_x100=%llu",
+                  static_cast<unsigned long long>(frames), elapsed,
+                  static_cast<unsigned long long>(fps_x100));
+    e2e_stage::Log(detail);
+    g_rate_start_tick = now;
+    g_rate_start_count = g_presentation_count;
+  }
+#endif
   return true;
 }
 
@@ -280,6 +302,8 @@ void ShutdownPresentation() {
   g_texture_width = 0;
   g_texture_height = 0;
   g_cursor_overlay_logged = false;
+  g_rate_start_tick = 0;
+  g_rate_start_count = 0;
 #endif
   g_presentation_count = 0;
   g_last_presentation_hash = 0;

@@ -208,13 +208,19 @@ def main() -> int:
         return 1
     report["source_overrides"] += sorted(patched_sources)
     flags = ["-std=gnu++20", "-D__SWITCH__", "-march=armv8-a+crc+crypto",
-             "-mtune=cortex-a57", "-mtp=soft", "-fPIE", "-O0",
+             "-mtune=cortex-a57", "-mtp=soft", "-fPIE", "-O2",
+             "-fno-strict-aliasing",
              "-ffunction-sections", "-fdata-sections"]
     flags += ["-I" + str(p) for p in (
         DEVKITPRO / "libnx/include", PORTLIBS / "include", runtime_overlay,
         SWITCH / "platform",
         GAME / "src", GAME / "runtime", ROOT / "upstream/okgf/include")]
     flags = [flag if not flag.startswith("-I") else "-I" + native_path(Path(flag[2:])) for flag in flags]
+    flags_stamp = BUILD / "compile-flags.txt"
+    rendered_flags = "\n".join(flags) + "\n"
+    if not flags_stamp.exists() or flags_stamp.read_text(encoding="utf-8") != rendered_flags:
+        flags_stamp.write_text(rendered_flags, encoding="utf-8")
+    report["game_compile_optimization"] = "-O2 -fno-strict-aliasing"
     headers = [*GAME.rglob("*.hpp"), *(SWITCH / "platform").glob("*.hpp"),
                *runtime_overlay.rglob("*.hpp")]
     newest_header_ns = max((path.stat().st_mtime_ns for path in headers), default=0)
@@ -228,7 +234,8 @@ def main() -> int:
         compile_source = generated_source(patched_sources.get(source.name, source),
                                           BUILD / "generated" / source.name,
                                           build_id, manifest_stamp)
-        needed_ns = max(compile_source.stat().st_mtime_ns, newest_header_ns)
+        needed_ns = max(compile_source.stat().st_mtime_ns, newest_header_ns,
+                        flags_stamp.stat().st_mtime_ns)
         if compile_source != source:
             needed_ns = max(needed_ns,
                 (SWITCH / "platform/e2e_clock.hpp").stat().st_mtime_ns,
