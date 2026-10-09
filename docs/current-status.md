@@ -33,6 +33,15 @@ runtime composition matches two Switch logs and a release-backed host test.
 Live pointer input never activated in those runs; M26/M27 cumulative hardware
 PASS remains pending a new run.
 
+The next supplied Switch run (`build_git=f9c98de`) passed the scripted M27
+interaction, activated `[M27] LIVE INPUT READY`, recorded 16 A presses and
+16 releases at changing pointer positions, then exited through PLUS after
+40,744 ms and 633 frames/presents. All M26 and M27 runtime stages, shutdown,
+and `[BOOT] COMPLETE` passed; the user observed and moved the white cursor.
+No B/right-click event is present; X/Y have no M27 binding. The documented
+45–60 s duration, screenshot, and SD destination hash are still unverified,
+so the cumulative hardware gate remains **PARTIAL / FINAL SMOKE PENDING**.
+
 M24 was fast-forwarded to `master` at
 `6193878a71341c9726a0935643c0170305032c6b`; the exact commit was tagged
 `m24-hardware-pass`. M25 ran on `codex/m25-gi-gai-ui`. Its portable raw GI
