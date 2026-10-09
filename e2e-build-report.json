@@ -112,7 +112,7 @@
     "phase": "runtime dependency audit",
     "exact_error": "ELF retains DLL names: advapi32.dll, avifil32.dll, gdi32.dll, gdiplus.dll, kernel32.dll, libvorbisfile.dll, matrixgame.dll, okgf.dll, ole32.dll, shell32.dll, steam_ach.dll, user32.dll, vorbisfile.dll, xvidcore.dll"
   },
-  "build_git": "7b76e27963a443608345610761c591fb5b8dd82d",
+  "build_git": "96aa17aff3b139f3761b6cb3b9843de4e71d34f2",
   "build_dirty": false,
   "source_overrides": [
     "DirectSound.cpp",
@@ -134,8 +134,8 @@
   ],
   "nro": {
     "path": "port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E.nro",
-    "bytes": 18401584,
-    "sha256": "EE9B95817540D55F730299F28A9A3E81662D114DD3F0EBBF278B0680ABA9C61C",
+    "bytes": 18405680,
+    "sha256": "48EDE364162458B9FB2DA817D0057A749D40C9CB0EA6F12CF8C3FF018C02788D",
     "status": "EXPERIMENTAL; Windows DLL audit FAIL"
   }
 }
