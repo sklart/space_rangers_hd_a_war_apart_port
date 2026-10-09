@@ -1,0 +1,1457 @@
+{
+  "read_only": true,
+  "source": "release Main.dat plus upstream C++ references",
+  "image_blocker_roots": 104,
+  "image_reason_counts_overlapping": {
+    "empty_image_key": 618,
+    "unsupported_GI_format_or_render_semantics": 48,
+    "runtime_dependent_or_unresolved_cache_key": 2
+  },
+  "image_roots": [
+    {
+      "path": "ML#0/AB#0/Panel#0",
+      "image_count": 14,
+      "reasons": {
+        "empty_image_key": 13,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/AB#0/Panel#0/Panel#0",
+      "image_count": 14,
+      "reasons": {
+        "empty_image_key": 13,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1",
+      "image_count": 14,
+      "reasons": {
+        "empty_image_key": 13,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Panel#1",
+      "image_count": 10,
+      "reasons": {
+        "empty_image_key": 10
+      }
+    },
+    {
+      "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Window#2",
+      "image_count": 3,
+      "reasons": {
+        "empty_image_key": 2,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Window#2/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Count#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/Count#0/Panel#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/EquipmentShop#0/Panel#0",
+      "image_count": 10,
+      "reasons": {
+        "empty_image_key": 8,
+        "unsupported_GI_format_or_render_semantics": 2
+      }
+    },
+    {
+      "path": "ML#0/EquipmentShop#0/Panel#0/Panel#3",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/EquipmentShop#0/Panel#0/Panel#4",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/EquipmentShop#0/Panel#0/Window#0",
+      "image_count": 3,
+      "reasons": {
+        "empty_image_key": 2,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/EquipmentShop#0/Panel#0/Window#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/EquipmentShop#0/Panel#0/Window#1",
+      "image_count": 3,
+      "reasons": {
+        "empty_image_key": 2,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/EquipmentShop#0/Panel#0/Window#1/Panel#1",
+      "image_count": 1,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Film#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Film#0/Panel#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/GameEnd#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/GameLoad#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/GameLoad#0/Panel#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/GameSettings#0/Panel#0",
+      "image_count": 13,
+      "reasons": {
+        "empty_image_key": 13
+      }
+    },
+    {
+      "path": "ML#0/GameSettings#0/Panel#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/GameSettings#0/Panel#0/Panel#2",
+      "image_count": 12,
+      "reasons": {
+        "empty_image_key": 12
+      }
+    },
+    {
+      "path": "ML#0/GoodsShop#0/Panel#0",
+      "image_count": 7,
+      "reasons": {
+        "empty_image_key": 7
+      }
+    },
+    {
+      "path": "ML#0/GoodsShop#0/Panel#0/Panel#3",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/GoodsShop#0/Panel#0/Panel#4",
+      "image_count": 4,
+      "reasons": {
+        "empty_image_key": 4
+      }
+    },
+    {
+      "path": "ML#0/Gov#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/Gov#0/Panel#0/Panel#2",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0",
+      "image_count": 7,
+      "reasons": {
+        "empty_image_key": 6,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0/Panel#3",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0/Panel#4",
+      "image_count": 2,
+      "reasons": {
+        "empty_image_key": 2
+      }
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0/Window#0",
+      "image_count": 2,
+      "reasons": {
+        "empty_image_key": 1,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0/Window#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0",
+      "image_count": 3,
+      "reasons": {
+        "empty_image_key": 3
+      }
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#3",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/Jump#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/Jump#0/Panel#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/Load#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/Load#0/Panel#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/LoadQuest#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/LoadQuest#0/Panel#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/LoadRobot#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/LoadRobot#0/Panel#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/MainForm#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/MainForm#0/Panel#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/Number#0/Panel#0",
+      "image_count": 2,
+      "reasons": {
+        "empty_image_key": 2
+      }
+    },
+    {
+      "path": "ML#0/Number#0/Panel#0/Panel#0",
+      "image_count": 2,
+      "reasons": {
+        "empty_image_key": 2
+      }
+    },
+    {
+      "path": "ML#0/Planet#0/Panel#0",
+      "image_count": 3,
+      "reasons": {
+        "empty_image_key": 3
+      }
+    },
+    {
+      "path": "ML#0/Planet#0/Panel#0/Panel#2",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/Planet#0/Panel#0/Window#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/PlanetNO#0/Panel#0",
+      "image_count": 11,
+      "reasons": {
+        "empty_image_key": 10,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/PlanetNO#0/Panel#0/Panel#1",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/PlanetNO#0/Panel#0/Panel#2",
+      "image_count": 6,
+      "reasons": {
+        "empty_image_key": 6
+      }
+    },
+    {
+      "path": "ML#0/PlanetNO#0/Panel#0/Window#2",
+      "image_count": 3,
+      "reasons": {
+        "empty_image_key": 2,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/PlanetNO#0/Panel#0/Window#2/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Quest#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "runtime_dependent_or_unresolved_cache_key": 1
+      }
+    },
+    {
+      "path": "ML#0/Quest#0/Panel#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "runtime_dependent_or_unresolved_cache_key": 1
+      }
+    },
+    {
+      "path": "ML#0/Rating#0/Panel#0",
+      "image_count": 3,
+      "reasons": {
+        "empty_image_key": 3
+      }
+    },
+    {
+      "path": "ML#0/Rating#0/Panel#0/Panel#1",
+      "image_count": 3,
+      "reasons": {
+        "empty_image_key": 3
+      }
+    },
+    {
+      "path": "ML#0/RuinsTalk#0/Panel#0",
+      "image_count": 3,
+      "reasons": {
+        "empty_image_key": 3
+      }
+    },
+    {
+      "path": "ML#0/RuinsTalk#0/Panel#0/Panel#2",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0",
+      "image_count": 38,
+      "reasons": {
+        "empty_image_key": 36,
+        "unsupported_GI_format_or_render_semantics": 2
+      }
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0/Panel#0",
+      "image_count": 32,
+      "reasons": {
+        "empty_image_key": 32
+      }
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0/Panel#0/Panel#0",
+      "image_count": 29,
+      "reasons": {
+        "empty_image_key": 29
+      }
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0/Panel#0/Panel#0/Panel#0",
+      "image_count": 29,
+      "reasons": {
+        "empty_image_key": 29
+      }
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0/Panel#0/Panel#1",
+      "image_count": 3,
+      "reasons": {
+        "empty_image_key": 3
+      }
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0/Panel#0/Panel#1/Panel#0",
+      "image_count": 3,
+      "reasons": {
+        "empty_image_key": 3
+      }
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0/Window#0",
+      "image_count": 3,
+      "reasons": {
+        "empty_image_key": 2,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0/Window#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0/Window#3",
+      "image_count": 3,
+      "reasons": {
+        "empty_image_key": 2,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0/Window#3/Panel#1",
+      "image_count": 1,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Score#0/Panel#0",
+      "image_count": 9,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 1,
+        "empty_image_key": 8
+      }
+    },
+    {
+      "path": "ML#0/Score#0/Panel#0/Panel#1",
+      "image_count": 9,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 1,
+        "empty_image_key": 8
+      }
+    },
+    {
+      "path": "ML#0/SelectFace#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/SelectFace#0/Panel#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0",
+      "image_count": 68,
+      "reasons": {
+        "empty_image_key": 65,
+        "unsupported_GI_format_or_render_semantics": 3
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Panel#1",
+      "image_count": 41,
+      "reasons": {
+        "empty_image_key": 40,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Panel#1/Panel#1",
+      "image_count": 35,
+      "reasons": {
+        "empty_image_key": 35
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Panel#1/Panel#1/Panel#0",
+      "image_count": 17,
+      "reasons": {
+        "empty_image_key": 17
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Panel#1/Panel#1/Panel#1",
+      "image_count": 12,
+      "reasons": {
+        "empty_image_key": 12
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Panel#1/Panel#1/Panel#2",
+      "image_count": 6,
+      "reasons": {
+        "empty_image_key": 6
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Panel#1/Panel#2",
+      "image_count": 6,
+      "reasons": {
+        "empty_image_key": 5,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Panel#1/Panel#2/Panel#1",
+      "image_count": 6,
+      "reasons": {
+        "empty_image_key": 5,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Panel#2",
+      "image_count": 21,
+      "reasons": {
+        "empty_image_key": 21
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Panel#2/Panel#0",
+      "image_count": 21,
+      "reasons": {
+        "empty_image_key": 21
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Panel#2/Panel#0/Panel#0",
+      "image_count": 21,
+      "reasons": {
+        "empty_image_key": 21
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Window#0",
+      "image_count": 3,
+      "reasons": {
+        "empty_image_key": 2,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Window#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Window#3",
+      "image_count": 3,
+      "reasons": {
+        "empty_image_key": 2,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Window#3/Panel#1",
+      "image_count": 1,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0",
+      "image_count": 14,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 3,
+        "empty_image_key": 11
+      }
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0",
+      "image_count": 14,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 3,
+        "empty_image_key": 11
+      }
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0/Panel#1",
+      "image_count": 5,
+      "reasons": {
+        "empty_image_key": 5
+      }
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0/Panel#1/Panel#0",
+      "image_count": 5,
+      "reasons": {
+        "empty_image_key": 5
+      }
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0/Panel#2",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0/Window#1",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0/Window#2",
+      "image_count": 2,
+      "reasons": {
+        "empty_image_key": 1,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0/Window#2/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0/Window#3",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0/Window#5",
+      "image_count": 3,
+      "reasons": {
+        "empty_image_key": 2,
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0/Window#5/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "unsupported_GI_format_or_render_semantics": 1
+      }
+    },
+    {
+      "path": "ML#0/Talk#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    },
+    {
+      "path": "ML#0/Talk#0/Panel#0/Panel#0",
+      "image_count": 1,
+      "reasons": {
+        "empty_image_key": 1
+      }
+    }
+  ],
+  "dynamic_graphbuf_controls": 68,
+  "graphbuf_producer_status_counts": {
+    "direct_reference_found": 65,
+    "static_owner_unresolved": 3
+  },
+  "graphbuf": [
+    {
+      "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Window#0/GraphBuf#0",
+      "name": "InfoPlanetImage",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "ab_MainForm.cpp:3949"
+      ]
+    },
+    {
+      "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Window#1/GraphBuf#0",
+      "name": "InfoStarImage",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "ab_MainForm.cpp:3810"
+      ]
+    },
+    {
+      "path": "ML#0/Achievements#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fAchievements.cpp:40",
+        "fAchievements.cpp:56"
+      ]
+    },
+    {
+      "path": "ML#0/Achievements#0/Panel#0/Panel#0/GraphBuf#0",
+      "name": "ImageMap",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "other_unresolved",
+      "evidence": []
+    },
+    {
+      "path": "ML#0/Count#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fCount1.cpp:73",
+        "fCount1.cpp:91",
+        "fCount2.cpp:81",
+        "fCount2.cpp:123"
+      ]
+    },
+    {
+      "path": "ML#0/Count#0/Panel#0/Panel#0/GraphBuf#0",
+      "name": "ItemBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fCount2.cpp:102",
+        "fCount2.cpp:114"
+      ]
+    },
+    {
+      "path": "ML#0/Film#0/Panel#0/Panel#0/GraphBuf#0",
+      "name": "MapPanel",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fFilm.cpp:66",
+        "fFilm.cpp:94"
+      ]
+    },
+    {
+      "path": "ML#0/Galaxy#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fGalaxy2.cpp:123",
+        "fGalaxy2.cpp:206"
+      ]
+    },
+    {
+      "path": "ML#0/Galaxy#0/Panel#0/Panel#1/Panel#0/GraphBuf#0",
+      "name": "HideBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fGalaxy2.cpp:137",
+        "fGalaxy2.cpp:768"
+      ]
+    },
+    {
+      "path": "ML#0/Galaxy#0/Panel#0/Window#1/GraphBuf#0",
+      "name": "InfoStarImage",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fGalaxy2.cpp:1319"
+      ]
+    },
+    {
+      "path": "ML#0/GameEnd#0/Panel#0/Panel#0/GraphBuf#0",
+      "name": "GBText",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fGameEnd.cpp:220",
+        "fGameEnd.cpp:446",
+        "fGameEnd.cpp:469",
+        "fGameEnd.cpp:495"
+      ]
+    },
+    {
+      "path": "ML#0/GameMenu#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fGameMenu.cpp:42",
+        "fGameMenu.cpp:88"
+      ]
+    },
+    {
+      "path": "ML#0/GoodsShop#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fGoodsShop2.cpp:115",
+        "fGoodsShop2.cpp:525"
+      ]
+    },
+    {
+      "path": "ML#0/GoodsShop#0/Panel#0/Panel#4/GraphBuf#0",
+      "name": "FaceGB",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fGoodsShop2.cpp:425",
+        "fGoodsShop2.cpp:1513"
+      ]
+    },
+    {
+      "path": "ML#0/GoodsShop#0/Panel#0/Panel#4/GraphBuf#1",
+      "name": "GraphBufFace",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fGoodsShop2.cpp:227",
+        "fGoodsShop2.cpp:248",
+        "fGoodsShop2.cpp:273",
+        "fGoodsShop2.cpp:321",
+        "fGoodsShop2.cpp:577"
+      ]
+    },
+    {
+      "path": "ML#0/GoodsShop#0/Panel#0/Panel#4/GraphBuf#2",
+      "name": "GraphBufCaptain",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fGoodsShop2.cpp:461"
+      ]
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0/GraphBuf#0",
+      "name": "Ship0",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fHangar.cpp:129"
+      ]
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0/GraphBuf#1",
+      "name": "Ship1",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fHangar.cpp:133"
+      ]
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0/GraphBuf#2",
+      "name": "Ship2",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fHangar.cpp:137"
+      ]
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0/GraphBuf#3",
+      "name": "Ship3",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fHangar.cpp:141"
+      ]
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0/GraphBuf#4",
+      "name": "Ship4",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fHangar.cpp:145"
+      ]
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0/GraphBuf#5",
+      "name": "Ship5",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fHangar.cpp:149"
+      ]
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0/GraphBuf#6",
+      "name": "Ship6",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fHangar.cpp:153"
+      ]
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0/GraphBuf#7",
+      "name": "Ship7",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fHangar.cpp:157"
+      ]
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0/GraphBuf#8",
+      "name": "Ship8",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fHangar.cpp:161"
+      ]
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0/Panel#4/GraphBuf#0",
+      "name": "FaceGB",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fHangar.cpp:319",
+        "fHangar.cpp:399"
+      ]
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0/Window#0/GraphBuf#0",
+      "name": "InfoShipImage2",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fHangar.cpp:1326",
+        "fHangar.cpp:1348"
+      ]
+    },
+    {
+      "path": "ML#0/Introduction#0/Panel#0/Panel#0/GraphBuf#0",
+      "name": "GBText",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fIntroduction.cpp:92",
+        "fIntroduction.cpp:140",
+        "fIntroduction.cpp:198",
+        "fIntroduction.cpp:285"
+      ]
+    },
+    {
+      "path": "ML#0/Journal#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fJournal.cpp:99",
+        "fJournal.cpp:111"
+      ]
+    },
+    {
+      "path": "ML#0/LoadAB#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fLoadAB.cpp:46",
+        "fLoadAB.cpp:73"
+      ]
+    },
+    {
+      "path": "ML#0/LoadAB#0/Panel#0/Panel#0/GraphBuf#0",
+      "name": "ImageMap",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fLoadAB.cpp:390"
+      ]
+    },
+    {
+      "path": "ML#0/LoadQuest#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fLoadQuest.cpp:63",
+        "fLoadQuest.cpp:102"
+      ]
+    },
+    {
+      "path": "ML#0/LoadQuest#0/Panel#0/Panel#1/GraphBuf#0",
+      "name": "ImageMap",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fLoadQuest.cpp:587"
+      ]
+    },
+    {
+      "path": "ML#0/LoadRobot#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fLoadRobot.cpp:61",
+        "fLoadRobot.cpp:202"
+      ]
+    },
+    {
+      "path": "ML#0/LoadRobot#0/Panel#0/Panel#1/GraphBuf#0",
+      "name": "ImageMap",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fLoadRobot.cpp:760"
+      ]
+    },
+    {
+      "path": "ML#0/ModsManager#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fMods.cpp:171",
+        "fMods.cpp:530"
+      ]
+    },
+    {
+      "path": "ML#0/Number#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "other_unresolved",
+      "evidence": []
+    },
+    {
+      "path": "ML#0/Planet#0/Panel#0/Window#0/GraphBuf#0",
+      "name": "PanelInfo_Image",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fPlanet.cpp:186",
+        "fPlanetNO.cpp:293"
+      ]
+    },
+    {
+      "path": "ML#0/PlanetNO#0/Panel#0/Panel#2/GraphBuf#0",
+      "name": "PlanetImage",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fPlanetNO.cpp:482"
+      ]
+    },
+    {
+      "path": "ML#0/PlanetNO#0/Panel#0/Window#0/GraphBuf#0",
+      "name": "PanelInfo_Image",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fPlanetNO.cpp:293"
+      ]
+    },
+    {
+      "path": "ML#0/PlanetQuest#0/Panel#0/GraphBuf#0",
+      "name": "PQI",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fPlanetQuest.cpp:812",
+        "fPlanetQuest.cpp:935",
+        "fPlanetQuest.cpp:1351",
+        "fPlanetQuest.cpp:1735"
+      ]
+    },
+    {
+      "path": "ML#0/Quest#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "other_unresolved",
+      "evidence": []
+    },
+    {
+      "path": "ML#0/Rating#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fRating2.cpp:90",
+        "fRating2.cpp:111"
+      ]
+    },
+    {
+      "path": "ML#0/Rating#0/Panel#0/Window#0/GraphBuf#0",
+      "name": "RewardImage",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fRating2.cpp:381",
+        "fRating2.cpp:409",
+        "fRating2.cpp:444",
+        "fRating2.cpp:463",
+        "fRating2.cpp:468"
+      ]
+    },
+    {
+      "path": "ML#0/Rewards#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fRewards.cpp:65",
+        "fRewards.cpp:84"
+      ]
+    },
+    {
+      "path": "ML#0/SaveManager#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fSaveManager.cpp:81",
+        "fSaveManager.cpp:104"
+      ]
+    },
+    {
+      "path": "ML#0/SaveManager#0/Panel#0/Panel#0/GraphBuf#0",
+      "name": "GameImage",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fSaveManager.cpp:132",
+        "fSaveManager.cpp:173",
+        "fSaveManager.cpp:718",
+        "fSaveManager.cpp:755",
+        "fSaveManager.cpp:777"
+      ]
+    },
+    {
+      "path": "ML#0/SaveManager#0/Panel#0/Panel#0/GraphBuf#1",
+      "name": "GameImage2",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fSaveManager.cpp:137",
+        "fSaveManager.cpp:177",
+        "fSaveManager.cpp:733",
+        "fSaveManager.cpp:761",
+        "fSaveManager.cpp:778"
+      ]
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fScaner.cpp:73",
+        "fScaner.cpp:94"
+      ]
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0/Panel#0/Panel#1/Panel#0/GraphBuf#0",
+      "name": "RewardsImg",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fScaner.cpp:106"
+      ]
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0/Window#0/GraphBuf#0",
+      "name": "InfoImage2",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fScaner.cpp:1363",
+        "fScaner.cpp:1490"
+      ]
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0/Window#1/GraphBuf#0",
+      "name": "RankImage",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fScaner.cpp:630",
+        "fScaner.cpp:641",
+        "fScaner.cpp:676",
+        "fScaner.cpp:716",
+        "fScaner.cpp:737"
+      ]
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0/Window#2/GraphBuf#0",
+      "name": "RewardImage",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fScaner.cpp:519"
+      ]
+    },
+    {
+      "path": "ML#0/SelectFace#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fSelectFace.cpp:76",
+        "fSelectFace.cpp:112"
+      ]
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fShip2.cpp:686",
+        "fShip2.cpp:729"
+      ]
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Panel#1/Panel#1/Panel#0/GraphBuf#0",
+      "name": "Ship3DBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fShip2.cpp:1034",
+        "fShip2.cpp:1050"
+      ]
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Panel#1/Panel#2/Panel#1/GraphBuf#0",
+      "name": "RewardsImg",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fShip2.cpp:758"
+      ]
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Window#0/GraphBuf#0",
+      "name": "InfoImage2",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fShip2.cpp:6533"
+      ]
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Window#1/GraphBuf#0",
+      "name": "RankImage",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fShip2.cpp:1760",
+        "fShip2.cpp:1771",
+        "fShip2.cpp:1789",
+        "fShip2.cpp:1822",
+        "fShip2.cpp:1855"
+      ]
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Window#2/GraphBuf#0",
+      "name": "RewardImage",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fShip2.cpp:1601"
+      ]
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0/GraphBuf#0",
+      "name": "LargeHelp",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fStarMap.cpp:209",
+        "fStarMap.cpp:360"
+      ]
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0/GraphBuf#1",
+      "name": "MapPanel",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fStarMap.cpp:213",
+        "fStarMap.cpp:375",
+        "fStarMap.cpp:590",
+        "fStarMap.cpp:2221"
+      ]
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0/Window#1/GraphBuf#0",
+      "name": "InfoStdGB",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fStarMap.cpp:3848",
+        "fStarMap.cpp:3904",
+        "fStarMap.cpp:3929",
+        "fStarMap.cpp:3981",
+        "fStarMap.cpp:4021"
+      ]
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0/Window#2/GraphBuf#0",
+      "name": "InfoShipImage2",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fStarMap.cpp:4410",
+        "fStarMap.cpp:4432",
+        "fStarMap.cpp:7370",
+        "fStarMap.cpp:7392"
+      ]
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0/Window#3/GraphBuf#0",
+      "name": "InfoPlanetImage",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fStarMap.cpp:4113",
+        "fStarMap.cpp:7006"
+      ]
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0/Window#4/GraphBuf#0",
+      "name": "InfoStarImage",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "runtime_drawing_producer",
+      "evidence": [
+        "fStarMap.cpp:4646",
+        "fStarMap.cpp:7578"
+      ]
+    },
+    {
+      "path": "ML#0/Talk#0/Panel#0/GraphBuf#0",
+      "name": "BGBuf",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fTalk.cpp:193",
+        "fTalk.cpp:236"
+      ]
+    },
+    {
+      "path": "ML#0/Talk#0/Panel#0/GraphBuf#1",
+      "name": "MapPanel",
+      "source": "RUNTIME_DATA_REQUIRED",
+      "producer_class": "BindExternalGraphBuf",
+      "evidence": [
+        "fTalk.cpp:194",
+        "fTalk.cpp:218",
+        "fTalk.cpp:296",
+        "fTalk.cpp:297",
+        "fTalk.cpp:300"
+      ]
+    }
+  ]
+}

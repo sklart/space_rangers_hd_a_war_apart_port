@@ -90,3 +90,7 @@ clean shutdown. The supplied screenshot visibly shows the first real `PLBar`
 subtree. M25 is COMPLETE / HARDWARE PASS.
 
 M12 hardware PASS: the M14P-tested NRO embedded `46330b4` ran for 73.472 seconds, presented 1,506 frames, exited through `PLUS`, and reached `[BOOT] COMPLETE`. Before the loop it also completed the M13 metadata diagnostic and M14P `Bm.Captain.2BlazerBi` Format-0 decode with the recorded 93x104 BGRA fingerprint.
+
+## M27 input and event stage
+
+After M26 constructs its two real UI trees, M27 attaches one portable input router to each tree. The M12 loop polls the Switch input adapter after platform and applet processing and before frame update, then routes normalized pointer transitions. Fixed Info button and ScrollBar interactions occur only after the M26 checkpoints have completed. Details and evidence boundaries are in [the M27 milestone](milestone27-input-focus-events.md).

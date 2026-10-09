@@ -187,6 +187,7 @@ M20 добавляет `host-gi-object-test` и отдельный symbol audit:
 - [M24 portable GraphButton/Window/Zone foundation](docs/milestone24-ui-controls.md) — COMPLETE / HARDWARE PASS
 - [M25 portable GI/GAI UI and first real subtree](docs/milestone25-gi-gai-real-ui.md) — COMPLETE / HARDWARE PASS
 - [M26 GraphBuf, scroll controls, Edit and larger real UI](docs/milestone26-graphbuf-scroll-edit-real-ui.md) — hardware pending
+- [M27 portable input, focus and event dispatch](docs/milestone27-input-focus-events.md) — software complete; hardware pending
 
 ## Лицензирование и обратная связь
 

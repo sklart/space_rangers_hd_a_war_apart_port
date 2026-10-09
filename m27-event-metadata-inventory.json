@@ -1,0 +1,27 @@
+{
+  "source": "CFG/Main.dat",
+  "parsed_nodes": 4727,
+  "requested_block_occurrences": {
+    "OnPressCode": 0,
+    "OnMouseEnterCode": 0,
+    "OnMouseLeaveCode": 0,
+    "OnMouseRightClick": 0,
+    "OnKey": 0
+  },
+  "other_on_blocks": {"OnStart": 1},
+  "requested_property_occurrences": {
+    "OnPressCode": 0,
+    "OnMouseEnterCode": 0,
+    "OnMouseLeaveCode": 0,
+    "OnMouseRightClick": 0,
+    "OnKey": 0
+  },
+  "physical_effective_property_nodes": {
+    "OnPressCode": 0,
+    "OnMouseEnterCode": 0,
+    "OnMouseLeaveCode": 0,
+    "OnMouseRightClick": 0,
+    "OnKey": 0
+  },
+  "examples": {}
+}

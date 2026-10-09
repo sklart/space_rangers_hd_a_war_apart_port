@@ -220,3 +220,6 @@ and presents over 66,151 ms, exited through `PLUS`, then logged dynamic M23
 and M24 stage PASS, all shutdown PASS lines, and `[BOOT] COMPLETE`.
 `gr-main.log` contains only its expected `Start` marker. M23 and M24 are
 **COMPLETE / HARDWARE PASS**.
+## Planned cumulative M27 run
+
+The [M27 interaction procedure](milestone27-input-focus-events.md#switch-smoke-when-hardware-is-available) is prepared, but no M27 Switch execution has been observed. Copy only the cumulative `port/switch/Space Rangers HD - A War Apart.nro` from production `f373d33` (7,866,672 bytes; SHA-256 `5CAC745971CAFD9F69CBDB664CDB1914005BEB8B6E583CFDF242DB9A536BD845`; embedded `build_git=f373d33`) and verify the destination hash if possible; keep the M26 RC separate. The future log must show the retained M26 PASS stage, M27 scripted event `004504e6/1192cd139f06a4a0`, initial/hover/down frames `cb1a12b3/fbca196e86b2f452`, `fb83833b/5c7d41d26204f9cd`, `12dd6ab5/ffe66f7b03cca7cd`, `[M27] LIVE INPUT READY`, PLUS exit, shutdown PASS and `[BOOT] COMPLETE`.

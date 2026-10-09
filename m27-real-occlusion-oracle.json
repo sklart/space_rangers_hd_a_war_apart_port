@@ -1,0 +1,9 @@
+{
+  "path": "ML#0/Info#0/Panel#0/Panel#0/Panel#0",
+  "name": "PM_PanelMsg",
+  "mouse_blocking": true,
+  "configured_position": [111, 741],
+  "configured_size": [362, 26],
+  "test_point": [200, 750],
+  "scope": "config geometry and portable query only"
+}

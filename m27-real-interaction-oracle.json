@@ -1,0 +1,23 @@
+{
+  "source": "tests/probe_m27_real_interaction.py",
+  "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#11",
+  "button": "M11Clear",
+  "hit": "Rect",
+  "point": [459, 537],
+  "frames": {
+    "normal": {"size": 1843200, "crc32": "cb1a12b3", "fnv64": "fbca196e86b2f452"},
+    "hover": {"size": 1843200, "crc32": "fb83833b", "fnv64": "5c7d41d26204f9cd"},
+    "down": {"size": 1843200, "crc32": "12dd6ab5", "fnv64": "ffe66f7b03cca7cd"},
+    "up": {"size": 1843200, "crc32": "fb83833b", "fnv64": "5c7d41d26204f9cd"},
+    "leave": {"size": 1843200, "crc32": "cb1a12b3", "fnv64": "fbca196e86b2f452"}
+  },
+  "scroll": {
+    "path": "ML#0/Film#0/Panel#0/Panel#0/Panel#0/ScrollBar#0",
+    "drag_denominator": 153,
+    "position_before": 1,
+    "position_after_drag": 53,
+    "position_after_press": 52,
+    "position_after_500ms": 51,
+    "position_after_150ms_more": 48
+  }
+}
