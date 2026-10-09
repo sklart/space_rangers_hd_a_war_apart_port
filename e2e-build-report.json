@@ -78,7 +78,8 @@
     "ui_window",
     "ui_zone",
     "user_root",
-    "zlib_bridge"
+    "zlib_bridge",
+    "okgf_no_tls"
   ],
   "optional_stubs": [
     "Windows single-instance OpenEvent/CreateEvent",
@@ -96,6 +97,8 @@
     "phase": "runtime dependency audit",
     "exact_error": "ELF retains Windows DLL imports: kernel32.dll, user32.dll"
   },
+  "build_git": "4666a7bee1a0e084d328a1d7f0cb2da3ba88a3e8",
+  "build_dirty": false,
   "source_overrides": [
     "DirectSound.cpp",
     "MMSystem.cpp",
@@ -113,5 +116,11 @@
     "runtime_time.cpp",
     "sysutils_imports_portable.cpp",
     "windows_imports_portable.cpp"
-  ]
+  ],
+  "nro": {
+    "path": "port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E.nro",
+    "bytes": 17938736,
+    "sha256": "302D2B6E2509BDA1AF3BA09B9B6416C9A037EB74A8A7EA8A88EC6EDBFD5712CD",
+    "status": "EXPERIMENTAL; Windows DLL audit FAIL"
+  }
 }
