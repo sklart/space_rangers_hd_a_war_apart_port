@@ -81,11 +81,11 @@
       "callsites": [
         "upstream/cpp/src/VFW.cpp:14"
       ],
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "video-off policy",
-      "startup_required": false,
+      "classification": "PORTABLE",
+      "implementation": "win32_compat empty AVI cleanup",
+      "startup_required": true,
       "gameplay_required": false,
-      "reason": "VFW calls originate in GI_XviD intro video, which is disabled for E2E-1."
+      "reason": "TxvidGI::XvidClose calls AVIFileExit while destroying never-opened video objects during global UI startup; no AVI session exists on Switch."
     },
     {
       "dll": "avifil32.dll",
@@ -4532,8 +4532,8 @@
   "unparsed_import_patterns": [],
   "classification_counts": {
     "NOT_REACHED_UNTIL_GAMEPLAY": 15,
-    "OPTIONAL_DISABLED": 91,
-    "PORTABLE": 153,
+    "OPTIONAL_DISABLED": 90,
+    "PORTABLE": 154,
     "RUNTIME_MODULE": 7,
     "STATIC_LIBRARY": 88
   },

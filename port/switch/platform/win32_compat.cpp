@@ -68,6 +68,10 @@ std::int32_t QueryPerformanceFrequencyThunk(std::int64_t* frequency) {
 
 std::uint32_t GetTickCountThunk() { return e2e_clock::Milliseconds(); }
 std::uint32_t GetLastErrorThunk() { return GetLastError(); }
+// TxvidGI::XvidClose calls AVIFileExit even when ImageOpen was never entered.
+// No AVI session can be opened on this platform, so closing an empty session
+// has no resources to release.
+void AviFileExitThunk() {}
 
 template <class Function>
 ImportAddress Address(Function function) {
@@ -75,6 +79,8 @@ ImportAddress Address(Function function) {
 }
 
 ImportAddress KnownImport(const std::string& dll, std::string_view symbol) {
+  if (dll == "avifil32.dll" && symbol == "AVIFileExit")
+    return Address(&AviFileExitThunk);
   if (dll == "okgf.dll") return ResolveOkgfImport(symbol);
   if (dll == "zlib.dll") {
     if (symbol == "OKGF_ZLib_Compress") return Address(&zlib_bridge::Compress);

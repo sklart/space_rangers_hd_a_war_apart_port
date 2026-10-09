@@ -1,10 +1,10 @@
 {
   "imports": {
     "avifil32.dll::AVIFileExit": {
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "video-off policy",
-      "reason": "VFW calls originate in GI_XviD intro video, which is disabled for E2E-1.",
-      "startup_required": false,
+      "classification": "PORTABLE",
+      "implementation": "win32_compat empty AVI cleanup",
+      "reason": "TxvidGI::XvidClose calls AVIFileExit while destroying never-opened video objects during global UI startup; no AVI session exists on Switch.",
+      "startup_required": true,
       "gameplay_required": false
     },
     "avifil32.dll::AVIFileGetStream": {

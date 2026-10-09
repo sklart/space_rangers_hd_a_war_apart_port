@@ -81,11 +81,11 @@
       "callsites": [
         "upstream/cpp/src/VFW.cpp:14"
       ],
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "video-off policy",
-      "startup_required": false,
+      "classification": "PORTABLE",
+      "implementation": "win32_compat empty AVI cleanup",
+      "startup_required": true,
       "gameplay_required": false,
-      "reason": "VFW calls originate in GI_XviD intro video, which is disabled for E2E-1."
+      "reason": "TxvidGI::XvidClose calls AVIFileExit while destroying never-opened video objects during global UI startup; no AVI session exists on Switch."
     },
     {
       "dll": "avifil32.dll",
@@ -3845,7 +3845,8 @@
     {
       "dll": "avifil32.dll",
       "callsites": [
-        "port/switch/platform/win32_compat.cpp:133",
+        "port/switch/platform/win32_compat.cpp:139",
+        "port/switch/platform/win32_compat.cpp:82",
         "port/switch/platform/win32_compat_modules.cpp:48",
         "upstream/cpp/src/VFW.cpp:14",
         "upstream/cpp/src/VFW.cpp:20",
@@ -3866,7 +3867,7 @@
     {
       "dll": "dsound.dll",
       "callsites": [
-        "port/switch/platform/win32_compat.cpp:133",
+        "port/switch/platform/win32_compat.cpp:139",
         "port/switch/platform/win32_compat_modules.cpp:48",
         "upstream/cpp/src/DirectSound.cpp:11"
       ]
@@ -3916,8 +3917,8 @@
       "callsites": [
         "port/switch/build/e2e-game/generated/GR_Main.cpp:807",
         "port/switch/build/e2e-game/generated/GR_Main.cpp:815",
-        "port/switch/platform/win32_compat.cpp:134",
-        "port/switch/platform/win32_compat.cpp:97",
+        "port/switch/platform/win32_compat.cpp:103",
+        "port/switch/platform/win32_compat.cpp:140",
         "port/switch/platform/win32_compat_files.cpp:468",
         "port/switch/platform/win32_compat_filetime.cpp:99",
         "port/switch/platform/win32_compat_heap.cpp:20",
@@ -4115,7 +4116,7 @@
         "port/switch/build/e2e-game/generated/GR_Main.cpp:4177",
         "port/switch/build/e2e-game/generated/GR_Main.cpp:4187",
         "port/switch/build/e2e-game/generated/GR_Main.cpp:4198",
-        "port/switch/platform/win32_compat.cpp:78",
+        "port/switch/platform/win32_compat.cpp:84",
         "port/switch/platform/win32_compat_modules.cpp:128",
         "port/switch/platform/win32_compat_modules.cpp:53"
       ]
@@ -4124,7 +4125,7 @@
       "dll": "ole32.dll",
       "callsites": [
         "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:47",
-        "port/switch/platform/win32_compat.cpp:137",
+        "port/switch/platform/win32_compat.cpp:143",
         "upstream/cpp/src/ActiveXSdk.cpp:10",
         "upstream/cpp/src/ActiveXSdk.cpp:14",
         "upstream/cpp/src/ActiveXSdk.cpp:20",
@@ -4134,7 +4135,7 @@
     {
       "dll": "shell32.dll",
       "callsites": [
-        "port/switch/platform/win32_compat.cpp:139",
+        "port/switch/platform/win32_compat.cpp:145",
         "upstream/cpp/src/ShellAPI.cpp:7",
         "upstream/cpp/src/ShlObj.cpp:13",
         "upstream/cpp/src/ShlObj.cpp:7"
@@ -4244,7 +4245,7 @@
       "callsites": [
         "port/switch/build/e2e-game/generated/GR_Main.cpp:3619",
         "port/switch/build/e2e-game/generated/GR_Main.cpp:3629",
-        "port/switch/platform/win32_compat.cpp:79",
+        "port/switch/platform/win32_compat.cpp:85",
         "port/switch/platform/win32_compat_modules.cpp:55",
         "upstream/cpp/src/EC_OKGF.cpp:8"
       ]
@@ -4253,8 +4254,8 @@
   "unparsed_import_patterns": [],
   "classification_counts": {
     "NOT_REACHED_UNTIL_GAMEPLAY": 15,
-    "OPTIONAL_DISABLED": 77,
-    "PORTABLE": 136,
+    "OPTIONAL_DISABLED": 76,
+    "PORTABLE": 137,
     "RUNTIME_MODULE": 7,
     "STATIC_LIBRARY": 88
   },

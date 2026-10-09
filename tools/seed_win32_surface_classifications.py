@@ -77,8 +77,13 @@ for item in inventory["imports"]:
         data["imports"][key] = classified("OPTIONAL_DISABLED", "audio-off policy",
             "GR_Main source adaptation disables sound and music for E2E-1.", gameplay=True)
     elif dll == "avifil32.dll":
-        data["imports"][key] = classified("OPTIONAL_DISABLED", "video-off policy",
-            "VFW calls originate in GI_XviD intro video, which is disabled for E2E-1.", gameplay=False)
+        if symbol == "AVIFileExit":
+            data["imports"][key] = classified("PORTABLE", "win32_compat empty AVI cleanup",
+                "TxvidGI::XvidClose calls AVIFileExit while destroying never-opened video objects during global UI startup; no AVI session exists on Switch.",
+                startup=True, gameplay=False)
+        else:
+            data["imports"][key] = classified("OPTIONAL_DISABLED", "video-off policy",
+                "VFW calls originate in GI_XviD intro video, which is disabled for E2E-1.", gameplay=False)
     elif dll == "gdiplus.dll":
         data["imports"][key] = classified("NOT_REACHED_UNTIL_GAMEPLAY", "graphics.hpp screenshot path",
             "The GDI+ API object is constructed only for bitmap/JPEG screenshot work in GR_GraphBuf.",

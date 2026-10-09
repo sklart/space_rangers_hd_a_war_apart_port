@@ -5,6 +5,7 @@
 {"advapi32.dll", "RegOpenKeyExA"},
 {"advapi32.dll", "RegQueryValueExA"},
 {"advapi32.dll", "RegSetValueExW"},
+{"avifil32.dll", "AVIFileExit"},
 {"gdi32.dll", "CreateDIBSection"},
 {"gdi32.dll", "DeleteObject"},
 {"gdi32.dll", "GetStockObject"},

@@ -1,6 +1,7 @@
 #include "units/WindowsImports.hpp"
 #include "units/WindowsSdk.hpp"
 #include "units/DirectSound.hpp"
+#include "units/VFW.hpp"
 #include "units/SysUtilsImports.hpp"
 #include "types/Windows_group.hpp"
 #include "types/SysUtils.hpp"
@@ -37,6 +38,15 @@ std::int32_t Worker(void* parameter) {
 }  // namespace
 
 int main() {
+  // Original video-object cleanup is unconditional, including unopened films.
+  VFW::AVIFileExit();
+  VFW::AVIFileExit();
+  bool video_open_disabled = false;
+  try { VFW::AVIFileInit(); }
+  catch (const std::runtime_error& error) {
+    video_open_disabled = std::string(error.what()).find("OPTIONAL_DISABLED") != std::string::npos;
+  }
+  assert(video_open_disabled);
   Windows::TSystemTime utc{};
   WindowsImports::GetSystemTime(utc);
   assert(utc.wYear >= 2026 && utc.wMonth >= 1 && utc.wMonth <= 12);

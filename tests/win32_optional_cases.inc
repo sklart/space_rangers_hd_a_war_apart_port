@@ -1,5 +1,4 @@
 // Generated from both Win32 surface manifests. Do not edit by hand.
-{"avifil32.dll", "AVIFileExit", false},
 {"avifil32.dll", "AVIFileGetStream", false},
 {"avifil32.dll", "AVIFileInit", false},
 {"avifil32.dll", "AVIFileOpenA", false},
