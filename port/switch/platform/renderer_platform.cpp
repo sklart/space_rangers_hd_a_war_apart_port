@@ -1,4 +1,5 @@
 #include "renderer_platform.hpp"
+#include "e2e_stage.hpp"
 
 #include "units/GR_DX.hpp"
 #include "units/GR_GraphBuf.hpp"
@@ -22,6 +23,7 @@ bool g_initialized{};
 std::uint64_t g_presentation_count{};
 std::uint64_t g_last_presentation_hash{};
 PresentationDiagnostics g_presentation_diagnostics{};
+bool g_presentation_failure_logged{};
 
 #if defined(__SWITCH__)
 SDL_Renderer* g_sdl_renderer{};
@@ -35,6 +37,21 @@ bool ValidDimensions(std::int32_t width, std::int32_t height, std::int32_t pitch
       pitch < width * 2) return false;
   return static_cast<std::uint64_t>(pitch) * static_cast<std::uint64_t>(height) <=
          static_cast<std::uint64_t>(std::numeric_limits<std::int32_t>::max());
+}
+
+bool PresentationFailure(const char* reason) {
+#if defined(__SWITCH__)
+  if (!g_presentation_failure_logged) {
+    char detail[384]{};
+    std::snprintf(detail, sizeof(detail), "present failed reason=%s sdl=%s",
+                  reason, SDL_GetError());
+    e2e_stage::Log(detail);
+    g_presentation_failure_logged = true;
+  }
+#else
+  static_cast<void>(reason);
+#endif
+  return false;
 }
 
 std::uint64_t HashRgb565(const void* pixels, std::int32_t pitch, std::int32_t width,
@@ -147,31 +164,35 @@ bool InitializeReleaseCompatibleDefaults(std::string* error) {
 }
 
 bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, std::int32_t height) {
-  if (!g_initialized || !pixels || !ValidDimensions(width, height, pitch)) return false;
+  if (!g_initialized) return PresentationFailure("renderer not initialized");
+  if (!pixels) return PresentationFailure("pixels missing");
+  if (!ValidDimensions(width, height, pitch)) return PresentationFailure("invalid dimensions");
   g_last_presentation_hash = HashRgb565(pixels, pitch, width, height);
   g_presentation_diagnostics = {};
 #if defined(__SWITCH__)
-  if (!g_native_window) return false;
+  if (!g_native_window) return PresentationFailure("SDL window missing");
   if (!g_sdl_renderer) {
     g_sdl_renderer = SDL_CreateRenderer(static_cast<SDL_Window*>(g_native_window), -1,
                                         SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (!g_sdl_renderer) return false;
+    if (!g_sdl_renderer) return PresentationFailure("SDL_CreateRenderer");
   }
   g_presentation_diagnostics.renderer_ready = g_sdl_renderer != nullptr;
   if (!g_sdl_texture || g_texture_width != width || g_texture_height != height) {
     if (g_sdl_texture) SDL_DestroyTexture(g_sdl_texture);
     g_sdl_texture = SDL_CreateTexture(g_sdl_renderer, SDL_PIXELFORMAT_RGB565,
                                       SDL_TEXTUREACCESS_STREAMING, width, height);
-    if (!g_sdl_texture) return false;
+    if (!g_sdl_texture) return PresentationFailure("SDL_CreateTexture");
     g_texture_width = width;
     g_texture_height = height;
   }
   g_presentation_diagnostics.texture_ready = g_sdl_texture != nullptr;
-  if (SDL_UpdateTexture(g_sdl_texture, nullptr, pixels, pitch) != 0) return false;
+  if (SDL_UpdateTexture(g_sdl_texture, nullptr, pixels, pitch) != 0)
+    return PresentationFailure("SDL_UpdateTexture");
   int output_width{};
   int output_height{};
   if (SDL_GetRendererOutputSize(g_sdl_renderer, &output_width, &output_height) != 0 ||
-      output_width <= 0 || output_height <= 0) return false;
+      output_width <= 0 || output_height <= 0)
+    return PresentationFailure("SDL_GetRendererOutputSize");
   const float scale_x = static_cast<float>(output_width) / static_cast<float>(width);
   const float scale_y = static_cast<float>(output_height) / static_cast<float>(height);
   const float scale = scale_x < scale_y ? scale_x : scale_y;
@@ -189,8 +210,10 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   g_presentation_diagnostics.destination_y = destination.y;
   g_presentation_diagnostics.destination_width = destination.w;
   g_presentation_diagnostics.destination_height = destination.h;
-  SDL_RenderClear(g_sdl_renderer);
-  if (SDL_RenderCopy(g_sdl_renderer, g_sdl_texture, nullptr, &destination) != 0) return false;
+  if (SDL_RenderClear(g_sdl_renderer) != 0)
+    return PresentationFailure("SDL_RenderClear");
+  if (SDL_RenderCopy(g_sdl_renderer, g_sdl_texture, nullptr, &destination) != 0)
+    return PresentationFailure("SDL_RenderCopy");
   SDL_RenderPresent(g_sdl_renderer);
   g_presentation_diagnostics.present_succeeded = true;
 #else
@@ -212,6 +235,7 @@ void ShutdownPresentation() {
   g_presentation_count = 0;
   g_last_presentation_hash = 0;
   g_presentation_diagnostics = {};
+  g_presentation_failure_logged = false;
 }
 
 void ShutdownSoftwareRenderer() {

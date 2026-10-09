@@ -111,7 +111,7 @@ def selected_sources(effective: bool) -> list[Path]:
         replacement: Path | None = None
         if path.parent == CPP / "src" and path.suffix == ".cpp":
             candidate = generated / path.name
-            generated_names = {"Rangers.cpp", "Globals.cpp", "GR_Main.cpp",
+            generated_names = {"Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GR_Main.cpp",
                                "aSaveLoad.cpp", "program.cpp"}
             if candidate.exists() and (path.name in FUNCTIONS or path.name in generated_names):
                 replacement = candidate

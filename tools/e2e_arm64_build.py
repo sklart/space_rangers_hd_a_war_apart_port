@@ -156,7 +156,9 @@ def main() -> int:
                      if not line.endswith(" e2e-build-report.json")]
     report["build_dirty"] = bool(dirty_sources)
     build_id = build_git[:7] + ("-dirty" if dirty_sources else "")
-    report["source_overrides"] = sorted([*FUNCTIONS, "Rangers.cpp", "program.cpp"])
+    report["source_overrides"] = sorted([*FUNCTIONS, "Rangers.cpp", "Globals.cpp",
+                                          "GI_MessageLoop.cpp", "GR_Main.cpp",
+                                          "aSaveLoad.cpp", "program.cpp"])
     # These were created for the old diagnostic slice. They define symbols
     # already present in the complete original units and cannot be linked
     # alongside them; their replacement behavior must move behind original APIs.

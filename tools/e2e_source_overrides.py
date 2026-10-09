@@ -85,7 +85,7 @@ int main() {
 def generated_source(source: Path, destination: Path, build_git: str = "",
                      manifest_stamp: dict | None = None) -> Path:
     overrides = FUNCTIONS.get(source.name)
-    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GR_Main.cpp", "aSaveLoad.cpp", "program.cpp"):
+    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GR_Main.cpp", "aSaveLoad.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "program.cpp":
@@ -159,6 +159,26 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
             'srhd_awa::platform::e2e_stage::Log("startup clock");\n                                        '
             + startup_clock, 1)
         text = text.replace("void ProgramMain() {", "void ProgramMain() {\n        srhd_awa::platform::e2e_stage::Log(\"ProgramMain BEGIN\");", 1)
+        screen_loop = "Globals::RunMainScreenStateLoop();"
+        if text.count(screen_loop) != 1:
+            raise RuntimeError("main screen loop boundary changed")
+        text = text.replace(screen_loop, screen_loop + '''
+                                            {
+                                                const auto presentation = srhd_awa::platform::renderer_platform::LastPresentationDiagnostics();
+                                                char detail[256]{};
+                                                std::snprintf(detail, sizeof(detail),
+                                                    "screen loop returned requested=%u postload=%u presents=%llu hash=%016llX renderer=%u texture=%u present_ok=%u output=%dx%d",
+                                                    static_cast<unsigned>(GlobalsV::RequestedScreenId),
+                                                    static_cast<unsigned>(GlobalsV::PostLoadScreenId),
+                                                    static_cast<unsigned long long>(srhd_awa::platform::renderer_platform::PresentationCount()),
+                                                    static_cast<unsigned long long>(srhd_awa::platform::renderer_platform::LastPresentationHash()),
+                                                    static_cast<unsigned>(presentation.renderer_ready),
+                                                    static_cast<unsigned>(presentation.texture_ready),
+                                                    static_cast<unsigned>(presentation.present_succeeded),
+                                                    presentation.output_width, presentation.output_height);
+                                                srhd_awa::platform::e2e_stage::Log(detail);
+                                            }''', 1)
+        text = '#include "renderer_platform.hpp"\n' + text
         text = '#include "e2e_stage.hpp"\n' + text
     if source.name == "Globals.cpp":
         for call, stage in (
@@ -173,6 +193,49 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
         engine_call = "aScript::InitializeScriptEngine();"
         text = text.replace(engine_call, engine_call + '\n        '
             'srhd_awa::platform::e2e_stage::Log("script host engine ready");', 1)
+        start = text.index("    void RunMainScreenStateLoop() {")
+        end = text.index("\n    }\n", start) + len("\n    }")
+        loop = text[start:end]
+        dispatch = "GlobalsV::RequestedScreenId = GlobalsV::screenNone;"
+        if loop.count(dispatch) != 2:
+            raise RuntimeError("screen dispatch boundary changed")
+        loop = loop.replace(dispatch, dispatch + '''
+                {
+                    char detail[96]{};
+                    std::snprintf(detail, sizeof(detail), "screen dispatch id=%u postload=%u",
+                        static_cast<unsigned>(GlobalsV::CurrentScreenId),
+                        static_cast<unsigned>(GlobalsV::PostLoadScreenId));
+                    srhd_awa::platform::e2e_stage::Log(detail);
+                }''')
+        for call in ("->RunContinuous();", "->Run();"):
+            if loop.count(call) != 1:
+                raise RuntimeError(f"screen return boundary changed: {call}")
+            loop = loop.replace(call, call + '''
+                {
+                    char detail[96]{};
+                    std::snprintf(detail, sizeof(detail), "screen returned id=%u requested=%u",
+                        static_cast<unsigned>(GlobalsV::CurrentScreenId),
+                        static_cast<unsigned>(GlobalsV::RequestedScreenId));
+                    srhd_awa::platform::e2e_stage::Log(detail);
+                }''', 1)
+        text = text[:start] + loop + text[end:]
+        text = '#include "e2e_stage.hpp"\n' + text
+    if source.name == "GI_MessageLoop.cpp":
+        start = text.index("    std::int32_t TMessageLoopGI::Run() {")
+        end = text.index("    std::int32_t TMessageLoopGI::RunContinuous() {", start)
+        run = text[start:end]
+        if run.count("            OnOpen();") != 1 or run.count("                    GR_Main::EndFramePresentation();") != 1:
+            raise RuntimeError("screen Run open/presentation boundary changed")
+        run = run.replace("            OnOpen();", '''            srhd_awa::platform::e2e_stage::Log("screen Run OnOpen begin");
+            OnOpen();
+            srhd_awa::platform::e2e_stage::Log("screen Run OnOpen ready");''', 1)
+        run = run.replace("                    GR_Main::EndFramePresentation();", '''                    GR_Main::EndFramePresentation();
+                    if (!e2e_first_frame_logged) {
+                        srhd_awa::platform::e2e_stage::Log("screen Run first frame attempted");
+                        e2e_first_frame_logged = true;
+                    }''', 1)
+        run = run.replace("        std::int32_t Stage = 0;", "        std::int32_t Stage = 0;\n        bool e2e_first_frame_logged = false;", 1)
+        text = text[:start] + run + text[end:]
         text = '#include "e2e_stage.hpp"\n' + text
     if source.name == "aSaveLoad.cpp":
         replacements = {
