@@ -11,22 +11,22 @@ Status: implementation, host gates, and the full ARM64 rebuild pass; Switch runt
 
 The effective view has 136 `PORTABLE`, 88 `STATIC_LIBRARY`, 76 `OPTIONAL_DISABLED`, 15 `NOT_REACHED_UNTIL_GAMEPLAY`, and 7 `RUNTIME_MODULE` entries across static and dynamic callsites. The static source may spell `kernel32` without a suffix; the resolver normalizes it to `kernel32.dll`. The scanner records variable `LoadLibrary` and `GetProcAddress` arguments as `DYNAMIC_MODULE_EXPRESSION` with their callsites. Its synthetic test covers literal and variable loads, imports, an ordinal, direct declarations, and conditional source selection. A dynamic expression is classified by its reachable policy; the exact runtime string supplied by a game script is not statically enumerable.
 
-| DLL or callsite group | Total | PORTABLE | STATIC_LIBRARY | OPTIONAL_DISABLED | RUNTIME_MODULE | NOT_REACHED_UNTIL_GAMEPLAY | Unresolved |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `kernel32.dll` (including `kernel32`) | 71 | 69 | 0 | 2 | 0 | 0 | 0 |
-| `user32.dll` | 52 | 52 | 0 | 0 | 0 | 0 | 0 |
-| `gdi32.dll` | 3 | 3 | 0 | 0 | 0 | 0 | 0 |
-| `advapi32.dll` | 6 | 6 | 0 | 0 | 0 | 0 | 0 |
-| `winmm.dll` | 5 | 3 | 0 | 2 | 0 | 0 | 0 |
-| `zlib.dll` | 3 | 3 | 0 | 0 | 0 | 0 | 0 |
-| `okgf.dll` | 88 | 0 | 88 | 0 | 0 | 0 | 0 |
-| `avifil32.dll` | 8 | 0 | 0 | 8 | 0 | 0 | 0 |
-| `ole32.dll` | 4 | 0 | 0 | 3 | 0 | 1 | 0 |
-| `shell32.dll` | 3 | 0 | 0 | 3 | 0 | 0 | 0 |
-| `gdiplus.dll` | 10 | 0 | 0 | 0 | 0 | 10 | 0 |
-| Dynamic module/procedure expressions | 69 | 0 | 0 | 58 | 7 | 4 | 0 |
+| DLL or callsite group | Total | PORTABLE | STATIC_LIBRARY | OPTIONAL_DISABLED | RUNTIME_MODULE | NOT_REACHED_UNTIL_GAMEPLAY | REQUIRED_UNIMPLEMENTED | UNKNOWN |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `kernel32.dll` (including `kernel32`) | 71 | 69 | 0 | 2 | 0 | 0 | 0 | 0 |
+| `user32.dll` | 52 | 52 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `gdi32.dll` | 3 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `advapi32.dll` | 6 | 6 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `winmm.dll` | 5 | 3 | 0 | 2 | 0 | 0 | 0 | 0 |
+| `zlib.dll` | 3 | 3 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `okgf.dll` | 88 | 0 | 88 | 0 | 0 | 0 | 0 | 0 |
+| `avifil32.dll` | 8 | 0 | 0 | 8 | 0 | 0 | 0 | 0 |
+| `ole32.dll` | 4 | 0 | 0 | 3 | 0 | 1 | 0 | 0 |
+| `shell32.dll` | 3 | 0 | 0 | 3 | 0 | 0 | 0 | 0 |
+| `gdiplus.dll` | 10 | 0 | 0 | 0 | 0 | 10 | 0 | 0 |
+| Dynamic module/procedure expressions | 69 | 0 | 0 | 58 | 7 | 4 | 0 | 0 |
 
-Each row counts callsites rather than unique function names. `UNKNOWN=0` means every statically visible callsite has a recorded decision. It does not mean disabled video/audio or deferred gameplay facilities have been implemented.
+Static DLL rows count unique DLL/API pairs; the dynamic row counts callsites. `UNKNOWN=0` means every statically visible callsite has a recorded decision. It does not mean disabled video/audio or deferred gameplay facilities have been implemented.
 
 ## Resolution path
 
@@ -42,6 +42,7 @@ The ad-hoc function replacement inventory in `tools/e2e_source_overrides.py` fel
 
 - File operations resolve reads against the game install and user configuration roots and writes against the user root. The wide CreateFile and FindFirst paths convert BMP UTF-16 names to UTF-8; a host fixture covers a non-ASCII filename. Original `SysUtilsImports::FindFirst` reaches the central resolver and uses the existing wildcard matcher.
 - Events, workers, waits and close operations use the existing portable synchronization backends. A missing single-instance event returns absent, matching the Switch lifecycle policy.
+- `TerminateThread` has one original caller in `Rangers.cpp:473`, during shutdown; it passes `TurnCalculationThread->IdleEvent`, an event rather than a thread handle, and ignores the return value. The compatibility layer rejects hard termination and logs an invalid token or unsupported live-thread request. The main-menu path does not rely on terminating a worker.
 - QPC/frequency, Sleep, UTC/local calendar and FILETIME use portable clocks and calendar conversion. Host tests exercise a leap day and the original wrapper signatures.
 - The registry is currently a process-local HKCU key-value store. HKLM writes are denied. It does not persist across restarts; original settings backed by separate config files still use the file path adapter. Cross-launch registry persistence remains a semantic difference.
 - One SDL window backs logical HWNDs. Messages, timers and controller input are translated into the original WM-style queue. Host tests cover dispatch, pointer movement, A down/up and PLUS quit; Switch presentation and real original UI interaction require a hardware run.
@@ -52,7 +53,8 @@ The ad-hoc function replacement inventory in `tools/e2e_source_overrides.py` fel
 `tools/audit_win32_surface.py --check` and `--effective --check` require current manifests, no UNKNOWN and no startup `REQUIRED_UNIMPLEMENTED`. `tools/generate_win32_portable_cases.py --check` requires the mapping fixture to match both manifests. `tools/audit_win32_handle_width.py` checks the compatibility layer's 32-bit handle conversions. `tools/e2e_win32_host_test.py` runs handle, filetime, window/message/input, resolver, file/registry and original-wrapper tests. CI runs these alongside the complete ARM64 E2E link and checks that `upstream/cpp` stays clean. A successful ARM64 ELF requires all 298 original units, PIE format, original `ProgramMain` and screen-loop symbols, and zero undefined symbols before NRO packaging.
 
 At startup the generated entrypoint writes the exact effective-manifest file SHA-256 and its `PORTABLE`, `OPTIONAL_DISABLED`, and `UNKNOWN` counts to `[E2E][WINAPI]` lines. On normal completion and on caught failure it writes resolver counts for resolved and disabled imports, unmapped imports, dynamic module load attempts, and physical DLL loads. The build fails if the effective manifest changes after the stamp is generated.
+Successful import calls remain quiet by default; a build compiled with `E2E_WINAPI_TRACE` records each resolved DLL/API and stage. Multi-type handle operations probe types without reporting a false invalid handle, then log one diagnostic if no valid type matches.
 
 The last supplied hardware log remains the `build_git=304e746` run that reached `script host engine` and failed on a `kernel32.dll` import. No Switch run of this compatibility sweep has occurred, so script-host completion, main menu and interaction are not claimed here.
 
-The local full rebuild compiled **298/298** upstream units and linked **375** objects into an ELF64 AArch64 PIE with **0** undefined symbols. The packaging run embeds clean source commit `05d8543e08886373d87182f8a26599905add87dd`. Source and effective inventory gates passed with `UNKNOWN=0` and startup unresolved **0**; the pinned upstream submodule stayed clean. The current hardware candidate is [SpaceRangersHDAWarApartE2E.nro](../port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E.nro), 18,876,720 bytes, local SHA-256 `E64E4C6F95C4235C80441E5DEB46CEB92B35CB362DC8AACAED6D03F070BA4E55`. The effective manifest SHA-256 is `BB3EA05B201A74153AF67BF56EF2F2E31A83D96E13B5C184897F7EA2D5BEF78C`. The artifact has not been copied to SD or run on Switch; SD SHA-256 is **NOT MEASURED**.
+The previous local full rebuild compiled **298/298** upstream units and linked **375** objects into an ELF64 AArch64 PIE with **0** undefined symbols. Its NRO embedded source commit `05d8543e08886373d87182f8a26599905add87dd` and had SHA-256 `E64E4C6F95C4235C80441E5DEB46CEB92B35CB362DC8AACAED6D03F070BA4E55`. That artifact is superseded by the handle-diagnostic fix; its replacement is pending a clean rebuild and a new evidence record. No sweep artifact has been copied to SD or run on Switch; SD SHA-256 is **NOT MEASURED**.
