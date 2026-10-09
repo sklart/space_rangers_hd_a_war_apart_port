@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <cstdio>
 #include <cstdint>
 #include <cstring>
 #include <memory>
@@ -17,7 +18,11 @@
 #include <vector>
 
 #if defined(__SWITCH__)
+#include <malloc.h>
 #include <switch.h>
+
+extern "C" char* fake_heap_start;
+extern "C" char* fake_heap_end;
 #endif
 
 namespace srhd_awa::platform::win32_compat {
@@ -110,7 +115,27 @@ bool Memory(std::uint64_t* total, std::uint64_t* free) {
   if (R_FAILED(svcGetInfo(total, InfoType_TotalMemorySize, CUR_PROCESS_HANDLE, 0)) ||
       R_FAILED(svcGetInfo(&used, InfoType_UsedMemorySize, CUR_PROCESS_HANDLE, 0)) ||
       !*total || used > *total) return false;
-  *free = *total - used;
+  // libnx reserves almost all process memory as the newlib heap at startup.
+  // svcGetInfo counts that reservation as used, although malloc can still use it.
+  const auto heap_begin = reinterpret_cast<std::uintptr_t>(fake_heap_start);
+  const auto heap_end = reinterpret_cast<std::uintptr_t>(fake_heap_end);
+  const auto heap_size = heap_end >= heap_begin ? heap_end - heap_begin : 0;
+  const auto heap_used = static_cast<std::uint64_t>(mallinfo().uordblks);
+  const auto heap_free = heap_size >= heap_used ? heap_size - heap_used : 0;
+  const auto kernel_free = *total - used;
+  *free = std::min<std::uint64_t>(*total, kernel_free + heap_free);
+  static std::atomic_bool logged{false};
+  if (!logged.exchange(true)) {
+    char detail[192]{};
+    std::snprintf(detail, sizeof(detail),
+                  "memory process_mib=%llu kernel_free_mib=%llu heap_mib=%llu heap_used_mib=%llu available_mib=%llu",
+                  static_cast<unsigned long long>(*total >> 20),
+                  static_cast<unsigned long long>(kernel_free >> 20),
+                  static_cast<unsigned long long>(heap_size >> 20),
+                  static_cast<unsigned long long>(heap_used >> 20),
+                  static_cast<unsigned long long>(*free >> 20));
+    e2e_stage::Log(detail);
+  }
   return true;
 #else
   // Host resolver tests use only nonzero, internally consistent values.
