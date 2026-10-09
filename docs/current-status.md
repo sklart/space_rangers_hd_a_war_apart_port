@@ -42,6 +42,15 @@ No B/right-click event is present; X/Y have no M27 binding. The documented
 45–60 s duration, screenshot, and SD destination hash are still unverified,
 so the cumulative hardware gate remains **PARTIAL / FINAL SMOKE PENDING**.
 
+A further `f9c98de` Switch run supplied a 1280×720 screenshot showing the
+real UI and white pointer. Its log records five B/right-click and three
+A/left-click press/release pairs after live input became ready. All M26/M27
+runtime stages and shutdown passed; PLUS exited after 24,150 ms and 349
+frames/presents, followed by `[BOOT] COMPLETE`. B input and visual evidence
+are now confirmed. This run is also shorter than the specified continuous
+45–60 s smoke interval, and the SD destination hash remains unmeasured, so
+the cumulative hardware gate remains **PARTIAL / FINAL DURATION PENDING**.
+
 M24 was fast-forwarded to `master` at
 `6193878a71341c9726a0935643c0170305032c6b`; the exact commit was tagged
 `m24-hardware-pass`. M25 ran on `codex/m25-gi-gai-ui`. Its portable raw GI
