@@ -165,6 +165,7 @@ $(OKGF_LIB): Makefile
 	# on the port's main thread, so keep its math state in ordinary storage.
 	cmake -S ../../upstream/okgf -B $(BUILD)/okgf -G "Unix Makefiles" -DCMAKE_SYSTEM_NAME=Generic -DCMAKE_C_COMPILER=$(DEVKITA64_MSYS)/bin/aarch64-none-elf-gcc -DCMAKE_C_FLAGS=-D_Thread_local= -DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY -DCMAKE_FIND_ROOT_PATH=$(PORTLIBS_MSYS) -DCMAKE_PREFIX_PATH=$(PORTLIBS_MSYS) -DOKGF_MATH_BACKEND=COMPATIBLE -DOKGF_PORTABLE_MATH=ON
 	cmake --build $(BUILD)/okgf --parallel 2
+	@if $(DEVKITA64)/bin/aarch64-none-elf-readelf -sW $(OKGF_LIB) $(OKGF_SOFTFLOAT_LIB) | grep -Eq '[[:space:]]TLS[[:space:]]'; then echo "Switch OKGF libraries must not contain TLS symbols" >&2; exit 1; fi
 
 $(BUILD)/$(TARGET).elf: $(OFILES) $(PLATFORM_OFILES) $(GAME_OFILES) $(OKGF_LIB)
 	$(CXX) $(OFILES) $(PLATFORM_OFILES) $(GAME_OFILES) $(LIBDIRS) $(LDFLAGS) $(LIBS) -o $@
