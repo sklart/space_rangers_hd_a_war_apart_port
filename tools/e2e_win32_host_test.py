@@ -22,6 +22,16 @@ def run(command: list[str]) -> None:
         raise SystemExit(completed.returncode)
 
 
+def implementation_sources() -> list[str]:
+    implementation = [str(source) for source in sorted(PLATFORM.glob("win32_compat*.cpp"))
+                      if source.name != "win32_compat_okgf.cpp"]
+    implementation += [str(PLATFORM / name) for name in (
+        "win32_handles.cpp", "e2e_calendar.cpp", "e2e_events.cpp",
+        "e2e_threads.cpp", "e2e_file_match.cpp", "game_path.cpp",
+        "user_root.cpp", "input_platform.cpp", "zlib_bridge.cpp")]
+    return implementation
+
+
 def main() -> None:
     OVERLAY.mkdir(parents=True, exist_ok=True)
     prepare_runtime_overlay(RUNTIME, OVERLAY)
@@ -30,12 +40,7 @@ def main() -> None:
               "-ffunction-sections", "-fdata-sections", "-DE2E_HOST_OKGF_STUB",
               "-I" + str(ROOT / "tests"), "-I" + str(PLATFORM),
               "-I" + str(OVERLAY), "-I" + str(GAME), "-I" + str(RUNTIME)]
-    implementation = [str(source) for source in sorted(PLATFORM.glob("win32_compat*.cpp"))
-                      if source.name != "win32_compat_okgf.cpp"]
-    implementation += [str(PLATFORM / name) for name in (
-        "win32_handles.cpp", "e2e_calendar.cpp", "e2e_events.cpp",
-        "e2e_threads.cpp", "e2e_file_match.cpp", "game_path.cpp",
-        "user_root.cpp", "input_platform.cpp", "zlib_bridge.cpp")]
+    implementation = implementation_sources()
     with tempfile.TemporaryDirectory(prefix="e2e-win32-host-") as temp:
         for name, source, units in (
             ("handles", "test_win32_handles.cpp", ["win32_handles.cpp"]),
