@@ -20,7 +20,7 @@ bool InitializePlatformServices(State* state, std::string* error) {
     if (error) *error = SDL_GetError();
     return false;
   }
-  state->timing_frequency = 1000000000LL;
+  state->timing_frequency = static_cast<std::int64_t>(armGetSystemTickFreq());
 #else
   // CI deliberately has no native window dependency.
   state->timing_frequency = 1000000000LL;
