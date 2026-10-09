@@ -5,6 +5,9 @@
 #include "units/GR_GraphBuf.hpp"
 #include "units/GR_Main.hpp"
 
+#include <algorithm>
+#include <chrono>
+
 #if defined(__SWITCH__)
 #include <switch.h>
 #endif
@@ -56,13 +59,27 @@ bool RunOneFrame(State* state, const runtime_platform::State& platform, std::str
   runtime_platform::PumpEvents(platform);
 #if defined(__SWITCH__)
   if (!appletMainLoop()) { state->statistics.exit_reason = ExitReason::applet; return true; }
-  static PadState pad;
-  static bool pad_initialized{};
-  if (!pad_initialized) { padConfigureInput(1, HidNpadStyleSet_NpadStandard); padInitializeDefault(&pad); pad_initialized = true; }
-  padUpdate(&pad);
-  if (padGetButtonsDown(&pad) & HidNpadButton_Plus) { state->statistics.exit_reason = ExitReason::plus; return true; }
 #endif
+  const auto previous_input = state->last_input;
+  state->last_input = input_platform::Poll(&state->input_state,
+      GR_Main::PresentationWidth, GR_Main::PresentationHeight);
+  if (state->last_input.plus_down) { state->statistics.exit_reason = ExitReason::plus; return true; }
   if (state->exit_requested) { state->statistics.exit_reason = ExitReason::requested; return true; }
+  if (state->input_callback) {
+    const auto started = std::chrono::steady_clock::now();
+    if (!state->input_callback(state->input_callback_user, state->last_input, error)) {
+      state->statistics.exit_reason = ExitReason::diagnostic_failure;
+      return true;
+    }
+    const auto elapsed = static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::steady_clock::now() - started).count());
+    state->statistics.input_dispatch_us_total += elapsed;
+    state->statistics.input_dispatch_us_max = std::max(state->statistics.input_dispatch_us_max, elapsed);
+    state->statistics.input_events_processed +=
+        (previous_input.x != state->last_input.x || previous_input.y != state->last_input.y) +
+        state->last_input.left_down + state->last_input.left_up +
+        state->last_input.right_down + state->last_input.right_up;
+  }
   if (state->frame_callback) {
     const std::uint64_t now_ms = NowMilliseconds();
     if (!state->frame_callback(state->frame_callback_user, now_ms, error)) {
@@ -116,6 +133,11 @@ void SetDrawCallback(State* state, DrawCallback callback, void* user_data) {
   if (!state) return;
   state->draw_callback = callback;
   state->draw_callback_user = user_data;
+}
+void SetInputCallback(State* state, InputCallback callback, void* user_data) {
+  if (!state) return;
+  state->input_callback = callback;
+  state->input_callback_user = user_data;
 }
 
 bool RunFrames(State* state, const runtime_platform::State& platform, std::uint64_t frame_count, std::string* error) {

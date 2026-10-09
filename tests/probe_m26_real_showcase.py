@@ -103,7 +103,9 @@ def render_text(frame: list[int], text: str, font: dict, rect: tuple[int, int, i
     return {"lines": len(lines), "pixels": drawn, "baseline": baseline}
 
 
-def oracle(root: Path, frame_output: Path | None = None) -> dict:
+def oracle(root: Path, frame_output: Path | None = None,
+           button_state: str = "normal") -> dict:
+    assert button_state in ("normal", "hover", "down")
     all_nodes = list(config.nodes(config.parse_blocks(decode_dat(root / "CFG/Main.dat"))))
     node = next(item for item in all_nodes if item.unique_path == PATH)
     assert node.name == "Panel" and node.last("Name") == "PanelM11" and len(node.children) == 49
@@ -122,7 +124,9 @@ def oracle(root: Path, frame_output: Path | None = None) -> dict:
         selected.append((index, child, props, (298 + x, 120 + y, w, h), depth))
         if child.name == "Image": keys.add(props["Image"][-1].split(",", 1)[1])
         if child.name == "GraphButton":
-            slot = "ImageDown" if props.get("Down", ["False"])[-1] == "True" else "ImageNormal"
+            slot = ("ImageNormalA" if button_state == "hover" else "ImageDown"
+                    if button_state == "down" else "ImageNormal") if child.last("Name") == "M11Clear" else (
+                    "ImageDown" if props.get("Down", ["False"])[-1] == "True" else "ImageNormal")
             keys.add(props[slot][-1].split(",", 1)[1])
         if child.name in ("Label", "Edit") or props.get("Caption"):
             font_keys.add(props.get("Font", [""])[-1])
@@ -155,7 +159,9 @@ def oracle(root: Path, frame_output: Path | None = None) -> dict:
             image_oracle.draw(frame, WIDTH, HEIGHT, assets[key]["image"], x, y, clip)
             drawn.append((child.name, key))
         elif child.name == "GraphButton":
-            slot = "ImageDown" if props.get("Down", ["False"])[-1] == "True" else "ImageNormal"
+            slot = ("ImageNormalA" if button_state == "hover" else "ImageDown"
+                    if button_state == "down" else "ImageNormal") if child.last("Name") == "M11Clear" else (
+                    "ImageDown" if props.get("Down", ["False"])[-1] == "True" else "ImageNormal")
             key = props[slot][-1].split(",", 1)[1]
             meta = assets[key]["image"][0]["decoded"]
             assert (w, h) == (meta["width"], meta["height"]), (child.last("Name"), (w, h), meta)

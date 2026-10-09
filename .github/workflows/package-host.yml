@@ -194,6 +194,27 @@ jobs:
           python3 -m py_compile tests/probe_m26_graphbuf_release.py tests/probe_m26_scrollbar_release.py tests/probe_m26_panel_scrollbar_release.py tests/probe_m26_edit_release.py tests/probe_m26_eligibility.py tests/probe_m26_graphbuf_oracle.py tests/probe_m26_graphbuf_real_asset.py tests/probe_m26_scroll_oracle.py tests/probe_m26_edit_oracle.py tests/probe_m26_real_showcase.py
           python3 tests/probe_m26_graphbuf_oracle.py
 
+      - name: M27 Portable Input / Focus / Event Dispatch
+        run: |
+          make -C port/switch host-m27-input-core-test host-m27-input-platform-test
+          python3 tests/probe_m27_synthetic.py
+          python3 -m py_compile tests/probe_m27_real_interaction.py tests/probe_m27_event_trace.py tests/probe_m27_event_metadata.py tests/probe_m27_button_props.py tests/probe_m27_dynamic_sources.py tests/probe_m27_interaction_inventory.py tests/probe_m27_real_occlusion.py
+
+      - name: Audit M27 portable production symbols
+        shell: bash
+        run: |
+          set -euo pipefail
+          objects=$(mktemp -d)
+          trap 'rm -rf "$objects"' EXIT
+          for name in ui_object ui_input ui_edit input_platform; do
+            g++ -std=c++20 -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime -Iupstream/okgf/include \
+              -c "port/switch/platform/$name.cpp" -o "$objects/$name.o"
+          done
+          forbidden='GI_MessageLoop|TMessageLoopGI|TObjectGI|WindowsSdk|User32|WM_|VK_|GR_DX|Direct3D|SoundManager|Forms|ExecuteUiCode|QueueUiCode'
+          for object in "$objects"/*.o; do
+            ! nm -C "$object" | grep -E "$forbidden"
+          done
+
       - name: Audit M26 portable production symbols
         shell: bash
         run: |

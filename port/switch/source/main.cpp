@@ -33,6 +33,7 @@
 #include "ui_scroll_bar.hpp"
 #include "ui_panel_scroll_bar.hpp"
 #include "ui_edit.hpp"
+#include "ui_input.hpp"
 #include "ui_controls_checkpoint.hpp"
 #include "font_repository.hpp"
 #include "units/GR_GraphBuf.hpp"
@@ -1316,18 +1317,243 @@ bool UpdateM26Release(M26ReleaseDiagnostic* diagnostic, std::uint64_t now_ms,
     if (diagnostic->frames == 105)
       diagnostic->caret_advanced = diagnostic->edit->CaretPosition() == 3;
   }
-  if (diagnostic->frames > 30)
+  if (diagnostic->frames > 30 && diagnostic->frames < 160)
     diagnostic->edit->SetCaretBlink(((diagnostic->frames - 30) / 30) % 2 == 0);
   return true;
 }
 
-struct M21FrameCallbacks { M17PlaybackDiagnostic* m17{}; M20GiObjectDiagnostic* m20{}; M21UiImageDiagnostic* m21{}; M22UiTreeDiagnostic* m22{}; M23TextDiagnostic* m23{}; srhd_awa::platform::ui_controls_checkpoint::Checkpoint* m24{}; M25ReleaseDiagnostic* m25{}; M26ReleaseDiagnostic* m26{}; };
+struct M27ReleaseDiagnostic {
+  M26ReleaseDiagnostic* m26{};
+  srhd_awa::platform::ui::UiInputRouter showcase_input;
+  srhd_awa::platform::ui::UiInputRouter controls_input;
+  srhd_awa::platform::ui::UiGraphButton* button{};
+  std::vector<std::uint16_t> pixels;
+  srhd_awa::platform::input_platform::Snapshot live_snapshot{};
+  std::uint64_t last_tick{};
+  bool scripted_done{}, live_started{}, button_trace_ok{};
+  explicit M27ReleaseDiagnostic(M26ReleaseDiagnostic* source, std::int32_t width,
+                                std::int32_t height)
+      : m26(source), showcase_input(*source->showcase.Root()),
+        controls_input(*source->controls.Root()),
+        button(dynamic_cast<srhd_awa::platform::ui::UiGraphButton*>(
+            source->showcase.Root()->FindByNameRecursive("M11Clear"))),
+        pixels(static_cast<std::size_t>(width) * height) {}
+};
+
+bool CheckM27ShowcaseFrame(M27ReleaseDiagnostic* diagnostic, const char* name,
+                          std::uint32_t crc, std::uint64_t fnv, std::string* error) {
+  using namespace srhd_awa::platform;
+  if (diagnostic->pixels.size() != 1280u * 720u) {
+    if (error) *error = "M27 fixed release frame requires 1280x720";
+    return false;
+  }
+  std::fill(diagnostic->pixels.begin(), diagnostic->pixels.end(), 0);
+  const scene_compositor::Framebuffer target{diagnostic->pixels.data(), 1280, 720, 1280};
+  ui_fingerprint::Value actual{};
+  if (!diagnostic->m26->showcase.Render(target, error) ||
+      !ui_fingerprint::ComputeFramebuffer(target, &actual, error)) return false;
+  Log("[M27] real button %s frame=%08lx/%016llx", name,
+      static_cast<unsigned long>(actual.crc32), static_cast<unsigned long long>(actual.fnv64));
+  if (actual.crc32 != crc || actual.fnv64 != fnv) {
+    if (error) *error = std::string("M27 independent real button frame differs: ") + name;
+    return false;
+  }
+  return true;
+}
+
+bool CheckM27ControlsFrame(M27ReleaseDiagnostic* diagnostic, const char* name,
+                          std::uint32_t crc, std::uint64_t fnv, std::string* error) {
+  using namespace srhd_awa::platform;
+  if (diagnostic->pixels.size() != 1280u * 720u) {
+    if (error) *error = "M27 fixed controls frame requires 1280x720";
+    return false;
+  }
+  std::fill(diagnostic->pixels.begin(), diagnostic->pixels.end(), 0);
+  const scene_compositor::Framebuffer target{diagnostic->pixels.data(), 1280, 720, 1280};
+  ui_fingerprint::Value actual{};
+  if (!diagnostic->m26->controls.Render(target, error) ||
+      !ui_fingerprint::ComputeFramebuffer(target, &actual, error)) return false;
+  Log("[M27] real controls %s frame=%08lx/%016llx", name,
+      static_cast<unsigned long>(actual.crc32), static_cast<unsigned long long>(actual.fnv64));
+  if (actual.crc32 != crc || actual.fnv64 != fnv) {
+    if (error) *error = std::string("M27 real controls frame differs: ") + name;
+    return false;
+  }
+  return true;
+}
+
+bool UpdateM27Release(M27ReleaseDiagnostic* diagnostic, std::uint64_t now_ms,
+                      std::string* error) {
+  using namespace srhd_awa::platform;
+  const auto delta = diagnostic->last_tick ? now_ms - diagnostic->last_tick : 0;
+  diagnostic->last_tick = now_ms;
+  diagnostic->showcase_input.Update(delta);
+  diagnostic->controls_input.Update(delta);
+  const auto frame = diagnostic->m26->frames;
+  if (frame < 160 || diagnostic->scripted_done) return true;
+  auto* button = diagnostic->button;
+  if (!button || button->HitKind() != ui::GraphButtonHitKind::Rect ||
+      !button->HitTest({459, 537})) {
+    if (error) *error = "M27 real M11Clear candidate changed";
+    return false;
+  }
+  if (frame == 160) {
+    diagnostic->m26->edit->SetText(u"");
+    diagnostic->m26->edit->SetFocused(false);
+    return CheckM27ShowcaseFrame(diagnostic, "normal", 0xcb1a12b3u,
+                                 UINT64_C(0xfbca196e86b2f452), error);
+  }
+  if (frame == 161) {
+    diagnostic->showcase_input.PointerMove({459, 537});
+    if (!button->Hovered()) { if (error) *error = "M27 real button hover failed"; return false; }
+    return CheckM27ShowcaseFrame(diagnostic, "hover", 0xfb83833bu,
+                                 UINT64_C(0x5c7d41d26204f9cd), error);
+  }
+  if (frame == 162) {
+    diagnostic->showcase_input.PointerDown(ui::UiPointerButton::Left, {459, 537});
+    if (!button->Down()) { if (error) *error = "M27 real button down failed"; return false; }
+    return CheckM27ShowcaseFrame(diagnostic, "down", 0x12dd6ab5u,
+                                 UINT64_C(0xffe66f7b03cca7cd), error);
+  }
+  if (frame == 163) {
+    diagnostic->showcase_input.PointerUp(ui::UiPointerButton::Left, {459, 537});
+    if (button->Down()) { if (error) *error = "M27 real button up failed"; return false; }
+    return CheckM27ShowcaseFrame(diagnostic, "up", 0xfb83833bu,
+                                 UINT64_C(0x5c7d41d26204f9cd), error);
+  }
+  if (frame == 164) {
+    diagnostic->showcase_input.PointerLeave();
+    if (button->Hovered()) { if (error) *error = "M27 real button leave failed"; return false; }
+    if (!CheckM27ShowcaseFrame(diagnostic, "leave", 0xcb1a12b3u,
+                               UINT64_C(0xfbca196e86b2f452), error)) return false;
+    const auto trace = ui::FingerprintActions(diagnostic->showcase_input.Actions());
+    Log("[M27] scripted_event_crc32=%08lx scripted_event_fnv64=%016llx actions=%zu bytes=%llu",
+        static_cast<unsigned long>(trace.crc32), static_cast<unsigned long long>(trace.fnv64),
+        diagnostic->showcase_input.Actions().size(), static_cast<unsigned long long>(trace.bytes));
+    diagnostic->button_trace_ok = diagnostic->showcase_input.Actions().size() == 20 &&
+        trace.bytes == 1327 && trace.crc32 == 0x004504e6u &&
+        trace.fnv64 == UINT64_C(0x1192cd139f06a4a0);
+    if (!diagnostic->button_trace_ok) {
+      if (error) *error = "M27 independent real button event trace differs";
+      return false;
+    }
+    if (diagnostic->showcase_input.QueryPointOcclusionState({459, 537}, button) != -1) {
+      if (error) *error = "M27 real button occlusion changed";
+      return false;
+    }
+    diagnostic->showcase_input.ClearActions();
+    return true;
+  }
+  if (frame == 165) {
+    const auto bounds = diagnostic->m26->edit->HitTestBounds();
+    diagnostic->showcase_input.PointerDown(ui::UiPointerButton::Left,
+                                            {bounds.left + 2, bounds.top + 2});
+    const bool focused = diagnostic->showcase_input.FocusedControl() == diagnostic->m26->edit &&
+                         diagnostic->m26->edit->Focused();
+    Log("[M27] Edit focus=%u caret=%ld", focused ? 1u : 0u,
+        static_cast<long>(diagnostic->m26->edit->CaretPosition()));
+    if (!focused) { if (error) *error = "M27 real Edit focus failed"; return false; }
+    if (!CheckM27ShowcaseFrame(diagnostic, "edit-focused", 0x84415dcdu,
+                               UINT64_C(0x6ad55cf9f6e3b52a), error)) return false;
+    diagnostic->showcase_input.TextInput(u'1');
+    if (!CheckM27ShowcaseFrame(diagnostic, "edit-text", 0xf4e281ddu,
+                               UINT64_C(0xf9206d95dea1c1cb), error)) return false;
+    diagnostic->showcase_input.KeyDown(ui::UiKey::Backspace, {.shift = true});
+    if (!diagnostic->m26->edit->Text().empty()) {
+      if (error) *error = "M27 real Edit Shift+Backspace failed";
+      return false;
+    }
+    diagnostic->showcase_input.Update(201);
+    if (diagnostic->m26->edit->CaretBlinkOn()) {
+      if (error) *error = "M27 real Edit caret blink failed";
+      return false;
+    }
+    return CheckM27ShowcaseFrame(diagnostic, "edit-caret-off", 0xcb1a12b3u,
+                                 UINT64_C(0xfbca196e86b2f452), error);
+  }
+  if (frame == 166) {
+    auto* scroll = diagnostic->m26->scroll;
+    scroll->SetPosition(1);
+    const auto bounds = scroll->HitTestBounds();
+    const ui::Point thumb{bounds.left + 50, (bounds.top + bounds.bottom) / 2};
+    diagnostic->controls_input.PointerMove(thumb);
+    diagnostic->controls_input.PointerDown(ui::UiPointerButton::Left, thumb);
+    diagnostic->controls_input.PointerMove({thumb.x + 40, thumb.y});
+    diagnostic->controls_input.PointerUp(ui::UiPointerButton::Left, {thumb.x + 40, thumb.y});
+    Log("[M27] ScrollBar drag position=%ld", static_cast<long>(scroll->Position()));
+    if (scroll->Position() != 53) { if (error) *error = "M27 real ScrollBar drag differs"; return false; }
+    return CheckM27ControlsFrame(diagnostic, "scroll-moved", 0x50d0d772u,
+                                 UINT64_C(0x230a5072582bdb54), error);
+  }
+  if (frame == 167) {
+    // The isolated release panel has no scrollable world. The bar and its
+    // callback are release objects; a 1000-pixel test child supplies range.
+    auto* world = diagnostic->m26->panel->AddObject();
+    world->SetPositionModeW(true);
+    world->SetSize({831, 1000});
+    if (!diagnostic->m26->panel->UpdateScrollRanges(error)) return false;
+    auto* vertical = diagnostic->m26->panel->VerticalBar();
+    const auto bounds = vertical->HitTestBounds();
+    const ui::Point down{(bounds.left + bounds.right) / 2, bounds.bottom - 5};
+    diagnostic->controls_input.PointerMove(down);
+    diagnostic->controls_input.PointerDown(ui::UiPointerButton::Left, down);
+    diagnostic->controls_input.Update(500);
+    diagnostic->controls_input.PointerUp(ui::UiPointerButton::Left, down);
+    Log("[M27] PanelScrollBar release-bar synthetic-world offset=%ld",
+        static_cast<long>(diagnostic->m26->panel->ScrollOffset().y));
+    if (diagnostic->m26->panel->ScrollOffset().y != 2) {
+      if (error) *error = "M27 real PanelScrollBar callback differs";
+      return false;
+    }
+    const auto trace = ui::FingerprintActions(diagnostic->showcase_input.Actions());
+    Log("[M27] real event trace=%08lx/%016llx actions=%zu bytes=%llu",
+        static_cast<unsigned long>(trace.crc32), static_cast<unsigned long long>(trace.fnv64),
+        diagnostic->showcase_input.Actions().size(), static_cast<unsigned long long>(trace.bytes));
+    diagnostic->showcase_input.ClearActions();
+    diagnostic->controls_input.ClearActions();
+    diagnostic->scripted_done = diagnostic->button_trace_ok;
+    Log("[M27] router PASS");
+    Log("[M27] occlusion PASS");
+    Log("[M27] GraphButton PASS");
+    Log("[M27] ScrollBar PASS");
+    Log("[M27] Edit PASS");
+    Log("[M27] scripted interaction PASS real-release");
+  }
+  return true;
+}
+
+bool DispatchM27Input(void* user_data, const srhd_awa::platform::input_platform::Snapshot& snapshot,
+                      std::string*) {
+  auto* diagnostic = static_cast<M27ReleaseDiagnostic*>(user_data);
+  diagnostic->live_snapshot = snapshot;
+  if (!diagnostic->scripted_done) return true;
+  using namespace srhd_awa::platform;
+  const ui::Point point{snapshot.x, snapshot.y};
+  for (auto* router : {&diagnostic->showcase_input, &diagnostic->controls_input}) {
+    router->PointerMove(point);
+    if (snapshot.left_down) router->PointerDown(ui::UiPointerButton::Left, point);
+    if (snapshot.left_up) router->PointerUp(ui::UiPointerButton::Left, point);
+    if (snapshot.right_down) router->PointerDown(ui::UiPointerButton::Right, point);
+    if (snapshot.right_up) router->PointerUp(ui::UiPointerButton::Right, point);
+  }
+  if (!diagnostic->live_started) { Log("[M27] LIVE INPUT READY"); diagnostic->live_started = true; }
+  if (snapshot.left_down || snapshot.left_up || snapshot.right_down || snapshot.right_up)
+    Log("[M27] pointer x=%ld y=%ld left_down=%u left_up=%u right_down=%u right_up=%u",
+        static_cast<long>(point.x), static_cast<long>(point.y), snapshot.left_down,
+        snapshot.left_up, snapshot.right_down, snapshot.right_up);
+  diagnostic->showcase_input.ClearActions();
+  diagnostic->controls_input.ClearActions();
+  return true;
+}
+
+struct M21FrameCallbacks { M17PlaybackDiagnostic* m17{}; M20GiObjectDiagnostic* m20{}; M21UiImageDiagnostic* m21{}; M22UiTreeDiagnostic* m22{}; M23TextDiagnostic* m23{}; srhd_awa::platform::ui_controls_checkpoint::Checkpoint* m24{}; M25ReleaseDiagnostic* m25{}; M26ReleaseDiagnostic* m26{}; M27ReleaseDiagnostic* m27{}; };
 bool RunM17M20AndM21(void* user_data, std::uint64_t now_ms, std::string* error) {
   auto* callbacks = static_cast<M21FrameCallbacks*>(user_data);
   const auto started = std::chrono::steady_clock::now();
   const bool result = RunM17Playback(callbacks->m17, now_ms, error) && UpdateM20GiObjects(callbacks->m20, now_ms, error) &&
       UpdateM22UiTree(callbacks->m22, now_ms, error) && callbacks->m24->Update(now_ms, error) &&
-      UpdateM25Release(callbacks->m25, now_ms, error) && UpdateM26Release(callbacks->m26, now_ms, error);
+      UpdateM25Release(callbacks->m25, now_ms, error) && UpdateM26Release(callbacks->m26, now_ms, error) &&
+      UpdateM27Release(callbacks->m27, now_ms, error);
   const auto elapsed = static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::microseconds>(
       std::chrono::steady_clock::now() - started).count());
   callbacks->m26->update_us_total += elapsed;
@@ -1388,6 +1614,17 @@ bool DrawM21Presentation(void* user_data, std::string* error) {
   if (!callbacks->m26->showcase.Render(target, error) ||
       !callbacks->m26->controls.Render(target, error)) return false;
   callbacks->m26->rendered = true;
+  // Diagnostic crosshair is an overlay; it is not part of any UI tree hash.
+  if (callbacks->m27->scripted_done) {
+    const auto x = callbacks->m27->live_snapshot.x;
+    const auto y = callbacks->m27->live_snapshot.y;
+    for (int delta = -4; delta <= 4; ++delta) {
+      if (x + delta >= 0 && x + delta < target.width && y >= 0 && y < target.height)
+        target.pixels[static_cast<std::size_t>(y) * target.pitch_pixels + x + delta] = 0xffff;
+      if (y + delta >= 0 && y + delta < target.height && x >= 0 && x < target.width)
+        target.pixels[static_cast<std::size_t>(y + delta) * target.pitch_pixels + x] = 0xffff;
+    }
+  }
   const auto elapsed = static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::microseconds>(
       std::chrono::steady_clock::now() - started).count());
   callbacks->m26->render_us_total += elapsed;
@@ -1835,9 +2072,12 @@ int main(int argc, char** argv) {
     srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
-  M21FrameCallbacks m21_callbacks{&m17_diagnostic, &m20_diagnostic, &m21_diagnostic, &m22_diagnostic, &m23_diagnostic, &m24_diagnostic, &m25_diagnostic, &m26_diagnostic};
+  StageBegin("M27 input/focus");
+  M27ReleaseDiagnostic m27_diagnostic(&m26_diagnostic, framebuffer->Width, framebuffer->Height);
+  M21FrameCallbacks m21_callbacks{&m17_diagnostic, &m20_diagnostic, &m21_diagnostic, &m22_diagnostic, &m23_diagnostic, &m24_diagnostic, &m25_diagnostic, &m26_diagnostic, &m27_diagnostic};
   srhd_awa::platform::runtime_loop_slice::SetFrameCallback(&runtime_loop, RunM17M20AndM21, &m21_callbacks);
   srhd_awa::platform::runtime_loop_slice::SetDrawCallback(&runtime_loop, DrawM21Presentation, &m21_callbacks);
+  srhd_awa::platform::runtime_loop_slice::SetInputCallback(&runtime_loop, DispatchM27Input, &m27_diagnostic);
   Log("[M12] runtime ready");
   Log("[M12] framebuffer=%ldx%ld pitch=%ld pixel=RGB565", static_cast<long>(framebuffer->Width),
       static_cast<long>(framebuffer->Height), static_cast<long>(framebuffer->PitchBytes));
@@ -1883,6 +2123,10 @@ int main(int argc, char** argv) {
     m12_error = "M26 real UI, scroll or Edit did not complete";
     loop_ok = false;
   }
+  if (loop_ok && !m27_diagnostic.scripted_done) {
+    m12_error = "M27 scripted real interaction did not complete";
+    loop_ok = false;
+  }
   if (!loop_ok) Log("[STAGE] runtime loop FAIL reason=%s", m12_error.c_str());
   else {
     Log("[M12] exit_reason=%s", srhd_awa::platform::runtime_loop_slice::ExitReasonName(loop_stats.exit_reason));
@@ -1925,6 +2169,13 @@ int main(int argc, char** argv) {
   }
   Stage("M26 GraphBuf/Scroll/Edit/real UI", m26_pass,
         m26_pass ? nullptr : m12_error.c_str());
+  Log("[M27] input perf events=%llu avg_dispatch_us=%.3f max_dispatch_us=%llu",
+      static_cast<unsigned long long>(loop_stats.input_events_processed),
+      static_cast<double>(loop_stats.input_dispatch_us_total) /
+          std::max<std::uint64_t>(1, loop_stats.frames),
+      static_cast<unsigned long long>(loop_stats.input_dispatch_us_max));
+  Stage("M27 input/focus", loop_ok && m27_diagnostic.scripted_done,
+        loop_ok ? nullptr : m12_error.c_str());
   srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
   srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
   srhd_awa::platform::ui_metadata_slice::Shutdown();
