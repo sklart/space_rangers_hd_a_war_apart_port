@@ -12,6 +12,7 @@ import subprocess
 import sys
 
 from e2e_source_overrides import FUNCTIONS, generated_source
+from e2e_runtime_overrides import generated_windows_header
 
 ROOT = Path(__file__).resolve().parents[1]
 SWITCH = ROOT / "port/switch"
@@ -174,12 +175,19 @@ def main() -> int:
         print(f"E2E toolchain missing: {CXX}", file=sys.stderr)
         return 1
     patched_sources = prepare_patched_sources()
+    runtime_overlay = BUILD / "runtime-overlay"
+    generated_windows_header(GAME / "runtime/windows.hpp",
+                             runtime_overlay / "windows.hpp")
+    for header_name in ("float_text.hpp", "graphics.hpp", "locale.hpp"):
+        shutil.copyfile(GAME / "runtime" / header_name,
+                        runtime_overlay / header_name)
     report["source_overrides"] += sorted(patched_sources)
     flags = ["-std=gnu++20", "-D__SWITCH__", "-march=armv8-a+crc+crypto",
              "-mtune=cortex-a57", "-mtp=soft", "-fPIE", "-O0",
              "-ffunction-sections", "-fdata-sections"]
     flags += ["-I" + str(p) for p in (
-        DEVKITPRO / "libnx/include", PORTLIBS / "include", SWITCH / "platform",
+        DEVKITPRO / "libnx/include", PORTLIBS / "include", runtime_overlay,
+        SWITCH / "platform",
         GAME / "src", GAME / "runtime", ROOT / "upstream/okgf/include")]
     flags = [flag if not flag.startswith("-I") else "-I" + native_path(Path(flag[2:])) for flag in flags]
     headers = [*GAME.rglob("*.hpp"), *(SWITCH / "platform").glob("*.hpp")]

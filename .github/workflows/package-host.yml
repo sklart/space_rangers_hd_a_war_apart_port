@@ -42,6 +42,8 @@ jobs:
         run: make -C port/switch host-e2e-events-test
       - name: Validate E2E worker threads
         run: make -C port/switch host-e2e-threads-test
+      - name: Validate E2E private heaps
+        run: python3 tools/e2e_heap_test.py
       - name: Validate E2E startup command line
         run: make -C port/switch host-e2e-command-line-test
       - name: Validate E2E install language search
