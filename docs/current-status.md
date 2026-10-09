@@ -1,4 +1,4 @@
-# Current status — M25 physical runtime PASS / screenshot pending
+# Current status — M25 COMPLETE / HARDWARE PASS
 
 M24 was fast-forwarded to `master` at
 `6193878a71341c9726a0935643c0170305032c6b`; the exact commit was tagged
@@ -10,9 +10,10 @@ with 17 real Format 2 GI leaves and independent tree/frame hashes. CI run
 produced an ELF64 AArch64 NRO with zero undefined symbols. The supplied
 physical Switch logs match all cumulative M23/M24/M25 runtime checkpoints,
 show live GAI advancement, 1,303 presents, `PLUS` and `[BOOT] COMPLETE`.
-The SD destination SHA-256 is `NOT MEASURED`; the required visual screenshot
-of the first real UI is pending, so the final M25 hardware status remains
-pending. The scope, inventory and limits are in
+The supplied 1280×720 screenshot visibly shows `PLBar` and the separate GAI
+element. The SD destination SHA-256 is `NOT MEASURED`; the documented fallback
+provenance uses the local NRO SHA-256, exact build ID and runtime fingerprints.
+M25 is **COMPLETE / HARDWARE PASS**. The scope, inventory and limits are in
 [the M25 evidence document](milestone25-gi-gai-real-ui.md).
 
 M24 adds portable GraphButton, Window, and Zone controls on the M22/M23 tree.

@@ -1,6 +1,6 @@
 # M11C Switch hardware smoke
 
-## M25 cumulative checkpoint (physical runtime PASS; screenshot pending)
+## M25 cumulative checkpoint — HARDWARE PASS
 
 The software-gated source is `e2334a4`; the clean ARM64 NRO is 7,727,408
 bytes, SHA-256
@@ -21,8 +21,14 @@ are `4FC3F32C99ECE92AEDE1D05DDA0C55853BEAD9FD1F975993B702BD32A7619BC1`
 (`gr-main.log`). The source NRO's size and local
 SHA-256 were remeasured; the SD destination SHA-256 is **NOT MEASURED**.
 Runtime fingerprints and the matching embedded/Switch build ID provide the
-documented fallback provenance. The first real UI screenshot is pending, so
-M25's overall HARDWARE PASS is not yet declared.
+documented fallback provenance. The supplied 1280×720 Switch screenshot
+visibly shows the real `PLBar` subtree near the bottom centre and a separate
+GAI element to its right. Its SHA-256 is
+`B8442D729F7C2738936805E553ECBF83471881E445AE89DE6B0C2058795E615B`
+(53,674-byte JPEG at
+`D:/Castlevania__Belmont's_Curse_Demo_20261009_045246_00.jpg`). The filename
+is capture metadata, not a game identity claim. The screenshot supplements
+the log/hash gate. **M23, M24 and M25 are COMPLETE / HARDWARE PASS.**
 
 After terminal M25 CI and a clean ARM64 build, record the NRO's local path,
 size, SHA-256, embedded `build_git` and timestamp before deployment. The
@@ -38,8 +44,9 @@ The Switch run must retain exact M23/M24 fixed checkpoints, match the M25 raw
 GI, real GraphButton/Window, GAI and real-subtree oracles, show a
 `[M25] GAI runtime advance=...` line from the live UI update loop, then report
 positive frames/presents, `PLUS` exit and `[BOOT] COMPLETE`.
-Capture a screenshot of the selected subtree shown on the Switch. A local
-321×37 subtree hash alone does not demonstrate its appearance in the game.
+The supplied screenshot is required visual evidence of the selected subtree.
+A local 321×37 subtree hash alone does not demonstrate its appearance on the
+Switch screen.
 
 ## Deploy
 

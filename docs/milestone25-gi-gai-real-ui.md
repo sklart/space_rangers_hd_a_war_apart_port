@@ -138,9 +138,15 @@ marker. The supplied `gr-main.log` contains only `Start` and CRLF. This is
 **physical runtime checkpoint PASS**. The source NRO's size and local SHA-256
 were remeasured and match the value above. The physical SD destination SHA-256
 is **NOT MEASURED**; the fallback provenance is the local hash/size, embedded
-and Switch-reported build ID, and runtime oracle fingerprints. A Switch
-screenshot of the first visible real UI is still required as supplementary
-evidence before M25 is marked COMPLETE / HARDWARE PASS. The synthetic
+and Switch-reported build ID, and runtime oracle fingerprints. The supplied
+1280×720 Switch screenshot visibly shows the first real `PLBar` UI subtree
+near the bottom centre and the separate GAI element to its right. The screenshot
+is supplementary to the log/hash gate; its SHA-256 is
+`B8442D729F7C2738936805E553ECBF83471881E445AE89DE6B0C2058795E615B`
+(53,674-byte JPEG at
+`D:/Castlevania__Belmont's_Curse_Demo_20261009_045246_00.jpg`). The filename
+is capture metadata, not a game identity claim. M25 is **COMPLETE / HARDWARE
+PASS**. The synthetic
 deployment regression also passes with a read-only licensed Rangers.exe
 fixture and an isolated fake SD root; it checks the manifest and equal NRO
 source/destination SHA-256. No physical SD transfer is inferred from this test.
