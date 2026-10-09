@@ -110,8 +110,10 @@ PROGRAM_SOURCE = '''#include "e2e_stage.hpp"
 #include "ec_file_adapter.hpp"
 #include "user_root.hpp"
 #include "units/Rangers.hpp"
+#include "units/GlobalsV.hpp"
 
 #include <filesystem>
+#include <exception>
 #include <string>
 
 int main() {
@@ -133,6 +135,19 @@ int main() {
     platform::e2e_stage::Log("build_git=BUILD_GIT_PLACEHOLDER");
     try {
         Rangers::ProgramMain();
+    } catch (const pas::Raised& error) {
+        const auto* game_error = pas::class_cast_if<pas::Exception*>(error.object.get());
+        std::string detail = "FAIL stage=ProgramMain exception=";
+        detail += game_error ? game_error->message.c_str() : error.what();
+        detail += " current=" + std::to_string(static_cast<unsigned>(GlobalsV::CurrentScreenId));
+        detail += " requested=" + std::to_string(static_cast<unsigned>(GlobalsV::RequestedScreenId));
+        detail += " post-load=" + std::to_string(static_cast<unsigned>(GlobalsV::PostLoadScreenId));
+        platform::e2e_stage::Log(detail.c_str());
+        return 1;
+    } catch (const std::exception& error) {
+        const std::string detail = std::string("FAIL stage=ProgramMain exception=") + error.what();
+        platform::e2e_stage::Log(detail.c_str());
+        return 1;
     } catch (...) {
         platform::e2e_stage::Log("FAIL stage=ProgramMain unhandled-exception");
         return 1;
