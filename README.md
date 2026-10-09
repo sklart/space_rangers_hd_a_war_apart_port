@@ -183,7 +183,7 @@ M20 добавляет `host-gi-object-test` и отдельный symbol audit:
 - [M22 portable UI object/layout foundation](docs/milestone22-ui-object-layout.md) — COMPLETE
 - [M23 portable AFT/text/Label foundation](docs/milestone23-font-label.md) — COMPLETE / HARDWARE PASS in cumulative M24 run
 - [M24 portable GraphButton/Window/Zone foundation](docs/milestone24-ui-controls.md) — COMPLETE / HARDWARE PASS
-- [M25 portable GI/GAI UI and first real subtree](docs/milestone25-gi-gai-real-ui.md) — SOFTWARE COMPLETE / HARDWARE PENDING
+- [M25 portable GI/GAI UI and first real subtree](docs/milestone25-gi-gai-real-ui.md) — physical runtime PASS; required real UI screenshot pending
 
 ## Лицензирование и обратная связь
 

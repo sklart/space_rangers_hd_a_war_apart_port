@@ -126,11 +126,22 @@ ELF64 AArch64 executable with zero undefined symbols and an NRO of 7,727,408
 bytes, SHA-256
 `F9D1E7A5C91DFA24433A0BD1AEB69009BD393CD864EE21C4FB177701D46989CC`,
 embedded `build_git=e2334a4`; the six new M25 objects have zero forbidden
-symbol matches. The M25 runtime stage additionally requires an observed GAI
-source-frame transition during the live UI tree update; the pre-loop frame-1
-oracle alone cannot satisfy that gate. A physical Switch run, SD transfer
-proof, and screenshot are still pending. The synthetic deployment regression
-also passes with a read-only licensed Rangers.exe
+symbol matches. The supplied physical Switch `port.log` reports the same
+`build_git=e2334a4` and matches the fixed M23 and M24 checkpoints, real
+GraphButton states and Window border, raw GI, GAI frames 0/1, and the real UI
+tree/frame `73a25b4c/26d6a269e96b959b` and
+`9cec8dc2/39c2ccfd0deb5fbb`. Its live UI update advances GAI source frame
+`0->4`; M17 completes its cycle with `5b7bc7e9/f70813ac799a25b3`. The loop
+presents 1,303 frames in 61,059 ms, exits through `PLUS`, passes M23/M24/M25
+stages and all shutdown stages, and reaches `[BOOT] COMPLETE` without a FAIL
+marker. The supplied `gr-main.log` contains only `Start` and CRLF. This is
+**physical runtime checkpoint PASS**. The source NRO's size and local SHA-256
+were remeasured and match the value above. The physical SD destination SHA-256
+is **NOT MEASURED**; the fallback provenance is the local hash/size, embedded
+and Switch-reported build ID, and runtime oracle fingerprints. A Switch
+screenshot of the first visible real UI is still required as supplementary
+evidence before M25 is marked COMPLETE / HARDWARE PASS. The synthetic
+deployment regression also passes with a read-only licensed Rangers.exe
 fixture and an isolated fake SD root; it checks the manifest and equal NRO
 source/destination SHA-256. No physical SD transfer is inferred from this test.
 

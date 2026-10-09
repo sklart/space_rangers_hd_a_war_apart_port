@@ -82,7 +82,9 @@ separate GAI control, retaining M14P/M16 decoding, M17 timing and M18 RGB565
 composition. The selected Main.dat `PLBar` subtree can now be constructed and
 rendered locally from real package resources through `CacheDataRoot` without
 invoking Direct3D or the original GI message loop. M25 host, CI and clean
-ARM64 gates passed; its runtime presentation and cumulative Switch checkpoint
-remain pending physical evidence.
+ARM64 gates passed. The supplied physical Switch log confirms the cumulative
+M23/M24/M25 runtime checkpoints, live GAI advance, 1,303 presents, `PLUS` and
+clean shutdown. The required screenshot of the first visible real UI remains
+pending before final M25 hardware completion.
 
 M12 hardware PASS: the M14P-tested NRO embedded `46330b4` ran for 73.472 seconds, presented 1,506 frames, exited through `PLUS`, and reached `[BOOT] COMPLETE`. Before the loop it also completed the M13 metadata diagnostic and M14P `Bm.Captain.2BlazerBi` Format-0 decode with the recorded 93x104 BGRA fingerprint.

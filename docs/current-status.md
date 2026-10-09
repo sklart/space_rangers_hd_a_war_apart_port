@@ -1,4 +1,4 @@
-# Current status — M25 SOFTWARE COMPLETE / HARDWARE PENDING
+# Current status — M25 physical runtime PASS / screenshot pending
 
 M24 was fast-forwarded to `master` at
 `6193878a71341c9726a0935643c0170305032c6b`; the exact commit was tagged
@@ -7,8 +7,12 @@ and supported GAI UI path have local synthetic and release-backed host tests.
 The first real release subtree is the 18-node `PLBar` panel from Main.dat,
 with 17 real Format 2 GI leaves and independent tree/frame hashes. CI run
 `37851721838` passed for production commit `e2334a4`; the clean ARM64 build
-produced an ELF64 AArch64 NRO with zero undefined symbols. A cumulative
-physical Switch run is still pending. The scope, inventory and limits are in
+produced an ELF64 AArch64 NRO with zero undefined symbols. The supplied
+physical Switch logs match all cumulative M23/M24/M25 runtime checkpoints,
+show live GAI advancement, 1,303 presents, `PLUS` and `[BOOT] COMPLETE`.
+The SD destination SHA-256 is `NOT MEASURED`; the required visual screenshot
+of the first real UI is pending, so the final M25 hardware status remains
+pending. The scope, inventory and limits are in
 [the M25 evidence document](milestone25-gi-gai-real-ui.md).
 
 M24 adds portable GraphButton, Window, and Zone controls on the M22/M23 tree.

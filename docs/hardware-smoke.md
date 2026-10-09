@@ -1,12 +1,28 @@
 # M11C Switch hardware smoke
 
-## M25 cumulative checkpoint (pending physical run)
+## M25 cumulative checkpoint (physical runtime PASS; screenshot pending)
 
 The software-gated source is `e2334a4`; the clean ARM64 NRO is 7,727,408
 bytes, SHA-256
 `F9D1E7A5C91DFA24433A0BD1AEB69009BD393CD864EE21C4FB177701D46989CC`,
-with embedded `build_git=e2334a4`. CI run `37851721838` passed. No physical
-SD destination hash or Switch log has been measured for M25 yet.
+with embedded `build_git=e2334a4`. CI run `37851721838` passed. The supplied
+physical `port.log` also reports `e2334a4`. M23 and M24 fixed fingerprints
+match; M25 reports GraphButton normal/hover/down/hit and Window border MATCH,
+raw GI MATCH, GAI frames 0/1 MATCH, and real UI tree/frame
+`73a25b4c/26d6a269e96b959b` and `9cec8dc2/39c2ccfd0deb5fbb`.
+During the live UI loop, GAI advances `0->4`; M17 cycle
+`5b7bc7e9/f70813ac799a25b3` passes. The loop presents 1,303 frames in
+61,059 ms, exits through `PLUS`, passes M23/M24/M25 stages and all shutdown
+stages, and reaches `[BOOT] COMPLETE`. No FAIL marker occurs. The supplied
+`gr-main.log` contains only `Start` and CRLF. The supplied log SHA-256 hashes
+are `4FC3F32C99ECE92AEDE1D05DDA0C55853BEAD9FD1F975993B702BD32A7619BC1`
+(`port.log`) and
+`8B1E909395FA237DD09D038F5A27F6B43E381F29AB50ACD2653B2DE9411EC88D`
+(`gr-main.log`). The source NRO's size and local
+SHA-256 were remeasured; the SD destination SHA-256 is **NOT MEASURED**.
+Runtime fingerprints and the matching embedded/Switch build ID provide the
+documented fallback provenance. The first real UI screenshot is pending, so
+M25's overall HARDWARE PASS is not yet declared.
 
 After terminal M25 CI and a clean ARM64 build, record the NRO's local path,
 size, SHA-256, embedded `build_git` and timestamp before deployment. The
@@ -22,7 +38,7 @@ The Switch run must retain exact M23/M24 fixed checkpoints, match the M25 raw
 GI, real GraphButton/Window, GAI and real-subtree oracles, show a
 `[M25] GAI runtime advance=...` line from the live UI update loop, then report
 positive frames/presents, `PLUS` exit and `[BOOT] COMPLETE`.
-Capture a screenshot if the selected subtree is actually shown. A local
+Capture a screenshot of the selected subtree shown on the Switch. A local
 321×37 subtree hash alone does not demonstrate its appearance in the game.
 
 ## Deploy
