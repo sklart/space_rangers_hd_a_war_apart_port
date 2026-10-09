@@ -41,7 +41,11 @@ bool CreateMainWindow(State* state, std::string* error) {
   }
   state->native_window = window;
 #endif
+#if defined(__SWITCH__) || defined(E2E_HOST_RESOLVER_TEST)
   state->window_token = win32_compat::RegisterMainWindow(state->native_window, 1280, 720);
+#else
+  state->window_token = 1; // Retained host diagnostic target has no Win32 resolver.
+#endif
   if (!state->window_token) {
     if (error) *error = "synthetic Win32 window allocation failed";
     return false;
@@ -59,7 +63,9 @@ void PumpEvents(const State& state) {
 
 void ShutdownPlatformServices(State* state) {
   if (!state) return;
+#if defined(__SWITCH__) || defined(E2E_HOST_RESOLVER_TEST)
   if (state->window_token) win32_compat::UnregisterMainWindow(state->window_token);
+#endif
 #if defined(__SWITCH__)
   if (state->native_window) SDL_DestroyWindow(static_cast<SDL_Window*>(state->native_window));
   if (state->services_initialized) SDL_Quit();
