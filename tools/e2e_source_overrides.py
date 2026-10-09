@@ -66,6 +66,12 @@ FUNCTIONS: dict[str, dict[str, str]] = {
             "lpFrequency = static_cast<Windows::TLargeInteger>(srhd_awa::platform::e2e_clock::Frequency());\n        return lpFrequency > 0;",
     },
     "SysUtilsImports.cpp": {
+        "std::int32_t FindFirst(const pas::AnsiString& Path, std::int32_t Attr, SysUtils::TSearchRec& F)":
+            "return srhd_awa::platform::e2e_file_search::First(Path.c_str(), Attr, F);",
+        "std::int32_t FindNext(SysUtils::TSearchRec& F)":
+            "return srhd_awa::platform::e2e_file_search::Next(F);",
+        "void FindClose(SysUtils::TSearchRec& F)":
+            "srhd_awa::platform::e2e_file_search::Close(F);",
         "void PAS_STDCALL Sleep(std::uint32_t Milliseconds)":
             "srhd_awa::platform::e2e_clock::SleepMilliseconds(Milliseconds);",
         "pas::AnsiString GetCurrentDir()":
@@ -76,6 +82,8 @@ FUNCTIONS: dict[str, dict[str, str]] = {
             "std::error_code error;\n"
             "        std::filesystem::current_path(Dir.c_str(), error);\n"
             "        return !error;",
+        "pas::AnsiString AnsiLowerCase(const pas::AnsiString& Text)":
+            "return SysUtilsImports::LowerCase(Text); // Install language codes are ASCII.",
     },
     "MMSystem.cpp": {
         "std::uint32_t PAS_STDCALL timeBeginPeriod(std::uint32_t Period)":
@@ -193,7 +201,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "") -> Pa
 
 '''
         text = text[:begin] + portable + text[end:]
-        text = '#include "game_path.hpp"\n#include "user_root.hpp"\n#include <filesystem>\n' + text
+        text = '#include "e2e_file_search.hpp"\n#include "game_path.hpp"\n#include "user_root.hpp"\n#include <filesystem>\n' + text
     if overrides:
         text = '#include "e2e_clock.hpp"\n' + text
     if source.name in ("WindowsImports.cpp", "WindowsSdk.cpp"):

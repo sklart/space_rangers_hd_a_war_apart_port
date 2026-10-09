@@ -1,0 +1,14 @@
+[E2E] build_git=83c63db
+[E2E] ProgramMain BEGIN
+[E2E] Forms UnitInitialize
+[E2E] ExceptionInfo
+[E2E] CheatCode
+[E2E] Application Initialize
+[E2E] platform runtime
+[E2E] platform runtime SDL services ready
+[E2E] platform runtime package collection ready
+[E2E] platform runtime SDL window ready
+[E2E] platform runtime session log ready
+[E2E] platform runtime install parser ready
+[E2E] platform runtime install.txt loaded
+[E2E] FAIL stage=ProgramMain exception=DLL import requires a Win32 host: kernel32.dll

@@ -44,6 +44,8 @@ jobs:
         run: make -C port/switch host-e2e-threads-test
       - name: Validate E2E startup command line
         run: make -C port/switch host-e2e-command-line-test
+      - name: Validate E2E install language search
+        run: make -C port/switch host-e2e-file-search-test
       - name: Build and run asset-free corrupt package regression
         run: |
           mkdir -p build port/switch/build

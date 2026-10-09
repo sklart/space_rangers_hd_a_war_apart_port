@@ -23,6 +23,10 @@ host-e2e-threads-test:
 .PHONY: host-e2e-command-line-test
 host-e2e-command-line-test:
 	$(PYTHON) ../../tools/e2e_command_line_test.py
+
+.PHONY: host-e2e-file-search-test
+host-e2e-file-search-test:
+	$(PYTHON) ../../tools/e2e_file_search_test.py
 DEVKITA64 ?= $(DEVKITPRO)/devkitA64
 LIBNX ?= $(DEVKITPRO)/libnx
 PORTLIBS ?= $(DEVKITPRO)/portlibs/switch
