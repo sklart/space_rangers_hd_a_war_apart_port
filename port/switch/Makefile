@@ -7,6 +7,18 @@ switch-e2e-game:
 .PHONY: host-e2e-time-test
 host-e2e-time-test:
 	$(PYTHON) ../../tools/e2e_time_test.py
+
+.PHONY: host-e2e-events-test
+host-e2e-events-test:
+	@mkdir -p build/e2e-events
+	g++ -std=c++20 -O2 -pthread -Iplatform ../../tests/test_e2e_events.cpp platform/e2e_events.cpp -o build/e2e-events/test_e2e_events
+	build/e2e-events/test_e2e_events
+
+.PHONY: host-e2e-threads-test
+host-e2e-threads-test:
+	@mkdir -p build/e2e-threads
+	g++ -std=c++20 -O2 -pthread -Iplatform ../../tests/test_e2e_threads.cpp platform/e2e_threads.cpp -o build/e2e-threads/test_e2e_threads
+	build/e2e-threads/test_e2e_threads
 DEVKITA64 ?= $(DEVKITPRO)/devkitA64
 LIBNX ?= $(DEVKITPRO)/libnx
 PORTLIBS ?= $(DEVKITPRO)/portlibs/switch

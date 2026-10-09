@@ -12,18 +12,23 @@ FUNCTIONS: dict[str, dict[str, str]] = {
             "        return -1; // OPTIONAL: audio is disabled for the first Switch menu run.",
     },
     "WindowsImports.cpp": {
+        "std::int32_t PAS_STDCALL CloseHandle(std::uint32_t Handle)":
+            "return srhd_awa::platform::e2e_events::Close(Handle) ||\n"
+            "            srhd_awa::platform::e2e_threads::Close(Handle) ? 1 : 0;",
+        "std::uint32_t PAS_STDCALL GetLastError()":
+            "return 0; // OPTIONAL: no Win32 last-error state exists on Switch.",
         "std::int32_t PAS_STDCALL QueryPerformanceCounter(std::int64_t& Counter)":
             "Counter = static_cast<std::int64_t>(srhd_awa::platform::e2e_clock::Counter());\n        return 1;",
         "std::uint32_t PAS_STDCALL GetTickCount()":
             "return srhd_awa::platform::e2e_clock::Milliseconds();",
         "std::uint32_t PAS_STDCALL GetCurrentThreadId()":
-            "return static_cast<std::uint32_t>(threadGetCurHandle());",
+            "return srhd_awa::platform::e2e_threads::CurrentId();",
         "std::uint32_t PAS_STDCALL OpenEvent(std::uint32_t DesiredAccess, std::int32_t InheritHandle, std::uint8_t* Name)":
             "static_cast<void>(DesiredAccess); static_cast<void>(InheritHandle); static_cast<void>(Name);\n"
             "        return 0; // OPTIONAL: application lifecycle already enforces one instance.",
         "std::uint32_t PAS_STDCALL CreateEvent(void* Attributes, std::int32_t ManualReset, std::int32_t InitialState, std::uint8_t* Name)":
-            "static_cast<void>(Attributes); static_cast<void>(ManualReset); static_cast<void>(InitialState); static_cast<void>(Name);\n"
-            "        return 1; // OPTIONAL: no interprocess event is needed on Switch.",
+            "static_cast<void>(Attributes); static_cast<void>(Name);\n"
+            "        return srhd_awa::platform::e2e_events::Create(ManualReset != 0, InitialState != 0);",
         "std::uint8_t* PAS_STDCALL GetCommandLineA()":
             "static std::uint8_t line[] = \"Rangers\";\n        return line;",
         "std::uint32_t PAS_STDCALL GetModuleFileNameA(std::uint32_t Module, std::uint8_t* FileName, std::uint32_t Capacity)":
@@ -31,6 +36,30 @@ FUNCTIONS: dict[str, dict[str, str]] = {
             "        return 0; // E2E entrypoint sets the real game directory explicitly.",
     },
     "WindowsSdk.cpp": {
+        "THandle PAS_STDCALL CreateThread(void* lpThreadAttributes, std::uint32_t dwStackSize, TFNThreadStartRoutine lpStartAddress, void* lpParameter, std::uint32_t dwCreationFlags, std::uint32_t& lpThreadId)":
+            "static_cast<void>(lpThreadAttributes); static_cast<void>(dwStackSize);\n"
+            "        return srhd_awa::platform::e2e_threads::Create(\n"
+            "            reinterpret_cast<srhd_awa::platform::e2e_threads::Entry>(lpStartAddress),\n"
+            "            lpParameter, (dwCreationFlags & CREATE_SUSPENDED) != 0, &lpThreadId);",
+        "THandle PAS_STDCALL GetCurrentThread()":
+            "return srhd_awa::platform::e2e_threads::CurrentId();",
+        "BOOL PAS_STDCALL SetThreadPriority(THandle hThread, std::int32_t nPriority)":
+            "return srhd_awa::platform::e2e_threads::SetPriority(hThread, nPriority) ? 1 : 0;",
+        "std::int32_t PAS_STDCALL GetThreadPriority(THandle hThread)":
+            "return srhd_awa::platform::e2e_threads::GetPriority(hThread);",
+        "std::uint32_t PAS_STDCALL ResumeThread(THandle hThread)":
+            "return srhd_awa::platform::e2e_threads::Resume(hThread);",
+        "BOOL PAS_STDCALL SetEvent(THandle hEvent)":
+            "return srhd_awa::platform::e2e_events::Set(hEvent) ? 1 : 0;",
+        "BOOL PAS_STDCALL ResetEvent(THandle hEvent)":
+            "return srhd_awa::platform::e2e_events::Reset(hEvent) ? 1 : 0;",
+        "std::uint32_t PAS_STDCALL WaitForSingleObject(THandle hHandle, std::uint32_t dwMilliseconds)":
+            "const auto event_result = srhd_awa::platform::e2e_events::WaitOne(hHandle, dwMilliseconds);\n"
+            "        return event_result == srhd_awa::platform::e2e_events::kWaitFailed\n"
+            "            ? srhd_awa::platform::e2e_threads::Wait(hHandle, dwMilliseconds) : event_result;",
+        "std::uint32_t PAS_STDCALL WaitForMultipleObjects(std::uint32_t nCount, PWOHandleArray lpHandles, BOOL bWaitAll, std::uint32_t dwMilliseconds)":
+            "return srhd_awa::platform::e2e_events::WaitMany(lpHandles ? lpHandles->elements : nullptr,\n"
+            "            nCount, bWaitAll != 0, dwMilliseconds);",
         "BOOL PAS_STDCALL QueryPerformanceFrequency(Windows::TLargeInteger& lpFrequency)":
             "lpFrequency = static_cast<Windows::TLargeInteger>(srhd_awa::platform::e2e_clock::Frequency());\n        return lpFrequency > 0;",
     },
@@ -150,6 +179,8 @@ def generated_source(source: Path, destination: Path, build_git: str = "") -> Pa
         text = '#include "game_path.hpp"\n#include "user_root.hpp"\n#include <filesystem>\n' + text
     if overrides:
         text = '#include "e2e_clock.hpp"\n' + text
+    if source.name in ("WindowsImports.cpp", "WindowsSdk.cpp"):
+        text = '#include "e2e_events.hpp"\n#include "e2e_threads.hpp"\n' + text
     if source.name == "Rangers.cpp":
         registry_line = next((line for line in text.splitlines()
                               if "EC_Str::WriteRegistryStringLegacy(WindowsImports::HKEY_LOCAL_MACHINE" in line), None)
@@ -187,6 +218,100 @@ def generated_source(source: Path, destination: Path, build_git: str = "") -> Pa
         text = text.replace("void ProgramMain() {", "void ProgramMain() {\n        srhd_awa::platform::e2e_stage::Log(\"ProgramMain BEGIN\");", 1)
         text = '#include "e2e_stage.hpp"\n' + text
     if source.name == "GR_Main.cpp":
+        geometry_begin = "    void ApplyMainWindowGeometry() {"
+        focus_begin = "    void ShowAndFocusMainWindow() {"
+        dat_begin = "    void LoadDatConfigAndModOverrides() {"
+        if any(text.count(marker) != 1 for marker in (geometry_begin, focus_begin, dat_begin)):
+            raise RuntimeError("original SDL window adaptation boundary changed")
+        begin = text.index(geometry_begin)
+        end = text.index(dat_begin, begin)
+        text = text[:begin] + '''    void ApplyMainWindowGeometry() {
+        auto* window = static_cast<SDL_Window*>(g_e2e_platform.native_window);
+        if (window != nullptr) {
+            SDL_SetWindowSize(window, std::max(1, PresentationWidth), std::max(1, PresentationHeight));
+        }
+    }
+
+    void ShowAndFocusMainWindow() {
+        auto* window = static_cast<SDL_Window*>(g_e2e_platform.native_window);
+        if (window == nullptr) {
+            srhd_awa::platform::e2e_stage::Log("FAIL stage=runtime/settings SDL-window-missing");
+            pas::raise(pas::make_exception<pas::Exception>("Switch SDL window unavailable"_a));
+        }
+        SDL_ShowWindow(window);
+        SDL_RaiseWindow(window);
+    }
+
+''' + text[end:]
+        init_begin = "    void InitializeRuntimeAndSettings() {"
+        registry_begin = "        Text = EC_Str::TrimWideString(GR_Main::ReadRegistryText(WindowsImports::HKEY_LOCAL_MACHINE"
+        settings_begin = "        UserSettingsConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);"
+        if text.count(init_begin) != 1 or registry_begin not in text or text.count(settings_begin) != 1:
+            raise RuntimeError("original runtime/settings platform diagnostics boundary changed")
+        begin = text.index(registry_begin, text.index(init_begin))
+        end = text.index(settings_begin, begin)
+        text = text[:begin] + '''        ProcessorCoreCount = std::max<std::int32_t>(1, std::thread::hardware_concurrency());
+        GR_Main::AppendLogLineThreadSafe("Operating System=Nintendo Switch"_a);
+        GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Processor cores=", SysUtils::IntToStr(ProcessorCoreCount)}));
+        MemoryStatus.Length = static_cast<std::int32_t>(sizeof(TMemoryStatusEx));
+        if (!GR_Main::GlobalMemoryStatusEx(MemoryStatus)) {
+            srhd_awa::platform::e2e_stage::Log("FAIL stage=runtime/settings memory-info");
+            pas::raise(pas::make_exception<pas::Exception>("Switch process memory info unavailable"_a));
+        }
+''' + text[end:]
+        memory_begin = "    std::int32_t PAS_STDCALL GlobalMemoryStatusEx(TMemoryStatusEx& Status) {"
+        memory_end = "    void* OKGF_MulTable256x256() {"
+        if text.count(memory_begin) != 1 or text.count(memory_end) != 1:
+            raise RuntimeError("original process memory import boundary changed")
+        begin = text.index(memory_begin)
+        end = text.index(memory_end, begin)
+        text = text[:begin] + '''    std::int32_t PAS_STDCALL GlobalMemoryStatusEx(TMemoryStatusEx& Status) {
+        u64 total = 0;
+        u64 used = 0;
+        if (R_FAILED(svcGetInfo(&total, InfoType_TotalMemorySize, CUR_PROCESS_HANDLE, 0)) ||
+            R_FAILED(svcGetInfo(&used, InfoType_UsedMemorySize, CUR_PROCESS_HANDLE, 0)) ||
+            total == 0 || used > total) {
+            return 0;
+        }
+        Status.TotalPhys = total;
+        Status.AvailPhys = total - used;
+        Status.TotalPageFile = total;
+        Status.AvailPageFile = total - used;
+        Status.TotalVirtual = total;
+        Status.AvailVirtual = total - used;
+        Status.MemoryLoad = static_cast<std::uint32_t>(used * 100 / total);
+        return 1;
+    }
+
+''' + text[end:]
+        config_copy = '            WindowsSdk::CopyFileW(pas::literal_pointer(u"cfg.txt"), Text.pchar(), 0);'
+        if text.count(config_copy) != 1:
+            raise RuntimeError("original CFG.TXT creation boundary changed")
+        text = text.replace(config_copy, '''            std::error_code copy_error;
+            const auto cfg_source = srhd_awa::platform::game_path::Resolve("cfg.txt");
+            const auto cfg_target = srhd_awa::platform::user_root::ResolveConfigPath("CFG.TXT");
+            if (cfg_source.empty() || cfg_target.empty() ||
+                !std::filesystem::copy_file(cfg_source, cfg_target,
+                    std::filesystem::copy_options::overwrite_existing, copy_error) || copy_error) {
+                srhd_awa::platform::e2e_stage::Log("FAIL stage=runtime/settings copy-cfg");
+                pas::raise(pas::make_exception<pas::Exception>("Switch CFG.TXT copy failed"_a));
+            }''', 1)
+        affinity = "        GR_Main::ApplyProcessAffinity();"
+        if text.count(affinity) != 1:
+            raise RuntimeError("original optional process-affinity call changed")
+        text = text.replace(affinity, "        // OPTIONAL: Switch owns process CPU affinity.", 1)
+        show_cursor = "            WindowsSdk::ShowCursor(0);"
+        if text.count(show_cursor) != 1:
+            raise RuntimeError("original cursor-visibility call changed")
+        text = text.replace(show_cursor, "            SDL_ShowCursor(SDL_DISABLE);", 1)
+        dll_checksum_begin = '        Text = u"ll"_w;'
+        dll_checksum_end = "        CCInterface->SetResourceChecksumFailed(SavedChecksumFailed);"
+        if text.count(dll_checksum_begin) != 1 or text.count(dll_checksum_end) != 1:
+            raise RuntimeError("original Windows DLL integrity boundary changed")
+        text = text.replace(dll_checksum_begin,
+            "#if !defined(__SWITCH__)\n" + dll_checksum_begin, 1)
+        text = text.replace(dll_checksum_end,
+            "#endif // Windows DLL integrity paths are absent on Switch.\n" + dll_checksum_end, 1)
         audio_anchor = '        EC_BlockPar::TBlockParEC* Block = LanguageDataConfig->GetBlock(u"CaseConv"sv);'
         if text.count(audio_anchor) != 1:
             raise RuntimeError("original sound initialization boundary changed")
@@ -232,6 +357,8 @@ def generated_source(source: Path, destination: Path, build_git: str = "") -> Pa
             "        // OPTIONAL: no COM apartment exists in the Switch SDL runtime.", 1)
         text = ('#include "runtime_platform.hpp"\n#include "renderer_platform.hpp"\n'
                 '#include "e2e_clock.hpp"\n#include "e2e_stage.hpp"\n'
+                '#include "game_path.hpp"\n#include "user_root.hpp"\n'
+                '#include <SDL2/SDL.h>\n#include <switch.h>\n#include <thread>\n'
                 'namespace { srhd_awa::platform::runtime_platform::State g_e2e_platform; }\n' + text)
     destination.parent.mkdir(parents=True, exist_ok=True)
     if not destination.exists() or destination.read_text(encoding="utf-8") != text:

@@ -6,6 +6,7 @@ import json
 import hashlib
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -121,12 +122,13 @@ def main() -> int:
         "windows_only_apis_encountered": [],
         "portable_implementations_used": [],
         "optional_stubs": [
-            "Windows single-instance OpenEvent/CreateEvent",
+            "Windows single-instance OpenEvent lookup (CreateEvent uses real portable events)",
             "HKLM AVI registry write",
             "Wine detection",
             "Steam DLL, initialization, callback thread, shutdown",
             "MMSystem timer-resolution request",
             "DirectSound device enumeration and WinMM audio timers (audio disabled)",
+            "Windows thread priority is recorded but OS scheduling priority is unchanged",
             "COM apartment cleanup",
             "GetModuleFileNameA branch (entrypoint sets game working directory)",
         ],
@@ -284,16 +286,15 @@ def main() -> int:
         report["first_failure"] = {"phase": "symbol audit", "exact_error": strings_output}
         save(report)
         return 1
-    forbidden = ("kernel32.dll", "user32.dll", "d3d9.dll", "dsound.dll",
-                 "winmm.dll", "ntdll.dll", "steam_api.dll")
     report["windows_only_apis_encountered"] = sorted({
-        name for name in forbidden if name in strings_output.lower()
+        line.strip().lower() for line in strings_output.splitlines()
+        if re.fullmatch(r"[a-z0-9_.-]+\.dll", line.strip(), re.IGNORECASE)
     })
     if report["windows_only_apis_encountered"]:
         report["nro"]["status"] = "EXPERIMENTAL; Windows DLL audit FAIL"
         report["first_failure"] = {
             "phase": "runtime dependency audit",
-            "exact_error": "ELF retains Windows DLL imports: " + ", ".join(report["windows_only_apis_encountered"]),
+            "exact_error": "ELF retains DLL names: " + ", ".join(report["windows_only_apis_encountered"]),
         }
         save(report)
         print(report["first_failure"]["exact_error"], file=sys.stderr)
