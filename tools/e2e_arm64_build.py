@@ -88,6 +88,7 @@ def main() -> int:
             "Wine detection",
             "Steam DLL, initialization, callback thread, shutdown",
             "MMSystem timer-resolution request",
+            "DirectSound device enumeration and WinMM audio timers (audio disabled)",
             "COM apartment cleanup",
             "GetModuleFileNameA branch (entrypoint sets game working directory)",
         ],

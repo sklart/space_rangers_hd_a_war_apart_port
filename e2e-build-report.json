@@ -18,10 +18,8 @@
     "Globals::RunMainScreenStateLoop()": true
   },
   "windows_only_apis_encountered": [
-    "dsound.dll",
     "kernel32.dll",
-    "user32.dll",
-    "winmm.dll"
+    "user32.dll"
   ],
   "portable_implementations_used": [
     "aft_font",
@@ -88,6 +86,7 @@
     "Wine detection",
     "Steam DLL, initialization, callback thread, shutdown",
     "MMSystem timer-resolution request",
+    "DirectSound device enumeration and WinMM audio timers (audio disabled)",
     "COM apartment cleanup",
     "GetModuleFileNameA branch (entrypoint sets game working directory)"
   ],
@@ -95,9 +94,10 @@
   "arm64_link": "PASS",
   "first_failure": {
     "phase": "runtime dependency audit",
-    "exact_error": "ELF retains Windows DLL imports: dsound.dll, kernel32.dll, user32.dll, winmm.dll"
+    "exact_error": "ELF retains Windows DLL imports: kernel32.dll, user32.dll"
   },
   "source_overrides": [
+    "DirectSound.cpp",
     "MMSystem.cpp",
     "Rangers.cpp",
     "SysUtilsImports.cpp",

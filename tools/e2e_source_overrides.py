@@ -6,6 +6,11 @@ from pathlib import Path
 
 
 FUNCTIONS: dict[str, dict[str, str]] = {
+    "DirectSound.cpp": {
+        "std::int32_t PAS_STDCALL DirectSoundEnumerateA(TDSEnumCallback Callback, void* Context)":
+            "static_cast<void>(Callback); static_cast<void>(Context);\n"
+            "        return -1; // OPTIONAL: audio is disabled for the first Switch menu run.",
+    },
     "WindowsImports.cpp": {
         "std::int32_t PAS_STDCALL QueryPerformanceCounter(std::int64_t& Counter)":
             "Counter = static_cast<std::int64_t>(srhd_awa::platform::e2e_clock::Counter());\n        return 1;",
@@ -48,6 +53,13 @@ FUNCTIONS: dict[str, dict[str, str]] = {
             "static_cast<void>(Period);\n        return 0; // OPTIONAL: Switch owns timer resolution.",
         "std::uint32_t PAS_STDCALL timeGetTime()":
             "return srhd_awa::platform::e2e_clock::Milliseconds();",
+        "std::uint32_t PAS_STDCALL timeKillEvent(std::uint32_t TimerId)":
+            "static_cast<void>(TimerId);\n"
+            "        return 0; // OPTIONAL: audio timers are disabled for the first menu run.",
+        "std::uint32_t PAS_STDCALL timeSetEvent(std::uint32_t Delay, std::uint32_t Resolution, TFNTimeCallBack Callback, std::uint32_t User, std::uint32_t Flags)":
+            "static_cast<void>(Delay); static_cast<void>(Resolution); static_cast<void>(Callback);\n"
+            "        static_cast<void>(User); static_cast<void>(Flags);\n"
+            "        return 0; // OPTIONAL: audio timers are disabled for the first menu run.",
     },
 }
 
@@ -170,6 +182,13 @@ def generated_source(source: Path, destination: Path) -> Path:
         text = text.replace("void ProgramMain() {", "void ProgramMain() {\n        srhd_awa::platform::e2e_stage::Log(\"ProgramMain BEGIN\");", 1)
         text = '#include "e2e_stage.hpp"\n' + text
     if source.name == "GR_Main.cpp":
+        audio_anchor = '        EC_BlockPar::TBlockParEC* Block = LanguageDataConfig->GetBlock(u"CaseConv"sv);'
+        if text.count(audio_anchor) != 1:
+            raise RuntimeError("original sound initialization boundary changed")
+        text = text.replace(audio_anchor,
+            "        // OPTIONAL: the first Switch menu run has no audio backend.\n"
+            "        GlobalsV::SoundEnabled = false;\n"
+            "        GlobalsV::MusicEnabled = false;\n" + audio_anchor, 1)
         begin_marker = "    void InitializePlatformRuntimeAndMainWindow() {"
         tail_marker = "        InstallConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);"
         if text.count(begin_marker) != 1 or text.count(tail_marker) != 1:
