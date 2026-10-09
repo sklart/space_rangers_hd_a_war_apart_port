@@ -30,6 +30,7 @@ STAGES = {
 PROGRAM_SOURCE = '''#include "e2e_stage.hpp"
 #include "ec_file_adapter.hpp"
 #include "user_root.hpp"
+#include "win32_compat.hpp"
 #include "units/Rangers.hpp"
 #include "units/GlobalsV.hpp"
 
@@ -54,6 +55,10 @@ int main() {
         return 1;
     }
     platform::e2e_stage::Log("build_git=BUILD_GIT_PLACEHOLDER");
+    platform::e2e_stage::LogWinApi("manifest=MANIFEST_SHA_PLACEHOLDER");
+    platform::e2e_stage::LogWinApi("portable=PORTABLE_COUNT_PLACEHOLDER");
+    platform::e2e_stage::LogWinApi("optional=OPTIONAL_COUNT_PLACEHOLDER");
+    platform::e2e_stage::LogWinApi("unknown=UNKNOWN_COUNT_PLACEHOLDER");
     try {
         Rangers::ProgramMain();
     } catch (const pas::Raised& error) {
@@ -64,30 +69,40 @@ int main() {
         detail += " requested=" + std::to_string(static_cast<unsigned>(GlobalsV::RequestedScreenId));
         detail += " post-load=" + std::to_string(static_cast<unsigned>(GlobalsV::PostLoadScreenId));
         platform::e2e_stage::Log(detail.c_str());
+        platform::win32_compat::LogRuntimeStats();
         return 1;
     } catch (const std::exception& error) {
         const std::string detail = std::string("FAIL stage=ProgramMain exception=") + error.what();
         platform::e2e_stage::Log(detail.c_str());
+        platform::win32_compat::LogRuntimeStats();
         return 1;
     } catch (...) {
         platform::e2e_stage::Log("FAIL stage=ProgramMain unhandled-exception");
+        platform::win32_compat::LogRuntimeStats();
         return 1;
     }
+    platform::win32_compat::LogRuntimeStats();
     platform::e2e_stage::Log("BOOT COMPLETE");
     return 0;
 }
 '''
 
 
-def generated_source(source: Path, destination: Path, build_git: str = "") -> Path:
+def generated_source(source: Path, destination: Path, build_git: str = "",
+                     manifest_stamp: dict | None = None) -> Path:
     overrides = FUNCTIONS.get(source.name)
     if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GR_Main.cpp", "aSaveLoad.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "program.cpp":
-        if not build_git:
-            raise RuntimeError("E2E build Git identity is missing")
+        if not build_git or manifest_stamp is None:
+            raise RuntimeError("E2E build Git identity or Win32 manifest stamp is missing")
         text = text.replace("BUILD_GIT_PLACEHOLDER", build_git)
+        for placeholder, key in (("MANIFEST_SHA_PLACEHOLDER", "sha256"),
+                                 ("PORTABLE_COUNT_PLACEHOLDER", "portable"),
+                                 ("OPTIONAL_COUNT_PLACEHOLDER", "optional"),
+                                 ("UNKNOWN_COUNT_PLACEHOLDER", "unknown")):
+            text = text.replace(placeholder, str(manifest_stamp[key]))
     for signature, body in (overrides or {}).items():
         start = "    " + signature + " {"
         if text.count(start) != 1:

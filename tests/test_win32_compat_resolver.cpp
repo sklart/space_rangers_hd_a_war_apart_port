@@ -26,6 +26,38 @@ int main() {
   };
   for (const auto& item : portable_cases)
     assert(ResolveImport(item.dll, item.symbol) != nullptr);
+  struct OptionalCase { const char* dll; const char* symbol; bool mapped_failure; };
+  constexpr OptionalCase optional_cases[] = {
+#include "win32_optional_cases.inc"
+  };
+  const auto optional_before = OptionalDisabledImportCount();
+  for (const auto& item : optional_cases) {
+    if (item.mapped_failure) {
+      assert(ResolveImport(item.dll, item.symbol) != nullptr);
+      continue;
+    }
+    bool disabled = false;
+    try { ResolveImport(item.dll, item.symbol); }
+    catch (const std::runtime_error& error) {
+      disabled = std::string(error.what()).find("OPTIONAL_DISABLED") != std::string::npos;
+    }
+    assert(disabled && GetLastError() == kErrorFileNotFound);
+  }
+  assert(OptionalDisabledImportCount() > optional_before);
+  using GetSystemDirectory = std::uint32_t (*)(char16_t*, std::uint32_t);
+  char16_t directory[16]{};
+  assert(reinterpret_cast<GetSystemDirectory>(ResolveImport("kernel32.dll",
+      "GetSystemDirectoryW"))(directory, 16) == 0);
+  using Affinity = std::int32_t (*)(std::uint32_t, std::uint32_t);
+  assert(!reinterpret_cast<Affinity>(ResolveImport("kernel32.dll",
+      "SetProcessAffinityMask"))(0, 1));
+  using TimeSetEvent = std::uint32_t (*)(std::uint32_t, std::uint32_t,
+                                          void*, std::uint32_t, std::uint32_t);
+  assert(reinterpret_cast<TimeSetEvent>(ResolveImport("winmm.dll",
+      "timeSetEvent"))(1, 1, nullptr, 0, 0) == 0);
+  using TimeKillEvent = std::uint32_t (*)(std::uint32_t);
+  assert(reinterpret_cast<TimeKillEvent>(ResolveImport("winmm.dll",
+      "timeKillEvent"))(1) != 0);
   using Calendar = void (*)(Windows::TSystemTime*);
   for (const char* name : {"KERNEL32.DLL", "kernel32.dll",
                            "Kernel32.dll", "path/to/kernel32.dll"}) {

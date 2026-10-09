@@ -23,6 +23,7 @@
 #include <atomic>
 #include <cctype>
 #include <cstdint>
+#include <cstdio>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -125,7 +126,11 @@ ImportAddress ResolveImport(const char* library, const char* symbol) {
     return address;
   }
   if (dll == "avifil32.dll" || dll == "dsound.dll" ||
-      (dll == "ole32.dll" && symbol != "CreateStreamOnHGlobal") ||
+      (dll == "kernel32.dll" &&
+       (std::string_view(symbol) == "GetLocaleInfoA" ||
+        std::string_view(symbol) == "GetThreadLocale")) ||
+      (dll == "ole32.dll" &&
+       std::string_view(symbol) != "CreateStreamOnHGlobal") ||
       dll == "shell32.dll") {
     ++g_optional;
     SetLastError(kErrorFileNotFound);
@@ -146,4 +151,12 @@ std::uint32_t ResolvedImportCount() { return g_resolved.load(); }
 std::uint32_t UnmappedImportCount() { return g_unmapped.load(); }
 std::uint32_t OptionalDisabledImportCount() { return g_optional.load(); }
 std::uint32_t PhysicalDllLoadCount() { return 0; }
+void LogRuntimeStats() {
+  char detail[240]{};
+  std::snprintf(detail, sizeof(detail),
+      "resolved=%u optional_disabled=%u unmapped=%u dynamic_loads=%u physical_dll_loads=%u",
+      ResolvedImportCount(), OptionalDisabledImportCount(), UnmappedImportCount(),
+      DynamicModuleLoadCount(), PhysicalDllLoadCount());
+  e2e_stage::LogWinApi(detail);
+}
 }  // namespace srhd_awa::platform::win32_compat

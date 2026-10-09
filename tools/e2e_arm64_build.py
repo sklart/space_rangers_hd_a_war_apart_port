@@ -183,6 +183,21 @@ def main() -> int:
         report["first_failure"] = {"phase": "Win32 source inventory", "exact_error": output}
         save(report)
         return 1
+    manifest_path = ROOT / "win32-effective-import-manifest.json"
+    if not manifest_path.is_file():
+        report["first_failure"] = {"phase": "Win32 manifest stamp",
+                                   "exact_error": "effective manifest is missing"}
+        save(report)
+        return 1
+    manifest_bytes = manifest_path.read_bytes()
+    manifest = json.loads(manifest_bytes)
+    counts = manifest["classification_counts"]
+    manifest_stamp = {
+        "sha256": hashlib.sha256(manifest_bytes).hexdigest().upper(),
+        "portable": counts.get("PORTABLE", 0),
+        "optional": counts.get("OPTIONAL_DISABLED", 0),
+        "unknown": counts.get("UNKNOWN", 0),
+    }
     code, output = run([sys.executable,
                         native_path(ROOT / "tools/generate_okgf_compat_exports.py")])
     if code:
@@ -210,7 +225,8 @@ def main() -> int:
         obj = BUILD / category / (source.stem + ".o")
         obj.parent.mkdir(parents=True, exist_ok=True)
         compile_source = generated_source(patched_sources.get(source.name, source),
-                                          BUILD / "generated" / source.name, build_id)
+                                          BUILD / "generated" / source.name,
+                                          build_id, manifest_stamp)
         needed_ns = max(compile_source.stat().st_mtime_ns, newest_header_ns)
         if compile_source != source:
             needed_ns = max(needed_ns,
@@ -284,7 +300,6 @@ def main() -> int:
         return 1
     code, audit_output = run([sys.executable, native_path(ROOT / "tools/audit_win32_surface.py"),
                               "--effective", "--check"])
-    manifest_path = ROOT / "win32-effective-import-manifest.json"
     if manifest_path.is_file():
         manifest_bytes = manifest_path.read_bytes()
         manifest = json.loads(manifest_bytes)
@@ -295,6 +310,9 @@ def main() -> int:
             "classifications": manifest["classification_counts"],
             "startup_unimplemented": manifest["startup_unimplemented"],
         }
+        if report["win32_surface"]["manifest_sha256"] != manifest_stamp["sha256"]:
+            code = 1
+            audit_output += "\nmanifest changed after startup stamp generation"
     if code:
         report["first_failure"] = {"phase": "Win32 compatibility surface",
                                    "exact_error": audit_output}

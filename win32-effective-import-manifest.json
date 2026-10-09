@@ -3810,7 +3810,7 @@
     {
       "dll": ".dll",
       "callsites": [
-        "port/switch/platform/win32_compat.cpp:42",
+        "port/switch/platform/win32_compat.cpp:43",
         "port/switch/platform/win32_compat_modules.cpp:31"
       ]
     },
@@ -3833,7 +3833,7 @@
     {
       "dll": "avifil32.dll",
       "callsites": [
-        "port/switch/platform/win32_compat.cpp:127",
+        "port/switch/platform/win32_compat.cpp:128",
         "port/switch/platform/win32_compat_modules.cpp:48",
         "upstream/cpp/src/VFW.cpp:14",
         "upstream/cpp/src/VFW.cpp:20",
@@ -3854,7 +3854,7 @@
     {
       "dll": "dsound.dll",
       "callsites": [
-        "port/switch/platform/win32_compat.cpp:127",
+        "port/switch/platform/win32_compat.cpp:128",
         "port/switch/platform/win32_compat_modules.cpp:48"
       ]
     },
@@ -3903,7 +3903,8 @@
       "callsites": [
         "port/switch/build/e2e-game/generated/GR_Main.cpp:807",
         "port/switch/build/e2e-game/generated/GR_Main.cpp:815",
-        "port/switch/platform/win32_compat.cpp:96",
+        "port/switch/platform/win32_compat.cpp:129",
+        "port/switch/platform/win32_compat.cpp:97",
         "port/switch/platform/win32_compat_files.cpp:435",
         "port/switch/platform/win32_compat_filetime.cpp:99",
         "port/switch/platform/win32_compat_heap.cpp:20",
@@ -4101,7 +4102,7 @@
         "port/switch/build/e2e-game/generated/GR_Main.cpp:4177",
         "port/switch/build/e2e-game/generated/GR_Main.cpp:4187",
         "port/switch/build/e2e-game/generated/GR_Main.cpp:4198",
-        "port/switch/platform/win32_compat.cpp:77",
+        "port/switch/platform/win32_compat.cpp:78",
         "port/switch/platform/win32_compat_modules.cpp:128",
         "port/switch/platform/win32_compat_modules.cpp:53"
       ]
@@ -4110,7 +4111,7 @@
       "dll": "ole32.dll",
       "callsites": [
         "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:47",
-        "port/switch/platform/win32_compat.cpp:128",
+        "port/switch/platform/win32_compat.cpp:132",
         "upstream/cpp/src/ActiveXSdk.cpp:10",
         "upstream/cpp/src/ActiveXSdk.cpp:14",
         "upstream/cpp/src/ActiveXSdk.cpp:20",
@@ -4120,7 +4121,7 @@
     {
       "dll": "shell32.dll",
       "callsites": [
-        "port/switch/platform/win32_compat.cpp:129",
+        "port/switch/platform/win32_compat.cpp:134",
         "upstream/cpp/src/ShellAPI.cpp:7",
         "upstream/cpp/src/ShlObj.cpp:13",
         "upstream/cpp/src/ShlObj.cpp:7"
@@ -4230,7 +4231,7 @@
       "callsites": [
         "port/switch/build/e2e-game/generated/GR_Main.cpp:3619",
         "port/switch/build/e2e-game/generated/GR_Main.cpp:3629",
-        "port/switch/platform/win32_compat.cpp:78",
+        "port/switch/platform/win32_compat.cpp:79",
         "port/switch/platform/win32_compat_modules.cpp:55",
         "upstream/cpp/src/EC_OKGF.cpp:8"
       ]
