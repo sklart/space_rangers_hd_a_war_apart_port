@@ -9,6 +9,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  e2e-full-arm64-link:
+    runs-on: ubuntu-24.04
+    container: devkitpro/devkita64:latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+      - name: Compile full original game and audit Switch dependencies
+        run: python3 tools/e2e_arm64_build.py
+      - name: Verify pinned upstream remains clean
+        if: always()
+        run: test -z "$(git -C upstream/cpp status --short)"
+
   host-regression:
     runs-on: ubuntu-24.04
     steps:
@@ -18,6 +31,8 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y zlib1g-dev libpng-dev libjpeg-dev cmake
       - name: Validate Switch NRO icon
         run: python3 tools/validate-switch-icon.py port/switch/assets/icon.jpg
+      - name: Validate E2E game clock and Sleep
+        run: python3 tools/e2e_time_test.py
       - name: Build and run asset-free corrupt package regression
         run: |
           mkdir -p build port/switch/build

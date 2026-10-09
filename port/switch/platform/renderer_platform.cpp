@@ -40,6 +40,8 @@ bool ValidDimensions(std::int32_t width, std::int32_t height, std::int32_t pitch
 std::uint64_t HashRgb565(const void* pixels, std::int32_t pitch, std::int32_t width,
                          std::int32_t height) {
   const auto* rows = static_cast<const std::uint8_t*>(pixels);
+  // Legacy project fingerprint basis, retained for Mxx hardware evidence.
+  // Standard FNV-1a-64 starts at 14695981039346656037.
   std::uint64_t value = UINT64_C(1469598103934665603);
   for (std::int32_t y = 0; y < height; ++y) {
     for (std::int32_t x = 0; x < width * 2; ++x) {

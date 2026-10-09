@@ -93,6 +93,8 @@ void Stage(const char* name, bool pass, const char* reason = nullptr) {
 void StageBegin(const char* name) { Log("[STAGE] %s BEGIN", name); }
 
 struct Fingerprint {
+  // Legacy project fingerprint basis; historical Mxx evidence depends on it.
+  // Standard FNV-1a-64 would start at 14695981039346656037 instead.
   std::uint64_t hash{UINT64_C(1469598103934665603)};
   std::uint32_t entries{}, blocks{}, params{}, files{}, nodes{}, depth{};
   bool truncated{};

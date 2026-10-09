@@ -1,4 +1,12 @@
 DEVKITPRO ?= C:/devkitPro
+
+.PHONY: switch-e2e-game
+switch-e2e-game:
+	$(PYTHON) ../../tools/e2e_arm64_build.py
+
+.PHONY: host-e2e-time-test
+host-e2e-time-test:
+	$(PYTHON) ../../tools/e2e_time_test.py
 DEVKITA64 ?= $(DEVKITPRO)/devkitA64
 LIBNX ?= $(DEVKITPRO)/libnx
 PORTLIBS ?= $(DEVKITPRO)/portlibs/switch

@@ -1,0 +1,215 @@
+"""Try the pinned full C++ game build without editing upstream/cpp."""
+
+from __future__ import annotations
+
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+
+from e2e_source_overrides import FUNCTIONS, generated_source
+
+ROOT = Path(__file__).resolve().parents[1]
+SWITCH = ROOT / "port/switch"
+GAME = ROOT / "upstream/cpp"
+BUILD = SWITCH / "build/e2e-game"
+REPORT = ROOT / "e2e-build-report.json"
+DEVKITPRO = Path(os.getenv("DEVKITPRO", "C:/devkitPro"))
+if os.name == "nt" and not DEVKITPRO.is_dir():
+    DEVKITPRO = Path("C:/devkitPro")
+DEVKITA64 = Path(os.getenv("DEVKITA64", str(DEVKITPRO / "devkitA64")))
+PORTLIBS = Path(os.getenv("PORTLIBS", str(DEVKITPRO / "portlibs/switch")))
+if os.name == "nt" and not DEVKITA64.is_dir():
+    DEVKITA64 = DEVKITPRO / "devkitA64"
+if os.name == "nt" and not PORTLIBS.is_dir():
+    PORTLIBS = DEVKITPRO / "portlibs/switch"
+CXX = DEVKITA64 / "bin" / ("aarch64-none-elf-g++.exe" if os.name == "nt" else "aarch64-none-elf-g++")
+MSYS = sys.platform.startswith(("cygwin", "msys"))
+
+
+def native_path(path: Path) -> str:
+    if MSYS:
+        return subprocess.check_output(["cygpath", "-w", str(path)], text=True).strip().replace("\\", "/")
+    return str(path)
+
+
+def save(report: dict) -> None:
+    REPORT.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+
+
+def run(command: list[str]) -> tuple[int, str]:
+    env = os.environ.copy()
+    env["DEVKITPRO"] = native_path(DEVKITPRO).replace("\\", "/")
+    result = subprocess.run(command, cwd=ROOT, env=env, capture_output=True, text=True)
+    return result.returncode, (result.stdout + result.stderr).strip()
+
+
+def prepare_patched_sources() -> dict[str, Path]:
+    """Apply existing portability patches only inside a disposable build tree."""
+    patch_root = BUILD / "patched-upstream"
+    (patch_root / "src").mkdir(parents=True, exist_ok=True)
+    names = ("GR_Main.cpp", "EC_BlockPar.cpp", "EC_Data.cpp")
+    for name in names:
+        shutil.copyfile(GAME / "src" / name, patch_root / "src" / name)
+    native_git = Path("C:/Program Files/Git/cmd/git.exe")
+    git = str(native_git) if native_git.is_file() else "git"
+    for patch in ("gr_main_portable.patch", "gr_main_zlib_portable.patch",
+                  "dat_zlib_guard.patch"):
+        command = [git, "-C", native_path(patch_root), "apply",
+                   "--unsafe-paths", "--ignore-space-change",
+                   native_path(SWITCH / "platform" / patch)]
+        code, output = run(command)
+        if code:
+            raise RuntimeError(f"disposable upstream patch failed: {patch}: {output}")
+    return {name: patch_root / "src" / name for name in names}
+
+
+def main() -> int:
+    sources = sorted((GAME / "src").glob("*.cpp"))
+    sources.append(GAME / "runtime/runtime.cpp")
+    report = {
+        "target": "switch-e2e-game",
+        "upstream_pin": "57fa689c630193a66fdea6ca4c79a188814991cd",
+        "upstream_source_files_total": len(sources),
+        "compiled": 0,
+        "excluded": [],
+        "excluded_required": 0,
+        "link_objects": 0,
+        "undefined_symbols": None,
+        "elf": None,
+        "required_game_symbols": {},
+        "windows_only_apis_encountered": [],
+        "portable_implementations_used": [],
+        "optional_stubs": [],
+        "required_stubs": [],
+        "arm64_link": "NOT REACHED",
+        "first_failure": None,
+    }
+    report["source_overrides"] = sorted([*FUNCTIONS, "Rangers.cpp", "program.cpp"])
+    # These were created for the old diagnostic slice. They define symbols
+    # already present in the complete original units and cannot be linked
+    # alongside them; their replacement behavior must move behind original APIs.
+    diagnostic_shims = {
+        "runtime_failure_hooks_portable.cpp",
+        "runtime_time.cpp", "sysutils_imports_portable.cpp",
+        "windows_imports_portable.cpp",
+    }
+    report["diagnostic_shims_not_linked"] = sorted(diagnostic_shims)
+    replaced_upstream = {
+        "EC_HsFile.cpp": "original EC_HsFile API backed by portable ec_file_adapter.cpp",
+    }
+    if not CXX.is_file():
+        report["first_failure"] = {"phase": "toolchain", "error": f"missing {CXX}"}
+        save(report)
+        return 1
+    patched_sources = prepare_patched_sources()
+    report["source_overrides"] += sorted(patched_sources)
+    flags = ["-std=gnu++20", "-D__SWITCH__", "-march=armv8-a+crc+crypto",
+             "-mtune=cortex-a57", "-mtp=soft", "-fPIE", "-O0",
+             "-ffunction-sections", "-fdata-sections"]
+    flags += ["-I" + str(p) for p in (
+        DEVKITPRO / "libnx/include", PORTLIBS / "include", SWITCH / "platform",
+        GAME / "src", GAME / "runtime", ROOT / "upstream/okgf/include")]
+    flags = [flag if not flag.startswith("-I") else "-I" + native_path(Path(flag[2:])) for flag in flags]
+    headers = [*GAME.rglob("*.hpp"), *(SWITCH / "platform").glob("*.hpp")]
+    headers = [path for path in headers if path.name not in ("e2e_clock.hpp", "e2e_stage.hpp")]
+    newest_header_ns = max((path.stat().st_mtime_ns for path in headers), default=0)
+    objects: list[Path] = []
+    for source in sources + sorted((SWITCH / "platform").glob("*.cpp")):
+        category = "upstream" if source in sources else "platform"
+        if category == "platform" and source.name in diagnostic_shims:
+            continue
+        obj = BUILD / category / (source.stem + ".o")
+        obj.parent.mkdir(parents=True, exist_ok=True)
+        compile_source = generated_source(patched_sources.get(source.name, source),
+                                          BUILD / "generated" / source.name)
+        needed_ns = max(compile_source.stat().st_mtime_ns, newest_header_ns)
+        if compile_source != source:
+            needed_ns = max(needed_ns,
+                (SWITCH / "platform/e2e_clock.hpp").stat().st_mtime_ns,
+                (SWITCH / "platform/e2e_stage.hpp").stat().st_mtime_ns)
+        if obj.is_file() and obj.stat().st_mtime_ns >= needed_ns:
+            code, output = 0, ""
+        else:
+            code, output = run([str(CXX), *flags, "-c", native_path(compile_source), "-o", native_path(obj)])
+        if code:
+            report["first_failure"] = {
+                "phase": "compiler", "file": source.relative_to(ROOT).as_posix(),
+                "exact_error": output,
+            }
+            save(report)
+            print(f"E2E compiler failure in {source.relative_to(ROOT)}:\n{output}", file=sys.stderr)
+            return 1
+        if category == "upstream" and source.name in replaced_upstream:
+            report["excluded"].append({"file": source.relative_to(ROOT).as_posix(),
+                                       "reason": replaced_upstream[source.name]})
+        else:
+            objects.append(obj)
+        if category == "upstream":
+            report["compiled"] += 1
+    report["link_objects"] = len(objects)
+    report["portable_implementations_used"] = [
+        obj.stem for obj in objects if obj.parent.name == "platform"
+    ]
+    elf = BUILD / "SpaceRangersHDAWarApartE2E.elf"
+    response_file = BUILD / "link-objects.rsp"
+    response_file.write_text("\n".join('"' + native_path(obj) + '"' for obj in objects) + "\n", encoding="utf-8")
+    code, output = run([str(CXX), "@" + native_path(response_file),
+        "-specs=" + native_path(DEVKITPRO / "libnx/switch.specs"),
+        "-march=armv8-a+crc+crypto", "-mtp=soft", "-fPIE",
+        "-Wl,--gc-sections", "-L" + native_path(DEVKITPRO / "libnx/lib"),
+        "-L" + native_path(PORTLIBS / "lib"),
+        "-lpng", "-lz", "-ljpeg", "-lm", "-lSDL2", "-lEGL",
+        "-lglapi", "-ldrm_nouveau", "-lnx", "-lpthread", "-o", native_path(elf)])
+    if code:
+        report["first_failure"] = {"phase": "linker", "exact_error": output}
+        report["arm64_link"] = "FAIL"
+        save(report)
+        print(f"E2E ARM64 linker failure:\n{output}", file=sys.stderr)
+        return 1
+    report["arm64_link"] = "PASS"
+    report["undefined_symbols"] = 0
+    readelf = DEVKITA64 / "bin" / ("aarch64-none-elf-readelf.exe" if os.name == "nt" else "aarch64-none-elf-readelf")
+    code, elf_header = run([str(readelf), "-h", native_path(elf)])
+    if code or "ELF64" not in elf_header or "AArch64" not in elf_header:
+        report["first_failure"] = {"phase": "ELF audit", "exact_error": elf_header}
+        save(report)
+        return 1
+    report["elf"] = "ELF64 AArch64 PIE"
+    nm = DEVKITA64 / "bin" / ("aarch64-none-elf-nm.exe" if os.name == "nt" else "aarch64-none-elf-nm")
+    code, symbols = run([str(nm), "-C", native_path(elf)])
+    required = ("Rangers::ProgramMain()", "Globals::RunMainScreenStateLoop()")
+    report["required_game_symbols"] = {name: name in symbols for name in required}
+    if code or not all(report["required_game_symbols"].values()):
+        report["first_failure"] = {"phase": "game symbol audit", "exact_error":
+                                   f"required original game symbols missing: {report['required_game_symbols']}"}
+        save(report)
+        return 1
+    strings_tool = DEVKITA64 / "bin" / ("aarch64-none-elf-strings.exe" if os.name == "nt" else "aarch64-none-elf-strings")
+    code, strings_output = run([str(strings_tool), native_path(elf)])
+    if code:
+        report["first_failure"] = {"phase": "symbol audit", "exact_error": strings_output}
+        save(report)
+        return 1
+    forbidden = ("kernel32.dll", "user32.dll", "d3d9.dll", "dsound.dll",
+                 "winmm.dll", "ntdll.dll", "steam_api.dll")
+    report["windows_only_apis_encountered"] = sorted({
+        name for name in forbidden if name in strings_output.lower()
+    })
+    if report["windows_only_apis_encountered"]:
+        report["first_failure"] = {
+            "phase": "runtime dependency audit",
+            "exact_error": "ELF retains Windows DLL imports: " + ", ".join(report["windows_only_apis_encountered"]),
+        }
+        save(report)
+        print(report["first_failure"]["exact_error"], file=sys.stderr)
+        return 1
+    save(report)
+    print(f"E2E ARM64 ELF: {elf}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

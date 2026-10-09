@@ -1,5 +1,12 @@
 # Current status — M26/M27 COMPLETE / HARDWARE PASS
 
+M23–M27 are complete with hardware PASS. The current development strategy is
+**E2E-1 complete-game integration** on `codex/e2e-real-game`: compile the
+original C++ `ProgramMain()` path, link the full required runtime, then reach
+the original main-screen loop and menu. Historical milestone diagnostics remain
+regressions and do not restrict symbols in the E2E executable. See
+[`e2e1-complete-game-main-loop.md`](e2e1-complete-game-main-loop.md).
+
 M25 was fast-forwarded to `master` at
 `ac2e0063ac1204ef70b579ebba3b50eacb922d38`, tagged
 `m25-hardware-pass`; its redundant remote branch was removed after equality

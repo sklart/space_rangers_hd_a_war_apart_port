@@ -1,0 +1,10 @@
+# E2E-1 observed failure queue
+
+Only failures produced by the full C++ build or its required dependency audit are recorded here. The raw, non-PIE linker experiment is omitted because it used incorrect target flags.
+
+| ID | Phase | Type | File | Symbol/API | Exact error | Required by | Resolution | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| E2E-001 | ARM64 link, complete upstream plus portable platform | linker | `port/switch/platform/ec_file_adapter.cpp`, `runtime_failure_hooks_portable.cpp`, `runtime_time.cpp`, `sysutils_imports_portable.cpp`, `windows_imports_portable.cpp` | Duplicate original/diagnostic definitions | `multiple definition of EC_HsFile::PackageCollection` (and other `EC_HsFile`, `GR_DX`, `MMSystem`, `SysUtils`, `WindowsSdk`, `WindowsImports` symbols) | Complete upstream game and old diagnostic adapters were both linked | Compile all original units, replace original `EC_HsFile.cpp` with `ec_file_adapter.cpp` at link time, and omit four duplicate diagnostic shims. Move required portable behavior behind original APIs in generated source copies. | RESOLVED for link; time/API integration continues |
+| E2E-002 | ARM64 ELF runtime dependency audit | runtime | `upstream/cpp/src/WindowsImports.cpp`, `WindowsSdk.cpp`, `MMSystem.cpp`, `DirectSound.cpp`, and transitive callers | Win32 DLL loader | `ELF retains Windows DLL imports: dsound.dll, kernel32.dll, user32.dll, winmm.dll` | The linked game image retains original `pas::win::load_import` paths; these cannot load Win32 DLLs on Switch. Image strings alone do not identify which calls startup reaches. | Trace retained calls, replace required platform APIs with Switch implementations, and guard genuinely optional calls. Coherent QPC, frequency, milliseconds, Sleep, thread identity and timer-resolution calls now compile through generated source overrides. | OPEN |
+
+The latest exact compiler/link/audit output and source counts are in `e2e-build-report.json`. The last reached real execution point is **none**: this is an ARM64 software build, with no E2E Switch launch yet.
