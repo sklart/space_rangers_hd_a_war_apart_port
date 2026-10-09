@@ -123,6 +123,11 @@ ImportAddress ResolveImport(const char* library, const char* symbol) {
   }
   if (const auto address = KnownImport(dll, symbol)) {
     ++g_resolved;
+#if defined(E2E_WINAPI_TRACE)
+    const std::string detail = "RESOLVED stage=" + e2e_stage::CurrentStage() +
+        " dll=" + dll + " symbol=" + symbol;
+    e2e_stage::LogWinApi(detail.c_str());
+#endif
     return address;
   }
   if (dll == "avifil32.dll" || dll == "dsound.dll" ||

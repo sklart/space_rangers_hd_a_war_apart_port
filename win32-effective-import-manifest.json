@@ -3833,7 +3833,7 @@
     {
       "dll": "avifil32.dll",
       "callsites": [
-        "port/switch/platform/win32_compat.cpp:128",
+        "port/switch/platform/win32_compat.cpp:133",
         "port/switch/platform/win32_compat_modules.cpp:48",
         "upstream/cpp/src/VFW.cpp:14",
         "upstream/cpp/src/VFW.cpp:20",
@@ -3854,7 +3854,7 @@
     {
       "dll": "dsound.dll",
       "callsites": [
-        "port/switch/platform/win32_compat.cpp:128",
+        "port/switch/platform/win32_compat.cpp:133",
         "port/switch/platform/win32_compat_modules.cpp:48"
       ]
     },
@@ -3903,7 +3903,7 @@
       "callsites": [
         "port/switch/build/e2e-game/generated/GR_Main.cpp:807",
         "port/switch/build/e2e-game/generated/GR_Main.cpp:815",
-        "port/switch/platform/win32_compat.cpp:129",
+        "port/switch/platform/win32_compat.cpp:134",
         "port/switch/platform/win32_compat.cpp:97",
         "port/switch/platform/win32_compat_files.cpp:435",
         "port/switch/platform/win32_compat_filetime.cpp:99",
@@ -3912,7 +3912,7 @@
         "port/switch/platform/win32_compat_modules.cpp:166",
         "port/switch/platform/win32_compat_modules.cpp:53",
         "port/switch/platform/win32_compat_process.cpp:190",
-        "port/switch/platform/win32_compat_sync.cpp:141",
+        "port/switch/platform/win32_compat_sync.cpp:143",
         "port/switch/platform/win32_compat_text.cpp:131",
         "upstream/cpp/src/SysUtilsImports.cpp:593",
         "upstream/cpp/src/WindowsImports.cpp:10",
@@ -4111,7 +4111,7 @@
       "dll": "ole32.dll",
       "callsites": [
         "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:47",
-        "port/switch/platform/win32_compat.cpp:132",
+        "port/switch/platform/win32_compat.cpp:137",
         "upstream/cpp/src/ActiveXSdk.cpp:10",
         "upstream/cpp/src/ActiveXSdk.cpp:14",
         "upstream/cpp/src/ActiveXSdk.cpp:20",
@@ -4121,7 +4121,7 @@
     {
       "dll": "shell32.dll",
       "callsites": [
-        "port/switch/platform/win32_compat.cpp:134",
+        "port/switch/platform/win32_compat.cpp:139",
         "upstream/cpp/src/ShellAPI.cpp:7",
         "upstream/cpp/src/ShlObj.cpp:13",
         "upstream/cpp/src/ShlObj.cpp:7"

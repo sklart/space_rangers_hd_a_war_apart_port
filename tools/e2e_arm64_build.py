@@ -215,7 +215,6 @@ def main() -> int:
     flags = [flag if not flag.startswith("-I") else "-I" + native_path(Path(flag[2:])) for flag in flags]
     headers = [*GAME.rglob("*.hpp"), *(SWITCH / "platform").glob("*.hpp"),
                *runtime_overlay.rglob("*.hpp")]
-    headers = [path for path in headers if path.name not in ("e2e_clock.hpp", "e2e_stage.hpp")]
     newest_header_ns = max((path.stat().st_mtime_ns for path in headers), default=0)
     objects: list[Path] = []
     for source in sources + sorted((SWITCH / "platform").glob("*.cpp")):

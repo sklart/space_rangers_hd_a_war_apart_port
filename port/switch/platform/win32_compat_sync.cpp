@@ -38,8 +38,10 @@ std::uint32_t CreateThreadThunk(void*, std::uint32_t,
   return token;
 }
 
-std::uint32_t Backend(std::uint32_t token, HandleType type) {
-  const auto object = Handles().Lookup(token, type);
+std::uint32_t Backend(std::uint32_t token, HandleType type,
+                      bool probe = false) {
+  const auto object = probe ? Handles().TryLookup(token, type)
+                            : Handles().Lookup(token, type);
   return object ? *static_cast<std::uint32_t*>(object.get()) : 0;
 }
 
@@ -55,11 +57,11 @@ std::int32_t ResetEventThunk(std::uint32_t token) {
 
 std::uint32_t WaitForSingleObjectThunk(std::uint32_t token,
                                        std::uint32_t timeout) {
-  if (const auto event = Backend(token, HandleType::Event))
+  if (const auto event = Backend(token, HandleType::Event, true))
     return e2e_events::WaitOne(event, timeout);
-  if (const auto thread = Backend(token, HandleType::Thread))
+  if (const auto thread = Backend(token, HandleType::Thread, true))
     return e2e_threads::Wait(thread, timeout);
-  SetLastError(kErrorInvalidHandle);
+  Handles().Lookup(token, HandleType::Event); // One diagnostic for a truly invalid token.
   return e2e_events::kWaitFailed;
 }
 
@@ -82,13 +84,13 @@ std::uint32_t WaitForMultipleObjectsThunk(std::uint32_t count,
 }
 
 std::int32_t CloseHandleThunk(std::uint32_t token) {
-  if (Handles().IsValid(token, HandleType::File))
+  if (Handles().TryLookup(token, HandleType::File))
     return CloseFileHandle(token) ? 1 : 0;
-  if (const auto event = Backend(token, HandleType::Event)) {
+  if (const auto event = Backend(token, HandleType::Event, true)) {
     if (!Handles().Close(token, HandleType::Event)) return 0;
     return e2e_events::Close(event) ? 1 : 0;
   }
-  if (const auto thread = Backend(token, HandleType::Thread)) {
+  if (const auto thread = Backend(token, HandleType::Thread, true)) {
     if (!Handles().Close(token, HandleType::Thread)) return 0;
     return e2e_threads::Close(thread) ? 1 : 0;
   }

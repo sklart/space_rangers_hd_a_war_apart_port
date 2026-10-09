@@ -146,7 +146,7 @@ int main() {
   assert(WindowsSdk::RegCloseKey(registry_key) == 0);
   SysUtilsImports::Sleep(1);
   const auto module = WindowsImports::LoadLibrary(
-      reinterpret_cast<std::uint8_t*>(const_cast<char*>("kernel32.dll")));
+      reinterpret_cast<std::uint8_t*>(const_cast<char*>("PATH\\KERNEL32.DLL")));
   assert(module != 0);
   const auto proc = WindowsImports::GetProcAddress(module,
       reinterpret_cast<std::uint8_t*>(const_cast<char*>("GetSystemTime")));
@@ -154,9 +154,22 @@ int main() {
   Windows::TSystemTime via_dynamic{};
   reinterpret_cast<void (*)(Windows::TSystemTime*)>(proc)(&via_dynamic);
   assert(via_dynamic.wYear == utc.wYear);
+  assert(WindowsImports::GetProcAddress(module,
+      reinterpret_cast<std::uint8_t*>(42)) == nullptr);
   assert(WindowsImports::FreeLibrary(module));
+  for (const char* disabled : {"steam_ach.dll", "libvorbisfile.dll",
+                               "vorbisfile.dll", "xvidcore.dll", "dsound.dll",
+                               "avifil32.dll", "d3d9.dll", "ntdll.dll"}) {
+    assert(WindowsImports::LoadLibrary(
+        reinterpret_cast<std::uint8_t*>(const_cast<char*>(disabled))) == 0);
+    assert(WindowsImports::GetLastError() == 2);
+  }
+  char16_t disabled_wide[] = u"X:\\MUSIC\\LIBVORBISFILE.DLL";
+  assert(WindowsSdk::LoadLibraryW(disabled_wide) == 0);
+  assert(WindowsImports::GetLastError() == 2);
   assert(WindowsImports::LoadLibrary(
-      reinterpret_cast<std::uint8_t*>(const_cast<char*>("steam_ach.dll"))) == 0);
+      reinterpret_cast<std::uint8_t*>(const_cast<char*>("MatrixGame.dll"))) == 0);
+  assert(WindowsImports::GetLastError() == 2);
   bool rejected = false;
   try {
     WindowsImports::LoadLibrary(

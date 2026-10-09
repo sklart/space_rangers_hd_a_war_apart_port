@@ -12,6 +12,11 @@ int main() {
   const auto file = handles.Allocate(HandleType::File, std::make_shared<int>(7));
   assert(event != 0 && event != 0xffffffffu && event != file);
   assert(*static_cast<int*>(handles.Lookup(event, HandleType::Event).get()) == 42);
+  SetLastError(kErrorAlreadyExists);
+  assert(!handles.TryLookup(event, HandleType::File));
+  assert(GetLastError() == kErrorAlreadyExists);
+  assert(handles.TryLookup(event, HandleType::Event));
+  assert(GetLastError() == kErrorAlreadyExists);
   assert(!handles.Lookup(event, HandleType::File));
   assert(GetLastError() == kErrorInvalidHandle);
   assert(!handles.Close(event, HandleType::File));

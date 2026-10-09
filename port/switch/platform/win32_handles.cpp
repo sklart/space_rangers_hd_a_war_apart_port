@@ -59,6 +59,14 @@ std::shared_ptr<void> WinHandleTable::Lookup(std::uint32_t handle,
   return found->second.object;
 }
 
+std::shared_ptr<void> WinHandleTable::TryLookup(std::uint32_t handle,
+                                                 HandleType type) {
+  std::lock_guard lock(g_mutex);
+  const auto found = g_entries.find(handle);
+  return found != g_entries.end() && found->second.type == type
+      ? found->second.object : std::shared_ptr<void>{};
+}
+
 bool WinHandleTable::Close(std::uint32_t handle, HandleType type) {
   std::lock_guard lock(g_mutex);
   const auto found = g_entries.find(handle);

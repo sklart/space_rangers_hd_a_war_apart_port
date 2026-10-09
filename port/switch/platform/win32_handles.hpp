@@ -26,6 +26,8 @@ class WinHandleTable {
  public:
   std::uint32_t Allocate(HandleType type, std::shared_ptr<void> object);
   std::shared_ptr<void> Lookup(std::uint32_t handle, HandleType type);
+  // Use only while probing several valid handle types before reporting failure.
+  std::shared_ptr<void> TryLookup(std::uint32_t handle, HandleType type);
   bool Close(std::uint32_t handle, HandleType type);
   bool IsValid(std::uint32_t handle, HandleType type);
 };
