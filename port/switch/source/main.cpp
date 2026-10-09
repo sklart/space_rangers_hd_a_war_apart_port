@@ -1215,15 +1215,17 @@ bool InitializeM26Release(M26ReleaseDiagnostic* diagnostic, M23TextDiagnostic* t
     return false;
   }
   const auto& scaled = diagnostic->graph->Buffer().pixels();
+  // The translated CRC helper takes void* but reads the input bytes only.
+  auto* scaled_data = const_cast<std::uint8_t*>(scaled.data());
   if (scaled.size() != 7800 ||
-      CrcUnit::ComputeCrc32(scaled.data(), static_cast<std::int32_t>(scaled.size())) !=
+      CrcUnit::ComputeCrc32(scaled_data, static_cast<std::int32_t>(scaled.size())) !=
           0x07bfadc2u ||
       M17Fnv(scaled.data(), scaled.size()) != UINT64_C(0x1dc1b91c9c87ca5a)) {
     if (error) *error = "M26 real GraphBuf scaled pixels differ from fixed host/ARM-compatible oracle";
     return false;
   }
   Log("[M26] GraphBuf source=19267238/debceda99798e0e0 scaled=%08lx/%016llx size=%ldx%ld hit=%u center=%ld,%ld",
-      static_cast<unsigned long>(CrcUnit::ComputeCrc32(scaled.data(),
+      static_cast<unsigned long>(CrcUnit::ComputeCrc32(scaled_data,
           static_cast<std::int32_t>(scaled.size()))),
       static_cast<unsigned long long>(M17Fnv(scaled.data(), scaled.size())),
       static_cast<long>(diagnostic->graph->Buffer().width()),
