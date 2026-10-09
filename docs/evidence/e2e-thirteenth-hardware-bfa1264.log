@@ -1,0 +1,178 @@
+[E2E] build_git=bfa1264
+[E2E][WINAPI] manifest=E045A0B6780D35621E68A0CFB586624D1C9FA646CD474D2E0D097CD36523F96A
+[E2E][WINAPI] portable=137
+[E2E][WINAPI] optional=76
+[E2E][WINAPI] unknown=0
+[E2E] ProgramMain BEGIN
+[E2E] Forms UnitInitialize
+[E2E] ExceptionInfo
+[E2E] CheatCode
+[E2E] Application Initialize
+[E2E] platform runtime
+[E2E] platform runtime SDL services ready
+[E2E] platform runtime package collection ready
+[E2E] platform runtime SDL window ready
+[E2E] platform runtime session log ready
+[E2E] platform runtime install parser ready
+[E2E] platform runtime install.txt loaded
+[E2E] language/packages
+[E2E] script host
+[E2E] script host path pool
+[E2E] script host worker
+[E2E] script host engine
+[E2E] script host engine ready
+[E2E] script host ready
+[E2E] startup clock
+[E2E] runtime/settings
+[E2E] memory process_mib=3189 kernel_free_mib=3 heap_mib=3165 heap_used_mib=110 available_mib=3058
+[E2E] renderer geometry game=1280x720 presentation=1280x720 extra=256,-48
+[E2E] global UI
+[E2E] robot runtime
+[E2E] entering RunMainScreenStateLoop
+[E2E] screen dispatch id=22 postload=1
+[E2E] screen Run OnOpen begin
+[E2E] screen Run OnOpen ready
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input dispatch message=512 hwnd=1610612737 active=1 callback=1
+[E2E] screen Run first frame attempted
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] screen Run frames=2
+[E2E] screen Run frames=10
+[E2E] screen returned id=22 requested=1
+[E2E] screen dispatch id=1 postload=0
+[E2E] screen Run OnOpen begin
+[E2E] screen Run OnOpen ready
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] screen Run first frame attempted
+[E2E] screen Run frames=2
+[E2E] screen Run frames=10
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] screen Run frames=60
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,360 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input dispatch message=512 hwnd=1610612737 active=1 callback=1
+[E2E] input dispatch message=512 hwnd=1610612737 active=1 callback=1
+[E2E] input dispatch message=512 hwnd=1610612737 active=1 callback=1
+[E2E] input poll window=1610612737 size=1280x720 cursor=640,719 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=1279,719 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=1279,719 buttons=A0 B1 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=1279,719 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=1279,719 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=1279,719 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=1279,719 buttons=A0 B0 X0 Y0 PLUS0
+[E2E] input poll window=1610612737 size=1280x720 cursor=1279,719 buttons=A0 B0 X0 Y0 PLUS1
+[E2E] input dispatch message=18 hwnd=0 active=1 callback=1
+[E2E] screen returned id=1 requested=0
+[E2E] screen loop returned requested=0 postload=0 presents=2562 hash=E8CFCAEB3C034C6E renderer=1 texture=1 present_ok=1 output=1280x720
+[E2E][WINAPI] resolved=64 optional_disabled=0 unmapped=0 dynamic_loads=0 physical_dll_loads=0
+[E2E] BOOT COMPLETE

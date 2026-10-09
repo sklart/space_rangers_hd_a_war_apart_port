@@ -11,6 +11,7 @@
 #include "types/aMyFunction.hpp"
 
 #if defined(__SWITCH__)
+#include "win32_compat_window.hpp"
 #include <SDL2/SDL.h>
 #endif
 
@@ -30,6 +31,35 @@ SDL_Renderer* g_sdl_renderer{};
 SDL_Texture* g_sdl_texture{};
 std::int32_t g_texture_width{};
 std::int32_t g_texture_height{};
+bool g_cursor_overlay_logged{};
+
+bool DrawInputCursor(const SDL_Rect& destination, std::int32_t width,
+                     std::int32_t height) {
+  std::int32_t input_x{}, input_y{};
+  win32_compat::InputCursor(&input_x, &input_y);
+  const int x = destination.x + input_x * destination.w / width;
+  const int y = destination.y + input_y * destination.h / height;
+  // The supplied Switch run has no visible cursor despite live pointer input.
+  // Draw a high-contrast controller pointer at the same coordinates as clicks.
+  const SDL_Rect shadow_vertical{x - 2, y - 12, 5, 25};
+  const SDL_Rect shadow_horizontal{x - 12, y - 2, 25, 5};
+  const SDL_Rect pointer_vertical{x, y - 10, 1, 21};
+  const SDL_Rect pointer_horizontal{x - 10, y, 21, 1};
+  const SDL_Rect pointer_center{x - 1, y - 1, 3, 3};
+  if (SDL_SetRenderDrawColor(g_sdl_renderer, 0, 0, 0, 255) != 0 ||
+      SDL_RenderFillRect(g_sdl_renderer, &shadow_vertical) != 0 ||
+      SDL_RenderFillRect(g_sdl_renderer, &shadow_horizontal) != 0 ||
+      SDL_SetRenderDrawColor(g_sdl_renderer, 255, 230, 0, 255) != 0 ||
+      SDL_RenderFillRect(g_sdl_renderer, &pointer_vertical) != 0 ||
+      SDL_RenderFillRect(g_sdl_renderer, &pointer_horizontal) != 0 ||
+      SDL_RenderFillRect(g_sdl_renderer, &pointer_center) != 0)
+    return false;
+  if (!g_cursor_overlay_logged) {
+    e2e_stage::Log("controller cursor overlay active");
+    g_cursor_overlay_logged = true;
+  }
+  return true;
+}
 #endif
 
 bool ValidDimensions(std::int32_t width, std::int32_t height, std::int32_t pitch) {
@@ -225,10 +255,13 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   g_presentation_diagnostics.destination_y = destination.y;
   g_presentation_diagnostics.destination_width = destination.w;
   g_presentation_diagnostics.destination_height = destination.h;
-  if (SDL_RenderClear(g_sdl_renderer) != 0)
+  if (SDL_SetRenderDrawColor(g_sdl_renderer, 0, 0, 0, 255) != 0 ||
+      SDL_RenderClear(g_sdl_renderer) != 0)
     return PresentationFailure("SDL_RenderClear");
   if (SDL_RenderCopy(g_sdl_renderer, g_sdl_texture, nullptr, &destination) != 0)
     return PresentationFailure("SDL_RenderCopy");
+  if (!DrawInputCursor(destination, width, height))
+    return PresentationFailure("controller cursor overlay");
   SDL_RenderPresent(g_sdl_renderer);
   g_presentation_diagnostics.present_succeeded = true;
 #else
@@ -246,6 +279,7 @@ void ShutdownPresentation() {
   g_sdl_renderer = nullptr;
   g_texture_width = 0;
   g_texture_height = 0;
+  g_cursor_overlay_logged = false;
 #endif
   g_presentation_count = 0;
   g_last_presentation_hash = 0;

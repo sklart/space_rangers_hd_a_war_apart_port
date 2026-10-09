@@ -1,0 +1,95 @@
+Start
+Build=2.1.2500 (Switch E2E)
+GameDistributor=GOG
+Operating System=Nintendo Switch
+Processor cores=1
+Cache Size=393216 KB
+Loading configuration files.... ok!
+Creating window.... ok!
+Sound is disabled...
+Renderer=software
+Sound=False
+Music=False
+fLoad... ok
+fPanelLoad... ok
+fPanelLoad... ok
+fMainForm... ok
+fPlanetQuest... ok
+fLoad... ok
+fPanelLoad... ok
+fGameSettings2... ok
+fIntroduction... ok
+Rescaling Bm.PanelMain2.2BG... ok
+fPanelMain... ok
+fPanelPlanet... ok
+fPanelRuins... ok
+fPanelLoad... ok
+fHangar... ok
+fPanelMain... ok
+fPanelPlanet... ok
+fPanelLoad... ok
+fPlanet... ok
+fPanelMain... ok
+fPanelLoad... ok
+fPlanetNO... ok
+fPanelMain... ok
+fPanelRuins... ok
+fPanelLoad... ok
+fRuinsTalk... ok
+ab_MainForm... ok
+fPanelLoad... ok
+fPanelMain... ok
+fPanelPlanet... ok
+fPanelRuins... ok
+fPanelLoad... ok
+fEquipmentShop... ok
+fPanelMain... ok
+fPanelPlanet... ok
+fPanelRuins... ok
+fPanelLoad... ok
+fGoodsShop2... ok
+fPanelMain... ok
+fPanelPlanet... ok
+fPanelLoad... ok
+fGov... ok
+fPanelMain... ok
+fPanelPlanet... ok
+fPanelRuins... ok
+fPanelLoad... ok
+fInfo... ok
+fPanelMain... ok
+fRewards... ok
+fPanelMain... ok
+fShip2... ok
+fScaner... ok
+fPanelMain... ok
+fPanelLoad... ok
+fStarMap... ok
+fFilm... ok
+fPanelMain... ok
+fGalaxy2... ok
+fPanelLoad... ok
+fJump... ok
+fSaveManager... ok
+fGameLoad... ok
+fPanelLoad... ok
+fGameMenu... ok
+fCfgSettings... ok
+fGameEnd... ok
+fAbout... ok
+fScore... ok
+fSelectFace... ok
+fPanelMain... ok
+fJournal... ok
+fPanelLoad... ok
+fLoadRobot... ok
+fPanelLoad... ok
+fLoadQuest... ok
+fLoadAB... ok
+fAchievements... ok
+Rescaling Bm.FormMain2.2AnimMain... ok
+Closing game screens...
+Closing rendering and audio...
+Rendering and audio closed
+Closing platform runtime...
+Game shutdown complete
