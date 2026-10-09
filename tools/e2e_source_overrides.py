@@ -174,7 +174,7 @@ int main() {
 
 def generated_source(source: Path, destination: Path, build_git: str = "") -> Path:
     overrides = FUNCTIONS.get(source.name)
-    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GR_Main.cpp", "program.cpp"):
+    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GR_Main.cpp", "aSaveLoad.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "program.cpp":
@@ -257,6 +257,20 @@ def generated_source(source: Path, destination: Path, build_git: str = "") -> Pa
             text = text.replace(call,
                 f'srhd_awa::platform::e2e_stage::Log("{stage}");\n        {call}', 1)
         text = '#include "e2e_stage.hpp"\n' + text
+    if source.name == "aSaveLoad.cpp":
+        replacements = {
+            "std::uint32_t MemorySnapshotGalaxyToken{};":
+                "std::uint32_t MemorySnapshotGalaxyToken{};\n"
+                "    static std::uintptr_t MemorySnapshotGalaxyAddressToken{};",
+            "MemorySnapshotGalaxyToken = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(aGalaxy::Galaxy)) + 0x17557455;":
+                "MemorySnapshotGalaxyAddressToken = reinterpret_cast<std::uintptr_t>(aGalaxy::Galaxy) + 0x17557455;",
+            "static_cast<std::uintptr_t>(static_cast<std::uint32_t>(MemorySnapshotGalaxyToken - 0x17557455))":
+                "static_cast<std::uintptr_t>(MemorySnapshotGalaxyAddressToken - 0x17557455)",
+        }
+        for old, new in replacements.items():
+            if text.count(old) != 1:
+                raise RuntimeError(f"snapshot pointer boundary changed: {old}")
+            text = text.replace(old, new, 1)
     if source.name == "GR_Main.cpp":
         geometry_begin = "    void ApplyMainWindowGeometry() {"
         focus_begin = "    void ShowAndFocusMainWindow() {"

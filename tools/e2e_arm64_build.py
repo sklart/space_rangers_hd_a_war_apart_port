@@ -12,7 +12,7 @@ import subprocess
 import sys
 
 from e2e_source_overrides import FUNCTIONS, generated_source
-from e2e_runtime_overrides import generated_windows_header
+from e2e_runtime_overrides import prepare_runtime_overlay
 
 ROOT = Path(__file__).resolve().parents[1]
 SWITCH = ROOT / "port/switch"
@@ -176,11 +176,7 @@ def main() -> int:
         return 1
     patched_sources = prepare_patched_sources()
     runtime_overlay = BUILD / "runtime-overlay"
-    generated_windows_header(GAME / "runtime/windows.hpp",
-                             runtime_overlay / "windows.hpp")
-    for header_name in ("float_text.hpp", "graphics.hpp", "locale.hpp"):
-        shutil.copyfile(GAME / "runtime" / header_name,
-                        runtime_overlay / header_name)
+    prepare_runtime_overlay(GAME / "runtime", runtime_overlay)
     report["source_overrides"] += sorted(patched_sources)
     flags = ["-std=gnu++20", "-D__SWITCH__", "-march=armv8-a+crc+crypto",
              "-mtune=cortex-a57", "-mtp=soft", "-fPIE", "-O0",
@@ -190,7 +186,8 @@ def main() -> int:
         SWITCH / "platform",
         GAME / "src", GAME / "runtime", ROOT / "upstream/okgf/include")]
     flags = [flag if not flag.startswith("-I") else "-I" + native_path(Path(flag[2:])) for flag in flags]
-    headers = [*GAME.rglob("*.hpp"), *(SWITCH / "platform").glob("*.hpp")]
+    headers = [*GAME.rglob("*.hpp"), *(SWITCH / "platform").glob("*.hpp"),
+               *runtime_overlay.rglob("*.hpp")]
     headers = [path for path in headers if path.name not in ("e2e_clock.hpp", "e2e_stage.hpp")]
     newest_header_ns = max((path.stat().st_mtime_ns for path in headers), default=0)
     objects: list[Path] = []

@@ -4,11 +4,13 @@ from pathlib import Path
 import subprocess
 
 from e2e_source_overrides import generated_source
+from e2e_runtime_overrides import prepare_runtime_overlay
 
 
 ROOT = Path(__file__).resolve().parents[1]
 BUILD = ROOT / "port/switch/build/e2e-command-line"
 BUILD.mkdir(parents=True, exist_ok=True)
+OVERLAY = prepare_runtime_overlay(ROOT / "upstream/cpp/runtime", BUILD / "runtime-overlay")
 
 imports = []
 for name in ("WindowsImports.cpp", "WindowsSdk.cpp"):
@@ -18,6 +20,7 @@ binary = BUILD / "test_e2e_command_line"
 subprocess.run([
     "g++", "-std=gnu++20", "-O2", "-include", "unistd.h",
     "-ffunction-sections", "-fdata-sections", "-pthread",
+    "-I" + str(OVERLAY),
     "-I" + str(ROOT / "port/switch/platform"),
     "-I" + str(ROOT / "upstream/cpp/src"),
     "-I" + str(ROOT / "upstream/cpp/runtime"),

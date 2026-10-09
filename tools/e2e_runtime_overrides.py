@@ -1,6 +1,8 @@
 """Create a disposable ARM64 runtime header with portable named heaps."""
 
 from pathlib import Path
+import filecmp
+import shutil
 
 
 def generated_windows_header(source: Path, destination: Path) -> Path:
@@ -85,5 +87,17 @@ inline bool heap_free(Cardinal heap, Cardinal flags, void *data) {
 #endif
 '''
     destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(prefix + replacement + suffix, encoding="utf-8")
+    rendered = prefix + replacement + suffix
+    if not destination.exists() or destination.read_text(encoding="utf-8") != rendered:
+        destination.write_text(rendered, encoding="utf-8")
     return destination
+
+
+def prepare_runtime_overlay(runtime_root: Path, overlay: Path) -> Path:
+    generated_windows_header(runtime_root / "windows.hpp", overlay / "windows.hpp")
+    for name in ("float_text.hpp", "graphics.hpp", "locale.hpp"):
+        source = runtime_root / name
+        destination = overlay / name
+        if not destination.exists() or not filecmp.cmp(source, destination, shallow=False):
+            shutil.copyfile(source, destination)
+    return overlay
