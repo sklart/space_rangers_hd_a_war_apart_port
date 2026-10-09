@@ -15,6 +15,7 @@
 #include "units/GR_Main.hpp"
 #include "units/aPacket.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cstdio>
 #include <cstdlib>
@@ -57,6 +58,14 @@ std::uint64_t Fnv(const std::vector<std::uint8_t>& bytes) {
   std::uint64_t value = UINT64_C(0xcbf29ce484222325);
   for (auto byte : bytes) value = (value ^ byte) * UINT64_C(0x100000001b3);
   return value;
+}
+std::size_t EstimatedImageBytes(const ui::UiObject& object) {
+  std::size_t total{};
+  if (const auto* leaf = dynamic_cast<const ui::UiImageLeaf*>(&object))
+    total += static_cast<std::size_t>(std::max(0, leaf->Image().natural_width())) *
+             static_cast<std::size_t>(std::max(0, leaf->Image().natural_height())) * 4;
+  for (const auto& child : object.Children()) total += EstimatedImageBytes(*child);
+  return total;
 }
 EC_BlockPar::TBlockParEC* Child(EC_BlockPar::TBlockParEC* parent,
                                const char* name, int occurrence) {
@@ -246,6 +255,19 @@ int main(int argc, char** argv) {
   Check(graph_frame.crc32 == 0x1ebb3fc8u &&
         graph_frame.fnv64 == UINT64_C(0xeb791740957eeeb8),
         "real GI GraphBuf host frame fingerprint");
+  std::size_t font_source_bytes{};
+  for (const auto* path : {"DATA/FONT/Verdana_09_2.aft", "DATA/FONT/ranger_6.aft",
+                           "DATA/FONT/Verdana_08_1.aft", "DATA/FONT/Verdana_08_2_bold.aft"})
+    if (const auto* font = graph_package.Resolve(path)) font_source_bytes += font->data_size;
+  const auto scrollbar_bytes = EstimatedImageBytes(*scroll) +
+      EstimatedImageBytes(*panel->VerticalBar());
+  const auto real_bytes = EstimatedImageBytes(*showcase_node) + font_source_bytes;
+  const auto peak_estimate = real_bytes + scrollbar_bytes + graph_bytes.size() +
+      static_cast<std::size_t>(1280 * 720 * 4);
+  std::printf("M26 REAL MEMORY graphbuf=%zu scrollbar_est=%zu edit_font_sources=%zu "
+              "subtree_est=%zu peak_ui_est=%zu\n",
+              graph_bytes.size(), scrollbar_bytes, font_source_bytes, real_bytes,
+              peak_estimate);
   std::printf("M26 REAL GRAPHBUF scaled_bytes=%zu frame=%08x/%016llx\n",
       graph->Buffer().bytes(), graph_frame.crc32,
       static_cast<unsigned long long>(graph_frame.fnv64));

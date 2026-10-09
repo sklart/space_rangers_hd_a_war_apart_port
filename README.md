@@ -2,7 +2,7 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Текущий аппаратный статус:** M14P–M24 проверены на Switch. M23 и M24 прошли в одном cumulative NRO. Это не означает готовность игры к прохождению: полный UI, audio/music и gameplay ещё не подключены.
+> **Текущий аппаратный статус:** M14P–M25 проверены на Switch. M26 готовится к отдельному cumulative аппаратному прогону. Это не означает готовность игры к прохождению: полный UI, audio/music и gameplay ещё не подключены.
 
 ## Что уже работает
 
@@ -28,6 +28,8 @@
 | M22 portable UI object/layout foundation | host mixed-tree/Python oracle, CI `37783935697`, clean ARM64, symbol audit и Switch hardware PASS; M22 COMPLETE |
 | M23 portable AFT/text/Label foundation | host/Python oracle, CI `37803515979`, clean ARM64/symbol audit PASS; cumulative M24 Switch log: checkpoint и dynamic stage PASS; M23 COMPLETE |
 | M24 portable GraphButton/Window/Zone foundation | host/Python oracle, CI `37823081354` и `37825116392`, clean ARM64/symbol audit PASS; cumulative Switch log: checkpoint, dynamic stage, PLUS и shutdown PASS; M24 COMPLETE |
+| M25 portable GI/GAI UI and real release subtree | host/CI/ARM64/Switch PASS; 18-node PLBar and live GAI; M25 COMPLETE |
+| M26 portable GraphBuf, ScrollBar, PanelScrollBar, Edit and 50-node real UI | host/oracles PASS, CI M26 gate PASS, clean ARM64/NRO PASS; Switch hardware PENDING |
 | Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
@@ -184,6 +186,7 @@ M20 добавляет `host-gi-object-test` и отдельный symbol audit:
 - [M23 portable AFT/text/Label foundation](docs/milestone23-font-label.md) — COMPLETE / HARDWARE PASS in cumulative M24 run
 - [M24 portable GraphButton/Window/Zone foundation](docs/milestone24-ui-controls.md) — COMPLETE / HARDWARE PASS
 - [M25 portable GI/GAI UI and first real subtree](docs/milestone25-gi-gai-real-ui.md) — COMPLETE / HARDWARE PASS
+- [M26 GraphBuf, scroll controls, Edit and larger real UI](docs/milestone26-graphbuf-scroll-edit-real-ui.md) — hardware pending
 
 ## Лицензирование и обратная связь
 

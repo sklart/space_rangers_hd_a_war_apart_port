@@ -21,7 +21,8 @@ def inventory(root: Path, prior: dict, new: dict[str, dict]) -> dict:
     nodes = [node for node in m23.nodes(parsed) if node.name in KNOWN_CONTROLS
              and not node.path.startswith("ML/Style/")]
     old = {row["path"]: row for row in prior["after_gai"]["controls"]}
-    added = {row["path"]: row for kind in NEW_TYPES for row in new[kind]["controls"]}
+    added = {row["path"]: row for kind in NEW_TYPES
+             for row in new.get(kind, {}).get("controls", [])}
 
     def eligible(node: m23.Node) -> bool:
         row = added.get(node.unique_path) or old.get(node.unique_path)
@@ -44,9 +45,15 @@ def inventory(root: Path, prior: dict, new: dict[str, dict]) -> dict:
         candidates.append({"path": panel.unique_path, "nodes": len(descendants),
                            "max_depth": depth, "visual_leaves": visual,
                            "control_types": dict(sorted(Counter(node.name for node in descendants).items()))})
-    candidates.sort(key=lambda row: (-row["nodes"], -row["visual_leaves"], row["path"]))
+    candidates.sort(key=lambda row: (-row["nodes"], -row["visual_leaves"],
+                                     -row["max_depth"], row["path"]))
+    deterministic = min(candidates, key=lambda row: row["path"]) if candidates else None
+    diverse = min(candidates, key=lambda row: (-len(row["control_types"]),
+                                               -row["nodes"], -row["visual_leaves"],
+                                               -row["max_depth"], row["path"])) if candidates else None
     return {"read_only": True, "candidate_count": len(candidates),
             "largest": candidates[0] if candidates else None,
+            "deterministic": deterministic, "most_diverse": diverse,
             "top": candidates[:30], "blocker_root_counts": dict(blockers.most_common()),
             "eligible_controls": dict(sorted(Counter(node.name for node in nodes if eligible(node)).items()))}
 
@@ -61,7 +68,16 @@ if __name__ == "__main__":
     parser.add_argument("edit", type=Path)
     args = parser.parse_args()
     load = lambda path: json.loads(path.read_text(encoding="utf-8-sig"))
-    print(json.dumps(inventory(args.game_root, load(args.m25_inventory),
-                               dict(zip(NEW_TYPES, map(load, (args.graphbuf, args.scrollbar,
-                                                              args.panel_scrollbar, args.edit))))),
+    prior = load(args.m25_inventory)
+    all_new = dict(zip(NEW_TYPES, map(load, (args.graphbuf, args.scrollbar,
+                                          args.panel_scrollbar, args.edit))))
+    stages = {}
+    for through in range(len(NEW_TYPES) + 1):
+        stage = inventory(args.game_root, prior,
+                          {kind: all_new[kind] for kind in NEW_TYPES[:through]})
+        stages["M25" if through == 0 else "+".join(NEW_TYPES[:through])] = {
+            "candidate_count": stage["candidate_count"], "largest": stage["largest"]}
+    result = inventory(args.game_root, prior, all_new)
+    result["stage_progression"] = stages
+    print(json.dumps(result,
                      ensure_ascii=False, indent=2))

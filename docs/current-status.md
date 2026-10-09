@@ -1,8 +1,25 @@
-# Current status — M25 COMPLETE / HARDWARE PASS
+# Current status — M26 SOFTWARE COMPLETE / HARDWARE PENDING
+
+M25 was fast-forwarded to `master` at
+`ac2e0063ac1204ef70b579ebba3b50eacb922d38`, tagged
+`m25-hardware-pass`; its redundant remote branch was removed after equality
+check. M26 runs on `codex/m26-ui-next` and adds portable GraphBuf,
+ScrollBar/PanelScrollBar and Edit rendering. The selected real Main.dat
+subtree has 50 nodes and 49 visual leaves at its release screen position.
+The independent Python renderer and C++ host renderer agree on the full
+1280×720 RGB565 frame, `cb1a12b3/fbca196e86b2f452`. M26 unit and
+release-backed host tests pass; GitHub `package-host` run `37881043049`
+passed the M26 and retained gates. The clean ARM64 build from production
+commit `8c092352f262f54231570e2811f08b61f555726a` is ELF64 AArch64
+with zero undefined and zero forbidden M26 symbols. Its NRO embeds
+`build_git=8c09235`, is 7,833,904 bytes and has SHA-256
+`ACAAB6C2FDAB8BCD9CED46F5462CA2FE57971AB8212054576ADB315133A152CB`.
+The physical M26 Switch run and screenshot remain pending. See
+[the M26 evidence document](milestone26-graphbuf-scroll-edit-real-ui.md).
 
 M24 was fast-forwarded to `master` at
 `6193878a71341c9726a0935643c0170305032c6b`; the exact commit was tagged
-`m24-hardware-pass`. M25 runs on `codex/m25-gi-gai-ui`. Its portable raw GI
+`m24-hardware-pass`. M25 ran on `codex/m25-gi-gai-ui`. Its portable raw GI
 and supported GAI UI path have local synthetic and release-backed host tests.
 The first real release subtree is the 18-node `PLBar` panel from Main.dat,
 with 17 real Format 2 GI leaves and independent tree/frame hashes. CI run

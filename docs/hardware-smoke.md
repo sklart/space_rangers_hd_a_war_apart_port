@@ -1,5 +1,32 @@
 # M11C Switch hardware smoke
 
+## M26 cumulative checkpoint — HARDWARE PENDING
+
+Use `port/switch/Space Rangers HD - A War Apart.nro` from production
+`8c092352f262f54231570e2811f08b61f555726a`. It embeds
+`build_git=8c09235`, is 7,833,904 bytes and has local SHA-256
+`ACAAB6C2FDAB8BCD9CED46F5462CA2FE57971AB8212054576ADB315133A152CB`.
+If possible, hash the destination SD file after
+copying and require equality; otherwise record `SD SHA = NOT MEASURED`.
+Run the exact NRO for at least 45–60 seconds. Save `port.log`, `gr-main.log`
+and a 1280×720 screenshot. The screen should show the 50-node release
+`Info/PanelM11` fragment at `(298,120)` and the separate real-resource
+GraphBuf, scroll controls and Edit diagnostics. The released tab starts
+inactive and is activated only for this showcase.
+
+Required log evidence: `build_git=<exact>`, retained `[M23] PASS`,
+`[M24] PASS`, `[M25] PASS`, M17 first-cycle PASS, then `[M26] GraphBuf PASS`,
+`[M26] ScrollBar PASS`, `[M26] PanelScrollBar PASS`, `[M26] Edit PASS`,
+`[M26] real UI PASS` and `[STAGE] M26 GraphBuf/Scroll/Edit/real UI PASS`.
+Check the fixed GraphBuf source/scaled, scroll layout, Edit frame, tree and
+full-frame fingerprints in the M26 evidence document. Also require
+`frames > 0`, `presents > 0`, the M26 memory/perf lines, `exit_reason=plus`,
+shutdown PASS and `[BOOT] COMPLETE`. `gr-main.log` should contain only the
+normal `Start` line. Hardware status remains pending until these files and
+the screenshot have been inspected.
+The runtime should also log five `ScrollBar transition position=` values
+`1, 51, 101, 151, 200` and advancing Edit caret positions `1, 2, 3`.
+
 ## M25 cumulative checkpoint — HARDWARE PASS
 
 The software-gated source is `e2334a4`; the clean ARM64 NRO is 7,727,408

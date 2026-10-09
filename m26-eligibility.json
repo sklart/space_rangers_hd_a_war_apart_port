@@ -14,6 +14,29 @@
       "Panel": 1
     }
   },
+  "deterministic": {
+    "path": "ML#0/AB#0/Panel#0/Panel#0/Panel#1/Panel#0/Panel#0",
+    "nodes": 18,
+    "max_depth": 2,
+    "visual_leaves": 17,
+    "control_types": {
+      "Image": 17,
+      "Panel": 1
+    }
+  },
+  "most_diverse": {
+    "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#11",
+    "nodes": 50,
+    "max_depth": 2,
+    "visual_leaves": 49,
+    "control_types": {
+      "Edit": 3,
+      "GraphButton": 28,
+      "Image": 1,
+      "Label": 17,
+      "Panel": 1
+    }
+  },
   "top": [
     {
       "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#11",
@@ -434,5 +457,87 @@
     "ScrollBar": 3,
     "Window": 42,
     "Zone": 61
+  },
+  "stage_progression": {
+    "M25": {
+      "candidate_count": 90,
+      "largest": {
+        "path": "ML#0/Scaner#0/Panel#0/Panel#0/Panel#1/Panel#0/Panel#0",
+        "nodes": 40,
+        "max_depth": 3,
+        "visual_leaves": 27,
+        "control_types": {
+          "GraphButton": 6,
+          "Image": 18,
+          "Label": 3,
+          "Panel": 7,
+          "Zone": 6
+        }
+      }
+    },
+    "GraphBuf": {
+      "candidate_count": 90,
+      "largest": {
+        "path": "ML#0/Scaner#0/Panel#0/Panel#0/Panel#1/Panel#0/Panel#0",
+        "nodes": 40,
+        "max_depth": 3,
+        "visual_leaves": 27,
+        "control_types": {
+          "GraphButton": 6,
+          "Image": 18,
+          "Label": 3,
+          "Panel": 7,
+          "Zone": 6
+        }
+      }
+    },
+    "GraphBuf+ScrollBar": {
+      "candidate_count": 91,
+      "largest": {
+        "path": "ML#0/Scaner#0/Panel#0/Panel#0/Panel#1/Panel#0/Panel#0",
+        "nodes": 40,
+        "max_depth": 3,
+        "visual_leaves": 27,
+        "control_types": {
+          "GraphButton": 6,
+          "Image": 18,
+          "Label": 3,
+          "Panel": 7,
+          "Zone": 6
+        }
+      }
+    },
+    "GraphBuf+ScrollBar+PanelScrollBar": {
+      "candidate_count": 98,
+      "largest": {
+        "path": "ML#0/Scaner#0/Panel#0/Panel#0/Panel#1/Panel#0/Panel#0",
+        "nodes": 40,
+        "max_depth": 3,
+        "visual_leaves": 27,
+        "control_types": {
+          "GraphButton": 6,
+          "Image": 18,
+          "Label": 3,
+          "Panel": 7,
+          "Zone": 6
+        }
+      }
+    },
+    "GraphBuf+ScrollBar+PanelScrollBar+Edit": {
+      "candidate_count": 114,
+      "largest": {
+        "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#11",
+        "nodes": 50,
+        "max_depth": 2,
+        "visual_leaves": 49,
+        "control_types": {
+          "Edit": 3,
+          "GraphButton": 28,
+          "Image": 1,
+          "Label": 17,
+          "Panel": 1
+        }
+      }
+    }
   }
 }
