@@ -10,7 +10,7 @@
     }
   ],
   "excluded_required": 0,
-  "link_objects": 354,
+  "link_objects": 356,
   "undefined_symbols": 0,
   "elf": "ELF64 AArch64 PIE",
   "required_game_symbols": {
@@ -18,13 +18,27 @@
     "Globals::RunMainScreenStateLoop()": true
   },
   "windows_only_apis_encountered": [
+    "advapi32.dll",
+    "avifil32.dll",
+    "gdi32.dll",
+    "gdiplus.dll",
     "kernel32.dll",
-    "user32.dll"
+    "libvorbisfile.dll",
+    "matrixgame.dll",
+    "okgf.dll",
+    "ole32.dll",
+    "shell32.dll",
+    "steam_ach.dll",
+    "user32.dll",
+    "vorbisfile.dll",
+    "xvidcore.dll"
   ],
   "portable_implementations_used": [
     "aft_font",
     "alpha_bitmap_cpu",
     "blockpar_test_support",
+    "e2e_events",
+    "e2e_threads",
     "ec_file_adapter",
     "filesystem",
     "font_cache_resolver",
@@ -82,12 +96,13 @@
     "okgf_no_tls"
   ],
   "optional_stubs": [
-    "Windows single-instance OpenEvent/CreateEvent",
+    "Windows single-instance OpenEvent lookup (CreateEvent uses real portable events)",
     "HKLM AVI registry write",
     "Wine detection",
     "Steam DLL, initialization, callback thread, shutdown",
     "MMSystem timer-resolution request",
     "DirectSound device enumeration and WinMM audio timers (audio disabled)",
+    "Windows thread priority is recorded but OS scheduling priority is unchanged",
     "COM apartment cleanup",
     "GetModuleFileNameA branch (entrypoint sets game working directory)"
   ],
@@ -95,9 +110,9 @@
   "arm64_link": "PASS",
   "first_failure": {
     "phase": "runtime dependency audit",
-    "exact_error": "ELF retains Windows DLL imports: kernel32.dll, user32.dll"
+    "exact_error": "ELF retains DLL names: advapi32.dll, avifil32.dll, gdi32.dll, gdiplus.dll, kernel32.dll, libvorbisfile.dll, matrixgame.dll, okgf.dll, ole32.dll, shell32.dll, steam_ach.dll, user32.dll, vorbisfile.dll, xvidcore.dll"
   },
-  "build_git": "4666a7bee1a0e084d328a1d7f0cb2da3ba88a3e8",
+  "build_git": "7b76e27963a443608345610761c591fb5b8dd82d",
   "build_dirty": false,
   "source_overrides": [
     "DirectSound.cpp",
@@ -119,8 +134,8 @@
   ],
   "nro": {
     "path": "port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E.nro",
-    "bytes": 17938736,
-    "sha256": "302D2B6E2509BDA1AF3BA09B9B6416C9A037EB74A8A7EA8A88EC6EDBFD5712CD",
+    "bytes": 18401584,
+    "sha256": "EE9B95817540D55F730299F28A9A3E81662D114DD3F0EBBF278B0680ABA9C61C",
     "status": "EXPERIMENTAL; Windows DLL audit FAIL"
   }
 }
