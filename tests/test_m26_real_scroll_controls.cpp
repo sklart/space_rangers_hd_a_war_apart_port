@@ -121,17 +121,13 @@ int main(int argc, char** argv) {
   auto* panel_source = Find(config, {{"ML", 0}, {"Achievements", 0}, {"Panel", 0},
                                      {"Panel", 0}, {"PanelScrollBar", 0}});
   Check(scroll_source && panel_source, "Main.dat source paths changed");
-  auto* selected = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
-  selected->AddChildBlock(u"ScrollBar")->CopyFrom(scroll_source);
-  auto* panel_copy = selected->AddChildBlock(u"PanelScrollBar");
-  panel_copy->CopyFrom(panel_source);
-  while (panel_copy->GetBlockCount() > 0)
-    panel_copy->DeleteChildBlock(panel_copy->GetBlockNameByIndex(0));
   ui::UiTree tree;
   tree.SetRootSize({1280, 720});
   std::fprintf(stderr, "M26 release: factory\n");
-  Check(ui_config::LoadChildren(tree.Root(), selected, context,
-                                ui_config::LoadMode::Strict, nullptr, &error), error);
+  Check(ui_config::LoadSelectedControl(tree.Root(), "ScrollBar", scroll_source,
+                                       context, true, &error) &&
+        ui_config::LoadSelectedControl(tree.Root(), "PanelScrollBar", panel_source,
+                                       context, false, &error), error);
   auto* scroll = dynamic_cast<ui::UiScrollBar*>(tree.Root()->FindByNameRecursive("PF_SBTurn"));
   auto* panel = dynamic_cast<ui::UiPanelScrollBar*>(tree.Root()->FindByNameRecursive("PanelSlot"));
   Check(scroll && panel && scroll->Orientation() == 1 &&

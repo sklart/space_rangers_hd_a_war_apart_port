@@ -755,7 +755,8 @@ bool ApplyGaiProperties(ui::UiObject* parent, ui::UiGaiLeaf* leaf,
   return true;
 }
 bool LoadOne(ui::UiObject* parent, const std::string& name, EC_BlockPar::TBlockParEC* block,
-             const Context& context, LoadMode mode, LoadReport* report, std::string* error) {
+             const Context& context, LoadMode mode, LoadReport* report, std::string* error,
+             bool include_children = true) {
   if (IsEventBlock(name)) { if (report) report->skipped_events.push_back(name); return true; }
   if (!IsKnownControl(name)) return LoadChildren(parent, block, context, mode, report, error);
   std::unique_ptr<ui::UiObject> node;
@@ -875,7 +876,7 @@ bool LoadOne(ui::UiObject* parent, const std::string& name, EC_BlockPar::TBlockP
   if (!parent->Attach(std::move(node), error)) return false;
   if (auto* panel_bar = dynamic_cast<ui::UiPanelScrollBar*>(attached))
     panel_bar->FinalizeAfterAttach();
-  if ((attached->Kind() == ui::NodeKind::Panel || attached->Kind() == ui::NodeKind::Zone ||
+  if (include_children && (attached->Kind() == ui::NodeKind::Panel || attached->Kind() == ui::NodeKind::Zone ||
        attached->Kind() == ui::NodeKind::GraphButton || attached->Kind() == ui::NodeKind::Window ||
        attached->Kind() == ui::NodeKind::GraphBuffer ||
        attached->Kind() == ui::NodeKind::ScrollBar ||
@@ -930,6 +931,14 @@ bool LoadChildren(ui::UiObject* parent, EC_BlockPar::TBlockParEC* block, const C
     if (!LoadOne(parent, Text(block->GetBlockNameByIndex(index)), block->GetBlockByIndex(index), context, mode, report, error)) return false;
   }
   return true;
+}
+bool LoadSelectedControl(ui::UiObject* parent, const std::string& name,
+                         EC_BlockPar::TBlockParEC* block, const Context& context,
+                         bool include_children, std::string* error) {
+  if (!parent || !block || !IsKnownControl(name))
+    return Fail(error, "selected UI control is invalid");
+  return LoadOne(parent, name, block, context, LoadMode::Strict, nullptr, error,
+                 include_children);
 }
 bool LoadLabel(ui::UiObject* parent, EC_BlockPar::TBlockParEC* block,
                const Context& context, std::string* error) {

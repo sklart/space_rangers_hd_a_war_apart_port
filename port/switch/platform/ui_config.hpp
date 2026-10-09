@@ -79,6 +79,12 @@ bool ResolveRuntimeDepth(EC_BlockPar::TBlockParEC* depth_config, const std::stri
 bool LoadChildren(ui::UiObject* parent, EC_BlockPar::TBlockParEC* block,
                   const Context& context, LoadMode mode, LoadReport* report = nullptr,
                   std::string* error = nullptr);
+// Builds a selected release control directly from its source block. The caller
+// may omit child controls when only the container and its own properties are
+// needed, without deep-copying the release config subtree.
+bool LoadSelectedControl(ui::UiObject* parent, const std::string& name,
+                         EC_BlockPar::TBlockParEC* block, const Context& context,
+                         bool include_children, std::string* error = nullptr);
 // Build one already-selected Label block from a release config without
 // traversing unsupported siblings or copying game configuration data.
 bool LoadLabel(ui::UiObject* parent, EC_BlockPar::TBlockParEC* block,

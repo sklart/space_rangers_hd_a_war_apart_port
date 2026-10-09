@@ -1201,15 +1201,14 @@ bool InitializeM26Release(M26ReleaseDiagnostic* diagnostic, M23TextDiagnostic* t
       static_cast<unsigned long long>(edit_frame.fnv64));
   diagnostic->edit->SetText(u"");
   diagnostic->edit->SetFocused(false);
+  Log("[M26] Edit reset PASS");
   diagnostic->controls.SetRootSize({width, height});
-  auto* selected = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
-  selected->AddChildBlock(u"ScrollBar")->CopyFrom(scroll_source);
-  auto* panel_copy = selected->AddChildBlock(u"PanelScrollBar");
-  panel_copy->CopyFrom(panel_source);
-  while (panel_copy->GetBlockCount() > 0)
-    panel_copy->DeleteChildBlock(panel_copy->GetBlockNameByIndex(0));
-  if (!ui_config::LoadChildren(diagnostic->controls.Root(), selected, context,
-                               ui_config::LoadMode::Strict, nullptr, error)) return false;
+  if (!ui_config::LoadSelectedControl(diagnostic->controls.Root(), "ScrollBar",
+                                      scroll_source, context, true, error)) return false;
+  Log("[M26] ScrollBar loaded");
+  if (!ui_config::LoadSelectedControl(diagnostic->controls.Root(), "PanelScrollBar",
+                                      panel_source, context, false, error)) return false;
+  Log("[M26] PanelScrollBar loaded");
   diagnostic->scroll = dynamic_cast<ui::UiScrollBar*>(
       diagnostic->controls.Root()->FindByNameRecursive("PF_SBTurn"));
   diagnostic->panel = dynamic_cast<ui::UiPanelScrollBar*>(
