@@ -125,3 +125,9 @@ must preserve M23/M24/M25 checkpoints before M26 and report the exact
 capture `port.log`, `gr-main.log` and a screenshot, and compare the SD copy
 SHA-256 when accessible. Until that run, status is **M26 SOFTWARE COMPLETE /
 HARDWARE PENDING** only after CI and clean ARM64 validation are recorded.
+
+The later cumulative `build_git=f9c98de` M27 NRO passed all M26 GraphBuf,
+ScrollBar, PanelScrollBar, Edit and real-UI checks on Switch. Its final
+116,707 ms physical runtime presented 1,960 frames and exited by PLUS with
+orderly shutdown and `[BOOT] COMPLETE`; a prior same-build run supplied a
+1280×720 screenshot of the real UI. M26 is **COMPLETE / HARDWARE PASS**.

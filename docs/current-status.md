@@ -1,4 +1,4 @@
-# Current status — M26 SOFTWARE COMPLETE / HARDWARE PENDING
+# Current status — M26/M27 COMPLETE / HARDWARE PASS
 
 M25 was fast-forwarded to `master` at
 `ac2e0063ac1204ef70b579ebba3b50eacb922d38`, tagged
@@ -50,6 +50,16 @@ frames/presents, followed by `[BOOT] COMPLETE`. B input and visual evidence
 are now confirmed. This run is also shorter than the specified continuous
 45–60 s smoke interval, and the SD destination hash remains unmeasured, so
 the cumulative hardware gate remains **PARTIAL / FINAL DURATION PENDING**.
+
+The final supplied `f9c98de` Switch run remained in the runtime loop for
+116,707 ms, presenting 1,960 frames, then exited by PLUS. It recorded four
+A/left and six B/right press/release pairs after `[M27] LIVE INPUT READY`.
+The scripted M27 interaction, M17 cycle, every retained M17–M27 runtime
+stage, shutdown and `[BOOT] COMPLETE` passed. The preceding run supplied a
+1280×720 screenshot of the same build showing the real UI and white cursor.
+The sustained run exceeds the requested 45–60 s observation interval and
+closes the M26/M27 cumulative physical smoke gate: **COMPLETE / HARDWARE
+PASS**. The SD destination SHA-256 was not independently measured.
 
 M24 was fast-forwarded to `master` at
 `6193878a71341c9726a0935643c0170305032c6b`; the exact commit was tagged
