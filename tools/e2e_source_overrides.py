@@ -12,62 +12,9 @@ FUNCTIONS: dict[str, dict[str, str]] = {
             "        return -1; // OPTIONAL: audio is disabled for the first Switch menu run.",
     },
     "WindowsImports.cpp": {
-        "std::int32_t PAS_STDCALL CloseHandle(std::uint32_t Handle)":
-            "return srhd_awa::platform::e2e_events::Close(Handle) ||\n"
-            "            srhd_awa::platform::e2e_threads::Close(Handle) ? 1 : 0;",
-        "std::uint32_t PAS_STDCALL GetLastError()":
-            "return 0; // OPTIONAL: no Win32 last-error state exists on Switch.",
-        "std::int32_t PAS_STDCALL QueryPerformanceCounter(std::int64_t& Counter)":
-            "Counter = static_cast<std::int64_t>(srhd_awa::platform::e2e_clock::Counter());\n        return 1;",
-        "std::uint32_t PAS_STDCALL GetTickCount()":
-            "return srhd_awa::platform::e2e_clock::Milliseconds();",
-        "std::uint32_t PAS_STDCALL GetCurrentThreadId()":
-            "return srhd_awa::platform::e2e_threads::CurrentId();",
-        "std::uint32_t PAS_STDCALL OpenEvent(std::uint32_t DesiredAccess, std::int32_t InheritHandle, std::uint8_t* Name)":
-            "static_cast<void>(DesiredAccess); static_cast<void>(InheritHandle); static_cast<void>(Name);\n"
-            "        return 0; // OPTIONAL: application lifecycle already enforces one instance.",
-        "std::uint32_t PAS_STDCALL CreateEvent(void* Attributes, std::int32_t ManualReset, std::int32_t InitialState, std::uint8_t* Name)":
-            "static_cast<void>(Attributes); static_cast<void>(Name);\n"
-            "        return srhd_awa::platform::e2e_events::Create(ManualReset != 0, InitialState != 0);",
-        "std::uint8_t* PAS_STDCALL GetCommandLineA()":
-            "static std::uint8_t line[] = \"Rangers\";\n        return line;",
-        "std::uint8_t* PAS_STDCALL CharNext(std::uint8_t* P)":
-            "return P != nullptr && *P != 0 ? P + 1 : P; // Switch command line is ASCII.",
         "std::uint32_t PAS_STDCALL GetModuleFileNameA(std::uint32_t Module, std::uint8_t* FileName, std::uint32_t Capacity)":
             "static_cast<void>(Module); static_cast<void>(FileName); static_cast<void>(Capacity);\n"
             "        return 0; // E2E entrypoint sets the real game directory explicitly.",
-    },
-    "WindowsSdk.cpp": {
-        "THandle PAS_STDCALL HeapCreate(std::uint32_t flOptions, std::uint32_t dwInitialSize, std::uint32_t dwMaximumSize)":
-            "return pas::win::heap_create(flOptions, dwInitialSize, dwMaximumSize);",
-        "BOOL PAS_STDCALL HeapDestroy(THandle hHeap)":
-            "return pas::win::heap_destroy(hHeap) ? 1 : 0;",
-        "THandle PAS_STDCALL CreateThread(void* lpThreadAttributes, std::uint32_t dwStackSize, TFNThreadStartRoutine lpStartAddress, void* lpParameter, std::uint32_t dwCreationFlags, std::uint32_t& lpThreadId)":
-            "static_cast<void>(lpThreadAttributes); static_cast<void>(dwStackSize);\n"
-            "        return srhd_awa::platform::e2e_threads::Create(\n"
-            "            reinterpret_cast<srhd_awa::platform::e2e_threads::Entry>(lpStartAddress),\n"
-            "            lpParameter, (dwCreationFlags & CREATE_SUSPENDED) != 0, &lpThreadId);",
-        "THandle PAS_STDCALL GetCurrentThread()":
-            "return srhd_awa::platform::e2e_threads::CurrentId();",
-        "BOOL PAS_STDCALL SetThreadPriority(THandle hThread, std::int32_t nPriority)":
-            "return srhd_awa::platform::e2e_threads::SetPriority(hThread, nPriority) ? 1 : 0;",
-        "std::int32_t PAS_STDCALL GetThreadPriority(THandle hThread)":
-            "return srhd_awa::platform::e2e_threads::GetPriority(hThread);",
-        "std::uint32_t PAS_STDCALL ResumeThread(THandle hThread)":
-            "return srhd_awa::platform::e2e_threads::Resume(hThread);",
-        "BOOL PAS_STDCALL SetEvent(THandle hEvent)":
-            "return srhd_awa::platform::e2e_events::Set(hEvent) ? 1 : 0;",
-        "BOOL PAS_STDCALL ResetEvent(THandle hEvent)":
-            "return srhd_awa::platform::e2e_events::Reset(hEvent) ? 1 : 0;",
-        "std::uint32_t PAS_STDCALL WaitForSingleObject(THandle hHandle, std::uint32_t dwMilliseconds)":
-            "const auto event_result = srhd_awa::platform::e2e_events::WaitOne(hHandle, dwMilliseconds);\n"
-            "        return event_result == srhd_awa::platform::e2e_events::kWaitFailed\n"
-            "            ? srhd_awa::platform::e2e_threads::Wait(hHandle, dwMilliseconds) : event_result;",
-        "std::uint32_t PAS_STDCALL WaitForMultipleObjects(std::uint32_t nCount, PWOHandleArray lpHandles, BOOL bWaitAll, std::uint32_t dwMilliseconds)":
-            "return srhd_awa::platform::e2e_events::WaitMany(lpHandles ? lpHandles->elements : nullptr,\n"
-            "            nCount, bWaitAll != 0, dwMilliseconds);",
-        "BOOL PAS_STDCALL QueryPerformanceFrequency(Windows::TLargeInteger& lpFrequency)":
-            "lpFrequency = static_cast<Windows::TLargeInteger>(srhd_awa::platform::e2e_clock::Frequency());\n        return lpFrequency > 0;",
     },
     "SysUtilsImports.cpp": {
         "std::int32_t FindFirst(const pas::AnsiString& Path, std::int32_t Attr, SysUtils::TSearchRec& F)":
@@ -88,21 +35,6 @@ FUNCTIONS: dict[str, dict[str, str]] = {
             "        return !error;",
         "pas::AnsiString AnsiLowerCase(const pas::AnsiString& Text)":
             "return SysUtilsImports::LowerCase(Text); // Install language codes are ASCII.",
-    },
-    "MMSystem.cpp": {
-        "std::uint32_t PAS_STDCALL timeBeginPeriod(std::uint32_t Period)":
-            "static_cast<void>(Period);\n        return 0; // OPTIONAL: Switch owns timer resolution.",
-        "std::uint32_t PAS_STDCALL timeEndPeriod(std::uint32_t Period)":
-            "static_cast<void>(Period);\n        return 0; // OPTIONAL: Switch owns timer resolution.",
-        "std::uint32_t PAS_STDCALL timeGetTime()":
-            "return srhd_awa::platform::e2e_clock::Milliseconds();",
-        "std::uint32_t PAS_STDCALL timeKillEvent(std::uint32_t TimerId)":
-            "static_cast<void>(TimerId);\n"
-            "        return 0; // OPTIONAL: audio timers are disabled for the first menu run.",
-        "std::uint32_t PAS_STDCALL timeSetEvent(std::uint32_t Delay, std::uint32_t Resolution, TFNTimeCallBack Callback, std::uint32_t User, std::uint32_t Flags)":
-            "static_cast<void>(Delay); static_cast<void>(Resolution); static_cast<void>(Callback);\n"
-            "        static_cast<void>(User); static_cast<void>(Flags);\n"
-            "        return 0; // OPTIONAL: audio timers are disabled for the first menu run.",
     },
 }
 
@@ -208,8 +140,6 @@ def generated_source(source: Path, destination: Path, build_git: str = "") -> Pa
         text = '#include "e2e_file_search.hpp"\n#include "game_path.hpp"\n#include "user_root.hpp"\n#include <filesystem>\n' + text
     if overrides:
         text = '#include "e2e_clock.hpp"\n' + text
-    if source.name in ("WindowsImports.cpp", "WindowsSdk.cpp"):
-        text = '#include "e2e_events.hpp"\n#include "e2e_threads.hpp"\n' + text
     if source.name == "Rangers.cpp":
         registry_line = next((line for line in text.splitlines()
                               if "EC_Str::WriteRegistryStringLegacy(WindowsImports::HKEY_LOCAL_MACHINE" in line), None)
@@ -244,6 +174,15 @@ def generated_source(source: Path, destination: Path, build_git: str = "") -> Pa
             if text.count(call) != 1:
                 raise RuntimeError(f"startup stage changed: {call}")
             text = text.replace(call, f'srhd_awa::platform::e2e_stage::Log("{stage}");\n                                        {call}')
+        script_done = "Globals::InitializeScriptHostRuntime();"
+        text = text.replace(script_done, script_done + '\n                                        '
+            'srhd_awa::platform::e2e_stage::Log("script host ready");', 1)
+        startup_clock = "WindowsImports::GetSystemTime(StartupTime);"
+        if text.count(startup_clock) != 1:
+            raise RuntimeError("startup clock boundary changed")
+        text = text.replace(startup_clock,
+            'srhd_awa::platform::e2e_stage::Log("startup clock");\n                                        '
+            + startup_clock, 1)
         text = text.replace("void ProgramMain() {", "void ProgramMain() {\n        srhd_awa::platform::e2e_stage::Log(\"ProgramMain BEGIN\");", 1)
         text = '#include "e2e_stage.hpp"\n' + text
     if source.name == "Globals.cpp":
@@ -256,6 +195,9 @@ def generated_source(source: Path, destination: Path, build_git: str = "") -> Pa
                 raise RuntimeError(f"script-host stage changed: {call}")
             text = text.replace(call,
                 f'srhd_awa::platform::e2e_stage::Log("{stage}");\n        {call}', 1)
+        engine_call = "aScript::InitializeScriptEngine();"
+        text = text.replace(engine_call, engine_call + '\n        '
+            'srhd_awa::platform::e2e_stage::Log("script host engine ready");', 1)
         text = '#include "e2e_stage.hpp"\n' + text
     if source.name == "aSaveLoad.cpp":
         replacements = {
@@ -312,31 +254,6 @@ def generated_source(source: Path, destination: Path, build_git: str = "") -> Pa
             srhd_awa::platform::e2e_stage::Log("FAIL stage=runtime/settings memory-info");
             pas::raise(pas::make_exception<pas::Exception>("Switch process memory info unavailable"_a));
         }
-''' + text[end:]
-        memory_begin = "    std::int32_t PAS_STDCALL GlobalMemoryStatusEx(TMemoryStatusEx& Status) {"
-        memory_end = "    void* OKGF_MulTable256x256() {"
-        if text.count(memory_begin) != 1 or text.count(memory_end) != 1:
-            raise RuntimeError("original process memory import boundary changed")
-        begin = text.index(memory_begin)
-        end = text.index(memory_end, begin)
-        text = text[:begin] + '''    std::int32_t PAS_STDCALL GlobalMemoryStatusEx(TMemoryStatusEx& Status) {
-        u64 total = 0;
-        u64 used = 0;
-        if (R_FAILED(svcGetInfo(&total, InfoType_TotalMemorySize, CUR_PROCESS_HANDLE, 0)) ||
-            R_FAILED(svcGetInfo(&used, InfoType_UsedMemorySize, CUR_PROCESS_HANDLE, 0)) ||
-            total == 0 || used > total) {
-            return 0;
-        }
-        Status.TotalPhys = total;
-        Status.AvailPhys = total - used;
-        Status.TotalPageFile = total;
-        Status.AvailPageFile = total - used;
-        Status.TotalVirtual = total;
-        Status.AvailVirtual = total - used;
-        Status.MemoryLoad = static_cast<std::uint32_t>(used * 100 / total);
-        return 1;
-    }
-
 ''' + text[end:]
         config_copy = '            WindowsSdk::CopyFileW(pas::literal_pointer(u"cfg.txt"), Text.pchar(), 0);'
         if text.count(config_copy) != 1:

@@ -15,6 +15,7 @@ subprocess.run([
     "-I" + str(ROOT / "upstream/cpp/runtime"),
     str(ROOT / "tests/test_e2e_file_search.cpp"),
     str(ROOT / "port/switch/platform/e2e_file_search.cpp"),
+    str(ROOT / "port/switch/platform/e2e_file_match.cpp"),
     str(ROOT / "upstream/cpp/runtime/runtime.cpp"),
     "-Wl,--gc-sections", "-o", str(binary),
 ], cwd=ROOT, check=True)

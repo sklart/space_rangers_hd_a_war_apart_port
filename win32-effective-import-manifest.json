@@ -1,0 +1,4222 @@
+{
+  "source": "effective-e2e",
+  "upstream_pin": "57fa689c630193a66fdea6ca4c79a188814991cd",
+  "source_file_count": 1371,
+  "imports": [
+    {
+      "dll": "advapi32.dll",
+      "symbol": "RegCloseKey",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:589"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_registry",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "advapi32.dll",
+      "symbol": "RegCreateKeyExW",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:595"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_registry",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "advapi32.dll",
+      "symbol": "RegFlushKey",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:601"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_registry",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "advapi32.dll",
+      "symbol": "RegOpenKeyExA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:607"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_registry",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "advapi32.dll",
+      "symbol": "RegQueryValueExA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:613"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_registry",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "advapi32.dll",
+      "symbol": "RegSetValueExW",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:619"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_registry",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "avifil32.dll",
+      "symbol": "AVIFileExit",
+      "callsites": [
+        "upstream/cpp/src/VFW.cpp:14"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "video-off policy",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "VFW calls originate in GI_XviD intro video, which is disabled for E2E-1."
+    },
+    {
+      "dll": "avifil32.dll",
+      "symbol": "AVIFileGetStream",
+      "callsites": [
+        "upstream/cpp/src/VFW.cpp:26"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "video-off policy",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "VFW calls originate in GI_XviD intro video, which is disabled for E2E-1."
+    },
+    {
+      "dll": "avifil32.dll",
+      "symbol": "AVIFileInit",
+      "callsites": [
+        "upstream/cpp/src/VFW.cpp:8"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "video-off policy",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "VFW calls originate in GI_XviD intro video, which is disabled for E2E-1."
+    },
+    {
+      "dll": "avifil32.dll",
+      "symbol": "AVIFileOpenA",
+      "callsites": [
+        "upstream/cpp/src/VFW.cpp:20"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "video-off policy",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "VFW calls originate in GI_XviD intro video, which is disabled for E2E-1."
+    },
+    {
+      "dll": "avifil32.dll",
+      "symbol": "AVIStreamInfoA",
+      "callsites": [
+        "upstream/cpp/src/VFW.cpp:32"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "video-off policy",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "VFW calls originate in GI_XviD intro video, which is disabled for E2E-1."
+    },
+    {
+      "dll": "avifil32.dll",
+      "symbol": "AVIStreamLength",
+      "callsites": [
+        "upstream/cpp/src/VFW.cpp:50"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "video-off policy",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "VFW calls originate in GI_XviD intro video, which is disabled for E2E-1."
+    },
+    {
+      "dll": "avifil32.dll",
+      "symbol": "AVIStreamRead",
+      "callsites": [
+        "upstream/cpp/src/VFW.cpp:44"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "video-off policy",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "VFW calls originate in GI_XviD intro video, which is disabled for E2E-1."
+    },
+    {
+      "dll": "avifil32.dll",
+      "symbol": "AVIStreamReadFormat",
+      "callsites": [
+        "upstream/cpp/src/VFW.cpp:38"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "video-off policy",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "VFW calls originate in GI_XviD intro video, which is disabled for E2E-1."
+    },
+    {
+      "dll": "gdi32.dll",
+      "symbol": "CreateDIBSection",
+      "callsites": [
+        "upstream/cpp/src/GI_Cursor.cpp:261"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_gdi",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "gdi32.dll",
+      "symbol": "DeleteObject",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:283"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_gdi",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "gdi32.dll",
+      "symbol": "GetStockObject",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:289"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_gdi",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "gdiplus.dll",
+      "symbol": "GdipCloneBitmapAreaI",
+      "callsites": [
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:43"
+      ],
+      "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
+      "implementation": "graphics.hpp screenshot path",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The GDI+ API object is constructed only for bitmap/JPEG screenshot work in GR_GraphBuf."
+    },
+    {
+      "dll": "gdiplus.dll",
+      "symbol": "GdipDisposeImage",
+      "callsites": [
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:40"
+      ],
+      "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
+      "implementation": "graphics.hpp screenshot path",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The GDI+ API object is constructed only for bitmap/JPEG screenshot work in GR_GraphBuf."
+    },
+    {
+      "dll": "gdiplus.dll",
+      "symbol": "GdipGetImageEncoders",
+      "callsites": [
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:45"
+      ],
+      "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
+      "implementation": "graphics.hpp screenshot path",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The GDI+ API object is constructed only for bitmap/JPEG screenshot work in GR_GraphBuf."
+    },
+    {
+      "dll": "gdiplus.dll",
+      "symbol": "GdipGetImageEncodersSize",
+      "callsites": [
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:44"
+      ],
+      "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
+      "implementation": "graphics.hpp screenshot path",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The GDI+ API object is constructed only for bitmap/JPEG screenshot work in GR_GraphBuf."
+    },
+    {
+      "dll": "gdiplus.dll",
+      "symbol": "GdipGetImageHeight",
+      "callsites": [
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:42"
+      ],
+      "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
+      "implementation": "graphics.hpp screenshot path",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The GDI+ API object is constructed only for bitmap/JPEG screenshot work in GR_GraphBuf."
+    },
+    {
+      "dll": "gdiplus.dll",
+      "symbol": "GdipGetImageWidth",
+      "callsites": [
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:41"
+      ],
+      "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
+      "implementation": "graphics.hpp screenshot path",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The GDI+ API object is constructed only for bitmap/JPEG screenshot work in GR_GraphBuf."
+    },
+    {
+      "dll": "gdiplus.dll",
+      "symbol": "GdipLoadImageFromFile",
+      "callsites": [
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:39"
+      ],
+      "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
+      "implementation": "graphics.hpp screenshot path",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The GDI+ API object is constructed only for bitmap/JPEG screenshot work in GR_GraphBuf."
+    },
+    {
+      "dll": "gdiplus.dll",
+      "symbol": "GdipSaveImageToStream",
+      "callsites": [
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:46"
+      ],
+      "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
+      "implementation": "graphics.hpp screenshot path",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The GDI+ API object is constructed only for bitmap/JPEG screenshot work in GR_GraphBuf."
+    },
+    {
+      "dll": "gdiplus.dll",
+      "symbol": "GdiplusShutdown",
+      "callsites": [
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:38"
+      ],
+      "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
+      "implementation": "graphics.hpp screenshot path",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The GDI+ API object is constructed only for bitmap/JPEG screenshot work in GR_GraphBuf."
+    },
+    {
+      "dll": "gdiplus.dll",
+      "symbol": "GdiplusStartup",
+      "callsites": [
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:37"
+      ],
+      "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
+      "implementation": "graphics.hpp screenshot path",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The GDI+ API object is constructed only for bitmap/JPEG screenshot work in GR_GraphBuf."
+    },
+    {
+      "dll": "kernel32",
+      "symbol": "GlobalMemoryStatusEx",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3636"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_process",
+      "startup_required": true,
+      "gameplay_required": false,
+      "reason": "The resolver normalizes kernel32 and reads Switch process memory through svcGetInfo."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "CloseHandle",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:41"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_sync",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "CompareFileTime",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:157"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_filetime",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "CompareStringA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:577",
+        "upstream/cpp/src/WindowsSdk.cpp:583"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_text",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "CopyFileA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:235"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "CopyFileW",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:241"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "CreateDirectoryA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:193"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "CreateEventA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:112"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_sync",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "CreateFileA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:11"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "CreateFileW",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:17"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "CreateThread",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:79"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_sync",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "DeleteFileA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:71",
+        "upstream/cpp/src/WindowsSdk.cpp:205"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "FileTimeToDosDateTime",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:178"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_filetime",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "FileTimeToLocalFileTime",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:172"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_filetime",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "FileTimeToSystemTime",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:151"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_filetime",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "FindClose",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:65"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "FindFirstFileA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:59",
+        "upstream/cpp/src/WindowsSdk.cpp:211"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "FindFirstFileW",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:217"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "FindNextFileA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:166",
+        "upstream/cpp/src/WindowsSdk.cpp:223"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "FindNextFileW",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:229"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "FormatMessageA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:163"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_text",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "FreeLibrary",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:148"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_modules",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetCommandLineA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:124"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_process",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetCurrentDirectoryA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:184"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetCurrentProcess",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:73"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_process",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetCurrentThread",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:85"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_sync",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetCurrentThreadId",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:89"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_sync",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetFileAttributesA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:53"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetFileSize",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:133"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetLastError",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:47"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_handles",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetLocalTime",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:139"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "e2e_calendar",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetModuleHandleA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:175"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_modules",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetModuleHandleW",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:181"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_modules",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetPriorityClass",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:265"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_process",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetProcAddress",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:142"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_modules",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetSystemDirectoryW",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:187"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "The Windows DirectX system-directory loader path is omitted; resolver reports path not found."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetSystemInfo",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:145"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_process",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetSystemTime",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:154"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "e2e_calendar",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetThreadPriority",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:97"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_sync",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetTickCount",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:83"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "e2e_clock",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetVersion",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:25"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_process",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetVersionExA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:277"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_process",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetVolumeInformationA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:253"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GlobalAlloc",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:31"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_process",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GlobalLock",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:37"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_process",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GlobalMemoryStatus",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:49"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_process",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GlobalUnlock",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:43"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_process",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "HeapCreate",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:55"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_heap",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "HeapDestroy",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:61"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_heap",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "LoadLibraryA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:136"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_modules",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "LoadLibraryW",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:169"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_modules",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "MoveFileW",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:247"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "OpenEventA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:106"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_sync",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "QueryPerformanceCounter",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:77"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "e2e_clock",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "QueryPerformanceFrequency",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:271"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "e2e_clock",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "ReadFile",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:23"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "ResetEvent",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:115"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_sync",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "ResumeThread",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:103"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_sync",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "SetCurrentDirectoryA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:190"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "SetEvent",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:109"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_sync",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "SetFileAttributesA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:199"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "SetFilePointer",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:35"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "SetPriorityClass",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:259"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_process",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "SetProcessAffinityMask",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:67"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "The CPU-affinity probe is omitted on Switch; resolver reports access denied if called."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "SetThreadPriority",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:91"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_sync",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "TerminateThread",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:160"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_sync",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "WaitForMultipleObjects",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:127"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_sync",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "WaitForSingleObject",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:121"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_sync",
+      "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "WriteFile",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:29"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_files",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "DXVersion",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3648"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGF_Convert565toBGR",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4019"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGF_Convert565toBGRA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4028"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGF_Convert565toRGB",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4013"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGF_ConvertRGBto565",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4007"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGF_Convert_8888to565",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4035"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGF_LineIp_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4198"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGF_MulTable256x256",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3642"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGF_Read",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3667"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGF_ReadPal",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3680"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGF_ReadStartPal_Buf",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3674"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGF_ReadStart_Buf",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3657"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGF_Rescale",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4165"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGF_Triangle_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4187"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGF_Write_BMP_File",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3692"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGF_Write_PNG_File",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3686"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Alpha128Trapezium_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4153"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Alpha64Trapezium_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4147"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_AlphaBuf_BuildFromRGBA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3770"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_AlphaBuf_DrawClip_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3758"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_AlphaBuf_Draw_RGBA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3698"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_AlphaIndexed_AlphaDrawClip_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3824"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_AlphaIndexed_AlphaDrawClip_Alpha_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3830"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_AlphaIndexed_AlphaDraw_RGBA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3716"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_AlphaIndexed_CopyDrawClip_Alpha_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3818"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_AlphaIndexed_CopyDrawClip_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3812"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_AlphaIndexed_Draw_RGBA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3710"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_AlphaSimpleBufPalAlpha_Draw_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3782"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_AlphaSimpleBuf_Draw_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3776"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_AnimLine_Draw_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4135"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_AnimShadowLine_Draw_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4141"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Circle_DrawClip_BYTE",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4065"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Circle_DrawClip_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4059"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Circle_DrawFillClip_BYTE",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4077"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Circle_DrawFillClip_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4071"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_CopySingleBuf_XY_XY_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3979"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_CopyTrans_XY_XY_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3973"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Copy_XY_XY_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3960"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_F5_DrawRGBA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4171"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_F6_DrawRGBA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4177"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_FillTrapezium_DWORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4159"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Fill_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4000"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_HACopy_XY_XY_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3985"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_LightBuf_Create",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3872"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_LightBuf_Destroy",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3878"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_LightBuf_Init",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3890"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_LightBuf_LoadFromPalBuf",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3896"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_LightBuf_Rotate",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3902"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_LightBuf_SetSme",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3884"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Light_BYTE",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4053"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_LineColor_Clip",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4099"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Line_Clip",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4093"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Line_CopyFromBuf_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4123"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Line_CopyToBuf_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4117"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Line_DrawClip_Alpha_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4129"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Line_DrawClip_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4111"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Line_Draw_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4105"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_MaskBuf_DrawClip_DWORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3788"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_MaskBuf_DrawClip_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3794"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_PalCopy_XY_XY_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3967"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_PixelAlpha_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4086"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Planet2_DrawAndLightClip_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3927"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Planet2_DrawAndLight_32",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3921"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Planet2_TemplBuild",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3908"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Planet2_TemplDel",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3915"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Planet3_DrawAndLightClip_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3939"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Planet3_DrawAndLight_32",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3933"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Planet4_DrawAndLightClip_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3951"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_Planet4_DrawAndLight_32",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3945"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_RotateBuf_Build",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3836"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_RotateBuf_DrawTransClip_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3866"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_RotateBuf_Draw_BYTE",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3860"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_RotateBuf_Draw_DWORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3854"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_RotateBuf_Free",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3842"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_RotateBuf_Size",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3848"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_ShrLightMask_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4047"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_ShrLight_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4041"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_StretchGdi_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3991"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_TransAlphaBuf_BuildFromRGBA_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3764"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_TransAlphaBuf_DrawClip_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3752"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_TransAlphaBuf_Draw_RGBA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3704"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_TransBuf_BuildFromRGBA_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3746"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_TransBuf_Build_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3740"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_TransBuf_DrawClip_WORD",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3728"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_TransBuf_Draw_RGBA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3722"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_TransBuf_FillAlphaClip_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3806"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_TransBuf_FillAlphaClip_RGBA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3800"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "okgf.dll",
+      "symbol": "OKGR_TransBuf_HADrawClip_16",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3734"
+      ],
+      "classification": "STATIC_LIBRARY",
+      "implementation": "win32_compat_okgf",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "The generated export table takes the address of this symbol in linked OKGF."
+    },
+    {
+      "dll": "ole32.dll",
+      "symbol": "CoInitialize",
+      "callsites": [
+        "upstream/cpp/src/ActiveXSdk.cpp:14"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "COM init/cleanup or the desktop documents fallback is bypassed by portable platform and user root."
+    },
+    {
+      "dll": "ole32.dll",
+      "symbol": "CoTaskMemFree",
+      "callsites": [
+        "upstream/cpp/src/ActiveXSdk.cpp:26"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "COM init/cleanup or the desktop documents fallback is bypassed by portable platform and user root."
+    },
+    {
+      "dll": "ole32.dll",
+      "symbol": "CoUninitialize",
+      "callsites": [
+        "upstream/cpp/src/ActiveXSdk.cpp:20"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "COM init/cleanup or the desktop documents fallback is bypassed by portable platform and user root."
+    },
+    {
+      "dll": "ole32.dll",
+      "symbol": "CreateStreamOnHGlobal",
+      "callsites": [
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:47"
+      ],
+      "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
+      "implementation": "graphics.hpp screenshot path",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "COM memory stream is used only by JPEG screenshot encoding."
+    },
+    {
+      "dll": "shell32.dll",
+      "symbol": "SHGetPathFromIDListA",
+      "callsites": [
+        "upstream/cpp/src/ShlObj.cpp:13"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "portable user root / desktop help",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "Desktop Documents lookup is bypassed by portable user root; help-file ShellExecute has no E2E menu path."
+    },
+    {
+      "dll": "shell32.dll",
+      "symbol": "SHGetSpecialFolderLocation",
+      "callsites": [
+        "upstream/cpp/src/ShlObj.cpp:7"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "portable user root / desktop help",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "Desktop Documents lookup is bypassed by portable user root; help-file ShellExecute has no E2E menu path."
+    },
+    {
+      "dll": "shell32.dll",
+      "symbol": "ShellExecuteA",
+      "callsites": [
+        "upstream/cpp/src/ShellAPI.cpp:7"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "portable user root / desktop help",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "Desktop Documents lookup is bypassed by portable user root; help-file ShellExecute has no E2E menu path."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "AdjustWindowRect",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:487"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "CharLowerBuffA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:196"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_text",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "CharLowerBuffW",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:415"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_text",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "CharNextA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:130"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_text",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "CharUpperBuffW",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:409"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_text",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "ClientToScreen",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:523"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "ClipCursor",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:517"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_gdi",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "CloseClipboard",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:385"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_clipboard",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "CreateIconIndirect",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:571"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_gdi",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "CreateWindowExW",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:213"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "DefWindowProcW",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:337"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_messages",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "DestroyIcon",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:565"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_gdi",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "DestroyWindow",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:361"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "DispatchMessageW",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:307"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_messages",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "EmptyClipboard",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:403"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_clipboard",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "GetActiveWindow",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:100"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "GetAsyncKeyState",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:427"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_messages",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "GetClipboardData",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:397"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_clipboard",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "GetCursorPos",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:511"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_gdi",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "GetDC",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:463"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "GetDoubleClickTime",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:349"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "GetForegroundWindow",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:451"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "IntersectRect",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:535"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "LoadCursorA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:553"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_gdi",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "LoadIconA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:559"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_gdi",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "MessageBoxA",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:118"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_text",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "MsgWaitForMultipleObjects",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:433"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_messages",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "OpenClipboard",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:379"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_clipboard",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "PeekMessageA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:319"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_messages",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "PeekMessageW",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:325"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_messages",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "PostMessageA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:331"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_messages",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "PostQuitMessage",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:343"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_messages",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "RedrawWindow",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:475"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "RegisterClassW",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:355"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "RegisterWindowMessageA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:295"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_messages",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "ReleaseDC",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:469"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "ScreenToClient",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:529"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "SetClipboardData",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:391"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_clipboard",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "SetCursor",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:505"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_gdi",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "SetCursorPos",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:499"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_gdi",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "SetFocus",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:421"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "SetForegroundWindow",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:457"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "SetTimer",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:439"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_messages",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "SetWindowLongA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:547"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "SetWindowPos",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:373"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "SetWindowTextA",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:481"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "ShowCursor",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:493"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_gdi",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "ShowWindow",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:367"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "TrackMouseEvent",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:301"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_messages",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "TranslateMessage",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:313"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_messages",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "UnionRect",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:541"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "user32.dll",
+      "symbol": "UpdateWindow",
+      "callsites": [
+        "upstream/cpp/src/WindowsSdk.cpp:445"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_window",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "winmm.dll",
+      "symbol": "timeBeginPeriod",
+      "callsites": [
+        "upstream/cpp/src/MMSystem.cpp:6"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_winmm",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "Original MMSystem wrapper resolves a portable monotonic clock or timer-period policy."
+    },
+    {
+      "dll": "winmm.dll",
+      "symbol": "timeEndPeriod",
+      "callsites": [
+        "upstream/cpp/src/MMSystem.cpp:12"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_winmm",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "Original MMSystem wrapper resolves a portable monotonic clock or timer-period policy."
+    },
+    {
+      "dll": "winmm.dll",
+      "symbol": "timeGetTime",
+      "callsites": [
+        "upstream/cpp/src/MMSystem.cpp:18"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_winmm",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "Original MMSystem wrapper resolves a portable monotonic clock or timer-period policy."
+    },
+    {
+      "dll": "winmm.dll",
+      "symbol": "timeKillEvent",
+      "callsites": [
+        "upstream/cpp/src/MMSystem.cpp:24"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "audio-off policy",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "Audio timer path is disabled for E2E-1."
+    },
+    {
+      "dll": "winmm.dll",
+      "symbol": "timeSetEvent",
+      "callsites": [
+        "upstream/cpp/src/MMSystem.cpp:30"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "audio-off policy",
+      "startup_required": false,
+      "gameplay_required": false,
+      "reason": "Audio timer path is disabled for E2E-1."
+    },
+    {
+      "dll": "zlib.dll",
+      "symbol": "OKGF_ZLib_Compress",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3619"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "zlib_bridge",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "zlib.dll",
+      "symbol": "OKGF_ZLib_UnCompress",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3629"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "zlib_bridge",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "zlib.dll",
+      "symbol": "OKGF_ZLib_UnCompress2",
+      "callsites": [
+        "upstream/cpp/src/EC_OKGF.cpp:8"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "zlib_bridge",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    }
+  ],
+  "dynamic_calls": [
+    {
+      "api": "GetModuleHandle",
+      "expression": "pas::literal_pointer(\"kernel32.dll\")",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:807",
+      "expression_kind": "LITERAL",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "reason": "Windows DirectX/WOW64/integrity path is bypassed by generated Switch GR_Main source.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"GetNativeSystemInfo\")",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:808",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "reason": "Windows DirectX/WOW64/integrity path is bypassed by generated Switch GR_Main source.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"IsWow64Process\")",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:811",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "reason": "Windows DirectX/WOW64/integrity path is bypassed by generated Switch GR_Main source.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "WindowsSdk::GetModuleHandle(pas::literal_pointer(\"kernel32.dll\")), pas::literal_pointer(\"Wow64DisableWow64FsRedirection\")",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:815",
+      "expression_kind": "LITERAL",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "reason": "Windows DirectX/WOW64/integrity path is bypassed by generated Switch GR_Main source.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetModuleHandle",
+      "expression": "pas::literal_pointer(\"kernel32.dll\")",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:815",
+      "expression_kind": "LITERAL",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "reason": "Windows DirectX/WOW64/integrity path is bypassed by generated Switch GR_Main source.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"GetSystemWow64DirectoryA\")",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:816",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "reason": "Windows DirectX/WOW64/integrity path is bypassed by generated Switch GR_Main source.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "WindowsSdk::GetModuleHandle(pas::literal_pointer(\"advapi32.dll\")), pas::literal_pointer(\"RegDeleteKeyExA\")",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:817",
+      "expression_kind": "LITERAL",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "reason": "Windows DirectX/WOW64/integrity path is bypassed by generated Switch GR_Main source.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetModuleHandle",
+      "expression": "pas::literal_pointer(\"advapi32.dll\")",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:817",
+      "expression_kind": "LITERAL",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "reason": "Windows DirectX/WOW64/integrity path is bypassed by generated Switch GR_Main source.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "dword, cpp_arg",
+      "callsite": "upstream/cpp/src/EC_Expression.cpp:1010",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "RUNTIME_MODULE",
+      "implementation": "win32_compat_modules",
+      "reason": "Script-supplied module/export is validated by the runtime module registry; unknown loads fail loudly.",
+      "startup_required": false,
+      "gameplay_required": true
+    },
+    {
+      "api": "LoadLibraryW",
+      "expression": "(cpp_text = av[1]->GetString(), cpp_text.pchar())",
+      "callsite": "upstream/cpp/src/EC_Expression.cpp:977",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "RUNTIME_MODULE",
+      "implementation": "win32_compat_modules",
+      "reason": "Script-supplied module/export is validated by the runtime module registry; unknown loads fail loudly.",
+      "startup_required": false,
+      "gameplay_required": true
+    },
+    {
+      "api": "LoadLibrary",
+      "expression": "pas::literal_pointer(\"xvidcore.dll\")",
+      "callsite": "upstream/cpp/src/GI_XviD.cpp:51",
+      "expression_kind": "LITERAL",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "intro video is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "XvidLibrary, pas::literal_pointer(\"xvid_global\")",
+      "callsite": "upstream/cpp/src/GI_XviD.cpp:55",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "intro video is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "XvidLibrary, pas::literal_pointer(\"xvid_decore\")",
+      "callsite": "upstream/cpp/src/GI_XviD.cpp:59",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "intro video is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "LoadLibraryW",
+      "expression": "LibraryName",
+      "callsite": "upstream/cpp/src/GR_Music.cpp:75",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "LoadLibraryW",
+      "expression": "OverrideName.pchar()",
+      "callsite": "upstream/cpp/src/Robot.cpp:94",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "RUNTIME_MODULE",
+      "implementation": "win32_compat_modules",
+      "reason": "Robot init accepts a missing MatrixGame module; robot battle gameplay then lacks its interface.",
+      "startup_required": false,
+      "gameplay_required": true
+    },
+    {
+      "api": "LoadLibrary",
+      "expression": "pas::literal_pointer(\"MatrixGame.dll\")",
+      "callsite": "upstream/cpp/src/Robot.cpp:96",
+      "expression_kind": "LITERAL",
+      "classification": "RUNTIME_MODULE",
+      "implementation": "win32_compat_modules",
+      "reason": "Robot init accepts a missing MatrixGame module; robot battle gameplay then lacks its interface.",
+      "startup_required": false,
+      "gameplay_required": true
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "RobotModule, pas::literal_pointer(\"GetRobotInterface\")",
+      "callsite": "upstream/cpp/src/Robot.cpp:99",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "RUNTIME_MODULE",
+      "implementation": "win32_compat_modules",
+      "reason": "Robot init accepts a missing MatrixGame module; robot battle gameplay then lacks its interface.",
+      "startup_required": false,
+      "gameplay_required": true
+    },
+    {
+      "api": "LoadLibrary",
+      "expression": "pas::literal_pointer(\"steam_ach.dll\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:57",
+      "expression_kind": "LITERAL",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"steamUserID\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:68",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"steamInit\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:69",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"createAchievements\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:70",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"initAchievement\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:71",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"steamSetLeaderBoardName\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:72",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"steamLeaderBoardFound\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:73",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"steamUploadScore\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:74",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"steamLocal\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:75",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"steamCallBacks\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:76",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"steamResetAchievements\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:77",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"steamAchievement\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:78",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"steamStat\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:79",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"steamStatIncrease\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:80",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"steamFree\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:81",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"steamAchievementsOverlay\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:82",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"steamAchievementsCount\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:83",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"steamAchievementData\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:84",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"steamStatus\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:85",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetModuleHandle",
+      "expression": "pas::literal_pointer(\"steam_ach.dll\")",
+      "callsite": "upstream/cpp/src/SimpleSteamApi.cpp:90",
+      "expression_kind": "LITERAL",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "Steam is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_comment\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:100",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_read_float\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:101",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_read\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:102",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "LoadLibrary",
+      "expression": "pas::literal_pointer(\"libvorbisfile.dll\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:74",
+      "expression_kind": "LITERAL",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_clear\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:78",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_fopen\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:79",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_open_callbacks\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:80",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_test_callbacks\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:81",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_test_open\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:82",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_bitrate\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:83",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_bitrate_instant\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:84",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_streams\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:85",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_seekable\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:86",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_serialnumber\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:87",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_raw_total\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:88",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_pcm_total\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:89",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_time_total\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:90",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_raw_seek\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:91",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_pcm_seek\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:92",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_pcm_seek_page\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:93",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_time_seek\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:94",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_time_seek_page\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:95",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_raw_tell\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:96",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_pcm_tell\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:97",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_time_tell\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:98",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_info\")",
+      "callsite": "upstream/cpp/src/VorbisFile.cpp:99",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "win32_compat_modules",
+      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetModuleHandleW",
+      "expression": "ModuleName.pchar()",
+      "callsite": "upstream/cpp/src/aGalaxy.cpp:298",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
+      "implementation": "win32_compat_modules",
+      "reason": "Galaxy construction/integrity check probes decoded Windows module names after a game starts.",
+      "startup_required": false,
+      "gameplay_required": true
+    },
+    {
+      "api": "GetModuleHandleW",
+      "expression": "ModuleName.pchar()",
+      "callsite": "upstream/cpp/src/aGalaxy.cpp:302",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
+      "implementation": "win32_compat_modules",
+      "reason": "Galaxy construction/integrity check probes decoded Windows module names after a game starts.",
+      "startup_required": false,
+      "gameplay_required": true
+    },
+    {
+      "api": "GetModuleHandleW",
+      "expression": "FileName.pchar()",
+      "callsite": "upstream/cpp/src/aGalaxy.cpp:4314",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
+      "implementation": "win32_compat_modules",
+      "reason": "Galaxy construction/integrity check probes decoded Windows module names after a game starts.",
+      "startup_required": false,
+      "gameplay_required": true
+    },
+    {
+      "api": "GetModuleHandleW",
+      "expression": "FileName.pchar()",
+      "callsite": "upstream/cpp/src/aGalaxy.cpp:4318",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
+      "implementation": "win32_compat_modules",
+      "reason": "Galaxy construction/integrity check probes decoded Windows module names after a game starts.",
+      "startup_required": false,
+      "gameplay_required": true
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "moduleHandle, cpp_arg",
+      "callsite": "upstream/cpp/src/aScript.cpp:4270",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "RUNTIME_MODULE",
+      "implementation": "win32_compat_modules",
+      "reason": "Script-supplied module/export is validated by the runtime module registry; unknown loads fail loudly.",
+      "startup_required": false,
+      "gameplay_required": true
+    },
+    {
+      "api": "LoadLibraryW",
+      "expression": "(cpp_text = Definition->GetParam(u\"Path\"sv), cpp_text.pchar())",
+      "callsite": "upstream/cpp/src/aScript.cpp:4356",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "RUNTIME_MODULE",
+      "implementation": "win32_compat_modules",
+      "reason": "Script-supplied module/export is validated by the runtime module registry; unknown loads fail loudly.",
+      "startup_required": false,
+      "gameplay_required": true
+    }
+  ],
+  "direct_declarations": [],
+  "dll_literals": [
+    {
+      "dll": ".dll",
+      "callsites": [
+        "port/switch/platform/win32_compat.cpp:42",
+        "port/switch/platform/win32_compat_modules.cpp:31"
+      ]
+    },
+    {
+      "dll": "advapi32.dll",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:817",
+        "port/switch/platform/win32_compat_modules.cpp:133",
+        "port/switch/platform/win32_compat_modules.cpp:55",
+        "port/switch/platform/win32_compat_registry.cpp:137",
+        "upstream/cpp/src/WindowsSdk.cpp:15",
+        "upstream/cpp/src/WindowsSdk.cpp:589",
+        "upstream/cpp/src/WindowsSdk.cpp:595",
+        "upstream/cpp/src/WindowsSdk.cpp:601",
+        "upstream/cpp/src/WindowsSdk.cpp:607",
+        "upstream/cpp/src/WindowsSdk.cpp:613",
+        "upstream/cpp/src/WindowsSdk.cpp:619"
+      ]
+    },
+    {
+      "dll": "avifil32.dll",
+      "callsites": [
+        "port/switch/platform/win32_compat.cpp:127",
+        "port/switch/platform/win32_compat_modules.cpp:48",
+        "upstream/cpp/src/VFW.cpp:14",
+        "upstream/cpp/src/VFW.cpp:20",
+        "upstream/cpp/src/VFW.cpp:26",
+        "upstream/cpp/src/VFW.cpp:32",
+        "upstream/cpp/src/VFW.cpp:38",
+        "upstream/cpp/src/VFW.cpp:44",
+        "upstream/cpp/src/VFW.cpp:50",
+        "upstream/cpp/src/VFW.cpp:8"
+      ]
+    },
+    {
+      "dll": "d3d9.dll",
+      "callsites": [
+        "port/switch/platform/win32_compat_modules.cpp:49"
+      ]
+    },
+    {
+      "dll": "dsound.dll",
+      "callsites": [
+        "port/switch/platform/win32_compat.cpp:127",
+        "port/switch/platform/win32_compat_modules.cpp:48"
+      ]
+    },
+    {
+      "dll": "error in matrix.dll",
+      "callsites": [
+        "upstream/cpp/src/aScript.cpp:245",
+        "upstream/cpp/src/fGov.cpp:414",
+        "upstream/cpp/src/fStarMap.cpp:451"
+      ]
+    },
+    {
+      "dll": "error xvidcore.dll",
+      "callsites": [
+        "upstream/cpp/src/GI_XviD.cpp:53"
+      ]
+    },
+    {
+      "dll": "gdi32.dll",
+      "callsites": [
+        "port/switch/platform/win32_compat_gdi.cpp:169",
+        "port/switch/platform/win32_compat_modules.cpp:54",
+        "upstream/cpp/src/GI_Cursor.cpp:261",
+        "upstream/cpp/src/WindowsSdk.cpp:19",
+        "upstream/cpp/src/WindowsSdk.cpp:283",
+        "upstream/cpp/src/WindowsSdk.cpp:289"
+      ]
+    },
+    {
+      "dll": "gdiplus.dll",
+      "callsites": [
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:37",
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:38",
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:39",
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:40",
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:41",
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:42",
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:43",
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:44",
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:45",
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:46"
+      ]
+    },
+    {
+      "dll": "kernel32.dll",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:807",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:815",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:106",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:11",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:112",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:124",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:136",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:142",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:148",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:154",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:160",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:166",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:17",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:172",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:178",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:184",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:190",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:23",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:29",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:35",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:41",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:47",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:53",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:59",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:65",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:71",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:77",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:83",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:89",
+        "port/switch/platform/win32_compat.cpp:96",
+        "port/switch/platform/win32_compat_files.cpp:435",
+        "port/switch/platform/win32_compat_filetime.cpp:99",
+        "port/switch/platform/win32_compat_heap.cpp:20",
+        "port/switch/platform/win32_compat_modules.cpp:129",
+        "port/switch/platform/win32_compat_modules.cpp:166",
+        "port/switch/platform/win32_compat_modules.cpp:53",
+        "port/switch/platform/win32_compat_process.cpp:190",
+        "port/switch/platform/win32_compat_sync.cpp:141",
+        "port/switch/platform/win32_compat_text.cpp:131",
+        "upstream/cpp/src/WindowsSdk.cpp:103",
+        "upstream/cpp/src/WindowsSdk.cpp:109",
+        "upstream/cpp/src/WindowsSdk.cpp:115",
+        "upstream/cpp/src/WindowsSdk.cpp:121",
+        "upstream/cpp/src/WindowsSdk.cpp:127",
+        "upstream/cpp/src/WindowsSdk.cpp:133",
+        "upstream/cpp/src/WindowsSdk.cpp:139",
+        "upstream/cpp/src/WindowsSdk.cpp:145",
+        "upstream/cpp/src/WindowsSdk.cpp:151",
+        "upstream/cpp/src/WindowsSdk.cpp:157",
+        "upstream/cpp/src/WindowsSdk.cpp:163",
+        "upstream/cpp/src/WindowsSdk.cpp:169",
+        "upstream/cpp/src/WindowsSdk.cpp:17",
+        "upstream/cpp/src/WindowsSdk.cpp:175",
+        "upstream/cpp/src/WindowsSdk.cpp:181",
+        "upstream/cpp/src/WindowsSdk.cpp:187",
+        "upstream/cpp/src/WindowsSdk.cpp:193",
+        "upstream/cpp/src/WindowsSdk.cpp:199",
+        "upstream/cpp/src/WindowsSdk.cpp:205",
+        "upstream/cpp/src/WindowsSdk.cpp:211",
+        "upstream/cpp/src/WindowsSdk.cpp:217",
+        "upstream/cpp/src/WindowsSdk.cpp:223",
+        "upstream/cpp/src/WindowsSdk.cpp:229",
+        "upstream/cpp/src/WindowsSdk.cpp:235",
+        "upstream/cpp/src/WindowsSdk.cpp:241",
+        "upstream/cpp/src/WindowsSdk.cpp:247",
+        "upstream/cpp/src/WindowsSdk.cpp:25",
+        "upstream/cpp/src/WindowsSdk.cpp:253",
+        "upstream/cpp/src/WindowsSdk.cpp:259",
+        "upstream/cpp/src/WindowsSdk.cpp:265",
+        "upstream/cpp/src/WindowsSdk.cpp:271",
+        "upstream/cpp/src/WindowsSdk.cpp:277",
+        "upstream/cpp/src/WindowsSdk.cpp:31",
+        "upstream/cpp/src/WindowsSdk.cpp:37",
+        "upstream/cpp/src/WindowsSdk.cpp:43",
+        "upstream/cpp/src/WindowsSdk.cpp:49",
+        "upstream/cpp/src/WindowsSdk.cpp:55",
+        "upstream/cpp/src/WindowsSdk.cpp:577",
+        "upstream/cpp/src/WindowsSdk.cpp:583",
+        "upstream/cpp/src/WindowsSdk.cpp:61",
+        "upstream/cpp/src/WindowsSdk.cpp:67",
+        "upstream/cpp/src/WindowsSdk.cpp:73",
+        "upstream/cpp/src/WindowsSdk.cpp:79",
+        "upstream/cpp/src/WindowsSdk.cpp:85",
+        "upstream/cpp/src/WindowsSdk.cpp:91",
+        "upstream/cpp/src/WindowsSdk.cpp:97"
+      ]
+    },
+    {
+      "dll": "libvorbisfile.dll",
+      "callsites": [
+        "port/switch/platform/win32_compat_modules.cpp:47",
+        "upstream/cpp/src/VorbisFile.cpp:74"
+      ]
+    },
+    {
+      "dll": "matrixgame.dll",
+      "callsites": [
+        "port/switch/platform/win32_compat_modules.cpp:63",
+        "upstream/cpp/src/Robot.cpp:96"
+      ]
+    },
+    {
+      "dll": "ntdll.dll",
+      "callsites": [
+        "port/switch/platform/win32_compat_modules.cpp:49"
+      ]
+    },
+    {
+      "dll": "okgf.dll",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3642",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3648",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3657",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3667",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3674",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3680",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3686",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3692",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3698",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3704",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3710",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3716",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3722",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3728",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3734",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3740",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3746",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3752",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3758",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3764",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3770",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3776",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3782",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3788",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3794",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3800",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3806",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3812",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3818",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3824",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3830",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3836",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3842",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3848",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3854",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3860",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3866",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3872",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3878",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3884",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3890",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3896",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3902",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3908",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3915",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3921",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3927",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3933",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3939",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3945",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3951",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3960",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3967",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3973",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3979",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3985",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3991",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4000",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4007",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4013",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4019",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4028",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4035",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4041",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4047",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4053",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4059",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4065",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4071",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4077",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4086",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4093",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4099",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4105",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4111",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4117",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4123",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4129",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4135",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4141",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4147",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4153",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4159",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4165",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4171",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4177",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4187",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4198",
+        "port/switch/platform/win32_compat.cpp:77",
+        "port/switch/platform/win32_compat_modules.cpp:128",
+        "port/switch/platform/win32_compat_modules.cpp:53"
+      ]
+    },
+    {
+      "dll": "ole32.dll",
+      "callsites": [
+        "port/switch/build/e2e-game/runtime-overlay/graphics.hpp:47",
+        "port/switch/platform/win32_compat.cpp:128",
+        "upstream/cpp/src/ActiveXSdk.cpp:10",
+        "upstream/cpp/src/ActiveXSdk.cpp:14",
+        "upstream/cpp/src/ActiveXSdk.cpp:20",
+        "upstream/cpp/src/ActiveXSdk.cpp:26"
+      ]
+    },
+    {
+      "dll": "shell32.dll",
+      "callsites": [
+        "port/switch/platform/win32_compat.cpp:129",
+        "upstream/cpp/src/ShellAPI.cpp:7",
+        "upstream/cpp/src/ShlObj.cpp:13",
+        "upstream/cpp/src/ShlObj.cpp:7"
+      ]
+    },
+    {
+      "dll": "steam_ach.dll",
+      "callsites": [
+        "port/switch/platform/win32_compat_modules.cpp:46",
+        "upstream/cpp/src/SimpleSteamApi.cpp:57",
+        "upstream/cpp/src/SimpleSteamApi.cpp:90"
+      ]
+    },
+    {
+      "dll": "user32.dll",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:100",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:118",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:130",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:196",
+        "port/switch/build/e2e-game/generated/WindowsImports.cpp:213",
+        "port/switch/platform/win32_compat_clipboard.cpp:76",
+        "port/switch/platform/win32_compat_gdi.cpp:174",
+        "port/switch/platform/win32_compat_messages.cpp:262",
+        "port/switch/platform/win32_compat_modules.cpp:54",
+        "port/switch/platform/win32_compat_text.cpp:124",
+        "port/switch/platform/win32_compat_window.cpp:275",
+        "upstream/cpp/src/WindowsSdk.cpp:21",
+        "upstream/cpp/src/WindowsSdk.cpp:295",
+        "upstream/cpp/src/WindowsSdk.cpp:301",
+        "upstream/cpp/src/WindowsSdk.cpp:307",
+        "upstream/cpp/src/WindowsSdk.cpp:313",
+        "upstream/cpp/src/WindowsSdk.cpp:319",
+        "upstream/cpp/src/WindowsSdk.cpp:325",
+        "upstream/cpp/src/WindowsSdk.cpp:331",
+        "upstream/cpp/src/WindowsSdk.cpp:337",
+        "upstream/cpp/src/WindowsSdk.cpp:343",
+        "upstream/cpp/src/WindowsSdk.cpp:349",
+        "upstream/cpp/src/WindowsSdk.cpp:355",
+        "upstream/cpp/src/WindowsSdk.cpp:361",
+        "upstream/cpp/src/WindowsSdk.cpp:367",
+        "upstream/cpp/src/WindowsSdk.cpp:373",
+        "upstream/cpp/src/WindowsSdk.cpp:379",
+        "upstream/cpp/src/WindowsSdk.cpp:385",
+        "upstream/cpp/src/WindowsSdk.cpp:391",
+        "upstream/cpp/src/WindowsSdk.cpp:397",
+        "upstream/cpp/src/WindowsSdk.cpp:403",
+        "upstream/cpp/src/WindowsSdk.cpp:409",
+        "upstream/cpp/src/WindowsSdk.cpp:415",
+        "upstream/cpp/src/WindowsSdk.cpp:421",
+        "upstream/cpp/src/WindowsSdk.cpp:427",
+        "upstream/cpp/src/WindowsSdk.cpp:433",
+        "upstream/cpp/src/WindowsSdk.cpp:439",
+        "upstream/cpp/src/WindowsSdk.cpp:445",
+        "upstream/cpp/src/WindowsSdk.cpp:451",
+        "upstream/cpp/src/WindowsSdk.cpp:457",
+        "upstream/cpp/src/WindowsSdk.cpp:463",
+        "upstream/cpp/src/WindowsSdk.cpp:469",
+        "upstream/cpp/src/WindowsSdk.cpp:475",
+        "upstream/cpp/src/WindowsSdk.cpp:481",
+        "upstream/cpp/src/WindowsSdk.cpp:487",
+        "upstream/cpp/src/WindowsSdk.cpp:493",
+        "upstream/cpp/src/WindowsSdk.cpp:499",
+        "upstream/cpp/src/WindowsSdk.cpp:505",
+        "upstream/cpp/src/WindowsSdk.cpp:511",
+        "upstream/cpp/src/WindowsSdk.cpp:517",
+        "upstream/cpp/src/WindowsSdk.cpp:523",
+        "upstream/cpp/src/WindowsSdk.cpp:529",
+        "upstream/cpp/src/WindowsSdk.cpp:535",
+        "upstream/cpp/src/WindowsSdk.cpp:541",
+        "upstream/cpp/src/WindowsSdk.cpp:547",
+        "upstream/cpp/src/WindowsSdk.cpp:553",
+        "upstream/cpp/src/WindowsSdk.cpp:559",
+        "upstream/cpp/src/WindowsSdk.cpp:565",
+        "upstream/cpp/src/WindowsSdk.cpp:571"
+      ]
+    },
+    {
+      "dll": "vorbisfile.dll",
+      "callsites": [
+        "port/switch/platform/win32_compat_modules.cpp:46",
+        "upstream/cpp/src/GR_Music.cpp:247",
+        "upstream/cpp/src/GR_Music.cpp:248",
+        "upstream/cpp/src/GR_Music.cpp:66"
+      ]
+    },
+    {
+      "dll": "winmm.dll",
+      "callsites": [
+        "port/switch/platform/win32_compat_winmm.cpp:31",
+        "upstream/cpp/src/MMSystem.cpp:12",
+        "upstream/cpp/src/MMSystem.cpp:18",
+        "upstream/cpp/src/MMSystem.cpp:24",
+        "upstream/cpp/src/MMSystem.cpp:30",
+        "upstream/cpp/src/MMSystem.cpp:6"
+      ]
+    },
+    {
+      "dll": "xvidcore.dll",
+      "callsites": [
+        "port/switch/platform/win32_compat_modules.cpp:47",
+        "upstream/cpp/src/GI_XviD.cpp:51"
+      ]
+    },
+    {
+      "dll": "zlib.dll",
+      "callsites": [
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3619",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3629",
+        "port/switch/platform/win32_compat.cpp:78",
+        "port/switch/platform/win32_compat_modules.cpp:55",
+        "upstream/cpp/src/EC_OKGF.cpp:8"
+      ]
+    }
+  ],
+  "unparsed_import_patterns": [],
+  "classification_counts": {
+    "NOT_REACHED_UNTIL_GAMEPLAY": 15,
+    "OPTIONAL_DISABLED": 76,
+    "PORTABLE": 134,
+    "RUNTIME_MODULE": 7,
+    "STATIC_LIBRARY": 88
+  },
+  "startup_unimplemented": 0
+}

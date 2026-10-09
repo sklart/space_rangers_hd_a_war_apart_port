@@ -7,6 +7,22 @@ import shutil
 
 def generated_windows_header(source: Path, destination: Path) -> Path:
     text = source.read_text(encoding="utf-8")
+    original_loader = '''inline auto resolve_import(const char *library, const char *) -> void (*)() {
+  throw std::runtime_error(std::string("DLL import requires a Win32 host: ") +
+                           library);
+}'''
+    switch_loader = '''inline auto resolve_import(const char *library, const char *name) -> void (*)() {
+#if defined(__SWITCH__) || defined(E2E_HOST_RESOLVER_TEST)
+  return srhd_awa::platform::win32_compat::ResolveImport(library, name);
+#else
+  throw std::runtime_error(std::string("DLL import requires a Win32 host: ") +
+                           library);
+#endif
+}'''
+    if text.count(original_loader) != 1:
+        raise RuntimeError("upstream Win32 loader boundary changed")
+    text = text.replace(original_loader, switch_loader, 1)
+    text = '#if defined(__SWITCH__) || defined(E2E_HOST_RESOLVER_TEST)\n#include "win32_compat.hpp"\n#endif\n' + text
     begin = "inline std::mutex heap_mutex;"
     end = "#endif\n"
     if text.count(begin) != 1 or text.rfind(end) < text.index(begin):

@@ -1,0 +1,7 @@
+#pragma once
+#include "win32_compat.hpp"
+#include <string_view>
+namespace srhd_awa::platform::win32_compat {
+ImportAddress ResolveModuleImport(std::string_view dll, std::string_view symbol);
+std::uint32_t DynamicModuleLoadCount();
+}

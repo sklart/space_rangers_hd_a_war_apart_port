@@ -177,6 +177,18 @@ def main() -> int:
     patched_sources = prepare_patched_sources()
     runtime_overlay = BUILD / "runtime-overlay"
     prepare_runtime_overlay(GAME / "runtime", runtime_overlay)
+    code, output = run([sys.executable,
+                        native_path(ROOT / "tools/audit_win32_surface.py"), "--check"])
+    if code:
+        report["first_failure"] = {"phase": "Win32 source inventory", "exact_error": output}
+        save(report)
+        return 1
+    code, output = run([sys.executable,
+                        native_path(ROOT / "tools/generate_okgf_compat_exports.py")])
+    if code:
+        report["first_failure"] = {"phase": "OKGF export table", "exact_error": output}
+        save(report)
+        return 1
     report["source_overrides"] += sorted(patched_sources)
     flags = ["-std=gnu++20", "-D__SWITCH__", "-march=armv8-a+crc+crypto",
              "-mtune=cortex-a57", "-mtp=soft", "-fPIE", "-O0",
@@ -270,6 +282,36 @@ def main() -> int:
                                    f"required original game symbols missing: {report['required_game_symbols']}"}
         save(report)
         return 1
+    code, audit_output = run([sys.executable, native_path(ROOT / "tools/audit_win32_surface.py"),
+                              "--effective", "--check"])
+    manifest_path = ROOT / "win32-effective-import-manifest.json"
+    if manifest_path.is_file():
+        manifest_bytes = manifest_path.read_bytes()
+        manifest = json.loads(manifest_bytes)
+        report["win32_surface"] = {
+            "manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest().upper(),
+            "imports": len(manifest["imports"]),
+            "dynamic_calls": len(manifest["dynamic_calls"]),
+            "classifications": manifest["classification_counts"],
+            "startup_unimplemented": manifest["startup_unimplemented"],
+        }
+    if code:
+        report["first_failure"] = {"phase": "Win32 compatibility surface",
+                                   "exact_error": audit_output}
+        save(report)
+        print(f"E2E Win32 compatibility gate: {audit_output}", file=sys.stderr)
+        return 1
+    for gate, args in (("portable import mapping",
+                        ["tools/generate_win32_portable_cases.py", "--check"]),
+                       ("synthetic handle width",
+                        ["tools/audit_win32_handle_width.py"])):
+        code, gate_output = run([sys.executable, native_path(ROOT / args[0]),
+                                 *args[1:]])
+        if code:
+            report["first_failure"] = {"phase": gate, "exact_error": gate_output}
+            save(report)
+            print(f"E2E {gate} gate: {gate_output}", file=sys.stderr)
+            return 1
     tools_bin = DEVKITPRO / "tools/bin"
     suffix = ".exe" if os.name == "nt" else ""
     nacp = BUILD / "SpaceRangersHDAWarApartE2E.nacp"
@@ -287,7 +329,7 @@ def main() -> int:
     report["nro"] = {"path": nro.relative_to(ROOT).as_posix(),
                      "bytes": nro.stat().st_size,
                      "sha256": hashlib.sha256(nro.read_bytes()).hexdigest().upper(),
-                     "status": "EXPERIMENTAL; dependency audit pending"}
+                     "status": "SOFTWARE AUDIT PASS; hardware not tested"}
     strings_tool = DEVKITA64 / "bin" / ("aarch64-none-elf-strings.exe" if os.name == "nt" else "aarch64-none-elf-strings")
     code, strings_output = run([str(strings_tool), native_path(elf)])
     if code:
@@ -298,16 +340,6 @@ def main() -> int:
         line.strip().lower() for line in strings_output.splitlines()
         if re.fullmatch(r"[a-z0-9_.-]+\.dll", line.strip(), re.IGNORECASE)
     })
-    if report["windows_only_apis_encountered"]:
-        report["nro"]["status"] = "EXPERIMENTAL; Windows DLL audit FAIL"
-        report["first_failure"] = {
-            "phase": "runtime dependency audit",
-            "exact_error": "ELF retains DLL names: " + ", ".join(report["windows_only_apis_encountered"]),
-        }
-        save(report)
-        print(report["first_failure"]["exact_error"], file=sys.stderr)
-        return 1
-    report["nro"]["status"] = "SOFTWARE AUDIT PASS; hardware not tested"
     save(report)
     print(f"E2E ARM64 ELF: {elf}")
     return 0

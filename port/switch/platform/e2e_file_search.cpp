@@ -31,33 +31,6 @@ std::mutex g_mutex;
 std::unordered_map<std::uint32_t, Search> g_searches;
 std::uint32_t g_next_handle = 1;
 
-unsigned char Fold(unsigned char c) {
-  return c >= 'A' && c <= 'Z' ? static_cast<unsigned char>(c + ('a' - 'A')) : c;
-}
-
-bool Match(const char* pattern, const char* name) {
-  // Win32 FindFirstFile treats *.* as all names, including extensionless names.
-  if (std::strcmp(pattern, "*.*") == 0) return true;
-  const char* star = nullptr;
-  const char* retry = nullptr;
-  while (*name) {
-    if (*pattern == '?' || (*pattern && Fold(*pattern) == Fold(*name))) {
-      ++pattern;
-      ++name;
-    } else if (*pattern == '*') {
-      star = pattern++;
-      retry = name;
-    } else if (star) {
-      pattern = star + 1;
-      name = ++retry;
-    } else {
-      return false;
-    }
-  }
-  while (*pattern == '*') ++pattern;
-  return *pattern == 0;
-}
-
 void Fill(SysUtils::TSearchRec& record, const Entry& entry) {
   record.Name = pas::AnsiString(entry.name.c_str());
   record.Size = static_cast<std::int64_t>(entry.size);
@@ -85,7 +58,7 @@ std::int32_t First(const char* pattern, std::int32_t attributes, SysUtils::TSear
   for (const auto& item : std::filesystem::directory_iterator(directory, error)) {
     if (error) break;
     const std::string name = item.path().filename().string();
-    if (!Match(mask.c_str(), name.c_str())) continue;
+    if (!MatchPattern(mask.c_str(), name.c_str())) continue;
     const bool is_directory = item.is_directory(error);
     if (error) break;
     const std::int32_t item_attributes = (is_directory ? SysUtilsImports::faDirectory : 0) |

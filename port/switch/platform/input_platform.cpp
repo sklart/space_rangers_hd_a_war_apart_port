@@ -37,12 +37,25 @@ Snapshot Normalize(State* state, RawInput raw, std::int32_t width, std::int32_t 
   result.right_down = raw.b && !state->last.right_held;
   result.right_up = !raw.b && state->last.right_held;
   result.right_held = raw.b;
+  result.enter_down = raw.x && !state->last.enter_held;
+  result.enter_up = !raw.x && state->last.enter_held;
+  result.enter_held = raw.x;
+  result.escape_down = raw.y && !state->last.escape_held;
+  result.escape_up = !raw.y && state->last.escape_held;
+  result.escape_held = raw.y;
   result.plus_down = raw.plus && !state->plus_held;
   state->plus_held = raw.plus;
   state->last = result;
   return result;
 }
 void InjectHostRaw(State* state, RawInput raw) { if (state) state->host_raw = raw; }
+void Warp(State* state, std::int32_t x, std::int32_t y,
+          std::int32_t width, std::int32_t height) {
+  if (!state || width <= 0 || height <= 0) return;
+  state->last.x = std::clamp(x, 0, width - 1);
+  state->last.y = std::clamp(y, 0, height - 1);
+  state->initialized = true;
+}
 Snapshot Poll(State* state, std::int32_t width, std::int32_t height) {
   if (!state) return {};
 #if defined(__SWITCH__)
@@ -64,6 +77,8 @@ Snapshot Poll(State* state, std::int32_t width, std::int32_t height) {
   raw.dpad_down = (held & HidNpadButton_Down) != 0;
   raw.a = (held & HidNpadButton_A) != 0;
   raw.b = (held & HidNpadButton_B) != 0;
+  raw.x = (held & HidNpadButton_X) != 0;
+  raw.y = (held & HidNpadButton_Y) != 0;
   raw.plus = (held & HidNpadButton_Plus) != 0;
   return Normalize(state, raw, width, height);
 #else

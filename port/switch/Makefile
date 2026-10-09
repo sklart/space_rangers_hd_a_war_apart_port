@@ -27,6 +27,16 @@ host-e2e-command-line-test:
 .PHONY: host-e2e-file-search-test
 host-e2e-file-search-test:
 	$(PYTHON) ../../tools/e2e_file_search_test.py
+
+.PHONY: host-e2e-calendar-test
+host-e2e-calendar-test:
+	@mkdir -p build/e2e-calendar
+	g++ -std=gnu++20 -O2 -pthread -include unistd.h -Iplatform -I../../upstream/cpp/src -I../../upstream/cpp/runtime ../../tests/test_e2e_calendar.cpp platform/e2e_calendar.cpp -o build/e2e-calendar/test_e2e_calendar
+	build/e2e-calendar/test_e2e_calendar
+
+.PHONY: host-e2e-win32-compat-test
+host-e2e-win32-compat-test:
+	$(PYTHON) ../../tools/e2e_win32_host_test.py
 DEVKITA64 ?= $(DEVKITPRO)/devkitA64
 LIBNX ?= $(DEVKITPRO)/libnx
 PORTLIBS ?= $(DEVKITPRO)/portlibs/switch
