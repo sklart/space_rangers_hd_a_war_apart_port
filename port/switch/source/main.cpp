@@ -1183,6 +1183,23 @@ bool InitializeM26Release(M26ReleaseDiagnostic* diagnostic, M23TextDiagnostic* t
     if (error) *error = "M26 real Edit missing";
     return false;
   }
+  diagnostic->edit->SetText(u"123");
+  diagnostic->edit->SetFocused(true);
+  diagnostic->edit->SetCaretBlink(true);
+  std::fill(showcase_pixels.begin(), showcase_pixels.end(), 0);
+  ui_fingerprint::Value edit_frame{};
+  if (!diagnostic->edit->RenderLeaf(showcase_framebuffer, {0, 0, width, height}, error) ||
+      !ui_fingerprint::ComputeFramebuffer(showcase_framebuffer, &edit_frame, error) ||
+      edit_frame.crc32 != 0x0c547e1bu ||
+      edit_frame.fnv64 != UINT64_C(0x18432c76a6d566c5)) {
+    if (error && error->empty()) *error = "M26 real focused Edit frame differs from Python oracle";
+    return false;
+  }
+  Log("[M26] Edit focused frame=%08lx/%016llx",
+      static_cast<unsigned long>(edit_frame.crc32),
+      static_cast<unsigned long long>(edit_frame.fnv64));
+  diagnostic->edit->SetText(u"");
+  diagnostic->edit->SetFocused(false);
   diagnostic->controls.SetRootSize({width, height});
   auto* selected = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
   selected->AddChildBlock(u"ScrollBar")->CopyFrom(scroll_source);
@@ -1205,7 +1222,9 @@ bool InitializeM26Release(M26ReleaseDiagnostic* diagnostic, M23TextDiagnostic* t
       diagnostic->panel->VerticalBar()->Minimum() != 0 ||
       diagnostic->panel->VerticalBar()->Maximum() != 539 ||
       diagnostic->panel->VerticalBar()->PageSize() != 540 ||
-      diagnostic->panel->VerticalBar()->Position() != 0) {
+      diagnostic->panel->VerticalBar()->Position() != 0 ||
+      diagnostic->panel->VerticalBar()->LocalPosition() != ui::Point{903, 116} ||
+      diagnostic->panel->VerticalBar()->ClientSize() != ui::Size{20, 513}) {
     if (error) *error = "M26 real ScrollBar or PanelScrollBar layout differs from Python oracle";
     return false;
   }
@@ -1235,15 +1254,21 @@ bool InitializeM26Release(M26ReleaseDiagnostic* diagnostic, M23TextDiagnostic* t
     if (error) *error = "M26 real GraphBuf scaled pixels differ from fixed host/ARM-compatible oracle";
     return false;
   }
+  const auto graph_center = diagnostic->graph->GetVisualCenter();
+  const bool graph_hit = diagnostic->graph->HitTestPixel({1090, 120});
+  if (!graph_hit || graph_center != ui::Point{49, 24}) {
+    if (error) *error = "M26 real GraphBuf hit or visual centre differs from host oracle";
+    return false;
+  }
   Log("[M26] GraphBuf source=19267238/debceda99798e0e0 scaled=%08lx/%016llx size=%ldx%ld hit=%u center=%ld,%ld",
       static_cast<unsigned long>(CrcUnit::ComputeCrc32(scaled_data,
           static_cast<std::int32_t>(scaled.size()))),
       static_cast<unsigned long long>(M17Fnv(scaled.data(), scaled.size())),
       static_cast<long>(diagnostic->graph->Buffer().width()),
       static_cast<long>(diagnostic->graph->Buffer().height()),
-      diagnostic->graph->HitTestPixel({1090, 120}) ? 1u : 0u,
-      static_cast<long>(diagnostic->graph->GetVisualCenter().x),
-      static_cast<long>(diagnostic->graph->GetVisualCenter().y));
+      graph_hit ? 1u : 0u,
+      static_cast<long>(graph_center.x),
+      static_cast<long>(graph_center.y));
   std::size_t font_source_bytes{};
   for (const auto* path : {"DATA/FONT/Verdana_09_2.aft", "DATA/FONT/ranger_6.aft",
                            "DATA/FONT/Verdana_08_1.aft", "DATA/FONT/Verdana_08_2_bold.aft"})
