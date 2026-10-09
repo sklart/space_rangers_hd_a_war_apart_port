@@ -84,7 +84,24 @@ int main() {
                                    transferred, nullptr));
   assert(transferred == sizeof(payload) - 1);
   assert(std::strcmp(read_back, payload) == 0);
+  const auto denied = WindowsImports::CreateFileA(
+      reinterpret_cast<std::uint8_t*>(const_cast<char*>(file_name.c_str())),
+      0x80000000u, 1, nullptr, 3, 0, 0);
+  assert(denied == 0xffffffffu && WindowsImports::GetLastError() == 32);
   assert(WindowsImports::CloseHandle(file));
+  const auto reader_a = WindowsImports::CreateFileA(
+      reinterpret_cast<std::uint8_t*>(const_cast<char*>(file_name.c_str())),
+      0x80000000u, 1, nullptr, 3, 0, 0);
+  const auto reader_b = WindowsImports::CreateFileA(
+      reinterpret_cast<std::uint8_t*>(const_cast<char*>(file_name.c_str())),
+      0x80000000u, 1, nullptr, 3, 0, 0);
+  assert(reader_a != 0xffffffffu && reader_b != 0xffffffffu);
+  const auto denied_write = WindowsImports::CreateFileA(
+      reinterpret_cast<std::uint8_t*>(const_cast<char*>(file_name.c_str())),
+      0x40000000u, 3, nullptr, 3, 0, 0);
+  assert(denied_write == 0xffffffffu && WindowsImports::GetLastError() == 32);
+  assert(WindowsImports::CloseHandle(reader_a));
+  assert(WindowsImports::CloseHandle(reader_b));
   Windows::TWin32FindDataA file_data{};
   const auto found = WindowsImports::FindFirstFileA(
       reinterpret_cast<std::uint8_t*>(const_cast<char*>(file_name.c_str())),

@@ -10,12 +10,15 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cctype>
 #include <cstdio>
 #include <cstring>
 #include <filesystem>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <type_traits>
+#include <unordered_map>
 #include <vector>
 
 namespace srhd_awa::platform::win32_compat {
@@ -23,6 +26,8 @@ namespace {
 constexpr std::uint32_t kInvalid = 0xffffffffu;
 constexpr std::uint32_t kGenericRead = 0x80000000u;
 constexpr std::uint32_t kGenericWrite = 0x40000000u;
+constexpr std::uint32_t kShareRead = 1;
+constexpr std::uint32_t kShareWrite = 2;
 constexpr std::uint32_t kCreateNew = 1;
 constexpr std::uint32_t kCreateAlways = 2;
 constexpr std::uint32_t kOpenExisting = 3;
@@ -31,9 +36,15 @@ constexpr std::uint32_t kTruncateExisting = 5;
 
 struct FileObject {
   std::FILE* file;
-  explicit FileObject(std::FILE* value) : file(value) {}
+  std::uint32_t access;
+  std::uint32_t share;
+  FileObject(std::FILE* value, std::uint32_t access_mode,
+             std::uint32_t share_mode)
+      : file(value), access(access_mode), share(share_mode) {}
   ~FileObject() { if (file) std::fclose(file); }
 };
+std::mutex g_open_files_mutex;
+std::unordered_map<std::string, std::vector<std::weak_ptr<FileObject>>> g_open_files;
 struct FindObject {
   std::vector<std::filesystem::directory_entry> entries;
   std::size_t next = 0;
@@ -58,13 +69,35 @@ std::string Path(const char* input, bool writing) {
   return game.empty() ? normalized : game;
 }
 
+std::string ShareKey(const std::string& path) {
+  std::string key = std::filesystem::path(path).lexically_normal().generic_string();
+  for (char& c : key)
+    c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+  return key;
+}
+
 std::uint32_t OpenFile(const char* input, std::uint32_t access,
+                       std::uint32_t share,
                        std::uint32_t disposition) {
   const bool writing = (access & kGenericWrite) != 0;
   const auto path = Path(input, writing);
   if (path.empty() || !(access & (kGenericRead | kGenericWrite))) {
     SetLastError(kErrorInvalidParameter);
     return kInvalid;
+  }
+  std::lock_guard lock(g_open_files_mutex);
+  auto& open = g_open_files[ShareKey(path)];
+  std::erase_if(open, [](const auto& handle) { return handle.expired(); });
+  for (const auto& weak : open) {
+    const auto peer = weak.lock();
+    if (!peer) continue;
+    if (((access & kGenericRead) && !(peer->share & kShareRead)) ||
+        ((access & kGenericWrite) && !(peer->share & kShareWrite)) ||
+        ((peer->access & kGenericRead) && !(share & kShareRead)) ||
+        ((peer->access & kGenericWrite) && !(share & kShareWrite))) {
+      SetLastError(kErrorSharingViolation);
+      return kInvalid;
+    }
   }
   const bool exists = std::filesystem::is_regular_file(path);
   if (disposition == kCreateNew && exists) {
@@ -91,16 +124,17 @@ std::uint32_t OpenFile(const char* input, std::uint32_t access,
                      ? kErrorAccessDenied : kErrorPathNotFound);
     return kInvalid;
   }
-  const auto token = Handles().Allocate(HandleType::File,
-                                        std::make_shared<FileObject>(file));
+  auto object = std::make_shared<FileObject>(file, access, share);
+  const auto token = Handles().Allocate(HandleType::File, object);
   if (!token) return kInvalid;
+  open.push_back(object);
   SetLastError(exists && disposition == kOpenAlways ? kErrorAlreadyExists : kErrorSuccess);
   return token;
 }
 
 std::uint32_t CreateFileAThunk(std::uint8_t* path, std::uint32_t access,
-    std::uint32_t, void*, std::uint32_t disposition, std::uint32_t, std::uint32_t) {
-  return OpenFile(reinterpret_cast<const char*>(path), access, disposition);
+    std::uint32_t share, void*, std::uint32_t disposition, std::uint32_t, std::uint32_t) {
+  return OpenFile(reinterpret_cast<const char*>(path), access, share, disposition);
 }
 
 std::uint32_t CreateFileWThunk(char16_t* path, std::uint32_t access,
@@ -108,11 +142,10 @@ std::uint32_t CreateFileWThunk(char16_t* path, std::uint32_t access,
     std::uint32_t flags, std::uint32_t pattern) {
   if (!path) { SetLastError(kErrorInvalidParameter); return kInvalid; }
   const auto narrow = NarrowPath(path);
-  (void)share;
   (void)security;
   (void)flags;
   (void)pattern;
-  return OpenFile(narrow.c_str(), access, disposition);
+  return OpenFile(narrow.c_str(), access, share, disposition);
 }
 
 std::shared_ptr<FileObject> LookupFile(std::uint32_t token) {

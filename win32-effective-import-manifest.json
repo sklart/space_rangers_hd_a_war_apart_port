@@ -3918,7 +3918,7 @@
         "port/switch/build/e2e-game/generated/GR_Main.cpp:815",
         "port/switch/platform/win32_compat.cpp:134",
         "port/switch/platform/win32_compat.cpp:97",
-        "port/switch/platform/win32_compat_files.cpp:435",
+        "port/switch/platform/win32_compat_files.cpp:468",
         "port/switch/platform/win32_compat_filetime.cpp:99",
         "port/switch/platform/win32_compat_heap.cpp:20",
         "port/switch/platform/win32_compat_modules.cpp:129",

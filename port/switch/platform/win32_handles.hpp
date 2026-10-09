@@ -17,6 +17,7 @@ enum : std::uint32_t {
   kErrorInvalidParameter = 87,
   kErrorAlreadyExists = 183,
   kErrorNoMoreFiles = 18,
+  kErrorSharingViolation = 32,
 };
 
 void SetLastError(std::uint32_t error);
