@@ -1,5 +1,5 @@
 {
-  "source": "fixed local host release-control run before Switch",
+  "source": "fixed local host release-control run; runtime composite checked against 2026-10-09 Switch logs",
   "info": {
     "initial": {"crc32": "cb1a12b3", "fnv64": "fbca196e86b2f452"},
     "hover": {"crc32": "fb83833b", "fnv64": "5c7d41d26204f9cd"},
@@ -11,5 +11,6 @@
     "edit_caret_off_empty": {"crc32": "cb1a12b3", "fnv64": "fbca196e86b2f452"}
   },
   "film_scroll_moved": {"crc32": "50d0d772", "fnv64": "230a5072582bdb54", "position": 53},
+  "film_scroll_moved_runtime_composite": {"crc32": "c460a53e", "fnv64": "c68235dbfa5624b5", "position": 53, "includes": "relocated ScrollBar, PanelScrollBar, GraphBuf"},
   "scripted_event": {"crc32": "004504e6", "fnv64": "1192cd139f06a4a0", "actions": 20, "bytes": 1327}
 }

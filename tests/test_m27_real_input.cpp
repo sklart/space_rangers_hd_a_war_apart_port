@@ -468,6 +468,26 @@ int main(int argc, char** argv) {
   Check(frame.crc32 == 0x50d0d772u &&
         frame.fnv64 == UINT64_C(0x230a5072582bdb54),
         "fixed host M27 moved ScrollBar frame");
+  // The Switch runtime moves this control after its layout check and keeps
+  // the M26 GraphBuf in the same tree. Check that composition separately.
+  const auto original_scroll_position = scroll->LocalPosition();
+  scroll->UiObject::SetPosition({810, 665});
+  auto* controls_graph = tree.Root()->AddGraphBuffer();
+  controls_graph->SetPosition({1040, 95});
+  controls_graph->SetSize({100, 50});
+  Check(controls_graph->LoadGiBytes(graph_source.data(), graph_source.size(), &error),
+        "real GI GraphBuf in M27 controls tree");
+  std::fill(pixels.begin(), pixels.end(), 0);
+  Check(tree.Render(target, &error) &&
+        ui_fingerprint::ComputeFramebuffer(target, &frame, &error), error);
+  std::printf("M27 REAL SCROLL combined-frame=%08x/%016llx\n", frame.crc32,
+      static_cast<unsigned long long>(frame.fnv64));
+  Check(frame.crc32 == 0xc460a53eu &&
+        frame.fnv64 == UINT64_C(0xc68235dbfa5624b5),
+        "real M27 ScrollBar and GraphBuf combined frame matches Switch");
+  Check(static_cast<bool>(tree.Root()->Detach(controls_graph)),
+        "remove combined-frame-only GraphBuf");
+  scroll->UiObject::SetPosition(original_scroll_position);
   const ui::Point arrow_point{scroll_bounds.left + 10, thumb_point.y};
   scroll_input.PointerMove(arrow_point);
   scroll_input.PointerDown(ui::UiPointerButton::Left, arrow_point);

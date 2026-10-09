@@ -1490,8 +1490,10 @@ bool UpdateM27Release(M27ReleaseDiagnostic* diagnostic, std::uint64_t now_ms,
     diagnostic->controls_input.PointerUp(ui::UiPointerButton::Left, {thumb.x + 40, thumb.y});
     Log("[M27] ScrollBar drag position=%ld", static_cast<long>(scroll->Position()));
     if (scroll->Position() != 53) { if (error) *error = "M27 real ScrollBar drag differs"; return false; }
-    return CheckM27ControlsFrame(diagnostic, "scroll-moved", 0x50d0d772u,
-                                 UINT64_C(0x230a5072582bdb54), error);
+    // The runtime controls tree includes the M26 GraphBuf. The earlier host
+    // scroll-only frame is 50d0d772/230a5072582bdb54.
+    return CheckM27ControlsFrame(diagnostic, "scroll-moved", 0xc460a53eu,
+                                 UINT64_C(0xc68235dbfa5624b5), error);
   }
   if (frame == 167) {
     // The isolated release panel has no scrollable world. The bar and its

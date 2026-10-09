@@ -23,8 +23,15 @@ regressions and ARM64 compilation, but requires a new Switch run. See
 A second physical run with `build_git=5289cde` still closed unexpectedly,
 after `[M26] PanelScrollBar loaded`. Matching Atmosphère reports locate the
 fault in OKGF's C11 TLS access during M26 GraphBuf scaling. A Switch-only
-OKGF build fix is ready for validation; M26 and M27 hardware status remains
-**FAIL / FIX PENDING HARDWARE**.
+OKGF build fix was prepared for the next physical run.
+
+The next physical run with `build_git=241efc4` confirms the TLS crash is gone:
+M26 GraphBuf decoding and the persistent loop ran. M27 then stopped on a
+strict `scroll-moved` frame check because its runtime tree includes GraphBuf
+and a relocated ScrollBar, while the old host oracle did not. The corrected
+runtime composition matches two Switch logs and a release-backed host test.
+Live pointer input never activated in those runs; M26/M27 cumulative hardware
+PASS remains pending a new run.
 
 M24 was fast-forwarded to `master` at
 `6193878a71341c9726a0935643c0170305032c6b`; the exact commit was tagged
