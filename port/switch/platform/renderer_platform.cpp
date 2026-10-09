@@ -78,6 +78,8 @@ void ClearSoftwareGlobals() {
   GR_DX::PendingPointCapacity = 0;
   GR_Main::GameScreenWidth = 0;
   GR_Main::GameScreenHeight = 0;
+  GR_Main::ExtraScreenWidth = 0;
+  GR_Main::ExtraScreenHeight = 0;
   GR_Main::PresentationWidth = 0;
   GR_Main::PresentationHeight = 0;
 }
@@ -100,8 +102,21 @@ bool InitializeSoftwareRenderer(const RendererConfig& config, std::string* error
   ClearSoftwareGlobals();
   GR_Main::GameScreenWidth = config.game_width;
   GR_Main::GameScreenHeight = config.game_height;
+  // Mirror the original display-mode setup before UI InitializeLayout runs.
+  GR_Main::ExtraScreenWidth = config.game_width - 1024;
+  GR_Main::ExtraScreenHeight = config.game_height - 768;
   GR_Main::PresentationWidth = config.presentation_width > 0 ? config.presentation_width : config.game_width;
   GR_Main::PresentationHeight = config.presentation_height > 0 ? config.presentation_height : config.game_height;
+#if defined(__SWITCH__)
+  {
+    char detail[128]{};
+    std::snprintf(detail, sizeof(detail), "renderer geometry game=%dx%d presentation=%dx%d extra=%d,%d",
+        GR_Main::GameScreenWidth, GR_Main::GameScreenHeight,
+        GR_Main::PresentationWidth, GR_Main::PresentationHeight,
+        GR_Main::ExtraScreenWidth, GR_Main::ExtraScreenHeight);
+    e2e_stage::Log(detail);
+  }
+#endif
   GR_Main::GameScreenRect = {0, 0, config.game_width, config.game_height};
   GR_Main::PresentationRect = {0, 0, GR_Main::PresentationWidth, GR_Main::PresentationHeight};
   GR_Main::VSyncEnabled = config.vsync;

@@ -230,11 +230,18 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
             OnOpen();
             srhd_awa::platform::e2e_stage::Log("screen Run OnOpen ready");''', 1)
         run = run.replace("                    GR_Main::EndFramePresentation();", '''                    GR_Main::EndFramePresentation();
+                    ++e2e_frame_count;
                     if (!e2e_first_frame_logged) {
                         srhd_awa::platform::e2e_stage::Log("screen Run first frame attempted");
                         e2e_first_frame_logged = true;
+                    } else if (e2e_frame_count == 2 || e2e_frame_count == 10 ||
+                               e2e_frame_count == 60) {
+                        char detail[96]{};
+                        std::snprintf(detail, sizeof(detail), "screen Run frames=%u",
+                            static_cast<unsigned>(e2e_frame_count));
+                        srhd_awa::platform::e2e_stage::Log(detail);
                     }''', 1)
-        run = run.replace("        std::int32_t Stage = 0;", "        std::int32_t Stage = 0;\n        bool e2e_first_frame_logged = false;", 1)
+        run = run.replace("        std::int32_t Stage = 0;", "        std::int32_t Stage = 0;\n        bool e2e_first_frame_logged = false;\n        std::uint32_t e2e_frame_count = 0;", 1)
         text = text[:start] + run + text[end:]
         text = '#include "e2e_stage.hpp"\n' + text
     if source.name == "GR_GraphBuf.cpp":
@@ -262,6 +269,31 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
                 raise RuntimeError(f"snapshot pointer boundary changed: {old}")
             text = text.replace(old, new, 1)
     if source.name == "GR_Main.cpp":
+        callback_gate = "                    if (Msg.hwnd == MainWindowHandle && pas::assigned(Callback) && Forms::Application->GetActive()) {"
+        if text.count(callback_gate) != 1:
+            raise RuntimeError("original input callback gate changed")
+        text = text.replace(callback_gate, '''                    const bool e2e_callback_active = Forms::Application->GetActive();
+                    static std::uint32_t e2e_move_dispatch_logs = 0;
+                    static std::uint32_t e2e_button_dispatch_logs = 0;
+                    const bool e2e_is_move = Msg.message == MessagesSdk::WM_MOUSEMOVE;
+                    const bool e2e_is_button =
+                        Msg.message == MessagesSdk::WM_LBUTTONDOWN ||
+                        Msg.message == MessagesSdk::WM_LBUTTONUP ||
+                        Msg.message == MessagesSdk::WM_KEYDOWN ||
+                        Msg.message == MessagesSdk::WM_QUIT;
+                    if ((e2e_is_move && e2e_move_dispatch_logs < 4) ||
+                        (e2e_is_button && e2e_button_dispatch_logs < 32)) {
+                        char detail[128]{};
+                        std::snprintf(detail, sizeof(detail),
+                            "input dispatch message=%u hwnd=%u active=%u callback=%u",
+                            static_cast<unsigned>(Msg.message), static_cast<unsigned>(Msg.hwnd),
+                            static_cast<unsigned>(e2e_callback_active),
+                            static_cast<unsigned>(pas::assigned(Callback)));
+                        srhd_awa::platform::e2e_stage::Log(detail);
+                        if (e2e_is_move) ++e2e_move_dispatch_logs;
+                        if (e2e_is_button) ++e2e_button_dispatch_logs;
+                    }
+                    if (Msg.hwnd == MainWindowHandle && pas::assigned(Callback) && e2e_callback_active) {''', 1)
         geometry_begin = "    void ApplyMainWindowGeometry() {"
         focus_begin = "    void ShowAndFocusMainWindow() {"
         dat_begin = "    void LoadDatConfigAndModOverrides() {"

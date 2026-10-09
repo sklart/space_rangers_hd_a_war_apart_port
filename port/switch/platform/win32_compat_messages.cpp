@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
+#include <cstdio>
 #include <cstdint>
 #include <deque>
 #include <memory>
@@ -53,6 +54,10 @@ std::vector<std::shared_ptr<Timer>> g_timers;
 input_platform::State g_input;
 std::array<bool, 256> g_keys{};
 std::int32_t g_last_x = -1, g_last_y = -1;
+#if defined(__SWITCH__)
+std::uint32_t g_last_input_diagnostic_tick{};
+bool g_input_diagnostic_started{};
+#endif
 
 std::int32_t MouseLParam(std::int32_t x, std::int32_t y) {
   return static_cast<std::int32_t>((static_cast<std::uint32_t>(y) & 0xffffu) << 16 |
@@ -87,6 +92,24 @@ void Pump() {
   MainWindowSize(&width, &height);
   const auto input = input_platform::Poll(&g_input, width, height);
   SetInputCursor(input.x, input.y);
+#if defined(__SWITCH__)
+  const auto diagnostic_tick = e2e_clock::Milliseconds();
+  const bool button_edge = input.left_down || input.left_up || input.right_down ||
+      input.right_up || input.enter_down || input.enter_up || input.escape_down ||
+      input.escape_up || input.plus_down;
+  if (!g_input_diagnostic_started || button_edge ||
+      diagnostic_tick - g_last_input_diagnostic_tick >= 5000u) {
+    char detail[160]{};
+    std::snprintf(detail, sizeof(detail),
+        "input poll window=%u size=%dx%d cursor=%d,%d buttons=A%d B%d X%d Y%d PLUS%d",
+        window, width, height, input.x, input.y,
+        input.left_held, input.right_held, input.enter_held,
+        input.escape_held, input.plus_down);
+    e2e_stage::Log(detail);
+    g_last_input_diagnostic_tick = diagnostic_tick;
+    g_input_diagnostic_started = true;
+  }
+#endif
   std::lock_guard lock(g_mutex);
   const auto lparam = MouseLParam(input.x, input.y);
   if (input.x != g_last_x || input.y != g_last_y) {
