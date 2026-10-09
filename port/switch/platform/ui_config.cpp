@@ -7,6 +7,10 @@
 #include "ui_label.hpp"
 #include "ui_graph_button.hpp"
 #include "ui_gai.hpp"
+#include "ui_graph_buffer.hpp"
+#include "ui_scroll_bar.hpp"
+#include "ui_panel_scroll_bar.hpp"
+#include "ui_edit.hpp"
 #include "ui_tree_renderer.hpp"
 #include "ui_zone.hpp"
 #include "ui_window.hpp"
@@ -492,6 +496,201 @@ bool ApplyWindowProperties(ui::UiWindow* window, EC_BlockPar::TBlockParEC* block
   }
   return window->FinalizeLayout(error);
 }
+bool ApplyScrollBarProperties(ui::UiScrollBar* bar, EC_BlockPar::TBlockParEC* block,
+                              const Context& context, std::string* error) {
+  constexpr const char16_t* prefixes[] = {u"ImageUp", u"ImageBar", u"ImageTop",
+      u"ImageCenter", u"ImageBottom", u"ImageDown"};
+  constexpr const char16_t* suffixes[] = {u"N", u"A", u"D"};
+  std::array<std::array<std::string, 3>, 6> images;
+  std::int32_t minimum = 0, maximum = 99, page_size = 1, large = 1,
+               small = 1, position = 0, orientation = 2, calculation = 0;
+  std::unordered_set<const EC_BlockPar::TBlockParEC*> active;
+  if (!VisitStyleChain(block, context, &active, 0,
+      [&](EC_BlockPar::TBlockParEC* source) {
+        const struct { const char16_t* name; std::int32_t* value; } numbers[] = {
+          {u"Min", &minimum}, {u"Max", &maximum}, {u"PageSize", &page_size},
+          {u"LargeChange", &large}, {u"SmallChange", &small},
+          {u"Position", &position}, {u"KindCalc", &calculation}};
+        for (const auto& field : numbers)
+          if (Has(source, field.name) &&
+              !Number(Text(source->GetParam(std::u16string_view(field.name))), field.value))
+            return Fail(error, "invalid ScrollBar numeric property");
+        if (Has(source, u"Kind")) orientation =
+            Text(source->GetParam(u"Kind"sv)) == "x" ? 1 : 2;
+        for (std::size_t part = 0; part < 6; ++part)
+          for (std::size_t state = 0; state < 3; ++state) {
+            const std::u16string name = std::u16string(prefixes[part]) + suffixes[state];
+            if (Has(source, name.c_str()))
+              images[part][state] = Text(source->GetParam(std::u16string_view(name)));
+          }
+        return true;
+      }, error)) return false;
+  if (minimum > maximum || page_size < 0 || large < 0 || small < 0 ||
+      (orientation != 1 && orientation != 2))
+    return Fail(error, "unsupported ScrollBar range or orientation");
+  bar->SetOrientation(orientation);
+  bar->SetCalculationMode(calculation);
+  bar->SetRange(minimum, maximum);
+  bar->SetPageSize(page_size);
+  bar->SetSmallChange(small);
+  bar->SetLargeChange(large);
+  bar->SetPosition(position);
+  if (!context.resources) return Fail(error, "ScrollBar image resolver is null");
+  constexpr ui::ScrollBarPart parts[] = {ui::ScrollBarPart::Up,
+      ui::ScrollBarPart::Before, ui::ScrollBarPart::ThumbTop,
+      ui::ScrollBarPart::ThumbCenter, ui::ScrollBarPart::ThumbBottom,
+      ui::ScrollBarPart::Down};
+  for (std::size_t part = 0; part < 6; ++part)
+    for (std::size_t state = 0; state < 3; ++state) {
+      if (images[part][state].empty()) continue;
+      image_object::Kind kind{};
+      std::string resource;
+      if (!ParseGenericImage(images[part][state], &kind, &resource, error) ||
+          kind == image_object::Kind::GAI)
+        return Fail(error, "unsupported ScrollBar image mode");
+      auto image = std::make_unique<ui::UiImageLeaf>();
+      if (!context.resources->LoadImage(image.get(), kind, resource, "", error)) return false;
+      image->Image().SetModes(part == 1 ? image_layout::XMode::LeftFill :
+          image_layout::XMode::Center,
+          part == 1 ? image_layout::YMode::TopFill : image_layout::YMode::Center);
+      if (!bar->AddImage(parts[part], static_cast<ui::ScrollBarState>(state),
+                         std::move(image), error)) return false;
+    }
+  for (std::size_t state = 0; state < 3; ++state) {
+    if (images[1][state].empty()) continue;
+    image_object::Kind kind{};
+    std::string resource;
+    if (!ParseGenericImage(images[1][state], &kind, &resource, error)) return false;
+    auto image = std::make_unique<ui::UiImageLeaf>();
+    if (!context.resources->LoadImage(image.get(), kind, resource, "", error)) return false;
+    image->Image().SetModes(image_layout::XMode::RightFill, image_layout::YMode::BottomFill);
+    if (!bar->AddImage(ui::ScrollBarPart::After,
+        static_cast<ui::ScrollBarState>(state), std::move(image), error)) return false;
+  }
+  return bar->UpdateLayout(error);
+}
+bool ApplyPanelScrollBarProperties(ui::UiPanelScrollBar* panel,
+                                   EC_BlockPar::TBlockParEC* block,
+                                   const Context& context, std::string* error) {
+  std::string style_x, style_y;
+  bool active_x{}, active_y{}, external{}, unlimited{true};
+  bool auto_x{true}, auto_y{true};
+  ui::Rect rect_x{}, rect_y{};
+  std::unordered_set<const EC_BlockPar::TBlockParEC*> active;
+  if (!VisitStyleChain(block, context, &active, 0,
+      [&](EC_BlockPar::TBlockParEC* source) {
+        if (Has(source, u"TextColor"))
+          return Fail(error, "unsupported PanelScrollBar TextColor");
+        if (Has(source, u"StyleBarX")) style_x = Text(source->GetParam(u"StyleBarX"sv));
+        if (Has(source, u"StyleBarY")) style_y = Text(source->GetParam(u"StyleBarY"sv));
+        if (Has(source, u"ActiveBarX")) active_x = Enabled(Text(source->GetParam(u"ActiveBarX"sv)));
+        if (Has(source, u"ActiveBarY")) active_y = Enabled(Text(source->GetParam(u"ActiveBarY"sv)));
+        if (Has(source, u"ExternalSB")) external = Enabled(Text(source->GetParam(u"ExternalSB"sv)));
+        if (Has(source, u"UnlimitedWorld")) unlimited = Enabled(Text(source->GetParam(u"UnlimitedWorld"sv)));
+        if (Has(source, u"PosAutoBarX")) auto_x = Enabled(Text(source->GetParam(u"PosAutoBarX"sv)));
+        if (Has(source, u"PosAutoBarY")) auto_y = Enabled(Text(source->GetParam(u"PosAutoBarY"sv)));
+        for (const auto& entry : {std::pair{u"RectBarX", &rect_x},
+                                  std::pair{u"RectBarY", &rect_y}}) {
+          if (!Has(source, entry.first)) continue;
+          const auto parts = Split(Text(source->GetParam(std::u16string_view(entry.first))));
+          if (parts.size() != 4 || !Number(parts[0], &entry.second->left) ||
+              !Number(parts[1], &entry.second->top) ||
+              !Number(parts[2], &entry.second->right) ||
+              !Number(parts[3], &entry.second->bottom) ||
+              entry.second->right < entry.second->left ||
+              entry.second->bottom < entry.second->top)
+            return Fail(error, "invalid PanelScrollBar RectBar");
+        }
+        return true;
+      }, error)) return false;
+  if ((active_x && style_x.empty()) || (active_y && style_y.empty()))
+    return Fail(error, "active PanelScrollBar has no style");
+  for (const auto& entry : {std::pair{style_x, panel->HorizontalBar()},
+                            std::pair{style_y, panel->VerticalBar()}}) {
+    if (entry.first.empty()) continue;
+    auto* style = StyleByName(context.styles, entry.first);
+    if (!style || !ApplyBaseProperties(entry.second, style, context, error) ||
+        !ApplyScrollBarProperties(entry.second, style, context, error))
+      return false;
+  }
+  panel->SetHorizontalActive(active_x);
+  panel->SetVerticalActive(active_y);
+  panel->SetUnlimitedWorld(unlimited);
+  panel->SetAutoHorizontal(auto_x);
+  panel->SetAutoVertical(auto_y);
+  panel->SetHorizontalRect(rect_x);
+  panel->SetVerticalRect(rect_y);
+  panel->SetExternal(external);
+  return panel->UpdateScrollbarPlacement(error);
+}
+bool ApplyEditProperties(ui::UiEdit* edit, EC_BlockPar::TBlockParEC* block,
+                         const Context& context, std::string* error) {
+  std::string font_key, image_key;
+  std::u16string value;
+  std::uint16_t text_color = 0xffff, caret_color = 0xf800;
+  std::uint16_t border_light = 0xffff, border_dark = 0x31a6;
+  bool border{}, clear_focus_on_enter{true};
+  std::int32_t max_length = 256;
+  ui::EditAlignX align = ui::EditAlignX::Left;
+  std::unordered_set<const EC_BlockPar::TBlockParEC*> active;
+  if (!VisitStyleChain(block, context, &active, 0,
+      [&](EC_BlockPar::TBlockParEC* source) {
+        if (Has(source, u"Font")) font_key = Text(source->GetParam(u"Font"sv));
+        if (Has(source, u"Text")) value = Wide(source->GetParam(u"Text"sv));
+        if (Has(source, u"Image")) image_key = Text(source->GetParam(u"Image"sv));
+        if (Has(source, u"ReturnFocusLeave")) clear_focus_on_enter =
+            Enabled(Text(source->GetParam(u"ReturnFocusLeave"sv)));
+        if (Has(source, u"TextColor") &&
+            !ParseColor(Text(source->GetParam(u"TextColor"sv)), &text_color))
+          return Fail(error, "invalid Edit TextColor");
+        if (Has(source, u"Border")) border = Enabled(Text(source->GetParam(u"Border"sv)));
+        if (Has(source, u"BorderLightColor")) {
+          if (!ParseColor(Text(source->GetParam(u"BorderLightColor"sv)), &border_light))
+            return Fail(error, "invalid Edit BorderLightColor");
+          border_dark = border_light;
+        }
+        if (Has(source, u"BorderDarkColor") &&
+            !ParseColor(Text(source->GetParam(u"BorderDarkColor"sv)), &border_dark))
+          return Fail(error, "invalid Edit BorderDarkColor");
+        if (Has(source, u"CursorColor") &&
+            !ParseColor(Text(source->GetParam(u"CursorColor"sv)), &caret_color))
+          return Fail(error, "invalid Edit CursorColor");
+        if (Has(source, u"MaxLen") &&
+            (!Number(Text(source->GetParam(u"MaxLen"sv)), &max_length) || max_length < 0))
+          return Fail(error, "invalid Edit MaxLen");
+        if (Has(source, u"AlignX")) {
+          const auto name = Text(source->GetParam(u"AlignX"sv));
+          if (name == "Left") align = ui::EditAlignX::Left;
+          else if (name == "Center") align = ui::EditAlignX::Center;
+          else return Fail(error, "unsupported Edit AlignX");
+        }
+        return true;
+      }, error)) return false;
+  if (font_key.empty() || !context.fonts) return Fail(error, "Edit font is unresolved");
+  if (context.resolve_label_font_alias)
+    font_key = context.resolve_label_font_alias(font_key);
+  std::shared_ptr<const aft_font::AftFont> font;
+  if (!context.fonts->Acquire(font_key, &font, nullptr, error)) return false;
+  if (!value.empty() && context.language &&
+      context.language->CountParamsByPath(pas::WideString(value.c_str())) > 0)
+    value = Wide(context.language->GetParamByPathOrMarker(pas::WideString(value.c_str())));
+  edit->SetFont(font_key, std::move(font));
+  edit->SetText(std::move(value));
+  edit->SetTextColor(text_color);
+  edit->SetCaretColor(caret_color);
+  edit->SetBorder(border, border_light, border_dark);
+  edit->SetMaxLength(max_length);
+  edit->SetAlignX(align);
+  edit->SetClearFocusOnEnter(clear_focus_on_enter);
+  if (!image_key.empty()) {
+    if (!context.resources) return Fail(error, "Edit bitmap resolver is null");
+    ui::UiImageLeaf temporary;
+    if (!context.resources->LoadImage(&temporary, image_object::Kind::Simple,
+                                      image_key, "", error)) return false;
+    edit->SetBackground(std::move(temporary.Image()));
+  }
+  return true;
+}
 bool ApplyGaiProperties(ui::UiObject* parent, ui::UiGaiLeaf* leaf,
                         EC_BlockPar::TBlockParEC* block, const Context& context,
                         const std::string& generic_resource, std::string* error) {
@@ -555,6 +754,10 @@ bool LoadOne(ui::UiObject* parent, const std::string& name, EC_BlockPar::TBlockP
   std::string generic_gai_resource;
   image_object::Kind image_kind = image_object::Kind::Simple;
   if (name == "Panel") node = std::make_unique<ui::UiPanel>();
+  else if (name == "PanelScrollBar") node = std::make_unique<ui::UiPanelScrollBar>();
+  else if (name == "Edit") node = std::make_unique<ui::UiEdit>();
+  else if (name == "ScrollBar") node = std::make_unique<ui::UiScrollBar>();
+  else if (name == "GraphBuf") node = std::make_unique<ui::UiGraphBuffer>();
   else if (name == "Window") node = std::make_unique<ui::UiWindow>();
   else if (name == "GraphButton") node = std::make_unique<ui::UiGraphButton>();
   else if (name == "Zone") node = std::make_unique<ui::UiZone>();
@@ -600,6 +803,47 @@ bool LoadOne(ui::UiObject* parent, const std::string& name, EC_BlockPar::TBlockP
       if (error) error->clear();
       return true;
     }
+  if (auto* graph = dynamic_cast<ui::UiGraphBuffer*>(node.get())) {
+    bool half_alpha{};
+    bool has_rgba{}, has_gi{};
+    std::string cache_rgba, cache_gi;
+    std::unordered_set<const EC_BlockPar::TBlockParEC*> active;
+    if (!VisitStyleChain(block, context, &active, 0,
+          [&](EC_BlockPar::TBlockParEC* source) {
+            if (Has(source, u"HalfAlpha"))
+              half_alpha = Enabled(Text(source->GetParam(u"HalfAlpha"sv)));
+            if (Has(source, u"CacheRGBA")) {
+              has_rgba = true;
+              cache_rgba = Text(source->GetParam(u"CacheRGBA"sv));
+            }
+            if (Has(source, u"CacheGI")) {
+              has_gi = true;
+              cache_gi = Text(source->GetParam(u"CacheGI"sv));
+            }
+            return true;
+          }, error)) return false;
+    graph->SetHalfAlpha(half_alpha);
+    if ((has_rgba && cache_rgba.empty()) || (!has_rgba && has_gi && cache_gi.empty()))
+      return Fail(error, "GraphBuf cache key is empty");
+    if (!has_rgba && !has_gi) {
+      if (mode == LoadMode::Strict)
+        return Fail(error, "dynamic GraphBuf source requires runtime content");
+      if (report) report->unsupported_controls.push_back(name);
+      if (error) error->clear();
+      return true;
+    }
+    if (!cache_rgba.empty() || !cache_gi.empty()) {
+      if (!context.resources) return Fail(error, "GraphBuf resource resolver is null");
+      if (!context.resources->LoadGraphBuffer(graph, cache_rgba.empty(),
+                                              cache_rgba.empty() ? cache_gi : cache_rgba,
+                                              error)) {
+        if (mode == LoadMode::Strict) return false;
+        if (report) report->unsupported_controls.push_back(name);
+        if (error) error->clear();
+        return true;
+      }
+    }
+  }
   bool control_ready = true;
   if (auto* zone = dynamic_cast<ui::UiZone*>(node.get()))
     control_ready = ApplyZoneProperties(zone, block, context, error);
@@ -607,6 +851,12 @@ bool LoadOne(ui::UiObject* parent, const std::string& name, EC_BlockPar::TBlockP
     control_ready = ApplyGraphButtonProperties(button, block, context, error);
   if (auto* window = dynamic_cast<ui::UiWindow*>(node.get()))
     control_ready = ApplyWindowProperties(window, block, context, error);
+  if (auto* bar = dynamic_cast<ui::UiScrollBar*>(node.get()))
+    control_ready = ApplyScrollBarProperties(bar, block, context, error);
+  if (auto* panel_bar = dynamic_cast<ui::UiPanelScrollBar*>(node.get()))
+    control_ready = ApplyPanelScrollBarProperties(panel_bar, block, context, error);
+  if (auto* edit = dynamic_cast<ui::UiEdit*>(node.get()))
+    control_ready = ApplyEditProperties(edit, block, context, error);
   if (!control_ready) {
     if (mode == LoadMode::Strict) return false;
     if (report) report->unsupported_controls.push_back(name);
@@ -615,9 +865,16 @@ bool LoadOne(ui::UiObject* parent, const std::string& name, EC_BlockPar::TBlockP
   }
   auto* attached = node.get();
   if (!parent->Attach(std::move(node), error)) return false;
+  if (auto* panel_bar = dynamic_cast<ui::UiPanelScrollBar*>(attached))
+    panel_bar->FinalizeAfterAttach();
   if ((attached->Kind() == ui::NodeKind::Panel || attached->Kind() == ui::NodeKind::Zone ||
-       attached->Kind() == ui::NodeKind::GraphButton || attached->Kind() == ui::NodeKind::Window) &&
+       attached->Kind() == ui::NodeKind::GraphButton || attached->Kind() == ui::NodeKind::Window ||
+       attached->Kind() == ui::NodeKind::GraphBuffer ||
+       attached->Kind() == ui::NodeKind::ScrollBar ||
+       attached->Kind() == ui::NodeKind::PanelScrollBar) &&
       !LoadChildren(attached, block, context, mode, report, error)) return false;
+  if (auto* panel_bar = dynamic_cast<ui::UiPanelScrollBar*>(attached))
+    if (!panel_bar->UpdateScrollRanges(error)) return false;
   return true;
 }
 }  // namespace
@@ -645,6 +902,18 @@ bool PackageUiResourceResolver::LoadGai(ui::UiGaiLeaf* leaf, const std::string& 
   if (!leaf || !package_) return Fail(error, "UI GAI package resolver is null");
   leaf->SetPackage(package_);
   return leaf->LoadResource(resource, error);
+}
+bool PackageUiResourceResolver::LoadGraphBuffer(ui::UiGraphBuffer* leaf, bool gi,
+                                                const std::string& resource,
+                                                std::string* error) {
+  if (!leaf || !package_) return Fail(error, "UI GraphBuf package resolver is null");
+  const auto* entry = package_->Resolve(resource);
+  if (!entry || entry->data_size > 256u * 1024u * 1024u)
+    return Fail(error, "GraphBuf package resource is unavailable or oversized");
+  std::vector<std::uint8_t> bytes;
+  if (!package_->ReadPayload(*entry, &bytes, error)) return false;
+  return gi ? leaf->LoadGiBytes(bytes.data(), bytes.size(), error)
+            : leaf->LoadBitmapBytes(bytes.data(), bytes.size(), error);
 }
 bool LoadChildren(ui::UiObject* parent, EC_BlockPar::TBlockParEC* block, const Context& context,
                   LoadMode mode, LoadReport* report, std::string* error) {

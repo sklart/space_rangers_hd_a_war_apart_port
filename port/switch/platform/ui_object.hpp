@@ -39,7 +39,7 @@ constexpr bool Contains(Rect value, Point point) {
 Rect Intersect(Rect left, Rect right);
 Rect Union(Rect left, Rect right);
 
-enum class NodeKind { Object, Panel, ImageLeaf, GILeaf, LabelLeaf, GraphButton, Window, Zone, GaiLeaf };
+enum class NodeKind { Object, Panel, ImageLeaf, GILeaf, LabelLeaf, GraphButton, Window, Zone, GaiLeaf, GraphBuffer, ScrollBar, PanelScrollBar, Edit };
 enum class ScrollType { Simple, All, Obj, View };
 
 class UiObject {
@@ -71,6 +71,10 @@ class UiObject {
   class UiZone* AddZone();
   class UiGraphButton* AddGraphButton();
   class UiWindow* AddWindow();
+  class UiGraphBuffer* AddGraphBuffer();
+  class UiScrollBar* AddScrollBar();
+  class UiPanelScrollBar* AddPanelScrollBar();
+  class UiEdit* AddEdit();
 
   void SetPosition(Point value);
   void SetSize(Size value);

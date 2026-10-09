@@ -1,6 +1,7 @@
 #include "ui_cache_resolver.hpp"
 
 #include "ui_gai.hpp"
+#include "ui_graph_buffer.hpp"
 #include "ui_tree_renderer.hpp"
 #include "types/EC_Buf.hpp"
 #include "types/EC_Data.hpp"
@@ -79,6 +80,16 @@ bool CacheUiResourceResolver::LoadGai(ui::UiGaiLeaf* leaf,
   std::vector<std::uint8_t> bytes;
   return Read(resource, &bytes, kGiGaiLimit, error) &&
          leaf->LoadBytes(bytes.data(), bytes.size(), resource, error);
+}
+
+bool CacheUiResourceResolver::LoadGraphBuffer(ui::UiGraphBuffer* leaf, bool gi,
+                                                const std::string& resource,
+                                                std::string* error) {
+  if (!leaf) return Fail(error, "UI GraphBuf leaf is null");
+  std::vector<std::uint8_t> bytes;
+  return Read(resource, &bytes, kGiGaiLimit, error) &&
+         (gi ? leaf->LoadGiBytes(bytes.data(), bytes.size(), error)
+             : leaf->LoadBitmapBytes(bytes.data(), bytes.size(), error));
 }
 
 }  // namespace srhd_awa::platform::ui_cache_resolver

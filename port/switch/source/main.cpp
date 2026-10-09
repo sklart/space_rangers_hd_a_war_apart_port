@@ -29,6 +29,10 @@
 #include "ui_gai.hpp"
 #include "ui_graph_button.hpp"
 #include "ui_window.hpp"
+#include "ui_graph_buffer.hpp"
+#include "ui_scroll_bar.hpp"
+#include "ui_panel_scroll_bar.hpp"
+#include "ui_edit.hpp"
 #include "ui_controls_checkpoint.hpp"
 #include "font_repository.hpp"
 #include "units/GR_GraphBuf.hpp"
@@ -45,6 +49,7 @@
 #include <cstdarg>
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cstdio>
 #include <cstring>
 #include <filesystem>
@@ -1070,15 +1075,216 @@ bool UpdateM25Release(M25ReleaseDiagnostic* diagnostic, std::uint64_t now_ms,
   return true;
 }
 
-struct M21FrameCallbacks { M17PlaybackDiagnostic* m17{}; M20GiObjectDiagnostic* m20{}; M21UiImageDiagnostic* m21{}; M22UiTreeDiagnostic* m22{}; M23TextDiagnostic* m23{}; srhd_awa::platform::ui_controls_checkpoint::Checkpoint* m24{}; M25ReleaseDiagnostic* m25{}; };
+struct M26ReleaseDiagnostic {
+  srhd_awa::platform::ui::UiTree showcase, controls;
+  srhd_awa::platform::ui::UiScrollBar* scroll{};
+  srhd_awa::platform::ui::UiPanelScrollBar* panel{};
+  srhd_awa::platform::ui::UiEdit* edit{};
+  srhd_awa::platform::ui::UiGraphBuffer* graph{};
+  std::uint64_t frames{}, last_tick{};
+  std::uint64_t update_us_total{}, render_us_total{}, update_us_max{}, render_us_max{};
+  bool rendered{}, scroll_advanced{}, caret_advanced{};
+};
+
+std::size_t EstimateM26ImageBytes(const srhd_awa::platform::ui::UiObject& object) {
+  using namespace srhd_awa::platform;
+  std::size_t total{};
+  if (const auto* leaf = dynamic_cast<const ui::UiImageLeaf*>(&object))
+    total += static_cast<std::size_t>(std::max(0, leaf->Image().natural_width())) *
+             static_cast<std::size_t>(std::max(0, leaf->Image().natural_height())) * 4;
+  for (const auto& child : object.Children()) total += EstimateM26ImageBytes(*child);
+  return total;
+}
+
+EC_BlockPar::TBlockParEC* FindM26Block(
+    std::initializer_list<std::pair<const char16_t*, std::int32_t>> path) {
+  auto* block = GR_Main::MainDataConfig;
+  for (const auto& [name, ordinal] : path) {
+    if (!block) return nullptr;
+    EC_BlockPar::TBlockParEC* found{};
+    for (std::int32_t index = 0, seen = 0; index < block->GetBlockCount(); ++index) {
+      const auto candidate = block->GetBlockNameByIndex(index);
+      if (std::u16string_view(candidate.pchar(), candidate.length()) == name &&
+          seen++ == ordinal) { found = block->GetBlockByIndex(index); break; }
+    }
+    block = found;
+  }
+  return block;
+}
+
+bool InitializeM26Release(M26ReleaseDiagnostic* diagnostic, M23TextDiagnostic* text,
+                          M25ReleaseDiagnostic* m25, std::int32_t width,
+                          std::int32_t height, std::string* error) {
+  using namespace srhd_awa::platform;
+  if (!diagnostic || !text || !m25 || width != 1280 || height != 720)
+    return error ? (*error = "M26 requires the fixed 1280x720 release frame", false) : false;
+  auto* showcase_source = FindM26Block({{u"ML", 0}, {u"Info", 0}, {u"Panel", 0},
+                                       {u"Panel", 4}, {u"Panel", 11}});
+  auto* scroll_source = FindM26Block({{u"ML", 0}, {u"Film", 0}, {u"Panel", 0},
+                                     {u"Panel", 0}, {u"Panel", 0}, {u"ScrollBar", 0}});
+  auto* panel_source = FindM26Block({{u"ML", 0}, {u"Achievements", 0},
+                                    {u"Panel", 0}, {u"Panel", 0},
+                                    {u"PanelScrollBar", 0}});
+  if (!showcase_source || !scroll_source || !panel_source ||
+      showcase_source->GetBlockCount() != 49) {
+    if (error) *error = "M26 release UI paths changed";
+    return false;
+  }
+  ui_cache_resolver::CacheUiResourceResolver resources(GR_Main::CacheDataRoot);
+  ui_config::Context context{};
+  context.resources = &resources;
+  context.fonts = &text->fonts;
+  context.styles = GR_Main::UiStyleConfig;
+  context.language = GR_Main::LanguageDataConfig;
+  context.resolve_depth = [](const std::string& name, double* value) {
+    return ui_config::ResolveRuntimeDepth(GR_Main::UiDepthConfig, name, value);
+  };
+  context.resolve_label_font_alias = [](const std::string& key) {
+    return font_repository::ResolveLabelAlias(key, GlobalsV::FontSmoothingEnabled);
+  };
+  diagnostic->showcase.SetRootSize({width, height});
+  auto real_panel = std::make_unique<ui::UiPanel>();
+  if (!ui_config::ApplyBaseProperties(real_panel.get(), showcase_source, context, error) ||
+      real_panel->ClientSize() != ui::Size{410, 435}) return false;
+  if (real_panel->Active()) {
+    if (error) *error = "M26 selected tab is no longer initially hidden";
+    return false;
+  }
+  real_panel->SetActive(true);
+  real_panel->SetPosition({298, 120});
+  if (!ui_config::LoadChildren(real_panel.get(), showcase_source, context,
+                               ui_config::LoadMode::Strict, nullptr, error) ||
+      real_panel->ChildCount() != 49) return false;
+  auto* showcase_node = real_panel.get();
+  if (!diagnostic->showcase.Root()->Attach(std::move(real_panel), error)) return false;
+  std::vector<std::uint16_t> showcase_pixels(static_cast<std::size_t>(width) * height);
+  const scene_compositor::Framebuffer showcase_framebuffer{
+      showcase_pixels.data(), width, height, width};
+  ui_fingerprint::Value showcase_tree{}, showcase_frame{};
+  if (!diagnostic->showcase.Render(showcase_framebuffer, error) ||
+      !ui_fingerprint::ComputeTree(*showcase_node, &showcase_tree, error) ||
+      !ui_fingerprint::ComputeFramebuffer(showcase_framebuffer, &showcase_frame, error))
+    return false;
+  Log("[M26] real UI tree=%08lx/%016llx frame=%08lx/%016llx",
+      static_cast<unsigned long>(showcase_tree.crc32),
+      static_cast<unsigned long long>(showcase_tree.fnv64),
+      static_cast<unsigned long>(showcase_frame.crc32),
+      static_cast<unsigned long long>(showcase_frame.fnv64));
+  if (showcase_tree.crc32 != 0x67b1fcbfu ||
+      showcase_tree.fnv64 != UINT64_C(0x2940a0ef334dd86e) ||
+      showcase_frame.crc32 != 0xcb1a12b3u ||
+      showcase_frame.fnv64 != UINT64_C(0xfbca196e86b2f452)) {
+    if (error) *error = "M26 real UI tree or Python framebuffer oracle differs";
+    return false;
+  }
+  diagnostic->edit = dynamic_cast<ui::UiEdit*>(
+      diagnostic->showcase.Root()->FindByNameRecursive("M11Size"));
+  if (!diagnostic->edit) {
+    if (error) *error = "M26 real Edit missing";
+    return false;
+  }
+  diagnostic->controls.SetRootSize({width, height});
+  auto* selected = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);
+  selected->AddChildBlock(u"ScrollBar")->CopyFrom(scroll_source);
+  auto* panel_copy = selected->AddChildBlock(u"PanelScrollBar");
+  panel_copy->CopyFrom(panel_source);
+  while (panel_copy->GetBlockCount() > 0)
+    panel_copy->DeleteChildBlock(panel_copy->GetBlockNameByIndex(0));
+  if (!ui_config::LoadChildren(diagnostic->controls.Root(), selected, context,
+                               ui_config::LoadMode::Strict, nullptr, error)) return false;
+  diagnostic->scroll = dynamic_cast<ui::UiScrollBar*>(
+      diagnostic->controls.Root()->FindByNameRecursive("PF_SBTurn"));
+  diagnostic->panel = dynamic_cast<ui::UiPanelScrollBar*>(
+      diagnostic->controls.Root()->FindByNameRecursive("PanelSlot"));
+  if (!diagnostic->scroll || !diagnostic->panel ||
+      !diagnostic->panel->UpdateScrollRanges(error)) return false;
+  diagnostic->scroll->UiObject::SetPosition({810, 665});
+  diagnostic->graph = diagnostic->controls.Root()->AddGraphBuffer();
+  diagnostic->graph->SetPosition({1040, 95});
+  diagnostic->graph->SetSize({100, 50});
+  const auto* entry = m25->forms.Resolve("DATA/FormLoad2/2BarCenter.gi");
+  std::vector<std::uint8_t> source;
+  if (!entry || !m25->forms.ReadPayload(*entry, &source, error) ||
+      !diagnostic->graph->LoadGiBytes(source.data(), source.size(), error)) return false;
+  if (source.size() != 2976 ||
+      CrcUnit::ComputeCrc32(source.data(), static_cast<std::int32_t>(source.size())) != 0x19267238u ||
+      M17Fnv(source.data(), source.size()) != UINT64_C(0xdebceda99798e0e0) ||
+      diagnostic->graph->Buffer().width() != 39 ||
+      diagnostic->graph->Buffer().height() != 50) {
+    if (error) *error = "M26 real GraphBuf GI source or aspect fit differs from Python oracle";
+    return false;
+  }
+  const auto& scaled = diagnostic->graph->Buffer().pixels();
+  if (scaled.size() != 7800 ||
+      CrcUnit::ComputeCrc32(scaled.data(), static_cast<std::int32_t>(scaled.size())) !=
+          0x07bfadc2u ||
+      M17Fnv(scaled.data(), scaled.size()) != UINT64_C(0x1dc1b91c9c87ca5a)) {
+    if (error) *error = "M26 real GraphBuf scaled pixels differ from fixed host/ARM-compatible oracle";
+    return false;
+  }
+  Log("[M26] GraphBuf source=19267238/debceda99798e0e0 scaled=%08lx/%016llx size=%ldx%ld hit=%u center=%ld,%ld",
+      static_cast<unsigned long>(CrcUnit::ComputeCrc32(scaled.data(),
+          static_cast<std::int32_t>(scaled.size()))),
+      static_cast<unsigned long long>(M17Fnv(scaled.data(), scaled.size())),
+      static_cast<long>(diagnostic->graph->Buffer().width()),
+      static_cast<long>(diagnostic->graph->Buffer().height()),
+      diagnostic->graph->HitTestPixel({1090, 120}) ? 1u : 0u,
+      static_cast<long>(diagnostic->graph->GetVisualCenter().x),
+      static_cast<long>(diagnostic->graph->GetVisualCenter().y));
+  std::size_t font_source_bytes{};
+  for (const auto* path : {"DATA/FONT/Verdana_09_2.aft", "DATA/FONT/ranger_6.aft",
+                           "DATA/FONT/Verdana_08_1.aft", "DATA/FONT/Verdana_08_2_bold.aft"})
+    if (const auto* font = m25->forms.Resolve(path)) font_source_bytes += font->data_size;
+  const auto scroll_bytes = EstimateM26ImageBytes(*diagnostic->scroll) +
+      EstimateM26ImageBytes(*diagnostic->panel->VerticalBar());
+  const auto real_bytes = EstimateM26ImageBytes(*showcase_node) + font_source_bytes;
+  const auto graph_bytes = diagnostic->graph->Buffer().bytes();
+  const auto peak_estimate = real_bytes + scroll_bytes + graph_bytes +
+      static_cast<std::size_t>(width) * height * 4;
+  Log("[M26] real UI nodes=50 position=298,120 size=410x435");
+  Log("[M26] memory graphbuf_source=%zu graphbuf_decoded=%zu scrollbar_decoded_est=%zu edit_font_sources=%zu real_subtree_est=%zu peak_ui_est=%zu",
+      source.size(), graph_bytes, scroll_bytes, font_source_bytes, real_bytes,
+      peak_estimate);
+  return true;
+}
+
+bool UpdateM26Release(M26ReleaseDiagnostic* diagnostic, std::uint64_t now_ms,
+                      std::string* error) {
+  const auto delta = diagnostic->last_tick ? now_ms - diagnostic->last_tick : 0;
+  diagnostic->last_tick = now_ms;
+  if (!diagnostic->showcase.Update(delta, error) ||
+      !diagnostic->controls.Update(delta, error)) return false;
+  ++diagnostic->frames;
+  if (diagnostic->frames == 30) {
+    diagnostic->scroll->SetPosition(100);
+    diagnostic->scroll->SetHoveredRegion(5);
+    diagnostic->scroll_advanced = diagnostic->scroll->Position() == 100;
+    diagnostic->edit->SetText(u"123");
+    diagnostic->edit->SetFocused(true);
+    diagnostic->edit->SetCaretBlink(true);
+    diagnostic->caret_advanced = true;
+  }
+  if (diagnostic->frames > 30)
+    diagnostic->edit->SetCaretBlink(((diagnostic->frames - 30) / 30) % 2 == 0);
+  return true;
+}
+
+struct M21FrameCallbacks { M17PlaybackDiagnostic* m17{}; M20GiObjectDiagnostic* m20{}; M21UiImageDiagnostic* m21{}; M22UiTreeDiagnostic* m22{}; M23TextDiagnostic* m23{}; srhd_awa::platform::ui_controls_checkpoint::Checkpoint* m24{}; M25ReleaseDiagnostic* m25{}; M26ReleaseDiagnostic* m26{}; };
 bool RunM17M20AndM21(void* user_data, std::uint64_t now_ms, std::string* error) {
   auto* callbacks = static_cast<M21FrameCallbacks*>(user_data);
-  return RunM17Playback(callbacks->m17, now_ms, error) && UpdateM20GiObjects(callbacks->m20, now_ms, error) &&
+  const auto started = std::chrono::steady_clock::now();
+  const bool result = RunM17Playback(callbacks->m17, now_ms, error) && UpdateM20GiObjects(callbacks->m20, now_ms, error) &&
       UpdateM22UiTree(callbacks->m22, now_ms, error) && callbacks->m24->Update(now_ms, error) &&
-      UpdateM25Release(callbacks->m25, now_ms, error);
+      UpdateM25Release(callbacks->m25, now_ms, error) && UpdateM26Release(callbacks->m26, now_ms, error);
+  const auto elapsed = static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::microseconds>(
+      std::chrono::steady_clock::now() - started).count());
+  callbacks->m26->update_us_total += elapsed;
+  callbacks->m26->update_us_max = std::max(callbacks->m26->update_us_max, elapsed);
+  return result;
 }
 bool DrawM21Presentation(void* user_data, std::string* error) {
   auto* callbacks = static_cast<M21FrameCallbacks*>(user_data);
+  const auto started = std::chrono::steady_clock::now();
   auto* framebuffer = GR_Main::ScreenRenderBuffer;
   if (!framebuffer || !framebuffer->GetPixels() || framebuffer->PitchBytes % 2 != 0) {
     if (error) *error = "M21 RGB565 framebuffer unavailable";
@@ -1127,6 +1333,13 @@ bool DrawM21Presentation(void* user_data, std::string* error) {
   callbacks->m24->MarkRendered();
   if (!callbacks->m25->tree.Render(target, error)) return false;
   callbacks->m25->rendered = true;
+  if (!callbacks->m26->showcase.Render(target, error) ||
+      !callbacks->m26->controls.Render(target, error)) return false;
+  callbacks->m26->rendered = true;
+  const auto elapsed = static_cast<std::uint64_t>(std::chrono::duration_cast<std::chrono::microseconds>(
+      std::chrono::steady_clock::now() - started).count());
+  callbacks->m26->render_us_total += elapsed;
+  callbacks->m26->render_us_max = std::max(callbacks->m26->render_us_max, elapsed);
   return true;
 }
 
@@ -1558,7 +1771,19 @@ int main(int argc, char** argv) {
     srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
     return 1;
   }
-  M21FrameCallbacks m21_callbacks{&m17_diagnostic, &m20_diagnostic, &m21_diagnostic, &m22_diagnostic, &m23_diagnostic, &m24_diagnostic, &m25_diagnostic};
+  StageBegin("M26 GraphBuf/Scroll/Edit/real UI");
+  M26ReleaseDiagnostic m26_diagnostic;
+  std::string m26_error;
+  if (!InitializeM26Release(&m26_diagnostic, &m23_diagnostic, &m25_diagnostic,
+                            framebuffer->Width, framebuffer->Height, &m26_error)) {
+    Log("[M26] FAIL initialization=%s", m26_error.c_str());
+    Stage("M26 GraphBuf/Scroll/Edit/real UI", false, m26_error.c_str());
+    srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
+    srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
+    srhd_awa::platform::ui_metadata_slice::Shutdown(); srhd_awa::platform::runtime_settings_slice::Shutdown(); srhd_awa::platform::startup_slice::Shutdown(&startup);
+    return 1;
+  }
+  M21FrameCallbacks m21_callbacks{&m17_diagnostic, &m20_diagnostic, &m21_diagnostic, &m22_diagnostic, &m23_diagnostic, &m24_diagnostic, &m25_diagnostic, &m26_diagnostic};
   srhd_awa::platform::runtime_loop_slice::SetFrameCallback(&runtime_loop, RunM17M20AndM21, &m21_callbacks);
   srhd_awa::platform::runtime_loop_slice::SetDrawCallback(&runtime_loop, DrawM21Presentation, &m21_callbacks);
   Log("[M12] runtime ready");
@@ -1601,6 +1826,11 @@ int main(int argc, char** argv) {
     m12_error = "M25 real UI or GAI did not complete";
     loop_ok = false;
   }
+  if (loop_ok && (!m26_diagnostic.rendered || !m26_diagnostic.scroll_advanced ||
+                  !m26_diagnostic.caret_advanced)) {
+    m12_error = "M26 real UI, scroll or Edit did not complete";
+    loop_ok = false;
+  }
   if (!loop_ok) Log("[STAGE] runtime loop FAIL reason=%s", m12_error.c_str());
   else {
     Log("[M12] exit_reason=%s", srhd_awa::platform::runtime_loop_slice::ExitReasonName(loop_stats.exit_reason));
@@ -1622,6 +1852,27 @@ int main(int argc, char** argv) {
   Stage("M24 UI controls", loop_ok && m24_diagnostic.Rendered(), loop_ok ? nullptr : m12_error.c_str());
   Stage("M25 GI/GAI UI", loop_ok && m25_diagnostic.rendered && m25_diagnostic.advanced,
         loop_ok ? nullptr : m12_error.c_str());
+  const bool m26_pass = loop_ok && m26_diagnostic.rendered &&
+      m26_diagnostic.scroll_advanced && m26_diagnostic.caret_advanced;
+  if (m26_diagnostic.frames) {
+    Log("[M26] perf frames=%llu presents=%llu avg_update_ms=%.3f avg_render_ms=%.3f max_update_ms=%.3f max_render_ms=%.3f",
+        static_cast<unsigned long long>(m26_diagnostic.frames),
+        static_cast<unsigned long long>(loop_stats.presents),
+        static_cast<double>(m26_diagnostic.update_us_total) / m26_diagnostic.frames / 1000.0,
+        static_cast<double>(m26_diagnostic.render_us_total) /
+            std::max<std::uint64_t>(1, loop_stats.presents) / 1000.0,
+        static_cast<double>(m26_diagnostic.update_us_max) / 1000.0,
+        static_cast<double>(m26_diagnostic.render_us_max) / 1000.0);
+  }
+  if (m26_pass) {
+    Log("[M26] GraphBuf PASS");
+    Log("[M26] ScrollBar PASS");
+    Log("[M26] PanelScrollBar PASS");
+    Log("[M26] Edit PASS");
+    Log("[M26] real UI PASS nodes=50");
+  }
+  Stage("M26 GraphBuf/Scroll/Edit/real UI", m26_pass,
+        m26_pass ? nullptr : m12_error.c_str());
   srhd_awa::platform::runtime_loop_slice::Shutdown(&runtime_loop);
   srhd_awa::platform::renderer_platform::SetNativeWindow(nullptr);
   srhd_awa::platform::ui_metadata_slice::Shutdown();

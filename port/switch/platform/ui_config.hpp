@@ -9,7 +9,7 @@
 namespace EC_BlockPar { struct TBlockParEC; }
 namespace srhd_awa::package { class Package; }
 namespace srhd_awa::platform::image_object { enum class Kind; }
-namespace srhd_awa::platform::ui { class UiImageLeaf; class UiGaiLeaf; }
+namespace srhd_awa::platform::ui { class UiImageLeaf; class UiGaiLeaf; class UiGraphBuffer; }
 namespace srhd_awa::platform::font_repository { class Repository; }
 
 namespace srhd_awa::platform::ui_config {
@@ -28,6 +28,11 @@ class IUiResourceResolver {
     if (error) *error = "GAI resource resolver is unavailable";
     return false;
   }
+  virtual bool LoadGraphBuffer(ui::UiGraphBuffer*, bool, const std::string&,
+                               std::string* error) {
+    if (error) *error = "GraphBuf resource resolver is unavailable";
+    return false;
+  }
 };
 
 // Thin synchronous adapter for the already-portable Package resource path.
@@ -39,6 +44,8 @@ class PackageUiResourceResolver final : public IUiResourceResolver {
                  std::string* error) override;
   bool LoadGai(ui::UiGaiLeaf* leaf, const std::string& resource,
                std::string* error) override;
+  bool LoadGraphBuffer(ui::UiGraphBuffer* leaf, bool gi, const std::string& resource,
+                       std::string* error) override;
 
  private:
   package::Package* package_{};

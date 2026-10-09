@@ -21,6 +21,8 @@ class CacheUiResourceResolver final : public ui_config::IUiResourceResolver {
                  std::string* error) override;
   bool LoadGai(ui::UiGaiLeaf* leaf, const std::string& resource,
                std::string* error) override;
+  bool LoadGraphBuffer(ui::UiGraphBuffer* leaf, bool gi, const std::string& resource,
+                       std::string* error) override;
 
  private:
   bool Read(const std::string& key, std::vector<std::uint8_t>* bytes,
