@@ -7,13 +7,13 @@ Status: implementation and host gates pass; the final ARM64 rebuild and Switch r
 | Source view | Static imports | Dynamic module/procedure calls | Direct DLL declarations | DLL literals | Unparsed | UNKNOWN | Startup REQUIRED_UNIMPLEMENTED |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | Pinned upstream | 256 | 81 | 17 | see `win32-import-manifest.json` | 0 | 0 | 0 |
-| Effective generated Switch source | 251 | 69 | 0 | 22 | 0 | 0 | 0 |
+| Effective generated Switch source | 253 | 69 | 0 | 22 | 0 | 0 | 0 |
 
-The effective view has 134 `PORTABLE`, 88 `STATIC_LIBRARY`, 76 `OPTIONAL_DISABLED`, 15 `NOT_REACHED_UNTIL_GAMEPLAY`, and 7 `RUNTIME_MODULE` entries across static and dynamic callsites. The static source may spell `kernel32` without a suffix; the resolver normalizes it to `kernel32.dll`. The scanner records variable `LoadLibrary` and `GetProcAddress` arguments as `DYNAMIC_MODULE_EXPRESSION` with their callsites. Its synthetic test covers literal and variable loads, imports, an ordinal, direct declarations, and conditional source selection. A dynamic expression is classified by its reachable policy; the exact runtime string supplied by a game script is not statically enumerable.
+The effective view has 136 `PORTABLE`, 88 `STATIC_LIBRARY`, 76 `OPTIONAL_DISABLED`, 15 `NOT_REACHED_UNTIL_GAMEPLAY`, and 7 `RUNTIME_MODULE` entries across static and dynamic callsites. The static source may spell `kernel32` without a suffix; the resolver normalizes it to `kernel32.dll`. The scanner records variable `LoadLibrary` and `GetProcAddress` arguments as `DYNAMIC_MODULE_EXPRESSION` with their callsites. Its synthetic test covers literal and variable loads, imports, an ordinal, direct declarations, and conditional source selection. A dynamic expression is classified by its reachable policy; the exact runtime string supplied by a game script is not statically enumerable.
 
 | DLL or callsite group | Total | PORTABLE | STATIC_LIBRARY | OPTIONAL_DISABLED | RUNTIME_MODULE | NOT_REACHED_UNTIL_GAMEPLAY | Unresolved |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `kernel32.dll` (including `kernel32`) | 69 | 67 | 0 | 2 | 0 | 0 | 0 |
+| `kernel32.dll` (including `kernel32`) | 71 | 69 | 0 | 2 | 0 | 0 | 0 |
 | `user32.dll` | 52 | 52 | 0 | 0 | 0 | 0 | 0 |
 | `gdi32.dll` | 3 | 3 | 0 | 0 | 0 | 0 | 0 |
 | `advapi32.dll` | 6 | 6 | 0 | 0 | 0 | 0 | 0 |
@@ -30,7 +30,7 @@ Each row counts callsites rather than unique function names. `UNKNOWN=0` means e
 
 ## Resolution path
 
-The original `WindowsImports` and `WindowsSdk` wrappers call `pas::win::load_import`. The generated Switch runtime header routes that call to `win32_compat::ResolveImport`, which normalizes DLL names, resolves a typed platform thunk, and logs an unknown required DLL/API with the current E2E stage before throwing. An ordinal selector is logged as `#number` without dereferencing it. The generated resolver cases exercise every unique `PORTABLE` static DLL/API pair. The host test also compiles the original wrapper translation units and calls calendar, event, error, module, and procedure functions through them. The physical DLL load count on Switch is defined as zero; loaded builtins receive synthetic 32-bit module IDs.
+The original `WindowsImports`, `WindowsSdk`, and `SysUtilsImports` wrappers call `pas::win::load_import`. The generated Switch runtime header routes that call to `win32_compat::ResolveImport`, which normalizes DLL names, resolves a typed platform thunk, and logs an unknown required DLL/API with the current E2E stage before throwing. An ordinal selector is logged as `#number` without dereferencing it. The generated resolver cases exercise every unique `PORTABLE` static DLL/API pair. The host test also compiles the original wrapper translation units and calls calendar, event, error, module, and procedure functions through them. The physical DLL load count on Switch is defined as zero; loaded builtins receive synthetic 32-bit module IDs.
 
 Synthetic file, event, thread, window, module, GDI, find, global-memory, timer, and registry handles come from a thread-safe monotonically increasing table. Zero and `0xffffffff` are excluded. Lookup checks the handle type, close removes the entry, and stale tokens are not reused. Actual `GetProcAddress` results are callable pointers; only module handles are 32-bit tokens. The handle-width grep rejects pointer-to-32-bit casts in the compatibility implementation.
 
@@ -38,7 +38,7 @@ Synthetic file, event, thread, window, module, GDI, find, global-memory, timer, 
 
 ## Game-observable semantics and limits
 
-- File operations resolve reads against the game install and user configuration roots and writes against the user root. The wide CreateFile and FindFirst paths convert UTF-16 to UTF-8; a host fixture covers a non-ASCII filename. File enumeration uses the existing wildcard matcher.
+- File operations resolve reads against the game install and user configuration roots and writes against the user root. The wide CreateFile and FindFirst paths convert BMP UTF-16 names to UTF-8; a host fixture covers a non-ASCII filename. Original `SysUtilsImports::FindFirst` reaches the central resolver and uses the existing wildcard matcher.
 - Events, workers, waits and close operations use the existing portable synchronization backends. A missing single-instance event returns absent, matching the Switch lifecycle policy.
 - QPC/frequency, Sleep, UTC/local calendar and FILETIME use portable clocks and calendar conversion. Host tests exercise a leap day and the original wrapper signatures.
 - The registry is currently a process-local HKCU key-value store. HKLM writes are denied. It does not persist across restarts; original settings backed by separate config files still use the file path adapter. Cross-launch registry persistence remains a semantic difference.
@@ -51,4 +51,4 @@ Synthetic file, event, thread, window, module, GDI, find, global-memory, timer, 
 
 The last supplied hardware log remains the `build_git=304e746` run that reached `script host engine` and failed on a `kernel32.dll` import. No Switch run of this compatibility sweep has occurred, so script-host completion, main menu and interaction are not claimed here.
 
-The local full rebuild used source commit `b5aeb3bcd72075c27c9e2dea28f06cf5fa15b654`: **298/298** upstream units compiled, **375** objects linked, ELF64 AArch64 PIE, **0** undefined symbols. The source and effective inventory gates passed with `UNKNOWN=0` and startup unresolved **0**; the pinned upstream submodule stayed clean. The single new hardware candidate is [SpaceRangersHDAWarApartE2E.nro](../port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E.nro), 18,893,104 bytes, local SHA-256 `524B47A4CF0DBDE537CF2E64187DA6FEEF4C05DF517655D3672541CEE8E3945B`. The effective manifest SHA-256 is `74F63A39B795326AC05B10A758FD47CBF253785AE4CEFB56BDEC6F13E87F8482`. The artifact has not been copied to SD or run on Switch; SD SHA-256 is **NOT MEASURED**.
+The local full rebuild compiled **298/298** upstream units and linked **375** objects into an ELF64 AArch64 PIE with **0** undefined symbols. The final packaging run embeds source commit `c7c736446f884652c8149fbbb1e649bab4e9191e`; it reused unchanged objects from the full rebuild and compiled the changed platform/window and build-ID units. Source and effective inventory gates passed with `UNKNOWN=0` and startup unresolved **0**; the pinned upstream submodule stayed clean. The single hardware candidate is [SpaceRangersHDAWarApartE2E.nro](../port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E.nro), 18,876,720 bytes, local SHA-256 `CEF384C84133476DED9F7EE0EE3672859D9347CA00CF6D307754A5CD0FE475FA`. The effective manifest SHA-256 is `D72942A1028D34A14B55EDB57165200E74880AF2BF79B5298CD18F69B0661F59`. The artifact has not been copied to SD or run on Switch; SD SHA-256 is **NOT MEASURED**.
