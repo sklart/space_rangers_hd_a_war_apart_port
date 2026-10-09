@@ -133,7 +133,7 @@
   "required_stubs": [],
   "arm64_link": "PASS",
   "first_failure": null,
-  "build_git": "bfa1264b4d6a88dcd1208ec31384048c789ebd04",
+  "build_git": "04231c73cdf83f99d5a796423a6acf1ccb388d55",
   "build_dirty": false,
   "source_overrides": [
     "GI_MessageLoop.cpp",
@@ -168,8 +168,8 @@
   },
   "nro": {
     "path": "port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E.nro",
-    "bytes": 18905392,
-    "sha256": "2847944C70437792B7D67E1AF280D0CAE67C59B53F85862CCD6A03F3DBD91285",
+    "bytes": 18909488,
+    "sha256": "71AAAA9A3394160CBFFEA0257C63309A745B591A937D5975DE67D6EAAE8D7D05",
     "status": "SOFTWARE AUDIT PASS; hardware not tested"
   }
 }
