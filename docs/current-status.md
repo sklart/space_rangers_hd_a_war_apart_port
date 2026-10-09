@@ -14,7 +14,10 @@ commit `8c092352f262f54231570e2811f08b61f555726a` is ELF64 AArch64
 with zero undefined and zero forbidden M26 symbols. Its NRO embeds
 `build_git=8c09235`, is 7,833,904 bytes and has SHA-256
 `ACAAB6C2FDAB8BCD9CED46F5462CA2FE57971AB8212054576ADB315133A152CB`.
-The physical M26 Switch run and screenshot remain pending. See
+The 2026-10-09 physical cumulative M27 attempt failed during the M26
+checkpoint, immediately after the focused Edit frame; the later M26/M27
+hardware gates remain pending. A follow-up loader change passed host M26/M27
+regressions and ARM64 compilation, but requires a new Switch run. See
 [the M26 evidence document](milestone26-graphbuf-scroll-edit-real-ui.md).
 
 M24 was fast-forwarded to `master` at
