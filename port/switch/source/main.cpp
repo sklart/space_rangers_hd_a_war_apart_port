@@ -1209,12 +1209,16 @@ bool InitializeM26Release(M26ReleaseDiagnostic* diagnostic, M23TextDiagnostic* t
   if (!ui_config::LoadSelectedControl(diagnostic->controls.Root(), "PanelScrollBar",
                                       panel_source, context, false, error)) return false;
   Log("[M26] PanelScrollBar loaded");
+  Log("[M26] control lookup BEGIN");
   diagnostic->scroll = dynamic_cast<ui::UiScrollBar*>(
       diagnostic->controls.Root()->FindByNameRecursive("PF_SBTurn"));
+  Log("[M26] ScrollBar lookup=%u", diagnostic->scroll ? 1u : 0u);
   diagnostic->panel = dynamic_cast<ui::UiPanelScrollBar*>(
       diagnostic->controls.Root()->FindByNameRecursive("PanelSlot"));
+  Log("[M26] PanelScrollBar lookup=%u", diagnostic->panel ? 1u : 0u);
   if (!diagnostic->scroll || !diagnostic->panel ||
       !diagnostic->panel->UpdateScrollRanges(error)) return false;
+  Log("[M26] control ranges updated");
   if (diagnostic->scroll->TrackLength() != 209 ||
       diagnostic->scroll->ThumbLength() != 56 ||
       diagnostic->scroll->BeforeLength() != 0 ||
@@ -1228,14 +1232,18 @@ bool InitializeM26Release(M26ReleaseDiagnostic* diagnostic, M23TextDiagnostic* t
     if (error) *error = "M26 real ScrollBar or PanelScrollBar layout differs from Python oracle";
     return false;
   }
+  Log("[M26] control layout MATCH");
   diagnostic->scroll->UiObject::SetPosition({810, 665});
   diagnostic->graph = diagnostic->controls.Root()->AddGraphBuffer();
+  Log("[M26] GraphBuf created");
   diagnostic->graph->SetPosition({1040, 95});
   diagnostic->graph->SetSize({100, 50});
   const auto* entry = m25->forms.Resolve("DATA/FormLoad2/2BarCenter.gi");
   std::vector<std::uint8_t> source;
-  if (!entry || !m25->forms.ReadPayload(*entry, &source, error) ||
-      !diagnostic->graph->LoadGiBytes(source.data(), source.size(), error)) return false;
+  if (!entry || !m25->forms.ReadPayload(*entry, &source, error)) return false;
+  Log("[M26] GraphBuf source read bytes=%zu", source.size());
+  if (!diagnostic->graph->LoadGiBytes(source.data(), source.size(), error)) return false;
+  Log("[M26] GraphBuf decoded");
   if (source.size() != 2976 ||
       CrcUnit::ComputeCrc32(source.data(), static_cast<std::int32_t>(source.size())) != 0x19267238u ||
       M17Fnv(source.data(), source.size()) != UINT64_C(0xdebceda99798e0e0) ||
@@ -1245,6 +1253,7 @@ bool InitializeM26Release(M26ReleaseDiagnostic* diagnostic, M23TextDiagnostic* t
     return false;
   }
   const auto& scaled = diagnostic->graph->Buffer().pixels();
+  Log("[M26] GraphBuf source oracle MATCH");
   // The translated CRC helper takes void* but reads the input bytes only.
   auto* scaled_data = const_cast<std::uint8_t*>(scaled.data());
   if (scaled.size() != 7800 ||
