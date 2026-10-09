@@ -148,7 +148,7 @@ def main() -> int:
         save(report)
         return 1
     dirty_sources = [line for line in status.splitlines()
-                     if line[3:] != "e2e-build-report.json"]
+                     if not line.endswith(" e2e-build-report.json")]
     report["build_dirty"] = bool(dirty_sources)
     build_id = build_git[:7] + ("-dirty" if dirty_sources else "")
     report["source_overrides"] = sorted([*FUNCTIONS, "Rangers.cpp", "program.cpp"])
