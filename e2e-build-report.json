@@ -10,7 +10,7 @@
     }
   ],
   "excluded_required": 0,
-  "link_objects": 357,
+  "link_objects": 375,
   "undefined_symbols": 0,
   "elf": "ELF64 AArch64 PIE",
   "required_game_symbols": {
@@ -20,24 +20,31 @@
   "windows_only_apis_encountered": [
     "advapi32.dll",
     "avifil32.dll",
+    "d3d9.dll",
+    "dsound.dll",
     "gdi32.dll",
     "gdiplus.dll",
     "kernel32.dll",
     "libvorbisfile.dll",
     "matrixgame.dll",
+    "ntdll.dll",
     "okgf.dll",
     "ole32.dll",
     "shell32.dll",
     "steam_ach.dll",
     "user32.dll",
     "vorbisfile.dll",
-    "xvidcore.dll"
+    "winmm.dll",
+    "xvidcore.dll",
+    "zlib.dll"
   ],
   "portable_implementations_used": [
     "aft_font",
     "alpha_bitmap_cpu",
     "blockpar_test_support",
+    "e2e_calendar",
     "e2e_events",
+    "e2e_file_match",
     "e2e_file_search",
     "e2e_threads",
     "ec_file_adapter",
@@ -93,6 +100,22 @@
     "ui_window",
     "ui_zone",
     "user_root",
+    "win32_compat",
+    "win32_compat_clipboard",
+    "win32_compat_files",
+    "win32_compat_filetime",
+    "win32_compat_gdi",
+    "win32_compat_heap",
+    "win32_compat_messages",
+    "win32_compat_modules",
+    "win32_compat_okgf",
+    "win32_compat_process",
+    "win32_compat_registry",
+    "win32_compat_sync",
+    "win32_compat_text",
+    "win32_compat_window",
+    "win32_compat_winmm",
+    "win32_handles",
     "zlib_bridge",
     "okgf_no_tls"
   ],
@@ -109,19 +132,14 @@
   ],
   "required_stubs": [],
   "arm64_link": "PASS",
-  "first_failure": {
-    "phase": "runtime dependency audit",
-    "exact_error": "ELF retains DLL names: advapi32.dll, avifil32.dll, gdi32.dll, gdiplus.dll, kernel32.dll, libvorbisfile.dll, matrixgame.dll, okgf.dll, ole32.dll, shell32.dll, steam_ach.dll, user32.dll, vorbisfile.dll, xvidcore.dll"
-  },
-  "build_git": "304e746cfddb7038ee67b7d002fdfd957a8e33ba",
+  "first_failure": null,
+  "build_git": "b5aeb3bcd72075c27c9e2dea28f06cf5fa15b654",
   "build_dirty": false,
   "source_overrides": [
     "DirectSound.cpp",
-    "MMSystem.cpp",
     "Rangers.cpp",
     "SysUtilsImports.cpp",
     "WindowsImports.cpp",
-    "WindowsSdk.cpp",
     "program.cpp",
     "EC_BlockPar.cpp",
     "EC_Data.cpp",
@@ -133,10 +151,23 @@
     "sysutils_imports_portable.cpp",
     "windows_imports_portable.cpp"
   ],
+  "win32_surface": {
+    "manifest_sha256": "74F63A39B795326AC05B10A758FD47CBF253785AE4CEFB56BDEC6F13E87F8482",
+    "imports": 251,
+    "dynamic_calls": 69,
+    "classifications": {
+      "NOT_REACHED_UNTIL_GAMEPLAY": 15,
+      "OPTIONAL_DISABLED": 76,
+      "PORTABLE": 134,
+      "RUNTIME_MODULE": 7,
+      "STATIC_LIBRARY": 88
+    },
+    "startup_unimplemented": 0
+  },
   "nro": {
     "path": "port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E.nro",
-    "bytes": 18475312,
-    "sha256": "48AB719F2AAF863EBE5878308371A0ADE447142021B28291FD4793679AC0033A",
-    "status": "EXPERIMENTAL; Windows DLL audit FAIL"
+    "bytes": 18893104,
+    "sha256": "524B47A4CF0DBDE537CF2E64187DA6FEEF4C05DF517655D3672541CEE8E3945B",
+    "status": "SOFTWARE AUDIT PASS; hardware not tested"
   }
 }
