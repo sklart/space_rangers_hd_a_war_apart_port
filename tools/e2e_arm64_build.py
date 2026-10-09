@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 from pathlib import Path
 import shutil
@@ -35,6 +36,12 @@ def native_path(path: Path) -> str:
     return str(path)
 
 
+def cmake_path(path: Path) -> str:
+    if os.name == "nt":
+        return subprocess.check_output(["cygpath", "-u", str(path)], text=True).strip()
+    return str(path)
+
+
 def save(report: dict) -> None:
     REPORT.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 
@@ -57,13 +64,44 @@ def prepare_patched_sources() -> dict[str, Path]:
     git = str(native_git) if native_git.is_file() else "git"
     for patch in ("gr_main_portable.patch", "gr_main_zlib_portable.patch",
                   "dat_zlib_guard.patch"):
-        command = [git, "-C", native_path(patch_root), "apply",
-                   "--unsafe-paths", "--ignore-space-change",
+        command = [git, "apply",
+                   "--directory=" + patch_root.relative_to(ROOT).as_posix(),
+                   "--ignore-space-change",
                    native_path(SWITCH / "platform" / patch)]
         code, output = run(command)
         if code:
             raise RuntimeError(f"disposable upstream patch failed: {patch}: {output}")
+    if "portable user root is unavailable" not in (patch_root / "src/GR_Main.cpp").read_text(encoding="utf-8"):
+        raise RuntimeError("disposable GR_Main portability patch was not applied")
     return {name: patch_root / "src" / name for name in names}
+
+
+def build_okgf() -> tuple[Path, Path]:
+    """Build the existing no-TLS Switch OKGF backend in the disposable tree."""
+    build = BUILD / "okgf-no-tls"
+    library = build / "libokgf.a"
+    softfloat = build / "vendor/softfloat/libokgf_softfloat.a"
+    if not library.is_file() or not softfloat.is_file():
+        command = ["cmake", "-S", native_path(ROOT / "upstream/okgf"),
+                   "-B", native_path(build), "-G", "Unix Makefiles",
+                   "-DCMAKE_SYSTEM_NAME=Generic",
+                   "-DCMAKE_C_COMPILER=" + cmake_path(DEVKITA64 / "bin/aarch64-none-elf-gcc"),
+                   "-DCMAKE_C_FLAGS=-D_Thread_local=",
+                   "-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY",
+                   "-DCMAKE_FIND_ROOT_PATH=" + cmake_path(PORTLIBS),
+                   "-DCMAKE_PREFIX_PATH=" + cmake_path(PORTLIBS),
+                   "-DOKGF_MATH_BACKEND=COMPATIBLE", "-DOKGF_PORTABLE_MATH=ON"]
+        code, output = run(command)
+        if code:
+            raise RuntimeError("OKGF CMake configure failed: " + output)
+        code, output = run(["cmake", "--build", native_path(build), "--parallel", "2"])
+        if code:
+            raise RuntimeError("OKGF ARM64 build failed: " + output)
+    readelf = DEVKITA64 / "bin" / ("aarch64-none-elf-readelf.exe" if os.name == "nt" else "aarch64-none-elf-readelf")
+    code, symbols = run([str(readelf), "-sW", native_path(library), native_path(softfloat)])
+    if code or any(" TLS " in line for line in symbols.splitlines()):
+        raise RuntimeError("Switch OKGF libraries contain TLS symbols or could not be inspected")
+    return library, softfloat
 
 
 def main() -> int:
@@ -96,6 +134,23 @@ def main() -> int:
         "arm64_link": "NOT REACHED",
         "first_failure": None,
     }
+    native_git = Path("C:/Program Files/Git/cmd/git.exe")
+    git = str(native_git) if native_git.is_file() else "git"
+    code, build_git = run([git, "rev-parse", "HEAD"])
+    if code or len(build_git) != 40:
+        report["first_failure"] = {"phase": "build provenance", "exact_error": build_git}
+        save(report)
+        return 1
+    report["build_git"] = build_git
+    code, status = run([git, "status", "--porcelain", "--untracked-files=all"])
+    if code:
+        report["first_failure"] = {"phase": "build provenance", "exact_error": status}
+        save(report)
+        return 1
+    dirty_sources = [line for line in status.splitlines()
+                     if line[3:] != "e2e-build-report.json"]
+    report["build_dirty"] = bool(dirty_sources)
+    build_id = build_git[:7] + ("-dirty" if dirty_sources else "")
     report["source_overrides"] = sorted([*FUNCTIONS, "Rangers.cpp", "program.cpp"])
     # These were created for the old diagnostic slice. They define symbols
     # already present in the complete original units and cannot be linked
@@ -133,7 +188,7 @@ def main() -> int:
         obj = BUILD / category / (source.stem + ".o")
         obj.parent.mkdir(parents=True, exist_ok=True)
         compile_source = generated_source(patched_sources.get(source.name, source),
-                                          BUILD / "generated" / source.name)
+                                          BUILD / "generated" / source.name, build_id)
         needed_ns = max(compile_source.stat().st_mtime_ns, newest_header_ns)
         if compile_source != source:
             needed_ns = max(needed_ns,
@@ -162,6 +217,14 @@ def main() -> int:
     report["portable_implementations_used"] = [
         obj.stem for obj in objects if obj.parent.name == "platform"
     ]
+    try:
+        okgf_library, okgf_softfloat = build_okgf()
+    except RuntimeError as error:
+        report["first_failure"] = {"phase": "OKGF ARM64 build", "exact_error": str(error)}
+        save(report)
+        print(error, file=sys.stderr)
+        return 1
+    report["portable_implementations_used"].append("okgf_no_tls")
     elf = BUILD / "SpaceRangersHDAWarApartE2E.elf"
     response_file = BUILD / "link-objects.rsp"
     response_file.write_text("\n".join('"' + native_path(obj) + '"' for obj in objects) + "\n", encoding="utf-8")
@@ -170,6 +233,7 @@ def main() -> int:
         "-march=armv8-a+crc+crypto", "-mtp=soft", "-fPIE",
         "-Wl,--gc-sections", "-L" + native_path(DEVKITPRO / "libnx/lib"),
         "-L" + native_path(PORTLIBS / "lib"),
+        native_path(okgf_library), native_path(okgf_softfloat),
         "-lpng", "-lz", "-ljpeg", "-lm", "-lSDL2", "-lEGL",
         "-lglapi", "-ldrm_nouveau", "-lnx", "-lpthread", "-o", native_path(elf)])
     if code:
@@ -196,6 +260,24 @@ def main() -> int:
                                    f"required original game symbols missing: {report['required_game_symbols']}"}
         save(report)
         return 1
+    tools_bin = DEVKITPRO / "tools/bin"
+    suffix = ".exe" if os.name == "nt" else ""
+    nacp = BUILD / "SpaceRangersHDAWarApartE2E.nacp"
+    nro = BUILD / "SpaceRangersHDAWarApartE2E.nro"
+    code, output = run([str(tools_bin / ("nacptool" + suffix)), "--create",
+                        "Space Rangers HD: A War Apart E2E", "sklart", "0.0.1", native_path(nacp)])
+    if not code:
+        code, output = run([str(tools_bin / ("elf2nro" + suffix)), native_path(elf),
+                            native_path(nro), "--nacp=" + native_path(nacp),
+                            "--icon=" + native_path(SWITCH / "assets/icon.jpg")])
+    if code or not nro.is_file():
+        report["first_failure"] = {"phase": "NRO packaging", "exact_error": output}
+        save(report)
+        return 1
+    report["nro"] = {"path": nro.relative_to(ROOT).as_posix(),
+                     "bytes": nro.stat().st_size,
+                     "sha256": hashlib.sha256(nro.read_bytes()).hexdigest().upper(),
+                     "status": "EXPERIMENTAL; dependency audit pending"}
     strings_tool = DEVKITA64 / "bin" / ("aarch64-none-elf-strings.exe" if os.name == "nt" else "aarch64-none-elf-strings")
     code, strings_output = run([str(strings_tool), native_path(elf)])
     if code:
@@ -208,6 +290,7 @@ def main() -> int:
         name for name in forbidden if name in strings_output.lower()
     })
     if report["windows_only_apis_encountered"]:
+        report["nro"]["status"] = "EXPERIMENTAL; Windows DLL audit FAIL"
         report["first_failure"] = {
             "phase": "runtime dependency audit",
             "exact_error": "ELF retains Windows DLL imports: " + ", ".join(report["windows_only_apis_encountered"]),
@@ -215,6 +298,7 @@ def main() -> int:
         save(report)
         print(report["first_failure"]["exact_error"], file=sys.stderr)
         return 1
+    report["nro"]["status"] = "SOFTWARE AUDIT PASS; hardware not tested"
     save(report)
     print(f"E2E ARM64 ELF: {elf}")
     return 0

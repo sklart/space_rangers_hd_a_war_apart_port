@@ -101,6 +101,7 @@ int main() {
         platform::e2e_stage::Log("FAIL stage=game-root current-directory");
         return 1;
     }
+    platform::e2e_stage::Log("build_git=BUILD_GIT_PLACEHOLDER");
     try {
         Rangers::ProgramMain();
     } catch (...) {
@@ -113,11 +114,15 @@ int main() {
 '''
 
 
-def generated_source(source: Path, destination: Path) -> Path:
+def generated_source(source: Path, destination: Path, build_git: str = "") -> Path:
     overrides = FUNCTIONS.get(source.name)
     if not overrides and source.name not in ("Rangers.cpp", "GR_Main.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
+    if source.name == "program.cpp":
+        if not build_git:
+            raise RuntimeError("E2E build Git identity is missing")
+        text = text.replace("BUILD_GIT_PLACEHOLDER", build_git)
     for signature, body in (overrides or {}).items():
         start = "    " + signature + " {"
         if text.count(start) != 1:
