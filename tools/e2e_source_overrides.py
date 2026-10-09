@@ -354,6 +354,10 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
         srhd_awa::platform::e2e_stage::Log("platform runtime SDL window ready");
         MainWindowHandle = g_e2e_platform.window_token;
         Forms::Application->Handle = MainWindowHandle;
+        if (!srhd_awa::platform::win32_compat::BindMainWindowProc(MainWindowHandle, &MainWindowProc) ||
+            !WindowsSdk::PostMessage(MainWindowHandle, MessagesSdk::WM_ACTIVATEAPP, 1, 0)) {
+            pas::raise(pas::make_exception<pas::Exception>("Switch main window activation failed"_a));
+        }
         srhd_awa::platform::renderer_platform::SetNativeWindow(g_e2e_platform.native_window);
         GR_Main::AppendLogLineThreadSafe("Build=2.1.2500 (Switch E2E)"_a);
         srhd_awa::platform::e2e_stage::Log("platform runtime session log ready");
@@ -376,6 +380,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
         text = text.replace(uninitialize,
             "        // OPTIONAL: no COM apartment exists in the Switch SDL runtime.", 1)
         text = ('#include "runtime_platform.hpp"\n#include "renderer_platform.hpp"\n'
+                 '#include "win32_compat_window.hpp"\n'
                 '#include "e2e_clock.hpp"\n#include "e2e_stage.hpp"\n'
                 '#include "game_path.hpp"\n#include "user_root.hpp"\n'
                 '#include <SDL2/SDL.h>\n#include <switch.h>\n#include <thread>\n'

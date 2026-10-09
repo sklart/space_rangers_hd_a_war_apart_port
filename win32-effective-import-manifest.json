@@ -343,7 +343,7 @@
       "dll": "kernel32",
       "symbol": "GlobalMemoryStatusEx",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3636"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3641"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_process",
@@ -1199,7 +1199,7 @@
       "dll": "okgf.dll",
       "symbol": "DXVersion",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3648"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3653"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1211,7 +1211,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGF_Convert565toBGR",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4019"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4024"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1223,7 +1223,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGF_Convert565toBGRA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4028"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4033"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1235,7 +1235,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGF_Convert565toRGB",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4013"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4018"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1247,7 +1247,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGF_ConvertRGBto565",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4007"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4012"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1259,7 +1259,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGF_Convert_8888to565",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4035"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4040"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1271,7 +1271,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGF_LineIp_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4198"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4203"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1283,7 +1283,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGF_MulTable256x256",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3642"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3647"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1295,7 +1295,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGF_Read",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3667"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3672"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1307,7 +1307,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGF_ReadPal",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3680"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3685"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1319,7 +1319,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGF_ReadStartPal_Buf",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3674"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3679"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1331,7 +1331,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGF_ReadStart_Buf",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3657"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3662"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1343,7 +1343,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGF_Rescale",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4165"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4170"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1355,7 +1355,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGF_Triangle_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4187"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4192"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1367,7 +1367,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGF_Write_BMP_File",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3692"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3697"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1379,7 +1379,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGF_Write_PNG_File",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3686"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3691"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1391,7 +1391,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Alpha128Trapezium_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4153"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4158"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1403,7 +1403,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Alpha64Trapezium_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4147"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4152"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1415,7 +1415,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_AlphaBuf_BuildFromRGBA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3770"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3775"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1427,7 +1427,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_AlphaBuf_DrawClip_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3758"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3763"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1439,7 +1439,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_AlphaBuf_Draw_RGBA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3698"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3703"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1451,7 +1451,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_AlphaIndexed_AlphaDrawClip_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3824"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3829"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1463,7 +1463,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_AlphaIndexed_AlphaDrawClip_Alpha_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3830"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3835"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1475,7 +1475,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_AlphaIndexed_AlphaDraw_RGBA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3716"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3721"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1487,7 +1487,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_AlphaIndexed_CopyDrawClip_Alpha_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3818"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3823"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1499,7 +1499,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_AlphaIndexed_CopyDrawClip_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3812"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3817"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1511,7 +1511,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_AlphaIndexed_Draw_RGBA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3710"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3715"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1523,7 +1523,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_AlphaSimpleBufPalAlpha_Draw_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3782"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3787"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1535,7 +1535,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_AlphaSimpleBuf_Draw_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3776"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3781"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1547,7 +1547,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_AnimLine_Draw_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4135"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4140"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1559,7 +1559,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_AnimShadowLine_Draw_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4141"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4146"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1571,7 +1571,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Circle_DrawClip_BYTE",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4065"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4070"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1583,7 +1583,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Circle_DrawClip_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4059"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4064"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1595,7 +1595,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Circle_DrawFillClip_BYTE",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4077"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4082"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1607,7 +1607,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Circle_DrawFillClip_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4071"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4076"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1619,7 +1619,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_CopySingleBuf_XY_XY_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3979"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3984"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1631,7 +1631,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_CopyTrans_XY_XY_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3973"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3978"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1643,7 +1643,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Copy_XY_XY_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3960"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3965"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1655,7 +1655,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_F5_DrawRGBA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4171"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4176"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1667,7 +1667,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_F6_DrawRGBA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4177"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4182"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1679,7 +1679,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_FillTrapezium_DWORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4159"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4164"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1691,7 +1691,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Fill_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4000"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4005"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1703,7 +1703,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_HACopy_XY_XY_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3985"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3990"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1715,7 +1715,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_LightBuf_Create",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3872"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3877"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1727,7 +1727,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_LightBuf_Destroy",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3878"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3883"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1739,7 +1739,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_LightBuf_Init",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3890"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3895"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1751,7 +1751,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_LightBuf_LoadFromPalBuf",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3896"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3901"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1763,7 +1763,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_LightBuf_Rotate",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3902"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3907"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1775,7 +1775,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_LightBuf_SetSme",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3884"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3889"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1787,7 +1787,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Light_BYTE",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4053"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4058"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1799,7 +1799,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_LineColor_Clip",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4099"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4104"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1811,7 +1811,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Line_Clip",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4093"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4098"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1823,7 +1823,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Line_CopyFromBuf_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4123"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4128"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1835,7 +1835,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Line_CopyToBuf_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4117"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4122"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1847,7 +1847,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Line_DrawClip_Alpha_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4129"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4134"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1859,7 +1859,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Line_DrawClip_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4111"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4116"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1871,7 +1871,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Line_Draw_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4105"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4110"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1883,7 +1883,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_MaskBuf_DrawClip_DWORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3788"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3793"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1895,7 +1895,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_MaskBuf_DrawClip_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3794"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3799"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1907,7 +1907,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_PalCopy_XY_XY_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3967"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3972"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1919,7 +1919,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_PixelAlpha_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4086"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4091"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1931,7 +1931,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Planet2_DrawAndLightClip_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3927"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3932"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1943,7 +1943,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Planet2_DrawAndLight_32",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3921"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3926"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1955,7 +1955,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Planet2_TemplBuild",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3908"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3913"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1967,7 +1967,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Planet2_TemplDel",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3915"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3920"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1979,7 +1979,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Planet3_DrawAndLightClip_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3939"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3944"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -1991,7 +1991,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Planet3_DrawAndLight_32",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3933"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3938"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2003,7 +2003,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Planet4_DrawAndLightClip_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3951"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3956"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2015,7 +2015,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_Planet4_DrawAndLight_32",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3945"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3950"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2027,7 +2027,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_RotateBuf_Build",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3836"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3841"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2039,7 +2039,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_RotateBuf_DrawTransClip_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3866"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3871"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2051,7 +2051,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_RotateBuf_Draw_BYTE",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3860"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3865"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2063,7 +2063,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_RotateBuf_Draw_DWORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3854"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3859"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2075,7 +2075,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_RotateBuf_Free",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3842"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3847"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2087,7 +2087,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_RotateBuf_Size",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3848"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3853"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2099,7 +2099,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_ShrLightMask_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4047"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4052"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2111,7 +2111,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_ShrLight_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4041"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4046"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2123,7 +2123,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_StretchGdi_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3991"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3996"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2135,7 +2135,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_TransAlphaBuf_BuildFromRGBA_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3764"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3769"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2147,7 +2147,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_TransAlphaBuf_DrawClip_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3752"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3757"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2159,7 +2159,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_TransAlphaBuf_Draw_RGBA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3704"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3709"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2171,7 +2171,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_TransBuf_BuildFromRGBA_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3746"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3751"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2183,7 +2183,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_TransBuf_Build_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3740"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3745"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2195,7 +2195,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_TransBuf_DrawClip_WORD",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3728"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3733"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2207,7 +2207,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_TransBuf_Draw_RGBA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3722"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3727"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2219,7 +2219,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_TransBuf_FillAlphaClip_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3806"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3811"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2231,7 +2231,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_TransBuf_FillAlphaClip_RGBA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3800"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3805"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -2243,7 +2243,7 @@
       "dll": "okgf.dll",
       "symbol": "OKGR_TransBuf_HADrawClip_16",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3734"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3739"
       ],
       "classification": "STATIC_LIBRARY",
       "implementation": "win32_compat_okgf",
@@ -3023,7 +3023,7 @@
       "dll": "zlib.dll",
       "symbol": "OKGF_ZLib_Compress",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3619"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3624"
       ],
       "classification": "PORTABLE",
       "implementation": "zlib_bridge",
@@ -3035,7 +3035,7 @@
       "dll": "zlib.dll",
       "symbol": "OKGF_ZLib_UnCompress",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3629"
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3634"
       ],
       "classification": "PORTABLE",
       "implementation": "zlib_bridge",
@@ -3060,7 +3060,7 @@
     {
       "api": "GetModuleHandle",
       "expression": "pas::literal_pointer(\"kernel32.dll\")",
-      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:807",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:812",
       "expression_kind": "LITERAL",
       "classification": "OPTIONAL_DISABLED",
       "implementation": "GR_Main Switch source adaptation",
@@ -3071,7 +3071,7 @@
     {
       "api": "GetProcAddress",
       "expression": "Module, pas::literal_pointer(\"GetNativeSystemInfo\")",
-      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:808",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:813",
       "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
       "classification": "OPTIONAL_DISABLED",
       "implementation": "GR_Main Switch source adaptation",
@@ -3082,39 +3082,6 @@
     {
       "api": "GetProcAddress",
       "expression": "Module, pas::literal_pointer(\"IsWow64Process\")",
-      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:811",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "GR_Main Switch source adaptation",
-      "reason": "Windows DirectX/WOW64/integrity path is bypassed by generated Switch GR_Main source.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "WindowsSdk::GetModuleHandle(pas::literal_pointer(\"kernel32.dll\")), pas::literal_pointer(\"Wow64DisableWow64FsRedirection\")",
-      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:815",
-      "expression_kind": "LITERAL",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "GR_Main Switch source adaptation",
-      "reason": "Windows DirectX/WOW64/integrity path is bypassed by generated Switch GR_Main source.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetModuleHandle",
-      "expression": "pas::literal_pointer(\"kernel32.dll\")",
-      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:815",
-      "expression_kind": "LITERAL",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "GR_Main Switch source adaptation",
-      "reason": "Windows DirectX/WOW64/integrity path is bypassed by generated Switch GR_Main source.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "Module, pas::literal_pointer(\"GetSystemWow64DirectoryA\")",
       "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:816",
       "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
       "classification": "OPTIONAL_DISABLED",
@@ -3125,8 +3092,41 @@
     },
     {
       "api": "GetProcAddress",
+      "expression": "WindowsSdk::GetModuleHandle(pas::literal_pointer(\"kernel32.dll\")), pas::literal_pointer(\"Wow64DisableWow64FsRedirection\")",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:820",
+      "expression_kind": "LITERAL",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "reason": "Windows DirectX/WOW64/integrity path is bypassed by generated Switch GR_Main source.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetModuleHandle",
+      "expression": "pas::literal_pointer(\"kernel32.dll\")",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:820",
+      "expression_kind": "LITERAL",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "reason": "Windows DirectX/WOW64/integrity path is bypassed by generated Switch GR_Main source.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
+      "expression": "Module, pas::literal_pointer(\"GetSystemWow64DirectoryA\")",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:821",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "reason": "Windows DirectX/WOW64/integrity path is bypassed by generated Switch GR_Main source.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetProcAddress",
       "expression": "WindowsSdk::GetModuleHandle(pas::literal_pointer(\"advapi32.dll\")), pas::literal_pointer(\"RegDeleteKeyExA\")",
-      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:817",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:822",
       "expression_kind": "LITERAL",
       "classification": "OPTIONAL_DISABLED",
       "implementation": "GR_Main Switch source adaptation",
@@ -3137,7 +3137,7 @@
     {
       "api": "GetModuleHandle",
       "expression": "pas::literal_pointer(\"advapi32.dll\")",
-      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:817",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:822",
       "expression_kind": "LITERAL",
       "classification": "OPTIONAL_DISABLED",
       "implementation": "GR_Main Switch source adaptation",
@@ -3829,7 +3829,7 @@
     {
       "dll": "advapi32.dll",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:817",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:822",
         "port/switch/platform/win32_compat_modules.cpp:133",
         "port/switch/platform/win32_compat_modules.cpp:55",
         "port/switch/platform/win32_compat_registry.cpp:137",
@@ -3915,8 +3915,8 @@
     {
       "dll": "kernel32.dll",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:807",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:815",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:812",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:820",
         "port/switch/platform/win32_compat.cpp:103",
         "port/switch/platform/win32_compat.cpp:140",
         "port/switch/platform/win32_compat_files.cpp:468",
@@ -4028,94 +4028,94 @@
     {
       "dll": "okgf.dll",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3642",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3648",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3657",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3667",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3674",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3680",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3686",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3692",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3698",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3704",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3710",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3716",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3722",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3728",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3734",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3740",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3746",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3752",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3758",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3764",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3770",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3776",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3782",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3788",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3794",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3800",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3806",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3812",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3818",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3824",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3830",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3836",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3842",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3848",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3854",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3860",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3866",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3872",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3878",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3884",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3890",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3896",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3902",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3908",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3915",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3921",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3927",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3933",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3939",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3945",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3951",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3960",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3967",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3973",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3979",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3985",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3991",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4000",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4007",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4013",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4019",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4028",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4035",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4041",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4047",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4053",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4059",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4065",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4071",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4077",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4086",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4093",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4099",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4105",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4111",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4117",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4123",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4129",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4135",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4141",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4147",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4153",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4159",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4165",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4171",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4177",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4187",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:4198",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3647",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3653",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3662",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3672",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3679",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3685",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3691",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3697",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3703",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3709",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3715",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3721",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3727",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3733",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3739",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3745",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3751",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3757",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3763",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3769",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3775",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3781",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3787",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3793",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3799",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3805",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3811",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3817",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3823",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3829",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3835",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3841",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3847",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3853",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3859",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3865",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3871",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3877",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3883",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3889",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3895",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3901",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3907",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3913",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3920",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3926",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3932",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3938",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3944",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3950",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3956",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3965",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3972",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3978",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3984",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3990",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3996",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4005",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4012",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4018",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4024",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4033",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4040",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4046",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4052",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4058",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4064",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4070",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4076",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4082",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4091",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4098",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4104",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4110",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4116",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4122",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4128",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4134",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4140",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4146",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4152",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4158",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4164",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4170",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4176",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4182",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4192",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:4203",
         "port/switch/platform/win32_compat.cpp:84",
         "port/switch/platform/win32_compat_modules.cpp:128",
         "port/switch/platform/win32_compat_modules.cpp:53"
@@ -4157,7 +4157,7 @@
         "port/switch/platform/win32_compat_messages.cpp:262",
         "port/switch/platform/win32_compat_modules.cpp:54",
         "port/switch/platform/win32_compat_text.cpp:124",
-        "port/switch/platform/win32_compat_window.cpp:275",
+        "port/switch/platform/win32_compat_window.cpp:283",
         "upstream/cpp/src/WindowsImports.cpp:100",
         "upstream/cpp/src/WindowsImports.cpp:118",
         "upstream/cpp/src/WindowsImports.cpp:130",
@@ -4243,8 +4243,8 @@
     {
       "dll": "zlib.dll",
       "callsites": [
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3619",
-        "port/switch/build/e2e-game/generated/GR_Main.cpp:3629",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3624",
+        "port/switch/build/e2e-game/generated/GR_Main.cpp:3634",
         "port/switch/platform/win32_compat.cpp:85",
         "port/switch/platform/win32_compat_modules.cpp:55",
         "upstream/cpp/src/EC_OKGF.cpp:8"

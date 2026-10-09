@@ -8,9 +8,11 @@ using namespace srhd_awa::platform::win32_compat;
 
 namespace {
 std::int32_t g_calls = 0;
+bool g_main_active = false;
 std::int32_t WindowProc(std::uint32_t, std::uint32_t message,
-                        std::int32_t, std::int32_t) {
+                        std::uint32_t wparam, std::int32_t) {
   ++g_calls;
+  if (message == 0x001c) g_main_active = wparam != 0;
   return static_cast<std::int32_t>(message);
 }
 }
@@ -32,6 +34,12 @@ int main() {
   const auto create = reinterpret_cast<Create>(ResolveWindowImport("user32.dll", "CreateWindowExW"));
   const auto main = RegisterMainWindow(nullptr, 1280, 720);
   assert(main && MainWindow() == main);
+  assert(!BindMainWindowProc(0, &WindowProc));
+  assert(BindMainWindowProc(main, &WindowProc));
+  assert(post(main, 0x001c, 1, 0));
+  Windows::TMsg message{};
+  assert(peek(&message, main, 0x001c, 0x001c, 1));
+  assert(dispatch(&message) == 0x001c && g_main_active && g_calls == 1);
   WindowsSdk::TWndClassW window_class{};
   char16_t class_name[] = u"TestClass";
   window_class.lpszClassName = class_name;
@@ -42,10 +50,9 @@ int main() {
                             0, 0, 0, nullptr);
   assert(child && child != main);
   assert(post(child, 0x0401, 7, 11));
-  Windows::TMsg message{};
   assert(peek(&message, child, 0x0401, 0x0401, 1));
   assert(message.hwnd == child && message.message == 0x0401 && message.wParam == 7);
-  assert(dispatch(&message) == 0x0401 && g_calls == 1);
+  assert(dispatch(&message) == 0x0401 && g_calls == 2);
   srhd_awa::platform::input_platform::RawInput input{};
   input.a = true;
   InjectHostInput(input);

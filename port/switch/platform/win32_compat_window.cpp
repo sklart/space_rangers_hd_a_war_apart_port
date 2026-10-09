@@ -17,22 +17,20 @@
 
 namespace srhd_awa::platform::win32_compat {
 namespace {
-using WndProc = std::int32_t (*)(std::uint32_t, std::uint32_t,
-                                 std::int32_t, std::int32_t);
 struct Window {
   void* native = nullptr;
   std::int32_t x = 0, y = 0, width = 1280, height = 720;
   std::uint32_t style = 0;
   bool visible = true, focused = true;
   std::string title;
-  WndProc proc = nullptr;
+  WindowCallback proc = nullptr;
 };
 std::mutex g_mutex;
 std::uint32_t g_main = 0;
 std::uint32_t g_focus = 0;
 std::int32_t g_cursor_x = 640, g_cursor_y = 360;
 std::int32_t g_cursor_visibility = 0;
-std::unordered_map<std::u16string, WndProc> g_classes;
+std::unordered_map<std::u16string, WindowCallback> g_classes;
 
 std::shared_ptr<Window> Lookup(std::uint32_t token) {
   return std::static_pointer_cast<Window>(Handles().Lookup(token, HandleType::Window));
@@ -41,7 +39,7 @@ std::shared_ptr<Window> Lookup(std::uint32_t token) {
 std::uint16_t RegisterClass(const WindowsSdk::TWndClassW* info) {
   if (!info || !info->lpszClassName) { SetLastError(kErrorInvalidParameter); return 0; }
   std::lock_guard lock(g_mutex);
-  g_classes[info->lpszClassName] = reinterpret_cast<WndProc>(info->lpfnWndProc);
+  g_classes[info->lpszClassName] = reinterpret_cast<WindowCallback>(info->lpfnWndProc);
   SetLastError(kErrorSuccess);
   return 1;
 }
@@ -243,6 +241,16 @@ std::uint32_t RegisterMainWindow(void* native_window, std::int32_t width,
   std::lock_guard lock(g_mutex);
   g_main = g_focus = token;
   return token;
+}
+bool BindMainWindowProc(std::uint32_t token, WindowCallback proc) {
+  const auto state = Lookup(token);
+  if (!state || !proc || token != MainWindow()) {
+    SetLastError(kErrorInvalidParameter);
+    return false;
+  }
+  state->proc = proc;
+  SetLastError(kErrorSuccess);
+  return true;
 }
 void UnregisterMainWindow(std::uint32_t token) { DestroyWindow(token); }
 std::uint32_t MainWindow() {

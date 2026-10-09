@@ -4,8 +4,11 @@
 #include <cstdint>
 #include <string_view>
 namespace srhd_awa::platform::win32_compat {
+using WindowCallback = std::int32_t (*)(std::uint32_t, std::uint32_t,
+                                        std::uint32_t, std::int32_t);
 std::uint32_t RegisterMainWindow(void* native_window, std::int32_t width,
                                  std::int32_t height);
+bool BindMainWindowProc(std::uint32_t token, WindowCallback proc);
 void UnregisterMainWindow(std::uint32_t token);
 std::uint32_t MainWindow();
 void MainWindowSize(std::int32_t* width, std::int32_t* height);
