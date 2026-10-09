@@ -6,8 +6,10 @@
 #include "ui_object.hpp"
 
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace srhd_awa::platform::ui {
 
@@ -40,6 +42,7 @@ class UiEdit final : public UiObject {
   void Backspace();
   void Delete();
   bool InsertCharacter(char16_t value);
+  void SetAcceptCharacter(std::function<bool(char16_t)> filter) { accept_character_ = std::move(filter); }
   bool RenderLeaf(const scene_compositor::Framebuffer& target, Rect clip,
                   std::string* error = nullptr) const override;
   Point TextStart(std::string* error = nullptr) const;
@@ -74,6 +77,7 @@ class UiEdit final : public UiObject {
   EditAlignX align_x_{EditAlignX::Left};
   bool border_enabled_{}, auto_scroll_text_{}, focused_{}, caret_blink_on_{};
   bool clear_focus_on_enter_{true};
+  std::function<bool(char16_t)> accept_character_;
 };
 
 }  // namespace srhd_awa::platform::ui

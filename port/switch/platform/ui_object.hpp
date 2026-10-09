@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -45,7 +46,7 @@ enum class ScrollType { Simple, All, Obj, View };
 class UiObject {
  public:
   UiObject() = default;
-  virtual ~UiObject() = default;
+  virtual ~UiObject();
   UiObject(const UiObject&) = delete;
   UiObject& operator=(const UiObject&) = delete;
   UiObject(UiObject&&) = delete;
@@ -103,6 +104,38 @@ class UiObject {
   bool MouseBlocking() const { return mouse_blocking_; }
   bool MouseBlockingTest() const { return mouse_blocking_test_; }
   bool MouseViewUpdates() const { return mouse_view_updates_; }
+  bool HasRightClickCode() const { return right_click_code_; }
+  void SetHasRightClickCode(bool value) { right_click_code_ = value; }
+  bool HasMouseEnterCode() const { return mouse_enter_code_; }
+  void SetHasMouseEnterCode(bool value) { mouse_enter_code_ = value; }
+  bool HasMouseLeaveCode() const { return mouse_leave_code_; }
+  void SetHasMouseLeaveCode(bool value) { mouse_leave_code_ = value; }
+  bool HasOnKeyCode() const { return on_key_code_; }
+  void SetHasOnKeyCode(bool value) { on_key_code_ = value; }
+  bool MouseInside() const { return mouse_inside_; }
+  void SetMouseInside(bool value) { mouse_inside_ = value; }
+  // The tree informs its input owner before a subtree leaves or deactivates.
+  using MutationObserver = std::function<void(UiObject*)>;
+  void SetMutationObserver(MutationObserver observer);
+  std::weak_ptr<void> Lifetime() const { return lifetime_; }
+  virtual void OnMouseEnter() {}
+  virtual void OnMouseLeave() {}
+  virtual void OnHoverGained() {}
+  virtual void OnHoverLost() {}
+  virtual void OnFocusGained() {}
+  virtual void OnFocusLost() {}
+  virtual void ProcessPointerMove(Point) {}
+  virtual void ProcessLeftButtonDown(Point) {}
+  virtual void ProcessLeftButtonUp(Point) {}
+  virtual void ProcessRightButtonDown(Point) {}
+  virtual void ProcessRightButtonUp(Point) {}
+  virtual void ProcessDoubleClick(Point) {}
+  virtual void ProcessKeyDown(std::int32_t) {}
+  virtual void ProcessKeyUp(std::int32_t) {}
+  virtual void OnKeyBroadcastDown(std::int32_t) {}
+  virtual void OnKeyBroadcastUp(std::int32_t) {}
+  virtual void ProcessCharacter(char16_t) {}
+  virtual void OnCaretBlink() {}
   Rect LocalBounds() const;
   Rect HitTestBounds() const { return hit_test_bounds_; }
   bool ContainsPoint(Point point) const;
@@ -134,6 +167,7 @@ class UiObject {
   void InsertOwned(std::unique_ptr<UiObject> child);
   void ReinsertInParent();
   void AddDirty(Rect rect);
+  void PropagateObserver(const MutationObserver& observer);
 
   UiObject* parent_{};
   std::vector<std::unique_ptr<UiObject>> children_;
@@ -148,7 +182,11 @@ class UiObject {
   bool hit_test_disabled_{};
   std::string name_;
   std::string help_key_, help_text_;
-  bool mouse_blocking_{}, mouse_blocking_test_{true}, mouse_view_updates_{};
+  bool mouse_blocking_{}, mouse_blocking_test_{true}, mouse_view_updates_{}, right_click_code_{};
+  bool mouse_enter_code_{}, mouse_leave_code_{}, on_key_code_{};
+  bool mouse_inside_{};
+  MutationObserver mutation_observer_;
+  std::shared_ptr<void> lifetime_{std::make_shared<int>(0)};
   std::vector<Rect> dirty_rects_;
 };
 

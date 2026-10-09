@@ -68,7 +68,8 @@ void UiEdit::Delete() {
 }
 bool UiEdit::InsertCharacter(char16_t value) {
   if (!font_ || !font_->Find(value) || max_length_ < 0 ||
-      text_.size() >= static_cast<std::size_t>(max_length_)) return false;
+      text_.size() >= static_cast<std::size_t>(max_length_) ||
+      (accept_character_ && !accept_character_(value))) return false;
   text_.insert(text_.begin() + caret_position_, value);
   ++caret_position_;
   Invalidate();

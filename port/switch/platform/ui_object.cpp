@@ -5,6 +5,14 @@
 #include <utility>
 
 namespace srhd_awa::platform::ui {
+UiObject::~UiObject() {
+  if (mutation_observer_) mutation_observer_(this);
+}
+void UiObject::PropagateObserver(const MutationObserver& observer) {
+  mutation_observer_ = observer;
+  for (auto& child : children_) child->PropagateObserver(observer);
+}
+void UiObject::SetMutationObserver(MutationObserver observer) { PropagateObserver(observer); }
 namespace {
 bool Fail(std::string* error, const char* message) {
   if (error) *error = message;
@@ -44,6 +52,7 @@ bool UiObject::IsAncestorOf(const UiObject* candidate) const {
 
 void UiObject::InsertOwned(std::unique_ptr<UiObject> child) {
   child->parent_ = this;
+  child->PropagateObserver(mutation_observer_);
   // Upstream inserts before the first sibling whose depth is <= new depth.
   const auto position = std::find_if(children_.begin(), children_.end(), [&](const auto& existing) {
     return existing->depth_ <= child->depth_;
@@ -63,9 +72,11 @@ bool UiObject::Attach(std::unique_ptr<UiObject> child, std::string* error) {
 std::unique_ptr<UiObject> UiObject::Detach(UiObject* child) {
   const auto it = std::find_if(children_.begin(), children_.end(), [&](const auto& item) { return item.get() == child; });
   if (it == children_.end()) return {};
+  if (mutation_observer_) mutation_observer_(child);
   auto result = std::move(*it);
   children_.erase(it);
   result->parent_ = nullptr;
+  result->PropagateObserver({});
   result->RefreshActiveSubtree();
   return result;
 }
@@ -129,6 +140,7 @@ void UiObject::SetPositionModeW(bool value) {
 }
 void UiObject::SetActive(bool value) {
   if (active_ == value) return;
+  if (!value && mutation_observer_) mutation_observer_(this);
   MarkSubtreeDirty();
   active_ = value;
   if (active_) RefreshActiveSubtree();

@@ -95,6 +95,14 @@ bool ApplyOne(ui::UiObject* object, EC_BlockPar::TBlockParEC* block, const Conte
   if (Has(block, u"MouseBlocking")) object->SetMouseBlocking(Enabled(Text(block->GetParam(u"MouseBlocking"sv))));
   if (Has(block, u"MouseBlockingTest")) object->SetMouseBlockingTest(Enabled(Text(block->GetParam(u"MouseBlockingTest"sv))));
   if (Has(block, u"MVUpdate")) object->SetMouseViewUpdates(Enabled(Text(block->GetParam(u"MVUpdate"sv))));
+  if (block->CountBlocks(u"OnMouseRightClick"_wref.get()) > 0)
+    object->SetHasRightClickCode(true);
+  if (block->CountBlocks(u"OnMouseEnterCode"_wref.get()) > 0)
+    object->SetHasMouseEnterCode(true);
+  if (block->CountBlocks(u"OnMouseLeaveCode"_wref.get()) > 0)
+    object->SetHasMouseLeaveCode(true);
+  if (block->CountBlocks(u"OnKey"_wref.get()) > 0)
+    object->SetHasOnKeyCode(true);
   return true;
 }
 bool ApplyRecursive(ui::UiObject* object, EC_BlockPar::TBlockParEC* block, const Context& context,
