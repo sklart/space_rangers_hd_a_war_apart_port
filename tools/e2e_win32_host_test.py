@@ -6,7 +6,7 @@ import subprocess
 import sys
 import tempfile
 
-from e2e_runtime_overrides import generated_windows_header
+from e2e_runtime_overrides import prepare_runtime_overlay
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -24,7 +24,7 @@ def run(command: list[str]) -> None:
 
 def main() -> None:
     OVERLAY.mkdir(parents=True, exist_ok=True)
-    generated_windows_header(RUNTIME / "windows.hpp", OVERLAY / "windows.hpp")
+    prepare_runtime_overlay(RUNTIME, OVERLAY)
     compiler = os.environ.get("CXX", "g++")
     common = [compiler, "-std=gnu++20", "-O0", "-include", "unistd.h",
               "-ffunction-sections", "-fdata-sections", "-DE2E_HOST_OKGF_STUB",
