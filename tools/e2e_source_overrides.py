@@ -349,20 +349,31 @@ def generated_source(source: Path, destination: Path, build_git: str = "") -> Pa
             pas::raise(pas::make_exception<pas::Exception>("Switch SDL services unavailable"_a));
         }
         PerformanceCounterFrequency = static_cast<std::int64_t>(srhd_awa::platform::e2e_clock::Frequency());
+        srhd_awa::platform::e2e_stage::Log("platform runtime SDL services ready");
         if (!aPacket::InitializePackageCollection()) {
             srhd_awa::platform::e2e_stage::Log("FAIL stage=platform-runtime packages");
             pas::raise(pas::make_exception<pas::Exception>("Switch package collection unavailable"_a));
         }
+        srhd_awa::platform::e2e_stage::Log("platform runtime package collection ready");
         if (!srhd_awa::platform::runtime_platform::CreateMainWindow(&g_e2e_platform, &error)) {
             srhd_awa::platform::e2e_stage::Log("FAIL stage=platform-runtime SDL-window");
             pas::raise(pas::make_exception<pas::Exception>("Switch SDL window unavailable"_a));
         }
+        srhd_awa::platform::e2e_stage::Log("platform runtime SDL window ready");
         MainWindowHandle = g_e2e_platform.window_token;
         Forms::Application->Handle = MainWindowHandle;
         srhd_awa::platform::renderer_platform::SetNativeWindow(g_e2e_platform.native_window);
         GR_Main::AppendLogLineThreadSafe("Build=2.1.2500 (Switch E2E)"_a);
+        srhd_awa::platform::e2e_stage::Log("platform runtime session log ready");
 '''
         text = text[:begin] + platform_prefix + text[tail:]
+        text = text.replace(tail_marker, tail_marker + '\n'
+            '        srhd_awa::platform::e2e_stage::Log("platform runtime install parser ready");', 1)
+        load_install = '        InstallConfig->LoadFromTextFileWithEncodingProbe(pas::literal_pointer(u"install.txt"), false);'
+        if text.count(load_install) != 1:
+            raise RuntimeError("original install.txt loading boundary changed")
+        text = text.replace(load_install, load_install + '\n'
+            '        srhd_awa::platform::e2e_stage::Log("platform runtime install.txt loaded");', 1)
         destroy = "        WindowsSdk::DestroyWindow(MainWindowHandle);"
         uninitialize = "        ActiveXSdk::CoUninitialize();"
         if text.count(destroy) != 1 or text.count(uninitialize) != 1:

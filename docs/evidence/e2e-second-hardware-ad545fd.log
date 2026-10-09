@@ -1,0 +1,8 @@
+[E2E] build_git=ad545fd
+[E2E] ProgramMain BEGIN
+[E2E] Forms UnitInitialize
+[E2E] ExceptionInfo
+[E2E] CheatCode
+[E2E] Application Initialize
+[E2E] platform runtime
+[E2E] FAIL stage=ProgramMain exception=DLL import requires a Win32 host: kernel32.dll
