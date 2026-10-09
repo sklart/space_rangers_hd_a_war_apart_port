@@ -41,8 +41,9 @@ ARCH := -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE
 CFLAGS := -g -O2 -Wall -Wextra $(ARCH) -ffunction-sections -fdata-sections $(INCLUDE) -D__SWITCH__
 CXXFLAGS := $(CFLAGS) -std=gnu++20 -DSRHD_PORTABLE_RUNTIME_SLICE
 LDFLAGS := -specs=$(LIBNX)/switch.specs -g $(ARCH) -Wl,-Map,$(BUILD)/$(TARGET).map -Wl,--gc-sections
-OKGF_LIB := $(BUILD)/okgf/libokgf.a
-OKGF_SOFTFLOAT_LIB := $(BUILD)/okgf/vendor/softfloat/libokgf_softfloat.a
+OKGF_SWITCH_BUILD := $(BUILD)/okgf-switch-no-tls
+OKGF_LIB := $(OKGF_SWITCH_BUILD)/libokgf.a
+OKGF_SOFTFLOAT_LIB := $(OKGF_SWITCH_BUILD)/vendor/softfloat/libokgf_softfloat.a
 LIBS := $(OKGF_LIB) $(OKGF_SOFTFLOAT_LIB) -lpng -lz -ljpeg -lm -lSDL2 -lEGL -lglapi -ldrm_nouveau -lnx -lpthread
 
 CPPFILES := $(wildcard $(SOURCES)/*.cpp)
@@ -160,11 +161,11 @@ $(BUILD)/GR_GraphBuf.o: $(GAME_CPP_ROOT)/src/GR_GraphBuf.cpp | $(BUILD)
 $(BUILD)/runtime.o: $(GAME_CPP_ROOT)/runtime/runtime.cpp | $(BUILD)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(OKGF_LIB): Makefile
+$(OKGF_LIB):
 	# libnx's hbloader leaves the C11 TLS base unavailable here; OKGF is used
 	# on the port's main thread, so keep its math state in ordinary storage.
-	cmake -S ../../upstream/okgf -B $(BUILD)/okgf -G "Unix Makefiles" -DCMAKE_SYSTEM_NAME=Generic -DCMAKE_C_COMPILER=$(DEVKITA64_MSYS)/bin/aarch64-none-elf-gcc -DCMAKE_C_FLAGS=-D_Thread_local= -DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY -DCMAKE_FIND_ROOT_PATH=$(PORTLIBS_MSYS) -DCMAKE_PREFIX_PATH=$(PORTLIBS_MSYS) -DOKGF_MATH_BACKEND=COMPATIBLE -DOKGF_PORTABLE_MATH=ON
-	cmake --build $(BUILD)/okgf --parallel 2
+	cmake -S ../../upstream/okgf -B $(OKGF_SWITCH_BUILD) -G "Unix Makefiles" -DCMAKE_SYSTEM_NAME=Generic -DCMAKE_C_COMPILER=$(DEVKITA64_MSYS)/bin/aarch64-none-elf-gcc -DCMAKE_C_FLAGS=-D_Thread_local= -DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY -DCMAKE_FIND_ROOT_PATH=$(PORTLIBS_MSYS) -DCMAKE_PREFIX_PATH=$(PORTLIBS_MSYS) -DOKGF_MATH_BACKEND=COMPATIBLE -DOKGF_PORTABLE_MATH=ON
+	cmake --build $(OKGF_SWITCH_BUILD) --parallel 2
 	@if $(DEVKITA64)/bin/aarch64-none-elf-readelf -sW $(OKGF_LIB) $(OKGF_SOFTFLOAT_LIB) | grep -Eq '[[:space:]]TLS[[:space:]]'; then echo "Switch OKGF libraries must not contain TLS symbols" >&2; exit 1; fi
 
 $(BUILD)/$(TARGET).elf: $(OFILES) $(PLATFORM_OFILES) $(GAME_OFILES) $(OKGF_LIB)
