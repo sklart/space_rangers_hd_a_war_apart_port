@@ -59,6 +59,11 @@
       539
     ],
     "page": 540,
-    "position": 0
+    "position": 0,
+    "crc_fnv": {
+      "size": 40,
+      "crc32": "3334a660",
+      "fnv64": "82cd5b1de32b0ba2"
+    }
   }
 }

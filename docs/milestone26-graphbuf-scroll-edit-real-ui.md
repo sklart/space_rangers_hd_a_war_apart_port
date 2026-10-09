@@ -53,7 +53,8 @@ synchronizes offsets in both directions. **27 physical** instances exist;
 **22** meet the conservative render subset. The selected Achievements
 `PanelSlot` uses an external vertical bar at release rect
 `(903,116,923,629)`, size 20×513. Its empty-world safe range is 0..539,
-page 540, position 0. Dynamic removal/reparenting and timer autorepeat are
+page 540, position 0; the independent 40-byte layout record is
+`3334a660/82cd5b1de32b0ba2`. Dynamic removal/reparenting and timer autorepeat are
 outside the current static showcase path.
 
 `UiEdit` adds AFT-backed text, optional bitmap background and border, left

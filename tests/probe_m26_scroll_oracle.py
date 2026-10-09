@@ -46,13 +46,15 @@ def oracle(scroll: dict, panels: dict) -> dict:
     assert panel_size == (831, 540)
     layout = (track, thumb, before, after, up, down, top, bottom,
               *(value for pair in placements.values() for value in pair))
+    panel_layout = (*rectangle, 20, 513, 0, 539, 540, 0)
     return {"scroll_path": bar["path"], "panel_path": panel["path"],
             "scroll_layout": {"track": track, "thumb": thumb,
                               "before": before, "after": after,
                               "minimum_thumb": min_thumb, "placements": placements,
                               "crc_fnv": fp(struct.pack("<" + "i" * len(layout), *layout))},
             "panel_layout": {"rect_y": rectangle, "bar_size": (20, 513),
-                             "range": (0, 539), "page": 540, "position": 0}}
+                             "range": (0, 539), "page": 540, "position": 0,
+                             "crc_fnv": fp(struct.pack("<10i", *panel_layout))}}
 
 
 if __name__ == "__main__":

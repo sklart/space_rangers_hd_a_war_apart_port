@@ -162,6 +162,24 @@ int main(int argc, char** argv) {
   std::printf("M26 REAL PANEL range=%d,%d page=%d position=%d\n",
       panel->VerticalBar()->Minimum(), panel->VerticalBar()->Maximum(),
       panel->VerticalBar()->PageSize(), panel->VerticalBar()->Position());
+  const auto bar_position = panel->VerticalBar()->LocalPosition();
+  const auto bar_size = panel->VerticalBar()->ClientSize();
+  const std::array<std::int32_t, 10> panel_words{
+      bar_position.x, bar_position.y, bar_position.x + bar_size.width,
+      bar_position.y + bar_size.height, bar_size.width, bar_size.height,
+      panel->VerticalBar()->Minimum(), panel->VerticalBar()->Maximum(),
+      panel->VerticalBar()->PageSize(), panel->VerticalBar()->Position()};
+  const auto* panel_bytes = reinterpret_cast<const std::uint8_t*>(panel_words.data());
+  const std::vector<std::uint8_t> panel_layout(panel_bytes,
+                                                panel_bytes + sizeof(panel_words));
+  const auto panel_crc = crc32(0, panel_layout.data(), panel_layout.size());
+  const auto panel_fnv = Fnv(panel_layout);
+  Check(panel_crc == 0x3334a660u &&
+        panel_fnv == UINT64_C(0x82cd5b1de32b0ba2),
+        "independent Python PanelScrollBar layout fingerprint");
+  std::printf("M26 REAL PANEL layout=%08x/%016llx\n",
+              static_cast<unsigned>(panel_crc),
+              static_cast<unsigned long long>(panel_fnv));
   auto* showcase_source = Find(config, {{"ML", 0}, {"Info", 0}, {"Panel", 0},
       {"Panel", 4}, {"Panel", 11}});
   Check(showcase_source && showcase_source->GetBlockCount() == 49,
