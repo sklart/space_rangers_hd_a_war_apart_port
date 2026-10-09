@@ -142,12 +142,14 @@ def main() -> int:
     if code or len(build_git) != 40:
         report["first_failure"] = {"phase": "build provenance", "exact_error": build_git}
         save(report)
+        print(f"E2E build provenance failed: {build_git}", file=sys.stderr)
         return 1
     report["build_git"] = build_git
     code, status = run([git, "status", "--porcelain", "--untracked-files=all"])
     if code:
         report["first_failure"] = {"phase": "build provenance", "exact_error": status}
         save(report)
+        print(f"E2E build status failed: {status}", file=sys.stderr)
         return 1
     dirty_sources = [line for line in status.splitlines()
                      if not line.endswith(" e2e-build-report.json")]
@@ -169,6 +171,7 @@ def main() -> int:
     if not CXX.is_file():
         report["first_failure"] = {"phase": "toolchain", "error": f"missing {CXX}"}
         save(report)
+        print(f"E2E toolchain missing: {CXX}", file=sys.stderr)
         return 1
     patched_sources = prepare_patched_sources()
     report["source_overrides"] += sorted(patched_sources)
