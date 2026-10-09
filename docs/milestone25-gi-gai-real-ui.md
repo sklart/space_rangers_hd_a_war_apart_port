@@ -98,8 +98,12 @@ The release GraphButton candidate uses real GI Normal, Hover, Down and
 Disable state resources; its normal/hover/down framebuffer CRC32/FNV64 are
 `1c585c8f/7f23dbb7c1d8df15`, `1a6eae32/46793341f42dd912` and
 `663cb736/c45ecedf7f592470`. The release Window candidate is inactive in
-Main.dat; its separately forced-active nine-GI border oracle is
-`87e5a68f/8020187c43bbcc26`. The release-backed factory test additionally
+Main.dat; its separately forced-active nine-GI border oracle has a canonical
+216-byte placement layout CRC32/FNV64
+`5a0c4a53/a2aeb755b2c16168` and RGB565 frame
+`87e5a68f/8020187c43bbcc26`. The release test compares all nine positions,
+sizes, natural dimensions/origins and tiling modes with the independent Python
+oracle. The release-backed factory test additionally
 resolves nested `Style.GB.SoundNormal` and `Style.Window.2Simple` paths,
 constructs `F1` and the isolated `InfoPanel` border through CacheData keys,
 and matches those same independent frame hashes. It reads real

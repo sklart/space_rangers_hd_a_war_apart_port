@@ -85,6 +85,43 @@ int main(int argc, char** argv) {
     Check(window->AddBorderImage(border.slot, Image(&package, border.path), &error), error);
   Check(window->FinalizeLayout(&error), error);
   Check(window->ClientSize() == ui::Size{282, 175}, "Window aligned size");
+  struct Placement {
+    ui::Point position;
+    ui::Size size;
+    ui::Size natural;
+    ui::Point origin;
+    bool fill_x;
+    bool fill_y;
+  };
+  constexpr std::array<Placement, 9> expected{{
+      {{0, 66}, {119, 48}, {119, 3}, {10, 78}, false, true},
+      {{161, 66}, {121, 48}, {121, 3}, {132, 78}, false, true},
+      {{119, 0}, {42, 66}, {3, 66}, {129, 12}, true, false},
+      {{119, 114}, {42, 61}, {3, 61}, {129, 81}, true, false},
+      {{0, 0}, {119, 66}, {119, 66}, {10, 12}, false, false},
+      {{161, 0}, {121, 66}, {121, 66}, {132, 12}, false, false},
+      {{0, 114}, {119, 61}, {119, 61}, {10, 81}, false, false},
+      {{161, 114}, {121, 61}, {121, 61}, {132, 81}, false, false},
+      {{119, 66}, {42, 48}, {3, 3}, {129, 78}, true, true},
+  }};
+  for (std::size_t i = 0; i < expected.size(); ++i) {
+    const auto* image = window->BorderImage(borders[i].slot);
+    const auto& actual = image->Image();
+    const auto& placement = expected[i];
+    Check(image->LocalPosition() == placement.position &&
+          image->ClientSize() == placement.size && image->Active(),
+          "Window placement differs from independent oracle");
+    Check(actual.natural_width() == placement.natural.width &&
+          actual.natural_height() == placement.natural.height &&
+          actual.natural_origin_x() == placement.origin.x &&
+          actual.natural_origin_y() == placement.origin.y,
+          "Window natural GI geometry differs from independent oracle");
+    Check(actual.x_mode() == (placement.fill_x ? image_layout::XMode::LeftFill
+                                              : image_layout::XMode::Center) &&
+          actual.y_mode() == (placement.fill_y ? image_layout::YMode::TopFill
+                                              : image_layout::YMode::Center),
+          "Window border tiling differs from independent oracle");
+  }
   window_tree.SetRootSize(window->ClientSize());
   Hash(Frame(window_tree, 282, 175), 0x87e5a68fu, 0x8020187c43bbcc26ull, "Window border");
   std::puts("M25 REAL GRAPHBUTTON WINDOW PASS");

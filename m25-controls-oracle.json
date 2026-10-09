@@ -165,6 +165,11 @@
         true
       ]
     },
+    "layout": {
+      "size": 216,
+      "crc32": "5a0c4a53",
+      "fnv64": "a2aeb755b2c16168"
+    },
     "frame": {
       "size": 98700,
       "crc32": "87e5a68f",

@@ -106,6 +106,8 @@ def render(root: Path) -> dict:
         "ImageTexture": (left[0], top[1], width-left[0]-right[0],
                          height-top[1]-bottom[1], True, True),
     }
+    layout_bytes = b"".join(struct.pack("<6i", *placements[slot])
+                            for slot in WINDOW_ORDER)
     frame = [0] * (width * height)
     # Equal-depth border attachments are stored in reverse insertion order.
     for slot in reversed(WINDOW_ORDER):
@@ -125,6 +127,7 @@ def render(root: Path) -> dict:
                        "aligned_size": [width, height],
                        "work_sub_rect": wp["WorkSubRect"][-1],
                        "placements": placements,
+                       "layout": gi.fp(layout_bytes),
                        "frame": gi.fp(b"".join(struct.pack("<H", v) for v in frame))},
             "sources": {key: {field: asset[field] for field in ("path", "source", "bounds")}
                         for key, asset in sorted(assets.items())}}
