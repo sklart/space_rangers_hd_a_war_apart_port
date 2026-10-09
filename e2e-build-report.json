@@ -82,7 +82,15 @@
     "user_root",
     "zlib_bridge"
   ],
-  "optional_stubs": [],
+  "optional_stubs": [
+    "Windows single-instance OpenEvent/CreateEvent",
+    "HKLM AVI registry write",
+    "Wine detection",
+    "Steam DLL, initialization, callback thread, shutdown",
+    "MMSystem timer-resolution request",
+    "COM apartment cleanup",
+    "GetModuleFileNameA branch (entrypoint sets game working directory)"
+  ],
   "required_stubs": [],
   "arm64_link": "PASS",
   "first_failure": {
