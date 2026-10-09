@@ -31,6 +31,8 @@ FUNCTIONS: dict[str, dict[str, str]] = {
             "        return srhd_awa::platform::e2e_events::Create(ManualReset != 0, InitialState != 0);",
         "std::uint8_t* PAS_STDCALL GetCommandLineA()":
             "static std::uint8_t line[] = \"Rangers\";\n        return line;",
+        "std::uint8_t* PAS_STDCALL CharNext(std::uint8_t* P)":
+            "return P != nullptr && *P != 0 ? P + 1 : P; // Switch command line is ASCII.",
         "std::uint32_t PAS_STDCALL GetModuleFileNameA(std::uint32_t Module, std::uint8_t* FileName, std::uint32_t Capacity)":
             "static_cast<void>(Module); static_cast<void>(FileName); static_cast<void>(Capacity);\n"
             "        return 0; // E2E entrypoint sets the real game directory explicitly.",

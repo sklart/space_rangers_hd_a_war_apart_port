@@ -19,6 +19,10 @@ host-e2e-threads-test:
 	@mkdir -p build/e2e-threads
 	g++ -std=c++20 -O2 -pthread -Iplatform ../../tests/test_e2e_threads.cpp platform/e2e_threads.cpp -o build/e2e-threads/test_e2e_threads
 	build/e2e-threads/test_e2e_threads
+
+.PHONY: host-e2e-command-line-test
+host-e2e-command-line-test:
+	$(PYTHON) ../../tools/e2e_command_line_test.py
 DEVKITA64 ?= $(DEVKITPRO)/devkitA64
 LIBNX ?= $(DEVKITPRO)/libnx
 PORTLIBS ?= $(DEVKITPRO)/portlibs/switch
