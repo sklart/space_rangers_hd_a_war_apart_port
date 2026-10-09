@@ -133,7 +133,7 @@
   "required_stubs": [],
   "arm64_link": "PASS",
   "first_failure": null,
-  "build_git": "45e54da35c7150338b71afabafe3f0ebdc64033b",
+  "build_git": "4e9cc05dc2a7d321e07acf7c24c0f49f82050a29",
   "build_dirty": false,
   "source_overrides": [
     "GI_MessageLoop.cpp",
@@ -153,7 +153,7 @@
     "windows_imports_portable.cpp"
   ],
   "win32_surface": {
-    "manifest_sha256": "E68992A5CB33EB24D30C110E317F8E66705F03EFC6E188919694F65B23E2AD22",
+    "manifest_sha256": "FC5FBD744721BCE9A65C4E2B012D9B5365181F3D113D9C317A58C6823FAB2F93",
     "imports": 254,
     "dynamic_calls": 69,
     "classifications": {
@@ -167,8 +167,8 @@
   },
   "nro": {
     "path": "port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E.nro",
-    "bytes": 18897200,
-    "sha256": "B0FC389BBEF2694C8A4DA0756C435B335FB23CFB2C36919D34872EDCA726AB37",
+    "bytes": 18905392,
+    "sha256": "14F0405C07D7984EF2B460D8A592C410A6E5059F415517A35FB03D58B16A9E46",
     "status": "SOFTWARE AUDIT PASS; hardware not tested"
   }
 }
