@@ -64,7 +64,11 @@ supported `Font.2Normal` visual path and are render eligible; keyboard input,
 callbacks and focus dispatch remain deferred. The selected
 `Info/PanelM11/Edit#0` renders `123` at `(589,344)`, with a focused 2×14
 caret at `(615,346)`. Its independent focused frame is
-`0c547e1b/18432c76a6d566c5`.
+`0c547e1b/18432c76a6d566c5`. The isolated unfocused and focused
+caret-off frames are both `52c44a22/490042511484a325`: the release Edit
+uses black text on the zero diagnostic framebuffer, so the visible difference
+in this isolated oracle is the red caret. The full release panel frame above
+checks the actual surrounding imagery.
 
 ## Largest real release subtree
 
@@ -99,6 +103,15 @@ GraphBuf 68, GAI 57, PanelScrollBar 10, GraphButton 8, ShrLight 7,
 StarField 6 and MultiImage 5. Interaction remains a separate blocker for
 input/focus/event routing. M27 should first examine that foundation and the
 dynamic Image/GraphBuf sources; neither is implicitly solved by M26.
+
+The requested Image-only audit finds 45 roots at the M25 baseline: 34 have
+an empty effective image key (dynamic or missing), and 18 have a resolved GI
+key whose format or render semantics are not in the supported subset. These
+class counts overlap. At M26 the corresponding unique count is 47, with 36
+empty-key and 19 GI-category roots; other controls becoming eligible exposes
+two more Image-only roots. No unresolved Simple, generic GAI, animation or
+GraphBuf image mode was observed in these Image-only roots. This is a
+classification of blockers, not a fallback that draws unknown content.
 
 ## Verification and next hardware gate
 

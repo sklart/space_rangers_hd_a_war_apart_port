@@ -21,6 +21,18 @@
     2,
     14
   ],
+  "unfocused_frame": {
+    "crc32": "52c44a22",
+    "fnv64": "490042511484a325"
+  },
+  "focused_caret_off_frame": {
+    "crc32": "52c44a22",
+    "fnv64": "490042511484a325"
+  },
+  "focused_caret_on_frame": {
+    "crc32": "0c547e1b",
+    "fnv64": "18432c76a6d566c5"
+  },
   "frame": {
     "crc32": "0c547e1b",
     "fnv64": "18432c76a6d566c5"

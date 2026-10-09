@@ -43,10 +43,14 @@ def oracle(root: Path) -> dict:
         for py in range(caret_y, caret_y + caret_height):
             if x <= px < x + width and y <= py < y + height:
                 struct.pack_into("<H", frame, (py * 1280 + px) * 2, 0xf800)
+    zero_frame = aft.fingerprint(bytes(len(frame)))
     return {"path": PATH, "font_package": package, "font_resource": resource,
             "font_source": aft.fingerprint(source), "text": text,
             "text_color_rgb565": 0, "caret_color_rgb565": 0xf800,
             "bounds": (x, y, width, height), "caret": (caret_x, caret_y, 2, caret_height),
+            "unfocused_frame": zero_frame,
+            "focused_caret_off_frame": zero_frame,
+            "focused_caret_on_frame": aft.fingerprint(bytes(frame)),
             "frame": aft.fingerprint(bytes(frame))}
 
 

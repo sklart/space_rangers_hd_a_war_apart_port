@@ -439,12 +439,17 @@
     "StarField": 6,
     "MultiImage": 5,
     "Circle": 5,
+    "StarFieldImg": 4,
     "SpaceImg": 4,
     "StarFieldM": 4,
-    "StarFieldImg": 4,
     "XviD": 4,
     "Frame": 2,
     "SpaceCircle": 2
+  },
+  "image_only_roots": 47,
+  "image_only_root_causes_overlapping": {
+    "dynamic_or_missing_key": 36,
+    "gi_format_or_render_semantics": 19
   },
   "eligible_controls": {
     "Edit": 49,
@@ -473,6 +478,11 @@
           "Panel": 7,
           "Zone": 6
         }
+      },
+      "image_only_roots": 45,
+      "image_only_root_causes_overlapping": {
+        "dynamic_or_missing_key": 34,
+        "gi_format_or_render_semantics": 18
       }
     },
     "GraphBuf": {

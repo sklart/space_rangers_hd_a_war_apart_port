@@ -228,10 +228,25 @@ int main(int argc, char** argv) {
   Check(edit && edit->Text().empty() && edit->ClientSize() == ui::Size{99, 17},
         "real Edit config defaults");
   edit->SetText(u"123");
-  edit->SetFocused(true);
-  edit->SetCaretBlink(true);
   std::vector<std::uint16_t> edit_pixels(1280 * 720);
   scene_compositor::Framebuffer edit_target{edit_pixels.data(), 1280, 720, 1280};
+  ui_fingerprint::Value unfocused_frame{};
+  Check(edit->RenderLeaf(edit_target, {0, 0, 1280, 720}, &error) &&
+        ui_fingerprint::ComputeFramebuffer(edit_target, &unfocused_frame, &error), error);
+  Check(unfocused_frame.crc32 == 0x52c44a22u &&
+        unfocused_frame.fnv64 == UINT64_C(0x490042511484a325),
+        "independent Python unfocused Edit frame oracle");
+  edit->SetFocused(true);
+  edit->SetCaretBlink(false);
+  std::fill(edit_pixels.begin(), edit_pixels.end(), 0);
+  ui_fingerprint::Value caret_off_frame{};
+  Check(edit->RenderLeaf(edit_target, {0, 0, 1280, 720}, &error) &&
+        ui_fingerprint::ComputeFramebuffer(edit_target, &caret_off_frame, &error), error);
+  Check(caret_off_frame.crc32 == unfocused_frame.crc32 &&
+        caret_off_frame.fnv64 == unfocused_frame.fnv64,
+        "independent Python focused caret-off Edit frame oracle");
+  edit->SetCaretBlink(true);
+  std::fill(edit_pixels.begin(), edit_pixels.end(), 0);
   Check(edit->RenderLeaf(edit_target, {0, 0, 1280, 720}, &error), error);
   ui_fingerprint::Value edit_frame{};
   Check(ui_fingerprint::ComputeFramebuffer(edit_target, &edit_frame, &error), error);
