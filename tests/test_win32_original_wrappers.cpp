@@ -1,10 +1,14 @@
 #include "units/WindowsImports.hpp"
 #include "units/WindowsSdk.hpp"
+#include "units/SysUtilsImports.hpp"
 #include "types/Windows_group.hpp"
+#include "types/SysUtils.hpp"
 #include "win32_compat.hpp"
 
 #include <cassert>
 #include <cstdint>
+#include <filesystem>
+#include <fstream>
 #include <stdexcept>
 #include <string>
 
@@ -24,6 +28,19 @@ int main() {
   assert(!WindowsImports::CloseHandle(event));
   assert(WindowsImports::GetLastError() == 6);
   assert(WindowsSdk::GetVersion() != 0);
+  std::uint8_t module_path[260]{};
+  assert(WindowsImports::GetModuleFileNameA(0, module_path, sizeof(module_path)) > 0);
+  assert(SysUtilsImports::AnsiLowerCase(pas::AnsiString("RU")) == "ru");
+  const auto search_path = std::filesystem::temp_directory_path() /
+      "srhd-win32-wrapper-search.txt";
+  { std::ofstream fixture(search_path); fixture << "fixture"; }
+  SysUtils::TSearchRec search{};
+  const pas::AnsiString pattern(search_path.string().c_str());
+  assert(SysUtilsImports::FindFirst(pattern, 0, search) == 0);
+  assert(search.FindHandle && search.FindHandle != 0xffffffffu);
+  SysUtilsImports::FindClose(search);
+  std::filesystem::remove(search_path);
+  SysUtilsImports::Sleep(1);
   const auto module = WindowsImports::LoadLibrary(
       reinterpret_cast<std::uint8_t*>(const_cast<char*>("kernel32.dll")));
   assert(module != 0);

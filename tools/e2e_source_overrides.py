@@ -11,31 +11,6 @@ FUNCTIONS: dict[str, dict[str, str]] = {
             "static_cast<void>(Callback); static_cast<void>(Context);\n"
             "        return -1; // OPTIONAL: audio is disabled for the first Switch menu run.",
     },
-    "WindowsImports.cpp": {
-        "std::uint32_t PAS_STDCALL GetModuleFileNameA(std::uint32_t Module, std::uint8_t* FileName, std::uint32_t Capacity)":
-            "static_cast<void>(Module); static_cast<void>(FileName); static_cast<void>(Capacity);\n"
-            "        return 0; // E2E entrypoint sets the real game directory explicitly.",
-    },
-    "SysUtilsImports.cpp": {
-        "std::int32_t FindFirst(const pas::AnsiString& Path, std::int32_t Attr, SysUtils::TSearchRec& F)":
-            "return srhd_awa::platform::e2e_file_search::First(Path.c_str(), Attr, F);",
-        "std::int32_t FindNext(SysUtils::TSearchRec& F)":
-            "return srhd_awa::platform::e2e_file_search::Next(F);",
-        "void FindClose(SysUtils::TSearchRec& F)":
-            "srhd_awa::platform::e2e_file_search::Close(F);",
-        "void PAS_STDCALL Sleep(std::uint32_t Milliseconds)":
-            "srhd_awa::platform::e2e_clock::SleepMilliseconds(Milliseconds);",
-        "pas::AnsiString GetCurrentDir()":
-            "std::error_code error;\n"
-            "        const auto path = std::filesystem::current_path(error);\n"
-            "        return error ? pas::AnsiString() : pas::AnsiString(path.generic_string().c_str());",
-        "std::uint8_t SetCurrentDir(const pas::AnsiString& Dir)":
-            "std::error_code error;\n"
-            "        std::filesystem::current_path(Dir.c_str(), error);\n"
-            "        return !error;",
-        "pas::AnsiString AnsiLowerCase(const pas::AnsiString& Text)":
-            "return SysUtilsImports::LowerCase(Text); // Install language codes are ASCII.",
-    },
 }
 
 STAGES = {
@@ -121,26 +96,17 @@ def generated_source(source: Path, destination: Path, build_git: str = "") -> Pa
         end = text.index("\n    }", begin) + len("\n    }")
         replacement = start + "\n        " + body + "\n    }"
         text = text[:begin] + replacement + text[end:]
-    if source.name == "SysUtilsImports.cpp":
-        first = "    std::uint8_t FileExists(const pas::AnsiString& FileName) {"
-        following = "    std::uint8_t DirectoryExists(const pas::AnsiString& Directory) {"
-        if text.count(first) != 1 or text.count(following) != 1:
-            raise RuntimeError("original FileExists boundary changed")
-        begin = text.index(first)
-        end = text.index(following, begin)
-        portable = '''    std::uint8_t FileExists(const pas::AnsiString& FileName) {
-        const std::string user_path = srhd_awa::platform::user_root::ResolveConfigPath(FileName.c_str());
-        std::error_code error;
-        if (!user_path.empty() && std::filesystem::is_regular_file(user_path, error) && !error) return true;
-        return srhd_awa::platform::game_path::FileExists(FileName.c_str());
-    }
-
-'''
-        text = text[:begin] + portable + text[end:]
-        text = '#include "e2e_file_search.hpp"\n#include "game_path.hpp"\n#include "user_root.hpp"\n#include <filesystem>\n' + text
     if overrides:
         text = '#include "e2e_clock.hpp"\n' + text
     if source.name == "Rangers.cpp":
+        executable_begin = "                            ExecutableFileName.set_length(WindowsImports::MAX_PATH);"
+        executable_end = "                            EC_Str::WriteRegistryStringLegacy(WindowsImports::HKEY_LOCAL_MACHINE"
+        if text.count(executable_begin) != 1 or text.count(executable_end) != 1:
+            raise RuntimeError("original executable-directory startup boundary changed")
+        begin = text.index(executable_begin)
+        end = text.index(executable_end, begin)
+        text = (text[:begin] + "#if !defined(__SWITCH__)\n" + text[begin:end] +
+                "#endif\n" + text[end:])
         registry_line = next((line for line in text.splitlines()
                               if "EC_Str::WriteRegistryStringLegacy(WindowsImports::HKEY_LOCAL_MACHINE" in line), None)
         if registry_line is None:

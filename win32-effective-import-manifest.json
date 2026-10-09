@@ -343,7 +343,7 @@
       "dll": "kernel32.dll",
       "symbol": "CloseHandle",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:41"
+        "upstream/cpp/src/WindowsImports.cpp:40"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_sync",
@@ -416,7 +416,7 @@
       "dll": "kernel32.dll",
       "symbol": "CreateEventA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:112"
+        "upstream/cpp/src/WindowsImports.cpp:112"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_sync",
@@ -428,7 +428,7 @@
       "dll": "kernel32.dll",
       "symbol": "CreateFileA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:11"
+        "upstream/cpp/src/WindowsImports.cpp:10"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_files",
@@ -440,7 +440,7 @@
       "dll": "kernel32.dll",
       "symbol": "CreateFileW",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:17"
+        "upstream/cpp/src/WindowsImports.cpp:16"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_files",
@@ -464,7 +464,7 @@
       "dll": "kernel32.dll",
       "symbol": "DeleteFileA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:71",
+        "upstream/cpp/src/WindowsImports.cpp:70",
         "upstream/cpp/src/WindowsSdk.cpp:205"
       ],
       "classification": "PORTABLE",
@@ -477,7 +477,7 @@
       "dll": "kernel32.dll",
       "symbol": "FileTimeToDosDateTime",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:178"
+        "upstream/cpp/src/WindowsImports.cpp:178"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_filetime",
@@ -489,7 +489,7 @@
       "dll": "kernel32.dll",
       "symbol": "FileTimeToLocalFileTime",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:172"
+        "upstream/cpp/src/WindowsImports.cpp:172"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_filetime",
@@ -513,7 +513,7 @@
       "dll": "kernel32.dll",
       "symbol": "FindClose",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:65"
+        "upstream/cpp/src/WindowsImports.cpp:64"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_files",
@@ -525,7 +525,7 @@
       "dll": "kernel32.dll",
       "symbol": "FindFirstFileA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:59",
+        "upstream/cpp/src/WindowsImports.cpp:58",
         "upstream/cpp/src/WindowsSdk.cpp:211"
       ],
       "classification": "PORTABLE",
@@ -550,7 +550,7 @@
       "dll": "kernel32.dll",
       "symbol": "FindNextFileA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:166",
+        "upstream/cpp/src/WindowsImports.cpp:166",
         "upstream/cpp/src/WindowsSdk.cpp:223"
       ],
       "classification": "PORTABLE",
@@ -587,7 +587,7 @@
       "dll": "kernel32.dll",
       "symbol": "FreeLibrary",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:148"
+        "upstream/cpp/src/WindowsImports.cpp:148"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_modules",
@@ -599,7 +599,7 @@
       "dll": "kernel32.dll",
       "symbol": "GetCommandLineA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:124"
+        "upstream/cpp/src/WindowsImports.cpp:124"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_process",
@@ -611,7 +611,7 @@
       "dll": "kernel32.dll",
       "symbol": "GetCurrentDirectoryA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:184"
+        "upstream/cpp/src/WindowsImports.cpp:184"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_files",
@@ -647,7 +647,7 @@
       "dll": "kernel32.dll",
       "symbol": "GetCurrentThreadId",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:89"
+        "upstream/cpp/src/WindowsImports.cpp:88"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_sync",
@@ -659,7 +659,7 @@
       "dll": "kernel32.dll",
       "symbol": "GetFileAttributesA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:53"
+        "upstream/cpp/src/WindowsImports.cpp:52"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_files",
@@ -683,7 +683,7 @@
       "dll": "kernel32.dll",
       "symbol": "GetLastError",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:47"
+        "upstream/cpp/src/WindowsImports.cpp:46"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_handles",
@@ -700,6 +700,18 @@
       "classification": "PORTABLE",
       "implementation": "e2e_calendar",
       "startup_required": true,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
+      "symbol": "GetModuleFileNameA",
+      "callsites": [
+        "upstream/cpp/src/WindowsImports.cpp:94"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_process",
+      "startup_required": false,
       "gameplay_required": true,
       "reason": "Typed resolver thunk is present; functional semantics still require group tests."
     },
@@ -743,7 +755,7 @@
       "dll": "kernel32.dll",
       "symbol": "GetProcAddress",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:142"
+        "upstream/cpp/src/WindowsImports.cpp:142"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_modules",
@@ -779,7 +791,7 @@
       "dll": "kernel32.dll",
       "symbol": "GetSystemTime",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:154"
+        "upstream/cpp/src/WindowsImports.cpp:154"
       ],
       "classification": "PORTABLE",
       "implementation": "e2e_calendar",
@@ -803,7 +815,7 @@
       "dll": "kernel32.dll",
       "symbol": "GetTickCount",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:83"
+        "upstream/cpp/src/WindowsImports.cpp:82"
       ],
       "classification": "PORTABLE",
       "implementation": "e2e_clock",
@@ -923,7 +935,7 @@
       "dll": "kernel32.dll",
       "symbol": "LoadLibraryA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:136"
+        "upstream/cpp/src/WindowsImports.cpp:136"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_modules",
@@ -959,7 +971,7 @@
       "dll": "kernel32.dll",
       "symbol": "OpenEventA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:106"
+        "upstream/cpp/src/WindowsImports.cpp:106"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_sync",
@@ -971,7 +983,7 @@
       "dll": "kernel32.dll",
       "symbol": "QueryPerformanceCounter",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:77"
+        "upstream/cpp/src/WindowsImports.cpp:76"
       ],
       "classification": "PORTABLE",
       "implementation": "e2e_clock",
@@ -995,7 +1007,7 @@
       "dll": "kernel32.dll",
       "symbol": "ReadFile",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:23"
+        "upstream/cpp/src/WindowsImports.cpp:22"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_files",
@@ -1031,7 +1043,7 @@
       "dll": "kernel32.dll",
       "symbol": "SetCurrentDirectoryA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:190"
+        "upstream/cpp/src/WindowsImports.cpp:190"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_files",
@@ -1067,7 +1079,7 @@
       "dll": "kernel32.dll",
       "symbol": "SetFilePointer",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:35"
+        "upstream/cpp/src/WindowsImports.cpp:34"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_files",
@@ -1113,9 +1125,21 @@
     },
     {
       "dll": "kernel32.dll",
+      "symbol": "Sleep",
+      "callsites": [
+        "upstream/cpp/src/SysUtilsImports.cpp:593"
+      ],
+      "classification": "PORTABLE",
+      "implementation": "win32_compat_process",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "Typed resolver thunk is present; functional semantics still require group tests."
+    },
+    {
+      "dll": "kernel32.dll",
       "symbol": "TerminateThread",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:160"
+        "upstream/cpp/src/WindowsImports.cpp:160"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_sync",
@@ -1151,7 +1175,7 @@
       "dll": "kernel32.dll",
       "symbol": "WriteFile",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:29"
+        "upstream/cpp/src/WindowsImports.cpp:28"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_files",
@@ -2315,7 +2339,7 @@
       "dll": "user32.dll",
       "symbol": "CharLowerBuffA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:196"
+        "upstream/cpp/src/WindowsImports.cpp:196"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_text",
@@ -2339,7 +2363,7 @@
       "dll": "user32.dll",
       "symbol": "CharNextA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:130"
+        "upstream/cpp/src/WindowsImports.cpp:130"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_text",
@@ -2411,7 +2435,7 @@
       "dll": "user32.dll",
       "symbol": "CreateWindowExW",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:213"
+        "upstream/cpp/src/WindowsImports.cpp:213"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_window",
@@ -2483,7 +2507,7 @@
       "dll": "user32.dll",
       "symbol": "GetActiveWindow",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:100"
+        "upstream/cpp/src/WindowsImports.cpp:100"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_window",
@@ -2603,7 +2627,7 @@
       "dll": "user32.dll",
       "symbol": "MessageBoxA",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:118"
+        "upstream/cpp/src/WindowsImports.cpp:118"
       ],
       "classification": "PORTABLE",
       "implementation": "win32_compat_text",
@@ -3879,33 +3903,6 @@
       "callsites": [
         "port/switch/build/e2e-game/generated/GR_Main.cpp:807",
         "port/switch/build/e2e-game/generated/GR_Main.cpp:815",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:106",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:11",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:112",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:124",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:136",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:142",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:148",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:154",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:160",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:166",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:17",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:172",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:178",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:184",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:190",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:23",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:29",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:35",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:41",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:47",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:53",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:59",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:65",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:71",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:77",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:83",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:89",
         "port/switch/platform/win32_compat.cpp:96",
         "port/switch/platform/win32_compat_files.cpp:435",
         "port/switch/platform/win32_compat_filetime.cpp:99",
@@ -3916,6 +3913,35 @@
         "port/switch/platform/win32_compat_process.cpp:190",
         "port/switch/platform/win32_compat_sync.cpp:141",
         "port/switch/platform/win32_compat_text.cpp:131",
+        "upstream/cpp/src/SysUtilsImports.cpp:593",
+        "upstream/cpp/src/WindowsImports.cpp:10",
+        "upstream/cpp/src/WindowsImports.cpp:106",
+        "upstream/cpp/src/WindowsImports.cpp:112",
+        "upstream/cpp/src/WindowsImports.cpp:124",
+        "upstream/cpp/src/WindowsImports.cpp:136",
+        "upstream/cpp/src/WindowsImports.cpp:142",
+        "upstream/cpp/src/WindowsImports.cpp:148",
+        "upstream/cpp/src/WindowsImports.cpp:154",
+        "upstream/cpp/src/WindowsImports.cpp:16",
+        "upstream/cpp/src/WindowsImports.cpp:160",
+        "upstream/cpp/src/WindowsImports.cpp:166",
+        "upstream/cpp/src/WindowsImports.cpp:172",
+        "upstream/cpp/src/WindowsImports.cpp:178",
+        "upstream/cpp/src/WindowsImports.cpp:184",
+        "upstream/cpp/src/WindowsImports.cpp:190",
+        "upstream/cpp/src/WindowsImports.cpp:22",
+        "upstream/cpp/src/WindowsImports.cpp:28",
+        "upstream/cpp/src/WindowsImports.cpp:34",
+        "upstream/cpp/src/WindowsImports.cpp:40",
+        "upstream/cpp/src/WindowsImports.cpp:46",
+        "upstream/cpp/src/WindowsImports.cpp:52",
+        "upstream/cpp/src/WindowsImports.cpp:58",
+        "upstream/cpp/src/WindowsImports.cpp:64",
+        "upstream/cpp/src/WindowsImports.cpp:70",
+        "upstream/cpp/src/WindowsImports.cpp:76",
+        "upstream/cpp/src/WindowsImports.cpp:82",
+        "upstream/cpp/src/WindowsImports.cpp:88",
+        "upstream/cpp/src/WindowsImports.cpp:94",
         "upstream/cpp/src/WindowsSdk.cpp:103",
         "upstream/cpp/src/WindowsSdk.cpp:109",
         "upstream/cpp/src/WindowsSdk.cpp:115",
@@ -4111,17 +4137,17 @@
     {
       "dll": "user32.dll",
       "callsites": [
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:100",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:118",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:130",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:196",
-        "port/switch/build/e2e-game/generated/WindowsImports.cpp:213",
         "port/switch/platform/win32_compat_clipboard.cpp:76",
         "port/switch/platform/win32_compat_gdi.cpp:174",
         "port/switch/platform/win32_compat_messages.cpp:262",
         "port/switch/platform/win32_compat_modules.cpp:54",
         "port/switch/platform/win32_compat_text.cpp:124",
         "port/switch/platform/win32_compat_window.cpp:275",
+        "upstream/cpp/src/WindowsImports.cpp:100",
+        "upstream/cpp/src/WindowsImports.cpp:118",
+        "upstream/cpp/src/WindowsImports.cpp:130",
+        "upstream/cpp/src/WindowsImports.cpp:196",
+        "upstream/cpp/src/WindowsImports.cpp:213",
         "upstream/cpp/src/WindowsSdk.cpp:21",
         "upstream/cpp/src/WindowsSdk.cpp:295",
         "upstream/cpp/src/WindowsSdk.cpp:301",
@@ -4214,7 +4240,7 @@
   "classification_counts": {
     "NOT_REACHED_UNTIL_GAMEPLAY": 15,
     "OPTIONAL_DISABLED": 76,
-    "PORTABLE": 134,
+    "PORTABLE": 136,
     "RUNTIME_MODULE": 7,
     "STATIC_LIBRARY": 88
   },

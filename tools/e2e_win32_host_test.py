@@ -61,6 +61,7 @@ def main() -> None:
             ("resolver", ROOT / "tests/test_win32_compat_resolver.cpp", []),
             ("original-wrappers", ROOT / "tests/test_win32_original_wrappers.cpp",
              [GAME / "WindowsImports.cpp", GAME / "WindowsSdk.cpp",
+              GAME / "SysUtilsImports.cpp", GAME / "SysUtils.cpp",
               RUNTIME / "runtime.cpp"]),
         ):
             output = Path(temp) / name
