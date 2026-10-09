@@ -1,5 +1,6 @@
 #include "units/WindowsImports.hpp"
 #include "units/WindowsSdk.hpp"
+#include "units/DirectSound.hpp"
 #include "units/SysUtilsImports.hpp"
 #include "types/Windows_group.hpp"
 #include "types/SysUtils.hpp"
@@ -170,6 +171,12 @@ int main() {
   assert(WindowsImports::LoadLibrary(
       reinterpret_cast<std::uint8_t*>(const_cast<char*>("MatrixGame.dll"))) == 0);
   assert(WindowsImports::GetLastError() == 2);
+  bool audio_disabled = false;
+  try { DirectSound::DirectSoundEnumerateA(DirectSound::TDSEnumCallback{}, nullptr); }
+  catch (const std::runtime_error& error) {
+    audio_disabled = std::string(error.what()).find("OPTIONAL_DISABLED") != std::string::npos;
+  }
+  assert(audio_disabled && WindowsImports::GetLastError() == 2);
   bool rejected = false;
   try {
     WindowsImports::LoadLibrary(

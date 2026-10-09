@@ -5,13 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 
-FUNCTIONS: dict[str, dict[str, str]] = {
-    "DirectSound.cpp": {
-        "std::int32_t PAS_STDCALL DirectSoundEnumerateA(TDSEnumCallback Callback, void* Context)":
-            "static_cast<void>(Callback); static_cast<void>(Context);\n"
-            "        return -1; // OPTIONAL: audio is disabled for the first Switch menu run.",
-    },
-}
+FUNCTIONS: dict[str, dict[str, str]] = {}
 
 STAGES = {
     "Forms::UnitInitialize();": "Forms UnitInitialize",

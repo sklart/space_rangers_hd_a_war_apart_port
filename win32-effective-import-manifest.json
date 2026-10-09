@@ -172,6 +172,18 @@
       "reason": "VFW calls originate in GI_XviD intro video, which is disabled for E2E-1."
     },
     {
+      "dll": "dsound.dll",
+      "symbol": "DirectSoundEnumerateA",
+      "callsites": [
+        "upstream/cpp/src/DirectSound.cpp:11"
+      ],
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "audio-off policy",
+      "startup_required": false,
+      "gameplay_required": true,
+      "reason": "GR_Main source adaptation disables sound and music for E2E-1."
+    },
+    {
       "dll": "gdi32.dll",
       "symbol": "CreateDIBSection",
       "callsites": [
@@ -3855,7 +3867,8 @@
       "dll": "dsound.dll",
       "callsites": [
         "port/switch/platform/win32_compat.cpp:133",
-        "port/switch/platform/win32_compat_modules.cpp:48"
+        "port/switch/platform/win32_compat_modules.cpp:48",
+        "upstream/cpp/src/DirectSound.cpp:11"
       ]
     },
     {
@@ -4240,7 +4253,7 @@
   "unparsed_import_patterns": [],
   "classification_counts": {
     "NOT_REACHED_UNTIL_GAMEPLAY": 15,
-    "OPTIONAL_DISABLED": 76,
+    "OPTIONAL_DISABLED": 77,
     "PORTABLE": 136,
     "RUNTIME_MODULE": 7,
     "STATIC_LIBRARY": 88
