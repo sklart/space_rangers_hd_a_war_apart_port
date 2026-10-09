@@ -234,7 +234,7 @@ def scan(effective: bool, classification: dict | None = None) -> dict:
         "unparsed_import_patterns": unparsed,
         "classification_counts": dict(sorted(counts.items())),
         "startup_unimplemented": sum(item.get("startup_required", False) and
-            item["classification"] == "REQUIRED_UNIMPLEMENTED"
+            item["classification"] not in {"PORTABLE", "STATIC_LIBRARY"}
             for item in [*imports, *dynamic, *direct, *unparsed]),
     }
 
