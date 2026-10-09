@@ -1198,6 +1198,17 @@ bool InitializeM26Release(M26ReleaseDiagnostic* diagnostic, M23TextDiagnostic* t
       diagnostic->controls.Root()->FindByNameRecursive("PanelSlot"));
   if (!diagnostic->scroll || !diagnostic->panel ||
       !diagnostic->panel->UpdateScrollRanges(error)) return false;
+  if (diagnostic->scroll->TrackLength() != 209 ||
+      diagnostic->scroll->ThumbLength() != 56 ||
+      diagnostic->scroll->BeforeLength() != 0 ||
+      diagnostic->scroll->AfterLength() != 153 ||
+      diagnostic->panel->VerticalBar()->Minimum() != 0 ||
+      diagnostic->panel->VerticalBar()->Maximum() != 539 ||
+      diagnostic->panel->VerticalBar()->PageSize() != 540 ||
+      diagnostic->panel->VerticalBar()->Position() != 0) {
+    if (error) *error = "M26 real ScrollBar or PanelScrollBar layout differs from Python oracle";
+    return false;
+  }
   diagnostic->scroll->UiObject::SetPosition({810, 665});
   diagnostic->graph = diagnostic->controls.Root()->AddGraphBuffer();
   diagnostic->graph->SetPosition({1040, 95});
@@ -1258,13 +1269,27 @@ bool UpdateM26Release(M26ReleaseDiagnostic* diagnostic, std::uint64_t now_ms,
       !diagnostic->controls.Update(delta, error)) return false;
   ++diagnostic->frames;
   if (diagnostic->frames == 30) {
-    diagnostic->scroll->SetPosition(100);
-    diagnostic->scroll->SetHoveredRegion(5);
-    diagnostic->scroll_advanced = diagnostic->scroll->Position() == 100;
     diagnostic->edit->SetText(u"123");
     diagnostic->edit->SetFocused(true);
     diagnostic->edit->SetCaretBlink(true);
-    diagnostic->caret_advanced = true;
+    diagnostic->edit->SetCaretPosition(0);
+  }
+  if (diagnostic->frames >= 30 && diagnostic->frames <= 150 &&
+      diagnostic->frames % 30 == 0) {
+    const std::int32_t positions[] = {1, 51, 101, 151, 200};
+    const auto position = positions[diagnostic->frames / 30 - 1];
+    diagnostic->scroll->SetPosition(position);
+    diagnostic->scroll->SetHoveredRegion(5);
+    Log("[M26] ScrollBar transition position=%ld", static_cast<long>(position));
+    if (diagnostic->frames == 150)
+      diagnostic->scroll_advanced = diagnostic->scroll->Position() == 200;
+  }
+  if (diagnostic->frames == 45 || diagnostic->frames == 75 ||
+      diagnostic->frames == 105) {
+    diagnostic->edit->MoveRight();
+    Log("[M26] Edit caret=%ld", static_cast<long>(diagnostic->edit->CaretPosition()));
+    if (diagnostic->frames == 105)
+      diagnostic->caret_advanced = diagnostic->edit->CaretPosition() == 3;
   }
   if (diagnostic->frames > 30)
     diagnostic->edit->SetCaretBlink(((diagnostic->frames - 30) / 30) % 2 == 0);
