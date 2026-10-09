@@ -10,7 +10,7 @@
     }
   ],
   "excluded_required": 0,
-  "link_objects": 356,
+  "link_objects": 357,
   "undefined_symbols": 0,
   "elf": "ELF64 AArch64 PIE",
   "required_game_symbols": {
@@ -38,6 +38,7 @@
     "alpha_bitmap_cpu",
     "blockpar_test_support",
     "e2e_events",
+    "e2e_file_search",
     "e2e_threads",
     "ec_file_adapter",
     "filesystem",
@@ -112,7 +113,7 @@
     "phase": "runtime dependency audit",
     "exact_error": "ELF retains DLL names: advapi32.dll, avifil32.dll, gdi32.dll, gdiplus.dll, kernel32.dll, libvorbisfile.dll, matrixgame.dll, okgf.dll, ole32.dll, shell32.dll, steam_ach.dll, user32.dll, vorbisfile.dll, xvidcore.dll"
   },
-  "build_git": "83c63db6874113cdc9703e0698cb632ba591d7c9",
+  "build_git": "1fb6c06a053c2874152b23f934183d396759a538",
   "build_dirty": false,
   "source_overrides": [
     "DirectSound.cpp",
@@ -134,8 +135,8 @@
   ],
   "nro": {
     "path": "port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E.nro",
-    "bytes": 18401584,
-    "sha256": "9B5D780C48C507E80560A52E403BD1B913357F99F34AB4A3A044CDDA7045DF0B",
+    "bytes": 18422064,
+    "sha256": "3098A495490C7327F26B87A1C650BACC333C57B497F6C4F4653095C38F719373",
     "status": "EXPERIMENTAL; Windows DLL audit FAIL"
   }
 }
