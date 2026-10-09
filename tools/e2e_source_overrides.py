@@ -85,7 +85,7 @@ int main() {
 def generated_source(source: Path, destination: Path, build_git: str = "",
                      manifest_stamp: dict | None = None) -> Path:
     overrides = FUNCTIONS.get(source.name)
-    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GR_Main.cpp", "aSaveLoad.cpp", "program.cpp"):
+    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aSaveLoad.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "program.cpp":
@@ -237,6 +237,16 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
         run = run.replace("        std::int32_t Stage = 0;", "        std::int32_t Stage = 0;\n        bool e2e_first_frame_logged = false;", 1)
         text = text[:start] + run + text[end:]
         text = '#include "e2e_stage.hpp"\n' + text
+    if source.name == "GR_GraphBuf.cpp":
+        use_texture = "        Self->UseTexture = AUseTexture;"
+        if text.count(use_texture) != 1:
+            raise RuntimeError("graph buffer texture preference boundary changed")
+        text = text.replace(use_texture, '''#if defined(__SWITCH__)
+        // The Switch E2E renderer uses software pixels and has no Direct3D texture device.
+        Self->UseTexture = false;
+#else
+        Self->UseTexture = AUseTexture;
+#endif''', 1)
     if source.name == "aSaveLoad.cpp":
         replacements = {
             "std::uint32_t MemorySnapshotGalaxyToken{};":
