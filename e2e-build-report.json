@@ -133,10 +133,9 @@
   "required_stubs": [],
   "arm64_link": "PASS",
   "first_failure": null,
-  "build_git": "05d8543e08886373d87182f8a26599905add87dd",
+  "build_git": "cad8f3af69cbc83c0645d293486e3ec50013f873",
   "build_dirty": false,
   "source_overrides": [
-    "DirectSound.cpp",
     "Rangers.cpp",
     "program.cpp",
     "EC_BlockPar.cpp",
@@ -150,12 +149,12 @@
     "windows_imports_portable.cpp"
   ],
   "win32_surface": {
-    "manifest_sha256": "BB3EA05B201A74153AF67BF56EF2F2E31A83D96E13B5C184897F7EA2D5BEF78C",
-    "imports": 253,
+    "manifest_sha256": "54B3D73688CB4C2E4C845C288699782188823668594DAF4747F2B7A31CAB55FE",
+    "imports": 254,
     "dynamic_calls": 69,
     "classifications": {
       "NOT_REACHED_UNTIL_GAMEPLAY": 15,
-      "OPTIONAL_DISABLED": 76,
+      "OPTIONAL_DISABLED": 77,
       "PORTABLE": 136,
       "RUNTIME_MODULE": 7,
       "STATIC_LIBRARY": 88
@@ -165,7 +164,7 @@
   "nro": {
     "path": "port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E.nro",
     "bytes": 18876720,
-    "sha256": "E64E4C6F95C4235C80441E5DEB46CEB92B35CB362DC8AACAED6D03F070BA4E55",
+    "sha256": "2CF4E63EAA76B0CC41A964A84442C0B3DD54A4E0D7A8E0E9FF7A8CC6F2B12E42",
     "status": "SOFTWARE AUDIT PASS; hardware not tested"
   }
 }
