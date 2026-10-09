@@ -1,0 +1,7 @@
+[E2E] build_git=96aa17a
+[E2E] ProgramMain BEGIN
+[E2E] Forms UnitInitialize
+[E2E] ExceptionInfo
+[E2E] CheatCode
+[E2E] Application Initialize
+[E2E] FAIL stage=ProgramMain exception=DLL import requires a Win32 host: user32.dll
