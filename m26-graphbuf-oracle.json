@@ -1,0 +1,13 @@
+{
+  "synthetic_bgra_source": {
+    "size": 16,
+    "crc32": "51867129",
+    "fnv64": "e6350deb456550b1"
+  },
+  "bilinear_4x4": {
+    "size": 64,
+    "crc32": "8b93ffa1",
+    "fnv64": "2823819d585c1ce9"
+  },
+  "bilinear_hex": "0000ffff003fbfff007f7fff00bf3fff3f00bfff2f2f8fef1f5f5fdf0f8f2fcf7f007fff5f1f5fdf3f3f3fbf1f5f1f9fbf003fff8f0f2fcf5f1f1f9f2f2f0f6f"
+}

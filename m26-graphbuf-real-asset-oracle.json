@@ -1,0 +1,35 @@
+{
+  "resource": "DATA/FormLoad2/2BarCenter.gi",
+  "source": {
+    "size": 2976,
+    "crc32": "19267238",
+    "fnv64": "debceda99798e0e0"
+  },
+  "decoded_size": [
+    29,
+    37
+  ],
+  "decoded_bgra": {
+    "size": 4292,
+    "crc32": "1cf83894",
+    "fnv64": "abaab4cdacd96af3"
+  },
+  "target_size": [
+    100,
+    50
+  ],
+  "scaled_size": [
+    39,
+    50
+  ],
+  "filter": "OKGF_RESCALE_LANCZOS3",
+  "scaled_bgra_host_arm_compatible": {
+    "size": 7800,
+    "crc32": "07bfadc2",
+    "fnv64": "1dc1b91c9c87ca5a"
+  },
+  "frame_host_arm_compatible": {
+    "crc32": "1ebb3fc8",
+    "fnv64": "eb791740957eeeb8"
+  }
+}

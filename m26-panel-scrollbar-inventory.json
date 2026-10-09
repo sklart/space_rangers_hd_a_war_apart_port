@@ -1,0 +1,4188 @@
+{
+  "read_only": true,
+  "physical": 27,
+  "external": 26,
+  "active_vertical": 26,
+  "style_y": {
+    "": 1,
+    "Style.ScrollBar.2PQS1": 2,
+    "Style.ScrollBar.2V1": 17,
+    "Style.ScrollBar.2V2": 4,
+    "Style.ScrollBar.2V3": 2,
+    "Style.ScrollBar.FormMsg": 1
+  },
+  "render_eligible": 22,
+  "deterministic_candidate": {
+    "path": "ML#0/Achievements#0/Panel#0/Panel#0/PanelScrollBar#0",
+    "name": "PanelSlot",
+    "size": "831,540",
+    "external": "True",
+    "unlimited_world": "False",
+    "move_world": "True",
+    "rect_x": "",
+    "rect_y": "903,116,923,629",
+    "auto_x": "True",
+    "auto_y": "False",
+    "bars": {
+      "X": {
+        "active": false,
+        "style": "",
+        "style_resolved": false,
+        "images": [],
+        "render_eligible": true
+      },
+      "Y": {
+        "active": true,
+        "style": "Style.ScrollBar.2V1",
+        "style_resolved": true,
+        "images": [
+          {
+            "property": "ImageUpN",
+            "mode": "GI",
+            "key": "Bm.SB.2V1_UpN",
+            "status": "UNKNOWN",
+            "dimensions": null,
+            "resolved": true
+          },
+          {
+            "property": "ImageUpA",
+            "mode": "GI",
+            "key": "Bm.SB.2V1_UpA",
+            "status": "UNKNOWN",
+            "dimensions": null,
+            "resolved": true
+          },
+          {
+            "property": "ImageUpD",
+            "mode": "GI",
+            "key": "Bm.SB.2V1_UpD",
+            "status": "UNKNOWN",
+            "dimensions": null,
+            "resolved": true
+          },
+          {
+            "property": "ImageTopN",
+            "mode": "GI",
+            "key": "Bm.SB.2V1_TopN",
+            "status": "UNKNOWN",
+            "dimensions": null,
+            "resolved": true
+          },
+          {
+            "property": "ImageTopA",
+            "mode": "GI",
+            "key": "Bm.SB.2V1_TopA",
+            "status": "UNKNOWN",
+            "dimensions": null,
+            "resolved": true
+          },
+          {
+            "property": "ImageTopD",
+            "mode": "GI",
+            "key": "Bm.SB.2V1_TopD",
+            "status": "UNKNOWN",
+            "dimensions": null,
+            "resolved": true
+          },
+          {
+            "property": "ImageCenterN",
+            "mode": "GI",
+            "key": "Bm.SB.2V1_CenterN",
+            "status": "UNKNOWN",
+            "dimensions": null,
+            "resolved": true
+          },
+          {
+            "property": "ImageCenterA",
+            "mode": "GI",
+            "key": "Bm.SB.2V1_CenterA",
+            "status": "UNKNOWN",
+            "dimensions": null,
+            "resolved": true
+          },
+          {
+            "property": "ImageCenterD",
+            "mode": "GI",
+            "key": "Bm.SB.2V1_CenterD",
+            "status": "UNKNOWN",
+            "dimensions": null,
+            "resolved": true
+          },
+          {
+            "property": "ImageBottomN",
+            "mode": "GI",
+            "key": "Bm.SB.2V1_BottomN",
+            "status": "UNKNOWN",
+            "dimensions": null,
+            "resolved": true
+          },
+          {
+            "property": "ImageBottomA",
+            "mode": "GI",
+            "key": "Bm.SB.2V1_BottomA",
+            "status": "UNKNOWN",
+            "dimensions": null,
+            "resolved": true
+          },
+          {
+            "property": "ImageBottomD",
+            "mode": "GI",
+            "key": "Bm.SB.2V1_BottomD",
+            "status": "UNKNOWN",
+            "dimensions": null,
+            "resolved": true
+          },
+          {
+            "property": "ImageDownN",
+            "mode": "GI",
+            "key": "Bm.SB.2V1_DownN",
+            "status": "UNKNOWN",
+            "dimensions": null,
+            "resolved": true
+          },
+          {
+            "property": "ImageDownA",
+            "mode": "GI",
+            "key": "Bm.SB.2V1_DownA",
+            "status": "UNKNOWN",
+            "dimensions": null,
+            "resolved": true
+          },
+          {
+            "property": "ImageDownD",
+            "mode": "GI",
+            "key": "Bm.SB.2V1_DownD",
+            "status": "UNKNOWN",
+            "dimensions": null,
+            "resolved": true
+          }
+        ],
+        "render_eligible": true
+      }
+    },
+    "unknown_properties": [],
+    "render_eligible": true,
+    "interactive_eligible": false,
+    "category": "RENDER_ONLY"
+  },
+  "controls": [
+    {
+      "path": "ML#0/Achievements#0/Panel#0/Panel#0/PanelScrollBar#0",
+      "name": "PanelSlot",
+      "size": "831,540",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "903,116,923,629",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/CfgSettings#0/Panel#0/Panel#0/PanelScrollBar#0",
+      "name": "PanelSet",
+      "size": "385,488",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "690,149,707,589",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V2",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/EquipmentShop#0/Panel#0/Panel#4/PanelScrollBar#0",
+      "name": "PanelGoods",
+      "size": "594,328",
+      "external": "False",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "",
+      "auto_x": "True",
+      "auto_y": "True",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/GameSettings#0/Panel#0/Panel#3/PanelScrollBar#0",
+      "name": "PanelSet",
+      "size": "569,524",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "867,50,888,578",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V2",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Gov#0/Panel#0/Panel#3/PanelScrollBar#0",
+      "name": "TextScroll",
+      "size": "345,338",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "380,70,397,385",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Gov#0/Panel#0/Panel#3/PanelScrollBar#1",
+      "name": "TalkPA",
+      "size": "365,120",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "380,440,397,548",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/PanelScrollBar#0",
+      "name": "PanelInfo",
+      "size": "409,416",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "458,125,475,525",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Journal#0/Panel#0/Panel#1/PanelScrollBar#0",
+      "name": "PanelInfo",
+      "size": "409,336",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "458,110,475,445",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/LoadAB#0/Panel#0/Panel#0/PanelScrollBar#0",
+      "name": "PanelSlot",
+      "size": "519,457",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "573,200,590,657",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V3",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/LoadAB#0/Panel#0/Panel#0/PanelScrollBar#1",
+      "name": "MessageWindow",
+      "size": "280,108",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "916,484,933,560",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V3",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V3_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [
+        "TextColor"
+      ],
+      "render_eligible": false,
+      "interactive_eligible": false,
+      "category": "UNSUPPORTED"
+    },
+    {
+      "path": "ML#0/LoadQuest#0/Panel#0/Panel#1/PanelScrollBar#0",
+      "name": "PanelSlot",
+      "size": "519,457",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "574,152,591,609",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/LoadQuest#0/Panel#0/Panel#1/PanelScrollBar#1",
+      "name": "MessageWindow",
+      "size": "280,266",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "917,281,934,515",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [
+        "TextColor"
+      ],
+      "render_eligible": false,
+      "interactive_eligible": false,
+      "category": "UNSUPPORTED"
+    },
+    {
+      "path": "ML#0/LoadRobot#0/Panel#0/Panel#1/PanelScrollBar#0",
+      "name": "PanelSlot",
+      "size": "519,457",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "574,161,591,618",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/LoadRobot#0/Panel#0/Panel#1/PanelScrollBar#1",
+      "name": "MessageWindow",
+      "size": "280,266",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "917,290,934,524",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [
+        "TextColor"
+      ],
+      "render_eligible": false,
+      "interactive_eligible": false,
+      "category": "UNSUPPORTED"
+    },
+    {
+      "path": "ML#0/ModsManager#0/Panel#0/Panel#0/PanelScrollBar#0",
+      "name": "PanelSet",
+      "size": "569,524",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "867,50,888,578",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V2",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/PlanetQuest#0/Panel#0/Panel#0/PanelScrollBar#0",
+      "name": "MessageWindow",
+      "size": "515,365",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "594,50,611,414",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2PQS1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BUpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BUpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BUpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BTopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BTopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BTopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BCenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BCenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BCenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BBottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BBottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BBottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BDownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BDownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BDownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [
+        "TextColor"
+      ],
+      "render_eligible": false,
+      "interactive_eligible": false,
+      "category": "UNSUPPORTED"
+    },
+    {
+      "path": "ML#0/PlanetQuest#0/Panel#0/Panel#0/PanelScrollBar#1",
+      "name": "ActionListWindow",
+      "size": "553,244",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "594,487,611,702",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2PQS1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BUpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BUpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BUpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BTopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BTopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BTopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BCenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BCenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BCenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BBottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BBottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BBottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BDownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BDownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.FormPQuest2.2S1BDownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Quest#0/Panel#0/Panel#0/PanelScrollBar#0",
+      "name": "QuestPT",
+      "size": "230,305",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "293,42,309,357",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.FormMsg",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.FormMsg.1TBUpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": false
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.FormMsg.1TBUpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": false
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.FormMsg.1TBUpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": false
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.FormMsg.1TBTopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": false
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.FormMsg.1TBTopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": false
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.FormMsg.1TBTopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": false
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.FormMsg.1TBCenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": false
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.FormMsg.1TBCenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": false
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.FormMsg.1TBCenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": false
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.FormMsg.1TBBottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": false
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.FormMsg.1TBBottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": false
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.FormMsg.1TBBottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": false
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.FormMsg.1TBDownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": false
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.FormMsg.1TBDownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": false
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.FormMsg.1TBDownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": false
+            }
+          ],
+          "render_eligible": false
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": false,
+      "interactive_eligible": false,
+      "category": "UNSUPPORTED"
+    },
+    {
+      "path": "ML#0/Rating#0/Panel#0/Panel#1/PanelScrollBar#0",
+      "name": "PTable",
+      "size": "657,492",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "869,83,888,572",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Rewards#0/Panel#0/Panel#0/Panel#0/PanelScrollBar#0",
+      "name": "PTable",
+      "size": "422,444",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "450,10,470,434",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V2",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V2_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/RuinsTalk#0/Panel#0/Panel#3/PanelScrollBar#0",
+      "name": "TextScroll",
+      "size": "345,338",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "380,70,397,385",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/RuinsTalk#0/Panel#0/Panel#3/PanelScrollBar#1",
+      "name": "TalkPA",
+      "size": "365,120",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "380,440,397,548",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/SaveManager#0/Panel#0/Panel#0/PanelScrollBar#0",
+      "name": "PanelSlot",
+      "size": "507,428",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "575,73,592,500",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0/Panel#0/Panel#1/Panel#0/PanelScrollBar#0",
+      "name": "PanelAddInfo",
+      "size": "168,126",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "265,399,282,542",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Panel#1/Panel#2/Panel#1/PanelScrollBar#0",
+      "name": "PanelAddInfo",
+      "size": "168,126",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "265,399,282,542",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Talk#0/Panel#0/Panel#0/PanelScrollBar#0",
+      "name": "TextScroll",
+      "size": "338,119",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "379,188,396,284",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Talk#0/Panel#0/Panel#0/PanelScrollBar#1",
+      "name": "TalkPA",
+      "size": "359,119",
+      "external": "True",
+      "unlimited_world": "False",
+      "move_world": "True",
+      "rect_x": "",
+      "rect_y": "379,330,396,450",
+      "auto_x": "True",
+      "auto_y": "False",
+      "bars": {
+        "X": {
+          "active": false,
+          "style": "",
+          "style_resolved": false,
+          "images": [],
+          "render_eligible": true
+        },
+        "Y": {
+          "active": true,
+          "style": "Style.ScrollBar.2V1",
+          "style_resolved": true,
+          "images": [
+            {
+              "property": "ImageUpN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageUpD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_UpD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageTopD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_TopD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageCenterD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_CenterD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageBottomD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_BottomD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownN",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownN",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownA",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownA",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            },
+            {
+              "property": "ImageDownD",
+              "mode": "GI",
+              "key": "Bm.SB.2V1_DownD",
+              "status": "UNKNOWN",
+              "dimensions": null,
+              "resolved": true
+            }
+          ],
+          "render_eligible": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    }
+  ]
+}

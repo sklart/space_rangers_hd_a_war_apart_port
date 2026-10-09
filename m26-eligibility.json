@@ -1,0 +1,438 @@
+{
+  "read_only": true,
+  "candidate_count": 114,
+  "largest": {
+    "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#11",
+    "nodes": 50,
+    "max_depth": 2,
+    "visual_leaves": 49,
+    "control_types": {
+      "Edit": 3,
+      "GraphButton": 28,
+      "Image": 1,
+      "Label": 17,
+      "Panel": 1
+    }
+  },
+  "top": [
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#11",
+      "nodes": 50,
+      "max_depth": 2,
+      "visual_leaves": 49,
+      "control_types": {
+        "Edit": 3,
+        "GraphButton": 28,
+        "Image": 1,
+        "Label": 17,
+        "Panel": 1
+      }
+    },
+    {
+      "path": "ML#0/Scaner#0/Panel#0/Panel#0/Panel#1/Panel#0/Panel#0",
+      "nodes": 40,
+      "max_depth": 3,
+      "visual_leaves": 27,
+      "control_types": {
+        "GraphButton": 6,
+        "Image": 18,
+        "Label": 3,
+        "Panel": 7,
+        "Zone": 6
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Panel#1/Panel#2/Panel#1/Panel#0",
+      "nodes": 40,
+      "max_depth": 3,
+      "visual_leaves": 27,
+      "control_types": {
+        "GraphButton": 6,
+        "Image": 18,
+        "Label": 3,
+        "Panel": 7,
+        "Zone": 6
+      }
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#12",
+      "nodes": 38,
+      "max_depth": 2,
+      "visual_leaves": 37,
+      "control_types": {
+        "Edit": 6,
+        "GraphButton": 14,
+        "Image": 1,
+        "Label": 16,
+        "Panel": 1
+      }
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#15",
+      "nodes": 35,
+      "max_depth": 2,
+      "visual_leaves": 34,
+      "control_types": {
+        "Edit": 3,
+        "GraphButton": 16,
+        "Image": 1,
+        "Label": 14,
+        "Panel": 1
+      }
+    },
+    {
+      "path": "ML#0/CfgSettings#0/Panel#0",
+      "nodes": 33,
+      "max_depth": 4,
+      "visual_leaves": 28,
+      "control_types": {
+        "GraphButton": 10,
+        "Image": 11,
+        "Label": 6,
+        "Panel": 5,
+        "PanelScrollBar": 1
+      }
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#0",
+      "nodes": 31,
+      "max_depth": 2,
+      "visual_leaves": 30,
+      "control_types": {
+        "Edit": 1,
+        "GraphButton": 19,
+        "Image": 5,
+        "Label": 5,
+        "Panel": 1
+      }
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#10",
+      "nodes": 29,
+      "max_depth": 2,
+      "visual_leaves": 28,
+      "control_types": {
+        "Edit": 3,
+        "GraphButton": 9,
+        "Image": 1,
+        "Label": 15,
+        "Panel": 1
+      }
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#9",
+      "nodes": 28,
+      "max_depth": 2,
+      "visual_leaves": 27,
+      "control_types": {
+        "Edit": 3,
+        "GraphButton": 11,
+        "Image": 1,
+        "Label": 12,
+        "Panel": 1
+      }
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#13",
+      "nodes": 27,
+      "max_depth": 2,
+      "visual_leaves": 26,
+      "control_types": {
+        "Edit": 4,
+        "GraphButton": 10,
+        "Image": 1,
+        "Label": 11,
+        "Panel": 1
+      }
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#1",
+      "nodes": 25,
+      "max_depth": 2,
+      "visual_leaves": 24,
+      "control_types": {
+        "Edit": 4,
+        "GraphButton": 8,
+        "Image": 1,
+        "Label": 11,
+        "Panel": 1
+      }
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#2",
+      "nodes": 22,
+      "max_depth": 2,
+      "visual_leaves": 21,
+      "control_types": {
+        "Edit": 3,
+        "GraphButton": 8,
+        "Image": 1,
+        "Label": 9,
+        "Panel": 1
+      }
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#3",
+      "nodes": 22,
+      "max_depth": 2,
+      "visual_leaves": 21,
+      "control_types": {
+        "Edit": 3,
+        "GraphButton": 8,
+        "Image": 1,
+        "Label": 9,
+        "Panel": 1
+      }
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#4",
+      "nodes": 22,
+      "max_depth": 2,
+      "visual_leaves": 21,
+      "control_types": {
+        "Edit": 3,
+        "GraphButton": 8,
+        "Image": 1,
+        "Label": 9,
+        "Panel": 1
+      }
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#5",
+      "nodes": 22,
+      "max_depth": 2,
+      "visual_leaves": 21,
+      "control_types": {
+        "Edit": 3,
+        "GraphButton": 8,
+        "Image": 1,
+        "Label": 9,
+        "Panel": 1
+      }
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#6",
+      "nodes": 22,
+      "max_depth": 2,
+      "visual_leaves": 21,
+      "control_types": {
+        "Edit": 3,
+        "GraphButton": 8,
+        "Image": 1,
+        "Label": 9,
+        "Panel": 1
+      }
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#7",
+      "nodes": 22,
+      "max_depth": 2,
+      "visual_leaves": 21,
+      "control_types": {
+        "Edit": 3,
+        "GraphButton": 8,
+        "Image": 1,
+        "Label": 9,
+        "Panel": 1
+      }
+    },
+    {
+      "path": "ML#0/EquipmentShop#0/Panel#0/Panel#0",
+      "nodes": 21,
+      "max_depth": 4,
+      "visual_leaves": 17,
+      "control_types": {
+        "GraphButton": 6,
+        "Image": 4,
+        "Label": 6,
+        "Panel": 4,
+        "Window": 1
+      }
+    },
+    {
+      "path": "ML#0/Galaxy#0/Panel#0/Panel#0",
+      "nodes": 21,
+      "max_depth": 4,
+      "visual_leaves": 17,
+      "control_types": {
+        "GraphButton": 6,
+        "Image": 4,
+        "Label": 6,
+        "Panel": 4,
+        "Window": 1
+      }
+    },
+    {
+      "path": "ML#0/GoodsShop#0/Panel#0/Panel#0",
+      "nodes": 21,
+      "max_depth": 4,
+      "visual_leaves": 17,
+      "control_types": {
+        "GraphButton": 6,
+        "Image": 4,
+        "Label": 6,
+        "Panel": 4,
+        "Window": 1
+      }
+    },
+    {
+      "path": "ML#0/Gov#0/Panel#0/Panel#0",
+      "nodes": 21,
+      "max_depth": 4,
+      "visual_leaves": 17,
+      "control_types": {
+        "GraphButton": 6,
+        "Image": 4,
+        "Label": 6,
+        "Panel": 4,
+        "Window": 1
+      }
+    },
+    {
+      "path": "ML#0/Hangar#0/Panel#0/Panel#0",
+      "nodes": 21,
+      "max_depth": 4,
+      "visual_leaves": 17,
+      "control_types": {
+        "GraphButton": 6,
+        "Image": 4,
+        "Label": 6,
+        "Panel": 4,
+        "Window": 1
+      }
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#0",
+      "nodes": 21,
+      "max_depth": 4,
+      "visual_leaves": 17,
+      "control_types": {
+        "GraphButton": 6,
+        "Image": 4,
+        "Label": 6,
+        "Panel": 4,
+        "Window": 1
+      }
+    },
+    {
+      "path": "ML#0/Journal#0/Panel#0/Panel#0",
+      "nodes": 21,
+      "max_depth": 4,
+      "visual_leaves": 17,
+      "control_types": {
+        "GraphButton": 6,
+        "Image": 4,
+        "Label": 6,
+        "Panel": 4,
+        "Window": 1
+      }
+    },
+    {
+      "path": "ML#0/Planet#0/Panel#0/Panel#0",
+      "nodes": 21,
+      "max_depth": 4,
+      "visual_leaves": 17,
+      "control_types": {
+        "GraphButton": 6,
+        "Image": 4,
+        "Label": 6,
+        "Panel": 4,
+        "Window": 1
+      }
+    },
+    {
+      "path": "ML#0/PlanetNO#0/Panel#0/Panel#0",
+      "nodes": 21,
+      "max_depth": 4,
+      "visual_leaves": 17,
+      "control_types": {
+        "GraphButton": 6,
+        "Image": 4,
+        "Label": 6,
+        "Panel": 4,
+        "Window": 1
+      }
+    },
+    {
+      "path": "ML#0/Rating#0/Panel#0/Panel#0",
+      "nodes": 21,
+      "max_depth": 4,
+      "visual_leaves": 17,
+      "control_types": {
+        "GraphButton": 6,
+        "Image": 4,
+        "Label": 6,
+        "Panel": 4,
+        "Window": 1
+      }
+    },
+    {
+      "path": "ML#0/RuinsTalk#0/Panel#0/Panel#0",
+      "nodes": 21,
+      "max_depth": 4,
+      "visual_leaves": 17,
+      "control_types": {
+        "GraphButton": 6,
+        "Image": 4,
+        "Label": 6,
+        "Panel": 4,
+        "Window": 1
+      }
+    },
+    {
+      "path": "ML#0/Ship#0/Panel#0/Panel#0",
+      "nodes": 21,
+      "max_depth": 4,
+      "visual_leaves": 17,
+      "control_types": {
+        "GraphButton": 6,
+        "Image": 4,
+        "Label": 6,
+        "Panel": 4,
+        "Window": 1
+      }
+    },
+    {
+      "path": "ML#0/StarMap#0/Panel#0/Panel#0/Panel#0",
+      "nodes": 21,
+      "max_depth": 4,
+      "visual_leaves": 17,
+      "control_types": {
+        "GraphButton": 6,
+        "Image": 4,
+        "Label": 6,
+        "Panel": 4,
+        "Window": 1
+      }
+    }
+  ],
+  "blocker_root_counts": {
+    "Image": 104,
+    "GraphBuf": 68,
+    "GAI": 57,
+    "PanelScrollBar": 10,
+    "GraphButton": 8,
+    "ShrLight": 7,
+    "StarField": 6,
+    "MultiImage": 5,
+    "Circle": 5,
+    "SpaceImg": 4,
+    "StarFieldM": 4,
+    "StarFieldImg": 4,
+    "XviD": 4,
+    "Frame": 2,
+    "SpaceCircle": 2
+  },
+  "eligible_controls": {
+    "Edit": 49,
+    "GAI": 54,
+    "GraphButton": 614,
+    "Image": 995,
+    "Label": 700,
+    "Panel": 375,
+    "PanelScrollBar": 22,
+    "ScrollBar": 3,
+    "Window": 42,
+    "Zone": 61
+  }
+}

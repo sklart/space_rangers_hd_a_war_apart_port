@@ -1,0 +1,241 @@
+{
+  "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#11",
+  "nodes": 50,
+  "activated_for_showcase": true,
+  "position": [
+    298,
+    120
+  ],
+  "size": [
+    410,
+    435
+  ],
+  "control_types": {
+    "Edit": 3,
+    "GraphButton": 28,
+    "Image": 1,
+    "Label": 17
+  },
+  "fonts": {
+    "Font.2Normal": {
+      "resource": "DATA/FONT/Verdana_09_2.aft",
+      "source": {
+        "crc32": "e33b194c",
+        "fnv64": "43b502e9a256235f"
+      }
+    },
+    "Font.2Ranger": {
+      "resource": "DATA/FONT/ranger_6.aft",
+      "source": {
+        "crc32": "082224af",
+        "fnv64": "539398c28f008c86"
+      }
+    },
+    "Font.2Small": {
+      "resource": "DATA/FONT/Verdana_08_1.aft",
+      "source": {
+        "crc32": "a32109c6",
+        "fnv64": "748c9b71506bed62"
+      }
+    },
+    "Font.2SmallBold": {
+      "resource": "DATA/FONT/Verdana_08_2_bold.aft",
+      "source": {
+        "crc32": "72faf598",
+        "fnv64": "bceea2833f15da80"
+      }
+    }
+  },
+  "resources": {
+    "Bm.FormInfo2.2FindN": {
+      "path": "DATA/FormInfo2/2FindN.gi",
+      "source": {
+        "size": 3070,
+        "crc32": "a4419b06",
+        "fnv64": "7a5c7c57338cbddb"
+      }
+    },
+    "Bm.FormInfo3.2BRaceFeiN": {
+      "path": "DATA/FormInfo3/2BRaceFeiN_sm.gi",
+      "source": {
+        "size": 1776,
+        "crc32": "15698013",
+        "fnv64": "8abf77ae4c30ee36"
+      }
+    },
+    "Bm.FormInfo3.2BRaceGaalN": {
+      "path": "DATA/FormInfo3/2BRaceGaalN_sm.gi",
+      "source": {
+        "size": 1550,
+        "crc32": "5b7d2373",
+        "fnv64": "e23ca4b5c00d6a9e"
+      }
+    },
+    "Bm.FormInfo3.2BRaceMalocN": {
+      "path": "DATA/FormInfo3/2BRaceMalocN_sm.gi",
+      "source": {
+        "size": 1410,
+        "crc32": "e00ebf42",
+        "fnv64": "12db3102e679d01e"
+      }
+    },
+    "Bm.FormInfo3.2BRacePelengN": {
+      "path": "DATA/FormInfo3/2BRacePelengN_sm.gi",
+      "source": {
+        "size": 1369,
+        "crc32": "efabf930",
+        "fnv64": "ffde97a5eae22f08"
+      }
+    },
+    "Bm.FormInfo3.2BRacePeopleN": {
+      "path": "DATA/FormInfo3/2BRacePeopleN_sm.gi",
+      "source": {
+        "size": 1794,
+        "crc32": "b881058f",
+        "fnv64": "c3af8a276579f4af"
+      }
+    },
+    "Bm.FormInfo3.2M11_BG": {
+      "path": "DATA/FormInfo3/2M11_BG.gi",
+      "source": {
+        "size": 357601,
+        "crc32": "f27f53dd",
+        "fnv64": "024b4c542c45ed4f"
+      }
+    },
+    "Bm.FormInfo3.2MCheckD": {
+      "path": "DATA/FormInfo3/2MCheckD.gi",
+      "source": {
+        "size": 522,
+        "crc32": "ffe797a5",
+        "fnv64": "4551c77e139f5a67"
+      }
+    },
+    "Bm.FormInfo3.2MH01N": {
+      "path": "DATA/FormInfo3/2MH01N.gi",
+      "source": {
+        "size": 3181,
+        "crc32": "4fb3e274",
+        "fnv64": "81c75b83356b3af9"
+      }
+    },
+    "Bm.FormInfo3.2MH02N": {
+      "path": "DATA/FormInfo3/2MH02N.gi",
+      "source": {
+        "size": 3154,
+        "crc32": "5ac79b2a",
+        "fnv64": "659ecd2d5b697403"
+      }
+    },
+    "Bm.FormInfo3.2MH03N": {
+      "path": "DATA/FormInfo3/2MH03N.gi",
+      "source": {
+        "size": 3191,
+        "crc32": "b34ba0e8",
+        "fnv64": "967127cbc415b98f"
+      }
+    },
+    "Bm.FormInfo3.2MH04N": {
+      "path": "DATA/FormInfo3/2MH04N.gi",
+      "source": {
+        "size": 3126,
+        "crc32": "336e0241",
+        "fnv64": "22e570849dbdaf26"
+      }
+    },
+    "Bm.FormInfo3.2MH05N": {
+      "path": "DATA/FormInfo3/2MH05N.gi",
+      "source": {
+        "size": 3218,
+        "crc32": "2d8de990",
+        "fnv64": "3ee7808ee72ba005"
+      }
+    },
+    "Bm.FormInfo3.2MH08N": {
+      "path": "DATA/FormInfo3/2MH08N.gi",
+      "source": {
+        "size": 3010,
+        "crc32": "97781032",
+        "fnv64": "d8eb294cab87b455"
+      }
+    },
+    "Bm.FormInfo3.2MH09N": {
+      "path": "DATA/FormInfo3/2MH09N.gi",
+      "source": {
+        "size": 3004,
+        "crc32": "a14dc300",
+        "fnv64": "f2958cccd92ab8df"
+      }
+    },
+    "Bm.FormInfo3.2MH10N": {
+      "path": "DATA/FormInfo3/2MH10N.gi",
+      "source": {
+        "size": 3211,
+        "crc32": "6041e3e4",
+        "fnv64": "3580979f8d366a0c"
+      }
+    },
+    "Bm.FormInfo3.2MH11N": {
+      "path": "DATA/FormInfo3/2MH11N.gi",
+      "source": {
+        "size": 3125,
+        "crc32": "2c059fe0",
+        "fnv64": "0ed2756dc7af9acd"
+      }
+    },
+    "Bm.FormInfo3.2MH12N": {
+      "path": "DATA/FormInfo3/2MH12N.gi",
+      "source": {
+        "size": 3201,
+        "crc32": "5eb7bd85",
+        "fnv64": "4d257abb1d5a225f"
+      }
+    },
+    "Bm.FormInfo3.2MH13N": {
+      "path": "DATA/FormInfo3/2MH13N.gi",
+      "source": {
+        "size": 1311,
+        "crc32": "0edd034f",
+        "fnv64": "1565e9772959c102"
+      }
+    },
+    "Bm.FormInfo3.2MH14N": {
+      "path": "DATA/FormInfo3/2MH14N.gi",
+      "source": {
+        "size": 1322,
+        "crc32": "60452080",
+        "fnv64": "e96620a16d658c96"
+      }
+    },
+    "Bm.FormInfo3.2MH15N": {
+      "path": "DATA/FormInfo3/2MH15N.gi",
+      "source": {
+        "size": 1277,
+        "crc32": "58f5dc25",
+        "fnv64": "87433ab687b723b9"
+      }
+    },
+    "Bm.FormInfo3.2MH16N": {
+      "path": "DATA/FormInfo3/2MH16N.gi",
+      "source": {
+        "size": 1293,
+        "crc32": "5e7a5af1",
+        "fnv64": "48969f6d7da499de"
+      }
+    },
+    "Bm.FormInfo3.2MH17N": {
+      "path": "DATA/FormInfo3/2MH17N.gi",
+      "source": {
+        "size": 1666,
+        "crc32": "4d4a3b5d",
+        "fnv64": "1601730cebc973cf"
+      }
+    }
+  },
+  "drawn_images": 29,
+  "frame": {
+    "size": 1843200,
+    "crc32": "cb1a12b3",
+    "fnv64": "fbca196e86b2f452"
+  }
+}

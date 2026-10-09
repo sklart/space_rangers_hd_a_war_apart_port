@@ -1,0 +1,1725 @@
+{
+  "read_only": true,
+  "physical": 49,
+  "styles": {
+    "": 49
+  },
+  "fonts": {
+    "Font.2Normal": 49
+  },
+  "alignments": {
+    "Center": 2,
+    "Left": 47
+  },
+  "max_lengths": {
+    "10": 2,
+    "30": 46,
+    "500": 1
+  },
+  "with_text": 0,
+  "with_image": 0,
+  "with_border": 0,
+  "render_eligible": 49,
+  "deterministic_candidate": {
+    "path": "ML#0/GameSettings#0/Panel#0/Panel#0/Edit#0",
+    "style": "",
+    "font_key": "Font.2Normal",
+    "font_resolved": true,
+    "font_source": {
+      "resource": "DATA/FONT/Verdana_09_2.aft",
+      "package": "forms.pkg",
+      "source_size": 24787,
+      "source": {
+        "crc32": "e33b194c",
+        "fnv64": "43b502e9a256235f"
+      },
+      "structural": {
+        "crc32": "b1e29071",
+        "fnv64": "61b692d9c237999c"
+      }
+    },
+    "size": "122,21",
+    "text_key": "",
+    "text": "",
+    "localized": false,
+    "image_key": "",
+    "border": "False",
+    "text_color": "247,148,29",
+    "cursor_color": "255,0,0",
+    "max_length": 10,
+    "align_x": "Center",
+    "return_focus_leave": "True",
+    "unknown_properties": [],
+    "render_eligible": true,
+    "interactive_eligible": false,
+    "category": "RENDER_ONLY"
+  },
+  "controls": [
+    {
+      "path": "ML#0/GameSettings#0/Panel#0/Panel#0/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "122,21",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "247,148,29",
+      "cursor_color": "255,0,0",
+      "max_length": 10,
+      "align_x": "Center",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#0/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "168,19",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#1/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "False",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#1/Edit#1",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "False",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#1/Edit#2",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "False",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#1/Edit#3",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "False",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#2/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#2/Edit#1",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#2/Edit#2",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#3/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#3/Edit#1",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#3/Edit#2",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#4/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#4/Edit#1",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#4/Edit#2",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#5/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#5/Edit#1",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#5/Edit#2",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#6/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#6/Edit#1",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#6/Edit#2",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#7/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#7/Edit#1",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#7/Edit#2",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#8/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "72,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#9/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "108,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#9/Edit#1",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "108,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#9/Edit#2",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "72,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#10/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "108,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#10/Edit#1",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "108,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#10/Edit#2",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "72,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#11/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#11/Edit#1",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#11/Edit#2",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#12/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "46,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#12/Edit#1",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "46,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#12/Edit#2",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#12/Edit#3",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "212,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#12/Edit#4",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#12/Edit#5",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#13/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "71,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#13/Edit#1",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#13/Edit#2",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#13/Edit#3",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "99,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#15/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "108,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#15/Edit#1",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "108,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#15/Edit#2",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "223,17",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 30,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Journal#0/Panel#0/Panel#1/Panel#0/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "168,19",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "0,0,0",
+      "cursor_color": "255,0,0",
+      "max_length": 500,
+      "align_x": "Left",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/SelectFace#0/Panel#0/Panel#0/Edit#0",
+      "style": "",
+      "font_key": "Font.2Normal",
+      "font_resolved": true,
+      "font_source": {
+        "resource": "DATA/FONT/Verdana_09_2.aft",
+        "package": "forms.pkg",
+        "source_size": 24787,
+        "source": {
+          "crc32": "e33b194c",
+          "fnv64": "43b502e9a256235f"
+        },
+        "structural": {
+          "crc32": "b1e29071",
+          "fnv64": "61b692d9c237999c"
+        }
+      },
+      "size": "122,21",
+      "text_key": "",
+      "text": "",
+      "localized": false,
+      "image_key": "",
+      "border": "False",
+      "text_color": "247,148,29",
+      "cursor_color": "255,0,0",
+      "max_length": 10,
+      "align_x": "Center",
+      "return_focus_leave": "True",
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    }
+  ]
+}

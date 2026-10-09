@@ -1,0 +1,64 @@
+{
+  "scroll_path": "ML#0/Film#0/Panel#0/Panel#0/Panel#0/ScrollBar#0",
+  "panel_path": "ML#0/Achievements#0/Panel#0/Panel#0/PanelScrollBar#0",
+  "scroll_layout": {
+    "track": 209,
+    "thumb": 56,
+    "before": 0,
+    "after": 153,
+    "minimum_thumb": 56,
+    "placements": {
+      "up": [
+        0,
+        21
+      ],
+      "before": [
+        21,
+        28
+      ],
+      "top": [
+        21,
+        28
+      ],
+      "center": [
+        49,
+        0
+      ],
+      "bottom": [
+        49,
+        28
+      ],
+      "after": [
+        49,
+        181
+      ],
+      "down": [
+        230,
+        21
+      ]
+    },
+    "crc_fnv": {
+      "size": 88,
+      "crc32": "6bb5529f",
+      "fnv64": "835228303672b5fb"
+    }
+  },
+  "panel_layout": {
+    "rect_y": [
+      903,
+      116,
+      923,
+      629
+    ],
+    "bar_size": [
+      20,
+      513
+    ],
+    "range": [
+      0,
+      539
+    ],
+    "page": 540,
+    "position": 0
+  }
+}

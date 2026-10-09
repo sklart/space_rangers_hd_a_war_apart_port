@@ -1,0 +1,28 @@
+{
+  "path": "ML#0/Info#0/Panel#0/Panel#4/Panel#11/Edit#0",
+  "font_package": "forms.pkg",
+  "font_resource": "DATA/FONT/Verdana_09_2.aft",
+  "font_source": {
+    "crc32": "e33b194c",
+    "fnv64": "43b502e9a256235f"
+  },
+  "text": "123",
+  "text_color_rgb565": 0,
+  "caret_color_rgb565": 63488,
+  "bounds": [
+    589,
+    344,
+    99,
+    17
+  ],
+  "caret": [
+    615,
+    346,
+    2,
+    14
+  ],
+  "frame": {
+    "crc32": "0c547e1b",
+    "fnv64": "18432c76a6d566c5"
+  }
+}

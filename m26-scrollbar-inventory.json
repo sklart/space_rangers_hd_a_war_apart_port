@@ -1,0 +1,835 @@
+{
+  "read_only": true,
+  "physical": 3,
+  "styles": {
+    "Style.ScrollBar.2Film2": 1,
+    "Style.ScrollBar.H": 2
+  },
+  "orientations": {
+    "x": 3
+  },
+  "kinds_calc": {
+    "0": 3
+  },
+  "image_modes": {
+    "GI": 51
+  },
+  "render_eligible": 3,
+  "active_render_eligible": 1,
+  "deterministic_candidate": {
+    "path": "ML#0/Film#0/Panel#0/Panel#0/Panel#0/ScrollBar#0",
+    "style": "Style.ScrollBar.2Film2",
+    "active": true,
+    "size": "251,19",
+    "orientation": "x",
+    "numeric": {
+      "Min": 1,
+      "Max": 200,
+      "PageSize": 1,
+      "LargeChange": 1,
+      "SmallChange": 1,
+      "Position": 1,
+      "KindCalc": 0
+    },
+    "images": {
+      "ImageUpN": {
+        "mode": "GI",
+        "key": "Bm.PanelFilm2.2LeftN",
+        "source_status": "Format2",
+        "source_size": 941,
+        "dimensions": [
+          21,
+          19
+        ],
+        "resolved": true
+      },
+      "ImageUpA": {
+        "mode": "GI",
+        "key": "Bm.PanelFilm2.2LeftA",
+        "source_status": "Format2",
+        "source_size": 941,
+        "dimensions": [
+          21,
+          19
+        ],
+        "resolved": true
+      },
+      "ImageUpD": {
+        "mode": "GI",
+        "key": "Bm.PanelFilm2.2LeftD",
+        "source_status": "Format2",
+        "source_size": 941,
+        "dimensions": [
+          21,
+          19
+        ],
+        "resolved": true
+      },
+      "ImageTopN": {
+        "mode": "GI",
+        "key": "Bm.PanelFilm2.2TopN",
+        "source_status": "Format2",
+        "source_size": 1477,
+        "dimensions": [
+          28,
+          19
+        ],
+        "resolved": true
+      },
+      "ImageTopA": {
+        "mode": "GI",
+        "key": "Bm.PanelFilm2.2TopA",
+        "source_status": "Format2",
+        "source_size": 1477,
+        "dimensions": [
+          28,
+          19
+        ],
+        "resolved": true
+      },
+      "ImageTopD": {
+        "mode": "GI",
+        "key": "Bm.PanelFilm2.2TopD",
+        "source_status": "Format2",
+        "source_size": 1391,
+        "dimensions": [
+          28,
+          19
+        ],
+        "resolved": true
+      },
+      "ImageCenterN": {
+        "mode": "GI",
+        "key": "Bm.PanelFilm2.2CenterN",
+        "source_status": "Format2",
+        "source_size": 487,
+        "dimensions": [
+          5,
+          19
+        ],
+        "resolved": true
+      },
+      "ImageCenterA": {
+        "mode": "GI",
+        "key": "Bm.PanelFilm2.2CenterA",
+        "source_status": "Format2",
+        "source_size": 487,
+        "dimensions": [
+          5,
+          19
+        ],
+        "resolved": true
+      },
+      "ImageCenterD": {
+        "mode": "GI",
+        "key": "Bm.PanelFilm2.2CenterD",
+        "source_status": "Format2",
+        "source_size": 470,
+        "dimensions": [
+          5,
+          19
+        ],
+        "resolved": true
+      },
+      "ImageBottomN": {
+        "mode": "GI",
+        "key": "Bm.PanelFilm2.2BottomN",
+        "source_status": "Format2",
+        "source_size": 1468,
+        "dimensions": [
+          28,
+          19
+        ],
+        "resolved": true
+      },
+      "ImageBottomA": {
+        "mode": "GI",
+        "key": "Bm.PanelFilm2.2BottomA",
+        "source_status": "Format2",
+        "source_size": 1468,
+        "dimensions": [
+          28,
+          19
+        ],
+        "resolved": true
+      },
+      "ImageBottomD": {
+        "mode": "GI",
+        "key": "Bm.PanelFilm2.2BottomD",
+        "source_status": "Format2",
+        "source_size": 1382,
+        "dimensions": [
+          28,
+          19
+        ],
+        "resolved": true
+      },
+      "ImageDownN": {
+        "mode": "GI",
+        "key": "Bm.PanelFilm2.2RightN",
+        "source_status": "Format2",
+        "source_size": 941,
+        "dimensions": [
+          21,
+          19
+        ],
+        "resolved": true
+      },
+      "ImageDownA": {
+        "mode": "GI",
+        "key": "Bm.PanelFilm2.2RightA",
+        "source_status": "Format2",
+        "source_size": 941,
+        "dimensions": [
+          21,
+          19
+        ],
+        "resolved": true
+      },
+      "ImageDownD": {
+        "mode": "GI",
+        "key": "Bm.PanelFilm2.2RightD",
+        "source_status": "Format2",
+        "source_size": 941,
+        "dimensions": [
+          21,
+          19
+        ],
+        "resolved": true
+      }
+    },
+    "unknown_properties": [],
+    "render_eligible": true,
+    "interactive_eligible": false,
+    "category": "RENDER_ONLY"
+  },
+  "controls": [
+    {
+      "path": "ML#0/Film#0/Panel#0/Panel#0/Panel#0/ScrollBar#0",
+      "style": "Style.ScrollBar.2Film2",
+      "active": true,
+      "size": "251,19",
+      "orientation": "x",
+      "numeric": {
+        "Min": 1,
+        "Max": 200,
+        "PageSize": 1,
+        "LargeChange": 1,
+        "SmallChange": 1,
+        "Position": 1,
+        "KindCalc": 0
+      },
+      "images": {
+        "ImageUpN": {
+          "mode": "GI",
+          "key": "Bm.PanelFilm2.2LeftN",
+          "source_status": "Format2",
+          "source_size": 941,
+          "dimensions": [
+            21,
+            19
+          ],
+          "resolved": true
+        },
+        "ImageUpA": {
+          "mode": "GI",
+          "key": "Bm.PanelFilm2.2LeftA",
+          "source_status": "Format2",
+          "source_size": 941,
+          "dimensions": [
+            21,
+            19
+          ],
+          "resolved": true
+        },
+        "ImageUpD": {
+          "mode": "GI",
+          "key": "Bm.PanelFilm2.2LeftD",
+          "source_status": "Format2",
+          "source_size": 941,
+          "dimensions": [
+            21,
+            19
+          ],
+          "resolved": true
+        },
+        "ImageTopN": {
+          "mode": "GI",
+          "key": "Bm.PanelFilm2.2TopN",
+          "source_status": "Format2",
+          "source_size": 1477,
+          "dimensions": [
+            28,
+            19
+          ],
+          "resolved": true
+        },
+        "ImageTopA": {
+          "mode": "GI",
+          "key": "Bm.PanelFilm2.2TopA",
+          "source_status": "Format2",
+          "source_size": 1477,
+          "dimensions": [
+            28,
+            19
+          ],
+          "resolved": true
+        },
+        "ImageTopD": {
+          "mode": "GI",
+          "key": "Bm.PanelFilm2.2TopD",
+          "source_status": "Format2",
+          "source_size": 1391,
+          "dimensions": [
+            28,
+            19
+          ],
+          "resolved": true
+        },
+        "ImageCenterN": {
+          "mode": "GI",
+          "key": "Bm.PanelFilm2.2CenterN",
+          "source_status": "Format2",
+          "source_size": 487,
+          "dimensions": [
+            5,
+            19
+          ],
+          "resolved": true
+        },
+        "ImageCenterA": {
+          "mode": "GI",
+          "key": "Bm.PanelFilm2.2CenterA",
+          "source_status": "Format2",
+          "source_size": 487,
+          "dimensions": [
+            5,
+            19
+          ],
+          "resolved": true
+        },
+        "ImageCenterD": {
+          "mode": "GI",
+          "key": "Bm.PanelFilm2.2CenterD",
+          "source_status": "Format2",
+          "source_size": 470,
+          "dimensions": [
+            5,
+            19
+          ],
+          "resolved": true
+        },
+        "ImageBottomN": {
+          "mode": "GI",
+          "key": "Bm.PanelFilm2.2BottomN",
+          "source_status": "Format2",
+          "source_size": 1468,
+          "dimensions": [
+            28,
+            19
+          ],
+          "resolved": true
+        },
+        "ImageBottomA": {
+          "mode": "GI",
+          "key": "Bm.PanelFilm2.2BottomA",
+          "source_status": "Format2",
+          "source_size": 1468,
+          "dimensions": [
+            28,
+            19
+          ],
+          "resolved": true
+        },
+        "ImageBottomD": {
+          "mode": "GI",
+          "key": "Bm.PanelFilm2.2BottomD",
+          "source_status": "Format2",
+          "source_size": 1382,
+          "dimensions": [
+            28,
+            19
+          ],
+          "resolved": true
+        },
+        "ImageDownN": {
+          "mode": "GI",
+          "key": "Bm.PanelFilm2.2RightN",
+          "source_status": "Format2",
+          "source_size": 941,
+          "dimensions": [
+            21,
+            19
+          ],
+          "resolved": true
+        },
+        "ImageDownA": {
+          "mode": "GI",
+          "key": "Bm.PanelFilm2.2RightA",
+          "source_status": "Format2",
+          "source_size": 941,
+          "dimensions": [
+            21,
+            19
+          ],
+          "resolved": true
+        },
+        "ImageDownD": {
+          "mode": "GI",
+          "key": "Bm.PanelFilm2.2RightD",
+          "source_status": "Format2",
+          "source_size": 941,
+          "dimensions": [
+            21,
+            19
+          ],
+          "resolved": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Film#0/Panel#0/Panel#0/ScrollBar#0",
+      "style": "Style.ScrollBar.H",
+      "active": false,
+      "size": "300,20",
+      "orientation": "x",
+      "numeric": {
+        "Min": 10,
+        "Max": 60,
+        "PageSize": 1,
+        "LargeChange": 1,
+        "SmallChange": 1,
+        "Position": 20,
+        "KindCalc": 0
+      },
+      "images": {
+        "ImageUpN": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBUpN",
+          "source_status": "Format2",
+          "source_size": 718,
+          "dimensions": [
+            15,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageUpA": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBUpA",
+          "source_status": "Format2",
+          "source_size": 717,
+          "dimensions": [
+            15,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageUpD": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBUpD",
+          "source_status": "Format2",
+          "source_size": 688,
+          "dimensions": [
+            14,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageBarN": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBbarN",
+          "source_status": "Format2",
+          "source_size": 1198,
+          "dimensions": [
+            31,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageBarA": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBbarN",
+          "source_status": "Format2",
+          "source_size": 1198,
+          "dimensions": [
+            31,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageBarD": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBbarN",
+          "source_status": "Format2",
+          "source_size": 1198,
+          "dimensions": [
+            31,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageTopN": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBTopN",
+          "source_status": "Format2",
+          "source_size": 388,
+          "dimensions": [
+            4,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageTopA": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBTopA",
+          "source_status": "Format2",
+          "source_size": 388,
+          "dimensions": [
+            4,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageTopD": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBTopD",
+          "source_status": "Format2",
+          "source_size": 388,
+          "dimensions": [
+            4,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageCenterN": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBCenterN",
+          "source_status": "Format2",
+          "source_size": 1198,
+          "dimensions": [
+            31,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageCenterA": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBCenterA",
+          "source_status": "Format2",
+          "source_size": 1198,
+          "dimensions": [
+            31,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageCenterD": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBCenterD",
+          "source_status": "Format2",
+          "source_size": 1198,
+          "dimensions": [
+            31,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageBottomN": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBBottomN",
+          "source_status": "Format2",
+          "source_size": 388,
+          "dimensions": [
+            4,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageBottomA": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBBottomA",
+          "source_status": "Format2",
+          "source_size": 388,
+          "dimensions": [
+            4,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageBottomD": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBBottomD",
+          "source_status": "Format2",
+          "source_size": 388,
+          "dimensions": [
+            4,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageDownN": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBDownN",
+          "source_status": "Format2",
+          "source_size": 748,
+          "dimensions": [
+            16,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageDownA": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBDownA",
+          "source_status": "Format2",
+          "source_size": 717,
+          "dimensions": [
+            15,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageDownD": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBDownD",
+          "source_status": "Format2",
+          "source_size": 748,
+          "dimensions": [
+            16,
+            15
+          ],
+          "resolved": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    },
+    {
+      "path": "ML#0/Film#0/Panel#0/Panel#0/ScrollBar#1",
+      "style": "Style.ScrollBar.H",
+      "active": false,
+      "size": "300,20",
+      "orientation": "x",
+      "numeric": {
+        "Min": 1,
+        "Max": 200,
+        "PageSize": 1,
+        "LargeChange": 1,
+        "SmallChange": 1,
+        "Position": 1,
+        "KindCalc": 0
+      },
+      "images": {
+        "ImageUpN": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBUpN",
+          "source_status": "Format2",
+          "source_size": 718,
+          "dimensions": [
+            15,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageUpA": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBUpA",
+          "source_status": "Format2",
+          "source_size": 717,
+          "dimensions": [
+            15,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageUpD": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBUpD",
+          "source_status": "Format2",
+          "source_size": 688,
+          "dimensions": [
+            14,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageBarN": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBbarN",
+          "source_status": "Format2",
+          "source_size": 1198,
+          "dimensions": [
+            31,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageBarA": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBbarN",
+          "source_status": "Format2",
+          "source_size": 1198,
+          "dimensions": [
+            31,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageBarD": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBbarN",
+          "source_status": "Format2",
+          "source_size": 1198,
+          "dimensions": [
+            31,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageTopN": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBTopN",
+          "source_status": "Format2",
+          "source_size": 388,
+          "dimensions": [
+            4,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageTopA": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBTopA",
+          "source_status": "Format2",
+          "source_size": 388,
+          "dimensions": [
+            4,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageTopD": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBTopD",
+          "source_status": "Format2",
+          "source_size": 388,
+          "dimensions": [
+            4,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageCenterN": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBCenterN",
+          "source_status": "Format2",
+          "source_size": 1198,
+          "dimensions": [
+            31,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageCenterA": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBCenterA",
+          "source_status": "Format2",
+          "source_size": 1198,
+          "dimensions": [
+            31,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageCenterD": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBCenterD",
+          "source_status": "Format2",
+          "source_size": 1198,
+          "dimensions": [
+            31,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageBottomN": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBBottomN",
+          "source_status": "Format2",
+          "source_size": 388,
+          "dimensions": [
+            4,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageBottomA": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBBottomA",
+          "source_status": "Format2",
+          "source_size": 388,
+          "dimensions": [
+            4,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageBottomD": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBBottomD",
+          "source_status": "Format2",
+          "source_size": 388,
+          "dimensions": [
+            4,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageDownN": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBDownN",
+          "source_status": "Format2",
+          "source_size": 748,
+          "dimensions": [
+            16,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageDownA": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBDownA",
+          "source_status": "Format2",
+          "source_size": 717,
+          "dimensions": [
+            15,
+            15
+          ],
+          "resolved": true
+        },
+        "ImageDownD": {
+          "mode": "GI",
+          "key": "Bm.SBNormal.1HTBDownD",
+          "source_status": "Format2",
+          "source_size": 748,
+          "dimensions": [
+            16,
+            15
+          ],
+          "resolved": true
+        }
+      },
+      "unknown_properties": [],
+      "render_eligible": true,
+      "interactive_eligible": false,
+      "category": "RENDER_ONLY"
+    }
+  ]
+}
