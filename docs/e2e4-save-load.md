@@ -35,7 +35,8 @@ names are never reused or overwritten. Symlinks, special files, unexpected
 paths, and unsafe parent directories are rejected.
 
 On a failed operation after the manifest, rollback quarantines any newly
-published slot as `slotN.interrupted` and restores original slots from the
+published slot as `slotN.interrupted` (then numbered names if a retry finds
+another partial file) and restores original slots from the
 snapshots. Startup of the experimental build and the next quicksave also
 scan pending transactions and retry recovery. If recovery cannot complete,
 it stops and reports the transaction path; snapshots and `save.tmp` remain.
@@ -50,7 +51,8 @@ The host regression test covers successful three-slot rotation, prior `.bak`
 preservation, validation failure, the 16-directory limit, symlink refusal,
 injected read failures and failure at every mutation, simulated process
 interruption at every stage, a persistent simulated out-of-space failure
-during publish and rollback, and an interrupted rollback retried from disk.
+during publish and rollback, and an interrupted or partial rollback retried
+from disk.
 ASan/UBSan runs the
 same test in CI. An isolated ARM64 experimental NRO is built by CI. These
 checks do not establish SD-card power-loss durability, a real storage-full
@@ -74,11 +76,12 @@ touching any file. Inspect the newest `save/.e2e4-quicksave-backups/txn-NN`:
    the corresponding `QuickSave*.sav` only when that destination is absent.
    Rows marked `0` should have no active slot after current files are moved.
    Never replace a snapshot or an existing `.bak`.
-4. If `manifest` is absent or malformed, the implementation had not begun
-   removing slots. Preserve all files and inspect the active slots; do not
-   infer that a partial `slotN.orig` is complete.
+4. If `manifest` is absent or malformed, preserve all files and inspect the
+   active slots. The implementation writes the manifest before removing any
+   slot, but a later filesystem error could also damage it; do not infer that
+   a partial `slotN.orig` is complete.
 
 If automatic rollback failed, the log names the retained transaction
 directory and the failed operation. Keep `save.tmp`, all `slotN.orig`, and
-all `slotN.interrupted` files for comparison. Do not remove backup directories
+all `slotN.interrupted*` files for comparison. Do not remove backup directories
 merely to clear the 16-directory limit; cleanup policy needs separate approval.

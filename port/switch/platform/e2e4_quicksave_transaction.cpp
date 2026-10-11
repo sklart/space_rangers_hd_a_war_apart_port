@@ -245,7 +245,7 @@ Result Rollback(const fs::path& save_directory, const fs::path& transaction,
     for (std::size_t i = 0; i < manifest.entries.size(); ++i) {
         const auto target = SlotPath(save_directory, i);
         const auto backup = Original(transaction, i);
-        const auto quarantine = Interrupted(transaction, i);
+        const auto quarantine_base = Interrupted(transaction, i);
         const auto& entry = manifest.entries[i];
         if (entry.present) {
             Fingerprint snapshot;
@@ -262,16 +262,29 @@ Result Rollback(const fs::path& save_directory, const fs::path& transaction,
             if (!HashFile(target, current))
                 return {false, false, transaction, "rollback: unreadable slot: " + target.string()};
             if (entry.present && current == entry.fingerprint) continue;
-            Fingerprint quarantined;
-            if (FileKind(quarantine) == Kind::regular) {
-                if (!HashFile(quarantine, quarantined) || quarantined != current)
-                    return {false, false, transaction, "rollback: quarantine differs from slot: " + quarantine.string()};
-            } else if (FileKind(quarantine) == Kind::missing) {
-                if (!CopyVerified(target, quarantine, current, fault, "quarantine-copy", error))
-                    return {false, false, transaction, "rollback: " + error};
-            } else {
-                return {false, false, transaction, "rollback: unsafe quarantine: " + quarantine.string()};
+            fs::path quarantine;
+            bool already_copied = false;
+            for (unsigned copy = 0; copy < 16; ++copy) {
+                auto candidate = quarantine_base;
+                if (copy > 0) candidate += "." + std::to_string(copy);
+                const auto candidate_kind = FileKind(candidate);
+                if (candidate_kind == Kind::unsafe || candidate_kind == Kind::directory)
+                    return {false, false, transaction, "rollback: unsafe quarantine: " + candidate.string()};
+                if (candidate_kind == Kind::missing) { quarantine = candidate; break; }
+                Fingerprint prior;
+                if (!HashFile(candidate, prior))
+                    return {false, false, transaction, "rollback: unreadable quarantine: " + candidate.string()};
+                if (prior == current) {
+                    quarantine = candidate;
+                    already_copied = true;
+                    break;
+                }
             }
+            if (quarantine.empty())
+                return {false, false, transaction, "rollback: interrupted-file limit reached for " + target.string()};
+            if (!already_copied && !CopyVerified(target, quarantine, current, fault,
+                                                 "quarantine-copy", error))
+                return {false, false, transaction, "rollback: " + error};
             if (!RemoveVerified(target, current, fault, "quarantine-remove", error))
                 return {false, false, transaction, "rollback: " + error};
         }

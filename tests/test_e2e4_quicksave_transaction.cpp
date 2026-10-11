@@ -234,4 +234,25 @@ int main(int argc, char** argv) {
         assert(Read(result.backup_directory / "slot1.interrupted") ==
                std::string(valid.begin(), valid.end()));
     }
+    {
+        const auto dir = root / "partial-restore"; Populate(dir);
+        const auto transaction = Rotate(dir / "save.tmp", Slots(dir));
+        assert(transaction.ok);
+        fs::remove(transaction.backup_directory / "committed");
+        try {
+            Recover(dir, [&](const char* step) {
+                if (std::string(step) == "restore-copy") {
+                    Write(Slots(dir)[0], "partial-restore-write");
+                    throw std::runtime_error("interrupted restoration write");
+                }
+                return true;
+            });
+            assert(false);
+        } catch (const std::runtime_error&) {}
+        const auto recovered = Recover(dir);
+        assert(recovered.ok && recovered.recovered);
+        OriginalIntact(dir);
+        assert(Read(transaction.backup_directory / "slot1.interrupted.1") ==
+               "partial-restore-write");
+    }
 }
