@@ -32,8 +32,16 @@ jobs:
             -o build/e2e4-sanitizers/native_vorbis
           build/e2e4-sanitizers/native_vorbis \
             tests/fixtures/e2e4_sine_22050_stereo.ogg
+          g++ -std=gnu++20 -O1 -g -fno-omit-frame-pointer \
+            -fsanitize=address,undefined -Iport/switch/platform \
+            tests/test_e2e4_quicksave_transaction.cpp \
+            port/switch/platform/e2e4_quicksave_transaction.cpp -lz \
+            -o build/e2e4-sanitizers/quicksave_transaction
+          build/e2e4-sanitizers/quicksave_transaction \
+            build/e2e4-sanitizers/quicksave-test
 
   e2e-full-arm64-link:
+    needs: [e2e4-sanitizers, host-regression]
     runs-on: ubuntu-24.04
     container: devkitpro/devkita64:latest
     steps:
@@ -52,6 +60,8 @@ jobs:
           python3 tools/audit_win32_surface.py --check
       - name: Compile full original game and audit Switch dependencies
         run: python3 tools/e2e_arm64_build.py
+      - name: Compile isolated experimental quicksave variant
+        run: python3 tools/e2e_arm64_build.py --experimental-quicksave
       - name: E2E Win32 Compatibility Surface effective gate
         run: |
           python3 tools/audit_win32_surface.py --effective --check
@@ -93,6 +103,8 @@ jobs:
         run: make -C port/switch host-e2e4-protected-state-test
       - name: E2E-4 save replacement failure paths
         run: make -C port/switch host-e2e4-save-replace-test
+      - name: E2E-4 recoverable quicksave transaction
+        run: make -C port/switch host-e2e4-quicksave-transaction-test
       - name: E2E-4 PCM mixer
         run: make -C port/switch host-e2e4-audio-mixer-test
       - name: E2E-4 script UI cache key

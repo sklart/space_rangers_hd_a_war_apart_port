@@ -1,7 +1,7 @@
 {
   "source": "effective-e2e",
   "upstream_pin": "57fa689c630193a66fdea6ca4c79a188814991cd",
-  "source_file_count": 1382,
+  "source_file_count": 1384,
   "imports": [
     {
       "dll": "advapi32.dll",
@@ -3146,284 +3146,9 @@
       "gameplay_required": false
     },
     {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_raw_tell\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:100",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_pcm_tell\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:101",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_time_tell\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:102",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_info\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:103",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_comment\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:104",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_read_float\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:105",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_read\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:106",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "LoadLibrary",
-      "expression": "pas::literal_pointer(\"libvorbisfile.dll\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:78",
-      "expression_kind": "LITERAL",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_clear\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:82",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_fopen\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:83",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_open_callbacks\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:84",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_test_callbacks\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:85",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_test_open\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:86",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_bitrate\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:87",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_bitrate_instant\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:88",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_streams\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:89",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_seekable\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:90",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_serialnumber\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:91",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_raw_total\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:92",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_pcm_total\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:93",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_time_total\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:94",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_raw_seek\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:95",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_pcm_seek\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:96",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_pcm_seek_page\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:97",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_time_seek\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:98",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "GetProcAddress",
-      "expression": "VorbisLibrary, pas::literal_pointer(\"ov_time_seek_page\")",
-      "callsite": "port/switch/build/e2e-game/generated/VorbisFile.cpp:99",
+      "api": "LoadLibraryW",
+      "expression": "LibraryName",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Music.cpp:77",
       "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
       "classification": "OPTIONAL_DISABLED",
       "implementation": "win32_compat_modules",
@@ -3527,17 +3252,6 @@
       "classification": "OPTIONAL_DISABLED",
       "implementation": "win32_compat_modules",
       "reason": "intro video is disabled in E2E-1; module loader returns unavailable.",
-      "startup_required": false,
-      "gameplay_required": false
-    },
-    {
-      "api": "LoadLibraryW",
-      "expression": "LibraryName",
-      "callsite": "upstream/cpp/src/GR_Music.cpp:75",
-      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
-      "classification": "OPTIONAL_DISABLED",
-      "implementation": "win32_compat_modules",
-      "reason": "audio is disabled in E2E-1; module loader returns unavailable.",
       "startup_required": false,
       "gameplay_required": false
     },
@@ -4008,7 +3722,6 @@
     {
       "dll": "libvorbisfile.dll",
       "callsites": [
-        "port/switch/build/e2e-game/generated/VorbisFile.cpp:78",
         "port/switch/platform/win32_compat_modules.cpp:47"
       ]
     },
@@ -4216,10 +3929,10 @@
     {
       "dll": "vorbisfile.dll",
       "callsites": [
-        "port/switch/platform/win32_compat_modules.cpp:46",
-        "upstream/cpp/src/GR_Music.cpp:247",
-        "upstream/cpp/src/GR_Music.cpp:248",
-        "upstream/cpp/src/GR_Music.cpp:66"
+        "port/switch/build/e2e-game/generated/GR_Music.cpp:255",
+        "port/switch/build/e2e-game/generated/GR_Music.cpp:256",
+        "port/switch/build/e2e-game/generated/GR_Music.cpp:68",
+        "port/switch/platform/win32_compat_modules.cpp:46"
       ]
     },
     {
@@ -4254,7 +3967,7 @@
   "unparsed_import_patterns": [],
   "classification_counts": {
     "NOT_REACHED_UNTIL_GAMEPLAY": 15,
-    "OPTIONAL_DISABLED": 76,
+    "OPTIONAL_DISABLED": 50,
     "PORTABLE": 137,
     "RUNTIME_MODULE": 7,
     "STATIC_LIBRARY": 88

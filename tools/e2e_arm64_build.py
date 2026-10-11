@@ -108,17 +108,24 @@ def build_okgf() -> tuple[Path, Path]:
 
 
 def main() -> int:
+    global BUILD, REPORT
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", choices=("debug", "release"), default="release")
     parser.add_argument("--e2e3-trace", action=argparse.BooleanOptionalAction,
                         default=True, help="log E2E-3 state changes without per-frame output")
+    parser.add_argument("--experimental-quicksave", action="store_true",
+                        help="build isolated E2E-4 recoverable quicksave experiment")
     args = parser.parse_args()
+    if args.experimental_quicksave:
+        BUILD = SWITCH / "build/e2e-game-quicksave-experiment"
+        REPORT = ROOT / "e2e4-quicksave-build-report.json"
     sources = sorted((GAME / "src").glob("*.cpp"))
     sources.append(GAME / "runtime/runtime.cpp")
     report = {
         "target": "switch-e2e-game",
         "build_profile": args.profile,
         "e2e3_trace": args.e2e3_trace,
+        "experimental_quicksave": args.experimental_quicksave,
         "upstream_pin": "57fa689c630193a66fdea6ca4c79a188814991cd",
         "upstream_source_files_total": len(sources),
         "compiled": 0,
@@ -223,6 +230,8 @@ def main() -> int:
     else:
         flags += ["-O0", "-DE2E_DIAGNOSTICS=1"]
     flags += ["-DE2E3_TRACE=" + str(int(args.e2e3_trace))]
+    if args.experimental_quicksave:
+        flags += ["-DE2E4_QUICKSAVE_EXPERIMENT=1"]
     flags += ["-I" + str(p) for p in (
         DEVKITPRO / "libnx/include", PORTLIBS / "include", runtime_overlay,
         SWITCH / "platform",
@@ -256,7 +265,11 @@ def main() -> int:
                *runtime_overlay.rglob("*.hpp")]
     newest_header_ns = max((path.stat().st_mtime_ns for path in headers), default=0)
     objects: list[Path] = []
-    for source in sources + sorted((SWITCH / "platform").glob("*.cpp")):
+    platform_sources = sorted((SWITCH / "platform").glob("*.cpp"))
+    if not args.experimental_quicksave:
+        platform_sources = [source for source in platform_sources
+                            if source.name != "e2e4_quicksave_transaction.cpp"]
+    for source in sources + platform_sources:
         category = "upstream" if source in sources else "platform"
         if category == "platform" and source.name in diagnostic_shims:
             continue

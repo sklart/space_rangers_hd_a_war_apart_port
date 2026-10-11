@@ -680,6 +680,84 @@ void CloseVorbisStream(TOggWorker* worker) {
             if text.count(old) != 1:
                 raise RuntimeError(f"snapshot pointer boundary changed: {old}")
             text = text.replace(old, new, 1)
+        writer_init = '''    void InitializeSaveWriter() {
+        SaveWriter = pas::construct_call<TSaver>(EC_Thread::TThreadEC_Create);
+    }'''
+        if text.count(writer_init) != 1:
+            raise RuntimeError("quicksave startup recovery boundary changed")
+        text = text.replace(writer_init, '''    void InitializeSaveWriter() {
+#if defined(E2E4_QUICKSAVE_EXPERIMENT)
+        const auto quick = fSaveManager::TfSaveManager::GetQuickSavePath(1);
+        const auto recovery = srhd_awa::platform::e2e4_quicksave::RecoverGamePaths(quick.pchar());
+        GR_Main::AppendLogLineThreadSafe(pas::AnsiString(recovery.detail.c_str()));
+        if (!recovery.ok) {
+            pas::raise(pas::make_exception<pas::Abort>("E2E4 quicksave recovery failed; inspect retained snapshots"_a));
+        }
+#endif
+        SaveWriter = pas::construct_call<TSaver>(EC_Thread::TThreadEC_Create);
+    }''', 1)
+        saver_start = text.index("    void TSaver_Execute(TSaver* Self) {")
+        saver_end = text.index("    void TSaver::QueueSave(", saver_start)
+        saver = text[saver_start:saver_end]
+        temp_delete = '''            if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(TempName))) {
+                WindowsSdk::DeleteFile((cpp_text = static_cast<pas::AnsiString>(TempName), cpp_text.pchar()));
+            }'''
+        if saver.count(temp_delete) != 1:
+            raise RuntimeError("quicksave temporary-file boundary changed")
+        saver = saver.replace(temp_delete, '''#if defined(E2E4_QUICKSAVE_EXPERIMENT)
+            if (Self->FileName == QuickName) {
+                if (!srhd_awa::platform::e2e4_quicksave::CanCreateGameTemp(TempName.pchar())) {
+                    pas::raise(pas::make_exception<pas::Abort>("E2E4 quicksave: save.tmp exists or path is unsafe"_a));
+                }
+            } else {
+#else
+            if (Self->FileName == QuickName) {
+                pas::raise(pas::make_exception<pas::Abort>("E2E4 quicksave disabled in standard Switch build"_a));
+            }
+#endif
+''' + temp_delete + '''
+#if defined(E2E4_QUICKSAVE_EXPERIMENT)
+            }
+#endif''', 1)
+        rotate_begin = saver.index("            SourceName = TempName;")
+        rotate_end = saver.index("        } catch (...) {", rotate_begin)
+        original_rotation = saver[rotate_begin:rotate_end]
+        saver = saver[:rotate_begin] + '''#if defined(E2E4_QUICKSAVE_EXPERIMENT)
+            if (Self->FileName == QuickName) {
+                const auto transaction = srhd_awa::platform::e2e4_quicksave::RotateGamePaths(
+                    TempName.pchar(), QuickName.pchar(), GlobalsV::QuickSaveExtraSlots);
+                GR_Main::AppendLogLineThreadSafe(pas::AnsiString(transaction.detail.c_str()));
+                if (!transaction.ok) {
+                    pas::raise(pas::make_exception<pas::Abort>("E2E4 quicksave rotation failed; inspect retained backup directory"_a));
+                }
+                e2e_quicksave_committed = true;
+            } else {
+#endif
+''' + original_rotation + '''#if defined(E2E4_QUICKSAVE_EXPERIMENT)
+            }
+#endif
+''' + saver[rotate_end:]
+        marker = "        EC_File::TFileEC* F = nullptr;"
+        if saver.count(marker) != 1:
+            raise RuntimeError("quicksave worker state boundary changed")
+        saver = saver.replace(marker, '''#if defined(E2E4_QUICKSAVE_EXPERIMENT)
+        bool e2e_quicksave_committed = false;
+#endif
+''' + marker, 1)
+        cleanup = '''        if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(TempName))) {
+            WindowsSdk::DeleteFile((cpp_text_4 = static_cast<pas::AnsiString>(TempName), cpp_text_4.pchar()));
+        }'''
+        if saver.count(cleanup) != 1:
+            raise RuntimeError("quicksave post-failure temp cleanup boundary changed")
+        saver = saver.replace(cleanup, '''#if defined(E2E4_QUICKSAVE_EXPERIMENT)
+        if (Self->FileName != QuickName || e2e_quicksave_committed) {
+#endif
+''' + cleanup + '''
+#if defined(E2E4_QUICKSAVE_EXPERIMENT)
+        }
+#endif''', 1)
+        text = text[:saver_start] + saver + text[saver_end:]
+        text = '#include "e2e4_quicksave_transaction.hpp"\n' + text
     if source.name == "GR_Main.cpp":
         callback_gate = "                    if (Msg.hwnd == MainWindowHandle && pas::assigned(Callback) && Forms::Application->GetActive()) {"
         if text.count(callback_gate) != 1:

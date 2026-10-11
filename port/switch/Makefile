@@ -77,6 +77,12 @@ host-e2e4-save-replace-test:
 	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e4_save_replace.cpp -o build/e2e4/test_save_replace
 	build/e2e4/test_save_replace build/e2e4/save-test
 
+.PHONY: host-e2e4-quicksave-transaction-test
+host-e2e4-quicksave-transaction-test:
+	@mkdir -p build/e2e4
+	g++ -std=gnu++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e4_quicksave_transaction.cpp platform/e2e4_quicksave_transaction.cpp -lz -o build/e2e4/test_quicksave_transaction
+	build/e2e4/test_quicksave_transaction build/e2e4/quicksave-test
+
 .PHONY: host-e2e4-audio-mixer-test
 host-e2e4-audio-mixer-test:
 	@mkdir -p build/e2e4
