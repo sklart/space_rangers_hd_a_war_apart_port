@@ -56,3 +56,14 @@ The mixer and three-chunk stream tests pass with MSYS2 GCC and with ASan/UBSan
 on WSL. `e2e4_sdl_audio.cpp` passes an ARM64 syntax check. This fixes a
 confirmed mixing error but does not explain the two logged stream-refill
 failures or establish audible quality on Switch.
+
+The user supplied `D:\report.zip` (SHA-256
+`30391DC14DE1864B0D3757F2E6C43BA44A650912DDF2EF8FE575EBB761F23C25`)
+from the combined `c87e239` hardware run. They heard menu music, but it was
+strongly distorted. The included game log records a ready SDL device, a
+ready native Vorbis decoder, two music changes and two `stream refill failed`
+messages. This confirms audible output and a streaming failure, but does not
+identify whether the rejected write followed a late refill, an invalid PCM
+size or another condition. The next combined candidate logs the rejected
+chunk and byte count. The float mixer correction is in that candidate;
+audible quality remains a hardware gate.

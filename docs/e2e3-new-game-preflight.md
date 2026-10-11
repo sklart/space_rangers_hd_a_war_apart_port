@@ -57,3 +57,24 @@ The E2E-3 host tests exercise selected original methods and portable adapters. T
 | Save/load | User path/file adapter PASS; original game round-trip NOT VERIFIED | Link PASS; round-trip NOT VERIFIED | PENDING |
 
 **Status: E2E-3 SOFTWARE PREFLIGHT PARTIAL / SWITCH HARDWARE PENDING.** CI passed, but the pointer-width, resource-backed generation and save/load blockers above prevent a full software or gameplay PASS.
+
+## Combined E2E-4 hardware report, 2026-10-11
+
+The user tested the single combined `c87e239` NRO and supplied `D:\report.zip`
+(SHA-256 `30391DC14DE1864B0D3757F2E6C43BA44A650912DDF2EF8FE575EBB761F23C25`).
+`e2e.log` confirms the New button down/up, transition to screen 33, then ends
+at `game_settings status=open`. The two latest Atmosphère reports identify the
+same Data Abort at module offset `0x380048`; the matching ELF resolves it to
+`TfGameSettings2::FormatExtendedAutoPercent`. The upstream-translated UI puts
+a 64-bit label address into a 32-bit `UserIndex` and immediately dereferences
+the truncated value when constructing the first extended slider. A disposable
+source override now resolves the live sibling label. Similar 32-bit pointer
+fields for extended choices and IronWill labels use sibling lookup as well.
+The host method fixture passes; the resource-backed Switch screen still needs
+a fresh run.
+
+The same log shows only 4.35 to 5.11 presents per second in the menu. This
+matches the user's observation that the controller cursor moves in visible
+steps. The next combined build adds `present_avg_us` and `present_max_us` to
+the five-second rate line to distinguish slow SDL presentation from time spent
+in game rendering and its loop. Cursor smoothness is **NOT VERIFIED**.
