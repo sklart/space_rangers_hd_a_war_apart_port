@@ -56,6 +56,17 @@ device's obtained rate and format must determine conversion. An audio-device
 open failure may fall back to soundless gameplay with a distinct log entry.
 Runtime decode/output failure must be reported separately.
 
+The E2E-4 tree now contains an independently tested PCM mixer and an SDL2
+output wrapper. The mixer accepts mono/stereo unsigned 8-bit or signed 16-bit
+PCM, resamples to the actual output rate, mixes up to 64 concurrent voices,
+and supports effect/music masters, gain, pan, loop, stop and gain ramps.
+Finished voices retain PCM ownership until the game thread collects them;
+the callback only mixes preloaded samples. `SdlOutput` opens a paused stereo
+S16 device at 44.1 kHz with frequency change allowed, constructs the mixer
+for the obtained rate, then starts output. It closes the device before freeing
+PCM. It is not yet connected to original `TSoundBuffer` or `TMusicControl`.
+Thus it is a tested core, not a working Audio ON game mode.
+
 The installed Switch portlibs contain `vorbis/vorbisfile.h` and
 `libvorbisfile.a` (checked locally 2026-10-11). The original 720-byte embedded
 Vorbis state and 32-bit `read_func` signature are not valid assumptions for

@@ -70,6 +70,12 @@ host-e2e4-save-replace-test:
 	@mkdir -p build/e2e4
 	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e4_save_replace.cpp -o build/e2e4/test_save_replace
 	build/e2e4/test_save_replace build/e2e4/save-test
+
+.PHONY: host-e2e4-audio-mixer-test
+host-e2e4-audio-mixer-test:
+	@mkdir -p build/e2e4
+	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e4_audio_mixer.cpp -o build/e2e4/test_audio_mixer
+	build/e2e4/test_audio_mixer
 DEVKITA64 ?= $(DEVKITPRO)/devkitA64
 LIBNX ?= $(DEVKITPRO)/libnx
 PORTLIBS ?= $(DEVKITPRO)/portlibs/switch

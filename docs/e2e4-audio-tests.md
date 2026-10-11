@@ -25,5 +25,12 @@ is still a 720-byte opaque Win32 buffer; therefore actual ARM64 Vorbis decode,
 streaming, music transitions and audible output are **NOT VERIFIED**.
 
 The CI host regression job includes both new tests. Audio ON must remain
-unclaimed until the native Vorbis state, SDL2 mixer, DirectSound-compatible
+unclaimed until the native Vorbis state, mixer integration, DirectSound-compatible
 buffer semantics and event/timer path are implemented and exercised together.
+
+`host-e2e4-audio-mixer-test` verifies numerical output for 8-bit mono and
+16-bit stereo, 22.05→44.1 kHz resampling, 48→44.1 kHz playback, simultaneous
+voices, clipping, separated music/effects mute, pan, two-frame fade, looping,
+stop, stale-handle rejection and deferred PCM reclamation. It passed locally
+with MSYS2 GCC. The mixer test and SDL2 device wrapper both compile with
+devkitA64; host SDL2 output and physical audibility have not been tested.
