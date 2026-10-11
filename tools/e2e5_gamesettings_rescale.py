@@ -12,6 +12,7 @@ import ctypes
 import json
 import mmap
 from pathlib import Path
+import re
 import subprocess
 import struct
 import tempfile
@@ -22,7 +23,8 @@ from probe_gai_release import fp
 
 
 def run(game_root: Path | None, library: Path, target_width: int, target_height: int,
-        original_graphbuf: Path | None = None) -> dict:
+        original_graphbuf: Path | None = None, emulator: Path | None = None,
+        sysroot: Path | None = None) -> dict:
     if (target_width <= 0 or target_height <= 0 or
             target_width > 8192 or target_height > 8192 or
             target_width * target_height * 4 > 128 * 1024 * 1024):
@@ -118,6 +120,8 @@ def run(game_root: Path | None, library: Path, target_width: int, target_height:
     if packed_result != expected:
         raise ValueError("OKGF RGB565 output differs from the independent pixel oracle")
     original_result = None
+    original_rescale_hash = None
+    original_packed_hash = None
     if original_graphbuf is not None:
         if (target_width, target_height) != (1280, 720):
             raise ValueError("original GraphBuf fixture currently requires 1280x720")
@@ -126,15 +130,25 @@ def run(game_root: Path | None, library: Path, target_width: int, target_height:
             encoded_path = Path(directory) / "background.gi"
             raw_path.write_bytes(decoded)
             encoded_path.write_bytes(encoded)
-            executed = subprocess.run([str(original_graphbuf.resolve()), str(raw_path),
-                                       fp(result)["fnv64"], fp(packed_result)["fnv64"],
-                                       str(encoded_path), fp(decoded)["fnv64"]],
+            command = ([str(emulator.resolve()), "-L", str(sysroot)]
+                       if emulator is not None and sysroot is not None else [])
+            command.extend([str(original_graphbuf.resolve()), str(raw_path),
+                                       "-" if emulator is not None else fp(result)["fnv64"],
+                                       "-" if emulator is not None else fp(packed_result)["fnv64"],
+                                       str(encoded_path), fp(decoded)["fnv64"]])
+            executed = subprocess.run(command,
                                       capture_output=True,
                                       text=True, timeout=120, check=False)
         if executed.returncode:
             raise ValueError(f"original GraphBuf exit={executed.returncode}: "
                              f"{executed.stdout} {executed.stderr}")
         original_result = executed.stdout.strip()
+        hashes = re.search(r"original_graphbuf=PASS .*? fnv64=([0-9a-f]{16}) "
+                           r"original_gi=PASS .*? fnv64=([0-9a-f]{16})",
+                           original_result)
+        if hashes is None:
+            raise ValueError(f"original GraphBuf output is incomplete: {original_result}")
+        original_rescale_hash, original_packed_hash = hashes.groups()
     level = "SYNTHETIC" if game_root is None else "RESOURCE"
     return {"status": f"PASS — {level} GI DECODE, RESCALE AND REPACK ONLY", "resource": resource,
             "source": [source_width, source_height],
@@ -147,6 +161,12 @@ def run(game_root: Path | None, library: Path, target_width: int, target_height:
             "original_graphbuf_executed": original_result is not None,
             "original_gi_repack_executed": original_result is not None,
             "original_buffer_transfer_executed": original_result is not None,
+            "original_graphbuf_fnv64": original_rescale_hash,
+            "original_rgb565_fnv64": original_packed_hash,
+            "emulated_original_graphbuf": emulator is not None,
+            "cross_architecture_hash_equal": (None if original_result is None else
+                                              original_rescale_hash == fp(result)["fnv64"] and
+                                              original_packed_hash == fp(packed_result)["fnv64"]),
             "original_graphbuf_output": original_result}
 
 
@@ -159,9 +179,15 @@ def main() -> int:
     parser.add_argument("--width", type=int, default=1280)
     parser.add_argument("--height", type=int, default=720)
     parser.add_argument("--original-graphbuf", type=Path)
+    parser.add_argument("--emulator", type=Path)
+    parser.add_argument("--sysroot", type=Path)
     args = parser.parse_args()
+    if (args.emulator is None) != (args.sysroot is None):
+        parser.error("--emulator and --sysroot must be supplied together")
+    if args.emulator is not None and args.original_graphbuf is None:
+        parser.error("--emulator requires --original-graphbuf")
     print(json.dumps(run(args.game_root, args.okgf_lib, args.width, args.height,
-                         args.original_graphbuf),
+                         args.original_graphbuf, args.emulator, args.sysroot),
                      ensure_ascii=False, indent=2))
     return 0
 

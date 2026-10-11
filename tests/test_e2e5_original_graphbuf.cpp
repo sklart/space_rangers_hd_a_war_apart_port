@@ -5,12 +5,14 @@
 #include "types/EC_Buf.hpp"
 #include "types/GR_gi.hpp"
 #include "units/ClassesImports.hpp"
+#include "units/EC_Buf.hpp"
 #include "units/EC_Mem.hpp"
 #include "units/GR_DX.hpp"
+#include "units/GR_GraphBuf.hpp"
 #include "units/GR_Main.hpp"
+#include "units/GR_gi.hpp"
 #include "okgf.h"
 
-#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -19,11 +21,6 @@
 #include <iterator>
 #include <string>
 #include <vector>
-
-namespace EC_Struct {
-void TObjectEx_Destroy(TObjectEx*) {}
-void TObjectEx::p_destroy() {}
-}  // namespace EC_Struct
 
 namespace EC_Mem {
 void* AllocEC(std::int32_t bytes) { return bytes > 0 ? std::malloc(bytes) : nullptr; }
@@ -96,75 +93,120 @@ int main(int argc, char** argv) {
   if (!encoded_stream) return 5;
   std::vector<std::uint8_t> encoded(std::istreambuf_iterator<char>{encoded_stream}, {});
   if (encoded.size() < 96 || encoded.size() > 32u * 1024u * 1024u) return 13;
-  EC_Buf::TBufEC source_buffer{};
-  source_buffer.AddBytes(encoded.data(), static_cast<std::int32_t>(encoded.size()));
-  GR_gi::TgiGR source{};
-  source.LoadRawGiFromBuffer(&source_buffer);
-  source_buffer.Clear();
-  GR_GraphBuf::TGraphBufGR graph{};
-  graph.UseTexture = false;
-  graph.UsesTextureStorage = false;
-  source.DecodeToGraphBuf(&graph, false);
-  if (graph.Width != source_width || graph.Height != source_height ||
-      graph.PitchBytes != source_width * 4 || graph.Pixels == nullptr) return 14;
+  auto* source_buffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
+  source_buffer->AddBytes(encoded.data(), static_cast<std::int32_t>(encoded.size()));
+  auto* source = pas::construct_call<GR_gi::TgiGR>(GR_gi::TgiGR_Create);
+  source->LoadRawGiFromBuffer(source_buffer);
+  source_buffer->Clear();
+  pas::free(source_buffer);
+  auto* graph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(
+      GR_GraphBuf::TGraphBufGR_Create, false);
+  source->DecodeToGraphBuf(graph, false);
+  if (graph->Width != source_width || graph->Height != source_height ||
+      graph->PitchBytes != source_width * 4 || graph->Pixels == nullptr) return 14;
   std::uint64_t decoded_hash = 0xcbf29ce484222325ull;
-  const auto* decoded = static_cast<const std::uint8_t*>(graph.Pixels);
+  const auto* decoded = static_cast<const std::uint8_t*>(graph->Pixels);
   for (std::size_t i = 0; i < pixels.size(); ++i)
     decoded_hash = (decoded_hash ^ decoded[i]) * 0x100000001b3ull;
   std::uint64_t expected_decoded{};
   try { expected_decoded = std::stoull(argv[5], nullptr, 16); }
   catch (...) { return 15; }
   if (decoded_hash != expected_decoded ||
-      std::memcmp(graph.Pixels, pixels.data(), pixels.size()) != 0) return 16;
-  source.ClearData();
-  graph.RescaleWithAspect(1280, 720, true, 1, 1, OKGF_RESCALE_LANCZOS3);
-  if (graph.Width != 1280 || graph.Height != 720 || graph.PitchBytes != 5120 ||
-      graph.Pixels == nullptr) return 6;
+      std::memcmp(graph->Pixels, pixels.data(), pixels.size()) != 0) return 16;
+  source->ClearData();
+  pas::free(source);
+  constexpr std::size_t output_bytes = 1280u * 720u * 4u;
+  std::vector<std::uint8_t> direct(output_bytes);
+  ::OKGF_Rescale(direct.data(), 1280, 720, 5120,
+                 static_cast<std::uint8_t*>(graph->Pixels) + 60 * graph->PitchBytes,
+                 1920, 1080, graph->PitchBytes, 4, OKGF_RESCALE_LANCZOS3);
+  graph->RescaleWithAspect(1280, 720, true, 1, 1, OKGF_RESCALE_LANCZOS3);
+  if (graph->Width != 1280 || graph->Height != 720 || graph->PitchBytes != 5120 ||
+      graph->Pixels == nullptr) return 6;
   std::uint64_t hash = 0xcbf29ce484222325ull;
-  const auto* output = static_cast<const std::uint8_t*>(graph.Pixels);
-  for (std::size_t i = 0; i < 1280u * 720u * 4u; ++i)
+  const auto* output = static_cast<const std::uint8_t*>(graph->Pixels);
+  for (std::size_t i = 0; i < output_bytes; ++i)
     hash = (hash ^ output[i]) * 0x100000001b3ull;
+  if (std::memcmp(output, direct.data(), output_bytes) != 0) {
+    std::fprintf(stderr, "original GraphBuf differs from direct same-architecture OKGF; fnv64=%016llx\n",
+                 static_cast<unsigned long long>(hash));
+    return 19;
+  }
   std::uint64_t expected{};
-  try { expected = std::stoull(argv[2], nullptr, 16); }
-  catch (...) { return 7; }
-  if (hash != expected) return 8;
-  GR_gi::TgiGR image{};
-  image.CreateFromGraphBuf(&graph, 1);
+  if (std::strcmp(argv[2], "-") != 0) {
+    try { expected = std::stoull(argv[2], nullptr, 16); }
+    catch (...) { return 7; }
+    if (hash != expected) {
+      std::fprintf(stderr, "rescale fnv64=%016llx expected=%016llx\n",
+                   static_cast<unsigned long long>(hash),
+                   static_cast<unsigned long long>(expected));
+      return 8;
+    }
+  }
+  auto* image = pas::construct_call<GR_gi::TgiGR>(GR_gi::TgiGR_Create);
+  image->CreateFromGraphBuf(graph, 1);
   constexpr std::size_t packed_bytes = 1280u * 720u * 2u;
-  const auto* plane = image.GetPlane(0);
-  if (image.DataSize != static_cast<std::int32_t>(96 + packed_bytes) ||
-      image.Header->Format != 0 || plane->DataOffset != 96 ||
+  const auto* plane = image->GetPlane(0);
+  if (image->DataSize != static_cast<std::int32_t>(96 + packed_bytes) ||
+      image->Header->Format != 0 || plane->DataOffset != 96 ||
       plane->DataSize != static_cast<std::int32_t>(packed_bytes)) return 9;
   std::uint64_t packed_hash = 0xcbf29ce484222325ull;
-  const auto* packed = static_cast<const std::uint8_t*>(image.Data) + plane->DataOffset;
+  const auto* packed = static_cast<const std::uint8_t*>(image->Data) + plane->DataOffset;
   for (std::size_t i = 0; i < packed_bytes; ++i)
     packed_hash = (packed_hash ^ packed[i]) * 0x100000001b3ull;
+  std::vector<std::uint8_t> rgba(direct);
+  for (std::size_t i = 0; i < rgba.size(); i += 4) {
+    const auto blue = rgba[i];
+    rgba[i] = rgba[i + 2];
+    rgba[i + 2] = blue;
+  }
+  std::vector<std::uint8_t> direct_packed(packed_bytes);
+  ::OKGF_Convert_8888to565(direct_packed.data(), 2560, 0, 0,
+                            rgba.data(), 5120, 0, 0, 1280, 720);
+  if (std::memcmp(packed, direct_packed.data(), packed_bytes) != 0) {
+    std::fprintf(stderr, "original GI repack differs from direct same-architecture OKGF; fnv64=%016llx\n",
+                 static_cast<unsigned long long>(packed_hash));
+    return 20;
+  }
   std::uint64_t restored_hash = 0xcbf29ce484222325ull;
-  const auto* restored = static_cast<const std::uint8_t*>(graph.Pixels);
+  const auto* restored = static_cast<const std::uint8_t*>(graph->Pixels);
   for (std::size_t i = 0; i < 1280u * 720u * 4u; ++i)
     restored_hash = (restored_hash ^ restored[i]) * 0x100000001b3ull;
   if (restored_hash != hash) return 12;
   std::uint64_t expected_packed{};
-  try { expected_packed = std::stoull(argv[3], nullptr, 16); }
-  catch (...) { return 10; }
-  if (packed_hash != expected_packed) return 11;
-  EC_Buf::TBufEC repacked_buffer{};
-  repacked_buffer.AddBytes(image.Data, image.DataSize);
-  image.ClearData();
-  if (repacked_buffer.DataSize != static_cast<std::int32_t>(96 + packed_bytes)) return 17;
-  const auto* buffered = static_cast<const std::uint8_t*>(repacked_buffer.Data) + 96;
+  if (std::strcmp(argv[3], "-") != 0) {
+    try { expected_packed = std::stoull(argv[3], nullptr, 16); }
+    catch (...) { return 10; }
+    if (packed_hash != expected_packed) {
+      std::fprintf(stderr, "RGB565 fnv64=%016llx expected=%016llx\n",
+                   static_cast<unsigned long long>(packed_hash),
+                   static_cast<unsigned long long>(expected_packed));
+      return 11;
+    }
+  }
+  auto* repacked_buffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
+  repacked_buffer->AddBytes(image->Data, image->DataSize);
+  image->ClearData();
+  pas::free(image);
+  if (repacked_buffer->DataSize != static_cast<std::int32_t>(96 + packed_bytes)) return 17;
+  const auto* buffered = static_cast<const std::uint8_t*>(repacked_buffer->Data) + 96;
   std::uint64_t buffered_hash = 0xcbf29ce484222325ull;
   for (std::size_t i = 0; i < packed_bytes; ++i)
     buffered_hash = (buffered_hash ^ buffered[i]) * 0x100000001b3ull;
   if (buffered_hash != packed_hash) return 18;
+  const auto final_width = graph->Width;
+  const auto final_height = graph->Height;
+  const auto final_pitch = graph->PitchBytes;
+  repacked_buffer->Clear();
+  pas::free(repacked_buffer);
+  graph->Clear();
+  pas::free(graph);
   std::printf("original_decode=PASS fnv64=%016llx "
               "original_graphbuf=PASS width=%d height=%d pitch=%d fnv64=%016llx "
-              "original_gi=PASS bytes=%zu fnv64=%016llx buffer=PASS\n",
+              "original_gi=PASS bytes=%zu fnv64=%016llx buffer=PASS lifecycle=PASS\n",
               static_cast<unsigned long long>(decoded_hash),
-              graph.Width, graph.Height, graph.PitchBytes,
+              final_width, final_height, final_pitch,
               static_cast<unsigned long long>(hash), packed_bytes,
               static_cast<unsigned long long>(packed_hash));
-  repacked_buffer.Clear();
-  graph.Clear();
   return 0;
 }
