@@ -9,6 +9,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  e2e4-sanitizers:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Asset-free audio and protected-state ASan/UBSan
+        run: |
+          set -euo pipefail
+          mkdir -p build/e2e4-sanitizers
+          for test in wav vorbis_read protected_state; do
+            g++ -std=c++20 -O1 -g -fno-omit-frame-pointer \
+              -fsanitize=address,undefined -Iport/switch/platform \
+              "tests/test_e2e4_${test}.cpp" -o "build/e2e4-sanitizers/${test}"
+            "build/e2e4-sanitizers/${test}"
+          done
+
   e2e-full-arm64-link:
     runs-on: ubuntu-24.04
     container: devkitpro/devkita64:latest
@@ -59,6 +74,12 @@ jobs:
         run: make -C port/switch host-e2e-win32-compat-test
       - name: E2E-3 original New Game preflight
         run: make -C port/switch host-e2e3-new-game-preflight-test
+      - name: E2E-4 RIFF/WAVE PCM parser
+        run: make -C port/switch host-e2e4-wav-test
+      - name: E2E-4 bounded Vorbis PCM reads
+        run: make -C port/switch host-e2e4-vorbis-read-test
+      - name: E2E-4 protected-state pointer ranges
+        run: make -C port/switch host-e2e4-protected-state-test
       - name: Validate E2E startup command line
         run: make -C port/switch host-e2e-command-line-test
       - name: Validate E2E install language search

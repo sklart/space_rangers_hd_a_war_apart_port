@@ -44,6 +44,26 @@ host-e2e3-new-game-preflight-test:
 	@mkdir -p build/e2e3
 	g++ -std=c++20 -O2 -pthread -Iplatform ../../tests/test_e2e3_generation_state.cpp -o build/e2e3/test_generation_state
 	build/e2e3/test_generation_state
+
+.PHONY: host-e2e4-wav-test
+host-e2e4-wav-test:
+	@mkdir -p build/e2e4
+	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e4_wav.cpp -o build/e2e4/test_wav
+	build/e2e4/test_wav
+
+.PHONY: host-e2e4-vorbis-read-test
+host-e2e4-vorbis-read-test:
+	@mkdir -p build/e2e4
+	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e4_vorbis_read.cpp -o build/e2e4/test_vorbis_read
+	build/e2e4/test_vorbis_read
+
+.PHONY: host-e2e4-protected-state-test
+host-e2e4-protected-state-test:
+	@mkdir -p build/e2e4
+	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e4_protected_state.cpp -o build/e2e4/test_protected_state
+	build/e2e4/test_protected_state
+	g++ -std=gnu++20 -O2 -Wno-invalid-offsetof -I../../upstream/cpp/src -I../../upstream/cpp/runtime ../../tests/test_e2e4_galaxy_layout.cpp -o build/e2e4/test_galaxy_layout
+	build/e2e4/test_galaxy_layout
 DEVKITA64 ?= $(DEVKITPRO)/devkitA64
 LIBNX ?= $(DEVKITPRO)/libnx
 PORTLIBS ?= $(DEVKITPRO)/portlibs/switch

@@ -6,7 +6,74 @@ from pathlib import Path
 import re
 
 
-FUNCTIONS: dict[str, dict[str, str]] = {}
+FUNCTIONS: dict[str, dict[str, str]] = {
+    "EC_CacheSound.cpp": {
+        "void TCSoundEC::LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption)": '''
+        (void)LoadOption;
+        if (SourceBuffer == nullptr || SourceBuffer->DataSize < 0 ||
+            SourceBuffer->Position < 0) {
+            GR_Main::RaiseWideMessage(u"WAVE format"_wref.get());
+            return;
+        }
+        const auto wave = srhd_awa::platform::e2e4_wav::Parse(
+            SourceBuffer->Data, static_cast<std::size_t>(SourceBuffer->DataSize),
+            static_cast<std::size_t>(SourceBuffer->Position));
+        if (!wave) {
+            GR_Main::RaiseWideMessage(u"WAVE format"_wref.get());
+            return;
+        }
+        void* replacement = EC_Mem::AllocEC(static_cast<std::int32_t>(wave.bytes));
+        std::memcpy(replacement,
+                    static_cast<const std::uint8_t*>(SourceBuffer->Data) + wave.offset,
+                    wave.bytes);
+        if (SampleData != nullptr) EC_Mem::FreeEC(SampleData);
+        SampleData = replacement;
+        SampleDataSize = static_cast<std::uint32_t>(wave.bytes);
+        Format.FormatTag = MMSystemSdk::WAVE_FORMAT_PCM;
+        Format.Channels = wave.channels;
+        Format.SamplesPerSecond = wave.rate;
+        Format.BitsPerSample = wave.bits;
+        Format.BlockAlign = wave.block_align;
+        Format.AverageBytesPerSecond = wave.rate * wave.block_align;
+        Format.ExtraSize = 0;
+        SourceBuffer->SetPosition(static_cast<std::int32_t>(wave.next_position));'''
+    },
+    "VorbisFile.cpp": {
+        "std::uint32_t ReadVorbisSource(void* Buffer, std::uint32_t Size, std::uint32_t Count, void* Source)": '''
+        if (Buffer == nullptr || Source == nullptr || Size == 0 || Count == 0 ||
+            Size > static_cast<std::uint32_t>(INT32_MAX)) return 0;
+        const auto elements = std::min<std::uint32_t>(
+            Count, static_cast<std::uint32_t>(INT32_MAX) / Size);
+        auto* stream = static_cast<EC_FileStream::TFileStreamEC*>(Source);
+        const auto bytes = stream->Read(Buffer, static_cast<std::int32_t>(elements * Size));
+        return bytes > 0 ? static_cast<std::uint32_t>(bytes) / Size : 0;''',
+        "std::int32_t PAS_STDCALL ReadVorbisSamples(TOggWorker* Decoder, void* Buffer, std::int32_t& ByteCount)": '''
+        const int requested = ByteCount;
+        ByteCount = 0;
+        if (Decoder == nullptr) return 0;
+        pas::critical_enter(pas::load_unaligned<pas::CriticalSection*>(Decoder->Lock));
+        pas::ScopeExit unlock = [&]() noexcept {
+            pas::critical_leave(pas::load_unaligned<pas::CriticalSection*>(Decoder->Lock));
+        };
+        const auto read = srhd_awa::platform::e2e4_vorbis_read::ReadBlocks(
+            Buffer, requested, [&](std::uint8_t* scratch, int capacity) {
+                return VorbisFile::VorbisRead(&Decoder->VorbisState, scratch, capacity,
+                    VorbisLittleEndian, VorbisOutputSampleBytes, VorbisSignedSamples,
+                    Decoder->Bitstream);
+            });
+        if (read.error != 0) {
+            GR_Main::AppendLogLineThreadSafe("[MUSIC] Vorbis decode error"_a);
+        }
+        ByteCount = read.bytes;
+        return read.bytes;'''
+    },
+    "aGalaxy.cpp": {
+        "void XorStateBytes(std::uint8_t* Data, std::uint32_t Count, std::int32_t& Seed)": '''
+        for (std::uint32_t i = 0; i < Count; ++i, ++Data) {
+            *Data ^= static_cast<std::uint8_t>(aGalaxy::NextStateXorMask(Seed));
+        }'''
+    },
+}
 
 STAGES = {
     "Forms::UnitInitialize();": "Forms UnitInitialize",
@@ -108,6 +175,74 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
         text = text[:begin] + replacement + text[end:]
     if overrides:
         text = '#include "e2e_clock.hpp"\n' + text
+    if source.name == "EC_CacheSound.cpp":
+        text = '#include "e2e4_wav.hpp"\n#include <cstring>\n' + text
+    if source.name == "VorbisFile.cpp":
+        text = '#include "e2e4_vorbis_read.hpp"\n#include <algorithm>\n#include <climits>\n' + text
+    if source.name == "aGalaxy.cpp":
+        text = '#include "e2e4_protected_state.hpp"\n' + text
+        array_decl = "        pas::Array<std::uint32_t, 0, 10> Exclusions{};"
+        if text.count(array_decl) != 1:
+            raise RuntimeError("protected-state exclusion array changed")
+        text = text.replace(array_decl,
+                            "        pas::Array<std::uintptr_t, 0, 10> Exclusions{};", 1)
+        words_begin = "        auto XorStateWords = [&](WindowsSdk::PWORD Data, std::uint32_t Count) -> void {"
+        words_end = "        aPlayer::TPlayer* Player = nullptr;"
+        if text.count(words_begin) != 1 or text.count(words_end) != 1:
+            raise RuntimeError("protected-state object transform boundary changed")
+        begin = text.index(words_begin)
+        end = text.index(words_end, begin)
+        text = text[:begin] + '''        auto XorStateWords = [&](WindowsSdk::PWORD Data, std::uint32_t Count) -> void {
+            for (std::uint32_t i = 0; i < Count; ++i, ++Data) {
+                pas::store_unaligned<std::uint16_t>(Data,
+                    static_cast<std::uint16_t>(pas::load_unaligned<std::uint16_t>(Data) ^
+                        static_cast<std::uint16_t>(aGalaxy::NextStateXorMask(Seed))));
+            }
+        };
+        auto XorObject = [&](pas::Object* Instance, const std::uintptr_t* excluded,
+                             std::size_t count) -> void {
+            const auto bytes = pas::instance_size(pas::class_type(Instance));
+            if (!srhd_awa::platform::e2e4_protected_state::TransformObject(
+                    Instance, static_cast<std::size_t>(bytes), excluded, count,
+                    [&](std::uint8_t* data, std::size_t length) {
+                        aGalaxy::XorStateBytes(data, static_cast<std::uint32_t>(length), Seed);
+                    })) {
+                GR_Main::RaiseWideMessage(u"Invalid protected-state object layout"_wref.get());
+            }
+        };
+        auto XorStateObject = [&](pas::Object* Instance) -> void {
+            XorObject(Instance, nullptr, 0);
+        };
+        auto XorStateObjectExceptField = [&](pas::Object* Instance, void* ExcludedField) -> void {
+            const std::uintptr_t excluded = reinterpret_cast<std::uintptr_t>(ExcludedField);
+            XorObject(Instance, &excluded, 1);
+        };
+        auto XorStateObjectExceptFields = [&](pas::Object* Instance) -> void {
+            XorObject(Instance, &Exclusions[0], static_cast<std::size_t>(ExclusionCount));
+        };
+''' + text[end:]
+        method_end = text.index("    std::uint32_t NextStateXorMask", begin)
+        method = text[begin:method_end]
+        method, addresses = re.subn(
+            r"static_cast<std::uint32_t>\((reinterpret_cast<std::uintptr_t>\(&[^)]*\))\)",
+            r"\1", method)
+        if addresses != 13:
+            raise RuntimeError(f"protected-state pointer field count changed: {addresses}")
+        integrity = ('aGalaxy::XorStateBytes(reinterpret_cast<std::uint8_t*>(&aConst::IntegrityDataBegin), '
+                     'reinterpret_cast<std::uintptr_t>(&aConst::IntegrityDataEnd) - '
+                     'reinterpret_cast<std::uintptr_t>(&aConst::IntegrityDataBegin), Seed);')
+        if method.count(integrity) != 1:
+            raise RuntimeError("protected-state integrity range changed")
+        method = method.replace(integrity, '''const auto integrity_begin = reinterpret_cast<std::uintptr_t>(&aConst::IntegrityDataBegin);
+        const auto integrity_end = reinterpret_cast<std::uintptr_t>(&aConst::IntegrityDataEnd);
+        if (integrity_end < integrity_begin ||
+            integrity_end - integrity_begin > UINT32_MAX) {
+            GR_Main::RaiseWideMessage(u"Invalid protected-state integrity range"_wref.get());
+            return;
+        }
+        aGalaxy::XorStateBytes(reinterpret_cast<std::uint8_t*>(integrity_begin),
+            static_cast<std::uint32_t>(integrity_end - integrity_begin), Seed);''', 1)
+        text = text[:begin] + method + text[method_end:]
     if source.name == "Rangers.cpp":
         executable_begin = "                            ExecutableFileName.set_length(WindowsImports::MAX_PATH);"
         executable_end = "                            EC_Str::WriteRegistryStringLegacy(WindowsImports::HKEY_LOCAL_MACHINE"
