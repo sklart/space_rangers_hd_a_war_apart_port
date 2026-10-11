@@ -107,8 +107,8 @@ turns off both sound and music with a distinct log entry.
 
 The experimental path passed a local full ARM64 link on 2026-10-11: 298 original
 units, 378 linked objects, zero unresolved symbols, ELF64 AArch64 PIE.
-The resulting dirty-tree NRO SHA-256 is
-`DB159D3F7537733B657EADA5818F6645A75B871ED345671E882F671C7BB83E85`.
+The Audio ON NRO uses an `E2EAudioON` stem and commit-based suffix; the
+build report records its exact SHA-256 and source-tree cleanliness.
 Host SDL dummy sanitizer testing and playback on Switch are still pending.
 It is not an accepted Audio ON build. The
 current stream mix adds onto S16 output after effect clamping; combined loud
