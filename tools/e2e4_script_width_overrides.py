@@ -30,10 +30,33 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
             raise RuntimeError(f"script-width overlay symlink is unsupported: {target}")
         target.parent.mkdir(parents=True, exist_ok=True)
         content = source.read_bytes()
-        if relative.as_posix() in ("types/aScript.hpp", "aScript.cpp", "aScriptFun.cpp",
-                                   "types/EC_Expression.hpp", "EC_Expression.cpp"):
+        if relative.as_posix() in ("types/aScript.hpp", "types/aEFilm.hpp", "aScript.cpp", "aScriptFun.cpp",
+                                   "types/EC_Expression.hpp", "EC_Expression.cpp",
+                                   "units/aPlayer.hpp"):
             text = content.decode("utf-8")
-            if relative.as_posix() == "types/aScript.hpp":
+            if relative.as_posix() == "units/aPlayer.hpp":
+                text = _replace_exact(text, "extern std::uint32_t EncodedPlayer;",
+                                      "extern std::uintptr_t EncodedPlayer;", 1,
+                                      relative.as_posix())
+            elif relative.as_posix() == "types/aEFilm.hpp":
+                # Command views were translated with an 8-byte prefix for
+                # two 32-bit links.  On 64-bit both links take 16 bytes.
+                text = _replace_exact(text, "        std::uint8_t cpp_padding[8];",
+                                      "        std::uint8_t cpp_padding[sizeof(void*) * 2];",
+                                      6, relative.as_posix())
+                # Endpoints are the widest command payload on 64-bit.
+                text = _replace_exact(text,
+                    "pas::Array<std::uint8_t, 0, 11> Payload;",
+                    "pas::Array<std::uint8_t, 0, sizeof(void*) * 2 + 3> Payload;",
+                    1, relative.as_posix())
+                text = "#include <cstddef>\n" + text + "\n" + (
+                    "static_assert(sizeof(aEFilm::TEFilmCommand) == "
+                    "sizeof(aEFilm::TEFilmEndpointsCommand));\n"
+                    "static_assert(offsetof(aEFilm::TEFilmCommand, Kind) == "
+                    "offsetof(aEFilm::TEFilmEndpointsCommand, Kind));\n"
+                    "static_assert(offsetof(aEFilm::TEFilmCommand, Obj) == "
+                    "offsetof(aEFilm::TEFilmEndpointsCommand, Obj));\n")
+            elif relative.as_posix() == "types/aScript.hpp":
                 text = _replace_exact(text,
                     "        std::uint32_t TargetValue;",
                     "        std::uintptr_t TargetValue;", 2, relative.as_posix())

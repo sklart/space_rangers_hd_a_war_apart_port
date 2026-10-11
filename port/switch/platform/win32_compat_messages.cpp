@@ -308,6 +308,13 @@ void WarpInputCursor(std::int32_t x, std::int32_t y) {
   SetInputCursor(g_input.last.x, g_input.last.y);
 }
 void PostPaint(std::uint32_t window) { PostMessage(window, kWmPaint, 0, 0); }
+#if defined(E2E5_HOST_SDL_WINDOW)
+bool PostHostReturnKey(std::uint32_t window) {
+  if (!window) return false;
+  return PostMessage(window, kWmKeyDown, kVkReturn, 0) &&
+         PostMessage(window, kWmKeyUp, kVkReturn, 0);
+}
+#endif
 
 ImportAddress ResolveMessageImport(std::string_view dll, std::string_view symbol) {
   if (dll != "user32.dll") return nullptr;

@@ -3639,7 +3639,7 @@
         "port/switch/platform/win32_compat_modules.cpp:129",
         "port/switch/platform/win32_compat_modules.cpp:166",
         "port/switch/platform/win32_compat_modules.cpp:53",
-        "port/switch/platform/win32_compat_process.cpp:215",
+        "port/switch/platform/win32_compat_process.cpp:223",
         "port/switch/platform/win32_compat_sync.cpp:143",
         "port/switch/platform/win32_compat_text.cpp:131",
         "upstream/cpp/src/SysUtilsImports.cpp:593",
@@ -3867,7 +3867,7 @@
       "callsites": [
         "port/switch/platform/win32_compat_clipboard.cpp:76",
         "port/switch/platform/win32_compat_gdi.cpp:174",
-        "port/switch/platform/win32_compat_messages.cpp:313",
+        "port/switch/platform/win32_compat_messages.cpp:320",
         "port/switch/platform/win32_compat_modules.cpp:54",
         "port/switch/platform/win32_compat_text.cpp:124",
         "port/switch/platform/win32_compat_window.cpp:283",

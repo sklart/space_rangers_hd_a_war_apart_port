@@ -253,9 +253,51 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aSaveLoad.cpp", "aScript.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fIntroduction.cpp", "program.cpp"):
+    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aShip.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fIntroduction.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
+    if source.name == "aPlayer.cpp":
+        player_width_repairs = (
+            ("std::uint32_t EncodedPlayer = 0xb1cd15d3u;",
+             "std::uintptr_t EncodedPlayer = 0xb1cd15d3u;"),
+            ("static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Player)) ^ 0xb1cd15d3u",
+             "reinterpret_cast<std::uintptr_t>(Player) ^ 0xb1cd15d3u"),
+            ("static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EncodedPlayer ^ 0xb1cd15d3u))",
+             "static_cast<std::uintptr_t>(EncodedPlayer ^ 0xb1cd15d3u)"),
+        )
+        for old, new in player_width_repairs:
+            if text.count(old) != 1:
+                raise RuntimeError(f"encoded player pointer boundary changed: {old}")
+            text = text.replace(old, new)
+    if source.name == "aShip.cpp":
+        # Script state targets already use native-width storage in the
+        # disposable script overlay.  Keep that width when turning them back
+        # into live game objects during new-game day calculation.
+        for field, expected in (("State", 7), ("Place", 3)):
+            old = f"static_cast<std::uint32_t>({field}->TargetValue)"
+            if text.count(old) != expected:
+                raise RuntimeError(f"ship script target boundary changed: {field}")
+            text = text.replace(old, f"static_cast<std::uintptr_t>({field}->TargetValue)")
+        # The translator's PShipEquipmentCacheView hard-codes the 32-bit
+        # offset $F8.  TShip::Hull moves on 64-bit, while Hull..DefGenerator
+        # remain eight contiguous pointer fields.  Anchor every indexed slot
+        # operation to the actual member without changing upstream/cpp.
+        for owner, expected in (("Self", 3), ("this", 12)):
+            old = f"reinterpret_cast<PShipEquipmentCacheView>({owner})->Slots"
+            if text.count(old) != expected:
+                raise RuntimeError(f"ship equipment slot boundary changed: {owner}")
+            text = text.replace(old, "Self->Hull" if owner == "Self" else "Hull")
+        text = text.replace('#include "layout/aShip.hpp"',
+            '#include "layout/aShip.hpp"\n#include <cstddef>\n'
+            'static_assert(offsetof(aShip::TShip, DefGenerator) - '
+            'offsetof(aShip::TShip, Hull) == 7 * sizeof(void*));', 1)
+    if source.name == "aPirate.cpp":
+        # Native expression reduced PlanetQueue + 0 to a signed 32-bit
+        # integer before treating it as a list pointer.
+        old = "reinterpret_cast<pas::List*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(PlanetQueue)) + 0)))"
+        if text.count(old) != 1:
+            raise RuntimeError("pirate service planet queue boundary changed")
+        text = text.replace(old, "PlanetQueue", 1)
     if source.name == "program.cpp":
         if not build_git or manifest_stamp is None:
             raise RuntimeError("E2E build Git identity or Win32 manifest stamp is missing")
@@ -366,6 +408,26 @@ void CloseVorbisStream(TOggWorker* worker) {
             "srhd_awa::platform::e2e4_ui_cache::Key(Entry->Block)")
         text = '#include "e2e4_ui_cache_key.hpp"\n' + text
     if source.name == "aGalaxy.cpp":
+        rating_begin = text.index("    void TGalaxy::RefreshRangerRatingPlaces() {")
+        rating_end = text.index("\n    }", rating_begin) + len("\n    }")
+        rating = text[rating_begin:rating_end]
+        rating_repairs = (
+            ("pas::DynArray<std::uint32_t> Sorted{};",
+             "pas::DynArray<std::uintptr_t> Sorted{};", 1),
+            ("std::uint32_t SwapFirst{};", "std::uintptr_t SwapFirst{};", 1),
+            ("std::uint32_t SwapSecond{};", "std::uintptr_t SwapSecond{};", 1),
+            ("static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(First))",
+             "reinterpret_cast<std::uintptr_t>(First)", 1),
+            ("static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sorted[I]))",
+             "Sorted[I]", 2),
+            ("static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sorted[J]))",
+             "Sorted[J]", 1),
+        )
+        for old, new, expected in rating_repairs:
+            if rating.count(old) != expected:
+                raise RuntimeError(f"ranger rating pointer boundary changed: {old}")
+            rating = rating.replace(old, new)
+        text = text[:rating_begin] + rating + text[rating_end:]
         text = '#include "e2e4_protected_state.hpp"\n' + text
         array_decl = "        pas::Array<std::uint32_t, 0, 10> Exclusions{};"
         if text.count(array_decl) != 1:
@@ -1050,7 +1112,8 @@ void CloseVorbisStream(TOggWorker* worker) {
                  '#include "win32_compat_window.hpp"\n'
                 '#include "e2e_clock.hpp"\n#include "e2e_stage.hpp"\n'
                 '#include "game_path.hpp"\n#include "user_root.hpp"\n'
-                '#include <SDL2/SDL.h>\n#include <switch.h>\n#include <thread>\n'
+                '#include <SDL2/SDL.h>\n#if defined(__SWITCH__)\n'
+                '#include <switch.h>\n#endif\n#include <thread>\n'
                 'namespace { srhd_awa::platform::runtime_platform::State g_e2e_platform; }\n' + text)
     destination.parent.mkdir(parents=True, exist_ok=True)
     if not destination.exists() or destination.read_text(encoding="utf-8") != text:
