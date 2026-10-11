@@ -11,8 +11,8 @@
 | Cursor and frame stage profiler | Experimental ARM64 `GI_MessageLoop::Run` stage timer and separate five-second input poll/move/gap counter compiled; earlier hardware presentation rate only | PARTIAL: no measured stage or input cadence log yet |
 | Original script and save/load round-trip | Existing native-width component tests and guarded save | NOT RUN end to end |
 | Crash correlation | `D:\\report.zip` parsed; exact first exception was not captured in log | PARTIAL |
-| Incremental ARM64 build | Per-object dependencies added; latest trace build compiled 2 objects and reused 378; complete rebuild verification pending | PARTIAL |
-| ASan/UBSan and full CI | Existing E2E-4 jobs plus new E2E-5 fast job | PENDING current branch run |
+| Incremental ARM64 build | Per-object dependencies added; a local rebuild compiled 1 object and reused 379; clean CI linked the ordinary game and the combined experiment | PASS for build mechanics |
+| ASan/UBSan and full CI | All four jobs passed at code SHA `208d8113fbb3efe0d55cc3aaff829fb409fd9f4f` in [package-host run 38155046767](https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38155046767) | PASS for named CI jobs; original game scenarios still pending |
 | One final console NRO | None for E2E-5 | BLOCKED by software gates |
 
 The source inventory is a search aid, not proof that all 2,523 candidate

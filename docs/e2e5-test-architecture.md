@@ -2,6 +2,12 @@
 
 Status: **SOFTWARE PARTIAL / HARDWARE PENDING**.
 
+The complete [package-host CI run 38155046767](https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38155046767)
+passed on code SHA `208d8113fbb3efe0d55cc3aaff829fb409fd9f4f`:
+host regression, E2E-5 fast checks, ASan/UBSan, ordinary full ARM64 link,
+and the combined experimental ARM64 link. This does not execute the original
+complete game scenario or prove console behavior.
+
 The installed commercial game is supplied only through `--game-root` or
 `GAME_ROOT`. The tools read it in place and write only metadata, hashes, and
 diagnostics to `reports/e2e5/`. No package or decoded image is copied to Git.
