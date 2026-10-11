@@ -153,7 +153,7 @@ int main() {
 def generated_source(source: Path, destination: Path, build_git: str = "",
                      manifest_stamp: dict | None = None) -> Path:
     overrides = FUNCTIONS.get(source.name)
-    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aSaveLoad.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fIntroduction.cpp", "program.cpp"):
+    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aSaveLoad.cpp", "aScript.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fIntroduction.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "program.cpp":
@@ -179,6 +179,16 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
         text = '#include "e2e4_wav.hpp"\n#include <cstring>\n' + text
     if source.name == "VorbisFile.cpp":
         text = '#include "e2e4_vorbis_read.hpp"\n#include <algorithm>\n#include <climits>\n' + text
+    if source.name == "aScript.cpp":
+        key = "        std::uint32_t Key = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Block));"
+        entry_key = "static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Entry->Block))"
+        if text.count(key) != 1 or text.count(entry_key) != 3:
+            raise RuntimeError("script UI cache pointer-key boundary changed")
+        text = text.replace(key,
+            "        const std::uintptr_t Key = srhd_awa::platform::e2e4_ui_cache::Key(Block);", 1)
+        text = text.replace(entry_key,
+            "srhd_awa::platform::e2e4_ui_cache::Key(Entry->Block)")
+        text = '#include "e2e4_ui_cache_key.hpp"\n' + text
     if source.name == "aGalaxy.cpp":
         text = '#include "e2e4_protected_state.hpp"\n' + text
         array_decl = "        pas::Array<std::uint32_t, 0, 10> Exclusions{};"

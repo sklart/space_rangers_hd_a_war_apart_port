@@ -17,7 +17,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p build/e2e4-sanitizers
-          for test in wav vorbis_read protected_state audio_mixer; do
+          for test in wav vorbis_read protected_state audio_mixer ui_cache_key; do
             g++ -std=c++20 -O1 -g -fno-omit-frame-pointer \
               -fsanitize=address,undefined -Iport/switch/platform \
               "tests/test_e2e4_${test}.cpp" -o "build/e2e4-sanitizers/${test}"
@@ -84,6 +84,8 @@ jobs:
         run: make -C port/switch host-e2e4-save-replace-test
       - name: E2E-4 PCM mixer
         run: make -C port/switch host-e2e4-audio-mixer-test
+      - name: E2E-4 script UI cache key
+        run: make -C port/switch host-e2e4-ui-cache-test
       - name: E2E-4 log analyzer contract
         run: python3 tools/e2e4_log_analyzer.py --self-test
       - name: Validate E2E startup command line

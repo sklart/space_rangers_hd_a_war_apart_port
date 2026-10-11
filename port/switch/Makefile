@@ -76,6 +76,12 @@ host-e2e4-audio-mixer-test:
 	@mkdir -p build/e2e4
 	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e4_audio_mixer.cpp -o build/e2e4/test_audio_mixer
 	build/e2e4/test_audio_mixer
+
+.PHONY: host-e2e4-ui-cache-test
+host-e2e4-ui-cache-test:
+	@mkdir -p build/e2e4
+	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e4_ui_cache_key.cpp -o build/e2e4/test_ui_cache_key
+	build/e2e4/test_ui_cache_key
 DEVKITA64 ?= $(DEVKITPRO)/devkitA64
 LIBNX ?= $(DEVKITPRO)/libnx
 PORTLIBS ?= $(DEVKITPRO)/portlibs/switch
