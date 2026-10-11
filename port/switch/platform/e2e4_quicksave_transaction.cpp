@@ -445,6 +445,8 @@ Result Rotate(const fs::path& source, const std::vector<fs::path>& slots,
     auto recovery = Recover(directory);
     if (!recovery.ok) return recovery;
     std::string detail;
+    if (!Step(fault, "read-new-save"))
+        return {false, recovery.recovered, {}, "save.tmp read fault; original slots unchanged"};
     if (!SyncFile(source))
         return {false, recovery.recovered, {}, "save.tmp flush failed; original slots unchanged"};
     if (!ValidateSave(source, detail)) return {false, recovery.recovered, {}, detail};
@@ -475,6 +477,8 @@ Result Rotate(const fs::path& source, const std::vector<fs::path>& slots,
         auto& entry = manifest.entries[i];
         entry.present = FileKind(slots[i]) == Kind::regular;
         if (entry.present) {
+            if (!Step(fault, "read-original-slot"))
+                return {false, recovery.recovered, transaction, "original slot read fault; old files unchanged"};
             if (!HashFile(slots[i], entry.fingerprint))
                 return {false, recovery.recovered, transaction, "original slot read failed"};
             if (!CopyVerified(slots[i], Original(transaction, i), entry.fingerprint,

@@ -48,9 +48,10 @@ fails before changing old slots. No automatic cleanup policy is applied.
 
 The host regression test covers successful three-slot rotation, prior `.bak`
 preservation, validation failure, the 16-directory limit, symlink refusal,
-injected failure at every mutation, simulated process interruption at every
-stage, a persistent simulated out-of-space failure during publish and
-rollback, and an interrupted rollback retried from disk. ASan/UBSan runs the
+injected read failures and failure at every mutation, simulated process
+interruption at every stage, a persistent simulated out-of-space failure
+during publish and rollback, and an interrupted rollback retried from disk.
+ASan/UBSan runs the
 same test in CI. An isolated ARM64 experimental NRO is built by CI. These
 checks do not establish SD-card power-loss durability, a real storage-full
 event, original game save/load compatibility, or preservation of slots on

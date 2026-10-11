@@ -135,9 +135,26 @@ int main(int argc, char** argv) {
         assert(Read(result.backup_directory / "slot1.orig") == "single-old-slot");
         assert(!fs::exists(result.backup_directory / "slot2.orig"));
     }
-    // Fail every mutating stage, including snapshot creation, deletion,
-    // publication, and the commit marker. Successful rollback retains backup.
-    for (int fail_at = 1; fail_at <= 23; ++fail_at) {
+    // Count the live operation hooks so a new stage cannot silently escape
+    // the exhaustive failure and crash loops below.
+    int operation_count = 0;
+    {
+        const auto dir = root / "count-operations"; Populate(dir);
+        assert(Rotate(dir / "save.tmp", Slots(dir), [&](const char*) {
+            ++operation_count; return true;
+        }).ok);
+    }
+    assert(operation_count > 20);
+    for (const char* failed_read : {"read-new-save", "read-original-slot"}) {
+        const auto dir = root / failed_read; Populate(dir);
+        const auto result = Rotate(dir / "save.tmp", Slots(dir), [failed_read](const char* step) {
+            return std::string(step) != failed_read;
+        });
+        assert(!result.ok);
+        OriginalIntact(dir);
+    }
+    // Fail every read and mutating stage. Successful rollback retains backup.
+    for (int fail_at = 1; fail_at <= operation_count; ++fail_at) {
         const auto dir = root / ("fault-" + std::to_string(fail_at)); Populate(dir);
         int call = 0;
         const Fault fail = [&](const char*) { return ++call != fail_at; };
@@ -149,7 +166,7 @@ int main(int argc, char** argv) {
     }
     // A process can stop without running the in-process rollback. Recovery
     // must reconstruct every original slot from the on-disk manifest.
-    for (int stop_at = 1; stop_at <= 23; ++stop_at) {
+    for (int stop_at = 1; stop_at <= operation_count; ++stop_at) {
         const auto dir = root / ("crash-" + std::to_string(stop_at)); Populate(dir);
         int call = 0;
         try {
@@ -160,7 +177,8 @@ int main(int argc, char** argv) {
             assert(false);
         } catch (const std::runtime_error&) {}
         auto recovered = Recover(dir);
-        if (stop_at >= 10) assert(recovered.ok && recovered.recovered);
+        if (fs::exists(dir / ".e2e4-quicksave-backups" / "txn-01" / "manifest"))
+            assert(recovered.ok && recovered.recovered);
         OriginalIntact(dir);
     }
     {
