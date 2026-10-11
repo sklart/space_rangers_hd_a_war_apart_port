@@ -109,8 +109,11 @@ The experimental path passed a local full ARM64 link on 2026-10-11: 298 original
 units, 378 linked objects, zero unresolved symbols, ELF64 AArch64 PIE.
 The Audio ON NRO uses an `E2EAudioON` stem and commit-based suffix; the
 build report records its exact SHA-256 and source-tree cleanliness.
-Host SDL dummy sanitizer testing and playback on Switch are still pending.
-It is not an accepted Audio ON build. The
+CI [run 38133290219](https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38133290219)
+passed the SDL dummy-device ASan/UBSan test, host regression, and all three
+ARM64 variants (ordinary Audio OFF, experimental quicksave, experimental
+Audio ON). Playback on Switch is still pending. It is not an accepted Audio
+ON build. The
 current stream mix adds onto S16 output after effect clamping; combined loud
 effects and music may clip early. That mix order must be corrected before
 audible acceptance. The bridge currently applies gain linearly while the
@@ -120,7 +123,7 @@ hardware audio test has run.
 
 ## Evidence boundary
 
-The host PCM ring and ARM64 link pass do not establish audible output or
-original-game music transitions. Audio OFF is the E2E-3 baseline. Sanitized
-SDL host testing, original save/load testing, and physical Switch playback
-remain separate gates. Status: `SOFTWARE PARTIAL / HARDWARE PENDING`.
+The sanitized SDL host and ARM64 build passes do not establish audible output
+or original-game music transitions. Audio OFF is the E2E-3 baseline. Original
+save/load testing and physical Switch playback remain separate gates. Status:
+`SOFTWARE PARTIAL / HARDWARE PENDING`.
