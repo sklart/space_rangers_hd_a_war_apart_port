@@ -12,7 +12,7 @@
     }
   ],
   "excluded_required": 0,
-  "link_objects": 375,
+  "link_objects": 376,
   "undefined_symbols": 0,
   "elf": "ELF64 AArch64 PIE",
   "required_game_symbols": {
@@ -42,6 +42,7 @@
     "aft_font",
     "alpha_bitmap_cpu",
     "blockpar_test_support",
+    "e2e4_sdl_audio",
     "e2e_calendar",
     "e2e_events",
     "e2e_file_match",
@@ -133,14 +134,17 @@
   "required_stubs": [],
   "arm64_link": "PASS",
   "first_failure": null,
-  "build_git": "b34b7bfc3b1a72701d0340012100af481c36e177",
+  "build_git": "27d1b9221a3fb06a896a8ae45104e78915e1b7a5",
   "build_dirty": false,
   "source_overrides": [
+    "EC_CacheSound.cpp",
     "GI_MessageLoop.cpp",
     "GR_GraphBuf.cpp",
     "GR_Main.cpp",
     "Globals.cpp",
     "Rangers.cpp",
+    "VorbisFile.cpp",
+    "aGalaxy.cpp",
     "aSaveLoad.cpp",
     "program.cpp",
     "EC_BlockPar.cpp",
@@ -154,9 +158,9 @@
     "windows_imports_portable.cpp"
   ],
   "game_compile_optimization": "-O2 -fno-strict-aliasing",
-  "compile_fingerprint_sha256": "6DB4F1120AC783F954597CC6AD8092FAC1DC44F521B07424F543012AC120ECF6",
+  "compile_fingerprint_sha256": "9889C6260D22290416AC2A7B0CDD07B2D06C7A6FCA5CCCF8B288F48F09F5939B",
   "win32_surface": {
-    "manifest_sha256": "33562AA69E8B133F916760E1F2F63596886C26A85DE28A066D270AEE1CB470E8",
+    "manifest_sha256": "FBE9A2955FEC96715B4DF333D760993049C6D5936C0A33F4B6325535183F2590",
     "imports": 254,
     "dynamic_calls": 69,
     "classifications": {
@@ -169,10 +173,10 @@
     "startup_unimplemented": 0
   },
   "nro": {
-    "path": "port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E-b34b7bf.nro",
+    "path": "port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E-27d1b92.nro",
     "working_path": "port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E.nro",
-    "bytes": 16025904,
-    "sha256": "6A5290EBBDCD69D1E093285DF2C8DA3D83410658239088AC62E4FF72F087E7B8",
+    "bytes": 16030000,
+    "sha256": "CB2C999F3D0C1618D8ECEEFC3E636734505CAB2DCA2CC61A69C324F32028870B",
     "status": "SOFTWARE AUDIT PASS; hardware not tested"
   }
 }
