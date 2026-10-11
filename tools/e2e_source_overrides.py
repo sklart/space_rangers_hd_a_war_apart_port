@@ -689,7 +689,9 @@ void CloseVorbisStream(TOggWorker* worker) {
 #if defined(E2E4_QUICKSAVE_EXPERIMENT)
         const auto quick = fSaveManager::TfSaveManager::GetQuickSavePath(1);
         const auto recovery = srhd_awa::platform::e2e4_quicksave::RecoverGamePaths(quick.pchar());
-        GR_Main::AppendLogLineThreadSafe(pas::AnsiString(recovery.detail.c_str()));
+        const auto recovery_log = std::string("E2E4 quicksave startup recovery: ") +
+            recovery.detail + " backup=" + recovery.backup_directory.string();
+        GR_Main::AppendLogLineThreadSafe(pas::AnsiString(recovery_log.c_str()));
         if (!recovery.ok) {
             pas::raise(pas::make_exception<pas::Abort>("E2E4 quicksave recovery failed; inspect retained snapshots"_a));
         }
@@ -726,7 +728,9 @@ void CloseVorbisStream(TOggWorker* worker) {
             if (Self->FileName == QuickName) {
                 const auto transaction = srhd_awa::platform::e2e4_quicksave::RotateGamePaths(
                     TempName.pchar(), QuickName.pchar(), GlobalsV::QuickSaveExtraSlots);
-                GR_Main::AppendLogLineThreadSafe(pas::AnsiString(transaction.detail.c_str()));
+                const auto transaction_log = std::string("E2E4 quicksave: ") +
+                    transaction.detail + " backup=" + transaction.backup_directory.string();
+                GR_Main::AppendLogLineThreadSafe(pas::AnsiString(transaction_log.c_str()));
                 if (!transaction.ok) {
                     pas::raise(pas::make_exception<pas::Abort>("E2E4 quicksave rotation failed; inspect retained backup directory"_a));
                 }
@@ -751,11 +755,11 @@ void CloseVorbisStream(TOggWorker* worker) {
             raise RuntimeError("quicksave post-failure temp cleanup boundary changed")
         saver = saver.replace(cleanup, '''#if defined(E2E4_QUICKSAVE_EXPERIMENT)
         if (Self->FileName != QuickName || e2e_quicksave_committed) {
+#else
+        if (Self->FileName != QuickName) {
 #endif
 ''' + cleanup + '''
-#if defined(E2E4_QUICKSAVE_EXPERIMENT)
-        }
-#endif''', 1)
+        }''', 1)
         text = text[:saver_start] + saver + text[saver_end:]
         text = '#include "e2e4_quicksave_transaction.hpp"\n' + text
     if source.name == "GR_Main.cpp":

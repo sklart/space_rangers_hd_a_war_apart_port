@@ -445,6 +445,8 @@ Result Rotate(const fs::path& source, const std::vector<fs::path>& slots,
     auto recovery = Recover(directory);
     if (!recovery.ok) return recovery;
     std::string detail;
+    if (!SyncFile(source))
+        return {false, recovery.recovered, {}, "save.tmp flush failed; original slots unchanged"};
     if (!ValidateSave(source, detail)) return {false, recovery.recovered, {}, detail};
     Fingerprint new_save;
     if (!HashFile(source, new_save)) return {false, recovery.recovered, {}, "save.tmp read failed"};
