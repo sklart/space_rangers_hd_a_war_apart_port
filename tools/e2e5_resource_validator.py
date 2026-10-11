@@ -13,6 +13,7 @@ import json
 import mmap
 import os
 from pathlib import Path
+import re
 import struct
 import sys
 
@@ -22,6 +23,35 @@ from probe_ui_images_release import decode_dat, block_entries, data_entries, ent
 from probe_gai_release import decode2, gai, frame, header  # noqa: E402
 
 GAME_ROOT_ENV = "GAME_ROOT"
+REGISTERED_SCREEN = re.compile(
+    r"GlobalsV::RegisteredScreens\[GlobalsV::(\w+)\]\s*=\s*(\w+);"
+)
+
+
+def registered_screen_inventory(source: str) -> list[dict]:
+    """Map original screen IDs to the config names used at registration."""
+    matches = list(REGISTERED_SCREEN.finditer(source))
+    rows = []
+    for index, match in enumerate(matches):
+        screen_id, variable = match.groups()
+        following = source[match.end():matches[index + 1].start() if index + 1 < len(matches) else len(source)]
+        initialize = re.search(
+            rf"\b{re.escape(variable)}->InitializeFromConfig\s*\([^;]*?u\"([^\"]+)\"",
+            following,
+        )
+        rows.append({"screen_id": screen_id, "variable": variable,
+                     "config": initialize.group(1) if initialize else None,
+                     "source_line": source.count("\n", 0, match.start()) + 1})
+    return rows
+
+
+def resource_status(report: dict) -> str:
+    if report["errors"]:
+        return "FAIL"
+    if (report["unsupported_oracle_images"] or report["images_not_examined"] or
+            report["screen_dependencies_resolved"] != report["screen_image_dependencies"]):
+        return "PARTIAL — RESOURCE DATA; DEPENDENCIES OR IMAGES UNVERIFIED"
+    return "PASS — RESOURCE DATA ONLY"
 
 
 def sha(data: bytes) -> str:
@@ -113,6 +143,16 @@ def validate(root: Path, *, max_decode: int = 32) -> dict:
     report["screens"] = dict(sorted(screens.items()))
     report["screen_count"] = len(screens)
     report["config_values"] = len(config_rows)
+    original_screens = registered_screen_inventory(
+        (ROOT / "upstream/cpp/src/Globals.cpp").read_text(encoding="utf-8")
+    )
+    for screen in original_screens:
+        config = screens.get(screen["config"])
+        screen["config_present"] = config is not None
+        screen["image_options"] = config["image_options"] if config else None
+    report["registered_screens"] = original_screens
+    report["registered_screen_count"] = len(original_screens)
+    report["registered_screen_configs_present"] = sum(screen["config_present"] for screen in original_screens)
     package_count = 0
     resource_count = 0
     format_counts: Counter[str] = Counter()
@@ -198,20 +238,30 @@ def validate(root: Path, *, max_decode: int = 32) -> dict:
         for dependency in screen["resource_dependencies"]:
             path = dependency["package_path"]
             dependency["present_in_package"] = path.replace("\\", "/").casefold() in package_names if path else False
+    for screen in original_screens:
+        config = screens.get(screen["config"])
+        screen["image_dependencies_resolved"] = sum(
+            dependency["present_in_package"] for dependency in config["resource_dependencies"]
+        ) if config else None
     report["screen_image_dependencies"] = sum(screen["image_options"] for screen in report["screens"].values())
     report["screen_dependencies_resolved"] = sum(
         dependency["present_in_package"] for screen in report["screens"].values()
         for dependency in screen["resource_dependencies"])
     report["gi_gai_entries_by_format"] = dict(sorted(format_counts.items()))
     report["decode_limit"] = max_decode
+    report["images_examined"] = len(report["decoded_images"]) + sum(
+        error["stage"] == "decode" for error in report["errors"]
+    )
+    report["images_not_examined"] = sum(format_counts.values()) - report["images_examined"]
     report["unsupported_oracle_images"] = sum(
         row.get("format") not in (None, 0, 2) or "first_frame_status" in row or
         "image_status" in row or
         row.get("first_frame_format") not in (None, 0, 2)
         for row in report["decoded_images"])
-    report["status"] = ("FAIL" if report["errors"] else
-                        "PARTIAL — RESOURCE DATA; SOME FORMATS UNVERIFIED" if report["unsupported_oracle_images"] else
-                        "PASS — RESOURCE DATA ONLY")
+    if not original_screens or report["registered_screen_configs_present"] != len(original_screens):
+        report["errors"].append({"stage": "registered-screens", "error":
+                                 "original screen registration lacks a matching UI config"})
+    report["status"] = resource_status(report)
     return report
 
 

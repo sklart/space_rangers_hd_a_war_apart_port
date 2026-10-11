@@ -52,6 +52,20 @@ class E2E5ToolTests(unittest.TestCase):
             result = validator.validate(Path(directory))
         self.assertEqual(result["status"], "NOT RUN — ASSETS UNAVAILABLE")
 
+    def test_original_registered_screen_inventory_and_partial_resource_status(self):
+        validator = module("e2e5_resource_validator")
+        original = (ROOT / "upstream/cpp/src/Globals.cpp").read_text(encoding="utf-8")
+        screens = validator.registered_screen_inventory(original)
+        self.assertEqual(len(screens), 36)
+        self.assertEqual(len({row["screen_id"] for row in screens}), len(screens))
+        self.assertEqual(next(row["config"] for row in screens
+                              if row["screen_id"] == "screenNewGame"), "GameSettings")
+        status = validator.resource_status({"errors": [], "unsupported_oracle_images": 0,
+                                            "images_not_examined": 1,
+                                            "screen_dependencies_resolved": 10,
+                                            "screen_image_dependencies": 10})
+        self.assertTrue(status.startswith("PARTIAL"))
+
     def test_first_failure_precedes_secondary_crash(self):
         analyzer = module("e2e5_crash_analyzer")
         with tempfile.TemporaryDirectory() as directory:

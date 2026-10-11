@@ -16,7 +16,7 @@ diagnostics to `reports/e2e5/`. No package or decoded image is copied to Git.
 |---|---|---|---|
 | Static inventory | `tools/e2e5_static_audit.py` | Current C++ source candidates and no newly unclassified site relative to the checked-in baseline | Every candidate is safe; the inventory has unresolved sites |
 | Component | `tests/test_e2e5_tools.py` and existing E2E tests | Tool contracts, original method fixtures, targeted native components | Original game scenario |
-| Resource data | `tools/e2e5_resource_validator.py` | CFG checksums, package indexes, selected GI/GAI decoding | Original renderer, all graphic formats, screen first frame |
+| Resource data | `tools/e2e5_resource_validator.py` | CFG checksums, package indexes, selected GI/GAI decoding, and mapping of the 36 screens registered in original `Globals.cpp` to their UI configs and image dependencies | Original UI construction, full renderer, all graphic formats, screen first frame |
 | Installed GameSettings background | `tools/e2e5_formgameset2_compare.py` plus `tests/test_e2e5_format0_real.cpp` | Independent oracle and production CPU decoder return identical pixels for `FormGameSet2/2bg.gi` | Original `GraphBuf` rescale or GameSettings first frame |
 | Installed GameSettings GI decode, rescale, and repack | `tools/e2e5_original_graphbuf_host.sh`, `tests/test_e2e5_original_graphbuf.cpp`, `tools/e2e5_gamesettings_rescale.py` | Original `TBufEC` accepts and preserves the source GI; `TgiGR::LoadRawGiFromBuffer` and `DecodeToGraphBuf` produce the independent Format-0 oracle's pixels. The generated Switch `TGraphBufGR::RescaleRGBA_HW` override delegates to unchanged original `RescaleWithAspect`, center-crops 1920×1200 to 1920×1080 and gives 1280×720, x86 NATIVE FNV64 `ad6d4a9cfa895ba2`, identical to a direct same-architecture OKGF call. Original `TgiGR::CreateFromGraphBuf` generates RGB565 matching the independent oracle on every pixel, FNV64 `8dc3555a82d454db`; a new `TBufEC` retains those bytes after the temporary GI object is freed and all fixture objects run their original destruction path | Cache load, screen first frame, Switch runtime |
 | Original GameSettings cache load | Same host script and ARM64/QEMU script, built with `E2E5_ORIGINAL_CACHEGI` | Unchanged original `TCGiEC::ApplyWideScreenLayoutFixups` and `LoadFromConfigBuffer` run on the installed `2bg.gi` with the generated Switch GraphBuf override. A real cache object loads the transformed 1280×720 RGB565 GI into `Image`, records `ResidentBytes`, and is freed. Its 1,843,200-byte payload matches the independent x86 oracle (`8dc3555a82d454db`) on x86 and the separate original ARM64 GraphBuf/GI result (`1107dc234c3883f5`) under QEMU. Expected rescale start and completion log text is observed for both calls. Synthetic and installed x86 runs passed normally and with ASan/UBSan (`vptr` excluded); synthetic and installed ARM64 runs passed under QEMU. | UI object creation, first screen frame, Switch runtime |
@@ -79,7 +79,9 @@ full game. This does not prove the Switch screen or pixel identity with x86.
 
 The resource validator's bounded default is a quick check. `--max-decode
 100000` requests every indexed GI/GAI item; unsupported formats are reported
-as unverified, not passed. A full original renderer comparison and a first
+as unverified, not passed. A bounded run remains `PARTIAL` when it leaves
+images unexamined, even if every sampled decode succeeds. Missing image
+dependencies also keep the result `PARTIAL`. A full original renderer comparison and a first
 GameSettings frame on the host are still required.
 
 The ARM64 builder now uses GCC dependency files per object. The generated
