@@ -16,6 +16,7 @@
 #include <SDL2/SDL.h>
 #endif
 
+#include <algorithm>
 #include <limits>
 
 namespace srhd_awa::platform::renderer_platform {
@@ -35,6 +36,8 @@ std::int32_t g_texture_height{};
 bool g_cursor_overlay_logged{};
 std::uint32_t g_rate_start_tick{};
 std::uint64_t g_rate_start_count{};
+std::uint64_t g_present_us_sum{};
+std::uint64_t g_present_us_max{};
 std::uint32_t g_last_hash_tick{};
 
 bool DrawInputCursor(const SDL_Rect& destination, std::int32_t width,
@@ -213,6 +216,9 @@ bool InitializeReleaseCompatibleDefaults(std::string* error) {
 }
 
 bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, std::int32_t height) {
+#if defined(__SWITCH__)
+  const auto present_start_us = e2e_clock::Microseconds();
+#endif
   if (!g_initialized) return PresentationFailure("renderer not initialized");
   if (!pixels) return PresentationFailure("pixels missing");
   if (!ValidDimensions(width, height, pitch)) return PresentationFailure("invalid dimensions");
@@ -277,6 +283,9 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
     return PresentationFailure("controller cursor overlay");
   SDL_RenderPresent(g_sdl_renderer);
   g_presentation_diagnostics.present_succeeded = true;
+  const auto present_us = e2e_clock::Microseconds() - present_start_us;
+  g_present_us_sum += present_us;
+  g_present_us_max = std::max(g_present_us_max, present_us);
 #else
   g_presentation_diagnostics.present_succeeded = true;
 #endif
@@ -286,18 +295,24 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   if (!g_rate_start_tick) {
     g_rate_start_tick = now;
     g_rate_start_count = g_presentation_count;
+    g_present_us_sum = 0;
+    g_present_us_max = 0;
   } else if (static_cast<std::uint32_t>(now - g_rate_start_tick) >= 5000u) {
     const auto elapsed = static_cast<std::uint32_t>(now - g_rate_start_tick);
     const auto frames = g_presentation_count - g_rate_start_count;
     const auto fps_x100 = frames * UINT64_C(100000) / elapsed;
-    char detail[128]{};
+    char detail[192]{};
     std::snprintf(detail, sizeof(detail),
-                  "presentation rate frames=%llu elapsed_ms=%u fps_x100=%llu",
+                  "presentation rate frames=%llu elapsed_ms=%u fps_x100=%llu present_avg_us=%llu present_max_us=%llu",
                   static_cast<unsigned long long>(frames), elapsed,
-                  static_cast<unsigned long long>(fps_x100));
+                  static_cast<unsigned long long>(fps_x100),
+                  static_cast<unsigned long long>(frames ? g_present_us_sum / frames : 0),
+                  static_cast<unsigned long long>(g_present_us_max));
     e2e_stage::Log(detail);
     g_rate_start_tick = now;
     g_rate_start_count = g_presentation_count;
+    g_present_us_sum = 0;
+    g_present_us_max = 0;
   }
 #endif
   return true;
@@ -314,6 +329,8 @@ void ShutdownPresentation() {
   g_cursor_overlay_logged = false;
   g_rate_start_tick = 0;
   g_rate_start_count = 0;
+  g_present_us_sum = 0;
+  g_present_us_max = 0;
   g_last_hash_tick = 0;
 #endif
   g_presentation_count = 0;

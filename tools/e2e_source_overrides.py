@@ -609,6 +609,48 @@ void CloseVorbisStream(TOggWorker* worker) {
             '            srhd_awa::platform::e2e_stage::LogE2E3("menu_action=New source=keyboard key=Enter");\n' + keyboard, 1)
         text = '#include "e2e_stage.hpp"\n' + text
     if source.name == "fGameSettings2.cpp":
+        # The translated 32-bit UI stores object pointers in UserIndex/UserValue.
+        # These controls are created as adjacent siblings, so resolve the live
+        # object from the UI tree instead of narrowing its address on Switch.
+        old_slider = "Slider->UserIndex = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(ValueLabel));"
+        if text.count(old_slider) != 1:
+            raise RuntimeError("extended slider label boundary changed")
+        text = text.replace(old_slider, "Slider->UserIndex = 0;", 1)
+        for field in ("cpp_with_2->UserValue = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(IronWillImage));",
+                      "CaptionLabel->UserValue = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(ChoiceImage));"):
+            if text.count(field) != 1:
+                raise RuntimeError("extended choice pointer storage changed")
+            text = text.replace(field, field.split(" = ")[0] + " = 0;", 1)
+        old_label = "GI_Label::TLabelGI* cpp_with = reinterpret_cast<GI_Label::TLabelGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserIndex)));"
+        if text.count(old_label) != 4:
+            raise RuntimeError("extended slider callbacks changed")
+        text = text.replace("if (Sender->UserIndex != 0) {\n            " + old_label,
+                            "if (Sender != nullptr) {\n            GI_Label::TLabelGI* cpp_with = pas::class_cast_if<GI_Label::TLabelGI*>(Sender->PrevSibling);\n            if (cpp_with == nullptr || cpp_with->Parent != Sender->Parent) return;", 4)
+        old_choice = "Sender = reinterpret_cast<GI_MessageLoop::TObjectGI*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Sender->UserValue)));"
+        choice_start = "    void TfGameSettings2::ExtendedChoiceMouseDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {"
+        choice_boundary = "        if (!(pas::class_cast_if<GI_Image::TImageGI*>(Sender) != nullptr)) {\n            " + old_choice
+        if text.count(choice_start) != 1:
+            raise RuntimeError("extended choice callback changed")
+        choice_begin = text.index(choice_start)
+        choice_end = text.index("\n    }", choice_begin)
+        choice_body = text[choice_begin:choice_end]
+        if choice_body.count(choice_boundary) != 1:
+            raise RuntimeError("extended choice pointer boundary changed")
+        choice_body = choice_body.replace(choice_boundary,
+            "        if (!(pas::class_cast_if<GI_Image::TImageGI*>(Sender) != nullptr)) {\n            Sender = pas::class_cast_if<GI_Image::TImageGI*>(Sender->NextSibling);\n            if (Sender == nullptr) return;", 1)
+        text = text[:choice_begin] + choice_body + text[choice_end:]
+        for method in ("IronWillMouseDown", "IronWillMouseEnter", "IronWillMouseLeave"):
+            marker = "    void TfGameSettings2::" + method + "("
+            if text.count(marker) != 1:
+                raise RuntimeError("IronWill callback changed: " + method)
+            begin = text.index(marker)
+            end = text.index("\n    }", begin)
+            body = text[begin:end]
+            if body.count(old_choice) != 1:
+                raise RuntimeError("IronWill pointer boundary changed: " + method)
+            body = body.replace(old_choice,
+                "Sender = pas::class_cast_if<GI_Image::TImageGI*>(Sender->PrevSibling);\n            if (Sender == nullptr) return;", 1)
+            text = text[:begin] + body + text[end:]
         start = "        Globals::NewGameGenerationThread->Start();"
         if text.count(start) != 1:
             raise RuntimeError("new game worker start boundary changed")

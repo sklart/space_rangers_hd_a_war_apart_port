@@ -65,6 +65,15 @@ def main() -> None:
         generated = generated_source(GAME / "GI_GraphButton.cpp",
                                      Path(generated_dir) / "GI_GraphButton.cpp")
         button_source = generated.read_text(encoding="utf-8")
+        settings = generated_source(GAME / "fGameSettings2.cpp",
+                                    Path(generated_dir) / "fGameSettings2.cpp")
+        settings_source = settings.read_text(encoding="utf-8")
+    assert settings_source.count("Sender->PrevSibling") == 7
+    assert "Sender = pas::class_cast_if<GI_Image::TImageGI*>(Sender->NextSibling);" in settings_source
+    assert "Slider->UserIndex = 0;" in settings_source
+    slider_callbacks = settings_source[settings_source.index("void TfGameSettings2::FormatExtendedInteger"):
+                                       settings_source.index("void TfGameSettings2::ProcessMouseWheel")]
+    assert "static_cast<std::uint32_t>(Sender->UserIndex)" not in slider_callbacks
     assert "ConsumeTimerTickChange() || WasDown" not in original_button
     assert "ConsumeTimerTickChange() || WasDown" in button_source
     loop_source = (GAME / "GI_MessageLoop.cpp").read_text(encoding="utf-8")

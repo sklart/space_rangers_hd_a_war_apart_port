@@ -110,11 +110,18 @@ AUDIO_ON_FUNCTIONS = {
         for (int i = 0; i < count; ++i) {
             std::int32_t bytes = BufferBytes;
             VorbisFile::ReadVorbisSamples(Decoder, pcm.data(), bytes);
-            if (bytes < 0 || bytes > BufferBytes ||
-                !srhd_awa::platform::e2e4_game_audio::WriteStreamChunk(
-                    this, static_cast<std::size_t>((first + i) % 3),
-                    pcm.data(), static_cast<std::size_t>(bytes))) {
-                GR_Main::AppendLogLineThreadSafe("[MUSIC] stream refill failed"_a);
+            if (bytes < 0 || bytes > BufferBytes) {
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    "[MUSIC] decode size invalid bytes=", SysUtils::IntToStr(bytes),
+                    " expected=", SysUtils::IntToStr(BufferBytes)}));
+                return false;
+            }
+            const auto target = static_cast<std::size_t>((first + i) % 3);
+            if (!srhd_awa::platform::e2e4_game_audio::WriteStreamChunk(
+                    this, target, pcm.data(), static_cast<std::size_t>(bytes))) {
+                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                    "[MUSIC] stream write rejected chunk=", SysUtils::IntToStr(static_cast<std::int32_t>(target)),
+                    " bytes=", SysUtils::IntToStr(bytes)}));
                 return false;
             }
             if (bytes < BufferBytes) return false;
