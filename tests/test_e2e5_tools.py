@@ -93,6 +93,22 @@ class E2E5ToolTests(unittest.TestCase):
         self.assertEqual(stages["game_settings_on_open"], "OBSERVED")
         self.assertEqual(stages["game_settings_first_frame"], "NOT REACHED")
 
+    def test_gamesettings_trace_does_not_invent_later_stages(self):
+        scenario = module("e2e5_scenario_runner")
+        lines = ["[E2E3] screen_transition from=main_menu to=new_game",
+                 "[E2E5] GameSettings background decode_begin",
+                 "[E2E5] GameSettings background decode_done",
+                 "[E2E5] GameSettings background scale_begin"]
+        stages = {row["stage"]: row["status"] for row in scenario.evaluate(lines)["stages"]}
+        self.assertEqual(stages["background_scale_begin"], "OBSERVED")
+        self.assertEqual(stages["background_scale_done"], "NOT REACHED")
+        self.assertEqual(stages["background_repack_done"], "NOT REACHED")
+
+    def test_exception_info_startup_marker_is_not_failure(self):
+        scenario = module("e2e5_scenario_runner")
+        result = scenario.evaluate(["[E2E] ExceptionInfo", "[E2E] ProgramMain BEGIN"])
+        self.assertIsNone(result["first_failure"])
+
     def test_pcm_metrics_find_clip_dc_and_silence(self):
         audio = module("e2e5_audio_capture")
         with tempfile.TemporaryDirectory() as directory:

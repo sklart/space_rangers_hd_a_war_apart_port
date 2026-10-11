@@ -8,7 +8,7 @@
 | GameSettings first frame | Previous hardware log stopped at `Rescaling Bm.FormGameSet2.2bg...`; experimental source override now logs entry and exit of the original GI decode, rescale, and repack calls; ARM64 build passed | NOT RUN on host; new trace not yet measured on hardware |
 | Main Menu → New Game → gameplay | Checkpoint log evaluator | NOT RUN on host |
 | Full original audio path and offline capture | Existing component tests; ring underrun/reject counters; independent 30-second decode of installed menu track. Experimental source override distinguishes poll timeout `3` from real completion event `0` and retains one late decoded chunk for retry; ARM64 link passed. | NOT RUN end to end; audio output and audible quality unverified |
-| Cursor and frame stage profiler | Experimental ARM64 `GI_MessageLoop::Run` stage timer compiled; earlier hardware presentation rate only | PARTIAL: no measured stage log or separate cursor frequency yet |
+| Cursor and frame stage profiler | Experimental ARM64 `GI_MessageLoop::Run` stage timer and separate five-second input poll/move/gap counter compiled; earlier hardware presentation rate only | PARTIAL: no measured stage or input cadence log yet |
 | Original script and save/load round-trip | Existing native-width component tests and guarded save | NOT RUN end to end |
 | Crash correlation | `D:\\report.zip` parsed; exact first exception was not captured in log | PARTIAL |
 | Incremental ARM64 build | Per-object dependencies added; latest trace build compiled 2 objects and reused 378; complete rebuild verification pending | PARTIAL |

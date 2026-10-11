@@ -37,7 +37,7 @@ def compare(game_root: Path, decoder: Path) -> dict:
         private_path = Path(directory) / "background.gi"
         private_path.write_bytes(source)
         run = subprocess.run([str(decoder.resolve()), str(private_path),
-                              str(image["width"]), expected],
+                              str(image["width"]), str(image["height"]), expected],
                              capture_output=True, text=True, timeout=60, check=False)
     if run.returncode:
         raise ValueError(f"production decoder exit={run.returncode}: {run.stdout} {run.stderr}")

@@ -16,6 +16,12 @@ STAGES = (
     ("new_game_request", r"screen_transition from=main_menu to=new_game"),
     ("game_settings_open", r"game_settings status=open"),
     ("game_settings_on_open", r"screen Run OnOpen ready"),
+    ("background_decode_begin", r"\[E2E5\] GameSettings background decode_begin"),
+    ("background_decode_done", r"\[E2E5\] GameSettings background decode_done"),
+    ("background_scale_begin", r"\[E2E5\] GameSettings background scale_begin"),
+    ("background_scale_done", r"\[E2E5\] GameSettings background scale_done"),
+    ("background_repack_begin", r"\[E2E5\] GameSettings background repack_begin"),
+    ("background_repack_done", r"\[E2E5\] GameSettings background repack_done"),
     ("game_settings_first_frame", r"screen Run first frame attempted"),
     ("game_settings_ok", r"game_settings status=ok|button=Ok event=up"),
     ("galaxy_generation", r"generation status=complete"),
@@ -37,7 +43,7 @@ def evaluate(lines: list[str]) -> dict:
                       and re.search(expression, line, re.I)), None)
         observed.append({"stage": name, "status": "OBSERVED" if match else "NOT REACHED", "evidence": match})
     failures = [{"line": i, "text": line} for i, line in enumerate(lines, 1)
-                if re.search(r"\bFAIL\b|status=(?:failed|error)|exception", line, re.I)]
+                if re.search(r"\bFAIL\b|status=(?:failed|error)|\bexception\b", line, re.I)]
     return {"schema": 1, "level": "OBSERVED GAME LOG CHECKPOINTS", "stages": observed,
             "first_failure": failures[0] if failures else None,
             "hardware": "LOG EVIDENCE ONLY; MANUAL VALIDATION PENDING"}

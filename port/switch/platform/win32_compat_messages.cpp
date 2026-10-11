@@ -58,6 +58,11 @@ std::int32_t g_last_x = -1, g_last_y = -1;
 #if defined(__SWITCH__)
 std::uint32_t g_last_input_diagnostic_tick{};
 bool g_input_diagnostic_started{};
+std::uint64_t g_poll_window_start_us{};
+std::uint64_t g_previous_poll_us{};
+std::uint64_t g_poll_count{};
+std::uint64_t g_pointer_move_count{};
+std::uint64_t g_max_poll_gap_us{};
 #endif
 
 std::int32_t MouseLParam(std::int32_t x, std::int32_t y) {
@@ -94,6 +99,26 @@ void Pump() {
   const auto input = input_platform::Poll(&g_input, width, height);
   SetInputCursor(input.x, input.y);
 #if defined(__SWITCH__)
+  const auto poll_us = e2e_clock::Microseconds();
+  if (g_poll_window_start_us == 0) g_poll_window_start_us = poll_us;
+  if (g_previous_poll_us && poll_us >= g_previous_poll_us)
+    g_max_poll_gap_us = std::max(g_max_poll_gap_us, poll_us - g_previous_poll_us);
+  g_previous_poll_us = poll_us;
+  ++g_poll_count;
+  if (input.x != g_last_x || input.y != g_last_y) ++g_pointer_move_count;
+  const auto window_us = poll_us - g_poll_window_start_us;
+  if (window_us >= 5000000u) {
+    char rate_detail[160]{};
+    std::snprintf(rate_detail, sizeof(rate_detail),
+        "input cadence polls=%llu moves=%llu window_us=%llu max_gap_us=%llu",
+        static_cast<unsigned long long>(g_poll_count),
+        static_cast<unsigned long long>(g_pointer_move_count),
+        static_cast<unsigned long long>(window_us),
+        static_cast<unsigned long long>(g_max_poll_gap_us));
+    e2e_stage::Log(rate_detail);
+    g_poll_window_start_us = poll_us;
+    g_poll_count = g_pointer_move_count = g_max_poll_gap_us = 0;
+  }
   const auto diagnostic_tick = e2e_clock::Milliseconds();
   const bool button_edge = input.left_down || input.left_up || input.right_down ||
       input.right_up || input.enter_down || input.enter_up || input.escape_down ||

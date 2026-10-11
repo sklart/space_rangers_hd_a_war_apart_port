@@ -11,6 +11,11 @@ sampled p50/p95/p99, and maximum for intervals between the original
 no Switch stage data exists yet. These intervals do not separately identify
 every nested resource decode or layout call.
 
+The Switch input pump also records `input cadence` every five seconds: poll
+count, pointer move count, window duration, and largest gap between polls.
+This separates slow input sampling from visible frame pacing without changing
+cursor behavior. The counters still need measurements on the console.
+
 Required measurements before a final build: input poll, Win32 dispatch,
 original callback, game update, layout, resource lookup/decode, scaling,
 draw/composite/copy, SDL presentation, sleep/waits; each with count, p50, p95,
