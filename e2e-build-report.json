@@ -1,5 +1,6 @@
 {
   "target": "switch-e2e-game",
+  "build_profile": "release",
   "upstream_pin": "57fa689c630193a66fdea6ca4c79a188814991cd",
   "upstream_source_files_total": 298,
   "compiled": 298,
@@ -131,7 +132,7 @@
   "required_stubs": [],
   "arm64_link": "PASS",
   "first_failure": null,
-  "build_git": "580a1b0667e908ecf0f76a66ddb93347ae50e3fd",
+  "build_git": "0eb738039a1b1422720bc0aa39c456548ae69706",
   "build_dirty": false,
   "source_overrides": [
     "GI_MessageLoop.cpp",
@@ -152,6 +153,7 @@
     "windows_imports_portable.cpp"
   ],
   "game_compile_optimization": "-O2 -fno-strict-aliasing",
+  "compile_fingerprint_sha256": "FE3B739407D230DE5B96C56E400BE5173D8A5CAA5EF10C210EF9B07E3BE7A166",
   "win32_surface": {
     "manifest_sha256": "E045A0B6780D35621E68A0CFB586624D1C9FA646CD474D2E0D097CD36523F96A",
     "imports": 254,
@@ -166,9 +168,10 @@
     "startup_unimplemented": 0
   },
   "nro": {
-    "path": "port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E.nro",
+    "path": "port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E-0eb7380.nro",
+    "working_path": "port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E.nro",
     "bytes": 16021808,
-    "sha256": "5E1937C2B94B00D62092126DBC54C626FC6B644E6BA3984C06F80540DA6C082F",
+    "sha256": "EA33173E0D5898EFEAA2D1AF7CF27B125DB9664738B8E6D8D5A59E20AA419F5F",
     "status": "SOFTWARE AUDIT PASS; hardware not tested"
   }
 }
