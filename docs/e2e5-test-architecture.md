@@ -25,7 +25,7 @@ diagnostics to `reports/e2e5/`. No package or decoded image is copied to Git.
 | Offline PCM | `tools/e2e5_audio_capture.py` | Properties of a supplied signed 16-bit WAV | Full `GR_Music`/`GR_Sound` path or audible quality |
 | Installed music oracle | `tools/e2e5_audio_capture.py --game-root ... --resource music/REV/theo_running_away.dat` | Source Ogg independently decodes to PCM; 30-second level/clipping/DC measurements | Original Vorbis worker, mixer, SDL, audible Switch output |
 | Host coordination | `tools/e2e5_host_runner.py` | Available tests and explicit missing gates | Complete `ProgramMain` execution |
-| Original process smoke on Linux x86-64 | `tools/e2e5_host_game_build.py`, `tools/e2e5_host_game_main.cpp`, and `tools/e2e5_host_game_probe.py` | Reproducible full-effective host ELF ran original `ProgramMain` with installed assets, submitted a 1280×720 RGB565 loading frame, opened Main Menu, processed original Return-key actions in the menu and GameSettings, opened Introduction and ran its presentation loop while generation was active. Original music workers played decoded data into SDL dummy audio. The builder records its 331-object source map and binary SHA-256; the probe records isolated logs. | Generation still crashes; no gameplay, independently captured GameSettings pixel frame, PCM quality or Switch runtime proof. |
+| Original process smoke on Linux x86-64 | `tools/e2e5_host_game_build.py`, `tools/e2e5_host_game_main.cpp`, and `tools/e2e5_host_game_probe.py` | Reproducible full-effective host ELF ran original `ProgramMain` with installed assets, submitted a 1280×720 RGB565 loading frame, opened Main Menu, processed original Return-key actions in the menu and GameSettings, opened Introduction and ran its presentation loop while generation was active. After native-width repairs, the latest run survived a 180-second probe window without a signal. Original music workers played decoded data into SDL dummy audio. The builder records its 331-object source map and binary SHA-256; the probe records isolated logs. | No confirmed generation completion, gameplay, independently captured GameSettings pixel frame, PCM quality or Switch runtime proof. |
 
 `tools/e2e5_report.py` combines the levels without elevating resource or
 method-level PASS to a game-scenario PASS. An exploratory full-effective
@@ -45,8 +45,9 @@ decode/scale/repack checkpoints, and first, second, tenth and sixtieth frame
 attempts. A second original Return-key action dispatched Introduction screen 3,
 which also opened and presented frames while the generation worker ran.
 Native-width repairs then moved the observed crash through several later
-generation paths. The latest run still ended in SIGSEGV; generation completion
-and gameplay remain open.
+generation paths. Clearing the original player's equipment slots at their
+native offsets let the latest host run reach its 180-second timeout without
+a signal. Generation completion and gameplay remain open.
 
 ## Commands
 

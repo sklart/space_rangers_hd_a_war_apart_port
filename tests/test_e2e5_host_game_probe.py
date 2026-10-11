@@ -63,6 +63,26 @@ class HostGameProbeTests(unittest.TestCase):
             self.assertEqual(result["status"], "CRASH_AFTER_FIRST_FRAME")
             self.assertIsNotNone(result["first_software_frame"])
 
+    def test_nonzero_exit_after_frame_is_not_reported_as_success(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            base = Path(folder)
+            binary = base / "fixture"
+            binary.write_text(
+                "#!/bin/sh\n"
+                "mkdir -p 'sdmc:/switch/space-rangers-hd-a-war-apart/logs'\n"
+                "printf '[E2E] HOST first software frame width=1280 height=720 rgb565_hash=0123456789abcdef\\n' > 'sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log'\n"
+                "exit 134\n", encoding="utf-8")
+            binary.chmod(0o755)
+            game = base / "game"
+            game.mkdir()
+            library = base / "lib"
+            library.mkdir()
+            with patch.object(e2e5_host_game_probe, "RUNS", base / "runs"):
+                result = e2e5_host_game_probe.run(
+                    binary, game, library, timeout=2, crash_trace=None,
+                    continue_after_frame=True)
+            self.assertEqual(result["status"], "PROCESS_ERROR_AFTER_FIRST_FRAME")
+
 
 if __name__ == "__main__":
     unittest.main()

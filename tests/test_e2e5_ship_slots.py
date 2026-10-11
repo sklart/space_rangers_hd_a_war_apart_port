@@ -41,6 +41,8 @@ class ShipSlotOverrideTests(unittest.TestCase):
         self.assertIn("std::uintptr_t EncodedPlayer", text)
         self.assertNotIn("static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Player))", text)
         self.assertIn("EncodedPlayer ^ 0xb1cd15d3u", text)
+        self.assertNotIn("reinterpret_cast<aShip::PShipEquipmentCacheView>(this)->Slots", text)
+        self.assertIn("pas::byte_offset(&Hull, (Kind - 42)", text)
 
     def test_script_order_targets_keep_full_pointer_width(self) -> None:
         source = ROOT / "upstream/cpp/src/aShip.cpp"

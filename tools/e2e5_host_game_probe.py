@@ -95,11 +95,14 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         seen_frame = FRAME.search(e2e_log.read_text(encoding="utf-8", errors="replace"))
     elapsed = round(time.monotonic() - began, 2)
     stderr_tail = tail(stderr_path)
+    full_stderr = stderr_path.read_text(encoding="utf-8", errors="replace") if stderr_path.is_file() else ""
     crashed = not stopped_by_probe and (
         (process.returncode is not None and process.returncode < 0) or
-        "E2E5 HOST SIGNAL" in stderr_tail)
+        "E2E5 HOST SIGNAL" in full_stderr)
     if crashed:
         state = "CRASH_AFTER_FIRST_FRAME" if seen_frame else "CRASH_BEFORE_FIRST_FRAME"
+    elif not stopped_by_probe and process.returncode not in (None, 0):
+        state = "PROCESS_ERROR_AFTER_FIRST_FRAME" if seen_frame else "PROCESS_ERROR_BEFORE_FIRST_FRAME"
     elif seen_frame:
         state = "FIRST_SOFTWARE_FRAME_OBSERVED"
     elif timed_out:

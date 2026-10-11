@@ -257,6 +257,10 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "aPlayer.cpp":
+        old_slots = "reinterpret_cast<aShip::PShipEquipmentCacheView>(this)->Slots"
+        if text.count(old_slots) != 1:
+            raise RuntimeError("player equipment reset boundary changed")
+        text = text.replace(old_slots, "Hull", 1)
         player_width_repairs = (
             ("std::uint32_t EncodedPlayer = 0xb1cd15d3u;",
              "std::uintptr_t EncodedPlayer = 0xb1cd15d3u;"),
