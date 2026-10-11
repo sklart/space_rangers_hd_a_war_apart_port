@@ -64,6 +64,12 @@ host-e2e4-protected-state-test:
 	build/e2e4/test_protected_state
 	g++ -std=gnu++20 -O2 -Wno-invalid-offsetof -I../../upstream/cpp/src -I../../upstream/cpp/runtime ../../tests/test_e2e4_galaxy_layout.cpp -o build/e2e4/test_galaxy_layout
 	build/e2e4/test_galaxy_layout
+
+.PHONY: host-e2e4-save-replace-test
+host-e2e4-save-replace-test:
+	@mkdir -p build/e2e4
+	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e4_save_replace.cpp -o build/e2e4/test_save_replace
+	build/e2e4/test_save_replace build/e2e4/save-test
 DEVKITA64 ?= $(DEVKITPRO)/devkitA64
 LIBNX ?= $(DEVKITPRO)/libnx
 PORTLIBS ?= $(DEVKITPRO)/portlibs/switch
