@@ -77,6 +77,12 @@ AUDIO_ON_FUNCTIONS = {
         "void TSoundBuffer::InitStream(std::int32_t ChunkBytes, void* Format)": '''
         if (ChunkBytes <= 0 || Format == nullptr)
             pas::raise(pas::make_exception<pas::Exception>("Invalid stream buffer"_a));
+        // The original two-second chunks leave too little refill time while
+        // the software UI renderer occupies the Switch CPU. Three seconds
+        // still fit the bounded three-chunk ring (< 2 MiB at 44.1 kHz S16).
+        if (ChunkBytes > INT32_MAX / 3)
+            pas::raise(pas::make_exception<pas::Exception>("Stream chunk too large"_a));
+        ChunkBytes = ChunkBytes * 3 / 2;
         Clear();
         Windows::CopyMemory(&WaveFormat, Format,
             static_cast<std::int32_t>(sizeof(WaveFormat)));
@@ -122,7 +128,11 @@ AUDIO_ON_FUNCTIONS = {
                 GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
                     "[MUSIC] stream write rejected chunk=", SysUtils::IntToStr(static_cast<std::int32_t>(target)),
                     " bytes=", SysUtils::IntToStr(bytes)}));
-                return false;
+                // A refill that arrives after playback has entered this chunk
+                // cannot safely overwrite it. Keep the stream running and
+                // resume on the next completed chunk instead of restarting
+                // the entire track. A missing/stopped stream is still fatal.
+                return srhd_awa::platform::e2e4_game_audio::IsPlaying(this);
             }
             if (bytes < BufferBytes) return false;
         }

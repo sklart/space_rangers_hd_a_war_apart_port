@@ -12,6 +12,14 @@ else:
 
 
 FUNCTIONS: dict[str, dict[str, str]] = {
+    "GR_GraphBuf.cpp": {
+        "void TGraphBufGR::RescaleRGBA_HW(std::uint32_t Width, std::uint32_t Height, std::uint8_t CropToAspect, std::int32_t HorizontalAlign, std::int32_t VerticalAlign)": '''
+        // Switch's portable D3D surface path cannot guarantee the original
+        // staging/render-target round trip. Use the existing CPU aspect crop
+        // and RGBA resampler for these load-time UI backgrounds.
+        RescaleWithAspect(Width, Height, CropToAspect,
+                          HorizontalAlign, VerticalAlign, 5);''',
+    },
     "EC_CacheSound.cpp": {
         "void TCSoundEC::LoadFromConfigBuffer(EC_Buf::TBufEC* SourceBuffer, const pas::WideString& LoadOption)": '''
         (void)LoadOption;
@@ -557,7 +565,48 @@ void CloseVorbisStream(TOggWorker* worker) {
                             static_cast<unsigned>(e2e_frame_count));
                         srhd_awa::platform::e2e_stage::Log(detail);
                     }''', 1)
-        run = run.replace("        std::int32_t Stage = 0;", "        std::int32_t Stage = 0;\n        bool e2e_first_frame_logged = false;\n        std::uint32_t e2e_frame_count = 0;", 1)
+        run = run.replace("        std::int32_t Stage = 0;", "        std::int32_t Stage = 0;\n        bool e2e_first_frame_logged = false;\n        std::uint32_t e2e_frame_count = 0;\n        std::uint32_t e2e_draw_window = 0;\n        std::uint64_t e2e_draw_sum = 0;\n        std::uint32_t e2e_draw_max = 0;\n        std::uint32_t e2e_draw_count = 0;", 1)
+        draw_start = "                    Stage = 13;\n                    if (GR_Main::OffscreenTexture != nullptr) {"
+        draw_end = "                    GR_Main::EndFramePresentation();\n                    ++e2e_frame_count;"
+        if run.count(draw_start) != 1 or run.count(draw_end) != 1:
+            raise RuntimeError("screen Run draw timing boundary changed")
+        run = run.replace(draw_start, "                    Stage = 13;\n                    const auto e2e_draw_start = MMSystem::timeGetTime();\n                    if (GR_Main::OffscreenTexture != nullptr) {", 1)
+        run = run.replace(draw_end, '''                    GR_Main::EndFramePresentation();
+                    const auto e2e_draw_ms = MMSystem::timeGetTime() - e2e_draw_start;
+                    e2e_draw_sum += e2e_draw_ms;
+                    if (e2e_draw_ms > e2e_draw_max) e2e_draw_max = e2e_draw_ms;
+                    ++e2e_draw_count;
+                    if (!e2e_draw_window) e2e_draw_window = MMSystem::timeGetTime();
+                    if (MMSystem::timeGetTime() - e2e_draw_window >= 5000u) {
+                        char e2e_draw_detail[128]{};
+                        std::snprintf(e2e_draw_detail, sizeof(e2e_draw_detail),
+                            "screen draw count=%u avg_ms=%llu max_ms=%u",
+                            e2e_draw_count,
+                            static_cast<unsigned long long>(e2e_draw_count ? e2e_draw_sum / e2e_draw_count : 0),
+                            e2e_draw_max);
+                        srhd_awa::platform::e2e_stage::Log(e2e_draw_detail);
+                        e2e_draw_window = MMSystem::timeGetTime();
+                        e2e_draw_sum = 0;
+                        e2e_draw_max = 0;
+                        e2e_draw_count = 0;
+                    }
+                    ++e2e_frame_count;''', 1)
+        catch_boundary = "        } catch (...) {\n            auto cpp_exception_2 = pas::caught_object();"
+        if run.count(catch_boundary) != 1:
+            raise RuntimeError("screen Run exception boundary changed")
+        run = run.replace(catch_boundary, '''        } catch (...) {
+            char e2e_error[192]{};
+            try { throw; }
+            catch (const std::exception& error) {
+                std::snprintf(e2e_error, sizeof(e2e_error),
+                    "screen Run exception stage=%d what=%.120s", Stage, error.what());
+            }
+            catch (...) {
+                std::snprintf(e2e_error, sizeof(e2e_error),
+                    "screen Run exception stage=%d non-standard", Stage);
+            }
+            srhd_awa::platform::e2e_stage::Log(e2e_error);
+            auto cpp_exception_2 = pas::caught_object();''', 1)
         text = text[:start] + run + text[end:]
         text = '#include "e2e_stage.hpp"\n' + text
     if source.name == "GI_GraphButton.cpp":

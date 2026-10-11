@@ -67,3 +67,16 @@ identify whether the rejected write followed a late refill, an invalid PCM
 size or another condition. The next combined candidate logs the rejected
 chunk and byte count. The float mixer correction is in that candidate;
 audible quality remains a hardware gate.
+
+In the subsequent `6c9d3a7` hardware run (`D:\report.zip`, SHA-256
+`CBB0A708C5AE99339D126CBC14B65F8752F090FE4EB8F8106C58865BF8BD9D76`),
+the user heard a slight improvement but persistent distortion. The new log
+records three `stream write rejected chunk=2 bytes=352800` events. The full
+PCM size rules out the invalid-decode-size branch for these events. A late
+refill is plausible, but the current log does not prove the ring's play
+position at the rejection. The next experimental source override increases
+each music chunk from two to three seconds within the existing bounded ring;
+if a late refill still targets the currently playing chunk, the worker keeps
+the stream alive and resumes at the next safe completion. This can leave a
+silent segment, so audible quality and refill reliability require another
+Switch run.

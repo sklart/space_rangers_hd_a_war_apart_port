@@ -78,3 +78,20 @@ matches the user's observation that the controller cursor moves in visible
 steps. The next combined build adds `present_avg_us` and `present_max_us` to
 the five-second rate line to distinguish slow SDL presentation from time spent
 in game rendering and its loop. Cursor smoothness is **NOT VERIFIED**.
+
+The follow-up combined `6c9d3a7` Switch run is in a newer `D:\report.zip`
+(SHA-256 `CBB0A708C5AE99339D126CBC14B65F8752F090FE4EB8F8106C58865BF8BD9D76`).
+`GameSettings` now reaches `OnOpen ready`, confirming that the previous
+slider crash was passed. The original game log then stops at
+`Rescaling Bm.FormGameSet2.2bg...`; the new Atmosphère report crashes in
+`FinalizeGlobalUiRuntime` during exception cleanup, so that PC does not
+identify the initial exception. The Switch source override now routes
+`RescaleRGBA_HW` through the existing CPU aspect crop and resampler for
+load-time UI backgrounds. The screen-run catch also logs its stage and any
+`std::exception` text before cleanup. Neither change has a resource-backed
+hardware result yet.
+
+Menu presentation remains 4.32 to 5.18 FPS. The measured SDL presentation
+averages 9.7 to 10.4 ms and peaks at 21.7 ms. This localizes most of each
+roughly 200 ms frame outside the final SDL present; software UI drawing and
+game-loop work still need separate timing. The cursor still moves in steps.
