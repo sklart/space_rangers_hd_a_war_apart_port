@@ -13,6 +13,7 @@ import subprocess
 import sys
 
 from e2e_source_overrides import FUNCTIONS, generated_source
+from e2e4_audio_on_overrides import AUDIO_ON_FUNCTIONS
 from e2e_runtime_overrides import prepare_runtime_overlay
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -113,12 +114,18 @@ def main() -> int:
     parser.add_argument("--profile", choices=("debug", "release"), default="release")
     parser.add_argument("--e2e3-trace", action=argparse.BooleanOptionalAction,
                         default=True, help="log E2E-3 state changes without per-frame output")
-    parser.add_argument("--experimental-quicksave", action="store_true",
+    variants = parser.add_mutually_exclusive_group()
+    variants.add_argument("--experimental-quicksave", action="store_true",
                         help="build isolated E2E-4 recoverable quicksave experiment")
+    variants.add_argument("--experimental-audio-on", action="store_true",
+                          help="build isolated E2E-4 SDL2 game-audio experiment")
     args = parser.parse_args()
     if args.experimental_quicksave:
         BUILD = SWITCH / "build/e2e-game-quicksave-experiment"
         REPORT = ROOT / "e2e4-quicksave-build-report.json"
+    elif args.experimental_audio_on:
+        BUILD = SWITCH / "build/e2e-game-audio-experiment"
+        REPORT = ROOT / "e2e4-audio-build-report.json"
     sources = sorted((GAME / "src").glob("*.cpp"))
     sources.append(GAME / "runtime/runtime.cpp")
     report = {
@@ -126,6 +133,7 @@ def main() -> int:
         "build_profile": args.profile,
         "e2e3_trace": args.e2e3_trace,
         "experimental_quicksave": args.experimental_quicksave,
+        "experimental_audio_on": args.experimental_audio_on,
         "upstream_pin": "57fa689c630193a66fdea6ca4c79a188814991cd",
         "upstream_source_files_total": len(sources),
         "compiled": 0,
@@ -143,7 +151,7 @@ def main() -> int:
             "Wine detection",
             "Steam DLL, initialization, callback thread, shutdown",
             "MMSystem timer-resolution request",
-            "DirectSound device enumeration and WinMM audio timers (audio disabled)",
+            "DirectSound device enumeration and WinMM audio timers (Audio OFF only)",
             "Windows thread priority is recorded but OS scheduling priority is unchanged",
             "COM apartment cleanup",
             "GetModuleFileNameA branch (entrypoint sets game working directory)",
@@ -174,6 +182,9 @@ def main() -> int:
     report["source_overrides"] = sorted([*FUNCTIONS, "Rangers.cpp", "Globals.cpp",
                                           "GI_MessageLoop.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp",
                                           "aSaveLoad.cpp", "aScript.cpp", "program.cpp"])
+    if args.experimental_audio_on:
+        report["source_overrides"] = sorted(set(report["source_overrides"]) |
+                                            set(AUDIO_ON_FUNCTIONS))
     # These were created for the old diagnostic slice. They define symbols
     # already present in the complete original units and cannot be linked
     # alongside them; their replacement behavior must move behind original APIs.
@@ -232,6 +243,8 @@ def main() -> int:
     flags += ["-DE2E3_TRACE=" + str(int(args.e2e3_trace))]
     if args.experimental_quicksave:
         flags += ["-DE2E4_QUICKSAVE_EXPERIMENT=1"]
+    if args.experimental_audio_on:
+        flags += ["-DE2E4_AUDIO_ON=1"]
     flags += ["-I" + str(p) for p in (
         DEVKITPRO / "libnx/include", PORTLIBS / "include", runtime_overlay,
         SWITCH / "platform",
@@ -248,7 +261,8 @@ def main() -> int:
         "flags": flags,
         "source_overrides": {
             name: hashlib.sha256((ROOT / "tools" / name).read_bytes()).hexdigest()
-            for name in ("e2e_source_overrides.py", "e2e_runtime_overrides.py")
+            for name in ("e2e_source_overrides.py", "e2e4_audio_on_overrides.py",
+                         "e2e_runtime_overrides.py")
         },
         "runtime_overlay": {
             path.relative_to(runtime_overlay).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
@@ -269,6 +283,9 @@ def main() -> int:
     if not args.experimental_quicksave:
         platform_sources = [source for source in platform_sources
                             if source.name != "e2e4_quicksave_transaction.cpp"]
+    if not args.experimental_audio_on:
+        platform_sources = [source for source in platform_sources
+                            if source.name != "e2e4_game_audio_bridge.cpp"]
     for source in sources + platform_sources:
         category = "upstream" if source in sources else "platform"
         if category == "platform" and source.name in diagnostic_shims:
@@ -277,7 +294,8 @@ def main() -> int:
         obj.parent.mkdir(parents=True, exist_ok=True)
         compile_source = generated_source(patched_sources.get(source.name, source),
                                           BUILD / "generated" / source.name,
-                                          build_id, manifest_stamp)
+                                          build_id, manifest_stamp,
+                                          audio_on=args.experimental_audio_on)
         needed_ns = max(compile_source.stat().st_mtime_ns, newest_header_ns,
                         flags_stamp.stat().st_mtime_ns)
         if compile_source != source:
@@ -315,7 +333,9 @@ def main() -> int:
         print(error, file=sys.stderr)
         return 1
     report["portable_implementations_used"].append("okgf_no_tls")
-    elf = BUILD / "SpaceRangersHDAWarApartE2E.elf"
+    artifact_stem = ("SpaceRangersHDAWarApartE2EAudioON" if args.experimental_audio_on
+                     else "SpaceRangersHDAWarApartE2E")
+    elf = BUILD / f"{artifact_stem}.elf"
     response_file = BUILD / "link-objects.rsp"
     response_file.write_text("\n".join('"' + native_path(obj) + '"' for obj in objects) + "\n", encoding="utf-8")
     code, output = run([str(CXX), "@" + native_path(response_file),
@@ -372,12 +392,12 @@ def main() -> int:
         save(report)
         print(f"E2E Win32 compatibility gate: {audit_output}", file=sys.stderr)
         return 1
-    for gate, args in (("portable import mapping",
+    for gate, gate_args in (("portable import mapping",
                         ["tools/generate_win32_portable_cases.py", "--check"]),
                        ("synthetic handle width",
                         ["tools/audit_win32_handle_width.py"])):
-        code, gate_output = run([sys.executable, native_path(ROOT / args[0]),
-                                 *args[1:]])
+        code, gate_output = run([sys.executable, native_path(ROOT / gate_args[0]),
+                                 *gate_args[1:]])
         if code:
             report["first_failure"] = {"phase": gate, "exact_error": gate_output}
             save(report)
@@ -385,10 +405,11 @@ def main() -> int:
             return 1
     tools_bin = DEVKITPRO / "tools/bin"
     suffix = ".exe" if os.name == "nt" else ""
-    nacp = BUILD / "SpaceRangersHDAWarApartE2E.nacp"
-    nro = BUILD / "SpaceRangersHDAWarApartE2E.nro"
+    nacp = BUILD / f"{artifact_stem}.nacp"
+    nro = BUILD / f"{artifact_stem}.nro"
     code, output = run([str(tools_bin / ("nacptool" + suffix)), "--create",
-                        "Space Rangers HD: A War Apart E2E", "sklart", "0.0.1", native_path(nacp)])
+                        "Space Rangers HD: A War Apart E2E Audio ON" if args.experimental_audio_on
+                        else "Space Rangers HD: A War Apart E2E", "sklart", "0.0.1", native_path(nacp)])
     if not code:
         code, output = run([str(tools_bin / ("elf2nro" + suffix)), native_path(elf),
                             native_path(nro), "--nacp=" + native_path(nacp),
@@ -408,7 +429,7 @@ def main() -> int:
         if re.fullmatch(r"[a-z0-9_.-]+\.dll", line.strip(), re.IGNORECASE)
     })
     nro_bytes = nro.read_bytes()
-    candidate = BUILD / f"SpaceRangersHDAWarApartE2E-{build_id}.nro"
+    candidate = BUILD / f"{artifact_stem}-{build_id}.nro"
     if candidate.exists():
         if candidate.read_bytes() != nro_bytes:
             report["first_failure"] = {

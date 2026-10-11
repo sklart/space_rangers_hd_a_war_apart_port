@@ -40,16 +40,14 @@ The SDL audio callback must only read predecoded PCM and mix existing voices.
 
 ## Feasibility and decision
 
-Adapter A, replacing calls at the `GR_Sound` / `GR_Music` boundary, would need
-to duplicate the original cache, group suppression, looping controllers,
-music selection and fade state. Adapter B, a narrow DirectSound-compatible
-layer, preserves those paths but must supply the exact lock/unlock and
-notification semantics. The original methods make B the intended final
-integration: a platform-owned SDL2 mixer with an immutable/copy-owned PCM
-voice, a bounded streaming ring, and notifications posted outside the audio
-callback. This is an architectural decision, not a claim that the backend is
-implemented. Until all these semantics pass tests, Audio ON must fail its
-build/test gate rather than silently use Audio OFF.
+Replacing the entire `GR_Sound` / `GR_Music` layer would duplicate the cache,
+group suppression, looping controllers, music selection and fade state. A full
+DirectSound COM facade would preserve these callers but also require the exact
+COM, lock/unlock and position-notification behavior. The experimental Switch
+adapter therefore replaces only low-level `TSoundBuffer` methods in disposable
+generated source. It preserves the original higher-level game code and maps
+PCM voices and three-chunk streams to SDL2. Audio ON is isolated from the
+normal build while its runtime behavior is tested.
 
 The requested baseline is stereo 44.1 kHz, PCM 16 or float internally; the
 device's obtained rate and format must determine conversion. An audio-device
@@ -64,8 +62,8 @@ Finished voices retain PCM ownership until the game thread collects them;
 the callback only mixes preloaded samples. `SdlOutput` opens a paused stereo
 S16 device at 44.1 kHz with frequency change allowed, constructs the mixer
 for the obtained rate, then starts output. It closes the device before freeing
-PCM. It is not yet connected to original `TSoundBuffer` or `TMusicControl`.
-Thus it is a tested core, not a working Audio ON game mode.
+PCM. The experimental adapter now calls this output wrapper from the original
+`TSoundBuffer` path; audible behavior still needs verification.
 
 The installed Switch portlibs contain `vorbis/vorbisfile.h` and
 `libvorbisfile.a` (checked locally 2026-10-11). The original 720-byte embedded
@@ -80,16 +78,49 @@ to the original streaming buffer. The decoder is closed before its
 `EC_FileStream` is released. Chained logical streams that change format are
 rejected rather than played with the wrong PCM format. Ogg assets are
 identified by content, not the `.dat` suffix; game assets are not included
-in this repository. This fixes the decoder ABI but does not yet connect the
-original music output path to the SDL2 mixer.
+in this repository. The experimental adapter connects this decoder's PCM to
+the SDL2 streaming ring.
 
-The requested FPC reference `platform/GameAudio.pas` could not be fetched in
-this environment at audit time. Its SDL2 buffer and notification behavior
-therefore remains a comparison task; no code has been copied from it.
+The requested FPC reference [`platform/GameAudio.pas`](https://github.com/pakompom/SpaceRangersHD_FPC/blob/main/platform/GameAudio.pas)
+was fetched and inspected on 2026-10-11. It implements a DirectSound-shaped
+interface over SDL queued audio. Its separate mixer worker posts the original
+buffer position events; its SDL device has no callback. This confirms the
+feasibility of preserving the original `GR_Sound` and `GR_Music` callers, but
+the Switch backend uses its own callback and must deliver notifications from
+outside that callback. No FPC code was copied. The FPC port's custom changes
+are [MIT licensed](https://github.com/pakompom/SpaceRangersHD_FPC/blob/main/LICENSE),
+with separate terms for the underlying game and dependencies.
+
+`e2e4_audio_stream.hpp` now supplies a bounded three-chunk PCM ring, rate
+conversion, silence on missing refill, and counted chunk completions.
+`SdlOutput` can own two such streams. SDL's callback only mixes already decoded
+PCM and records completion counts; the non-callback caller drains them. Host
+ring tests passed locally; an SDL dummy-device sanitizer test is added to CI.
+The component is now wired through an experimental source override for the
+original `GR_Sound::TSoundBuffer` methods. The original high-level sound cache,
+group suppression, looping controllers, music selection, and `TMusicUnit`
+worker remain in place. `--experimental-audio-on` produces a separate NRO;
+the normal build still forces Audio OFF. The bridge maps original buffer
+pointers to owned PCM voices or two streaming rings. The original completion
+event numbering is reconstructed outside the SDL callback. Device-open failure
+turns off both sound and music with a distinct log entry.
+
+The experimental path passed a local full ARM64 link on 2026-10-11: 298 original
+units, 378 linked objects, zero unresolved symbols, ELF64 AArch64 PIE.
+The resulting dirty-tree NRO SHA-256 is
+`DB159D3F7537733B657EADA5818F6645A75B871ED345671E882F671C7BB83E85`.
+Host SDL dummy sanitizer testing and playback on Switch are still pending.
+It is not an accepted Audio ON build. The
+current stream mix adds onto S16 output after effect clamping; combined loud
+effects and music may clip early. That mix order must be corrected before
+audible acceptance. The bridge currently applies gain linearly while the
+original DirectSound path converts its volume setting to a decibel value;
+perceptual volume parity still needs comparison. No original save/load or
+hardware audio test has run.
 
 ## Evidence boundary
 
-This document maps source and installed dependencies. It establishes neither
-audible output nor a passing Audio ON build. Audio OFF is the E2E-3 baseline.
-Host PCM tests, full ARM64 linkage and later physical Switch playback are
-separate gates.
+The host PCM ring and ARM64 link pass do not establish audible output or
+original-game music transitions. Audio OFF is the E2E-3 baseline. Sanitized
+SDL host testing, original save/load testing, and physical Switch playback
+remain separate gates. Status: `SOFTWARE PARTIAL / HARDWARE PENDING`.

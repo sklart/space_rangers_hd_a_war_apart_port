@@ -4,6 +4,8 @@
 
 #include <cstring>
 #include <exception>
+#include <cmath>
+#include <algorithm>
 #include <utility>
 
 namespace srhd_awa::platform::e2e4_audio {
@@ -51,6 +53,7 @@ void SdlOutput::Close() {
         device_ = 0;
     }
     mixer_.reset();
+    for (auto& slot : streams_) slot.ring.reset();
     output_rate_ = 0;
     if (owns_audio_subsystem_) {
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
@@ -75,6 +78,14 @@ bool SdlOutput::Stop(std::uint64_t handle) {
     mixer_->CollectFinished();
     SDL_UnlockAudioDevice(device_);
     return stopped;
+}
+
+bool SdlOutput::IsPlaying(std::uint64_t handle) {
+    if (!device_) return false;
+    SDL_LockAudioDevice(device_);
+    const bool playing = mixer_->IsPlaying(handle);
+    SDL_UnlockAudioDevice(device_);
+    return playing;
 }
 
 bool SdlOutput::SetGain(std::uint64_t handle, float gain, std::uint32_t fade_frames) {
@@ -115,6 +126,102 @@ void SdlOutput::CollectFinished() {
     SDL_UnlockAudioDevice(device_);
 }
 
+SdlOutput::StreamSlot* SdlOutput::FindStream(std::uint64_t handle) {
+    const auto index = static_cast<std::uint32_t>(handle) - 1;
+    if (index >= streams_.size()) return nullptr;
+    auto& slot = streams_[index];
+    return slot.ring && slot.generation == handle >> 32 ? &slot : nullptr;
+}
+
+std::uint64_t SdlOutput::CreateStream(std::size_t chunk_bytes,
+                                      std::uint32_t source_rate,
+                                      std::uint8_t channels, std::uint8_t bits) {
+    if (!device_) return 0;
+    auto ring = std::make_unique<StreamRing>();
+    if (!ring->Initialize(chunk_bytes, source_rate, output_rate_, channels, bits))
+        return 0;
+    SDL_LockAudioDevice(device_);
+    std::uint64_t handle = 0;
+    for (std::size_t i = 0; i < streams_.size(); ++i) {
+        auto& slot = streams_[i];
+        if (slot.ring) continue;
+        ++slot.generation;
+        if (!slot.generation) ++slot.generation;
+        slot.ring = std::move(ring);
+        slot.gain = 1.0f;
+        handle = (static_cast<std::uint64_t>(slot.generation) << 32) | (i + 1);
+        break;
+    }
+    SDL_UnlockAudioDevice(device_);
+    return handle;
+}
+
+bool SdlOutput::WriteStreamChunk(std::uint64_t handle, std::size_t chunk,
+                                 const void* data, std::size_t bytes) {
+    if (!device_) return false;
+    SDL_LockAudioDevice(device_);
+    auto* slot = FindStream(handle);
+    const bool written = slot && slot->ring->WriteChunk(chunk, data, bytes);
+    SDL_UnlockAudioDevice(device_);
+    return written;
+}
+
+bool SdlOutput::StartStream(std::uint64_t handle) {
+    if (!device_) return false;
+    SDL_LockAudioDevice(device_);
+    auto* slot = FindStream(handle);
+    const bool started = slot && slot->ring->Start();
+    SDL_UnlockAudioDevice(device_);
+    return started;
+}
+
+bool SdlOutput::StopStream(std::uint64_t handle) {
+    if (!device_) return false;
+    SDL_LockAudioDevice(device_);
+    auto* slot = FindStream(handle);
+    if (slot) slot->ring->Stop();
+    SDL_UnlockAudioDevice(device_);
+    return slot != nullptr;
+}
+
+bool SdlOutput::IsStreamPlaying(std::uint64_t handle) {
+    if (!device_) return false;
+    SDL_LockAudioDevice(device_);
+    auto* slot = FindStream(handle);
+    const bool playing = slot && slot->ring->IsPlaying();
+    SDL_UnlockAudioDevice(device_);
+    return playing;
+}
+
+bool SdlOutput::SetStreamGain(std::uint64_t handle, float gain) {
+    if (!device_) return false;
+    SDL_LockAudioDevice(device_);
+    auto* slot = FindStream(handle);
+    if (slot) slot->gain = std::isfinite(gain) ? std::clamp(gain, 0.0f, 1.0f) : 0.0f;
+    SDL_UnlockAudioDevice(device_);
+    return slot != nullptr;
+}
+
+std::array<std::uint32_t, StreamRing::kChunks> SdlOutput::DrainStreamCompleted(
+    std::uint64_t handle) {
+    if (!device_) return {};
+    SDL_LockAudioDevice(device_);
+    auto* slot = FindStream(handle);
+    const auto completed = slot ? slot->ring->DrainCompleted() :
+        std::array<std::uint32_t, StreamRing::kChunks>{};
+    SDL_UnlockAudioDevice(device_);
+    return completed;
+}
+
+void SdlOutput::CloseStream(std::uint64_t handle) {
+    if (!device_) return;
+    SDL_LockAudioDevice(device_);
+    auto* slot = FindStream(handle);
+    std::unique_ptr<StreamRing> old;
+    if (slot) old = std::move(slot->ring);
+    SDL_UnlockAudioDevice(device_);
+}
+
 void SdlOutput::AudioCallback(void* userdata, std::uint8_t* stream, int bytes) {
     if (bytes <= 0 || stream == nullptr) return;
     std::memset(stream, 0, static_cast<std::size_t>(bytes));
@@ -122,6 +229,13 @@ void SdlOutput::AudioCallback(void* userdata, std::uint8_t* stream, int bytes) {
     if (self == nullptr || !self->mixer_) return;
     self->mixer_->Mix(reinterpret_cast<std::int16_t*>(stream),
                       static_cast<std::size_t>(bytes) / (2 * sizeof(std::int16_t)));
+    for (auto& slot : self->streams_) {
+        if (slot.ring) {
+            slot.ring->RenderAdd(reinterpret_cast<std::int16_t*>(stream),
+                                 static_cast<std::size_t>(bytes) / (2 * sizeof(std::int16_t)),
+                                 slot.gain);
+        }
+    }
 }
 
 } // namespace srhd_awa::platform::e2e4_audio

@@ -13,12 +13,12 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
-      - run: sudo apt-get update && sudo apt-get install -y libvorbis-dev
+      - run: sudo apt-get update && sudo apt-get install -y libvorbis-dev libsdl2-dev
       - name: Asset-free audio and protected-state ASan/UBSan
         run: |
           set -euo pipefail
           mkdir -p build/e2e4-sanitizers
-          for test in wav vorbis_read protected_state audio_mixer ui_cache_key; do
+          for test in wav vorbis_read protected_state audio_mixer audio_stream ui_cache_key; do
             g++ -std=c++20 -O1 -g -fno-omit-frame-pointer \
               -fsanitize=address,undefined -Iport/switch/platform \
               "tests/test_e2e4_${test}.cpp" -o "build/e2e4-sanitizers/${test}"
@@ -32,6 +32,14 @@ jobs:
             -o build/e2e4-sanitizers/native_vorbis
           build/e2e4-sanitizers/native_vorbis \
             tests/fixtures/e2e4_sine_22050_stereo.ogg
+          g++ -std=c++20 -O1 -g -fno-omit-frame-pointer \
+            -fsanitize=address,undefined -Iport/switch/platform \
+            tests/test_e2e4_sdl_audio.cpp \
+            port/switch/platform/e2e4_sdl_audio.cpp \
+            port/switch/platform/e2e4_game_audio_bridge.cpp \
+            $(pkg-config --cflags --libs sdl2) -pthread \
+            -o build/e2e4-sanitizers/sdl_audio
+          build/e2e4-sanitizers/sdl_audio
           g++ -std=gnu++20 -O1 -g -fno-omit-frame-pointer \
             -fsanitize=address,undefined -Iport/switch/platform \
             tests/test_e2e4_quicksave_transaction.cpp \
@@ -62,6 +70,8 @@ jobs:
         run: python3 tools/e2e_arm64_build.py
       - name: Compile isolated experimental quicksave variant
         run: python3 tools/e2e_arm64_build.py --experimental-quicksave
+      - name: Compile isolated experimental Audio ON variant
+        run: python3 tools/e2e_arm64_build.py --experimental-audio-on
       - name: E2E Win32 Compatibility Surface effective gate
         run: |
           python3 tools/audit_win32_surface.py --effective --check
@@ -107,6 +117,8 @@ jobs:
         run: make -C port/switch host-e2e4-quicksave-transaction-test
       - name: E2E-4 PCM mixer
         run: make -C port/switch host-e2e4-audio-mixer-test
+      - name: E2E-4 streaming PCM ring
+        run: make -C port/switch host-e2e4-audio-stream-test
       - name: E2E-4 script UI cache key
         run: make -C port/switch host-e2e4-ui-cache-test
       - name: E2E-4 log analyzer contract

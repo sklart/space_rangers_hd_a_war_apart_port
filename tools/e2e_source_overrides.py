@@ -5,6 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 import re
 
+from e2e4_audio_on_overrides import AUDIO_ON_FUNCTIONS
+
 
 FUNCTIONS: dict[str, dict[str, str]] = {
     "EC_CacheSound.cpp": {
@@ -235,8 +237,11 @@ int main() {
 
 
 def generated_source(source: Path, destination: Path, build_git: str = "",
-                     manifest_stamp: dict | None = None) -> Path:
-    overrides = FUNCTIONS.get(source.name)
+                     manifest_stamp: dict | None = None,
+                     audio_on: bool = False) -> Path:
+    overrides = dict(FUNCTIONS.get(source.name, {}))
+    if audio_on:
+        overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
     if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aSaveLoad.cpp", "aScript.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fIntroduction.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
@@ -259,6 +264,27 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
         text = text[:begin] + replacement + text[end:]
     if overrides:
         text = '#include "e2e_clock.hpp"\n' + text
+    if audio_on and source.name == "GR_Sound.cpp":
+        text = '''#include "e2e4_game_audio_bridge.hpp"
+#include "units/SysUtilsImports.hpp"
+#include <algorithm>
+#include <climits>
+#include <string>
+#include <vector>
+''' + text
+        helper = '''namespace {
+srhd_awa::platform::e2e4_game_audio::Format E2E4AudioFormat(
+    const DirectSound::TSoundWaveFormat* wave) {
+    return {wave->FormatTag, wave->Channels, wave->SamplesPerSecond,
+            wave->AverageBytesPerSecond, wave->BlockAlign, wave->BitsPerSample};
+}
+}
+
+'''
+        marker = "namespace GR_Sound {"
+        if text.count(marker) != 1:
+            raise RuntimeError("original GR_Sound namespace boundary changed")
+        text = text.replace(marker, helper + marker, 1)
     if source.name == "EC_CacheSound.cpp":
         text = '#include "e2e4_wav.hpp"\n#include <cstring>\n' + text
     if source.name == "VorbisFile.cpp":
@@ -860,10 +886,11 @@ void CloseVorbisStream(TOggWorker* worker) {
         audio_anchor = '        EC_BlockPar::TBlockParEC* Block = LanguageDataConfig->GetBlock(u"CaseConv"sv);'
         if text.count(audio_anchor) != 1:
             raise RuntimeError("original sound initialization boundary changed")
-        text = text.replace(audio_anchor,
-            "        // OPTIONAL: the first Switch menu run has no audio backend.\n"
-            "        GlobalsV::SoundEnabled = false;\n"
-            "        GlobalsV::MusicEnabled = false;\n" + audio_anchor, 1)
+        if not audio_on:
+            text = text.replace(audio_anchor,
+                "        // OPTIONAL: the first Switch menu run has no audio backend.\n"
+                "        GlobalsV::SoundEnabled = false;\n"
+                "        GlobalsV::MusicEnabled = false;\n" + audio_anchor, 1)
         begin_marker = "    void InitializePlatformRuntimeAndMainWindow() {"
         tail_marker = "        InstallConfig = pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create);"
         if text.count(begin_marker) != 1 or text.count(tail_marker) != 1:
