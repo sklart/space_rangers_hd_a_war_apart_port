@@ -11,11 +11,15 @@ the combined NRO.
 
 The first local combined **debug** build compiled 298 original game units and
 linked 379 objects with zero unresolved symbols. Its NRO is a build/link probe,
-not a hardware-test candidate: the script overlay currently widens the
-kind-dependent `TScriptPlace`/`TScriptState::TargetValue` fields and selected
-read/write sites, while the wider `TVarEC` and `aScriptFun` pointer paths remain
-open. The build was made with uncommitted code (`build_dirty=true`). It does not
-establish new-game, audio playback, original save/load, or rollback behavior.
+not a hardware-test candidate. Since that first build, the script overlay has
+also gained native-width `TVarEC` values, selected pointer producer/consumer
+fixes, and guards against writing wide values into 32-bit script save fields.
+The updated overlay completed a second local release-profile ARM64 build:
+298 original game units, 379 linked objects, zero unresolved symbols, and
+SHA-256 `4D5E3CA325FB9B4B69F17707AE344469AF2204145CC1C94F396750A7F88AEEF0`
+for `SpaceRangersHDAWarApartE2E4Combined-ba6c6f8-dirty.nro`. That build used
+uncommitted code (`build_dirty=true`). It does not establish new-game, audio
+playback, original save/load, or rollback behavior.
 
 Before handing a combined NRO to a Switch tester:
 

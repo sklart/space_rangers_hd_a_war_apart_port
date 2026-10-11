@@ -249,7 +249,8 @@ def main() -> int:
     report["source_overrides"] += sorted(patched_sources)
     if script_source_root:
         report["source_overrides"] = sorted(set(report["source_overrides"]) |
-                                            {"aScriptFun.cpp", "types/aScript.hpp"})
+                                            {"aScriptFun.cpp", "types/aScript.hpp",
+                                             "EC_Expression.cpp", "types/EC_Expression.hpp"})
     flags = ["-std=gnu++20", "-D__SWITCH__", "-march=armv8-a+crc+crypto",
              "-mtune=cortex-a57", "-mtp=soft", "-fPIE",
              "-ffunction-sections", "-fdata-sections"]
@@ -290,7 +291,8 @@ def main() -> int:
         },
         "script_source_overlay": {
             name: hashlib.sha256((script_source_root / name).read_bytes()).hexdigest()
-            for name in ("types/aScript.hpp", "aScript.cpp", "aScriptFun.cpp")
+            for name in ("types/aScript.hpp", "aScript.cpp", "aScriptFun.cpp",
+                         "types/EC_Expression.hpp", "EC_Expression.cpp")
         } if script_source_root else {},
     }
     flags_stamp = BUILD / "compile-flags.txt"

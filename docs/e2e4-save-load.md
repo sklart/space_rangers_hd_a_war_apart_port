@@ -61,6 +61,13 @@ physical Switch hardware. Directory-entry durability on the Switch SD
 filesystem has not been established. Keep the experimental NRO off user data
 until these gates are observed.
 
+The combined experiment currently rejects a script state containing a native
+pointer that cannot fit in the original 32-bit save field. This prevents a
+silently truncated script value from being published as a new save, but it may
+cause quicksave to fail during scripted gameplay. A reversible mapping and
+rebind test for every persisted script pointer is still required before the
+combined NRO is offered for hardware testing.
+
 ## Manual recovery
 
 Stop the game and make an external copy of the entire `save` directory before

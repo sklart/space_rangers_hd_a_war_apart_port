@@ -100,6 +100,12 @@ host-e2e4-ui-cache-test:
 	@mkdir -p build/e2e4
 	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e4_ui_cache_key.cpp -o build/e2e4/test_ui_cache_key
 	build/e2e4/test_ui_cache_key
+
+.PHONY: host-e2e4-script-value-test
+host-e2e4-script-value-test:
+	@mkdir -p build/e2e4
+	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e4_script_value.cpp -o build/e2e4/test_script_value
+	build/e2e4/test_script_value
 DEVKITA64 ?= $(DEVKITPRO)/devkitA64
 LIBNX ?= $(DEVKITPRO)/libnx
 PORTLIBS ?= $(DEVKITPRO)/portlibs/switch
