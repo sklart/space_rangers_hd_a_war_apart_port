@@ -6,8 +6,9 @@ namespace srhd_awa::platform::input_platform {
 
 struct Config {
   std::int32_t stick_deadzone{5500};
-  std::int32_t pointer_speed{12};
-  std::int32_t dpad_step{3};
+  double stick_pixels_per_second{600.0};
+  double dpad_pixels_per_second{180.0};
+  std::uint64_t max_delta_us{50000};
 };
 struct RawInput {
   std::int32_t stick_x{}, stick_y{};
@@ -26,10 +27,16 @@ struct State {
   Config config{};
   Snapshot last{};
   RawInput host_raw{};
+  double precise_x{};
+  double precise_y{};
+  std::uint64_t last_update_us{};
   bool initialized{};
+  bool time_initialized{};
   bool plus_held{};
 };
 
+Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
+                     std::int32_t height, std::uint64_t now_us);
 Snapshot Normalize(State* state, RawInput raw, std::int32_t width, std::int32_t height);
 void InjectHostRaw(State* state, RawInput raw);
 void Warp(State* state, std::int32_t x, std::int32_t y,

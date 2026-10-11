@@ -2,7 +2,9 @@
 #include "win32_compat_window.hpp"
 
 #include <cassert>
+#include <chrono>
 #include <cstdint>
+#include <thread>
 
 using namespace srhd_awa::platform::win32_compat;
 
@@ -68,6 +70,7 @@ int main() {
   assert(message.message == 0x0202);
   input.stick_x = 32767;
   InjectHostInput(input);
+  std::this_thread::sleep_for(std::chrono::milliseconds(20));
   assert(peek(&message, 0, 0x0200, 0x0200, 1));
   assert((message.lParam & 0xffff) > 640);
   input.plus = true;

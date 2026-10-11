@@ -26,6 +26,14 @@ inline std::uint64_t Frequency() {
 #endif
 }
 
+inline std::uint64_t Microseconds() {
+#if defined(__SWITCH__)
+  return armTicksToNs(Counter()) / 1000ULL;
+#else
+  return Counter() / 1000ULL;
+#endif
+}
+
 inline std::uint32_t Milliseconds() {
 #if defined(__SWITCH__)
   return static_cast<std::uint32_t>(armTicksToNs(Counter()) / 1000000ULL);

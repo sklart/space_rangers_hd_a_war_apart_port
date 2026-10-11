@@ -35,6 +35,7 @@ std::int32_t g_texture_height{};
 bool g_cursor_overlay_logged{};
 std::uint32_t g_rate_start_tick{};
 std::uint64_t g_rate_start_count{};
+std::uint32_t g_last_hash_tick{};
 
 bool DrawInputCursor(const SDL_Rect& destination, std::int32_t width,
                      std::int32_t height) {
@@ -215,7 +216,16 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   if (!g_initialized) return PresentationFailure("renderer not initialized");
   if (!pixels) return PresentationFailure("pixels missing");
   if (!ValidDimensions(width, height, pitch)) return PresentationFailure("invalid dimensions");
+#if defined(__SWITCH__) && defined(E2E_DIAGNOSTICS) && !E2E_DIAGNOSTICS
+  const auto hash_tick = e2e_clock::Milliseconds();
+  if (!g_presentation_count ||
+      static_cast<std::uint32_t>(hash_tick - g_last_hash_tick) >= 5000u) {
+    g_last_presentation_hash = HashRgb565(pixels, pitch, width, height);
+    g_last_hash_tick = hash_tick;
+  }
+#else
   g_last_presentation_hash = HashRgb565(pixels, pitch, width, height);
+#endif
   g_presentation_diagnostics = {};
 #if defined(__SWITCH__)
   if (!g_native_window) return PresentationFailure("SDL window missing");
@@ -304,6 +314,7 @@ void ShutdownPresentation() {
   g_cursor_overlay_logged = false;
   g_rate_start_tick = 0;
   g_rate_start_count = 0;
+  g_last_hash_tick = 0;
 #endif
   g_presentation_count = 0;
   g_last_presentation_hash = 0;

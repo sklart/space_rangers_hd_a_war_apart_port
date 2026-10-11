@@ -1,6 +1,8 @@
 #include "input_platform.hpp"
+#include "e2e_clock.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 
 #if defined(__SWITCH__)
@@ -9,28 +11,48 @@
 
 namespace srhd_awa::platform::input_platform {
 namespace {
-std::int32_t Axis(std::int32_t value, const Config& config) {
+double Axis(std::int32_t value, const Config& config) {
   value = std::clamp(value, -32767, 32767);
-  if (value > -config.stick_deadzone && value < config.stick_deadzone) return 0;
-  return static_cast<std::int32_t>(static_cast<std::int64_t>(value) * config.pointer_speed / 32767);
+  const auto magnitude = std::abs(value);
+  const auto deadzone = std::clamp(config.stick_deadzone, 0, 32766);
+  if (magnitude <= deadzone) return 0.0;
+  const auto normalized = static_cast<double>(magnitude - deadzone) /
+                          static_cast<double>(32767 - deadzone);
+  const auto curved = normalized * normalized;
+  return value < 0 ? -curved : curved;
 }
 }  // namespace
 
-Snapshot Normalize(State* state, RawInput raw, std::int32_t width, std::int32_t height) {
+Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
+                     std::int32_t height, std::uint64_t now_us) {
   if (!state || width <= 0 || height <= 0) return {};
   if (!state->initialized) {
     state->last.x = width / 2;
     state->last.y = height / 2;
+    state->precise_x = state->last.x;
+    state->precise_y = state->last.y;
     state->initialized = true;
   }
+  std::uint64_t delta_us{};
+  if (state->time_initialized && now_us >= state->last_update_us)
+    delta_us = std::min(now_us - state->last_update_us, state->config.max_delta_us);
+  state->last_update_us = now_us;
+  state->time_initialized = true;
   const auto& config = state->config;
+  const auto seconds = static_cast<double>(delta_us) / 1000000.0;
+  const auto dx = (Axis(raw.stick_x, config) * config.stick_pixels_per_second +
+                   (static_cast<int>(raw.dpad_right) - static_cast<int>(raw.dpad_left)) *
+                       config.dpad_pixels_per_second) * seconds;
+  const auto dy = (-Axis(raw.stick_y, config) * config.stick_pixels_per_second +
+                   (static_cast<int>(raw.dpad_down) - static_cast<int>(raw.dpad_up)) *
+                       config.dpad_pixels_per_second) * seconds;
+  state->precise_x = std::clamp(state->precise_x + dx, 0.0,
+                                static_cast<double>(width - 1));
+  state->precise_y = std::clamp(state->precise_y + dy, 0.0,
+                                static_cast<double>(height - 1));
   Snapshot result{};
-  result.x = static_cast<std::int32_t>(std::clamp<std::int64_t>(
-      static_cast<std::int64_t>(state->last.x) + Axis(raw.stick_x, config) +
-      (raw.dpad_right - raw.dpad_left) * config.dpad_step, 0, width - 1));
-  result.y = static_cast<std::int32_t>(std::clamp<std::int64_t>(
-      static_cast<std::int64_t>(state->last.y) - Axis(raw.stick_y, config) +
-      (raw.dpad_down - raw.dpad_up) * config.dpad_step, 0, height - 1));
+  result.x = static_cast<std::int32_t>(std::lround(state->precise_x));
+  result.y = static_cast<std::int32_t>(std::lround(state->precise_y));
   result.left_down = raw.a && !state->last.left_held;
   result.left_up = !raw.a && state->last.left_held;
   result.left_held = raw.a;
@@ -48,13 +70,20 @@ Snapshot Normalize(State* state, RawInput raw, std::int32_t width, std::int32_t 
   state->last = result;
   return result;
 }
+Snapshot Normalize(State* state, RawInput raw, std::int32_t width,
+                   std::int32_t height) {
+  return NormalizeAt(state, raw, width, height, e2e_clock::Microseconds());
+}
 void InjectHostRaw(State* state, RawInput raw) { if (state) state->host_raw = raw; }
 void Warp(State* state, std::int32_t x, std::int32_t y,
           std::int32_t width, std::int32_t height) {
   if (!state || width <= 0 || height <= 0) return;
   state->last.x = std::clamp(x, 0, width - 1);
   state->last.y = std::clamp(y, 0, height - 1);
+  state->precise_x = state->last.x;
+  state->precise_y = state->last.y;
   state->initialized = true;
+  state->time_initialized = false;
 }
 Snapshot Poll(State* state, std::int32_t width, std::int32_t height) {
   if (!state) return {};

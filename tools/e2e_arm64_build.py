@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import hashlib
 import os
@@ -107,10 +108,14 @@ def build_okgf() -> tuple[Path, Path]:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--profile", choices=("debug", "release"), default="release")
+    args = parser.parse_args()
     sources = sorted((GAME / "src").glob("*.cpp"))
     sources.append(GAME / "runtime/runtime.cpp")
     report = {
         "target": "switch-e2e-game",
+        "build_profile": args.profile,
         "upstream_pin": "57fa689c630193a66fdea6ca4c79a188814991cd",
         "upstream_source_files_total": len(sources),
         "compiled": 0,
@@ -208,19 +213,41 @@ def main() -> int:
         return 1
     report["source_overrides"] += sorted(patched_sources)
     flags = ["-std=gnu++20", "-D__SWITCH__", "-march=armv8-a+crc+crypto",
-             "-mtune=cortex-a57", "-mtp=soft", "-fPIE", "-O2",
-             "-fno-strict-aliasing",
+             "-mtune=cortex-a57", "-mtp=soft", "-fPIE",
              "-ffunction-sections", "-fdata-sections"]
+    if args.profile == "release":
+        flags += ["-O2", "-fno-strict-aliasing", "-DE2E_DIAGNOSTICS=0"]
+    else:
+        flags += ["-O0", "-DE2E_DIAGNOSTICS=1"]
     flags += ["-I" + str(p) for p in (
         DEVKITPRO / "libnx/include", PORTLIBS / "include", runtime_overlay,
         SWITCH / "platform",
         GAME / "src", GAME / "runtime", ROOT / "upstream/okgf/include")]
     flags = [flag if not flag.startswith("-I") else "-I" + native_path(Path(flag[2:])) for flag in flags]
+    compiler_code, compiler_version = run([str(CXX), "--version"])
+    if compiler_code:
+        report["first_failure"] = {"phase": "toolchain", "exact_error": compiler_version}
+        save(report)
+        return 1
+    fingerprints = {
+        "compiler": str(CXX.resolve()),
+        "compiler_version": compiler_version.splitlines()[0],
+        "flags": flags,
+        "source_overrides": {
+            name: hashlib.sha256((ROOT / "tools" / name).read_bytes()).hexdigest()
+            for name in ("e2e_source_overrides.py", "e2e_runtime_overrides.py")
+        },
+        "runtime_overlay": {
+            path.relative_to(runtime_overlay).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in sorted(runtime_overlay.rglob("*.hpp"))
+        },
+    }
     flags_stamp = BUILD / "compile-flags.txt"
-    rendered_flags = "\n".join(flags) + "\n"
+    rendered_flags = json.dumps(fingerprints, sort_keys=True, indent=2) + "\n"
     if not flags_stamp.exists() or flags_stamp.read_text(encoding="utf-8") != rendered_flags:
         flags_stamp.write_text(rendered_flags, encoding="utf-8")
-    report["game_compile_optimization"] = "-O2 -fno-strict-aliasing"
+    report["game_compile_optimization"] = ("-O2 -fno-strict-aliasing" if args.profile == "release" else "-O0")
+    report["compile_fingerprint_sha256"] = hashlib.sha256(rendered_flags.encode()).hexdigest().upper()
     headers = [*GAME.rglob("*.hpp"), *(SWITCH / "platform").glob("*.hpp"),
                *runtime_overlay.rglob("*.hpp")]
     newest_header_ns = max((path.stat().st_mtime_ns for path in headers), default=0)
@@ -352,10 +379,6 @@ def main() -> int:
         report["first_failure"] = {"phase": "NRO packaging", "exact_error": output}
         save(report)
         return 1
-    report["nro"] = {"path": nro.relative_to(ROOT).as_posix(),
-                     "bytes": nro.stat().st_size,
-                     "sha256": hashlib.sha256(nro.read_bytes()).hexdigest().upper(),
-                     "status": "SOFTWARE AUDIT PASS; hardware not tested"}
     strings_tool = DEVKITA64 / "bin" / ("aarch64-none-elf-strings.exe" if os.name == "nt" else "aarch64-none-elf-strings")
     code, strings_output = run([str(strings_tool), native_path(elf)])
     if code:
@@ -366,6 +389,22 @@ def main() -> int:
         line.strip().lower() for line in strings_output.splitlines()
         if re.fullmatch(r"[a-z0-9_.-]+\.dll", line.strip(), re.IGNORECASE)
     })
+    nro_bytes = nro.read_bytes()
+    candidate = BUILD / f"SpaceRangersHDAWarApartE2E-{build_id}.nro"
+    if candidate.exists():
+        if candidate.read_bytes() != nro_bytes:
+            report["first_failure"] = {
+                "phase": "immutable NRO", "exact_error": f"candidate differs: {candidate}"
+            }
+            save(report)
+            return 1
+    else:
+        candidate.write_bytes(nro_bytes)
+    report["nro"] = {"path": candidate.relative_to(ROOT).as_posix(),
+                     "working_path": nro.relative_to(ROOT).as_posix(),
+                     "bytes": len(nro_bytes),
+                     "sha256": hashlib.sha256(nro_bytes).hexdigest().upper(),
+                     "status": "SOFTWARE AUDIT PASS; hardware not tested"}
     save(report)
     print(f"E2E ARM64 ELF: {elf}")
     return 0

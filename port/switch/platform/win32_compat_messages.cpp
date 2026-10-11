@@ -98,7 +98,7 @@ void Pump() {
       input.right_up || input.enter_down || input.enter_up || input.escape_down ||
       input.escape_up || input.plus_down;
   if (!g_input_diagnostic_started || button_edge ||
-      diagnostic_tick - g_last_input_diagnostic_tick >= 5000u) {
+      diagnostic_tick - g_last_input_diagnostic_tick >= 1000u) {
     char detail[160]{};
     std::snprintf(detail, sizeof(detail),
         "input poll window=%u size=%dx%d cursor=%d,%d buttons=A%d B%d X%d Y%d PLUS%d",
