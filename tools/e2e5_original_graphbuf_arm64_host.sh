@@ -57,7 +57,7 @@ PY
 common=(-std=gnu++20 -D__SWITCH__ -O0 -ffunction-sections -fdata-sections
         -Wno-invalid-offsetof -I"$root/upstream/cpp/src"
         -I"$root/upstream/cpp/runtime" -I"$root/upstream/okgf/include")
-for name in GR_GraphBuf GR_gi EC_Buf EC_Struct; do
+for name in GR_GraphBuf GR_gi EC_Buf EC_Struct EC_Str EC_CacheGI; do
   source="$root/upstream/cpp/src/$name.cpp"
   [[ $name == GR_GraphBuf ]] && source="$build/GR_GraphBuf.cpp"
   aarch64-linux-gnu-g++ "${common[@]}" -c "$source" -o "$build/$name.o"
@@ -70,8 +70,16 @@ aarch64-linux-gnu-g++ "${common[@]}" \
   "$build/EC_Struct.o" "$build/runtime.o" \
   -Wl,--gc-sections -L"$build/compatible/cross" -lokgf \
   -Wl,-rpath,"$build/compatible/cross" -o "$build/graphbuf-effective-compatible"
+aarch64-linux-gnu-g++ "${common[@]}" -DE2E5_ORIGINAL_CACHEGI \
+  "$root/tests/test_e2e5_original_graphbuf.cpp" \
+  "$build/EC_CacheGI.o" "$build/EC_Str.o" "$build/GR_GraphBuf.o" \
+  "$build/GR_gi.o" "$build/EC_Buf.o" "$build/EC_Struct.o" \
+  "$build/runtime.o" -Wl,--gc-sections \
+  -L"$build/compatible/cross" -lokgf \
+  -Wl,-rpath,"$build/compatible/cross" -o "$build/cachegi-effective-compatible"
 
 python3 "$root/tools/e2e5_gamesettings_rescale.py" "${source_args[@]}" \
   --okgf-lib "$build/native-okgf/libokgf.so" \
   --original-graphbuf "$build/graphbuf-effective-compatible" \
+  --original-cachegi "$build/cachegi-effective-compatible" \
   --emulator "$(command -v qemu-aarch64)" --sysroot /usr/aarch64-linux-gnu

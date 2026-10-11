@@ -41,13 +41,23 @@ g++ "${common[@]}" -O0 -c "$root/upstream/cpp/src/EC_Buf.cpp" \
   -o "$build/EC_Buf.o"
 g++ "${common[@]}" -O0 -c "$root/upstream/cpp/src/EC_Struct.cpp" \
   -o "$build/EC_Struct.o"
+g++ "${common[@]}" -O0 -c "$root/upstream/cpp/src/EC_Str.cpp" \
+  -o "$build/EC_Str.o"
+g++ "${common[@]}" -O0 -c "$root/upstream/cpp/src/EC_CacheGI.cpp" \
+  -o "$build/EC_CacheGI.o"
 g++ "${common[@]}" -O0 -c "$root/upstream/cpp/runtime/runtime.cpp" \
   -o "$build/runtime.o"
 g++ "${common[@]}" -O0 "$root/tests/test_e2e5_original_graphbuf.cpp" \
   "$build/GR_GraphBuf.o" "$build/GR_gi.o" "$build/EC_Buf.o" \
   "$build/EC_Struct.o" "$build/runtime.o" "${link[@]}" -o "$build/graphbuf"
+g++ "${common[@]}" -O0 -DE2E5_ORIGINAL_CACHEGI \
+  "$root/tests/test_e2e5_original_graphbuf.cpp" \
+  "$build/EC_CacheGI.o" "$build/EC_Str.o" "$build/GR_GraphBuf.o" \
+  "$build/GR_gi.o" "$build/EC_Buf.o" "$build/EC_Struct.o" \
+  "$build/runtime.o" "${link[@]}" -o "$build/cachegi"
 python3 "$root/tools/e2e5_gamesettings_rescale.py" "${source_args[@]}" \
-  --okgf-lib "$build/okgf/libokgf.so" --original-graphbuf "$build/graphbuf"
+  --okgf-lib "$build/okgf/libokgf.so" --original-graphbuf "$build/graphbuf" \
+  --original-cachegi "$build/cachegi"
 
 # The translated Pascal class hierarchy has RTTI references outside this
 # fixture; retain ASan and UBSan checks while excluding only vptr checks.
@@ -61,6 +71,10 @@ g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/src/EC_Buf.cpp" \
   -o "$build/EC_Buf_sanitized.o"
 g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/src/EC_Struct.cpp" \
   -o "$build/EC_Struct_sanitized.o"
+g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/src/EC_Str.cpp" \
+  -o "$build/EC_Str_sanitized.o"
+g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/src/EC_CacheGI.cpp" \
+  -o "$build/EC_CacheGI_sanitized.o"
 g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/runtime/runtime.cpp" \
   -o "$build/runtime_sanitized.o"
 g++ "${common[@]}" "${san[@]}" "$root/tests/test_e2e5_original_graphbuf.cpp" \
@@ -68,5 +82,12 @@ g++ "${common[@]}" "${san[@]}" "$root/tests/test_e2e5_original_graphbuf.cpp" \
   "$build/EC_Buf_sanitized.o" "$build/EC_Struct_sanitized.o" \
   "$build/runtime_sanitized.o" \
   "${link[@]}" -o "$build/graphbuf-sanitized"
+g++ "${common[@]}" "${san[@]}" -DE2E5_ORIGINAL_CACHEGI \
+  "$root/tests/test_e2e5_original_graphbuf.cpp" \
+  "$build/EC_CacheGI_sanitized.o" "$build/EC_Str_sanitized.o" \
+  "$build/GR_GraphBuf_sanitized.o" "$build/GR_gi_sanitized.o" \
+  "$build/EC_Buf_sanitized.o" "$build/EC_Struct_sanitized.o" \
+  "$build/runtime_sanitized.o" "${link[@]}" -o "$build/cachegi-sanitized"
 python3 "$root/tools/e2e5_gamesettings_rescale.py" "${source_args[@]}" \
-  --okgf-lib "$build/okgf/libokgf.so" --original-graphbuf "$build/graphbuf-sanitized"
+  --okgf-lib "$build/okgf/libokgf.so" --original-graphbuf "$build/graphbuf-sanitized" \
+  --original-cachegi "$build/cachegi-sanitized"

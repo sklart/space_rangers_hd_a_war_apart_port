@@ -24,7 +24,7 @@ from probe_gai_release import fp
 
 def run(game_root: Path | None, library: Path, target_width: int, target_height: int,
         original_graphbuf: Path | None = None, emulator: Path | None = None,
-        sysroot: Path | None = None) -> dict:
+        sysroot: Path | None = None, original_cachegi: Path | None = None) -> dict:
     if (target_width <= 0 or target_height <= 0 or
             target_width > 8192 or target_height > 8192 or
             target_width * target_height * 4 > 128 * 1024 * 1024):
@@ -122,6 +122,7 @@ def run(game_root: Path | None, library: Path, target_width: int, target_height:
     original_result = None
     original_rescale_hash = None
     original_packed_hash = None
+    cachegi_result = None
     if original_graphbuf is not None:
         if (target_width, target_height) != (1280, 720):
             raise ValueError("original GraphBuf fixture currently requires 1280x720")
@@ -139,16 +140,36 @@ def run(game_root: Path | None, library: Path, target_width: int, target_height:
             executed = subprocess.run(command,
                                       capture_output=True,
                                       text=True, timeout=120, check=False)
-        if executed.returncode:
-            raise ValueError(f"original GraphBuf exit={executed.returncode}: "
-                             f"{executed.stdout} {executed.stderr}")
-        original_result = executed.stdout.strip()
-        hashes = re.search(r"original_graphbuf=PASS .*? fnv64=([0-9a-f]{16}) "
-                           r"original_gi=PASS .*? fnv64=([0-9a-f]{16})",
-                           original_result)
-        if hashes is None:
-            raise ValueError(f"original GraphBuf output is incomplete: {original_result}")
-        original_rescale_hash, original_packed_hash = hashes.groups()
+            if executed.returncode:
+                raise ValueError(f"original GraphBuf exit={executed.returncode}: "
+                                 f"{executed.stdout} {executed.stderr}")
+            original_result = executed.stdout.strip()
+            hashes = re.search(r"original_graphbuf=PASS .*? fnv64=([0-9a-f]{16}) "
+                               r"original_gi=PASS .*? fnv64=([0-9a-f]{16})",
+                               original_result)
+            if hashes is None:
+                raise ValueError(f"original GraphBuf output is incomplete: {original_result}")
+            original_rescale_hash, original_packed_hash = hashes.groups()
+            if original_cachegi is not None:
+                cachegi_command = ([str(emulator.resolve()), "-L", str(sysroot)]
+                                   if emulator is not None and sysroot is not None else [])
+                cachegi_command.extend(
+                    [str(original_cachegi.resolve()), str(raw_path),
+                     original_rescale_hash, original_packed_hash,
+                     str(encoded_path), fp(decoded)["fnv64"]])
+                cachegi = subprocess.run(
+                    cachegi_command,
+                    capture_output=True, text=True, timeout=120, check=False)
+                if cachegi.returncode:
+                    raise ValueError(f"original CacheGI exit={cachegi.returncode}: "
+                                     f"{cachegi.stdout} {cachegi.stderr}")
+                cachegi_result = cachegi.stdout.strip()
+                if not re.fullmatch(
+                    rf"original_cachegi=PASS bytes={packed_bytes} "
+                    rf"fnv64={original_packed_hash} "
+                    r"log_start=PASS log_done=PASS lifecycle=PASS",
+                    cachegi_result):
+                    raise ValueError(f"original CacheGI output is incomplete: {cachegi_result}")
     level = "SYNTHETIC" if game_root is None else "RESOURCE"
     return {"status": f"PASS — {level} GI DECODE, RESCALE AND REPACK ONLY", "resource": resource,
             "source": [source_width, source_height],
@@ -167,6 +188,8 @@ def run(game_root: Path | None, library: Path, target_width: int, target_height:
             "cross_architecture_hash_equal": (None if original_result is None else
                                               original_rescale_hash == fp(result)["fnv64"] and
                                               original_packed_hash == fp(packed_result)["fnv64"]),
+            "original_cachegi_executed": cachegi_result is not None,
+            "original_cachegi_output": cachegi_result,
             "original_graphbuf_output": original_result}
 
 
@@ -179,6 +202,7 @@ def main() -> int:
     parser.add_argument("--width", type=int, default=1280)
     parser.add_argument("--height", type=int, default=720)
     parser.add_argument("--original-graphbuf", type=Path)
+    parser.add_argument("--original-cachegi", type=Path)
     parser.add_argument("--emulator", type=Path)
     parser.add_argument("--sysroot", type=Path)
     args = parser.parse_args()
@@ -186,8 +210,11 @@ def main() -> int:
         parser.error("--emulator and --sysroot must be supplied together")
     if args.emulator is not None and args.original_graphbuf is None:
         parser.error("--emulator requires --original-graphbuf")
+    if args.original_cachegi is not None and args.original_graphbuf is None:
+        parser.error("--original-cachegi requires --original-graphbuf")
     print(json.dumps(run(args.game_root, args.okgf_lib, args.width, args.height,
-                         args.original_graphbuf, args.emulator, args.sysroot),
+                         args.original_graphbuf, args.emulator, args.sysroot,
+                         args.original_cachegi),
                      ensure_ascii=False, indent=2))
     return 0
 

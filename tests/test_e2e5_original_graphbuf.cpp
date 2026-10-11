@@ -3,6 +3,9 @@
 // source override selects the software branch for this UI background.
 #include "layout/GR_GraphBuf.hpp"
 #include "types/EC_Buf.hpp"
+#if defined(E2E5_ORIGINAL_CACHEGI)
+#include "types/EC_CacheGI.hpp"
+#endif
 #include "types/GR_gi.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/EC_Buf.hpp"
@@ -35,7 +38,42 @@ Types::TRect Rect(std::int32_t left, std::int32_t top,
                   std::int32_t right, std::int32_t bottom) {
   return {left, top, right, bottom};
 }
+#if defined(E2E5_ORIGINAL_CACHEGI)
+Types::TPoint Point(std::int32_t x, std::int32_t y) { return {x, y}; }
+#endif
 }  // namespace ClassesImports
+
+#if defined(E2E5_ORIGINAL_CACHEGI)
+namespace GR_Main {
+std::int32_t GameScreenWidth = 1280;
+std::int32_t GameScreenHeight = 720;
+std::int32_t ExtraScreenWidth = 256;
+std::int32_t ExtraScreenHeight = -48;
+std::int32_t E2E5LogTextCalls = 0;
+std::int32_t E2E5LogLineCalls = 0;
+pas::WideString GiResourceSuffix() { return pas::WideString(u"2"); }
+void AppendLogTextThreadSafe(const pas::AnsiString& text) {
+  if (std::string(reinterpret_cast<const char*>(text.pchar()), text.length()) ==
+      "Rescaling Bm.FormGameSet2.2bg... ") ++E2E5LogTextCalls;
+}
+void AppendLogLineThreadSafe(const pas::AnsiString& text) {
+  if (std::string(reinterpret_cast<const char*>(text.pchar()), text.length()) == "ok")
+    ++E2E5LogLineCalls;
+}
+std::int32_t Ex_OKGR_TransBuf_BuildFromRGBA_16(void*, std::int32_t,
+                                                 std::int32_t, std::int32_t, void*) {
+  std::abort();
+}
+std::int32_t Ex_OKGR_TransAlphaBuf_BuildFromRGBA_16(void*, std::int32_t,
+                                                      std::int32_t, std::int32_t, void*) {
+  std::abort();
+}
+std::int32_t Ex_OKGR_AlphaBuf_BuildFromRGBA(void*, std::int32_t,
+                                             std::int32_t, std::int32_t, void*) {
+  std::abort();
+}
+}  // namespace GR_Main
+#endif
 
 namespace GR_DX {
 void GR_CreateTexture(std::int32_t, std::int32_t, std::uint32_t,
@@ -95,6 +133,34 @@ int main(int argc, char** argv) {
   if (encoded.size() < 96 || encoded.size() > 32u * 1024u * 1024u) return 13;
   auto* source_buffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
   source_buffer->AddBytes(encoded.data(), static_cast<std::int32_t>(encoded.size()));
+#if defined(E2E5_ORIGINAL_CACHEGI)
+  {
+  EC_CacheGI::TCGiEC::ApplyWideScreenLayoutFixups(
+      source_buffer, pas::WideString(u"Bm.FormGameSet2.2bg"));
+  constexpr std::size_t packed_bytes = 1280u * 720u * 2u;
+  if (source_buffer->DataSize != static_cast<std::int32_t>(96 + packed_bytes) ||
+      GR_Main::E2E5LogTextCalls != 1 || GR_Main::E2E5LogLineCalls != 1) return 21;
+  std::uint64_t cachegi_hash = 0xcbf29ce484222325ull;
+  const auto* cachegi_bytes = static_cast<const std::uint8_t*>(source_buffer->Data) + 96;
+  for (std::size_t i = 0; i < packed_bytes; ++i)
+    cachegi_hash = (cachegi_hash ^ cachegi_bytes[i]) * 0x100000001b3ull;
+  std::uint64_t expected_cachegi{};
+  try { expected_cachegi = std::stoull(argv[3], nullptr, 16); }
+  catch (...) { return 22; }
+  if (cachegi_hash != expected_cachegi) {
+    std::fprintf(stderr, "original CacheGI RGB565 fnv64=%016llx expected=%016llx\n",
+                 static_cast<unsigned long long>(cachegi_hash),
+                 static_cast<unsigned long long>(expected_cachegi));
+    return 23;
+  }
+  source_buffer->Clear();
+  pas::free(source_buffer);
+  std::printf("original_cachegi=PASS bytes=%zu fnv64=%016llx "
+              "log_start=PASS log_done=PASS lifecycle=PASS\n",
+              packed_bytes, static_cast<unsigned long long>(cachegi_hash));
+  return 0;
+  }
+#endif
   auto* source = pas::construct_call<GR_gi::TgiGR>(GR_gi::TgiGR_Create);
   source->LoadRawGiFromBuffer(source_buffer);
   source_buffer->Clear();
