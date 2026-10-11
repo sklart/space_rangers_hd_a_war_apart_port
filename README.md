@@ -2,7 +2,7 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Текущий аппаратный статус:** M14P–M25 проверены на Switch. M26 готовится к отдельному cumulative аппаратному прогону. Это не означает готовность игры к прохождению: полный UI, audio/music и gameplay ещё не подключены.
+> **Текущий статус E2E-5: SOFTWARE PARTIAL / HARDWARE PENDING.** Предыдущий экспериментальный запуск на Switch дошёл до главного меню: музыка звучала с искажениями, курсор двигался рывками, а выбор New Game завершался аварией. Изменения после этого запуска ещё не проверены на консоли. Игра пока не готова к прохождению; единый тестовый E2E-5 NRO будет подготовлен после программных проверок.
 
 ## Что уже работает
 
@@ -30,7 +30,9 @@
 | M24 portable GraphButton/Window/Zone foundation | host/Python oracle, CI `37823081354` и `37825116392`, clean ARM64/symbol audit PASS; cumulative Switch log: checkpoint, dynamic stage, PLUS и shutdown PASS; M24 COMPLETE |
 | M25 portable GI/GAI UI and real release subtree | host/CI/ARM64/Switch PASS; 18-node PLBar and live GAI; M25 COMPLETE |
 | M26 portable GraphBuf, ScrollBar, PanelScrollBar, Edit and 50-node real UI | host/oracles PASS, CI M26 gate PASS, clean ARM64/NRO PASS; Switch hardware PENDING |
-| Полноценный игровой UI, audio/music, EC_Cache и gameplay | не подключены |
+| E2E-4: оригинальный запуск и меню | аппаратно достигнуто меню; искажения музыки, рывки курсора и авария при New Game остаются открытыми |
+| E2E-5: оригинальная загрузка GameSettings GI и кэша | host и Linux ARM64/QEMU: исходные методы декодирования, масштабирования и загрузки кэша прошли на установленном фоне; первый кадр UI и Switch не проверены |
+| Полный путь New Game → gameplay, оригинальный save/load | не подтверждён |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
 
@@ -68,7 +70,7 @@ git submodule update --init --recursive
 - CMake и Python 3;
 - Git.
 
-Linux host-регрессии выполняет GitHub Actions `ubuntu-24.04`; локальный WSL для этого проекта не является validation environment. Windows working copy допустима как источник WIP, а ARM64-сборку нужно выполнять в отдельном clean clone через devkitPro MSYS.
+Linux host-регрессии выполняет GitHub Actions `ubuntu-24.04`. Локальный WSL используется для дополнительных проверок исходных методов на x86 и ARM64/QEMU; они не заменяют полный CI и запуск на Switch. Windows working copy допустима как источник WIP, а ARM64-сборку нужно выполнять в отдельном clean clone через devkitPro MSYS.
 
 Сборку Switch ARM64 нужно запускать из оболочки devkitPro MSYS, а не из обычного `cmd.exe`.
 
@@ -141,9 +143,9 @@ port/switch/Space Rangers HD - A War Apart.nro
 
 ## Границы подтверждённого аппаратного пути
 
-M7, M8, M9, M11, M12, M14P–M22 имеют hardware PASS. M13 завершён как metadata diagnostic и не требует отдельного hardware gate. M18 CPU-only композитит единственный decoded Format-2 BGRA кадр поверх M12 heartbeat в RGB565 framebuffer; screenshot подтвердил реальную видимость кадра. M14 direct upstream path остаётся заблокированным широким `GR_DX` fan-out, а M14R — Direct3D COM state в layout `TGraphBufGR`.
+Ранние переносимые подсистемы M14P–M25 прошли свои аппаратные проверки; это отдельные milestone, а не проверка полного игрового сценария. В более позднем экспериментальном запуске оригинального пути игра дошла до меню, но музыка была искажена, курсор двигался рывками (в журнале меню было 4,32–5,18 кадра/с), а New Game завершился аварией до первого кадра GameSettings. Причина аварии и распределение времени кадра ещё не установлены. Исправления аудиопотока и диагностические счётчики собраны, но их эффект на Switch пока не измерен.
 
-Последний аппаратно протестированный NRO (M21) имел размер 7 547 184 bytes, SHA-256 `6D387610DAD7DA57C1D9F21F00ABF84C67F9AA266421CF54C98567656C8FA3F1` и embedded `build_git=fc8adfc`. Он проверил real Simple `DATA/Planet/Spu00.png` (128×60), корректно зафиксировал отсутствие release Trans/Alpha без подстановки ресурсов и сопоставил integrated RGB565 scene с независимым oracle: `CRC32=4f915772`, `FNV64=52449ae8f8f56c6c`. M12 представил 3 824 кадра за 172 747 ms, вышел через `PLUS` и достиг `[BOOT] COMPLETE`; M17 также завершил полный цикл. CI `37770073920` успешно прошёл M21 regression и symbol audit. M21 COMPLETE.
+Текущий E2E-5 проверяет оригинальные методы GI и кэша на host и ARM64/QEMU, в том числе с ASan/UBSan на host. Эти проверки не запускают полный `ProgramMain`, не рисуют первый кадр GameSettings и не проверяют звук на консоли. [Матрица покрытия](docs/e2e5-coverage-matrix.md) отделяет каждый подтверждённый уровень от непроверенных сценариев. Планируется один совокупный [аппаратный тест](docs/e2e5-hardware-plan.md) после прохождения программных барьеров; готового E2E-5 NRO пока нет.
 
 ```text
 [M9] FAIL runtime config=... DAT zlib decompression failed
@@ -156,6 +158,18 @@ M7, M8, M9, M11, M12, M14P–M22 имеют hardware PASS. M13 завершён 
 GitHub Actions workflow `package-host` выполняет asset-free host-регрессии, включая corrupt package, циклы каталогов, `ZL02`, portable `EC_File`, synthetic DAT/runtime settings, M8 golden, M12, M13, M14P Format-0, M15 GAI container, M16 Format-2, M17 pure playback, M18 software compositor и M19 scene compositor. M18/M19 symbol audit запрещает графические/upstream GAI runtime типы в чистых CPU-композиторных binary.
 
 M20 добавляет `host-gi-object-test` и отдельный symbol audit: он покрывает resource → GIObject → animation → Scene → RGB565 framebuffer и запрещает возврат к UI/Direct3D/`TGraphBufGR`-пути в новом object layer.
+
+Для E2E-5 доступны проверка указателей, запуск host-проверок с собственной установленной игрой и проверка исходных методов GI/кэша на Linux или WSL:
+
+```text
+python tools/e2e5_static_audit.py --check --output reports/e2e5/pointer-width-audit.json
+python tools/e2e5_host_runner.py --game-root "<каталог установленной игры>"
+bash tools/e2e5_original_graphbuf_host.sh "<каталог установленной игры>"
+bash tools/e2e5_original_graphbuf_arm64_host.sh "<каталог установленной игры>"
+python tools/e2e5_report.py --output reports/e2e5/summary.json
+```
+
+Для ARM64/QEMU нужны `aarch64-linux-gnu` GCC/G++, QEMU user mode, CMake и заголовки JPEG/PNG. Уровни проверок, зависимости и ограничения описаны в [архитектуре тестов E2E-5](docs/e2e5-test-architecture.md). Отчёт может показывать `PARTIAL` или `NOT RUN` при успешном завершении отдельных команд: это не результат полного игрового сценария.
 
 Локальная ARM64-сборка проверяет создание NRO. Дополнительно для финального артефакта следует подтвердить:
 
@@ -188,6 +202,12 @@ M20 добавляет `host-gi-object-test` и отдельный symbol audit:
 - [M25 portable GI/GAI UI and first real subtree](docs/milestone25-gi-gai-real-ui.md) — COMPLETE / HARDWARE PASS
 - [M26 GraphBuf, scroll controls, Edit and larger real UI](docs/milestone26-graphbuf-scroll-edit-real-ui.md) — hardware pending
 - [M27 portable input, focus and event dispatch](docs/milestone27-input-focus-events.md) — software complete; hardware pending
+- [E2E-4: безопасная экспериментальная ротация quicksave и ручное восстановление](docs/e2e4-save-load.md)
+- [E2E-5: архитектура тестов](docs/e2e5-test-architecture.md)
+- [E2E-5: матрица покрытия](docs/e2e5-coverage-matrix.md)
+- [E2E-5: обнаруженные дефекты](docs/e2e5-found-defects.md)
+- [E2E-5: измерение производительности](docs/e2e5-performance.md)
+- [E2E-5: план одного аппаратного теста](docs/e2e5-hardware-plan.md)
 
 ## Лицензирование и обратная связь
 
