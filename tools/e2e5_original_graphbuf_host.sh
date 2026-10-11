@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Native Linux/WSL release-backed check of the unchanged original GraphBuf method.
+# Native Linux/WSL check of original GI decode, GraphBuf rescale, and GI repack.
 set -euo pipefail
 
 if [[ $# -ne 1 ]]; then

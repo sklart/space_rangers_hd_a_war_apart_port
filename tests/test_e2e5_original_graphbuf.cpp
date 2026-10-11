@@ -67,28 +67,56 @@ void Ex_OKGF_Convert_8888to565(void* dest, std::int32_t dest_pitch,
   ::OKGF_Convert_8888to565(dest, dest_pitch, dest_x, dest_y, source,
                            source_pitch, source_x, source_y, width, height);
 }
+void Ex_OKGF_Convert565toBGRA(void* source, std::int32_t source_pitch,
+                                 void* dest, std::int32_t dest_pitch,
+                                 std::int32_t width, std::int32_t height) {
+  ::OKGF_Convert565toBGRA(source, source_pitch, dest, dest_pitch, width, height);
+}
+// Other GI formats are outside this fixture. Fail immediately if the
+// installed Format-0 resource unexpectedly reaches one of their decoders.
+#define E2E5_UNSUPPORTED_GI_DECODER(name) \
+  void name(void*, std::int32_t, void*) { std::abort(); }
+E2E5_UNSUPPORTED_GI_DECODER(Ex_OKGR_TransBuf_Draw_RGBA)
+E2E5_UNSUPPORTED_GI_DECODER(Ex_OKGR_AlphaBuf_Draw_RGBA)
+E2E5_UNSUPPORTED_GI_DECODER(Ex_OKGR_TransAlphaBuf_Draw_RGBA)
+E2E5_UNSUPPORTED_GI_DECODER(Ex_OKGR_AlphaIndexed_Draw_RGBA)
+E2E5_UNSUPPORTED_GI_DECODER(Ex_OKGR_AlphaIndexed_AlphaDraw_RGBA)
+E2E5_UNSUPPORTED_GI_DECODER(Ex_OKGR_F5_DrawRGBA)
+E2E5_UNSUPPORTED_GI_DECODER(Ex_OKGR_F6_DrawRGBA)
+#undef E2E5_UNSUPPORTED_GI_DECODER
+void ExpandPaletteToBgra(void*, std::int32_t, std::uint32_t, std::uint32_t,
+                         void*, std::int32_t, void*) { std::abort(); }
 }  // namespace GR_Main
 
 int main(int argc, char** argv) {
-  if (argc != 4) return 2;
+  if (argc != 6) return 2;
   std::ifstream stream(argv[1], std::ios::binary);
   if (!stream) return 3;
   const std::vector<std::uint8_t> pixels(std::istreambuf_iterator<char>{stream}, {});
   constexpr std::int32_t source_width = 1920, source_height = 1200;
   if (pixels.size() != static_cast<std::size_t>(source_width) * source_height * 4) return 4;
-  auto* owned = std::malloc(pixels.size());
-  if (!owned) return 5;
-  std::memcpy(owned, pixels.data(), pixels.size());
+  std::ifstream encoded_stream(argv[4], std::ios::binary);
+  if (!encoded_stream) return 5;
+  std::vector<std::uint8_t> encoded(std::istreambuf_iterator<char>{encoded_stream}, {});
+  if (encoded.size() < 96 || encoded.size() > 32u * 1024u * 1024u) return 13;
+  GR_gi::TgiGR source{};
+  source.LoadRawGiBytes(encoded.data(), static_cast<std::int32_t>(encoded.size()));
   GR_GraphBuf::TGraphBufGR graph{};
-  graph.Width = source_width;
-  graph.Height = source_height;
-  graph.PitchBytes = source_width * 4;
-  graph.Pixels = owned;
-  graph.StorageKind = 0;
-  graph.BitsPerPixel = 32;
-  graph.BytesPerPixel = 4;
   graph.UseTexture = false;
   graph.UsesTextureStorage = false;
+  source.DecodeToGraphBuf(&graph, false);
+  if (graph.Width != source_width || graph.Height != source_height ||
+      graph.PitchBytes != source_width * 4 || graph.Pixels == nullptr) return 14;
+  std::uint64_t decoded_hash = 0xcbf29ce484222325ull;
+  const auto* decoded = static_cast<const std::uint8_t*>(graph.Pixels);
+  for (std::size_t i = 0; i < pixels.size(); ++i)
+    decoded_hash = (decoded_hash ^ decoded[i]) * 0x100000001b3ull;
+  std::uint64_t expected_decoded{};
+  try { expected_decoded = std::stoull(argv[5], nullptr, 16); }
+  catch (...) { return 15; }
+  if (decoded_hash != expected_decoded ||
+      std::memcmp(graph.Pixels, pixels.data(), pixels.size()) != 0) return 16;
+  source.ClearData();
   graph.RescaleWithAspect(1280, 720, true, 1, 1, OKGF_RESCALE_LANCZOS3);
   if (graph.Width != 1280 || graph.Height != 720 || graph.PitchBytes != 5120 ||
       graph.Pixels == nullptr) return 6;
@@ -119,8 +147,10 @@ int main(int argc, char** argv) {
   std::uint64_t expected_packed{};
   try { expected_packed = std::stoull(argv[3], nullptr, 16); }
   catch (...) { return 10; }
-  std::printf("original_graphbuf=PASS width=%d height=%d pitch=%d fnv64=%016llx "
+  std::printf("original_decode=PASS fnv64=%016llx "
+              "original_graphbuf=PASS width=%d height=%d pitch=%d fnv64=%016llx "
               "original_gi=PASS bytes=%zu fnv64=%016llx\n",
+              static_cast<unsigned long long>(decoded_hash),
               graph.Width, graph.Height, graph.PitchBytes,
               static_cast<unsigned long long>(hash), packed_bytes,
               static_cast<unsigned long long>(packed_hash));

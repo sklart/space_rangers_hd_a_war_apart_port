@@ -13,6 +13,7 @@ import json
 import mmap
 from pathlib import Path
 import subprocess
+import struct
 import tempfile
 
 from e2e5_resource_validator import decode_format0
@@ -27,9 +28,20 @@ def run(game_root: Path | None, library: Path, target_width: int, target_height:
             target_width * target_height * 4 > 128 * 1024 * 1024):
         raise ValueError("target dimensions are invalid or oversized")
     if game_root is None:
-        image = {"width": 1920, "height": 1200}
-        decoded = bytes(channel for y in range(1200) for x in range(1920)
-                        for channel in (x & 255, y & 255, (x + y) & 255, 255))
+        width, height = 1920, 1200
+        encoded_buffer = bytearray(96 + width * height * 2)
+        encoded_buffer[:2] = b"gi"
+        struct.pack_into("<i4i4I2i", encoded_buffer, 4, 1, 0, 0, width, height,
+                         0xf800, 0x07e0, 0x001f, 0, 0, 1)
+        struct.pack_into("<ii4i", encoded_buffer, 64, 96, width * height * 2,
+                         0, 0, width, height)
+        for y in range(height):
+            for x in range(width):
+                red, green, blue = x & 255, y & 255, (x + y) & 255
+                value = ((red & 248) << 8) | ((green & 252) << 3) | (blue >> 3)
+                struct.pack_into("<H", encoded_buffer, 96 + (y * width + x) * 2, value)
+        encoded = bytes(encoded_buffer)
+        image, decoded = decode_format0(encoded)
         resource = "SYNTHETIC:1920x1200-gradient"
     else:
         package = game_root / "DATA" / "forms.pkg"
@@ -111,9 +123,12 @@ def run(game_root: Path | None, library: Path, target_width: int, target_height:
             raise ValueError("original GraphBuf fixture currently requires 1280x720")
         with tempfile.TemporaryDirectory(prefix="e2e5-graphbuf-") as directory:
             raw_path = Path(directory) / "background.bgra"
+            encoded_path = Path(directory) / "background.gi"
             raw_path.write_bytes(decoded)
+            encoded_path.write_bytes(encoded)
             executed = subprocess.run([str(original_graphbuf.resolve()), str(raw_path),
-                                       fp(result)["fnv64"], fp(packed_result)["fnv64"]],
+                                       fp(result)["fnv64"], fp(packed_result)["fnv64"],
+                                       str(encoded_path), fp(decoded)["fnv64"]],
                                       capture_output=True,
                                       text=True, timeout=120, check=False)
         if executed.returncode:
@@ -121,13 +136,14 @@ def run(game_root: Path | None, library: Path, target_width: int, target_height:
                              f"{executed.stdout} {executed.stderr}")
         original_result = executed.stdout.strip()
     level = "SYNTHETIC" if game_root is None else "RESOURCE"
-    return {"status": f"PASS — {level} RESCALE AND REPACK ONLY", "resource": resource,
+    return {"status": f"PASS — {level} GI DECODE, RESCALE AND REPACK ONLY", "resource": resource,
             "source": [source_width, source_height],
             "crop": [left, top, crop_width, crop_height],
             "target": [target_width, target_height],
             "output_bytes": output_bytes, "fnv64": fp(result)["fnv64"],
             "rgb565_bytes": packed_bytes, "rgb565_fnv64": fp(packed_result)["fnv64"],
             "original_game_executed": False,
+            "original_gi_decode_executed": original_result is not None,
             "original_graphbuf_executed": original_result is not None,
             "original_gi_repack_executed": original_result is not None,
             "original_graphbuf_output": original_result}
