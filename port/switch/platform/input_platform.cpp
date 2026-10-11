@@ -72,6 +72,9 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
   result.escape_up = !raw.y && state->last.escape_held;
   result.escape_held = raw.y;
   result.plus_down = raw.plus && !state->plus_held;
+  result.quicksave_held = raw.zl && raw.zr && raw.minus;
+  result.quicksave_down = result.quicksave_held && !state->last.quicksave_held;
+  result.quicksave_up = !result.quicksave_held && state->last.quicksave_held;
   state->plus_held = raw.plus;
   state->last = result;
   return result;
@@ -115,6 +118,11 @@ Snapshot Poll(State* state, std::int32_t width, std::int32_t height) {
   raw.x = (held & HidNpadButton_X) != 0;
   raw.y = (held & HidNpadButton_Y) != 0;
   raw.plus = (held & HidNpadButton_Plus) != 0;
+#if defined(E2E4_QUICKSAVE_EXPERIMENT) && E2E4_QUICKSAVE_EXPERIMENT
+  raw.zl = (held & HidNpadButton_ZL) != 0;
+  raw.zr = (held & HidNpadButton_ZR) != 0;
+  raw.minus = (held & HidNpadButton_Minus) != 0;
+#endif
   return Normalize(state, raw, width, height);
 #else
   return Normalize(state, state->host_raw, width, height);

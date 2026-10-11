@@ -89,6 +89,18 @@ int main() {
          frame.escape_down && frame.plus_down);
   frame = NormalizeAt(&buttons, raw, 1280, 720, 0);
   assert(!frame.plus_down && !frame.right_down);
+  raw = {};
+  raw.zl = raw.zr = true;
+  frame = NormalizeAt(&buttons, raw, 1280, 720, 0);
+  assert(!frame.quicksave_down && !frame.quicksave_held);
+  raw.minus = true;
+  frame = NormalizeAt(&buttons, raw, 1280, 720, 0);
+  assert(frame.quicksave_down && frame.quicksave_held);
+  frame = NormalizeAt(&buttons, raw, 1280, 720, 0);
+  assert(!frame.quicksave_down && frame.quicksave_held);
+  raw.minus = false;
+  frame = NormalizeAt(&buttons, raw, 1280, 720, 0);
+  assert(frame.quicksave_up && !frame.quicksave_held);
   Warp(&buttons, 1200, 700, 1280, 720);
   frame = NormalizeAt(&buttons, full_stick, 1280, 720, 2000000);
   assert(frame.x == 1200 && frame.y == 700);

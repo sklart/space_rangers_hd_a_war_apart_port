@@ -15,6 +15,7 @@ struct RawInput {
   std::int32_t stick_x{}, stick_y{};
   bool dpad_left{}, dpad_right{}, dpad_up{}, dpad_down{};
   bool a{}, b{}, x{}, y{}, plus{};
+  bool zl{}, zr{}, minus{};
 };
 struct Snapshot {
   std::int32_t x{}, y{};
@@ -23,6 +24,7 @@ struct Snapshot {
   bool enter_down{}, enter_up{}, enter_held{};
   bool escape_down{}, escape_up{}, escape_held{};
   bool plus_down{};
+  bool quicksave_down{}, quicksave_up{}, quicksave_held{};
 };
 struct State {
   Config config{};

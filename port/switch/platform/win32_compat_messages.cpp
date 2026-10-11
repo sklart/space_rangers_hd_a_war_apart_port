@@ -38,6 +38,7 @@ constexpr std::uint32_t kWmKeyUp = 0x0101u;
 constexpr std::uint32_t kWmChar = 0x0102u;
 constexpr std::uint32_t kVkReturn = 0x0du;
 constexpr std::uint32_t kVkEscape = 0x1bu;
+constexpr std::uint32_t kVkF5 = 0x74u;
 constexpr std::uint32_t kVkLeftMouse = 1u;
 constexpr std::uint32_t kVkRightMouse = 2u;
 constexpr std::uint32_t kWaitFailed = 0xffffffffu;
@@ -96,7 +97,8 @@ void Pump() {
   const auto diagnostic_tick = e2e_clock::Milliseconds();
   const bool button_edge = input.left_down || input.left_up || input.right_down ||
       input.right_up || input.enter_down || input.enter_up || input.escape_down ||
-      input.escape_up || input.plus_down;
+      input.escape_up || input.plus_down || input.quicksave_down ||
+      input.quicksave_up;
   if (!g_input_diagnostic_started || button_edge ||
       diagnostic_tick - g_last_input_diagnostic_tick >= 1000u) {
     char detail[160]{};
@@ -127,6 +129,7 @@ void Pump() {
   };
   key(kVkReturn, input.enter_down, input.enter_up, input.enter_held);
   key(kVkEscape, input.escape_down, input.escape_up, input.escape_held);
+  key(kVkF5, input.quicksave_down, input.quicksave_up, input.quicksave_held);
   g_keys[kVkLeftMouse] = input.left_held;
   g_keys[kVkRightMouse] = input.right_held;
   if (input.plus_down) Enqueue(0, kWmQuit); // PLUS is process exit, never a VK.
