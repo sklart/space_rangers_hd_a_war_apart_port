@@ -43,6 +43,12 @@ def native_path(path: Path) -> str:
     return str(path)
 
 
+def python_path(path: Path) -> str:
+    # MSYS Python consumes POSIX paths; native devkitPro tools consume Win32
+    # paths. Passing cygpath -w to sys.executable treats D: as a relative name.
+    return str(path)
+
+
 def cmake_path(path: Path) -> str:
     if os.name == "nt":
         return subprocess.check_output(["cygpath", "-u", str(path)], text=True).strip()
@@ -258,7 +264,7 @@ def main() -> int:
     runtime_overlay = BUILD / "runtime-overlay"
     prepare_runtime_overlay(GAME / "runtime", runtime_overlay)
     code, output = run([sys.executable,
-                        native_path(ROOT / "tools/audit_win32_surface.py"), "--check"])
+                        python_path(ROOT / "tools/audit_win32_surface.py"), "--check"])
     if code:
         report["first_failure"] = {"phase": "Win32 source inventory", "exact_error": output}
         save(report)
@@ -279,7 +285,7 @@ def main() -> int:
         "unknown": counts.get("UNKNOWN", 0),
     }
     code, output = run([sys.executable,
-                        native_path(ROOT / "tools/generate_okgf_compat_exports.py")])
+                        python_path(ROOT / "tools/generate_okgf_compat_exports.py")])
     if code:
         report["first_failure"] = {"phase": "OKGF export table", "exact_error": output}
         save(report)
@@ -438,7 +444,7 @@ def main() -> int:
                                    f"required original game symbols missing: {report['required_game_symbols']}"}
         save(report)
         return 1
-    code, audit_output = run([sys.executable, native_path(ROOT / "tools/audit_win32_surface.py"),
+    code, audit_output = run([sys.executable, python_path(ROOT / "tools/audit_win32_surface.py"),
                               "--effective", "--check"])
     if manifest_path.is_file():
         manifest_bytes = manifest_path.read_bytes()
@@ -463,7 +469,7 @@ def main() -> int:
                         ["tools/generate_win32_portable_cases.py", "--check"]),
                        ("synthetic handle width",
                         ["tools/audit_win32_handle_width.py"])):
-        code, gate_output = run([sys.executable, native_path(ROOT / gate_args[0]),
+        code, gate_output = run([sys.executable, python_path(ROOT / gate_args[0]),
                                  *gate_args[1:]])
         if code:
             report["first_failure"] = {"phase": gate, "exact_error": gate_output}
