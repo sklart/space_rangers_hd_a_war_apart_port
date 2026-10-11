@@ -22,6 +22,28 @@ RUNS = ROOT / "port/switch/build/e2e5-host-game/runs"
 FRAME = re.compile(
     r"HOST first software frame width=(\d+) height=(\d+) rgb565_hash=([0-9a-f]{16})"
 )
+SCREEN_DISPATCH = re.compile(r"screen dispatch id=(\d+) postload=\d+")
+SCREEN_FRAME_COUNT = re.compile(r"screen Run frames=(\d+)")
+GAMEPLAY_SCREENS = frozenset((5, 6, 20))
+
+
+def screen_frames(log: str) -> set[int]:
+    dispatches = list(SCREEN_DISPATCH.finditer(log))
+    return {int(match.group(1)) for index, match in enumerate(dispatches)
+            if "screen Run first frame attempted" in log[
+                match.end():dispatches[index + 1].start()
+                if index + 1 < len(dispatches) else len(log)]}
+
+
+def screen_frame_milestones(log: str) -> dict[int, set[int]]:
+    dispatches = list(SCREEN_DISPATCH.finditer(log))
+    result: dict[int, set[int]] = {}
+    for index, match in enumerate(dispatches):
+        section = log[match.end():dispatches[index + 1].start()
+                      if index + 1 < len(dispatches) else len(log)]
+        result.setdefault(int(match.group(1)), set()).update(
+            int(value) for value in SCREEN_FRAME_COUNT.findall(section))
+    return result
 
 
 def tail(path: Path, limit: int = 5000) -> str:
@@ -54,8 +76,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     began = time.monotonic()
     seen_frame: re.Match[str] | None = None
     seen_new_game_frame = False
-    seen_introduction_frame = False
-    seen_generation_complete = False
+    seen_gameplay_frame = False
+    seen_gameplay_60_frames = False
     stopped_by_probe = False
     timed_out = False
     with stderr_path.open("w", encoding="utf-8") as stderr:
@@ -66,18 +88,16 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                 seen_frame = FRAME.search(e2e_log.read_text(encoding="utf-8", errors="replace"))
             if (auto_new_game or auto_start_game) and e2e_log.is_file():
                 current = e2e_log.read_text(encoding="utf-8", errors="replace")
-                new_game = current.find("screen dispatch id=33 postload=")
-                seen_new_game_frame = (new_game >= 0 and
-                    "screen Run first frame attempted" in current[new_game:])
-                introduction = current.find("screen dispatch id=3 postload=", new_game)
-                seen_introduction_frame = (introduction >= 0 and
-                    "screen Run first frame attempted" in current[introduction:])
-                seen_generation_complete = "generation stage=8 status=complete" in current
+                frames = screen_frames(current)
+                seen_new_game_frame = 33 in frames
+                seen_gameplay_frame = bool(frames & GAMEPLAY_SCREENS)
+                milestones = screen_frame_milestones(current)
+                seen_gameplay_60_frames = any(
+                    60 in milestones.get(screen, set()) for screen in GAMEPLAY_SCREENS)
             if ((seen_frame and not continue_after_frame and
                  not auto_new_game and not auto_start_game) or
                     (auto_new_game and not auto_start_game and seen_new_game_frame) or
-                    (auto_start_game and seen_generation_complete and
-                     seen_introduction_frame)):
+                    (auto_start_game and seen_gameplay_frame and seen_gameplay_60_frames)):
                 stopped_by_probe = True
                 process.terminate()
                 break
@@ -113,14 +133,11 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         state = "EXIT_BEFORE_FIRST_FRAME"
     full_e2e_log = e2e_log.read_text(encoding="utf-8", errors="replace") if e2e_log.is_file() else ""
     full_game_log = game_log.read_text(encoding="utf-8", errors="replace") if game_log.is_file() else ""
-    dispatches = [int(screen_id) for screen_id in
-                  re.findall(r"screen dispatch id=(\d+) postload=\d+", full_e2e_log)]
-    new_game = full_e2e_log.find("screen dispatch id=33 postload=")
-    seen_new_game_frame = new_game >= 0 and (
-        "screen Run first frame attempted" in full_e2e_log[new_game:])
-    introduction = full_e2e_log.find("screen dispatch id=3 postload=", new_game)
-    seen_introduction_frame = introduction >= 0 and (
-        "screen Run first frame attempted" in full_e2e_log[introduction:])
+    dispatches = [int(match.group(1)) for match in SCREEN_DISPATCH.finditer(full_e2e_log)]
+    observed_frames = screen_frames(full_e2e_log)
+    frame_milestones = screen_frame_milestones(full_e2e_log)
+    seen_new_game_frame = 33 in observed_frames
+    seen_introduction_frame = 3 in observed_frames
     generation_stages = [int(stage) for stage in re.findall(
         r"generation stage=(\d+) status=(?:running|complete)", full_e2e_log)]
     generation_failure = re.search(r"generation stage=(\d+) status=failed", full_e2e_log)
@@ -157,8 +174,16 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "settings_saved": "game_settings action=apply settings=saved" in full_e2e_log,
         "generation_worker_started": "generation worker=start-requested" in full_e2e_log,
         "generation_complete": "generation stage=8 status=complete" in full_e2e_log,
+        "introduction_continue_enabled":
+            "introduction status=continue-enabled" in full_e2e_log,
         "introduction_first_frame": (
             "PRESENTATION ATTEMPT OBSERVED" if seen_introduction_frame else "NOT OBSERVED"),
+        "gameplay_first_frame": (
+            "PRESENTATION ATTEMPT OBSERVED" if observed_frames & GAMEPLAY_SCREENS
+            else "NOT OBSERVED"),
+        "gameplay_screen_ids": sorted(observed_frames & GAMEPLAY_SCREENS),
+        "gameplay_60_frames": any(60 in frame_milestones.get(screen, set())
+                                  for screen in GAMEPLAY_SCREENS),
         "screen_dispatches": dispatches,
         "main_menu_on_open_ready": main_menu_ready,
         "audio": {

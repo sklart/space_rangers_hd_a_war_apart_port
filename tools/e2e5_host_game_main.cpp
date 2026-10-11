@@ -16,13 +16,14 @@
 #include <thread>
 
 namespace {
-void DriveOriginalNewGameKey(const std::filesystem::path& stage,
-                             const std::atomic<bool>& running,
-                             bool start_game) {
+void DriveOriginalGameKeys(const std::filesystem::path& stage,
+                           const std::atomic<bool>& running,
+                           bool start_game) {
   const auto log = stage / "sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log";
   constexpr auto kMenu = "screen dispatch id=1 postload=";
   constexpr auto kReady = "screen Run OnOpen ready";
   bool new_game_sent = false;
+  bool start_game_sent = false;
   while (running.load()) {
     std::ifstream stream(log);
     if (stream) {
@@ -32,14 +33,22 @@ void DriveOriginalNewGameKey(const std::filesystem::path& stage,
       const auto settings = lines.find("screen dispatch id=33 postload=");
       const bool ready_to_send = !new_game_sent
           ? menu != std::string::npos && lines.find(kReady, menu) != std::string::npos
-          : start_game && settings != std::string::npos &&
-            lines.find("screen Run frames=60", settings) != std::string::npos;
+          : !start_game_sent
+            ? start_game && settings != std::string::npos &&
+              lines.find("screen Run frames=60", settings) != std::string::npos
+            : lines.find("introduction status=continue-enabled") != std::string::npos;
       if (ready_to_send) {
         const auto window = srhd_awa::platform::win32_compat::MainWindow();
         if (window) {
           srhd_awa::platform::win32_compat::PostHostReturnKey(window);
-          if (new_game_sent || !start_game) return;
-          new_game_sent = true;
+          if (!new_game_sent) {
+            if (!start_game) return;
+            new_game_sent = true;
+          } else if (!start_game_sent) {
+            start_game_sent = true;
+          } else {
+            return;
+          }
         }
       }
     }
@@ -73,7 +82,7 @@ int main() {
   const char* drive = std::getenv("E2E5_HOST_AUTO_NEW_GAME");
   const char* start = std::getenv("E2E5_HOST_AUTO_START_GAME");
   if ((drive && *drive == '1') || (start && *start == '1'))
-    new_game_driver = std::thread(DriveOriginalNewGameKey, stage,
+    new_game_driver = std::thread(DriveOriginalGameKeys, stage,
                                   std::cref(running), start && *start == '1');
   Rangers::ProgramMain();
   running = false;

@@ -31,6 +31,20 @@
       "class": "Misnamed package payload",
       "evidence": "common.pkg DATA/Galaxy/war.gai is 14 bytes and does not begin with GAI magic",
       "state": "Classify as non-image payload; original use unknown"
+    },
+    {
+      "id": "E2E5-011",
+      "class": "32-bit dialog callback pointer truncation",
+      "symptom": "Original New Game reaches RuinsTalk, then crashes in TScript::CallDialogMessage before its first frame",
+      "stack": ["aScript::TScript::CallDialogMessage", "fRuinsTalk::TfRuinsTalk::SelectScriptDialog", "fRuinsTalk::TfRuinsTalk::M_Main", "fRuinsTalk::TfRuinsTalk::OnOpen"],
+      "affected_files": ["upstream/cpp/src/fRuinsTalk.cpp", "upstream/cpp/src/fTalk.cpp"],
+      "fix": "Experimental disposable source overrides register live dialog pointers as owner-scoped int32 tokens; row tokens are released on choice cleanup and all remaining tokens on screen close",
+      "test": "tests/e2e5_pointer_payload_test.cpp under ASan/UBSan; test_dialog_pointer_payloads_keep_full_addresses_in_experiment; installed-resource host New Game reached RuinsTalk presentation and at least 60 frames",
+      "first_reproducing_scenario": "Installed-resource original Main Menu -> GameSettings -> Introduction -> New Game generation -> RuinsTalk",
+      "status": "HOST FIX VERIFIED; ARM64 AND SWITCH PENDING",
+      "commit": null,
+      "hardware_confirmation_required": true,
+      "evidence": "Host ELF SHA256 a6b5ba42a074a6069ec26e2fd727b7745bb83502f020450d2ff48eb603a90fce: SIGSEGV at offset 0x4f809e loading TScript+0x58 from truncated address; repaired ELF 57d5210759c8931a62600dc20ba052b0c1766e67fb725f04364d476fb908b317 reached screen id=20"
     }
   ]
 }

@@ -215,6 +215,28 @@ class E2E5ToolTests(unittest.TestCase):
         self.assertGreater(text.count("e2e_profile.Enter("), 20)
         self.assertNotIn("e2e_profile", source.read_text(encoding="utf-8"))
 
+    def test_dialog_pointer_payloads_keep_full_addresses_in_experiment(self):
+        overrides = module("e2e_source_overrides")
+        for name, expected in (("fRuinsTalk.cpp", 18), ("fTalk.cpp", 12)):
+            with self.subTest(name=name):
+                source = ROOT / "upstream/cpp/src" / name
+                with tempfile.TemporaryDirectory() as directory:
+                    generated = overrides.generated_source(
+                        source, Path(directory) / name, e2e5_profile=True)
+                    text = generated.read_text(encoding="utf-8")
+                self.assertEqual(text.count("e2e5_pointer_payload::Register"), expected)
+                self.assertIn("e2e5_pointer_payload::Resolve", text)
+                self.assertNotIn("static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(", text)
+                self.assertIn("e2e5_pointer_payload::ReleaseOwner(this)", text)
+
+    def test_ordinary_player_build_keeps_matching_original_declaration(self):
+        overrides = module("e2e_source_overrides")
+        source = ROOT / "upstream/cpp/src/aPlayer.cpp"
+        with tempfile.TemporaryDirectory() as directory:
+            generated = overrides.generated_source(source, Path(directory) / "aPlayer.cpp")
+            text = generated.read_text(encoding="utf-8")
+        self.assertIn("std::uint32_t EncodedPlayer =", text)
+
     def test_depfile_change_invalidates_only_dependent_object(self):
         build = module("e2e_arm64_build")
         with tempfile.TemporaryDirectory() as directory:

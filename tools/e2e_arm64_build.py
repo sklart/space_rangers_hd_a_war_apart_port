@@ -356,7 +356,8 @@ def main() -> int:
                                           BUILD / "generated" / source.name,
                                           build_id, manifest_stamp,
                                           audio_on=args.experimental_audio_on,
-                                          e2e5_profile=args.experimental_e2e4_combined)
+                                          e2e5_profile=args.experimental_e2e4_combined,
+                                          script_width=script_width_enabled)
         if script_source_root and category == "upstream" and source.parent == GAME / "src":
             current = compile_source.read_text(encoding="utf-8")
             repaired = apply_ui_width_overrides(source.name, current)

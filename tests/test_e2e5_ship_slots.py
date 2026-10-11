@@ -36,7 +36,8 @@ class ShipSlotOverrideTests(unittest.TestCase):
     def test_encoded_player_keeps_full_pointer_width(self) -> None:
         source = ROOT / "upstream/cpp/src/aPlayer.cpp"
         with tempfile.TemporaryDirectory() as folder:
-            output = generated_source(source, Path(folder) / "aPlayer.cpp")
+            output = generated_source(source, Path(folder) / "aPlayer.cpp",
+                                      script_width=True)
             text = output.read_text(encoding="utf-8")
         self.assertIn("std::uintptr_t EncodedPlayer", text)
         self.assertNotIn("static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Player))", text)

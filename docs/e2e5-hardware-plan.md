@@ -1,16 +1,33 @@
-# One cumulative E2E-5 console test
+# Один промежуточный тест E2E-5 на Switch
 
-The final `Switch-E2E5-TEST.nro` will be placed at the repository root only
-after the software acceptance gates pass. There is no E2E-5 NRO ready now.
+Экспериментальный файл: `Switch-E2E5-TEST.nro` в корне репозитория. Размер
+16 337 200 байт, SHA-256
+`B1EF8236ADC8CDA13229E3F2D72851928D05214C4102758207BD188B6ADE874C`.
+Он собран из коммита `c96252a8d53d8021e369a77baceb0b34c5bd32c9` с
+комбинированными экспериментальными механизмами. Локальные ARM64 линковка и
+упаковка прошли; полный CI и аппаратная проверка ещё не завершены. Статус
+остаётся **SOFTWARE PARTIAL / HARDWARE PENDING**.
 
-When ready, copy that single file to the Switch game directory and retain the
-exact SHA-256 published with it. In one session, observe: boot and menu;
-pointer motion; music with and without menu transitions; New Game, full
-GameSettings first frame, several option changes and OK; generation,
-Introduction and gameplay; SFX; save, reload and restart. Copy the diagnostic
-log and crash report back afterward. Record each checkpoint as observed,
-failed, or not reached. Existing user saves must be backed up before any save
-exercise, and the experimental quicksave path must not replace the ordinary
-build until its transaction recovery has passed all gates.
+Замените только NRO в существующем каталоге игры на SD-карте. Сохраните
+`game/`, `config/`, `save/` и `logs/`; не удаляйте `save.tmp`, `.sav` или
+`.bak`. Если сохранения появились после прошлой проверки, отдельно скопируйте
+`save/` до эксперимента.
 
-This is a plan, not a claim that these stages run today.
+За один запуск проверьте и запишите по порядку:
+
+1. Главное меню: есть ли музыка, насколько она искажена, движется ли курсор
+   плавно и какая задержка при кнопке A.
+2. New Game: открылся ли экран GameSettings полностью, можно ли изменить
+   несколько параметров и нажать OK.
+3. Introduction и генерация: дождитесь до 5 минут; отметьте точное время,
+   появляется ли игровой экран или сообщение об ошибке. На ПК оригинальный
+   сценарий уже дошёл до RuinsTalk и 60 циклов его отрисовки; на Switch этот
+   переход ещё не подтверждён.
+4. Если игровой экран открылся: проверьте управление, музыку и один эффект.
+   Только после этого выполните одно сохранение, загрузку и повторный запуск.
+
+После теста скопируйте `logs/port.log`, `logs/gr-main.log`, `logs/e2e.log`,
+исходный игровой лог и отчёт Atmosphère о вылете, если он появился. Для
+каждого пункта отметьте «прошёл», «ошибка» или «не достигнут». Это один
+совокупный промежуточный тест; результаты host и CI не заменяют наблюдения
+на консоли.

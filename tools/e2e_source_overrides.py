@@ -5,6 +5,74 @@ from __future__ import annotations
 from pathlib import Path
 import re
 
+
+def replace_dialog_pointer_payloads(text: str, source_name: str) -> str:
+    """Preserve pointers passed through the original int32 dialog callback ABI."""
+    prefix = "static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>("
+    changed = 0
+    offset = 0
+    while (start := text.find(prefix, offset)) >= 0:
+        expression_start = start + len(prefix)
+        depth = 1
+        end = expression_start
+        while depth:
+            if end >= len(text):
+                raise RuntimeError(f"unbalanced dialog pointer cast in {source_name}")
+            if text[end] == "(":
+                depth += 1
+            elif text[end] == ")":
+                depth -= 1
+            end += 1
+        if text[end:end + 1] != ")":
+            raise RuntimeError(f"dialog pointer cast changed in {source_name}")
+        expression = text[expression_start:end - 1]
+        replacement = (
+            "srhd_awa::platform::e2e5_pointer_payload::Register(this, " +
+            expression + ")"
+        )
+        text = text[:start] + replacement + text[end + 1:]
+        offset = start + len(replacement)
+        changed += 1
+    expected = {"fRuinsTalk.cpp": 18, "fTalk.cpp": 12}[source_name]
+    if changed != expected:
+        raise RuntimeError(f"{source_name} pointer producers changed: {changed}")
+
+    decode = re.compile(
+        r"reinterpret_cast<([^>]+)>\(static_cast<std::uintptr_t>\("
+        r"static_cast<std::uint32_t>\((Action|ScriptValue|Sender->UserValue|"
+        r"Child->UserValue)\)\)\)"
+    )
+    def decode_pointer(match: re.Match[str]) -> str:
+        if source_name == "fTalk.cpp" and match.group(2) == "Sender->UserValue" and \
+                "RequestedMapCenter = " in text[text.rfind("\n", 0, match.start()) + 1:match.start()]:
+            return match.group(0)  # ObjectId, not a pointer token.
+        return ("srhd_awa::platform::e2e5_pointer_payload::Resolve<" +
+                match.group(1) + ">(this, " + match.group(2) + ")")
+    text = decode.sub(decode_pointer, text)
+
+    # The decoder above also rewrites this expression; release only the row's
+    # choice token after its managed object has been freed.
+    new_free = "pas::free(srhd_awa::platform::e2e5_pointer_payload::Resolve<pas::Object*>(this, Child->UserValue));"
+    if text.count(new_free) != 1:
+        raise RuntimeError(f"{source_name} row cleanup boundary changed")
+    text = text.replace(new_free, new_free +
+        "\n            srhd_awa::platform::e2e5_pointer_payload::Release(this, Child->UserValue);", 1)
+    if source_name == "fRuinsTalk.cpp":
+        close = "        ClearChoices();\n        MainPanel->OnClose();"
+        if text.count(close) != 1:
+            raise RuntimeError("RuinsTalk close boundary changed")
+        text = text.replace(close, "        ClearChoices();\n"
+            "        srhd_awa::platform::e2e5_pointer_payload::ReleaseOwner(this);\n"
+            "        MainPanel->OnClose();", 1)
+    else:
+        close = "            ClearChoices(false);\n            Count = "
+        if text.count(close) != 1:
+            raise RuntimeError("Talk close boundary changed")
+        text = text.replace(close, "            ClearChoices(false);\n"
+            "            srhd_awa::platform::e2e5_pointer_payload::ReleaseOwner(this);\n"
+            "            Count = ", 1)
+    return '#include "e2e5_pointer_payload.hpp"\n' + text
+
 if __package__:
     from .e2e4_audio_on_overrides import AUDIO_ON_FUNCTIONS
 else:
@@ -249,11 +317,12 @@ int main() {
 
 def generated_source(source: Path, destination: Path, build_git: str = "",
                      manifest_stamp: dict | None = None,
-                     audio_on: bool = False, e2e5_profile: bool = False) -> Path:
+                     audio_on: bool = False, e2e5_profile: bool = False,
+                     script_width: bool = False) -> Path:
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aShip.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fIntroduction.cpp", "program.cpp"):
+    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aShip.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fIntroduction.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "aPlayer.cpp":
@@ -269,10 +338,11 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
             ("static_cast<std::uintptr_t>(static_cast<std::uint32_t>(EncodedPlayer ^ 0xb1cd15d3u))",
              "static_cast<std::uintptr_t>(EncodedPlayer ^ 0xb1cd15d3u)"),
         )
-        for old, new in player_width_repairs:
-            if text.count(old) != 1:
-                raise RuntimeError(f"encoded player pointer boundary changed: {old}")
-            text = text.replace(old, new)
+        if script_width:
+            for old, new in player_width_repairs:
+                if text.count(old) != 1:
+                    raise RuntimeError(f"encoded player pointer boundary changed: {old}")
+                text = text.replace(old, new)
     if source.name == "aShip.cpp":
         # Script state targets already use native-width storage in the
         # disposable script overlay.  Keep that width when turning them back
@@ -831,6 +901,11 @@ void CloseVorbisStream(TOggWorker* worker) {
             RequestClose(1);
             return;
         }''', 1)
+        ready = "                Ok->SetDisabled(false);"
+        if text.count(ready) != 1:
+            raise RuntimeError("Introduction continue-ready boundary changed")
+        text = text.replace(ready, ready +
+            '\n                srhd_awa::platform::e2e_stage::LogE2E3("introduction status=continue-enabled");', 1)
         open_method = "    void TfIntroduction::OnOpen() {"
         continue_request = "        RequestClose(1);"
         if text.count(open_method) != 1:
@@ -852,6 +927,8 @@ void CloseVorbisStream(TOggWorker* worker) {
 ''' + continue_request, 1)
         text = text[:continue_start] + continuation + text[continue_end:]
         text = '#include "e2e3_generation_state.hpp"\n' + text
+    if e2e5_profile and source.name in ("fRuinsTalk.cpp", "fTalk.cpp"):
+        text = replace_dialog_pointer_payloads(text, source.name)
     if source.name == "GR_GraphBuf.cpp":
         use_texture = "        Self->UseTexture = AUseTexture;"
         if text.count(use_texture) != 1:

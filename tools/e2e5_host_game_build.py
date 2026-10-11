@@ -145,7 +145,8 @@ def source_map() -> tuple[list[tuple[Path, Path]], dict[str, str]]:
         source_input = patched.get(source.name,
             overlay / source.name if source.parent == GAME / "src" else source)
         effective = generated_source(source_input, BUILD / "generated" / source.name,
-                                     audio_on=True, e2e5_profile=True)
+                                     audio_on=True, e2e5_profile=True,
+                                     script_width=True)
         if source.parent == GAME / "src":
             current = effective.read_text(encoding="utf-8")
             rendered = apply_ui_width_overrides(source.name, current)
@@ -198,6 +199,7 @@ def main() -> int:
     library = build_okgf()
     mapping, manifest = source_map()
     flags = ["-std=gnu++20", "-O0", "-g0", "-DE2E_HOST_RESOLVER_TEST",
+             "-DE2E3_TRACE=1",
              "-DE2E5_HOST_SDL_WINDOW", "-DSRHD_PORTABLE_RENDERER",
              "-DE2E4_AUDIO_ON=1", "-DE2E4_QUICKSAVE_EXPERIMENT=1",
              "-ffunction-sections", "-fdata-sections", "-Wno-invalid-offsetof",

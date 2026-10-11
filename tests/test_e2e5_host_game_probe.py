@@ -13,6 +13,21 @@ from tools import e2e5_host_game_probe
 
 @unittest.skipUnless(os.name == "posix", "host process fixture uses a POSIX script")
 class HostGameProbeTests(unittest.TestCase):
+    def test_frame_belongs_only_to_its_dispatched_screen(self) -> None:
+        log = ("[E2E] screen dispatch id=33 postload=0\n"
+               "[E2E] screen dispatch id=3 postload=0\n"
+               "[E2E] screen Run first frame attempted\n"
+               "[E2E] screen dispatch id=5 postload=0\n")
+        self.assertEqual(e2e5_host_game_probe.screen_frames(log), {3})
+
+    def test_frame_count_belongs_only_to_its_dispatched_screen(self) -> None:
+        log = ("[E2E] screen dispatch id=3 postload=0\n"
+               "[E2E] screen Run frames=60\n"
+               "[E2E] screen dispatch id=20 postload=0\n"
+               "[E2E] screen Run frames=2\n")
+        self.assertEqual(e2e5_host_game_probe.screen_frame_milestones(log),
+                         {3: {60}, 20: {2}})
+
     def test_timeout_keeps_frame_and_reports_menu_from_full_log(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             base = Path(folder)
