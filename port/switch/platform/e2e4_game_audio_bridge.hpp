@@ -22,6 +22,8 @@ struct StreamStats {
     std::uint64_t rejected_writes;
 };
 
+enum class DeferredWriteResult { None, Written, Pending, Unavailable };
+
 bool Open(std::string* error);
 void Close();
 bool PrepareEffect(void* owner, const void* data, std::size_t bytes,
@@ -29,6 +31,9 @@ bool PrepareEffect(void* owner, const void* data, std::size_t bytes,
 bool PrepareStream(void* owner, std::size_t chunk_bytes, const Format& format);
 bool WriteStreamChunk(void* owner, std::size_t chunk, const void* data,
                       std::size_t bytes);
+bool DeferStreamChunk(void* owner, std::size_t chunk, const void* data,
+                      std::size_t bytes);
+DeferredWriteResult RetryDeferredStreamChunk(void* owner);
 bool Play(void* owner, bool looping, float gain);
 void Stop(void* owner);
 void Clear(void* owner);

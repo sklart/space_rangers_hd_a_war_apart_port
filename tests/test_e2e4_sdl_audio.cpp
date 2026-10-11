@@ -71,5 +71,24 @@ int main() {
     const auto bridge_stats = bridge::GetStreamStats(&music_owner);
     assert(bridge_stats.valid && bridge_stats.played_frames > 0);
     bridge::Clear(&music_owner);
+
+    int deferred_owner = 0;
+    constexpr std::size_t slow_chunk_bytes = 176400; // One second at stereo S16/44.1 kHz.
+    std::vector<std::uint8_t> slow_chunk(slow_chunk_bytes, 0);
+    assert(bridge::PrepareStream(&deferred_owner, slow_chunk_bytes, format));
+    for (std::size_t chunk = 0; chunk < 3; ++chunk)
+        assert(bridge::WriteStreamChunk(&deferred_owner, chunk, slow_chunk.data(), slow_chunk.size()));
+    assert(bridge::Play(&deferred_owner, true, 1.0f));
+    assert(!bridge::WriteStreamChunk(&deferred_owner, 0, slow_chunk.data(), slow_chunk.size()));
+    assert(bridge::DeferStreamChunk(&deferred_owner, 0, slow_chunk.data(), slow_chunk.size()));
+    assert(bridge::RetryDeferredStreamChunk(&deferred_owner) == bridge::DeferredWriteResult::Pending);
+    auto retry = bridge::DeferredWriteResult::Pending;
+    for (int attempt = 0; attempt < 150 && retry == bridge::DeferredWriteResult::Pending; ++attempt) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        retry = bridge::RetryDeferredStreamChunk(&deferred_owner);
+    }
+    assert(retry == bridge::DeferredWriteResult::Written);
+    assert(bridge::RetryDeferredStreamChunk(&deferred_owner) == bridge::DeferredWriteResult::None);
+    bridge::Clear(&deferred_owner);
     bridge::Close();
 }

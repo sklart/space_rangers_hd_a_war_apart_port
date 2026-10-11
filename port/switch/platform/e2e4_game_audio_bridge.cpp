@@ -9,6 +9,7 @@
 #include <memory>
 #include <mutex>
 #include <unordered_map>
+#include <vector>
 
 namespace srhd_awa::platform::e2e4_game_audio {
 namespace {
@@ -25,6 +26,8 @@ struct Buffer {
     std::size_t next_completion = 0;
     float gain = 1.0f;
     float pan = 0.0f;
+    std::vector<std::uint8_t> deferred_pcm;
+    std::size_t deferred_chunk = 0;
 };
 
 std::mutex lock;
@@ -102,6 +105,34 @@ bool WriteStreamChunk(void* owner, std::size_t chunk, const void* data,
     const auto it = buffers.find(owner);
     return it != buffers.end() && it->second.stream &&
         output.WriteStreamChunk(it->second.stream, chunk, data, bytes);
+}
+
+bool DeferStreamChunk(void* owner, std::size_t chunk, const void* data,
+                      std::size_t bytes) {
+    if (chunk >= 3 || !data || !bytes || bytes > 2 * 1024 * 1024 / 3) return false;
+    std::lock_guard guard(lock);
+    const auto it = buffers.find(owner);
+    if (it == buffers.end() || !it->second.stream ||
+        !it->second.deferred_pcm.empty() ||
+        !output.IsStreamPlaying(it->second.stream)) return false;
+    it->second.deferred_pcm.assign(static_cast<const std::uint8_t*>(data),
+                                   static_cast<const std::uint8_t*>(data) + bytes);
+    it->second.deferred_chunk = chunk;
+    return true;
+}
+
+DeferredWriteResult RetryDeferredStreamChunk(void* owner) {
+    std::lock_guard guard(lock);
+    const auto it = buffers.find(owner);
+    if (it == buffers.end() || !it->second.stream) return DeferredWriteResult::Unavailable;
+    auto& buffer = it->second;
+    if (buffer.deferred_pcm.empty()) return DeferredWriteResult::None;
+    if (!output.IsStreamPlaying(buffer.stream)) return DeferredWriteResult::Unavailable;
+    if (!output.WriteStreamChunk(buffer.stream, buffer.deferred_chunk,
+                                 buffer.deferred_pcm.data(), buffer.deferred_pcm.size()))
+        return DeferredWriteResult::Pending;
+    buffer.deferred_pcm.clear();
+    return DeferredWriteResult::Written;
 }
 
 bool Play(void* owner, bool looping, float gain) {

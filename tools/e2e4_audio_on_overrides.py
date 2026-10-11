@@ -109,6 +109,14 @@ AUDIO_ON_FUNCTIONS = {
             pas::raise(pas::make_exception<pas::Exception>("SDL PCM preparation failed"_a));''',
         "std::uint8_t TSoundBuffer::WriteStream(std::int32_t Chunk, VorbisFile::TOggWorker*& Decoder)": '''
         if (!Streaming || BufferBytes <= 0 || Decoder == nullptr) return false;
+        // WaitForChunk returns 3 only for a poll timeout. No chunk has become
+        // writable, so keep the decoder position and the queued audio intact.
+        if (Chunk == 3) return true;
+        const auto deferred = srhd_awa::platform::e2e4_game_audio::RetryDeferredStreamChunk(this);
+        if (deferred == srhd_awa::platform::e2e4_game_audio::DeferredWriteResult::Unavailable)
+            return false;
+        if (deferred != srhd_awa::platform::e2e4_game_audio::DeferredWriteResult::None)
+            return true; // A pending PCM block must be written before decoding more.
         std::vector<std::uint8_t> pcm(static_cast<std::size_t>(BufferBytes));
         const int first = Chunk == SoundStreamPrimeAll ? 0 : (Chunk + 2) % 3;
         const int count = Chunk == SoundStreamPrimeAll ? 3 : 1;
@@ -125,14 +133,15 @@ AUDIO_ON_FUNCTIONS = {
             const auto target = static_cast<std::size_t>((first + i) % 3);
             if (!srhd_awa::platform::e2e4_game_audio::WriteStreamChunk(
                     this, target, pcm.data(), static_cast<std::size_t>(bytes))) {
+                if (!srhd_awa::platform::e2e4_game_audio::DeferStreamChunk(
+                        this, target, pcm.data(), static_cast<std::size_t>(bytes)))
+                    return false;
                 GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
-                    "[MUSIC] stream write rejected chunk=", SysUtils::IntToStr(static_cast<std::int32_t>(target)),
+                    "[MUSIC] stream write deferred chunk=", SysUtils::IntToStr(static_cast<std::int32_t>(target)),
                     " bytes=", SysUtils::IntToStr(bytes)}));
-                // A refill that arrives after playback has entered this chunk
-                // cannot safely overwrite it. Keep the stream running and
-                // resume on the next completed chunk instead of restarting
-                // the entire track. A missing/stopped stream is still fatal.
-                return srhd_awa::platform::e2e4_game_audio::IsPlaying(this);
+                // The decoder has advanced, but this PCM stays owned by the
+                // bridge until the chunk becomes writable on a later event.
+                return true;
             }
             if (bytes < BufferBytes) return false;
         }
@@ -169,7 +178,9 @@ AUDIO_ON_FUNCTIONS = {
                         " rejected_writes=", SysUtils::Int64ToStr(static_cast<std::int64_t>(stats.rejected_writes))}));
             }
             if (event >= 0) return event;
-            if (MMSystem::timeGetTime() - started >= SoundEventPollMs) return 0;
+            // Zero is a real completion event (chunk 2 became writable).
+            // Three is outside the 0..2 event range and means poll timeout.
+            if (MMSystem::timeGetTime() - started >= SoundEventPollMs) return 3;
             SysUtilsImports::Sleep(10u);
         }''',
         "std::uint8_t TSoundBuffer::IsPlaying()": '''
