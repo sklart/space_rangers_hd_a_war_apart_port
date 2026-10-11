@@ -27,8 +27,10 @@ link=(-Wl,--gc-sections -L"$build/okgf" -lokgf
 
 g++ "${common[@]}" -O0 -c "$root/upstream/cpp/src/GR_GraphBuf.cpp" \
   -o "$build/GR_GraphBuf.o"
+g++ "${common[@]}" -O0 -c "$root/upstream/cpp/src/GR_gi.cpp" \
+  -o "$build/GR_gi.o"
 g++ "${common[@]}" -O0 "$root/tests/test_e2e5_original_graphbuf.cpp" \
-  "$build/GR_GraphBuf.o" "${link[@]}" -o "$build/graphbuf"
+  "$build/GR_GraphBuf.o" "$build/GR_gi.o" "${link[@]}" -o "$build/graphbuf"
 python3 "$root/tools/e2e5_gamesettings_rescale.py" "${source_args[@]}" \
   --okgf-lib "$build/okgf/libokgf.so" --original-graphbuf "$build/graphbuf"
 
@@ -38,7 +40,10 @@ san=(-O1 -g -fsanitize=address,undefined -fno-sanitize=vptr
      -fno-omit-frame-pointer)
 g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/src/GR_GraphBuf.cpp" \
   -o "$build/GR_GraphBuf_sanitized.o"
+g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/src/GR_gi.cpp" \
+  -o "$build/GR_gi_sanitized.o"
 g++ "${common[@]}" "${san[@]}" "$root/tests/test_e2e5_original_graphbuf.cpp" \
-  "$build/GR_GraphBuf_sanitized.o" "${link[@]}" -o "$build/graphbuf-sanitized"
+  "$build/GR_GraphBuf_sanitized.o" "$build/GR_gi_sanitized.o" \
+  "${link[@]}" -o "$build/graphbuf-sanitized"
 python3 "$root/tools/e2e5_gamesettings_rescale.py" "${source_args[@]}" \
   --okgf-lib "$build/okgf/libokgf.so" --original-graphbuf "$build/graphbuf-sanitized"

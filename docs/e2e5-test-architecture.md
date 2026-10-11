@@ -18,7 +18,7 @@ diagnostics to `reports/e2e5/`. No package or decoded image is copied to Git.
 | Component | `tests/test_e2e5_tools.py` and existing E2E tests | Tool contracts, original method fixtures, targeted native components | Original game scenario |
 | Resource data | `tools/e2e5_resource_validator.py` | CFG checksums, package indexes, selected GI/GAI decoding | Original renderer, all graphic formats, screen first frame |
 | Installed GameSettings background | `tools/e2e5_formgameset2_compare.py` plus `tests/test_e2e5_format0_real.cpp` | Independent oracle and production CPU decoder return identical pixels for `FormGameSet2/2bg.gi` | Original `GraphBuf` rescale or GameSettings first frame |
-| Installed GameSettings rescale | `tools/e2e5_original_graphbuf_host.sh`, `tests/test_e2e5_original_graphbuf.cpp`, `tools/e2e5_gamesettings_rescale.py` | Unchanged original `TGraphBufGR::RescaleWithAspect` runs on installed 1920×1200 pixels; centered 1920×1080 crop gives 1280×720 and FNV64 `ad6d4a9cfa895ba2`, identical to an independent direct OKGF call. ASan/UBSan passes with `vptr` excluded. The subsequent OKGF RGB565 conversion matches an independent oracle on every pixel, FNV64 `8dc3555a82d454db` | Original `TgiGR::CreateFromGraphBuf`, complete screen first frame, ARM64 numerical identity |
+| Installed GameSettings rescale and GI repack | `tools/e2e5_original_graphbuf_host.sh`, `tests/test_e2e5_original_graphbuf.cpp`, `tools/e2e5_gamesettings_rescale.py` | Unchanged original `TGraphBufGR::RescaleWithAspect` runs on installed 1920×1200 pixels; centered 1920×1080 crop gives 1280×720 and FNV64 `ad6d4a9cfa895ba2`, identical to an independent direct OKGF call. Original `TgiGR::CreateFromGraphBuf` generates an RGB565 layer matching the independent oracle on every pixel, FNV64 `8dc3555a82d454db` | Full `EC_CacheGI` call, screen first frame, ARM64 numerical identity |
 | Observed game log | `tools/e2e5_scenario_runner.py` | Checkpoints actually present after the New Game transition | Unobserved later stages |
 | Crash correlation | `tools/e2e5_crash_analyzer.py` | First explicit log failure, unfinished original log stage, Atmosphere offsets | Causal stack unless matching ELF is supplied |
 | Offline PCM | `tools/e2e5_audio_capture.py` | Properties of a supplied signed 16-bit WAV | Full `GR_Music`/`GR_Sound` path or audible quality |
@@ -42,8 +42,9 @@ python tools/e2e5_report.py --output reports/e2e5/summary.json
 
 For the local installed background rescale check on Linux or WSL, run
 `bash tools/e2e5_original_graphbuf_host.sh <installed-game-root>`.
-It builds the original GraphBuf source and host OKGF library, executes the
-original method on the installed background, and repeats under ASan/UBSan.
+It builds original GraphBuf and GI sources with the host OKGF library,
+executes the original rescale and repack methods on the installed background,
+and repeats under ASan/UBSan with `vptr` excluded.
 Public CI runs the same script with `--synthetic`; its report says
 `SYNTHETIC`, never `RESOURCE`, when commercial assets are absent.
 The host fixture supplies software-only platform stubs and native host math.

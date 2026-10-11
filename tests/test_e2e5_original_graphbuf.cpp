@@ -2,6 +2,7 @@
 // The small stubs are deliberately aborting on the D3D branch: the Switch
 // source override selects the software branch for this UI background.
 #include "layout/GR_GraphBuf.hpp"
+#include "types/GR_gi.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/EC_Mem.hpp"
 #include "units/GR_DX.hpp"
@@ -58,10 +59,18 @@ void Ex_OKGF_Rescale(void* dest, std::int32_t width, std::int32_t height,
   ::OKGF_Rescale(dest, width, height, dest_pitch, source,
                  source_width, source_height, source_pitch, bpp, filter);
 }
+void Ex_OKGF_Convert_8888to565(void* dest, std::int32_t dest_pitch,
+                                  std::int32_t dest_x, std::int32_t dest_y,
+                                  void* source, std::int32_t source_pitch,
+                                  std::int32_t source_x, std::int32_t source_y,
+                                  std::int32_t width, std::int32_t height) {
+  ::OKGF_Convert_8888to565(dest, dest_pitch, dest_x, dest_y, source,
+                           source_pitch, source_x, source_y, width, height);
+}
 }  // namespace GR_Main
 
 int main(int argc, char** argv) {
-  if (argc != 3) return 2;
+  if (argc != 4) return 2;
   std::ifstream stream(argv[1], std::ios::binary);
   if (!stream) return 3;
   const std::vector<std::uint8_t> pixels(std::istreambuf_iterator<char>{stream}, {});
@@ -90,9 +99,32 @@ int main(int argc, char** argv) {
   std::uint64_t expected{};
   try { expected = std::stoull(argv[2], nullptr, 16); }
   catch (...) { return 7; }
-  std::printf("original_graphbuf=PASS width=%d height=%d pitch=%d fnv64=%016llx\n",
+  if (hash != expected) return 8;
+  GR_gi::TgiGR image{};
+  image.CreateFromGraphBuf(&graph, 1);
+  constexpr std::size_t packed_bytes = 1280u * 720u * 2u;
+  const auto* plane = image.GetPlane(0);
+  if (image.DataSize != static_cast<std::int32_t>(96 + packed_bytes) ||
+      image.Header->Format != 0 || plane->DataOffset != 96 ||
+      plane->DataSize != static_cast<std::int32_t>(packed_bytes)) return 9;
+  std::uint64_t packed_hash = 0xcbf29ce484222325ull;
+  const auto* packed = static_cast<const std::uint8_t*>(image.Data) + plane->DataOffset;
+  for (std::size_t i = 0; i < packed_bytes; ++i)
+    packed_hash = (packed_hash ^ packed[i]) * 0x100000001b3ull;
+  std::uint64_t restored_hash = 0xcbf29ce484222325ull;
+  const auto* restored = static_cast<const std::uint8_t*>(graph.Pixels);
+  for (std::size_t i = 0; i < 1280u * 720u * 4u; ++i)
+    restored_hash = (restored_hash ^ restored[i]) * 0x100000001b3ull;
+  if (restored_hash != hash) return 12;
+  std::uint64_t expected_packed{};
+  try { expected_packed = std::stoull(argv[3], nullptr, 16); }
+  catch (...) { return 10; }
+  std::printf("original_graphbuf=PASS width=%d height=%d pitch=%d fnv64=%016llx "
+              "original_gi=PASS bytes=%zu fnv64=%016llx\n",
               graph.Width, graph.Height, graph.PitchBytes,
-              static_cast<unsigned long long>(hash));
+              static_cast<unsigned long long>(hash), packed_bytes,
+              static_cast<unsigned long long>(packed_hash));
+  image.ClearData();
   graph.Clear();
-  return hash == expected ? 0 : 8;
+  return packed_hash == expected_packed ? 0 : 11;
 }

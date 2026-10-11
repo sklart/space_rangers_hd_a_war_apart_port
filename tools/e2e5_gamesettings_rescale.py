@@ -113,7 +113,8 @@ def run(game_root: Path | None, library: Path, target_width: int, target_height:
             raw_path = Path(directory) / "background.bgra"
             raw_path.write_bytes(decoded)
             executed = subprocess.run([str(original_graphbuf.resolve()), str(raw_path),
-                                       fp(result)["fnv64"]], capture_output=True,
+                                       fp(result)["fnv64"], fp(packed_result)["fnv64"]],
+                                      capture_output=True,
                                       text=True, timeout=120, check=False)
         if executed.returncode:
             raise ValueError(f"original GraphBuf exit={executed.returncode}: "
@@ -128,6 +129,7 @@ def run(game_root: Path | None, library: Path, target_width: int, target_height:
             "rgb565_bytes": packed_bytes, "rgb565_fnv64": fp(packed_result)["fnv64"],
             "original_game_executed": False,
             "original_graphbuf_executed": original_result is not None,
+            "original_gi_repack_executed": original_result is not None,
             "original_graphbuf_output": original_result}
 
 
