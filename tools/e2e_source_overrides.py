@@ -5,7 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 import re
 
-from e2e4_audio_on_overrides import AUDIO_ON_FUNCTIONS
+if __package__:
+    from .e2e4_audio_on_overrides import AUDIO_ON_FUNCTIONS
+else:
+    from e2e4_audio_on_overrides import AUDIO_ON_FUNCTIONS
 
 
 FUNCTIONS: dict[str, dict[str, str]] = {
