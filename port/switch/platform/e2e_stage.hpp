@@ -39,4 +39,13 @@ inline void LogWinApi(const char* message) {
   std::lock_guard lock(g_stage_mutex);
   Append("[E2E][WINAPI] ", message ? message : "");
 }
+
+inline void LogE2E3(const char* message) {
+#if defined(E2E3_TRACE) && E2E3_TRACE
+  std::lock_guard lock(g_stage_mutex);
+  Append("[E2E3] ", message ? message : "");
+#else
+  (void)message;
+#endif
+}
 }  // namespace srhd_awa::platform::e2e_stage

@@ -57,6 +57,8 @@ jobs:
         run: make -C port/switch host-e2e-calendar-test
       - name: E2E Win32 Compatibility Surface host gate
         run: make -C port/switch host-e2e-win32-compat-test
+      - name: E2E-3 original New Game preflight
+        run: make -C port/switch host-e2e3-new-game-preflight-test
       - name: Validate E2E startup command line
         run: make -C port/switch host-e2e-command-line-test
       - name: Validate E2E install language search

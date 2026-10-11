@@ -110,12 +110,15 @@ def build_okgf() -> tuple[Path, Path]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", choices=("debug", "release"), default="release")
+    parser.add_argument("--e2e3-trace", action=argparse.BooleanOptionalAction,
+                        default=True, help="log E2E-3 state changes without per-frame output")
     args = parser.parse_args()
     sources = sorted((GAME / "src").glob("*.cpp"))
     sources.append(GAME / "runtime/runtime.cpp")
     report = {
         "target": "switch-e2e-game",
         "build_profile": args.profile,
+        "e2e3_trace": args.e2e3_trace,
         "upstream_pin": "57fa689c630193a66fdea6ca4c79a188814991cd",
         "upstream_source_files_total": len(sources),
         "compiled": 0,
@@ -219,6 +222,7 @@ def main() -> int:
         flags += ["-O2", "-fno-strict-aliasing", "-DE2E_DIAGNOSTICS=0"]
     else:
         flags += ["-O0", "-DE2E_DIAGNOSTICS=1"]
+    flags += ["-DE2E3_TRACE=" + str(int(args.e2e3_trace))]
     flags += ["-I" + str(p) for p in (
         DEVKITPRO / "libnx/include", PORTLIBS / "include", runtime_overlay,
         SWITCH / "platform",

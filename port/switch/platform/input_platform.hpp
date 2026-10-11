@@ -8,7 +8,8 @@ struct Config {
   std::int32_t stick_deadzone{5500};
   double stick_pixels_per_second{600.0};
   double dpad_pixels_per_second{180.0};
-  std::uint64_t max_delta_us{50000};
+  std::uint64_t max_delta_us{50000};  // Motion after an actual stall.
+  std::uint64_t stall_threshold_us{500000};
 };
 struct RawInput {
   std::int32_t stick_x{}, stick_y{};

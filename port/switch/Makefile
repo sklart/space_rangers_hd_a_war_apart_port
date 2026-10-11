@@ -37,6 +37,13 @@ host-e2e-calendar-test:
 .PHONY: host-e2e-win32-compat-test
 host-e2e-win32-compat-test:
 	$(PYTHON) ../../tools/e2e_win32_host_test.py
+
+.PHONY: host-e2e3-new-game-preflight-test
+host-e2e3-new-game-preflight-test:
+	$(PYTHON) ../../tests/test_e2e3_original_new_game.py
+	@mkdir -p build/e2e3
+	g++ -std=c++20 -O2 -pthread -Iplatform ../../tests/test_e2e3_generation_state.cpp -o build/e2e3/test_generation_state
+	build/e2e3/test_generation_state
 DEVKITA64 ?= $(DEVKITPRO)/devkitA64
 LIBNX ?= $(DEVKITPRO)/libnx
 PORTLIBS ?= $(DEVKITPRO)/portlibs/switch

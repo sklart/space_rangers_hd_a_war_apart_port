@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstdint>
+#include <initializer_list>
 
 using namespace srhd_awa::platform::input_platform;
 
@@ -26,12 +27,18 @@ int main() {
   assert(std::abs(sixty.x - six_hundred.x) <= 1);
   assert(std::abs(sixty.x - six_thousand.x) <= 1);
   assert(sixty.x == 1240 && sixty.y == 360);
+  for (const int polls : {5, 10, 15, 20, 30}) {
+    const auto slow = RunForOneSecond(polls, full_stick);
+    assert(std::abs(slow.x - sixty.x) <= 1);
+  }
 
   RawInput dpad{};
   dpad.dpad_right = true;
   assert(RunForOneSecond(60, dpad).x == 820);
   assert(RunForOneSecond(600, dpad).x == 820);
   assert(RunForOneSecond(6000, dpad).x == 820);
+  for (const int polls : {5, 10, 15, 20, 30})
+    assert(RunForOneSecond(polls, dpad).x == 820);
 
   RawInput deadzone{};
   deadzone.stick_x = 5500;
@@ -40,10 +47,19 @@ int main() {
   const auto precise = RunForOneSecond(600, deadzone);
   assert(precise.x > 640 && precise.x < 700);
 
-  State capped;
-  NormalizeAt(&capped, full_stick, 1280, 720, 0);
-  auto frame = NormalizeAt(&capped, full_stick, 1280, 720, 1000000);
-  assert(frame.x == 670);  // One slow poll can integrate at most 50 ms.
+  State slow_poll;
+  NormalizeAt(&slow_poll, full_stick, 1280, 720, 0);
+  auto frame = NormalizeAt(&slow_poll, full_stick, 1280, 720, 200000);
+  assert(frame.x == 760);
+  frame = NormalizeAt(&slow_poll, full_stick, 1280, 720, 700000);
+  assert(frame.x == 1060);  // A 500 ms frame interval retains true velocity.
+
+  for (const std::uint64_t stall_us : {1000000ULL, 2000000ULL, 3000000ULL}) {
+    State stalled;
+    NormalizeAt(&stalled, full_stick, 1280, 720, 0);
+    frame = NormalizeAt(&stalled, full_stick, 1280, 720, stall_us);
+    assert(frame.x == 670);  // A long stall must not jump across the screen.
+  }
 
   State diagonal;
   RawInput down_right{};
@@ -76,4 +92,12 @@ int main() {
   Warp(&buttons, 1200, 700, 1280, 720);
   frame = NormalizeAt(&buttons, full_stick, 1280, 720, 2000000);
   assert(frame.x == 1200 && frame.y == 700);
+
+  State moving_click;
+  NormalizeAt(&moving_click, full_stick, 1280, 720, 0);
+  full_stick.a = true;
+  frame = NormalizeAt(&moving_click, full_stick, 1280, 720, 100000);
+  assert(frame.left_down && frame.x == 700 && frame.y == 360);
+  frame = NormalizeAt(&moving_click, full_stick, 1280, 720, 200000);
+  assert(!frame.left_down && frame.left_held && frame.x == 760);
 }

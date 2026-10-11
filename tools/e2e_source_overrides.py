@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 
 
 FUNCTIONS: dict[str, dict[str, str]] = {}
@@ -85,7 +86,7 @@ int main() {
 def generated_source(source: Path, destination: Path, build_git: str = "",
                      manifest_stamp: dict | None = None) -> Path:
     overrides = FUNCTIONS.get(source.name)
-    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aSaveLoad.cpp", "program.cpp"):
+    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aSaveLoad.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fIntroduction.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "program.cpp":
@@ -206,6 +207,9 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
                         static_cast<unsigned>(GlobalsV::CurrentScreenId),
                         static_cast<unsigned>(GlobalsV::PostLoadScreenId));
                     srhd_awa::platform::e2e_stage::Log(detail);
+                    if (GlobalsV::PreviousScreenId == GlobalsV::screenMainMenu &&
+                        GlobalsV::CurrentScreenId == GlobalsV::screenNewGame)
+                        srhd_awa::platform::e2e_stage::LogE2E3("screen_transition from=main_menu to=new_game");
                 }''')
         for call in ("->RunContinuous();", "->Run();"):
             if loop.count(call) != 1:
@@ -244,6 +248,131 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
         run = run.replace("        std::int32_t Stage = 0;", "        std::int32_t Stage = 0;\n        bool e2e_first_frame_logged = false;\n        std::uint32_t e2e_frame_count = 0;", 1)
         text = text[:start] + run + text[end:]
         text = '#include "e2e_stage.hpp"\n' + text
+    if source.name == "GI_GraphButton.cpp":
+        timer_gate = "pas::assigned(UpCallback) && MessageLoop->ConsumeTimerTickChange()"
+        if text.count(timer_gate) != 1:
+            raise RuntimeError("original graph-button release timer gate changed")
+        # A valid down/up edge is an action even when two polls share one UI tick.
+        # The input bridge emits one release per physical A edge.
+        text = text.replace(timer_gate,
+            "pas::assigned(UpCallback) && (MessageLoop->ConsumeTimerTickChange() || WasDown)", 1)
+        for event, signature in (
+            ("down", "    void TGraphButtonGI::ProcessLeftButtonDown("),
+            ("up", "    void TGraphButtonGI::ProcessLeftButtonUp("),
+        ):
+            begin = text.index(signature)
+            end = text.index("\n    void TGraphButtonGI::", begin + len(signature))
+            original = text[begin:end]
+            base = f"GI_MessageLoop::TObjectGI::ProcessLeftButton{event.title()}(KeyState, Point);"
+            if original.count(base) != 1:
+                raise RuntimeError(f"graph-button {event} diagnostic boundary changed")
+            detail = f'''
+#if defined(E2E3_TRACE) && E2E3_TRACE
+        if (pas::view(ControlName) == u"New"sv) {{
+            char detail[160]{{}};
+            std::snprintf(detail, sizeof(detail),
+                "button=New event={event} x=%d y=%d hit=%u hovered=%u occluded=%u disabled=%u down=%u kind=%u",
+                Point.X, Point.Y, static_cast<unsigned>(HitTest(Point)),
+                static_cast<unsigned>(MessageLoop->HoveredControl == this),
+                static_cast<unsigned>(IsOccludedAtPoint(Point)),
+                static_cast<unsigned>(Disabled), static_cast<unsigned>(Down),
+                static_cast<unsigned>(Kind));
+            srhd_awa::platform::e2e_stage::LogE2E3(detail);
+        }}
+#endif'''
+            text = text[:begin] + original.replace(base, base + detail, 1) + text[end:]
+        text = '#include "e2e_stage.hpp"\n#include <cstdio>\n' + text
+    if source.name == "fMainForm.cpp":
+        open_method = "    void TfMainForm::OnOpen() {"
+        callback = "    void TfMainForm::NewGameClicked(GI_MessageLoop::TObjectGI* Sender) {"
+        request = "        GlobalsV::RequestedScreenId = GlobalsV::screenNewGame;"
+        keyboard = "            NewGameClicked(nullptr);"
+        if any(text.count(value) != 1 for value in (open_method, callback, request, keyboard)):
+            raise RuntimeError("original main menu new-game boundary changed")
+        text = text.replace(open_method, open_method +
+            '\n        srhd_awa::platform::e2e_stage::LogE2E3("main_menu status=open");', 1)
+        text = text.replace(request, request +
+            '\n        srhd_awa::platform::e2e_stage::LogE2E3("menu_action=New result=accepted requested=new_game");', 1)
+        text = text.replace(keyboard,
+            '            srhd_awa::platform::e2e_stage::LogE2E3("menu_action=New source=keyboard key=Enter");\n' + keyboard, 1)
+        text = '#include "e2e_stage.hpp"\n' + text
+    if source.name == "fGameSettings2.cpp":
+        start = "        Globals::NewGameGenerationThread->Start();"
+        if text.count(start) != 1:
+            raise RuntimeError("new game worker start boundary changed")
+        text = text.replace(start,
+            "        srhd_awa::platform::e2e3_generation_state::Reset();\n" + start +
+            '\n        srhd_awa::platform::e2e_stage::LogE2E3("generation worker=start-requested");', 1)
+        open_method = "    void TfGameSettings2::OnOpen() {"
+        saved = "                GR_Main::NewGameSettingsConfig->SaveTextFile(FileName.pchar(), true, false);"
+        if text.count(open_method) != 1 or text.count(saved) != 1:
+            raise RuntimeError("GameSettings open/save boundary changed")
+        text = text.replace(open_method, open_method +
+            '\n        srhd_awa::platform::e2e_stage::LogE2E3("game_settings status=open");', 1)
+        text = text.replace(saved, saved +
+            '\n                srhd_awa::platform::e2e_stage::LogE2E3("game_settings action=apply settings=saved");', 1)
+        text = '#include "e2e3_generation_state.hpp"\n' + text
+    if source.name == "fGameSettings.cpp":
+        stage_pattern = r"fIntroduction::NewGameGenerationStage = ([0-8]);"
+        stages = re.findall(stage_pattern, text)
+        if stages != ["0", "1", "2", "3", "4", "5", "6", "8"]:
+            raise RuntimeError(f"new game generation stages changed: {stages}")
+        text = re.sub(stage_pattern,
+            lambda match: "srhd_awa::platform::e2e3_generation_state::SetStage(" +
+                          match.group(1) + ");", text)
+        old_failure = '''                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Galaxy create exception, label = ", SysUtils::IntToStr(Stage), " seed = ", SysUtils::IntToStr(aGalaxy::Galaxy->GenerationSeed)}));
+            } else {
+                throw;
+            }
+        }'''
+        new_failure = '''                GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"Galaxy create exception, label = ", SysUtils::IntToStr(Stage), " seed = ", aGalaxy::Galaxy != nullptr ? SysUtils::IntToStr(aGalaxy::Galaxy->GenerationSeed) : pas::AnsiString("unavailable")}));
+            } else {
+                GR_Main::AppendLogLineThreadSafe("Galaxy create exception, non-game exception"_a);
+            }
+            srhd_awa::platform::e2e3_generation_state::Fail(Stage);
+        }'''
+        if text.count(old_failure) != 1:
+            raise RuntimeError("new game generation exception boundary changed")
+        text = text.replace(old_failure, new_failure, 1)
+        text = '#include "e2e3_generation_state.hpp"\n' + text
+    if source.name == "fIntroduction.cpp":
+        stage_read = "DisplayedGenerationStage < NewGameGenerationStage"
+        if text.count(stage_read) != 1:
+            raise RuntimeError("Introduction generation stage read boundary changed")
+        text = text.replace(stage_read,
+            "DisplayedGenerationStage < srhd_awa::platform::e2e3_generation_state::Stage()", 1)
+        timer = "    void TfIntroduction::UpdateGenerationProgress(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {"
+        if text.count(timer) != 1:
+            raise RuntimeError("Introduction progress timer boundary changed")
+        text = text.replace(timer, timer + '''
+        if (Globals::NewGameGenerationThread != nullptr &&
+            srhd_awa::platform::e2e3_generation_state::Failed()) {
+            srhd_awa::platform::e2e_stage::LogE2E3("generation status=failed return=new_game_settings");
+            GlobalsV::RequestedScreenId = GlobalsV::screenNewGame;
+            RequestClose(1);
+            return;
+        }''', 1)
+        open_method = "    void TfIntroduction::OnOpen() {"
+        continue_request = "        RequestClose(1);"
+        if text.count(open_method) != 1:
+            raise RuntimeError("Introduction open boundary changed")
+        text = text.replace(open_method, open_method +
+            '\n        srhd_awa::platform::e2e_stage::LogE2E3("introduction status=open");', 1)
+        continue_start = text.index("    void TfIntroduction::ContinueClicked(")
+        continue_end = text.index("    void TfIntroduction::MainPanelKeyDown(", continue_start)
+        continuation = text[continue_start:continue_end]
+        if continuation.count(continue_request) != 1:
+            raise RuntimeError("Introduction continue boundary changed")
+        continuation = continuation.replace(continue_request,
+            '''        {
+            char detail[80]{};
+            std::snprintf(detail, sizeof(detail), "introduction action=continue requested=%u",
+                          static_cast<unsigned>(GlobalsV::RequestedScreenId));
+            srhd_awa::platform::e2e_stage::LogE2E3(detail);
+        }
+''' + continue_request, 1)
+        text = text[:continue_start] + continuation + text[continue_end:]
+        text = '#include "e2e3_generation_state.hpp"\n' + text
     if source.name == "GR_GraphBuf.cpp":
         use_texture = "        Self->UseTexture = AUseTexture;"
         if text.count(use_texture) != 1:

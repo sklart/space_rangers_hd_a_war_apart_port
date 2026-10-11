@@ -34,8 +34,14 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
     state->initialized = true;
   }
   std::uint64_t delta_us{};
-  if (state->time_initialized && now_us >= state->last_update_us)
-    delta_us = std::min(now_us - state->last_update_us, state->config.max_delta_us);
+  if (state->time_initialized && now_us >= state->last_update_us) {
+    const auto elapsed_us = now_us - state->last_update_us;
+    // Low frame rates still represent real held input. Only a much longer
+    // resource-load pause is capped to avoid a single large cursor jump.
+    delta_us = elapsed_us > state->config.stall_threshold_us
+                   ? std::min(elapsed_us, state->config.max_delta_us)
+                   : elapsed_us;
+  }
   state->last_update_us = now_us;
   state->time_initialized = true;
   const auto& config = state->config;

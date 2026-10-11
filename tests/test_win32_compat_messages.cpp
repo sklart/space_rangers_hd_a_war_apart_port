@@ -67,12 +67,28 @@ int main() {
   input.a = false;
   InjectHostInput(input);
   assert(peek(&message, 0, 0x0202, 0x0202, 1));
-  assert(message.message == 0x0202);
+  assert(message.message == 0x0202 &&
+         (message.lParam & 0xffff) == 640 &&
+         ((message.lParam >> 16) & 0xffff) == 360);
   input.stick_x = 32767;
   InjectHostInput(input);
   std::this_thread::sleep_for(std::chrono::milliseconds(20));
   assert(peek(&message, 0, 0x0200, 0x0200, 1));
   assert((message.lParam & 0xffff) > 640);
+  input.a = true;
+  InjectHostInput(input);
+  assert(peek(&message, 0, 0x0201, 0x0201, 1));
+  assert((message.lParam & 0xffff) > 640);
+  input.a = false;
+  input.x = true;
+  InjectHostInput(input);
+  assert(peek(&message, 0, 0x0100, 0x0100, 1));
+  assert(message.message == 0x0100 && message.wParam == 0x0d);
+  assert(!peek(&message, 0, 0x0100, 0x0100, 1));  // Held X does not repeat.
+  input.x = false;
+  InjectHostInput(input);
+  assert(peek(&message, 0, 0x0101, 0x0101, 1));
+  assert(message.message == 0x0101 && message.wParam == 0x0d);
   input.plus = true;
   InjectHostInput(input);
   assert(peek(&message, 0, 0x0012, 0x0012, 1) && message.message == 0x0012);
