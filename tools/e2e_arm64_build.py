@@ -85,8 +85,8 @@ def build_okgf() -> tuple[Path, Path]:
     library = build / "libokgf.a"
     softfloat = build / "vendor/softfloat/libokgf_softfloat.a"
     if not library.is_file() or not softfloat.is_file():
-        command = ["cmake", "-S", native_path(ROOT / "upstream/okgf"),
-                   "-B", native_path(build), "-G", "Unix Makefiles",
+        command = ["cmake", "-S", cmake_path(ROOT / "upstream/okgf"),
+                   "-B", cmake_path(build), "-G", "Unix Makefiles",
                    "-DCMAKE_SYSTEM_NAME=Generic",
                    "-DCMAKE_C_COMPILER=" + cmake_path(DEVKITA64 / "bin/aarch64-none-elf-gcc"),
                    "-DCMAKE_C_FLAGS=-D_Thread_local=",
@@ -97,7 +97,7 @@ def build_okgf() -> tuple[Path, Path]:
         code, output = run(command)
         if code:
             raise RuntimeError("OKGF CMake configure failed: " + output)
-        code, output = run(["cmake", "--build", native_path(build), "--parallel", "2"])
+        code, output = run(["cmake", "--build", cmake_path(build), "--parallel", "2"])
         if code:
             raise RuntimeError("OKGF ARM64 build failed: " + output)
     readelf = DEVKITA64 / "bin" / ("aarch64-none-elf-readelf.exe" if os.name == "nt" else "aarch64-none-elf-readelf")

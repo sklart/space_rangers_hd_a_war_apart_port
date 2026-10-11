@@ -14,3 +14,10 @@
 | `CrcUnit` | `void*`, `int32_t` byte count | transient bytes | portable | unchanged; never serialized | PASS |
 
 First validated release package has `entry_record_size=158`; direct `sizeof`/layout reuse is prohibited for package structs containing pointers.
+
+## E2E-3 targeted reachability (2026-10-11)
+
+- `TGalaxy::XorProtectedState` is reached by `aSaveLoad` memory-snapshot obfuscation/restoration and by galaxy cleanup if protected state remains. Its `uint32_t` pointer casts and four-byte VMT/field skips are confirmed unsafe for ARM64. This is a save/snapshot blocker, not a reason to change serialized 32-bit IDs. A correct fix needs a protected-field layout test and matching XOR round-trip across the actual 64-bit object types.
+- `aScript.cpp` stores actual star/ship/planet/script-item pointers and function addresses in `lvDword`/32-bit signatures. `fGameSettings::TThreadCreateNewGame_Execute` calls `aScript::RunGlobalScriptsForContext` at the end of generation, so script pointer truncation is potentially on the new-game path. An address/token map or pointer-safe script value needs a focused script-binding regression before mutation.
+- The `aSaveLoad` snapshot galaxy token uses the existing E2E source-copy `uintptr_t` fix. This protects one transient pointer but does not establish a snapshot or disk save round-trip.
+- ARM64 `long double` has a 113-bit mantissa and is not x87 Extended. No evidence yet establishes compatibility of every raw numeric field in saves; inspect concrete serializer calls before changing the format.

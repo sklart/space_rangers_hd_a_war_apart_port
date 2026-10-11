@@ -65,6 +65,67 @@ int main(int argc, char** argv) {
     ok = false;
   }
   EC_File::TFileEC_Destroy(&reader);
+  const bool config_ok = ok && loaded == payload;
+
+  auto round_trip = [&](const std::filesystem::path& path,
+                        const std::string& contents) {
+    EC_File::TFileEC writer{};
+    EC_File::TFileEC_Create(&writer);
+    writer.SetFileName(pas::WideString(path.generic_string().c_str()));
+    bool passed = false;
+    bool write_ok = false;
+    bool read_ok = false;
+    try {
+      writer.CreateNew();
+      writer.WriteBuffer(const_cast<char*>(contents.data()),
+                         static_cast<std::uint32_t>(contents.size()));
+      writer.ReleaseHandle();
+      write_ok = true;
+      passed = std::filesystem::is_regular_file(path);
+    } catch (...) {
+      passed = false;
+    }
+    EC_File::TFileEC_Destroy(&writer);
+    EC_File::TFileEC reader{};
+    EC_File::TFileEC_Create(&reader);
+    reader.SetFileName(pas::WideString(path.generic_string().c_str()));
+    try {
+      passed = passed && reader.TryAcquireReadHandle(false) &&
+               reader.GetSize() == contents.size();
+      read_ok = passed;
+      std::string actual(contents.size(), '\0');
+      if (passed) reader.ReadBuffer(actual.data(), static_cast<std::uint32_t>(actual.size()));
+      reader.ReleaseHandle();
+      passed = passed && actual == contents;
+    } catch (...) {
+      passed = false;
+    }
+    EC_File::TFileEC_Destroy(&reader);
+    if (!passed)
+      std::fprintf(stderr, "roundtrip failed path=%s write=%d exists=%d read=%d\n",
+                   path.generic_string().c_str(), write_ok,
+                   std::filesystem::is_regular_file(path), read_ok);
+    return passed;
+  };
+  const bool newgame_ok = round_trip(root / "config" / "newgame.txt", "Race=0\nName=Tester\n");
+  const bool save_ok = round_trip(root / "config" / "save" / "save.tmp", "temporary-save");
+  ok = ok && newgame_ok && save_ok;
+  ok = ok && !std::filesystem::exists(root / "newgame.txt") &&
+       !std::filesystem::exists(root / "save" / "save.tmp");
+
+  EC_File::TFileEC missing{};
+  EC_File::TFileEC_Create(&missing);
+  missing.SetFileName(pas::WideString((root / "config" / "save" / "missing.sav").generic_string().c_str()));
+  try {
+    ok = ok && !missing.TryAcquireReadHandle(false);
+    missing.ReleaseHandle();
+  } catch (...) {
+    ok = false;
+  }
+  EC_File::TFileEC_Destroy(&missing);
+  if (!ok || loaded != payload)
+    std::fprintf(stderr, "user file checks config=%d newgame=%d save=%d missing=%d\n",
+                 config_ok, newgame_ok, save_ok, ok);
 
   EC_File::TFileEC forbidden{};
   EC_File::TFileEC_Create(&forbidden);
@@ -77,7 +138,7 @@ int main(int argc, char** argv) {
   EC_File::TFileEC_Destroy(&forbidden);
 
   TearDownCollection();
-  std::filesystem::remove_all(root, error);
+  if (ok && loaded == payload) std::filesystem::remove_all(root, error);
   if (ok && loaded == payload) std::puts("portable writable user-file regression passed");
   return ok && loaded == payload ? 0 : 1;
 }

@@ -6,6 +6,7 @@ This is a method-level test, not a resource-backed main-menu launch.
 from __future__ import annotations
 
 import os
+import argparse
 from pathlib import Path
 import subprocess
 import sys
@@ -23,7 +24,42 @@ def method(source: str, signature: str, following: str) -> str:
     return source[start:end]
 
 
+def check_private_resource(game_root: Path) -> None:
+    # Read only: the commercial data is never copied into the repository.
+    sys.path.insert(0, str(ROOT / "tests"))
+    import probe_m23_text_release as config
+    from probe_ui_images_release import decode_dat
+
+    nodes = list(config.nodes(config.parse_blocks(decode_dat(game_root / "CFG/Main.dat"))))
+    styles = {"Style." + node.path.removeprefix("ML/Style/").replace("/", "."): node
+              for node in nodes if node.path.startswith("ML/Style/")}
+    button = next(node for node in nodes
+                  if node.unique_path == "ML#0/MainForm#0/Panel#0/GraphButton#0")
+    props = config.effective(config.style_chain(button, styles))
+    assert props["Name"][-1] == "New"
+    assert props["Kind"][-1] == "Normal"
+    assert props["KindHit"][-1] == "Rect"
+    assert "UpOnlyDown" not in props and "OnPressCode" not in props
+    assert any(node.path == "ML/GameSettings" for node in nodes)
+    assert any(node.unique_path.startswith("ML#0/GameSettings#0/") and
+               node.last("Name") == "Ok" for node in nodes)
+    screen_source = (GAME / "fGameSettings2.cpp").read_text(encoding="utf-8")
+    opening = method(screen_source, "void TfGameSettings2::OnOpen()",
+                     "void TfGameSettings2::OnClose()")
+    static_names = {part.split('"', 1)[0]
+                    for part in opening.split('GetByName(u"')[1:]}
+    resource_names = {node.last("Name") for node in nodes
+                      if node.unique_path.startswith("ML#0/GameSettings#0/")}
+    assert static_names <= resource_names, sorted(static_names - resource_names)
+    print(f"private Main.dat New/GameSettings metadata: PASS ({len(static_names)} OnOpen controls)")
+
+
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--game-root", type=Path)
+    args = parser.parse_args()
+    if args.game_root:
+        check_private_resource(args.game_root)
     original_button = (GAME / "GI_GraphButton.cpp").read_text(encoding="utf-8")
     with tempfile.TemporaryDirectory(prefix="e2e3-generated-button-") as generated_dir:
         generated = generated_source(GAME / "GI_GraphButton.cpp",
