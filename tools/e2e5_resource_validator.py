@@ -32,8 +32,13 @@ def registered_screen_inventory(source: str) -> list[dict]:
     """Map original screen IDs to the config names used at registration."""
     matches = list(REGISTERED_SCREEN.finditer(source))
     rows = []
+    previous_end = 0
     for index, match in enumerate(matches):
         screen_id, variable = match.groups()
+        preceding = source[previous_end:match.start()]
+        constructors = re.findall(r"\b(\w+)\s*=\s*pas::construct_call<(\w+)::\w+>", preceding)
+        source_module = next((module for target, module in reversed(constructors)
+                              if target == variable), None)
         following = source[match.end():matches[index + 1].start() if index + 1 < len(matches) else len(source)]
         initialize = re.search(
             rf"\b{re.escape(variable)}->InitializeFromConfig\s*\([^;]*?u\"([^\"]+)\"",
@@ -41,8 +46,37 @@ def registered_screen_inventory(source: str) -> list[dict]:
         )
         rows.append({"screen_id": screen_id, "variable": variable,
                      "config": initialize.group(1) if initialize else None,
+                     "source_module": source_module,
                      "source_line": source.count("\n", 0, match.start()) + 1})
+        previous_end = match.end()
     return rows
+
+
+def audit_named_controls(source: str, own_names: set[str],
+                         names_by_variable: dict[str, set[str]]) -> dict:
+    """Check literal original GetByName calls against installed UI names."""
+    calls = re.findall(r"(?:(Globals::\w+)->)?GetByName\s*\(\s*u\"([^\"]+)\"", source)
+    found = set(calls)
+    created = set(re.findall(r"\bSetName\s*\(\s*u\"([^\"]+)\"", source))
+    unresolved = []
+    runtime_created = []
+    cross_screen = []
+    for receiver, name in sorted(found):
+        if receiver:
+            variable = receiver.removeprefix("Globals::")
+            if name in names_by_variable.get(variable, set()):
+                cross_screen.append({"target": variable, "name": name})
+            else:
+                unresolved.append({"target": variable, "name": name})
+        elif name in own_names:
+            continue
+        elif name in created:
+            runtime_created.append(name)
+        else:
+            unresolved.append({"target": "current_screen", "name": name})
+    return {"literal_references": len(calls), "unique_literal_references": len(found),
+            "cross_screen": cross_screen,
+            "runtime_created": runtime_created, "unresolved": unresolved}
 
 
 def resource_status(report: dict) -> str:
@@ -52,6 +86,34 @@ def resource_status(report: dict) -> str:
             report["screen_dependencies_resolved"] != report["screen_image_dependencies"]):
         return "PARTIAL — RESOURCE DATA; DEPENDENCIES OR IMAGES UNVERIFIED"
     return "PASS — RESOURCE DATA ONLY"
+
+
+def gai_sequence_reference_issues(source: bytes) -> list[dict]:
+    """Report invalid source-frame references without copying asset bytes."""
+    if len(source) < 48 or source[:4] != b"gai\0":
+        return []
+    frames = struct.unpack_from("<i", source, 24)[0]
+    offset, size = struct.unpack_from("<ii", source, 32)
+    if frames <= 0 or offset < 48 or size < 8 or offset + size > len(source):
+        return []
+    count = struct.unpack_from("<i", source, offset)[0]
+    if count < 0 or count > 100000 or 8 + count * 8 > size:
+        return []
+    issues = []
+    for sequence in range(count):
+        block = struct.unpack_from("<i", source, offset + 8 + sequence * 8)[0]
+        if block < 0 or block + 4 > size:
+            continue
+        length = struct.unpack_from("<i", source, offset + block)[0]
+        if length < 0 or length > 100000 or block + 4 + length * 8 > size:
+            continue
+        for position in range(length):
+            frame, delay = struct.unpack_from("<ii", source, offset + block + 4 + position * 8)
+            if frame < 0 or frame >= frames:
+                issues.append({"sequence": sequence, "position": position,
+                               "source_frame": frame, "source_frame_count": frames,
+                               "delay_ms": delay, "last_in_sequence": position == length - 1})
+    return issues
 
 
 def sha(data: bytes) -> str:
@@ -146,13 +208,35 @@ def validate(root: Path, *, max_decode: int = 32) -> dict:
     original_screens = registered_screen_inventory(
         (ROOT / "upstream/cpp/src/Globals.cpp").read_text(encoding="utf-8")
     )
+    names_by_config: dict[str, set[str]] = {}
+    for path, key, value in config_rows:
+        if key == "Name" and path.startswith("ML/"):
+            parts = path.split("/")
+            if len(parts) > 2:
+                names_by_config.setdefault(parts[1], set()).add(value)
+    names_by_variable = {screen["variable"]: names_by_config.get(screen["config"], set())
+                         for screen in original_screens}
     for screen in original_screens:
         config = screens.get(screen["config"])
         screen["config_present"] = config is not None
         screen["image_options"] = config["image_options"] if config else None
+        module = screen["source_module"]
+        path = ROOT / "upstream/cpp/src" / f"{module}.cpp" if module else None
+        screen["source_present"] = path.is_file() if path else False
+        if screen["source_present"]:
+            screen["named_controls"] = audit_named_controls(
+                path.read_text(encoding="utf-8"), names_by_variable[screen["variable"]],
+                names_by_variable)
     report["registered_screens"] = original_screens
     report["registered_screen_count"] = len(original_screens)
     report["registered_screen_configs_present"] = sum(screen["config_present"] for screen in original_screens)
+    report["registered_named_control_references"] = sum(
+        screen.get("named_controls", {}).get("literal_references", 0) for screen in original_screens)
+    report["registered_named_control_unique_references"] = sum(
+        screen.get("named_controls", {}).get("unique_literal_references", 0)
+        for screen in original_screens)
+    report["registered_named_control_unresolved"] = sum(
+        len(screen.get("named_controls", {}).get("unresolved", [])) for screen in original_screens)
     package_count = 0
     resource_count = 0
     format_counts: Counter[str] = Counter()
@@ -187,6 +271,7 @@ def validate(root: Path, *, max_decode: int = 32) -> dict:
                     if len(report["decoded_images"]) >= max_decode or selected_in_package >= per_package:
                         continue
                     selected_in_package += 1
+                    source = b""
                     try:
                         source = payload(blob, item)
                         if not source or len(source) != size:
@@ -227,8 +312,11 @@ def validate(root: Path, *, max_decode: int = 32) -> dict:
                                             row["first_frame_pixels_sha256"] = sha(pixels)
                         report["decoded_images"].append(row)
                     except (ValueError, IndexError, OverflowError, OSError, struct.error) as error:
-                        report["errors"].append({"stage": "decode", "package": package.name,
-                                                 "resource": name, "error": str(error)})
+                        issue = {"stage": "decode", "package": package.name,
+                                 "resource": name, "error": str(error)}
+                        if extension == ".gai" and str(error) == "sequence source":
+                            issue["sequence_reference_issues"] = gai_sequence_reference_issues(source)
+                        report["errors"].append(issue)
         except (OSError, ValueError, IndexError, OverflowError, struct.error) as error:
             report["errors"].append({"stage": "package-index", "package": package.name,
                                      "error": str(error)})
@@ -258,9 +346,13 @@ def validate(root: Path, *, max_decode: int = 32) -> dict:
         "image_status" in row or
         row.get("first_frame_format") not in (None, 0, 2)
         for row in report["decoded_images"])
-    if not original_screens or report["registered_screen_configs_present"] != len(original_screens):
+    if (not original_screens or report["registered_screen_configs_present"] != len(original_screens) or
+            not all(screen["source_present"] for screen in original_screens)):
         report["errors"].append({"stage": "registered-screens", "error":
-                                 "original screen registration lacks a matching UI config"})
+                                 "original screen registration lacks a matching UI config or source module"})
+    if report["registered_named_control_unresolved"]:
+        report["errors"].append({"stage": "named-controls", "error":
+                                 "literal original GetByName reference is absent from installed UI config"})
     report["status"] = resource_status(report)
     return report
 

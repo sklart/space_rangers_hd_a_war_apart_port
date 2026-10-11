@@ -8,7 +8,7 @@
 | E2E5-004 | Static inventory includes unresolved script pointer and callback conversions | Open; native-width representation is only partially implemented |
 | E2E5-005 | First game exception was not written to the prior `e2e.log`; Atmosphere Instruction Abort was later cleanup evidence | Open; primary exception capture needs validation |
 | E2E5-006 | 30 original UI writes cast live pointers to `int32_t` in multiple screens (`fCfgSettings`, shops, panel, rewards, conversations and others) | Native-width disposable override implemented; clean ARM64 link passed, original behavior validation pending |
-| E2E5-007 | `WSE.pkg:DATA/Weapon/Effect/05.GAI` has a sequence table rejected by the independent oracle; `CacheData` references it as `Bm/Hits/05` | Open; compare original parser and combat reachability |
+| E2E5-007 | `WSE.pkg:DATA/Weapon/Effect/05.GAI` has 13 source frames but 14 positions in sequence 0. Its final position 13 refers to source frame 13 with a 50 ms delay; the independent oracle rejects that index. `CacheData` references the file as `Bm/Hits/05`. Original `TCGaiEC::LoadFrameGi` returns null for an out-of-range index, and several `GI_GAI` draw paths check null, but full playback and combat reachability are not established. The resource report now records the exact invalid position. | Open; execute original playback path before deciding whether the final entry is an intentional blank frame or a defect |
 | E2E5-008 | `common.pkg:DATA/Galaxy/war.gai` is a 14-byte non-image payload despite its suffix | Classified as non-image metadata; no renderer test implied |
 
 The crash archive is retained outside the repository. See

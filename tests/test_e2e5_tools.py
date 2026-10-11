@@ -60,11 +60,42 @@ class E2E5ToolTests(unittest.TestCase):
         self.assertEqual(len({row["screen_id"] for row in screens}), len(screens))
         self.assertEqual(next(row["config"] for row in screens
                               if row["screen_id"] == "screenNewGame"), "GameSettings")
+        self.assertEqual(next(row["source_module"] for row in screens
+                              if row["screen_id"] == "screenNewGame"), "fGameSettings2")
         status = validator.resource_status({"errors": [], "unsupported_oracle_images": 0,
                                             "images_not_examined": 1,
                                             "screen_dependencies_resolved": 10,
                                             "screen_image_dependencies": 10})
         self.assertTrue(status.startswith("PARTIAL"))
+
+    def test_named_control_audit_distinguishes_other_screen_and_runtime_name(self):
+        validator = module("e2e5_resource_validator")
+        source = ('GetByName(u"Local"sv); '
+                  'Globals::GovernmentScreen->GetByName(u"TalkText"sv); '
+                  'SetName(u"Created"sv); GetByName(u"Created"sv); '
+                  'GetByName(u"Absent"sv);')
+        result = validator.audit_named_controls(
+            source, {"Local"}, {"GovernmentScreen": {"TalkText"}})
+        self.assertEqual(result["literal_references"], 4)
+        self.assertEqual(result["cross_screen"], [{"target": "GovernmentScreen", "name": "TalkText"}])
+        self.assertEqual(result["runtime_created"], ["Created"])
+        self.assertEqual(result["unresolved"], [{"target": "current_screen", "name": "Absent"}])
+
+    def test_gai_sequence_audit_identifies_terminal_missing_frame(self):
+        validator = module("e2e5_resource_validator")
+        source = bytearray(192)
+        source[:4] = b"gai\0"
+        struct.pack_into("<i", source, 24, 13)
+        struct.pack_into("<ii", source, 32, 64, 128)
+        struct.pack_into("<i", source, 64, 1)
+        struct.pack_into("<i", source, 72, 16)
+        struct.pack_into("<i", source, 80, 2)
+        struct.pack_into("<ii", source, 84, 12, 50)
+        struct.pack_into("<ii", source, 92, 13, 50)
+        self.assertEqual(validator.gai_sequence_reference_issues(bytes(source)),
+                         [{"sequence": 0, "position": 1, "source_frame": 13,
+                           "source_frame_count": 13, "delay_ms": 50,
+                           "last_in_sequence": True}])
 
     def test_first_failure_precedes_secondary_crash(self):
         analyzer = module("e2e5_crash_analyzer")
