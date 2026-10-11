@@ -36,6 +36,9 @@ int main() {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     assert(advanced);
+    const auto stream_stats = output.GetStreamStats(stream);
+    assert(stream_stats.valid && stream_stats.played_frames > 0);
+    assert(stream_stats.underrun_frames > 0); // No worker refilled the 1-frame chunks.
     assert(output.StopStream(stream));
     output.CloseStream(stream);
     assert(!output.StartStream(stream));
@@ -65,6 +68,8 @@ int main() {
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     assert(first_event == 1); // Original event 1 follows completed chunk 0.
+    const auto bridge_stats = bridge::GetStreamStats(&music_owner);
+    assert(bridge_stats.valid && bridge_stats.played_frames > 0);
     bridge::Clear(&music_owner);
     bridge::Close();
 }

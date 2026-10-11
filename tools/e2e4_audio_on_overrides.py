@@ -146,6 +146,7 @@ AUDIO_ON_FUNCTIONS = {
         "std::int32_t TSoundBuffer::WaitForChunk()": '''
         if (!Streaming) return 0;
         const auto started = MMSystem::timeGetTime();
+        static std::atomic<std::uint32_t> last_diagnostics{0};
         while (true) {
             if (WindowsSdk::WaitForSingleObject(StopEvent, 0) ==
                 WindowsSdk::WAIT_OBJECT_0) return -1;
@@ -156,6 +157,17 @@ AUDIO_ON_FUNCTIONS = {
                 if (VolumeScale == 0.0f) return -1;
             }
             const int event = srhd_awa::platform::e2e4_game_audio::PollCompletion(this);
+            const auto now = MMSystem::timeGetTime();
+            auto previous = last_diagnostics.load(std::memory_order_relaxed);
+            if (now - previous >= 5000u && last_diagnostics.compare_exchange_strong(
+                    previous, now, std::memory_order_relaxed)) {
+                const auto stats = srhd_awa::platform::e2e4_game_audio::GetStreamStats(this);
+                if (stats.valid)
+                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
+                        "[MUSIC] ring played_frames=", SysUtils::Int64ToStr(static_cast<std::int64_t>(stats.played_frames)),
+                        " underrun_frames=", SysUtils::Int64ToStr(static_cast<std::int64_t>(stats.underrun_frames)),
+                        " rejected_writes=", SysUtils::Int64ToStr(static_cast<std::int64_t>(stats.rejected_writes))}));
+            }
             if (event >= 0) return event;
             if (MMSystem::timeGetTime() - started >= SoundEventPollMs) return 0;
             SysUtilsImports::Sleep(10u);

@@ -35,6 +35,8 @@ public:
         output_rate_ = output_rate;
         position_ = 0.0;
         played_frames_ = 0;
+        underrun_frames_ = 0;
+        rejected_writes_ = 0;
         completed_.fill(0);
         ready_.fill(false);
         playing_ = false;
@@ -45,8 +47,14 @@ public:
     // decode is padded with PCM silence, never with stale previous music.
     bool WriteChunk(std::size_t index, const void* data, std::size_t bytes) {
         if (index >= kChunks || chunk_bytes_ == 0 || bytes > chunk_bytes_ ||
-            bytes % frame_bytes_ || (bytes && !data)) return false;
-        if (playing_ && index == CurrentChunk()) return false;
+            bytes % frame_bytes_ || (bytes && !data)) {
+            ++rejected_writes_;
+            return false;
+        }
+        if (playing_ && index == CurrentChunk()) {
+            ++rejected_writes_;
+            return false;
+        }
         auto* dest = bytes_.data() + index * chunk_bytes_;
         if (bits_ == 8) std::fill(dest, dest + chunk_bytes_, 128);
         else std::fill(dest, dest + chunk_bytes_, 0);
@@ -67,6 +75,8 @@ public:
     void Stop() { playing_ = false; }
     bool IsPlaying() const { return playing_; }
     std::uint64_t PlayedFrames() const { return played_frames_; }
+    std::uint64_t UnderrunFrames() const { return underrun_frames_; }
+    std::uint64_t RejectedWrites() const { return rejected_writes_; }
     std::uint32_t PlayCursorBytes() const {
         return static_cast<std::uint32_t>(static_cast<std::size_t>(position_) * frame_bytes_);
     }
@@ -124,7 +134,7 @@ private:
                     add_sample(i * 2 + channel,
                                (first + (second - first) * fraction) * gain);
                 }
-            }
+            } else ++underrun_frames_;
             const double advanced = position_ + step;
             const std::size_t old_boundary = frame / chunk_frames;
             const std::size_t crossed = static_cast<std::size_t>(advanced / chunk_frames);
@@ -157,6 +167,8 @@ private:
     std::uint32_t source_rate_ = 0;
     std::uint32_t output_rate_ = 0;
     std::uint64_t played_frames_ = 0;
+    std::uint64_t underrun_frames_ = 0;
+    std::uint64_t rejected_writes_ = 0;
     std::uint8_t channels_ = 0;
     std::uint8_t bits_ = 0;
     double position_ = 0.0;

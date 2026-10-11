@@ -11,6 +11,13 @@
 
 namespace srhd_awa::platform::e2e4_audio {
 
+struct StreamStats {
+    bool valid = false;
+    std::uint64_t played_frames = 0;
+    std::uint64_t underrun_frames = 0;
+    std::uint64_t rejected_writes = 0;
+};
+
 // Narrow SDL2 output device for the PCM mixer. Game/DirectSound integration
 // must explicitly create and use this object; an Audio ON build is not enabled
 // merely by compiling it.
@@ -44,6 +51,7 @@ public:
     bool SetStreamGain(std::uint64_t handle, float gain);
     std::array<std::uint32_t, StreamRing::kChunks> DrainStreamCompleted(
         std::uint64_t handle);
+    StreamStats GetStreamStats(std::uint64_t handle);
     void CloseStream(std::uint64_t handle);
 
 private:

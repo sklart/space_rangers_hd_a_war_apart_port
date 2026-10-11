@@ -9,6 +9,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  e2e5-fast:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+      - name: Guard new pointer-width sites
+        run: python3 tools/e2e5_static_audit.py --check --output reports/e2e5/pointer-width-audit.json
+      - name: E2E-5 tool regressions
+        run: python3 -m unittest discover -s tests -p 'test_e2e5_tools.py' -v
+      - name: Report unavailable private assets honestly
+        run: python3 tools/e2e5_resource_validator.py --output reports/e2e5/resource-validation.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e5-fast-reports
+          path: reports/e2e5/*-audit.json
+          if-no-files-found: ignore
   e2e4-sanitizers:
     runs-on: ubuntu-24.04
     steps:
@@ -49,7 +67,7 @@ jobs:
             build/e2e4-sanitizers/quicksave-test
 
   e2e-full-arm64-link:
-    needs: [e2e4-sanitizers, host-regression]
+    needs: [e2e5-fast, e2e4-sanitizers, host-regression]
     runs-on: ubuntu-24.04
     container: devkitpro/devkita64:latest
     steps:

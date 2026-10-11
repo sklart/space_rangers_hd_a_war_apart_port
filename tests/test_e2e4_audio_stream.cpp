@@ -22,6 +22,7 @@ int main() {
     assert(ring.WriteChunk(2, left.data(), left.size()));
     assert(ring.Start());
     assert(!ring.WriteChunk(0, right.data(), right.size()));
+    assert(ring.RejectedWrites() == 1);
 
     std::array<std::int16_t, 2> mixed{};
     ring.RenderAdd(mixed.data(), 1);
@@ -44,6 +45,7 @@ int main() {
     mixed = {};
     ring.RenderAdd(mixed.data(), 1); // Missing refill is silence, not old PCM.
     assert(mixed[0] == 0 && mixed[1] == 0);
+    assert(ring.UnderrunFrames() == 1);
     ring.Stop();
     assert(!ring.IsPlaying());
 
@@ -58,4 +60,20 @@ int main() {
     events = ring.DrainCompleted();
     assert(events[0] == 8 && events[1] == 8 && events[2] == 8);
     assert(mixed[0] > 32000 && mixed[1] > 32000);
+    assert(ring.UnderrunFrames() == 0 && ring.RejectedWrites() == 0);
+
+    // Delayed worker refill: a full revolution may create multiple completed
+    // events and audible silence.  All events remain available for recovery.
+    assert(ring.Initialize(40, 10, 10, 2, 16));
+    std::array<std::uint8_t, 40> ten_frames{};
+    for (std::size_t i = 0; i < 3; ++i)
+        assert(ring.WriteChunk(i, ten_frames.data(), ten_frames.size()));
+    assert(ring.Start());
+    std::array<std::int16_t, 80> delayed{};
+    ring.RenderAdd(delayed.data(), 40);
+    assert(ring.UnderrunFrames() == 10);
+    events = ring.DrainCompleted();
+    assert(events[0] == 2 && events[1] == 1 && events[2] == 1);
+    assert(!ring.WriteChunk(1, ten_frames.data(), ten_frames.size()));
+    assert(ring.RejectedWrites() == 1);
 }

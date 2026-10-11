@@ -249,7 +249,7 @@ int main() {
 
 def generated_source(source: Path, destination: Path, build_git: str = "",
                      manifest_stamp: dict | None = None,
-                     audio_on: bool = False) -> Path:
+                     audio_on: bool = False, e2e5_profile: bool = False) -> Path:
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
@@ -278,6 +278,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     if audio_on and source.name == "GR_Sound.cpp":
         text = '''#include "e2e4_game_audio_bridge.hpp"
 #include "units/SysUtilsImports.hpp"
+#include <atomic>
 #include <algorithm>
 #include <climits>
 #include <string>
@@ -607,8 +608,17 @@ void CloseVorbisStream(TOggWorker* worker) {
             }
             srhd_awa::platform::e2e_stage::Log(e2e_error);
             auto cpp_exception_2 = pas::caught_object();''', 1)
+        if e2e5_profile:
+            anchor = "        std::int32_t Stage = 0;"
+            if run.count(anchor) != 1:
+                raise RuntimeError("E2E-5 profiler stage initialization boundary changed")
+            run = run.replace(anchor, anchor + "\n        srhd_awa::platform::e2e5_stage_profiler::Window e2e_profile;\n        e2e_profile.Enter(0);", 1)
+            run, switches = re.subn(r"(?m)^([ \t]*)Stage = (\d+);$",
+                lambda match: f"{match.group(1)}e2e_profile.Enter({match.group(2)});\n{match.group(0)}", run)
+            if switches < 20:
+                raise RuntimeError(f"E2E-5 profiler stage inventory changed: {switches}")
         text = text[:start] + run + text[end:]
-        text = '#include "e2e_stage.hpp"\n' + text
+        text = ('#include "e2e5_stage_profiler.hpp"\n' if e2e5_profile else '') + '#include "e2e_stage.hpp"\n' + text
     if source.name == "GI_GraphButton.cpp":
         timer_gate = "pas::assigned(UpCallback) && MessageLoop->ConsumeTimerTickChange()"
         if text.count(timer_gate) != 1:

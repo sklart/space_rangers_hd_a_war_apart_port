@@ -177,4 +177,13 @@ int PollCompletion(void* owner) {
     return static_cast<int>((done + 1) % 3);
 }
 
+StreamStats GetStreamStats(void* owner) {
+    std::lock_guard guard(lock);
+    const auto it = buffers.find(owner);
+    if (it == buffers.end() || !it->second.stream) return {};
+    const auto stats = output.GetStreamStats(it->second.stream);
+    return {stats.valid, stats.played_frames, stats.underrun_frames,
+            stats.rejected_writes};
+}
+
 } // namespace srhd_awa::platform::e2e4_game_audio

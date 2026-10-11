@@ -16,6 +16,7 @@ from e2e_source_overrides import FUNCTIONS, generated_source
 from e2e4_audio_on_overrides import AUDIO_ON_FUNCTIONS
 from e2e_runtime_overrides import prepare_runtime_overlay
 from e2e4_script_width_overrides import prepare_script_source_overlay
+from e2e5_ui_width_overrides import apply as apply_ui_width_overrides
 
 ROOT = Path(__file__).resolve().parents[1]
 SWITCH = ROOT / "port/switch"
@@ -58,17 +59,52 @@ def run(command: list[str]) -> tuple[int, str]:
     return result.returncode, (result.stdout + result.stderr).strip()
 
 
+def dependency_paths(depfile: Path) -> list[Path] | None:
+    """Read GCC -MMD output; missing or malformed state forces recompilation."""
+    if not depfile.is_file():
+        return None
+    content = depfile.read_text(encoding="utf-8", errors="replace")
+    content = content.replace("\\\r\n", " ").replace("\\\n", " ")
+    marker = content.find(": ")
+    if marker < 0:
+        return None
+    # GCC escapes spaces in prerequisites; drive-letter colons are not markers.
+    names = re.split(r"(?<!\\)\s+", content[marker + 2:].strip())
+    paths = [Path(name.replace("\\ ", " ")) for name in names if name]
+    return paths or None
+
+
+def object_current(obj: Path, depfile: Path, sources: list[Path], flags_stamp: Path) -> bool:
+    if not obj.is_file() or not depfile.is_file():
+        return False
+    deps = dependency_paths(depfile)
+    if deps is None:
+        return False
+    threshold = obj.stat().st_mtime_ns
+    return all(path.is_file() and path.stat().st_mtime_ns <= threshold
+               for path in [*sources, flags_stamp, *deps])
+
+
 def prepare_patched_sources() -> dict[str, Path]:
     """Apply existing portability patches only inside a disposable build tree."""
     patch_root = BUILD / "patched-upstream"
     (patch_root / "src").mkdir(parents=True, exist_ok=True)
     names = ("GR_Main.cpp", "EC_BlockPar.cpp", "EC_Data.cpp")
+    patches = ("gr_main_portable.patch", "gr_main_zlib_portable.patch",
+               "dat_zlib_guard.patch")
+    stamp = patch_root / "patch-inputs.json"
+    inputs = {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
+              for path in [*(GAME / "src" / name for name in names),
+                           *(SWITCH / "platform" / name for name in patches)]}
+    expected = json.dumps(inputs, sort_keys=True, indent=2) + "\n"
+    if (stamp.is_file() and stamp.read_text(encoding="utf-8") == expected and
+            all((patch_root / "src" / name).is_file() for name in names)):
+        return {name: patch_root / "src" / name for name in names}
     for name in names:
         shutil.copyfile(GAME / "src" / name, patch_root / "src" / name)
     native_git = Path("C:/Program Files/Git/cmd/git.exe")
     git = str(native_git) if native_git.is_file() else "git"
-    for patch in ("gr_main_portable.patch", "gr_main_zlib_portable.patch",
-                  "dat_zlib_guard.patch"):
+    for patch in patches:
         command = [git, "apply",
                    "--directory=" + patch_root.relative_to(ROOT).as_posix(),
                    "--ignore-space-change",
@@ -78,6 +114,7 @@ def prepare_patched_sources() -> dict[str, Path]:
             raise RuntimeError(f"disposable upstream patch failed: {patch}: {output}")
     if "portable user root is unavailable" not in (patch_root / "src/GR_Main.cpp").read_text(encoding="utf-8"):
         raise RuntimeError("disposable GR_Main portability patch was not applied")
+    stamp.write_text(expected, encoding="utf-8")
     return {name: patch_root / "src" / name for name in names}
 
 
@@ -279,21 +316,9 @@ def main() -> int:
         "compiler": str(CXX.resolve()),
         "compiler_version": compiler_version.splitlines()[0],
         "flags": flags,
-        "source_overrides": {
-            name: hashlib.sha256((ROOT / "tools" / name).read_bytes()).hexdigest()
-            for name in (("e2e_source_overrides.py", "e2e4_audio_on_overrides.py",
-                          "e2e_runtime_overrides.py") +
-                         (("e2e4_script_width_overrides.py",) if script_source_root else ()))
-        },
-        "runtime_overlay": {
-            path.relative_to(runtime_overlay).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
-            for path in sorted(runtime_overlay.rglob("*.hpp"))
-        },
-        "script_source_overlay": {
-            name: hashlib.sha256((script_source_root / name).read_bytes()).hexdigest()
-            for name in ("types/aScript.hpp", "aScript.cpp", "aScriptFun.cpp",
-                         "types/EC_Expression.hpp", "EC_Expression.cpp")
-        } if script_source_root else {},
+        # Generated source content and actual included headers are checked per
+        # object below.  A change in one override no longer invalidates 298
+        # unrelated original translation units.
     }
     flags_stamp = BUILD / "compile-flags.txt"
     rendered_flags = json.dumps(fingerprints, sort_keys=True, indent=2) + "\n"
@@ -301,12 +326,9 @@ def main() -> int:
         flags_stamp.write_text(rendered_flags, encoding="utf-8")
     report["game_compile_optimization"] = ("-O2 -fno-strict-aliasing" if args.profile == "release" else "-O0")
     report["compile_fingerprint_sha256"] = hashlib.sha256(rendered_flags.encode()).hexdigest().upper()
-    headers = [*GAME.rglob("*.hpp"), *(SWITCH / "platform").glob("*.hpp"),
-               *runtime_overlay.rglob("*.hpp")]
-    if script_source_root:
-        headers += list(script_source_root.rglob("*.hpp"))
-    newest_header_ns = max((path.stat().st_mtime_ns for path in headers), default=0)
     objects: list[Path] = []
+    reused_objects = 0
+    compiled_objects = 0
     platform_sources = sorted((SWITCH / "platform").glob("*.cpp"))
     if not args.experimental_quicksave:
         platform_sources = [source for source in platform_sources
@@ -326,17 +348,25 @@ def main() -> int:
         compile_source = generated_source(effective_source,
                                           BUILD / "generated" / source.name,
                                           build_id, manifest_stamp,
-                                          audio_on=args.experimental_audio_on)
-        needed_ns = max(compile_source.stat().st_mtime_ns, newest_header_ns,
-                        flags_stamp.stat().st_mtime_ns)
-        if compile_source != source:
-            needed_ns = max(needed_ns,
-                (SWITCH / "platform/e2e_clock.hpp").stat().st_mtime_ns,
-                (SWITCH / "platform/e2e_stage.hpp").stat().st_mtime_ns)
-        if obj.is_file() and obj.stat().st_mtime_ns >= needed_ns:
+                                          audio_on=args.experimental_audio_on,
+                                          e2e5_profile=args.experimental_e2e4_combined)
+        if script_source_root and category == "upstream" and source.parent == GAME / "src":
+            current = compile_source.read_text(encoding="utf-8")
+            repaired = apply_ui_width_overrides(source.name, current)
+            if repaired != current:
+                ui_source = BUILD / "generated-ui" / source.name
+                ui_source.parent.mkdir(parents=True, exist_ok=True)
+                if not ui_source.is_file() or ui_source.read_text(encoding="utf-8") != repaired:
+                    ui_source.write_text(repaired, encoding="utf-8")
+                compile_source = ui_source
+        depfile = obj.with_suffix(".d")
+        if object_current(obj, depfile, [compile_source], flags_stamp):
             code, output = 0, ""
+            reused_objects += 1
         else:
-            code, output = run([str(CXX), *flags, "-c", native_path(compile_source), "-o", native_path(obj)])
+            code, output = run([str(CXX), *flags, "-MMD", "-MF", native_path(depfile),
+                                "-c", native_path(compile_source), "-o", native_path(obj)])
+            compiled_objects += 1
         if code:
             report["first_failure"] = {
                 "phase": "compiler", "file": source.relative_to(ROOT).as_posix(),
@@ -353,6 +383,8 @@ def main() -> int:
         if category == "upstream":
             report["compiled"] += 1
     report["link_objects"] = len(objects)
+    report["compiled_objects_this_run"] = compiled_objects
+    report["reused_objects_this_run"] = reused_objects
     report["portable_implementations_used"] = [
         obj.stem for obj in objects if obj.parent.name == "platform"
     ]
@@ -462,7 +494,11 @@ def main() -> int:
         if re.fullmatch(r"[a-z0-9_.-]+\.dll", line.strip(), re.IGNORECASE)
     })
     nro_bytes = nro.read_bytes()
-    candidate = BUILD / f"{artifact_stem}-{build_id}.nro"
+    # A dirty developer build may change source without a new Git commit.
+    # Keep each distinct output immutable, while clean CI names stay tied to
+    # the exact commit.
+    content_suffix = "-" + hashlib.sha256(nro_bytes).hexdigest()[:12] if dirty_sources else ""
+    candidate = BUILD / f"{artifact_stem}-{build_id}{content_suffix}.nro"
     if candidate.exists():
         if candidate.read_bytes() != nro_bytes:
             report["first_failure"] = {

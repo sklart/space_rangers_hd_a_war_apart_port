@@ -1,0 +1,5 @@
+# Installed-game and local crash evidence stays on the developer machine.
+*.json
+!pointer-width-audit.json
+!pointer-width-baseline.json
+!defects.json

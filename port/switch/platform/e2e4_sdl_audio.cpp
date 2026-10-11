@@ -222,6 +222,16 @@ std::array<std::uint32_t, StreamRing::kChunks> SdlOutput::DrainStreamCompleted(
     return completed;
 }
 
+StreamStats SdlOutput::GetStreamStats(std::uint64_t handle) {
+    if (!device_) return {};
+    SDL_LockAudioDevice(device_);
+    auto* slot = FindStream(handle);
+    const StreamStats stats = slot ? StreamStats{true, slot->ring->PlayedFrames(),
+        slot->ring->UnderrunFrames(), slot->ring->RejectedWrites()} : StreamStats{};
+    SDL_UnlockAudioDevice(device_);
+    return stats;
+}
+
 void SdlOutput::CloseStream(std::uint64_t handle) {
     if (!device_) return;
     SDL_LockAudioDevice(device_);

@@ -6,6 +6,7 @@ quoted includes in the remaining upstream units resolve inside upstream/src.
 """
 
 from pathlib import Path
+from e2e5_ui_width_overrides import apply as apply_ui_width_overrides
 
 
 def _replace_exact(text: str, old: str, new: str, count: int, path: str) -> str:
@@ -174,6 +175,8 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                     "SetDword(static_cast<std::uintptr_t>(reinterpret_cast<std::uintptr_t>(",
                     137, relative.as_posix())
             content = text.encode("utf-8")
+        if relative.as_posix() == "types/GI_MessageLoop.hpp":
+            content = apply_ui_width_overrides(relative.as_posix(), content.decode("utf-8")).encode("utf-8")
         if not target.is_file() or target.read_bytes() != content:
             target.write_bytes(content)
     stale = [p.relative_to(destination) for p in destination.rglob("*")

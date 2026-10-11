@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "status": "OPEN",
+  "defects": [
+    {
+      "id": "E2E5-001",
+      "class": "GameSettings first-frame rescale",
+      "evidence": "D:/report.zip: original log ends at Rescaling Bm.FormGameSet2.2bg... after OnOpen ready",
+      "state": "Unverified after E2E-4 CPU override"
+    },
+    {
+      "id": "E2E5-002",
+      "class": "Music stream underrun or rejected chunk",
+      "evidence": "D:/report.zip: three stream write rejected chunk=2 bytes=352800 lines; user hears distortion",
+      "state": "Unverified after E2E-4 stream change"
+    },
+    {
+      "id": "E2E5-003",
+      "class": "Cursor and frame pacing",
+      "evidence": "Previous console log: 4.32-5.18 FPS; user sees stepped cursor",
+      "state": "Open; stage profiling required"
+    },
+    {
+      "id": "E2E5-004",
+      "class": "Resource parser anomaly",
+      "evidence": "WSE.pkg DATA/Weapon/Effect/05.GAI sequence source rejected by independent oracle; CacheData key Bm/Hits/05 reaches this payload",
+      "state": "Open; compare original parser and resource reachability"
+    },
+    {
+      "id": "E2E5-005",
+      "class": "Misnamed package payload",
+      "evidence": "common.pkg DATA/Galaxy/war.gai is 14 bytes and does not begin with GAI magic",
+      "state": "Classify as non-image payload; original use unknown"
+    }
+  ]
+}

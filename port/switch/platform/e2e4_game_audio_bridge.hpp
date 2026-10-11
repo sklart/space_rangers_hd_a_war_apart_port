@@ -15,6 +15,13 @@ struct Format {
     std::uint16_t bits;
 };
 
+struct StreamStats {
+    bool valid;
+    std::uint64_t played_frames;
+    std::uint64_t underrun_frames;
+    std::uint64_t rejected_writes;
+};
+
 bool Open(std::string* error);
 void Close();
 bool PrepareEffect(void* owner, const void* data, std::size_t bytes,
@@ -31,5 +38,6 @@ void SetPan(void* owner, float pan);
 // Returns -1 for no completion; otherwise original event numbers 1, 2, 0
 // for completed chunks 0, 1, 2 respectively.
 int PollCompletion(void* owner);
+StreamStats GetStreamStats(void* owner);
 
 } // namespace srhd_awa::platform::e2e4_game_audio
