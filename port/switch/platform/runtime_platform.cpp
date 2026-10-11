@@ -1,8 +1,10 @@
 #include "runtime_platform.hpp"
 #include "win32_compat_window.hpp"
 
-#if defined(__SWITCH__)
+#if defined(__SWITCH__) || defined(E2E5_HOST_SDL_WINDOW)
 #include <SDL2/SDL.h>
+#endif
+#if defined(__SWITCH__)
 #include <switch.h>
 #endif
 
@@ -13,14 +15,16 @@ bool InitializePlatformServices(State* state, std::string* error) {
     if (error) *error = "platform state is already initialized";
     return false;
   }
-#if defined(__SWITCH__)
+#if defined(__SWITCH__) || defined(E2E5_HOST_SDL_WINDOW)
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) != 0) {
     if (error) *error = SDL_GetError();
     return false;
   }
+#endif
+#if defined(__SWITCH__)
   state->timing_frequency = static_cast<std::int64_t>(armGetSystemTickFreq());
 #else
-  // CI deliberately has no native window dependency.
+  // Host probes use the monotonic clock even when an SDL window is requested.
   state->timing_frequency = 1000000000LL;
 #endif
   state->services_initialized = true;
@@ -32,7 +36,7 @@ bool CreateMainWindow(State* state, std::string* error) {
     if (error) *error = "platform services are not ready for window creation";
     return false;
   }
-#if defined(__SWITCH__)
+#if defined(__SWITCH__) || defined(E2E5_HOST_SDL_WINDOW)
   SDL_Window* window = SDL_CreateWindow("Space Rangers HD: A War Apart", SDL_WINDOWPOS_CENTERED,
       SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_SHOWN);
   if (!window) {
@@ -54,7 +58,7 @@ bool CreateMainWindow(State* state, std::string* error) {
 }
 
 void PumpEvents(const State& state) {
-#if defined(__SWITCH__)
+#if defined(__SWITCH__) || defined(E2E5_HOST_SDL_WINDOW)
   if (state.native_window) SDL_PumpEvents();
 #else
   (void)state;
@@ -66,7 +70,7 @@ void ShutdownPlatformServices(State* state) {
 #if defined(__SWITCH__) || defined(E2E_HOST_RESOLVER_TEST)
   if (state->window_token) win32_compat::UnregisterMainWindow(state->window_token);
 #endif
-#if defined(__SWITCH__)
+#if defined(__SWITCH__) || defined(E2E5_HOST_SDL_WINDOW)
   if (state->native_window) SDL_DestroyWindow(static_cast<SDL_Window*>(state->native_window));
   if (state->services_initialized) SDL_Quit();
 #endif

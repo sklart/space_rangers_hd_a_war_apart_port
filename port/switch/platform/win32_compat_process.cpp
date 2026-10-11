@@ -47,12 +47,20 @@ std::uint32_t ModuleFileName(std::uint32_t module, std::uint8_t* buffer,
     SetLastError(kErrorInvalidParameter);
     return 0;
   }
+#if defined(E2E_HOST_RESOLVER_TEST) && defined(E2E5_HOST_SDL_WINDOW)
+  // The original startup recursively clears read-only attributes beside the
+  // executable. Host probes must not point that operation at installed assets.
+  buffer[0] = 0;
+  SetLastError(kErrorPathNotFound);
+  return 0;
+#else
   const std::string name = std::string(e2e_stage::kRoot) + "/game/Rangers.exe";
   const auto count = std::min<std::size_t>(name.size(), capacity - 1);
   std::memcpy(buffer, name.data(), count);
   buffer[count] = 0;
   SetLastError(count < name.size() ? kErrorInvalidParameter : kErrorSuccess);
   return static_cast<std::uint32_t>(count);
+#endif
 }
 
 std::uint32_t CurrentProcess() { return kCurrentProcess; }

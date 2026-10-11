@@ -17,6 +17,7 @@
 #endif
 
 #include <algorithm>
+#include <cstdio>
 #include <limits>
 
 namespace srhd_awa::platform::renderer_platform {
@@ -290,6 +291,16 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   g_presentation_diagnostics.present_succeeded = true;
 #endif
   ++g_presentation_count;
+#if defined(E2E5_HOST_SDL_WINDOW)
+  if (g_presentation_count == 1) {
+    char detail[160]{};
+    std::snprintf(detail, sizeof(detail),
+                  "HOST first software frame width=%d height=%d rgb565_hash=%016llx",
+                  width, height,
+                  static_cast<unsigned long long>(g_last_presentation_hash));
+    e2e_stage::Log(detail);
+  }
+#endif
 #if defined(__SWITCH__)
   const auto now = e2e_clock::Milliseconds();
   if (!g_rate_start_tick) {

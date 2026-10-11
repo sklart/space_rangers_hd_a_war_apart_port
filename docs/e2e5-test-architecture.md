@@ -25,11 +25,20 @@ diagnostics to `reports/e2e5/`. No package or decoded image is copied to Git.
 | Offline PCM | `tools/e2e5_audio_capture.py` | Properties of a supplied signed 16-bit WAV | Full `GR_Music`/`GR_Sound` path or audible quality |
 | Installed music oracle | `tools/e2e5_audio_capture.py --game-root ... --resource music/REV/theo_running_away.dat` | Source Ogg independently decodes to PCM; 30-second level/clipping/DC measurements | Original Vorbis worker, mixer, SDL, audible Switch output |
 | Host coordination | `tools/e2e5_host_runner.py` | Available tests and explicit missing gates | Complete `ProgramMain` execution |
+| Original process smoke on Linux x86-64 | `tools/e2e5_host_game_main.cpp` and `tools/e2e5_host_game_probe.py` with the exploratory host ELF | Original `ProgramMain` and main UI loop read installed packages, initialize the registered screens, and submit a 1280×720 RGB565 software frame. The probe records its hash, binary SHA-256, isolated logs, and exact outcome. Installed packages are opened read-only and user files are directed to a separate test root. | The current ELF combines original modules with only selected disposable overrides; it does not yet exercise GameSettings `OnOpen`, New Game, original audio, or the complete effective Switch source set. The build of this ELF is still manual. |
 
 `tools/e2e5_report.py` combines the levels without elevating resource or
-method-level PASS to a game-scenario PASS. The original complete game runtime
-does not currently link and run as a host executable. Building that executable
-or an equivalent game-runtime harness is a blocker for E2E-5 software acceptance.
+method-level PASS to a game-scenario PASS. A manually assembled Linux x86-64
+probe compiled all 298 original modules; its final ELF links 294 unchanged
+game objects, two disposable overrides, a host entrypoint, and portable
+file/window/renderer replacements. With installed resources, the
+original process produced its first software frame after 34.87 seconds in one
+bounded run (1280×720; observed RGB565 hash `a09bebcd390a8da6`; ELF SHA-256
+`e2d681799399d49dd81d2f6514cc3b7603e2af98099781d34dea4e361e057d34`).
+The hash can vary with the animated frame and is not a visual oracle. This is
+an exploratory host smoke, not a reproducible build of every effective Switch
+override or a GameSettings/New Game scenario. The original process and first
+frame are now reachable, while those scenario gates remain open.
 
 ## Commands
 
@@ -40,6 +49,16 @@ python tools/e2e5_resource_validator.py --game-root "D:\\...\\Space Rangers HD A
 python tools/e2e5_crash_analyzer.py D:\\report.zip --output reports/e2e5/crash-analysis.json
 python tools/e2e5_report.py --output reports/e2e5/summary.json
 ```
+
+On Linux/WSL, `python3 tools/e2e5_host_game_probe.py --binary <host-elf> --game-root
+<installed-game> --library-dir <host-okgf-dir> --timeout 100` runs an existing
+ELF in a fresh ignored build directory. It stops after the first accepted
+software frame and preserves `report.json` plus the logs in that directory.
+The entrypoint rejects a user root symlink and keeps the installed game root
+separate from the test user root. `E2E5_HOST_SDL_WINDOW` enables an SDL dummy
+window and first-frame marker on host only; together with
+`E2E_HOST_RESOLVER_TEST` it avoids the original startup's recursive attribute
+change beside its executable.
 
 For the local installed background rescale check on Linux or WSL, run
 `bash tools/e2e5_original_graphbuf_host.sh <installed-game-root>`.

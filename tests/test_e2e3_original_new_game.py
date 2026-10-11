@@ -75,6 +75,8 @@ def main() -> None:
                                 Path(generated_dir) / "GI_MessageLoop.cpp")
         loop_generated_source = loop.read_text(encoding="utf-8")
     assert "RescaleWithAspect(Width, Height, CropToAspect," in graph_source
+    assert "#if defined(__SWITCH__) || defined(E2E5_HOST_SDL_WINDOW)" in graph_source
+    assert "Self->UseTexture = false;" in graph_source
     assert "screen Run exception stage=%d" in loop_generated_source
     assert "screen draw count=%u avg_ms=%llu max_ms=%u" in loop_generated_source
     assert settings_source.count("Sender->PrevSibling") == 7

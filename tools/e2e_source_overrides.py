@@ -790,8 +790,8 @@ void CloseVorbisStream(TOggWorker* worker) {
         use_texture = "        Self->UseTexture = AUseTexture;"
         if text.count(use_texture) != 1:
             raise RuntimeError("graph buffer texture preference boundary changed")
-        text = text.replace(use_texture, '''#if defined(__SWITCH__)
-        // The Switch E2E renderer uses software pixels and has no Direct3D texture device.
+        text = text.replace(use_texture, '''#if defined(__SWITCH__) || defined(E2E5_HOST_SDL_WINDOW)
+        // The portable software renderer has no Direct3D texture device.
         Self->UseTexture = false;
 #else
         Self->UseTexture = AUseTexture;
