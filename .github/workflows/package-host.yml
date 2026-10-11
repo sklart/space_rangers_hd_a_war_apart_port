@@ -66,8 +66,19 @@ jobs:
           build/e2e4-sanitizers/quicksave_transaction \
             build/e2e4-sanitizers/quicksave-test
 
+  e2e5-arm64-host:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+      - name: Install ARM64 Linux emulator and cross compiler
+        run: sudo apt-get update && sudo apt-get install -y qemu-user g++-aarch64-linux-gnu cmake libpng-dev libjpeg-dev
+      - name: Effective Switch GI rescale on Linux ARM64 under QEMU
+        run: bash tools/e2e5_original_graphbuf_arm64_host.sh --synthetic
+
   e2e-full-arm64-link:
-    needs: [e2e5-fast, e2e4-sanitizers, host-regression]
+    needs: [e2e5-fast, e2e4-sanitizers, e2e5-arm64-host, host-regression]
     runs-on: ubuntu-24.04
     container: devkitpro/devkita64:latest
     steps:

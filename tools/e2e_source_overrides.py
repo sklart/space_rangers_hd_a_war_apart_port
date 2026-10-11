@@ -273,7 +273,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
         end = text.index("\n    }", begin) + len("\n    }")
         replacement = start + "\n        " + body + "\n    }"
         text = text[:begin] + replacement + text[end:]
-    if overrides:
+    if overrides and source.name != "GR_GraphBuf.cpp":
         text = '#include "e2e_clock.hpp"\n' + text
     if audio_on and source.name == "GR_Sound.cpp":
         text = '''#include "e2e4_game_audio_bridge.hpp"

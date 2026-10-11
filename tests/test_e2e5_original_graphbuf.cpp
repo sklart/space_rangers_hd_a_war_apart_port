@@ -120,7 +120,9 @@ int main(int argc, char** argv) {
   ::OKGF_Rescale(direct.data(), 1280, 720, 5120,
                  static_cast<std::uint8_t*>(graph->Pixels) + 60 * graph->PitchBytes,
                  1920, 1080, graph->PitchBytes, 4, OKGF_RESCALE_LANCZOS3);
-  graph->RescaleWithAspect(1280, 720, true, 1, 1, OKGF_RESCALE_LANCZOS3);
+  // Exercise the effective Switch override: the original CacheGI method
+  // calls RescaleRGBA_HW, whose disposable body delegates to the CPU path.
+  graph->RescaleRGBA_HW(1280, 720, true, 1, 1);
   if (graph->Width != 1280 || graph->Height != 720 || graph->PitchBytes != 5120 ||
       graph->Pixels == nullptr) return 6;
   std::uint64_t hash = 0xcbf29ce484222325ull;
@@ -203,7 +205,8 @@ int main(int argc, char** argv) {
   pas::free(graph);
   std::printf("original_decode=PASS fnv64=%016llx "
               "original_graphbuf=PASS width=%d height=%d pitch=%d fnv64=%016llx "
-              "original_gi=PASS bytes=%zu fnv64=%016llx buffer=PASS lifecycle=PASS\n",
+              "original_gi=PASS bytes=%zu fnv64=%016llx buffer=PASS "
+              "effective_switch_rescale_override=PASS lifecycle=PASS\n",
               static_cast<unsigned long long>(decoded_hash),
               final_width, final_height, final_pitch,
               static_cast<unsigned long long>(hash), packed_bytes,

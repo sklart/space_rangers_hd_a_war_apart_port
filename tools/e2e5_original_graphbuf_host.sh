@@ -15,6 +15,14 @@ fi
 root="$(cd "$(dirname "$0")/.." && pwd)"
 build="$root/port/switch/build/e2e5-host-graphbuf"
 mkdir -p "$build"
+python3 - "$root" "$build" <<'PY'
+import sys
+from pathlib import Path
+root, build = map(Path, sys.argv[1:])
+sys.path.insert(0, str(root / "tools"))
+from e2e_source_overrides import generated_source
+generated_source(root / "upstream/cpp/src/GR_GraphBuf.cpp", build / "GR_GraphBuf.cpp")
+PY
 cmake -S "$root/upstream/okgf" -B "$build/okgf" \
   -DOKGF_MATH_BACKEND=NATIVE -DCMAKE_BUILD_TYPE=Debug
 cmake --build "$build/okgf" --parallel 2
@@ -25,7 +33,7 @@ common=(-std=gnu++20 -D__SWITCH__ -ffunction-sections -fdata-sections
 link=(-Wl,--gc-sections -L"$build/okgf" -lokgf
       -Wl,-rpath,"$build/okgf")
 
-g++ "${common[@]}" -O0 -c "$root/upstream/cpp/src/GR_GraphBuf.cpp" \
+g++ "${common[@]}" -O0 -c "$build/GR_GraphBuf.cpp" \
   -o "$build/GR_GraphBuf.o"
 g++ "${common[@]}" -O0 -c "$root/upstream/cpp/src/GR_gi.cpp" \
   -o "$build/GR_gi.o"
@@ -45,7 +53,7 @@ python3 "$root/tools/e2e5_gamesettings_rescale.py" "${source_args[@]}" \
 # fixture; retain ASan and UBSan checks while excluding only vptr checks.
 san=(-O1 -g -fsanitize=address,undefined -fno-sanitize=vptr
      -fno-omit-frame-pointer)
-g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/src/GR_GraphBuf.cpp" \
+g++ "${common[@]}" "${san[@]}" -c "$build/GR_GraphBuf.cpp" \
   -o "$build/GR_GraphBuf_sanitized.o"
 g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/src/GR_gi.cpp" \
   -o "$build/GR_gi_sanitized.o"

@@ -18,7 +18,7 @@ diagnostics to `reports/e2e5/`. No package or decoded image is copied to Git.
 | Component | `tests/test_e2e5_tools.py` and existing E2E tests | Tool contracts, original method fixtures, targeted native components | Original game scenario |
 | Resource data | `tools/e2e5_resource_validator.py` | CFG checksums, package indexes, selected GI/GAI decoding | Original renderer, all graphic formats, screen first frame |
 | Installed GameSettings background | `tools/e2e5_formgameset2_compare.py` plus `tests/test_e2e5_format0_real.cpp` | Independent oracle and production CPU decoder return identical pixels for `FormGameSet2/2bg.gi` | Original `GraphBuf` rescale or GameSettings first frame |
-| Installed GameSettings GI decode, rescale, and repack | `tools/e2e5_original_graphbuf_host.sh`, `tests/test_e2e5_original_graphbuf.cpp`, `tools/e2e5_gamesettings_rescale.py` | Original `TBufEC` accepts and preserves the source GI; `TgiGR::LoadRawGiFromBuffer` and `DecodeToGraphBuf` produce the independent Format-0 oracle's pixels. Unchanged original `TGraphBufGR::RescaleWithAspect` center-crops 1920×1200 to 1920×1080 and gives 1280×720, x86 NATIVE FNV64 `ad6d4a9cfa895ba2`, identical to a direct same-architecture OKGF call. Original `TgiGR::CreateFromGraphBuf` generates RGB565 matching the independent oracle on every pixel, FNV64 `8dc3555a82d454db`; a new `TBufEC` retains those bytes after the temporary GI object is freed and all fixture objects run their original destruction path | Full `EC_CacheGI` call, screen first frame, Switch runtime |
+| Installed GameSettings GI decode, rescale, and repack | `tools/e2e5_original_graphbuf_host.sh`, `tests/test_e2e5_original_graphbuf.cpp`, `tools/e2e5_gamesettings_rescale.py` | Original `TBufEC` accepts and preserves the source GI; `TgiGR::LoadRawGiFromBuffer` and `DecodeToGraphBuf` produce the independent Format-0 oracle's pixels. The generated Switch `TGraphBufGR::RescaleRGBA_HW` override delegates to unchanged original `RescaleWithAspect`, center-crops 1920×1200 to 1920×1080 and gives 1280×720, x86 NATIVE FNV64 `ad6d4a9cfa895ba2`, identical to a direct same-architecture OKGF call. Original `TgiGR::CreateFromGraphBuf` generates RGB565 matching the independent oracle on every pixel, FNV64 `8dc3555a82d454db`; a new `TBufEC` retains those bytes after the temporary GI object is freed and all fixture objects run their original destruction path | Full `EC_CacheGI` call, screen first frame, Switch runtime |
 | Observed game log | `tools/e2e5_scenario_runner.py` | Checkpoints actually present after the New Game transition | Unobserved later stages |
 | Crash correlation | `tools/e2e5_crash_analyzer.py` | First explicit log failure, unfinished original log stage, Atmosphere offsets | Causal stack unless matching ELF is supplied |
 | Offline PCM | `tools/e2e5_audio_capture.py` | Properties of a supplied signed 16-bit WAV | Full `GR_Music`/`GR_Sound` path or audible quality |
@@ -42,7 +42,8 @@ python tools/e2e5_report.py --output reports/e2e5/summary.json
 
 For the local installed background rescale check on Linux or WSL, run
 `bash tools/e2e5_original_graphbuf_host.sh <installed-game-root>`.
-It builds original GraphBuf, GI, buffer, and runtime sources with the host OKGF library,
+It builds the generated Switch GraphBuf override and original GI, buffer, and
+runtime sources with the host OKGF library,
 executes the original decode, rescale, and repack methods on the installed background,
 and repeats under ASan/UBSan with `vptr` excluded.
 Public CI runs the same script with `--synthetic`; its report says
@@ -52,10 +53,18 @@ GI decoders for formats other than Format 0 abort if reached in this fixture.
 The check reads the original asset in place; decoded pixels exist only in a
 temporary directory during the run and are not published.
 
-A local Linux ARM64 build of these original GI, GraphBuf, buffer, structure,
-and runtime objects also ran under QEMU on the installed background. The
+For a repeatable Linux ARM64 component run, install QEMU user mode, the
+`aarch64-linux-gnu` GCC/G++ cross compiler, CMake, JPEG and PNG development
+headers, then run `bash tools/e2e5_original_graphbuf_arm64_host.sh
+<installed-game-root>`. The `e2e5-arm64-host` CI job runs the same script
+with `--synthetic` when private resources are unavailable.
+
+A local Linux ARM64 build of these original GI, generated GraphBuf override,
+buffer, structure, and runtime objects also ran under QEMU on the installed
+background. The
 minimal ARM64 OKGF library used the Switch `COMPATIBLE` portable math mode.
-Original GraphBuf output matched a direct ARM64 OKGF rescale byte for byte,
+The generated Switch `RescaleRGBA_HW` override was invoked; its original
+GraphBuf output matched a direct ARM64 OKGF rescale byte for byte,
 and original GI repacking matched direct ARM64 RGB565 conversion byte for byte.
 Its decoded source FNV64 was `decfdd81e05299cd`, scaled BGRA FNV64
 `72611b035290c515`, and RGB565 FNV64 `1107dc234c3883f5`. The scaled and
