@@ -68,10 +68,8 @@ jobs:
           python3 tools/audit_win32_surface.py --check
       - name: Compile full original game and audit Switch dependencies
         run: python3 tools/e2e_arm64_build.py
-      - name: Compile isolated experimental quicksave variant
-        run: python3 tools/e2e_arm64_build.py --experimental-quicksave
-      - name: Compile isolated experimental Audio ON variant
-        run: python3 tools/e2e_arm64_build.py --experimental-audio-on
+      - name: Compile one combined E2E-4 experiment
+        run: python3 tools/e2e_arm64_build.py --experimental-e2e4-combined
       - name: E2E Win32 Compatibility Surface effective gate
         run: |
           python3 tools/audit_win32_surface.py --effective --check

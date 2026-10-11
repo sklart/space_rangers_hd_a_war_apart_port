@@ -15,6 +15,7 @@ import sys
 from e2e_source_overrides import FUNCTIONS, generated_source
 from e2e4_audio_on_overrides import AUDIO_ON_FUNCTIONS
 from e2e_runtime_overrides import prepare_runtime_overlay
+from e2e4_script_width_overrides import prepare_script_source_overlay
 
 ROOT = Path(__file__).resolve().parents[1]
 SWITCH = ROOT / "port/switch"
@@ -119,13 +120,22 @@ def main() -> int:
                         help="build isolated E2E-4 recoverable quicksave experiment")
     variants.add_argument("--experimental-audio-on", action="store_true",
                           help="build isolated E2E-4 SDL2 game-audio experiment")
+    variants.add_argument("--experimental-e2e4-combined", action="store_true",
+                          help="build one isolated quicksave, Audio ON, and script-width experiment")
     args = parser.parse_args()
-    if args.experimental_quicksave:
+    if args.experimental_e2e4_combined:
+        BUILD = SWITCH / "build/e2e-game-combined-experiment"
+        REPORT = ROOT / "e2e4-combined-build-report.json"
+    elif args.experimental_quicksave:
         BUILD = SWITCH / "build/e2e-game-quicksave-experiment"
         REPORT = ROOT / "e2e4-quicksave-build-report.json"
     elif args.experimental_audio_on:
         BUILD = SWITCH / "build/e2e-game-audio-experiment"
         REPORT = ROOT / "e2e4-audio-build-report.json"
+    if args.experimental_e2e4_combined:
+        args.experimental_quicksave = True
+        args.experimental_audio_on = True
+    script_width_enabled = args.experimental_e2e4_combined
     sources = sorted((GAME / "src").glob("*.cpp"))
     sources.append(GAME / "runtime/runtime.cpp")
     report = {
@@ -134,6 +144,8 @@ def main() -> int:
         "e2e3_trace": args.e2e3_trace,
         "experimental_quicksave": args.experimental_quicksave,
         "experimental_audio_on": args.experimental_audio_on,
+        "experimental_script_width": script_width_enabled,
+        "experimental_e2e4_combined": args.experimental_e2e4_combined,
         "upstream_pin": "57fa689c630193a66fdea6ca4c79a188814991cd",
         "upstream_source_files_total": len(sources),
         "compiled": 0,
@@ -203,6 +215,8 @@ def main() -> int:
         print(f"E2E toolchain missing: {CXX}", file=sys.stderr)
         return 1
     patched_sources = prepare_patched_sources()
+    script_source_root = (prepare_script_source_overlay(GAME / "src", BUILD / "source-overlay")
+                          if script_width_enabled else None)
     runtime_overlay = BUILD / "runtime-overlay"
     prepare_runtime_overlay(GAME / "runtime", runtime_overlay)
     code, output = run([sys.executable,
@@ -233,6 +247,9 @@ def main() -> int:
         save(report)
         return 1
     report["source_overrides"] += sorted(patched_sources)
+    if script_source_root:
+        report["source_overrides"] = sorted(set(report["source_overrides"]) |
+                                            {"aScriptFun.cpp", "types/aScript.hpp"})
     flags = ["-std=gnu++20", "-D__SWITCH__", "-march=armv8-a+crc+crypto",
              "-mtune=cortex-a57", "-mtp=soft", "-fPIE",
              "-ffunction-sections", "-fdata-sections"]
@@ -245,10 +262,12 @@ def main() -> int:
         flags += ["-DE2E4_QUICKSAVE_EXPERIMENT=1"]
     if args.experimental_audio_on:
         flags += ["-DE2E4_AUDIO_ON=1"]
-    flags += ["-I" + str(p) for p in (
-        DEVKITPRO / "libnx/include", PORTLIBS / "include", runtime_overlay,
-        SWITCH / "platform",
-        GAME / "src", GAME / "runtime", ROOT / "upstream/okgf/include")]
+    include_roots = [DEVKITPRO / "libnx/include", PORTLIBS / "include",
+                     runtime_overlay, SWITCH / "platform"]
+    if script_source_root:
+        include_roots.append(script_source_root)
+    include_roots += [GAME / "src", GAME / "runtime", ROOT / "upstream/okgf/include"]
+    flags += ["-I" + str(p) for p in include_roots]
     flags = [flag if not flag.startswith("-I") else "-I" + native_path(Path(flag[2:])) for flag in flags]
     compiler_code, compiler_version = run([str(CXX), "--version"])
     if compiler_code:
@@ -261,13 +280,18 @@ def main() -> int:
         "flags": flags,
         "source_overrides": {
             name: hashlib.sha256((ROOT / "tools" / name).read_bytes()).hexdigest()
-            for name in ("e2e_source_overrides.py", "e2e4_audio_on_overrides.py",
-                         "e2e_runtime_overrides.py")
+            for name in (("e2e_source_overrides.py", "e2e4_audio_on_overrides.py",
+                          "e2e_runtime_overrides.py") +
+                         (("e2e4_script_width_overrides.py",) if script_source_root else ()))
         },
         "runtime_overlay": {
             path.relative_to(runtime_overlay).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
             for path in sorted(runtime_overlay.rglob("*.hpp"))
         },
+        "script_source_overlay": {
+            name: hashlib.sha256((script_source_root / name).read_bytes()).hexdigest()
+            for name in ("types/aScript.hpp", "aScript.cpp", "aScriptFun.cpp")
+        } if script_source_root else {},
     }
     flags_stamp = BUILD / "compile-flags.txt"
     rendered_flags = json.dumps(fingerprints, sort_keys=True, indent=2) + "\n"
@@ -277,6 +301,8 @@ def main() -> int:
     report["compile_fingerprint_sha256"] = hashlib.sha256(rendered_flags.encode()).hexdigest().upper()
     headers = [*GAME.rglob("*.hpp"), *(SWITCH / "platform").glob("*.hpp"),
                *runtime_overlay.rglob("*.hpp")]
+    if script_source_root:
+        headers += list(script_source_root.rglob("*.hpp"))
     newest_header_ns = max((path.stat().st_mtime_ns for path in headers), default=0)
     objects: list[Path] = []
     platform_sources = sorted((SWITCH / "platform").glob("*.cpp"))
@@ -292,7 +318,10 @@ def main() -> int:
             continue
         obj = BUILD / category / (source.stem + ".o")
         obj.parent.mkdir(parents=True, exist_ok=True)
-        compile_source = generated_source(patched_sources.get(source.name, source),
+        effective_source = patched_sources.get(source.name,
+            script_source_root / source.name if script_source_root and source.parent == GAME / "src"
+            else source)
+        compile_source = generated_source(effective_source,
                                           BUILD / "generated" / source.name,
                                           build_id, manifest_stamp,
                                           audio_on=args.experimental_audio_on)
@@ -333,7 +362,8 @@ def main() -> int:
         print(error, file=sys.stderr)
         return 1
     report["portable_implementations_used"].append("okgf_no_tls")
-    artifact_stem = ("SpaceRangersHDAWarApartE2EAudioON" if args.experimental_audio_on
+    artifact_stem = ("SpaceRangersHDAWarApartE2E4Combined" if args.experimental_e2e4_combined
+                     else "SpaceRangersHDAWarApartE2EAudioON" if args.experimental_audio_on
                      else "SpaceRangersHDAWarApartE2E")
     elf = BUILD / f"{artifact_stem}.elf"
     response_file = BUILD / "link-objects.rsp"
@@ -408,7 +438,8 @@ def main() -> int:
     nacp = BUILD / f"{artifact_stem}.nacp"
     nro = BUILD / f"{artifact_stem}.nro"
     code, output = run([str(tools_bin / ("nacptool" + suffix)), "--create",
-                        "Space Rangers HD: A War Apart E2E Audio ON" if args.experimental_audio_on
+                        "Space Rangers HD: A War Apart E2E-4 Combined" if args.experimental_e2e4_combined
+                        else "Space Rangers HD: A War Apart E2E Audio ON" if args.experimental_audio_on
                         else "Space Rangers HD: A War Apart E2E", "sklart", "0.0.1", native_path(nacp)])
     if not code:
         code, output = run([str(tools_bin / ("elf2nro" + suffix)), native_path(elf),
