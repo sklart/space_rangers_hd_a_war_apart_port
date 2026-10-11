@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -109,36 +110,20 @@ public:
     void Mix(std::int16_t* output, std::size_t frames) {
         if (!output) return;
         for (std::size_t frame = 0; frame < frames; ++frame) {
-            float left = 0.0f;
-            float right = 0.0f;
-            for (auto& slot : slots_) {
-                if (!slot.active) continue;
-                const auto& pcm = *slot.pcm;
-                const std::size_t sample_frame = static_cast<std::size_t>(slot.position);
-                const std::size_t next = sample_frame + 1 < pcm.Frames() ?
-                    sample_frame + 1 : (slot.loop ? 0 : sample_frame);
-                const float fraction = static_cast<float>(slot.position - sample_frame);
-                const float sample_left = Interpolate(pcm, sample_frame, next, 0, fraction);
-                const float sample_right = pcm.channels == 2 ?
-                    Interpolate(pcm, sample_frame, next, 1, fraction) : sample_left;
-                const float volume = slot.gain * master_[static_cast<std::size_t>(slot.bus)];
-                left += sample_left * volume * (slot.pan > 0.0f ? 1.0f - slot.pan : 1.0f);
-                right += sample_right * volume * (slot.pan < 0.0f ? 1.0f + slot.pan : 1.0f);
-                if (slot.fade_frames) {
-                    --slot.fade_frames;
-                    slot.gain = slot.fade_frames ? slot.gain + slot.fade_step : slot.target_gain;
-                }
-                slot.position += static_cast<double>(pcm.rate) / output_rate_;
-                if (slot.position >= pcm.Frames()) {
-                    if (slot.loop) {
-                        while (slot.position >= pcm.Frames()) slot.position -= pcm.Frames();
-                    } else {
-                        slot.active = false; // PCM ownership retained until CollectFinished.
-                    }
-                }
-            }
-            output[frame * 2] = ToS16(left);
-            output[frame * 2 + 1] = ToS16(right);
+            const auto sample = NextFrame();
+            output[frame * 2] = ToS16(sample[0]);
+            output[frame * 2 + 1] = ToS16(sample[1]);
+        }
+    }
+
+    // Adds unclamped voices to a caller-owned buffer. The SDL callback uses
+    // this with music streams, then converts to S16 once after every source.
+    void MixFloat(float* output, std::size_t frames) {
+        if (!output) return;
+        for (std::size_t frame = 0; frame < frames; ++frame) {
+            const auto sample = NextFrame();
+            output[frame * 2] += sample[0];
+            output[frame * 2 + 1] += sample[1];
         }
     }
 
@@ -159,6 +144,37 @@ private:
     std::array<Slot, kMaxVoices> slots_{};
     std::uint32_t output_rate_ = 0;
     std::array<float, 2> master_{1.0f, 1.0f};
+
+    std::array<float, 2> NextFrame() {
+        std::array<float, 2> result{};
+        for (auto& slot : slots_) {
+            if (!slot.active) continue;
+            const auto& pcm = *slot.pcm;
+            const std::size_t sample_frame = static_cast<std::size_t>(slot.position);
+            const std::size_t next = sample_frame + 1 < pcm.Frames() ?
+                sample_frame + 1 : (slot.loop ? 0 : sample_frame);
+            const float fraction = static_cast<float>(slot.position - sample_frame);
+            const float sample_left = Interpolate(pcm, sample_frame, next, 0, fraction);
+            const float sample_right = pcm.channels == 2 ?
+                Interpolate(pcm, sample_frame, next, 1, fraction) : sample_left;
+            const float volume = slot.gain * master_[static_cast<std::size_t>(slot.bus)];
+            result[0] += sample_left * volume * (slot.pan > 0.0f ? 1.0f - slot.pan : 1.0f);
+            result[1] += sample_right * volume * (slot.pan < 0.0f ? 1.0f + slot.pan : 1.0f);
+            if (slot.fade_frames) {
+                --slot.fade_frames;
+                slot.gain = slot.fade_frames ? slot.gain + slot.fade_step : slot.target_gain;
+            }
+            slot.position += static_cast<double>(pcm.rate) / output_rate_;
+            if (slot.position >= pcm.Frames()) {
+                if (slot.loop) {
+                    while (slot.position >= pcm.Frames()) slot.position -= pcm.Frames();
+                } else {
+                    slot.active = false; // PCM ownership retained until CollectFinished.
+                }
+            }
+        }
+        return result;
+    }
 
     static float FiniteUnit(float value) {
         return std::isfinite(value) ? std::clamp(value, 0.0f, 1.0f) : 0.0f;

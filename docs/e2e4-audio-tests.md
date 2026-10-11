@@ -47,3 +47,12 @@ voices, clipping, separated music/effects mute, pan, two-frame fade, looping,
 stop, stale-handle rejection and deferred PCM reclamation. It passed locally
 with MSYS2 GCC. The mixer test and SDL2 device wrapper both compile with
 devkitA64; host SDL2 output and physical audibility have not been tested.
+
+After the combined `c87e239` Switch run reported distorted menu music, a
+separate host regression was added for two loud effects opposed by a music
+sample. It checks that float accumulation yields the correct 0.75 result
+before the final S16 clamp; the former two-stage clamp yielded about 0.25.
+The mixer and three-chunk stream tests pass with MSYS2 GCC and with ASan/UBSan
+on WSL. `e2e4_sdl_audio.cpp` passes an ARM64 syntax check. This fixes a
+confirmed mixing error but does not explain the two logged stream-refill
+failures or establish audible quality on Switch.

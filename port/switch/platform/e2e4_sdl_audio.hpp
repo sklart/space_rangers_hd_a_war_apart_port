@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace srhd_awa::platform::e2e4_audio {
 
@@ -48,6 +49,7 @@ public:
 private:
     static void AudioCallback(void* userdata, std::uint8_t* stream, int bytes);
     std::unique_ptr<Mixer> mixer_;
+    std::vector<float> mix_buffer_;
     struct StreamSlot {
         std::unique_ptr<StreamRing> ring;
         std::uint32_t generation = 0;

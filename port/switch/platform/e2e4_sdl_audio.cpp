@@ -9,6 +9,13 @@
 #include <utility>
 
 namespace srhd_awa::platform::e2e4_audio {
+namespace {
+std::int16_t ToS16(float value) {
+    const float limited = std::clamp(value, -1.0f, 1.0f);
+    return static_cast<std::int16_t>(std::lround(limited < 0.0f ?
+        limited * 32768.0f : limited * 32767.0f));
+}
+} // namespace
 
 bool SdlOutput::Open(std::string* error) {
     if (IsOpen()) return true;
@@ -38,6 +45,7 @@ bool SdlOutput::Open(std::string* error) {
     output_rate_ = static_cast<std::uint32_t>(obtained.freq);
     try {
         mixer_ = std::make_unique<Mixer>(output_rate_);
+        mix_buffer_.resize(std::max<std::size_t>(1, obtained.samples) * 2);
     } catch (const std::exception& failure) {
         if (error) *error = failure.what();
         Close();
@@ -53,6 +61,7 @@ void SdlOutput::Close() {
         device_ = 0;
     }
     mixer_.reset();
+    mix_buffer_.clear();
     for (auto& slot : streams_) slot.ring.reset();
     output_rate_ = 0;
     if (owns_audio_subsystem_) {
@@ -226,15 +235,22 @@ void SdlOutput::AudioCallback(void* userdata, std::uint8_t* stream, int bytes) {
     if (bytes <= 0 || stream == nullptr) return;
     std::memset(stream, 0, static_cast<std::size_t>(bytes));
     auto* self = static_cast<SdlOutput*>(userdata);
-    if (self == nullptr || !self->mixer_) return;
-    self->mixer_->Mix(reinterpret_cast<std::int16_t*>(stream),
-                      static_cast<std::size_t>(bytes) / (2 * sizeof(std::int16_t)));
-    for (auto& slot : self->streams_) {
-        if (slot.ring) {
-            slot.ring->RenderAdd(reinterpret_cast<std::int16_t*>(stream),
-                                 static_cast<std::size_t>(bytes) / (2 * sizeof(std::int16_t)),
-                                 slot.gain);
+    if (self == nullptr || !self->mixer_ || self->mix_buffer_.empty()) return;
+    auto* samples = reinterpret_cast<std::int16_t*>(stream);
+    const std::size_t frames = static_cast<std::size_t>(bytes) /
+        (2 * sizeof(std::int16_t));
+    const std::size_t capacity = self->mix_buffer_.size() / 2;
+    for (std::size_t offset = 0; offset < frames;) {
+        const auto count = std::min(capacity, frames - offset);
+        auto* mixed = self->mix_buffer_.data();
+        std::fill_n(mixed, count * 2, 0.0f);
+        self->mixer_->MixFloat(mixed, count);
+        for (auto& slot : self->streams_) {
+            if (slot.ring) slot.ring->RenderAddFloat(mixed, count, slot.gain);
         }
+        for (std::size_t i = 0; i < count * 2; ++i)
+            samples[offset * 2 + i] = ToS16(mixed[i]);
+        offset += count;
     }
 }
 

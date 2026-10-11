@@ -86,7 +86,26 @@ public:
     // Adds interleaved stereo samples to an existing S16 mix. The call is
     // bounded by the requested frame count and the preallocated ring size.
     void RenderAdd(std::int16_t* output, std::size_t frames, float gain = 1.0f) {
-        if (!output || !playing_ || !std::isfinite(gain)) return;
+        if (!output) return;
+        RenderImpl(frames, gain, [output](std::size_t index, float value) {
+            const float mixed = static_cast<float>(output[index]) / 32768.0f + value;
+            const float limited = std::clamp(mixed, -1.0f, 1.0f);
+            output[index] = static_cast<std::int16_t>(
+                std::lround(limited < 0 ? limited * 32768.0f : limited * 32767.0f));
+        });
+    }
+
+    void RenderAddFloat(float* output, std::size_t frames, float gain = 1.0f) {
+        if (!output) return;
+        RenderImpl(frames, gain, [output](std::size_t index, float value) {
+            output[index] += value;
+        });
+    }
+
+private:
+    template <class AddSample>
+    void RenderImpl(std::size_t frames, float gain, AddSample&& add_sample) {
+        if (!playing_ || !std::isfinite(gain)) return;
         gain = std::clamp(gain, 0.0f, 1.0f);
         const std::size_t total_frames = bytes_.size() / frame_bytes_;
         const std::size_t chunk_frames = chunk_bytes_ / frame_bytes_;
@@ -102,12 +121,8 @@ public:
                     const float first = Sample(frame, input_channel);
                     const float second = ready_[next / chunk_frames] ?
                         Sample(next, input_channel) : first;
-                    const float mixed = static_cast<float>(output[i * 2 + channel]) / 32768.0f +
-                        (first + (second - first) * fraction) * gain;
-                    const float limited = std::clamp(mixed, -1.0f, 1.0f);
-                    output[i * 2 + channel] = static_cast<std::int16_t>(
-                        std::lround(limited < 0 ? limited * 32768.0f :
-                                    limited * 32767.0f));
+                    add_sample(i * 2 + channel,
+                               (first + (second - first) * fraction) * gain);
                 }
             }
             const double advanced = position_ + step;
@@ -126,7 +141,6 @@ public:
         }
     }
 
-private:
     float Sample(std::size_t frame, std::size_t channel) const {
         const std::size_t offset = (frame * channels_ + channel) * (bits_ / 8);
         if (bits_ == 8) return (static_cast<int>(bytes_[offset]) - 128) / 128.0f;

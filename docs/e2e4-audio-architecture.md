@@ -112,18 +112,27 @@ build report records its exact SHA-256 and source-tree cleanliness.
 CI [run 38133290219](https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38133290219)
 passed the SDL dummy-device ASan/UBSan test, host regression, and all three
 ARM64 variants (ordinary Audio OFF, experimental quicksave, experimental
-Audio ON). Playback on Switch is still pending. It is not an accepted Audio
-ON build. The
-current stream mix adds onto S16 output after effect clamping; combined loud
-effects and music may clip early. That mix order must be corrected before
-audible acceptance. The bridge currently applies gain linearly while the
+Audio ON). A later combined `c87e239` candidate produced audible but badly
+distorted menu music on Switch, and its game log recorded two
+`[MUSIC] stream refill failed` messages. Those messages do not yet distinguish
+a decoding delay from a music-transition cancellation; the current `e2e.log`
+and crash report have not been supplied. `NEW GAME` also exited unexpectedly,
+with no confirmed cause. Neither path is a hardware PASS.
+
+The stream mix previously added music onto S16 output after effects had
+already been clamped. The next source revision accumulates both in a
+preallocated float buffer and converts to S16 once per output sample. A host
+opposite-phase regression, ASan/UBSan mixer/stream tests, and ARM64 syntax
+check pass; this revision has not been heard on Switch and is not claimed to
+fix the reported distortion. The bridge currently applies gain linearly while the
 original DirectSound path converts its volume setting to a decibel value;
-perceptual volume parity still needs comparison. No original save/load or
-hardware audio test has run.
+perceptual volume parity still needs comparison. No original save/load test has
+run on Switch.
 
 ## Evidence boundary
 
-The sanitized SDL host and ARM64 build passes do not establish audible output
-or original-game music transitions. Audio OFF is the E2E-3 baseline. Original
-save/load testing and physical Switch playback remain separate gates. Status:
+The sanitized SDL host and ARM64 build passes do not establish correct audible
+output or original-game music transitions. Audio OFF is the E2E-3 baseline.
+Original save/load and successful physical Switch playback remain separate
+gates. Status:
 `SOFTWARE PARTIAL / HARDWARE PENDING`.

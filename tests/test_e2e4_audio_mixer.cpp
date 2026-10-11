@@ -1,4 +1,5 @@
 #include "e2e4_audio_mixer.hpp"
+#include "e2e4_audio_stream.hpp"
 
 #include <array>
 #include <cassert>
@@ -10,6 +11,7 @@
 using srhd_awa::platform::e2e4_audio::Bus;
 using srhd_awa::platform::e2e4_audio::Mixer;
 using srhd_awa::platform::e2e4_audio::Pcm;
+using srhd_awa::platform::e2e4_audio::StreamRing;
 
 static std::shared_ptr<Pcm> S16(std::uint32_t rate, std::uint8_t channels,
                                 std::initializer_list<std::int16_t> samples) {
@@ -99,4 +101,22 @@ int main() {
     invalid->rate = 44100;
     invalid->bytes.pop_back();
     assert(!mixer.Add(invalid, Bus::effects, false));
+
+    // Opposite-phase music must cancel part of two loud effects before the
+    // final S16 clamp. Clamping effects first would produce about 0.25 here.
+    Mixer combined(44100);
+    auto positive = S16(44100, 2, {24576, 24576});
+    assert(combined.Add(positive, Bus::effects, false));
+    assert(combined.Add(positive, Bus::effects, false));
+    StreamRing music;
+    assert(music.Initialize(4, 44100, 44100, 2, 16));
+    const std::array<std::uint8_t, 4> negative{0, 0xa0, 0, 0xa0};
+    for (std::size_t chunk = 0; chunk < 3; ++chunk)
+        assert(music.WriteChunk(chunk, negative.data(), negative.size()));
+    assert(music.Start());
+    std::array<float, 2> sum{};
+    combined.MixFloat(sum.data(), 1);
+    music.RenderAddFloat(sum.data(), 1);
+    assert(std::abs(sum[0] - 0.75f) < 0.001f);
+    assert(std::abs(sum[1] - 0.75f) < 0.001f);
 }
