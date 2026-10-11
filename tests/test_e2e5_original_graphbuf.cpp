@@ -5,6 +5,7 @@
 #include "types/EC_Buf.hpp"
 #if defined(E2E5_ORIGINAL_CACHEGI)
 #include "types/EC_CacheGI.hpp"
+#include "units/EC_CacheGI.hpp"
 #endif
 #include "types/GR_gi.hpp"
 #include "units/ClassesImports.hpp"
@@ -80,6 +81,9 @@ void GR_CreateTexture(std::int32_t, std::int32_t, std::uint32_t,
                       std::uint32_t, Direct3D9::IDirect3DTexture9&) {
   std::abort();
 }
+#if defined(E2E5_ORIGINAL_CACHEGI)
+void FreeTextureCache(TTextureGR*) { std::abort(); }
+#endif
 }  // namespace GR_DX
 
 namespace GR_Main {
@@ -153,10 +157,27 @@ int main(int argc, char** argv) {
                  static_cast<unsigned long long>(expected_cachegi));
     return 23;
   }
+  auto* load_buffer = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
+  load_buffer->AddBytes(encoded.data(), static_cast<std::int32_t>(encoded.size()));
+  auto* cache = pas::construct_call<EC_CacheGI::TCGiEC>(EC_CacheGI::TCGiEC_Create);
+  cache->CacheKey = pas::WideString(u"Bm.FormGameSet2.2bg");
+  cache->LoadFromConfigBuffer(load_buffer, pas::WideString());
+  if (GR_Main::E2E5LogTextCalls != 2 || GR_Main::E2E5LogLineCalls != 2 ||
+      cache->ResidentBytes != static_cast<std::int32_t>(96 + packed_bytes) ||
+      cache->Image == nullptr || cache->Image->DataSize != cache->ResidentBytes ||
+      load_buffer->DataSize != cache->ResidentBytes ||
+      std::memcmp(cache->Image->Data, source_buffer->Data,
+                  static_cast<std::size_t>(cache->ResidentBytes)) != 0 ||
+      std::memcmp(load_buffer->Data, source_buffer->Data,
+                  static_cast<std::size_t>(cache->ResidentBytes)) != 0) return 24;
+  load_buffer->Clear();
+  pas::free(load_buffer);
+  pas::free(cache);
   source_buffer->Clear();
   pas::free(source_buffer);
   std::printf("original_cachegi=PASS bytes=%zu fnv64=%016llx "
-              "log_start=PASS log_done=PASS lifecycle=PASS\n",
+              "original_cachegi_load=PASS log_start=PASS log_done=PASS "
+              "lifecycle=PASS\n",
               packed_bytes, static_cast<unsigned long long>(cachegi_hash));
   return 0;
   }

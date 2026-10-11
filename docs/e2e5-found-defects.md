@@ -2,7 +2,7 @@
 
 | ID | Evidence | Current state |
 |---|---|---|
-| E2E5-001 | Previous Switch log ended at `Rescaling Bm.FormGameSet2.2bg...` after GameSettings `OnOpen ready`; primary exception text absent | Open; unchanged original `TCGiEC::ApplyWideScreenLayoutFixups` now completes on the installed GI through the generated Switch CPU override on x86 (including ASan/UBSan) and Linux ARM64/QEMU. `LoadFromConfigBuffer`, first frame and hardware confirmation remain pending |
+| E2E5-001 | Previous Switch log ended at `Rescaling Bm.FormGameSet2.2bg...` after GameSettings `OnOpen ready`; primary exception text absent | Open; unchanged original `TCGiEC::ApplyWideScreenLayoutFixups` and `LoadFromConfigBuffer` complete on the installed GI through the generated Switch CPU override on x86 (including ASan/UBSan) and Linux ARM64/QEMU. First frame and hardware confirmation remain pending |
 | E2E5-002 | Three earlier `[MUSIC] stream write rejected chunk=2 bytes=352800` lines and audible distortion. The experimental `WaitForChunk` returned event `0` on a one-second poll timeout, so `GR_Music` could decode without a completion event. A late rejected write also discarded already decoded PCM and skipped ahead in the track. | Timeout now uses sentinel `3`; one late PCM chunk is retained and retried before further decoding. ARM64 and ASan/UBSan passed; audible hardware verification pending |
 | E2E5-003 | Earlier menu presentation rate 4.32–5.18 FPS; average present about 9.7–10.4 ms | Open; frame stage breakdown absent |
 | E2E5-004 | Static inventory includes unresolved script pointer and callback conversions | Open; native-width representation is only partially implemented |

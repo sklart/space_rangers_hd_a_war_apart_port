@@ -45,6 +45,8 @@ g++ "${common[@]}" -O0 -c "$root/upstream/cpp/src/EC_Str.cpp" \
   -o "$build/EC_Str.o"
 g++ "${common[@]}" -O0 -c "$root/upstream/cpp/src/EC_CacheGI.cpp" \
   -o "$build/EC_CacheGI.o"
+g++ "${common[@]}" -O0 -c "$root/upstream/cpp/src/EC_Cache.cpp" \
+  -o "$build/EC_Cache.o"
 g++ "${common[@]}" -O0 -c "$root/upstream/cpp/runtime/runtime.cpp" \
   -o "$build/runtime.o"
 g++ "${common[@]}" -O0 "$root/tests/test_e2e5_original_graphbuf.cpp" \
@@ -52,7 +54,7 @@ g++ "${common[@]}" -O0 "$root/tests/test_e2e5_original_graphbuf.cpp" \
   "$build/EC_Struct.o" "$build/runtime.o" "${link[@]}" -o "$build/graphbuf"
 g++ "${common[@]}" -O0 -DE2E5_ORIGINAL_CACHEGI \
   "$root/tests/test_e2e5_original_graphbuf.cpp" \
-  "$build/EC_CacheGI.o" "$build/EC_Str.o" "$build/GR_GraphBuf.o" \
+  "$build/EC_CacheGI.o" "$build/EC_Cache.o" "$build/EC_Str.o" "$build/GR_GraphBuf.o" \
   "$build/GR_gi.o" "$build/EC_Buf.o" "$build/EC_Struct.o" \
   "$build/runtime.o" "${link[@]}" -o "$build/cachegi"
 python3 "$root/tools/e2e5_gamesettings_rescale.py" "${source_args[@]}" \
@@ -75,6 +77,8 @@ g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/src/EC_Str.cpp" \
   -o "$build/EC_Str_sanitized.o"
 g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/src/EC_CacheGI.cpp" \
   -o "$build/EC_CacheGI_sanitized.o"
+g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/src/EC_Cache.cpp" \
+  -o "$build/EC_Cache_sanitized.o"
 g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/runtime/runtime.cpp" \
   -o "$build/runtime_sanitized.o"
 g++ "${common[@]}" "${san[@]}" "$root/tests/test_e2e5_original_graphbuf.cpp" \
@@ -84,7 +88,8 @@ g++ "${common[@]}" "${san[@]}" "$root/tests/test_e2e5_original_graphbuf.cpp" \
   "${link[@]}" -o "$build/graphbuf-sanitized"
 g++ "${common[@]}" "${san[@]}" -DE2E5_ORIGINAL_CACHEGI \
   "$root/tests/test_e2e5_original_graphbuf.cpp" \
-  "$build/EC_CacheGI_sanitized.o" "$build/EC_Str_sanitized.o" \
+  "$build/EC_CacheGI_sanitized.o" "$build/EC_Cache_sanitized.o" \
+  "$build/EC_Str_sanitized.o" \
   "$build/GR_GraphBuf_sanitized.o" "$build/GR_gi_sanitized.o" \
   "$build/EC_Buf_sanitized.o" "$build/EC_Struct_sanitized.o" \
   "$build/runtime_sanitized.o" "${link[@]}" -o "$build/cachegi-sanitized"

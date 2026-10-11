@@ -167,7 +167,8 @@ def run(game_root: Path | None, library: Path, target_width: int, target_height:
                 if not re.fullmatch(
                     rf"original_cachegi=PASS bytes={packed_bytes} "
                     rf"fnv64={original_packed_hash} "
-                    r"log_start=PASS log_done=PASS lifecycle=PASS",
+                    r"original_cachegi_load=PASS log_start=PASS "
+                    r"log_done=PASS lifecycle=PASS",
                     cachegi_result):
                     raise ValueError(f"original CacheGI output is incomplete: {cachegi_result}")
     level = "SYNTHETIC" if game_root is None else "RESOURCE"
@@ -189,6 +190,7 @@ def run(game_root: Path | None, library: Path, target_width: int, target_height:
                                               original_rescale_hash == fp(result)["fnv64"] and
                                               original_packed_hash == fp(packed_result)["fnv64"]),
             "original_cachegi_executed": cachegi_result is not None,
+            "original_cachegi_load_executed": cachegi_result is not None,
             "original_cachegi_output": cachegi_result,
             "original_graphbuf_output": original_result}
 
