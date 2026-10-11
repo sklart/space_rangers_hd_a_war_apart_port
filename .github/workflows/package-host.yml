@@ -84,6 +84,8 @@ jobs:
         run: make -C port/switch host-e2e4-save-replace-test
       - name: E2E-4 PCM mixer
         run: make -C port/switch host-e2e4-audio-mixer-test
+      - name: E2E-4 log analyzer contract
+        run: python3 tools/e2e4_log_analyzer.py --self-test
       - name: Validate E2E startup command line
         run: make -C port/switch host-e2e-command-line-test
       - name: Validate E2E install language search
