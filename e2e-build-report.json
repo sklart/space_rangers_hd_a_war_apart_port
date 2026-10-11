@@ -20,7 +20,6 @@
   "windows_only_apis_encountered": [
     "advapi32.dll",
     "avifil32.dll",
-    "d3d9.dll",
     "dsound.dll",
     "gdi32.dll",
     "gdiplus.dll",
@@ -35,8 +34,7 @@
     "user32.dll",
     "vorbisfile.dll",
     "winmm.dll",
-    "xvidcore.dll",
-    "zlib.dll"
+    "xvidcore.dll"
   ],
   "portable_implementations_used": [
     "aft_font",
@@ -133,7 +131,7 @@
   "required_stubs": [],
   "arm64_link": "PASS",
   "first_failure": null,
-  "build_git": "04231c73cdf83f99d5a796423a6acf1ccb388d55",
+  "build_git": "580a1b0667e908ecf0f76a66ddb93347ae50e3fd",
   "build_dirty": false,
   "source_overrides": [
     "GI_MessageLoop.cpp",
@@ -153,6 +151,7 @@
     "sysutils_imports_portable.cpp",
     "windows_imports_portable.cpp"
   ],
+  "game_compile_optimization": "-O2 -fno-strict-aliasing",
   "win32_surface": {
     "manifest_sha256": "E045A0B6780D35621E68A0CFB586624D1C9FA646CD474D2E0D097CD36523F96A",
     "imports": 254,
@@ -168,8 +167,8 @@
   },
   "nro": {
     "path": "port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E.nro",
-    "bytes": 18909488,
-    "sha256": "71AAAA9A3394160CBFFEA0257C63309A745B591A937D5975DE67D6EAAE8D7D05",
+    "bytes": 16021808,
+    "sha256": "5E1937C2B94B00D62092126DBC54C626FC6B644E6BA3984C06F80540DA6C082F",
     "status": "SOFTWARE AUDIT PASS; hardware not tested"
   }
 }
