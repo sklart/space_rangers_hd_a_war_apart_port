@@ -19,9 +19,10 @@ struct Result {
 // Reader receives a scratch pointer and a length no larger than its capacity.
 // A negative result is an actual decoder failure, not end of stream.
 template <class Reader>
-Result ReadBlocks(void* output, int wanted, Reader&& reader) {
+Result ReadBlocks(void* output, int wanted, Reader&& reader, int frame_bytes = kFrameBytes) {
     Result result;
-    if (output == nullptr || wanted < 0 || wanted % kFrameBytes != 0) {
+    if (output == nullptr || wanted < 0 || frame_bytes <= 0 ||
+        kScratchBytes % frame_bytes != 0 || wanted % frame_bytes != 0) {
         result.error = -1;
         return result;
     }
@@ -37,7 +38,7 @@ Result ReadBlocks(void* output, int wanted, Reader&& reader) {
             result.end_of_stream = true;
             break;
         }
-        if (count > ask || count % kFrameBytes != 0) {
+        if (count > ask || count % frame_bytes != 0) {
             result.error = -1;
             break;
         }

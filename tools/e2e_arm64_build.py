@@ -166,7 +166,7 @@ def main() -> int:
     build_id = build_git[:7] + ("-dirty" if dirty_sources else "")
     report["source_overrides"] = sorted([*FUNCTIONS, "Rangers.cpp", "Globals.cpp",
                                           "GI_MessageLoop.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp",
-                                          "aSaveLoad.cpp", "program.cpp"])
+                                          "aSaveLoad.cpp", "aScript.cpp", "program.cpp"])
     # These were created for the old diagnostic slice. They define symbols
     # already present in the complete original units and cannot be linked
     # alongside them; their replacement behavior must move behind original APIs.
@@ -311,7 +311,8 @@ def main() -> int:
         "-Wl,--gc-sections", "-L" + native_path(DEVKITPRO / "libnx/lib"),
         "-L" + native_path(PORTLIBS / "lib"),
         native_path(okgf_library), native_path(okgf_softfloat),
-        "-lpng", "-lz", "-ljpeg", "-lm", "-lSDL2", "-lEGL",
+        "-lpng", "-lz", "-ljpeg", "-lvorbisfile", "-lvorbis", "-logg",
+        "-lm", "-lSDL2", "-lEGL",
         "-lglapi", "-ldrm_nouveau", "-lnx", "-lpthread", "-o", native_path(elf)])
     if code:
         report["first_failure"] = {"phase": "linker", "exact_error": output}

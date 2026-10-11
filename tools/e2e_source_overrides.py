@@ -39,6 +39,9 @@ FUNCTIONS: dict[str, dict[str, str]] = {
         SourceBuffer->SetPosition(static_cast<std::int32_t>(wave.next_position));'''
     },
     "VorbisFile.cpp": {
+        "void LoadVorbisLibrary()": '''
+        VorbisLoaded = true;
+        GR_Main::AppendLogLineThreadSafe("[AUDIO] native libvorbisfile ready"_a);''',
         "std::uint32_t ReadVorbisSource(void* Buffer, std::uint32_t Size, std::uint32_t Count, void* Source)": '''
         if (Buffer == nullptr || Source == nullptr || Size == 0 || Count == 0 ||
             Size > static_cast<std::uint32_t>(INT32_MAX)) return 0;
@@ -47,6 +50,32 @@ FUNCTIONS: dict[str, dict[str, str]] = {
         auto* stream = static_cast<EC_FileStream::TFileStreamEC*>(Source);
         const auto bytes = stream->Read(Buffer, static_cast<std::int32_t>(elements * Size));
         return bytes > 0 ? static_cast<std::uint32_t>(bytes) / Size : 0;''',
+        "std::int32_t PAS_STDCALL OpenVorbisStream(TOggWorker* Decoder, DirectSound::TSoundWaveFormat& Format, EC_FileStream::TFileStreamEC*& Stream)": '''
+        if (Decoder == nullptr || Stream == nullptr) {
+            pas::raise(pas::make_exception<pas::Exception>("Vorbis stream missing"_a));
+        }
+        pas::critical_enter(pas::load_unaligned<pas::CriticalSection*>(Decoder->Lock));
+        pas::ScopeExit unlock = [&]() noexcept {
+            pas::critical_leave(pas::load_unaligned<pas::CriticalSection*>(Decoder->Lock));
+        };
+        CloseVorbisStream(Decoder);
+        const auto opened = srhd_awa::platform::e2e4_native_vorbis::Open(
+            Stream, &ReadNativeVorbisSource);
+        if (!opened) {
+            GR_Main::AppendLogLineThreadSafe("[AUDIO] Vorbis open failed"_a);
+            pas::raise(pas::make_exception<pas::Exception>("Error open audiofile."_a));
+        }
+        StoreNativeVorbis(Decoder, opened.decoder);
+        Format.FormatTag = MMSystemSdk::WAVE_FORMAT_PCM;
+        Format.Channels = static_cast<std::uint16_t>(opened.channels);
+        Format.BitsPerSample = 16;
+        Format.ExtraSize = 0;
+        Format.SamplesPerSecond = opened.rate;
+        Format.BlockAlign = static_cast<std::uint16_t>(opened.channels * 2);
+        Format.AverageBytesPerSecond = opened.rate * Format.BlockAlign;
+        Decoder->Bitstream = 0;
+        GR_Main::AppendLogLineThreadSafe("[AUDIO] music status=decoding"_a);
+        return 1;''',
         "std::int32_t PAS_STDCALL ReadVorbisSamples(TOggWorker* Decoder, void* Buffer, std::int32_t& ByteCount)": '''
         const int requested = ByteCount;
         ByteCount = 0;
@@ -55,17 +84,72 @@ FUNCTIONS: dict[str, dict[str, str]] = {
         pas::ScopeExit unlock = [&]() noexcept {
             pas::critical_leave(pas::load_unaligned<pas::CriticalSection*>(Decoder->Lock));
         };
-        const auto read = srhd_awa::platform::e2e4_vorbis_read::ReadBlocks(
-            Buffer, requested, [&](std::uint8_t* scratch, int capacity) {
-                return VorbisFile::VorbisRead(&Decoder->VorbisState, scratch, capacity,
-                    VorbisLittleEndian, VorbisOutputSampleBytes, VorbisSignedSamples,
-                    Decoder->Bitstream);
-            });
+        const auto read = srhd_awa::platform::e2e4_native_vorbis::Read(
+            NativeVorbis(Decoder), Buffer, requested);
         if (read.error != 0) {
             GR_Main::AppendLogLineThreadSafe("[MUSIC] Vorbis decode error"_a);
         }
         ByteCount = read.bytes;
-        return read.bytes;'''
+        return read.bytes;''',
+        "void TOggWorker_Create(TOggWorker* Self, pas::CriticalSection*& SharedLock, std::uint8_t UseExternalLibrary)": '''
+        pas::object_create(Self);
+        Self->Lock = &SharedLock;
+        StoreNativeVorbis(Self, nullptr);
+        if (!UseExternalLibrary) {
+            pas::critical_enter(pas::load_unaligned<pas::CriticalSection*>(Self->Lock));
+            if (!VorbisLoaded) {
+                VorbisUseCount = 1;
+                VorbisFile::LoadVorbisLibrary();
+            } else {
+                ++VorbisUseCount;
+            }
+            pas::critical_leave(pas::load_unaligned<pas::CriticalSection*>(Self->Lock));
+        }
+        Self->ExternalLibrary = UseExternalLibrary;''',
+        "void TOggWorker_Destroy(TOggWorker* Self)": '''
+        pas::critical_enter(pas::load_unaligned<pas::CriticalSection*>(Self->Lock));
+        CloseVorbisStream(Self);
+        if (!Self->ExternalLibrary && VorbisUseCount > 0) --VorbisUseCount;
+        pas::critical_leave(pas::load_unaligned<pas::CriticalSection*>(Self->Lock));
+        pas::object_destroy(Self);'''
+    },
+    "GR_Music.cpp": {
+        "void TMusicUnit::Clear()": '''
+        ImmediateStop = false;
+        if (Buffer != nullptr) Buffer->Clear();
+        if (StartPlaybackEvent != 0) {
+            WindowsImports::CloseHandle(StartPlaybackEvent);
+            StartPlaybackEvent = 0u;
+        }
+        pas::critical_enter(DecodeLock);
+        if (Decoder != nullptr) VorbisFile::CloseVorbisStream(Decoder);
+        if (Stream != nullptr) {
+            pas::free(Stream);
+            Stream = nullptr;
+        }
+        pas::critical_leave(DecodeLock);''',
+        "void TMusicUnit_Destroy(TMusicUnit* Self)": '''
+        if (Self->IsRunning()) {
+            Self->RequestStop();
+            if (Self->StartPlaybackEvent != 0) {
+                WindowsSdk::SetEvent(Self->StartPlaybackEvent);
+            }
+            Self->WaitForIdle(WindowsSdk::INFINITE);
+        }
+        Self->Clear();
+        if (Self->Buffer != nullptr) {
+            GR_Main::SoundManager->RemoveBuffer(Self->Buffer);
+            Self->Buffer = nullptr;
+        }
+        if (Self->Decoder != nullptr) {
+            pas::free(Self->Decoder);
+            Self->Decoder = nullptr;
+        }
+        if (Self->DecodeLock != nullptr) {
+            pas::free(Self->DecodeLock);
+            Self->DecodeLock = nullptr;
+        }
+        EC_Thread::TThreadEC_Destroy(Self);'''
     },
     "aGalaxy.cpp": {
         "void XorStateBytes(std::uint8_t* Data, std::uint32_t Count, std::int32_t& Seed)": '''
@@ -178,7 +262,61 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     if source.name == "EC_CacheSound.cpp":
         text = '#include "e2e4_wav.hpp"\n#include <cstring>\n' + text
     if source.name == "VorbisFile.cpp":
-        text = '#include "e2e4_vorbis_read.hpp"\n#include <algorithm>\n#include <climits>\n' + text
+        native_helpers = '''namespace {
+    using NativeDecoder = srhd_awa::platform::e2e4_native_vorbis::Decoder;
+    static_assert(sizeof(NativeDecoder*) <= sizeof(TOggWorker::VorbisState));
+
+    NativeDecoder* NativeVorbis(TOggWorker* worker) {
+        NativeDecoder* native = nullptr;
+        std::memcpy(&native, &worker->VorbisState[0], sizeof(native));
+        return native;
+    }
+
+    void StoreNativeVorbis(TOggWorker* worker, NativeDecoder* native) {
+        std::memcpy(&worker->VorbisState[0], &native, sizeof(native));
+    }
+
+    std::size_t ReadNativeVorbisSource(void* output, std::size_t size,
+                                      std::size_t count, void* source) {
+        if (!output || !source || size == 0 || count == 0 || size > INT32_MAX)
+            return 0;
+        const std::size_t elements = std::min(count,
+            static_cast<std::size_t>(INT32_MAX) / size);
+        const std::size_t wanted = elements * size;
+        std::size_t total = 0;
+        auto* stream = static_cast<EC_FileStream::TFileStreamEC*>(source);
+        while (total < wanted) {
+            const auto bytes = stream->Read(static_cast<std::uint8_t*>(output) + total,
+                static_cast<std::int32_t>(wanted - total));
+            if (bytes < 0) throw std::runtime_error("Vorbis source read failed");
+            if (bytes == 0) break;
+            total += static_cast<std::size_t>(bytes);
+        }
+        return total / size;
+    }
+}
+
+void CloseVorbisStream(TOggWorker* worker) {
+    if (!worker) return;
+    auto* native = NativeVorbis(worker);
+    StoreNativeVorbis(worker, nullptr);
+    srhd_awa::platform::e2e4_native_vorbis::Close(native);
+}
+
+'''
+        marker = "namespace VorbisFile {\n"
+        if text.count(marker) != 1:
+            raise RuntimeError("native Vorbis namespace boundary changed")
+        text = text.replace(marker, marker + native_helpers, 1)
+        text = ('#include "e2e4_native_vorbis.hpp"\n#include <algorithm>\n'
+                '#include <climits>\n#include <cstring>\n#include <stdexcept>\n' + text)
+    if source.name == "GR_Music.cpp":
+        marker = "namespace GR_Music {\n"
+        if text.count(marker) != 1:
+            raise RuntimeError("music namespace boundary changed")
+        text = text.replace(marker,
+            'namespace VorbisFile { void CloseVorbisStream(TOggWorker* worker); }\n'
+            + marker, 1)
     if source.name == "aScript.cpp":
         key = "        std::uint32_t Key = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Block));"
         entry_key = "static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Entry->Block))"

@@ -70,11 +70,18 @@ Thus it is a tested core, not a working Audio ON game mode.
 The installed Switch portlibs contain `vorbis/vorbisfile.h` and
 `libvorbisfile.a` (checked locally 2026-10-11). The original 720-byte embedded
 Vorbis state and 32-bit `read_func` signature are not valid assumptions for
-the ARM64 C ABI. The implementation needs the native `OggVorbis_File` type
-from those headers, with callback `size_t` arguments and correct element-count
-return semantics. The original 4096-byte scratch buffer is also vulnerable to
-an oversized `ov_read` request. Vorbis assets are identified by content, not
-the `.dat` suffix; game assets are not included in this repository.
+the ARM64 C ABI. `e2e4_native_vorbis.cpp` now owns a genuine `OggVorbis_File`
+from those headers. A pointer to the separately allocated decoder is stored
+unaligned in the original worker's opaque byte array; the byte array itself
+is never passed to libvorbisfile. The native callback uses `size_t` arguments
+and complete-element return semantics. Decoded reads remain bounded to 4096
+bytes, and each track's actual channel count and sample rate are advertised
+to the original streaming buffer. The decoder is closed before its
+`EC_FileStream` is released. Chained logical streams that change format are
+rejected rather than played with the wrong PCM format. Ogg assets are
+identified by content, not the `.dat` suffix; game assets are not included
+in this repository. This fixes the decoder ABI but does not yet connect the
+original music output path to the SDL2 mixer.
 
 The requested FPC reference `platform/GameAudio.pas` could not be fetched in
 this environment at audit time. Its SDL2 buffer and notification behavior

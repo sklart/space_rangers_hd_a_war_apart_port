@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
+      - run: sudo apt-get update && sudo apt-get install -y libvorbis-dev
       - name: Asset-free audio and protected-state ASan/UBSan
         run: |
           set -euo pipefail
@@ -23,6 +24,14 @@ jobs:
               "tests/test_e2e4_${test}.cpp" -o "build/e2e4-sanitizers/${test}"
             "build/e2e4-sanitizers/${test}"
           done
+          g++ -std=c++20 -O1 -g -fno-omit-frame-pointer \
+            -fsanitize=address,undefined -Iport/switch/platform \
+            tests/test_e2e4_native_vorbis.cpp \
+            port/switch/platform/e2e4_native_vorbis.cpp \
+            $(pkg-config --cflags --libs vorbisfile) \
+            -o build/e2e4-sanitizers/native_vorbis
+          build/e2e4-sanitizers/native_vorbis \
+            tests/fixtures/e2e4_sine_22050_stereo.ogg
 
   e2e-full-arm64-link:
     runs-on: ubuntu-24.04
@@ -57,7 +66,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           submodules: recursive
-      - run: sudo apt-get update && sudo apt-get install -y zlib1g-dev libpng-dev libjpeg-dev cmake
+      - run: sudo apt-get update && sudo apt-get install -y zlib1g-dev libpng-dev libjpeg-dev libvorbis-dev cmake
       - name: Validate Switch NRO icon
         run: python3 tools/validate-switch-icon.py port/switch/assets/icon.jpg
       - name: Validate E2E game clock and Sleep
@@ -78,6 +87,8 @@ jobs:
         run: make -C port/switch host-e2e4-wav-test
       - name: E2E-4 bounded Vorbis PCM reads
         run: make -C port/switch host-e2e4-vorbis-read-test
+      - name: E2E-4 native Vorbis stream
+        run: make -C port/switch host-e2e4-native-vorbis-test
       - name: E2E-4 protected-state pointer ranges
         run: make -C port/switch host-e2e4-protected-state-test
       - name: E2E-4 save replacement failure paths

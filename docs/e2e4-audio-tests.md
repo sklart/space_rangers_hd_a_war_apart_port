@@ -17,16 +17,29 @@ negative decoder error and rejects oversized or partial-frame decoder returns.
 The disposable original `VorbisFile.cpp` now uses that helper and returns
 complete-element counts in `ReadVorbisSource`. The ARM64 object compiles.
 
+`tests/fixtures/e2e4_sine_22050_stereo.ogg` is a self-generated 0.3-second
+440-Hz tone (FFmpeg 9.0.2: `-f lavfi -i
+sine=frequency=440:duration=0.3:sample_rate=22050 -ac 2 -c:a libvorbis
+-q:a 1 -map_metadata -1`). Its SHA-256 is
+`C7C2ACFEFAD578E46FF5D3FF4EBF42BD5688E071076B659DA42152F650060CDD`.
+The native decoder test opens it through a complete-element memory callback,
+checks 22.05-kHz stereo output, nonzero decoded PCM, EOF, guard bytes,
+reopen, damaged input and source-read failure. The Switch decoder,
+`VorbisFile.cpp` override and `GR_Music.cpp` cleanup override compile as
+ARM64 objects. Linux CI runs the fixture test under ASan/UBSan and in the
+host regression job.
+
 Local 2026-10-11: both host executables passed with MSYS2 GCC; the generated
 `EC_CacheSound.cpp` and `VorbisFile.cpp` compiled with devkitA64 GCC 16.1.0.
 The installed MSYS2 GCC lacks `libasan` and `libubsan`, so sanitizer execution
 was not available in that environment. The original `TOggWorker::VorbisState`
-is still a 720-byte opaque Win32 buffer; therefore actual ARM64 Vorbis decode,
-streaming, music transitions and audible output are **NOT VERIFIED**.
+remains a 720-byte opaque field but holds only a native decoder pointer on
+Switch. Full game streaming, music transitions and audible output are
+**NOT VERIFIED**.
 
 The CI host regression job includes both new tests. Audio ON must remain
-unclaimed until the native Vorbis state, mixer integration, DirectSound-compatible
-buffer semantics and event/timer path are implemented and exercised together.
+unclaimed until the native decoder, mixer integration, DirectSound-compatible
+buffer semantics and event/timer path are exercised together.
 
 `host-e2e4-audio-mixer-test` verifies numerical output for 8-bit mono and
 16-bit stereo, 22.05→44.1 kHz resampling, 48→44.1 kHz playback, simultaneous

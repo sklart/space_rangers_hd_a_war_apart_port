@@ -49,4 +49,11 @@ int main() {
         [](std::uint8_t*, int) { return 0; }).error != 0);
     assert(ReadBlocks(destination.data() + 8, 3,
         [](std::uint8_t*, int) { return 0; }).error != 0);
+    const auto mono = ReadBlocks(destination.data() + 8, 4,
+        [](std::uint8_t* scratch, int capacity) {
+            assert(capacity == 4);
+            scratch[0] = 1; scratch[1] = 2; scratch[2] = 3; scratch[3] = 4;
+            return 4;
+        }, 2);
+    assert(mono.bytes == 4 && mono.error == 0);
 }

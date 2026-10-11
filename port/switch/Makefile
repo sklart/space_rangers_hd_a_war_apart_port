@@ -57,6 +57,12 @@ host-e2e4-vorbis-read-test:
 	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e4_vorbis_read.cpp -o build/e2e4/test_vorbis_read
 	build/e2e4/test_vorbis_read
 
+.PHONY: host-e2e4-native-vorbis-test
+host-e2e4-native-vorbis-test:
+	@mkdir -p build/e2e4
+	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e4_native_vorbis.cpp platform/e2e4_native_vorbis.cpp $$(pkg-config --cflags --libs vorbisfile) -o build/e2e4/test_native_vorbis
+	build/e2e4/test_native_vorbis ../../tests/fixtures/e2e4_sine_22050_stereo.ogg
+
 .PHONY: host-e2e4-protected-state-test
 host-e2e4-protected-state-test:
 	@mkdir -p build/e2e4
