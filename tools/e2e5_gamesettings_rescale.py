@@ -12,24 +12,34 @@ import ctypes
 import json
 import mmap
 from pathlib import Path
+import subprocess
+import tempfile
 
 from e2e5_resource_validator import decode_format0
 from e2e5_formgameset2_compare import RESOURCE, entries, payload
 from probe_gai_release import fp
 
 
-def run(game_root: Path, library: Path, target_width: int, target_height: int) -> dict:
+def run(game_root: Path | None, library: Path, target_width: int, target_height: int,
+        original_graphbuf: Path | None = None) -> dict:
     if (target_width <= 0 or target_height <= 0 or
             target_width > 8192 or target_height > 8192 or
             target_width * target_height * 4 > 128 * 1024 * 1024):
         raise ValueError("target dimensions are invalid or oversized")
-    package = game_root / "DATA" / "forms.pkg"
-    with package.open("rb") as stream, mmap.mmap(stream.fileno(), 0, access=mmap.ACCESS_READ) as blob:
-        matches = [row for row in entries(blob) if row[0].casefold() == RESOURCE]
-        if len(matches) != 1:
-            raise ValueError(f"expected one {RESOURCE}, found {len(matches)}")
-        encoded = payload(blob, matches[0])
-    image, decoded = decode_format0(encoded)
+    if game_root is None:
+        image = {"width": 1920, "height": 1200}
+        decoded = bytes(channel for y in range(1200) for x in range(1920)
+                        for channel in (x & 255, y & 255, (x + y) & 255, 255))
+        resource = "SYNTHETIC:1920x1200-gradient"
+    else:
+        package = game_root / "DATA" / "forms.pkg"
+        with package.open("rb") as stream, mmap.mmap(stream.fileno(), 0, access=mmap.ACCESS_READ) as blob:
+            matches = [row for row in entries(blob) if row[0].casefold() == RESOURCE]
+            if len(matches) != 1:
+                raise ValueError(f"expected one {RESOURCE}, found {len(matches)}")
+            encoded = payload(blob, matches[0])
+        image, decoded = decode_format0(encoded)
+        resource = matches[0][0]
     source_width, source_height = image["width"], image["height"]
     # The original RescaleWithAspect uses centered CropToAspect=1 for this key.
     crop_width = source_width
@@ -65,22 +75,74 @@ def run(game_root: Path, library: Path, target_width: int, target_height: int) -
         raise ValueError("OKGF left destination unchanged")
     if not any(result) or len(set(result[:min(4096, len(result))])) < 2:
         raise ValueError("OKGF output is blank or constant")
-    return {"status": "PASS — RESOURCE RESCALE ONLY", "resource": matches[0][0],
+    # CreateFromGraphBuf(mode=1) swaps BGRA to RGBA, then asks OKGF to
+    # convert the four-byte source into RGB565. Check every pixel against an
+    # independent formula before treating the repack stage as covered.
+    rgba = bytearray(result)
+    for index in range(0, len(rgba), 4):
+        rgba[index], rgba[index + 2] = rgba[index + 2], rgba[index]
+    rgba_source = ctypes.create_string_buffer(bytes(rgba))
+    packed_bytes = target_width * target_height * 2
+    packed = ctypes.create_string_buffer(packed_bytes + guard * 2)
+    ctypes.memset(packed, 0xa5, len(packed))
+    convert = lib.OKGF_Convert_8888to565
+    convert.argtypes = [ctypes.c_void_p, ctypes.c_int32, ctypes.c_int32,
+                        ctypes.c_int32, ctypes.c_void_p, ctypes.c_int32,
+                        ctypes.c_int32, ctypes.c_int32, ctypes.c_int32,
+                        ctypes.c_int32]
+    convert.restype = None
+    convert(ctypes.c_void_p(ctypes.addressof(packed) + guard), target_width * 2,
+            0, 0, rgba_source, target_width * 4, 0, 0,
+            target_width, target_height)
+    packed_result = packed.raw[guard:guard + packed_bytes]
+    if packed.raw[:guard] != b"\xa5" * guard or packed.raw[-guard:] != b"\xa5" * guard:
+        raise ValueError("OKGF RGB565 conversion wrote outside destination bounds")
+    expected = bytearray(packed_bytes)
+    for index in range(target_width * target_height):
+        at = index * 4
+        value = ((rgba[at] & 248) << 8) | ((rgba[at + 1] & 252) << 3) | (rgba[at + 2] >> 3)
+        expected[index * 2] = value & 255
+        expected[index * 2 + 1] = value >> 8
+    if packed_result != expected:
+        raise ValueError("OKGF RGB565 output differs from the independent pixel oracle")
+    original_result = None
+    if original_graphbuf is not None:
+        if (target_width, target_height) != (1280, 720):
+            raise ValueError("original GraphBuf fixture currently requires 1280x720")
+        with tempfile.TemporaryDirectory(prefix="e2e5-graphbuf-") as directory:
+            raw_path = Path(directory) / "background.bgra"
+            raw_path.write_bytes(decoded)
+            executed = subprocess.run([str(original_graphbuf.resolve()), str(raw_path),
+                                       fp(result)["fnv64"]], capture_output=True,
+                                      text=True, timeout=120, check=False)
+        if executed.returncode:
+            raise ValueError(f"original GraphBuf exit={executed.returncode}: "
+                             f"{executed.stdout} {executed.stderr}")
+        original_result = executed.stdout.strip()
+    level = "SYNTHETIC" if game_root is None else "RESOURCE"
+    return {"status": f"PASS — {level} RESCALE AND REPACK ONLY", "resource": resource,
             "source": [source_width, source_height],
             "crop": [left, top, crop_width, crop_height],
             "target": [target_width, target_height],
             "output_bytes": output_bytes, "fnv64": fp(result)["fnv64"],
-            "original_game_executed": False, "original_graphbuf_executed": False}
+            "rgb565_bytes": packed_bytes, "rgb565_fnv64": fp(packed_result)["fnv64"],
+            "original_game_executed": False,
+            "original_graphbuf_executed": original_result is not None,
+            "original_graphbuf_output": original_result}
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--game-root", required=True, type=Path)
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument("--game-root", type=Path)
+    source.add_argument("--synthetic", action="store_true")
     parser.add_argument("--okgf-lib", required=True, type=Path)
     parser.add_argument("--width", type=int, default=1280)
     parser.add_argument("--height", type=int, default=720)
+    parser.add_argument("--original-graphbuf", type=Path)
     args = parser.parse_args()
-    print(json.dumps(run(args.game_root, args.okgf_lib, args.width, args.height),
+    print(json.dumps(run(args.game_root, args.okgf_lib, args.width, args.height,
+                         args.original_graphbuf),
                      ensure_ascii=False, indent=2))
     return 0
 
