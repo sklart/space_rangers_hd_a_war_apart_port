@@ -17,6 +17,7 @@ from e2e4_audio_on_overrides import AUDIO_ON_FUNCTIONS
 from e2e_runtime_overrides import prepare_runtime_overlay
 from e2e4_script_width_overrides import prepare_script_source_overlay
 from e2e5_ui_width_overrides import apply as apply_ui_width_overrides
+from e2e5_cachegi_trace import apply as apply_cachegi_trace
 
 ROOT = Path(__file__).resolve().parents[1]
 SWITCH = ROOT / "port/switch"
@@ -353,6 +354,8 @@ def main() -> int:
         if script_source_root and category == "upstream" and source.parent == GAME / "src":
             current = compile_source.read_text(encoding="utf-8")
             repaired = apply_ui_width_overrides(source.name, current)
+            if args.experimental_e2e4_combined and source.name == "EC_CacheGI.cpp":
+                repaired = apply_cachegi_trace(repaired)
             if repaired != current:
                 ui_source = BUILD / "generated-ui" / source.name
                 ui_source.parent.mkdir(parents=True, exist_ok=True)

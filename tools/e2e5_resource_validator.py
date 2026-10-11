@@ -33,6 +33,34 @@ def screen_name(path: str) -> str | None:
     return parts[1] if len(parts) > 1 and parts[0].casefold() == "ml" else None
 
 
+def decode_format0(source: bytes) -> tuple[dict, bytes]:
+    """Independent RGB565/BGRA decoder for the original GI Format-0 layout."""
+    info = header(source)
+    if info["format"] != 0 or info["planes"] < 1:
+        raise ValueError("not GI Format-0")
+    left, top, right, bottom = info["bounds"]
+    width, height = right - left, bottom - top
+    count = width * height
+    if count <= 0 or count > 64 * 1024 * 1024:
+        raise ValueError("GI Format-0 pixel limit")
+    offset, size = struct.unpack_from("<ii", source, 64)
+    alpha = int(info["masks"][3], 16) != 0
+    needed = count * (4 if alpha else 2)
+    if offset <= 0 or size < needed or offset + needed > len(source):
+        raise ValueError("GI Format-0 plane range")
+    if alpha:
+        return {"width": width, "height": height, "bytes_per_pixel": 4}, source[offset:offset + needed]
+    pixels = bytearray(count * 4)
+    for index in range(count):
+        value = struct.unpack_from("<H", source, offset + index * 2)[0]
+        at = index * 4
+        pixels[at] = (value << 3) & 0xf8
+        pixels[at + 1] = (value >> 3) & 0xfc
+        pixels[at + 2] = (value >> 8) & 0xf8
+        pixels[at + 3] = 255
+    return {"width": width, "height": height, "bytes_per_pixel": 4}, bytes(pixels)
+
+
 def validate(root: Path, *, max_decode: int = 32) -> dict:
     report: dict = {"schema": 1, "level": "RESOURCE BACKED DATA VALIDATION",
                     "game_root": str(root), "game_executed": False,
@@ -132,6 +160,10 @@ def validate(root: Path, *, max_decode: int = 32) -> dict:
                                 image, pixels = decode2(source)
                                 row["dimensions"] = [image["decoded"]["width"], image["decoded"]["height"]]
                                 row["pixels_sha256"] = sha(pixels)
+                            elif info["format"] == 0:
+                                image, pixels = decode_format0(source)
+                                row["dimensions"] = [image["width"], image["height"]]
+                                row["pixels_sha256"] = sha(pixels)
                         else:
                             if not source.startswith(b"gai\x00"):
                                 row["image_status"] = "NON_IMAGE_PAYLOAD_WITH_GAI_SUFFIX"
@@ -148,9 +180,10 @@ def validate(root: Path, *, max_decode: int = 32) -> dict:
                                         row["first_frame_status"] = f"UNSUPPORTED BY ORACLE: {error}"
                                     else:
                                         row["first_frame_format"] = first_info["format"]
-                                        if first_info["format"] == 2:
-                                            image, pixels = decode2(first)
-                                            row["first_frame_dimensions"] = [image["decoded"]["width"], image["decoded"]["height"]]
+                                        if first_info["format"] in (0, 2):
+                                            image, pixels = decode_format0(first) if first_info["format"] == 0 else decode2(first)
+                                            dimensions = (image["width"], image["height"]) if first_info["format"] == 0 else (image["decoded"]["width"], image["decoded"]["height"])
+                                            row["first_frame_dimensions"] = list(dimensions)
                                             row["first_frame_pixels_sha256"] = sha(pixels)
                         report["decoded_images"].append(row)
                     except (ValueError, IndexError, OverflowError, OSError, struct.error) as error:
@@ -172,9 +205,9 @@ def validate(root: Path, *, max_decode: int = 32) -> dict:
     report["gi_gai_entries_by_format"] = dict(sorted(format_counts.items()))
     report["decode_limit"] = max_decode
     report["unsupported_oracle_images"] = sum(
-        row.get("format") not in (None, 2) or "first_frame_status" in row or
+        row.get("format") not in (None, 0, 2) or "first_frame_status" in row or
         "image_status" in row or
-        row.get("first_frame_format") not in (None, 2)
+        row.get("first_frame_format") not in (None, 0, 2)
         for row in report["decoded_images"])
     report["status"] = ("FAIL" if report["errors"] else
                         "PARTIAL — RESOURCE DATA; SOME FORMATS UNVERIFIED" if report["unsupported_oracle_images"] else

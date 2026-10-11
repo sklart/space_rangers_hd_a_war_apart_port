@@ -6,6 +6,7 @@ import importlib.util
 import json
 from pathlib import Path
 import re
+import struct
 import sys
 import tempfile
 import unittest
@@ -25,6 +26,26 @@ def module(name: str):
 
 
 class E2E5ToolTests(unittest.TestCase):
+    def test_independent_format0_rgb565_decoder(self):
+        validator = module("e2e5_resource_validator")
+        source = bytearray(98)
+        source[:2] = b"gi"
+        struct.pack_into("<i4i4i4i", source, 4, 1, 0, 0, 1, 1,
+                         0xf800, 0x07e0, 0x001f, 0, 0, 1, 0, 0)
+        struct.pack_into("<ii", source, 64, 96, 2)
+        struct.pack_into("<H", source, 96, 0xf800)
+        meta, pixels = validator.decode_format0(bytes(source))
+        self.assertEqual((meta["width"], meta["height"]), (1, 1))
+        self.assertEqual(pixels, bytes((0, 0, 248, 255)))
+
+    def test_gamesettings_rescale_trace_is_scoped_to_disposable_source(self):
+        trace = module("e2e5_cachegi_trace")
+        source = (ROOT / "upstream/cpp/src/EC_CacheGI.cpp").read_text(encoding="utf-8")
+        changed = trace.apply(source)
+        self.assertEqual(changed.count("[E2E5] GameSettings background "), 6)
+        self.assertIn("GameSettings background scale_done", changed)
+        self.assertEqual(source.count("[E2E5] GameSettings background "), 0)
+
     def test_resource_missing_assets_is_not_pass(self):
         validator = module("e2e5_resource_validator")
         with tempfile.TemporaryDirectory() as directory:
