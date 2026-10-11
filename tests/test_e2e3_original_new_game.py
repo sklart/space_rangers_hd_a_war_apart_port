@@ -93,13 +93,18 @@ struct TMessageLoopGI {
   TObjectGI* HoveredControl{};
   std::uint32_t TimerTick{100}, LastObservedTimerTick{99};
   std::uint8_t ConsumeTimerTickChange();
+  void ExecuteUiCode(void*, std::uint32_t) {}
 };
 struct TObjectGI {
   TMessageLoopGI* MessageLoop{};
+  TObjectGI* FirstChild{}, *NextSibling{};
+  void* OnKeyDownCode{};
+  std::function<void(TObjectGI*, std::uint32_t)> KeyDownCallback;
   bool hit{true}, occluded{};
   void ProcessLeftButtonDown(std::uint32_t, WindowsSdk::TPoint) {}
   void ProcessLeftButtonUp(std::uint32_t, WindowsSdk::TPoint) {}
   bool IsOccludedAtPoint(WindowsSdk::TPoint) { return occluded; }
+  void BroadcastKeyDown(std::uint32_t);
 };
 }
 namespace pas { template<class T> bool assigned(const T& value) { return bool(value); } }
@@ -115,9 +120,9 @@ inline bool IsVirtualKeyDown(std::uint32_t key) {
 inline bool IsInstallFeatureEnabled(std::u16string_view) { return false; }
 }
 namespace GI_GraphButton {
-enum Kind { gbkNormal, gbkFix, gbkDisable, gbkFixDisable };
+enum KindType { gbkNormal, gbkFix, gbkDisable, gbkFixDisable };
 struct TGraphButtonGI : GI_MessageLoop::TObjectGI {
-  Kind Kind{gbkNormal};
+  KindType Kind{gbkNormal};
   bool Disabled{}, Down{}, UpOnlyDown{};
   std::u16string ClickSound;
   std::function<void(TGraphButtonGI*)> DownCallback, UpCallback;
@@ -169,6 +174,9 @@ struct TfMainForm {
     body += "\nnamespace GI_MessageLoop {\n" + method(loop_source,
                    "std::uint8_t TMessageLoopGI::ConsumeTimerTickChange()",
                    "// Starts at RootUiObject") + "\n}\n"
+    body += "\nnamespace GI_MessageLoop {\n" + method(loop_source,
+                   "void TObjectGI::BroadcastKeyDown(std::uint32_t Key)",
+                   "void TObjectGI::BroadcastKeyUp") + "\n}\n"
     body += "\nnamespace GI_GraphButton {\n" + method(button_source,
                    "void TGraphButtonGI::ProcessLeftButtonDown(std::uint32_t KeyState, WindowsSdk::TPoint Point)",
                    "void TGraphButtonGI::ProcessLeftButtonUp")
@@ -241,12 +249,19 @@ int main() {
   button.ProcessLeftButtonUp(0, point);
   assert(form.close_count == 4);
   button.Down = false;
-  // The original main-panel keyboard handler uses the same NewGameClicked.
+  // The original tree broadcast reaches the MainPanel callback without focus.
+  GI_MessageLoop::TObjectGI root, main_panel;
+  root.MessageLoop = &loop;
+  root.FirstChild = &main_panel;
+  main_panel.MessageLoop = &loop;
+  main_panel.KeyDownCallback = [&](GI_MessageLoop::TObjectGI* sender, std::uint32_t key) {
+    form.MainPanelKeyDown(sender, key);
+  };
   GR_Main::control = true;
-  form.MainPanelKeyDown(nullptr, WindowsSdk::VK_RETURN);
+  root.BroadcastKeyDown(WindowsSdk::VK_RETURN);
   assert(form.close_count == 4);
   GR_Main::control = false;
-  form.MainPanelKeyDown(nullptr, WindowsSdk::VK_RETURN);
+  root.BroadcastKeyDown(WindowsSdk::VK_RETURN);
   assert(form.close_count == 5 && GlobalsV::RequestedScreenId == GlobalsV::screenNewGame);
 }
 '''
@@ -258,6 +273,63 @@ int main() {
                         "-o", str(output)], check=True)
         subprocess.run([str(output)], check=True)
     print("original New Game methods with disposable Switch button fix: PASS")
+
+    # Execute the original state-loop method with controlled screen objects.
+    # Resource construction remains a separate, unverified runtime boundary.
+    globals_source = (GAME / "Globals.cpp").read_text(encoding="utf-8")
+    assert "RegisteredScreens[GlobalsV::screenNewGame] = NewGameScreen;" in globals_source
+    assert 'NewGameScreen->InitializeFromConfig(GR_Main::UiStyleConfig, u"GameSettings"_wref.get(), true);' in globals_source
+    transition = r'''
+#include <cassert>
+#include <cstdint>
+namespace GR_Main { inline bool ExitScreenLoop = false; }
+namespace GlobalsV {
+inline constexpr int screenNone=0, screenMainMenu=1, screenNewGame=2,
+                     screenStarMap=3, screenFilm=4, screenArcadeBattle=5;
+inline int RequestedScreenId=screenMainMenu, CurrentScreenId=screenNone,
+           PreviousScreenId=screenNone;
+inline void* RegisteredScreens[3]{};
+}
+namespace GI_MessageLoop {
+struct TMessageLoopGI {
+  int runs{}, continuous_runs{};
+  bool menu{};
+  void Run() {
+    ++runs;
+    assert(GlobalsV::CurrentScreenId == (menu ? GlobalsV::screenMainMenu :
+                                         GlobalsV::screenNewGame));
+    if (menu) GlobalsV::RequestedScreenId = GlobalsV::screenNewGame;
+  }
+  void RunContinuous() { ++continuous_runs; }
+};
+}
+namespace Globals {
+'''
+    transition += method(globals_source, "void RunMainScreenStateLoop()",
+                         "// Exchanges the producer and playback films.")
+    transition += r'''
+}
+int main() {
+  GI_MessageLoop::TMessageLoopGI menu{}, settings{};
+  menu.menu = true;
+  GlobalsV::RegisteredScreens[GlobalsV::screenMainMenu] = &menu;
+  GlobalsV::RegisteredScreens[GlobalsV::screenNewGame] = &settings;
+  Globals::RunMainScreenStateLoop();
+  assert(menu.runs == 1 && settings.runs == 1);
+  assert(menu.continuous_runs == 0 && settings.continuous_runs == 0);
+  assert(GlobalsV::PreviousScreenId == GlobalsV::screenNewGame);
+  assert(GlobalsV::CurrentScreenId == GlobalsV::screenNone);
+  assert(GlobalsV::RequestedScreenId == GlobalsV::screenNone);
+}
+'''
+    with tempfile.TemporaryDirectory(prefix="e2e3-original-transition-") as temp:
+        source = Path(temp) / "test.cpp"
+        output = Path(temp) / ("test.exe" if os.name == "nt" else "test")
+        source.write_text(transition, encoding="utf-8")
+        subprocess.run([os.environ.get("CXX", "g++"), "-std=c++20", "-O0", str(source),
+                        "-o", str(output)], check=True)
+        subprocess.run([str(output)], check=True)
+    print("original main-menu to New Game state loop: PASS")
 
 
 if __name__ == "__main__":
