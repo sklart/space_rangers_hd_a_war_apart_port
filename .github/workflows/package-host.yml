@@ -103,7 +103,7 @@ jobs:
         with:
           submodules: recursive
       - run: sudo apt-get update && sudo apt-get install -y zlib1g-dev libpng-dev libjpeg-dev libvorbis-dev cmake
-      - name: Original GI decode, GraphBuf rescale, and GI repack with ASan/UBSan
+      - name: Original GI and buffer decode, rescale, repack with ASan/UBSan
         run: bash tools/e2e5_original_graphbuf_host.sh --synthetic
       - name: Validate Switch NRO icon
         run: python3 tools/validate-switch-icon.py port/switch/assets/icon.jpg

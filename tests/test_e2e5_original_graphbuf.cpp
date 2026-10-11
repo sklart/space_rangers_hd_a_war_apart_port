@@ -2,6 +2,7 @@
 // The small stubs are deliberately aborting on the D3D branch: the Switch
 // source override selects the software branch for this UI background.
 #include "layout/GR_GraphBuf.hpp"
+#include "types/EC_Buf.hpp"
 #include "types/GR_gi.hpp"
 #include "units/ClassesImports.hpp"
 #include "units/EC_Mem.hpp"
@@ -19,13 +20,6 @@
 #include <string>
 #include <vector>
 
-namespace pas {
-long double real_divide(long double left, long double right) { return left / right; }
-std::int64_t real_round(long double value) {
-  return static_cast<std::int64_t>(std::nearbyint(value));
-}
-}  // namespace pas
-
 namespace EC_Struct {
 void TObjectEx_Destroy(TObjectEx*) {}
 void TObjectEx::p_destroy() {}
@@ -34,6 +28,9 @@ void TObjectEx::p_destroy() {}
 namespace EC_Mem {
 void* AllocEC(std::int32_t bytes) { return bytes > 0 ? std::malloc(bytes) : nullptr; }
 void FreeEC(void* pointer) { std::free(pointer); }
+void* ReAllocREC(void* pointer, std::int32_t bytes) {
+  return bytes > 0 ? std::realloc(pointer, bytes) : nullptr;
+}
 }  // namespace EC_Mem
 
 namespace ClassesImports {
@@ -99,8 +96,11 @@ int main(int argc, char** argv) {
   if (!encoded_stream) return 5;
   std::vector<std::uint8_t> encoded(std::istreambuf_iterator<char>{encoded_stream}, {});
   if (encoded.size() < 96 || encoded.size() > 32u * 1024u * 1024u) return 13;
+  EC_Buf::TBufEC source_buffer{};
+  source_buffer.AddBytes(encoded.data(), static_cast<std::int32_t>(encoded.size()));
   GR_gi::TgiGR source{};
-  source.LoadRawGiBytes(encoded.data(), static_cast<std::int32_t>(encoded.size()));
+  source.LoadRawGiFromBuffer(&source_buffer);
+  source_buffer.Clear();
   GR_GraphBuf::TGraphBufGR graph{};
   graph.UseTexture = false;
   graph.UsesTextureStorage = false;
@@ -147,14 +147,24 @@ int main(int argc, char** argv) {
   std::uint64_t expected_packed{};
   try { expected_packed = std::stoull(argv[3], nullptr, 16); }
   catch (...) { return 10; }
+  if (packed_hash != expected_packed) return 11;
+  EC_Buf::TBufEC repacked_buffer{};
+  repacked_buffer.AddBytes(image.Data, image.DataSize);
+  image.ClearData();
+  if (repacked_buffer.DataSize != static_cast<std::int32_t>(96 + packed_bytes)) return 17;
+  const auto* buffered = static_cast<const std::uint8_t*>(repacked_buffer.Data) + 96;
+  std::uint64_t buffered_hash = 0xcbf29ce484222325ull;
+  for (std::size_t i = 0; i < packed_bytes; ++i)
+    buffered_hash = (buffered_hash ^ buffered[i]) * 0x100000001b3ull;
+  if (buffered_hash != packed_hash) return 18;
   std::printf("original_decode=PASS fnv64=%016llx "
               "original_graphbuf=PASS width=%d height=%d pitch=%d fnv64=%016llx "
-              "original_gi=PASS bytes=%zu fnv64=%016llx\n",
+              "original_gi=PASS bytes=%zu fnv64=%016llx buffer=PASS\n",
               static_cast<unsigned long long>(decoded_hash),
               graph.Width, graph.Height, graph.PitchBytes,
               static_cast<unsigned long long>(hash), packed_bytes,
               static_cast<unsigned long long>(packed_hash));
-  image.ClearData();
+  repacked_buffer.Clear();
   graph.Clear();
-  return packed_hash == expected_packed ? 0 : 11;
+  return 0;
 }

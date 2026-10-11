@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Native Linux/WSL check of original GI decode, GraphBuf rescale, and GI repack.
+# Native Linux/WSL check of original GI/buffer decode, rescale, and repack.
 set -euo pipefail
 
 if [[ $# -ne 1 ]]; then
@@ -29,8 +29,13 @@ g++ "${common[@]}" -O0 -c "$root/upstream/cpp/src/GR_GraphBuf.cpp" \
   -o "$build/GR_GraphBuf.o"
 g++ "${common[@]}" -O0 -c "$root/upstream/cpp/src/GR_gi.cpp" \
   -o "$build/GR_gi.o"
+g++ "${common[@]}" -O0 -c "$root/upstream/cpp/src/EC_Buf.cpp" \
+  -o "$build/EC_Buf.o"
+g++ "${common[@]}" -O0 -c "$root/upstream/cpp/runtime/runtime.cpp" \
+  -o "$build/runtime.o"
 g++ "${common[@]}" -O0 "$root/tests/test_e2e5_original_graphbuf.cpp" \
-  "$build/GR_GraphBuf.o" "$build/GR_gi.o" "${link[@]}" -o "$build/graphbuf"
+  "$build/GR_GraphBuf.o" "$build/GR_gi.o" "$build/EC_Buf.o" \
+  "$build/runtime.o" "${link[@]}" -o "$build/graphbuf"
 python3 "$root/tools/e2e5_gamesettings_rescale.py" "${source_args[@]}" \
   --okgf-lib "$build/okgf/libokgf.so" --original-graphbuf "$build/graphbuf"
 
@@ -42,8 +47,13 @@ g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/src/GR_GraphBuf.cpp" \
   -o "$build/GR_GraphBuf_sanitized.o"
 g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/src/GR_gi.cpp" \
   -o "$build/GR_gi_sanitized.o"
+g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/src/EC_Buf.cpp" \
+  -o "$build/EC_Buf_sanitized.o"
+g++ "${common[@]}" "${san[@]}" -c "$root/upstream/cpp/runtime/runtime.cpp" \
+  -o "$build/runtime_sanitized.o"
 g++ "${common[@]}" "${san[@]}" "$root/tests/test_e2e5_original_graphbuf.cpp" \
   "$build/GR_GraphBuf_sanitized.o" "$build/GR_gi_sanitized.o" \
+  "$build/EC_Buf_sanitized.o" "$build/runtime_sanitized.o" \
   "${link[@]}" -o "$build/graphbuf-sanitized"
 python3 "$root/tools/e2e5_gamesettings_rescale.py" "${source_args[@]}" \
   --okgf-lib "$build/okgf/libokgf.so" --original-graphbuf "$build/graphbuf-sanitized"

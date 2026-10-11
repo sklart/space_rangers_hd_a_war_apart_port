@@ -146,6 +146,7 @@ def run(game_root: Path | None, library: Path, target_width: int, target_height:
             "original_gi_decode_executed": original_result is not None,
             "original_graphbuf_executed": original_result is not None,
             "original_gi_repack_executed": original_result is not None,
+            "original_buffer_transfer_executed": original_result is not None,
             "original_graphbuf_output": original_result}
 
 
