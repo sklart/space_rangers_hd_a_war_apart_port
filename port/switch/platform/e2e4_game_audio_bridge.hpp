@@ -20,6 +20,9 @@ struct StreamStats {
     std::uint64_t played_frames;
     std::uint64_t underrun_frames;
     std::uint64_t rejected_writes;
+    std::uint64_t callback_count;
+    std::uint64_t callback_max_us;
+    std::uint64_t callback_gap_max_us;
 };
 
 enum class DeferredWriteResult { None, Written, Pending, Unavailable };

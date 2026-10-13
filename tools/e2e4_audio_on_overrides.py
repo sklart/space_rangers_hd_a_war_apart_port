@@ -175,7 +175,10 @@ AUDIO_ON_FUNCTIONS = {
                     GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({
                         "[MUSIC] ring played_frames=", SysUtils::Int64ToStr(static_cast<std::int64_t>(stats.played_frames)),
                         " underrun_frames=", SysUtils::Int64ToStr(static_cast<std::int64_t>(stats.underrun_frames)),
-                        " rejected_writes=", SysUtils::Int64ToStr(static_cast<std::int64_t>(stats.rejected_writes))}));
+                        " rejected_writes=", SysUtils::Int64ToStr(static_cast<std::int64_t>(stats.rejected_writes)),
+                        " callback_count=", SysUtils::Int64ToStr(static_cast<std::int64_t>(stats.callback_count)),
+                        " callback_max_us=", SysUtils::Int64ToStr(static_cast<std::int64_t>(stats.callback_max_us)),
+                        " callback_gap_max_us=", SysUtils::Int64ToStr(static_cast<std::int64_t>(stats.callback_gap_max_us))}));
             }
             if (event >= 0) return event;
             // Zero is a real completion event (chunk 2 became writable).

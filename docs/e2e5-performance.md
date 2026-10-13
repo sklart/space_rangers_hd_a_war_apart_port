@@ -14,6 +14,13 @@ sampled p50/p95/p99, and maximum for intervals between the original
 no Switch stage data exists yet. These intervals do not separately identify
 every nested resource decode or layout call.
 
+The next build additionally records stage 30 (region preparation) and stage 31
+(dirty rectangle traversal and drawing) inside `DrawQueuedUpdateRects`. The
+existing stage 17 covers frame presentation. In one original-game host run to
+Hangar, stage 30 was negligible and stage 31 dominated stage 15; that result
+does not establish the Switch bottleneck or separate every nested framebuffer
+operation. Further detail should follow the next console measurements.
+
 The Switch input pump also records `input cadence` every five seconds: poll
 count, pointer move count, window duration, and largest gap between polls.
 It now replays recent HID button edges in order, coalesces intermediate pointer

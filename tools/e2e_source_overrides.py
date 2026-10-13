@@ -6,6 +6,12 @@ from pathlib import Path
 import re
 
 
+def _replace_exact(text: str, old: str, new: str, count: int, source_name: str) -> str:
+    if text.count(old) != count:
+        raise RuntimeError(f"{source_name}: expected {count} occurrences of {old[:60]!r}")
+    return text.replace(old, new, count)
+
+
 def replace_dialog_pointer_payloads(text: str, source_name: str) -> str:
     """Preserve pointers passed through the original int32 dialog callback ABI."""
     prefix = "static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>("
@@ -788,6 +794,24 @@ void CloseVorbisStream(TOggWorker* worker) {
             if switches < 20:
                 raise RuntimeError(f"E2E-5 profiler stage inventory changed: {switches}")
         text = text[:start] + run + text[end:]
+        if e2e5_profile:
+            draw_start = text.index("    void TMessageLoopGI::DrawQueuedUpdateRects() {")
+            draw_end = text.index("    void TMessageLoopGI::DrawQueuedControlRects() {", draw_start)
+            draw = text[draw_start:draw_end]
+            draw = _replace_exact(draw,
+                "    void TMessageLoopGI::DrawQueuedUpdateRects() {",
+                "    void TMessageLoopGI::DrawQueuedUpdateRects() {\n"
+                "        static srhd_awa::platform::e2e5_stage_profiler::Window e2e_dirty_profile;\n"
+                "        e2e_dirty_profile.Enter(30);", 1, source.name)
+            draw = _replace_exact(draw,
+                "        GR_Rect::TRectGR* RectNode = UpdateRects->FirstRect;",
+                "        e2e_dirty_profile.Enter(31);\n"
+                "        GR_Rect::TRectGR* RectNode = UpdateRects->FirstRect;", 1, source.name)
+            draw = _replace_exact(draw,
+                "            RectNode = RectNode->Next;\n        }\n    }",
+                "            RectNode = RectNode->Next;\n        }\n"
+                "        e2e_dirty_profile.Stop();\n    }", 1, source.name)
+            text = text[:draw_start] + draw + text[draw_end:]
         text = ('#include "e2e5_stage_profiler.hpp"\n' if e2e5_profile else '') + '#include "e2e_stage.hpp"\n' + text
     if source.name == "GI_GraphButton.cpp":
         timer_gate = "pas::assigned(UpCallback) && MessageLoop->ConsumeTimerTickChange()"
@@ -1006,6 +1030,16 @@ void CloseVorbisStream(TOggWorker* worker) {
         Self->UseTexture = AUseTexture;
 #endif''', 1)
     if source.name == "aSaveLoad.cpp":
+        save_entry = "    std::uint8_t SaveGameToFile(pas::WideString FileName, pas::WideString Description) {"
+        if text.count(save_entry) != 1:
+            raise RuntimeError("disk save entry boundary changed")
+        text = text.replace(save_entry, save_entry + '''
+#if defined(E2E5_DISABLE_DISK_SAVE)
+        // No disk save mode has completed a separate-process round trip yet.
+        // Refuse before serialization, queueing, or touching an existing file.
+        GR_Main::AppendLogLineThreadSafe("E2E5 disk save refused pending save/load validation"_a);
+        return false;
+#endif''', 1)
         replacements = {
             "std::uint32_t MemorySnapshotGalaxyToken{};":
                 "std::uint32_t MemorySnapshotGalaxyToken{};\n"
@@ -1025,7 +1059,7 @@ void CloseVorbisStream(TOggWorker* worker) {
         if text.count(writer_init) != 1:
             raise RuntimeError("quicksave startup recovery boundary changed")
         text = text.replace(writer_init, '''    void InitializeSaveWriter() {
-#if defined(E2E4_QUICKSAVE_EXPERIMENT)
+#if defined(E2E4_QUICKSAVE_EXPERIMENT) && !defined(E2E5_DISABLE_DISK_SAVE)
         const auto quick = fSaveManager::TfSaveManager::GetQuickSavePath(1);
         const auto recovery = srhd_awa::platform::e2e4_quicksave::RecoverGamePaths(quick.pchar());
         const auto recovery_log = std::string("E2E4 quicksave startup recovery: ") +

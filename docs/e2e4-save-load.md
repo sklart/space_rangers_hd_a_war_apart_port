@@ -1,11 +1,13 @@
 # E2E-4 quicksave transaction (experimental)
 
-Status: **SOFTWARE PARTIAL / HARDWARE PENDING**. The ordinary Switch build
-refuses quicksave before it writes `save.tmp`; the recoverable rotation is
-compiled only with `python3 tools/e2e_arm64_build.py --experimental-quicksave`.
-The original upstream `aSaveLoad.cpp` is unchanged. The experimental branch is
-inserted into a disposable generated source file. Other save modes retain
-their original behavior and are outside this quicksave gate.
+Status: **SOFTWARE PARTIAL / HARDWARE PENDING**. The next combined Switch build
+refuses every disk save mode at `SaveGameToFile`, before serialization or file
+access. It also skips quicksave startup recovery so an old transaction cannot
+change existing saves during this gameplay test. The host experiment and the
+separate `--experimental-quicksave` build retain their diagnostic save paths;
+neither establishes a safe separate-process save/load round trip. The original
+upstream `aSaveLoad.cpp` is unchanged; these gates use disposable generated
+source files.
 
 ## Format check before changing slots
 

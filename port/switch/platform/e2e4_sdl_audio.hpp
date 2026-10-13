@@ -4,6 +4,7 @@
 #include "e2e4_audio_stream.hpp"
 
 #include <array>
+#include <atomic>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -16,6 +17,9 @@ struct StreamStats {
     std::uint64_t played_frames = 0;
     std::uint64_t underrun_frames = 0;
     std::uint64_t rejected_writes = 0;
+    std::uint64_t callback_count = 0;
+    std::uint64_t callback_max_us = 0;
+    std::uint64_t callback_gap_max_us = 0;
 };
 
 // Narrow SDL2 output device for the PCM mixer. Game/DirectSound integration
@@ -68,6 +72,11 @@ private:
     StreamSlot* FindStream(std::uint64_t handle);
     std::uint32_t device_ = 0;
     std::uint32_t output_rate_ = 0;
+    std::uint64_t performance_frequency_ = 0;
+    std::atomic<std::uint64_t> callback_count_{0};
+    std::atomic<std::uint64_t> callback_max_ticks_{0};
+    std::atomic<std::uint64_t> callback_gap_max_ticks_{0};
+    std::atomic<std::uint64_t> last_callback_start_{0};
     bool owns_audio_subsystem_ = false;
 };
 

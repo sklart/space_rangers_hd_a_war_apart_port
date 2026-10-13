@@ -33,6 +33,10 @@ public:
         }
     }
 
+    void Stop() {
+        Enter(kStages);
+    }
+
     void Flush() {
         for (std::size_t stage = 0; stage < stages_.size(); ++stage) {
             auto &stats = stages_[stage];

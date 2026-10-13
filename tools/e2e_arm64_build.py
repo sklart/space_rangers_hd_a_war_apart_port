@@ -383,6 +383,8 @@ def main() -> int:
     flags += ["-DE2E3_TRACE=" + str(int(args.e2e3_trace))]
     if args.experimental_quicksave:
         flags += ["-DE2E4_QUICKSAVE_EXPERIMENT=1"]
+    if args.experimental_e2e4_combined:
+        flags += ["-DE2E5_DISABLE_DISK_SAVE=1"]
     if args.experimental_audio_on:
         flags += ["-DE2E4_AUDIO_ON=1"]
     include_roots = [DEVKITPRO / "libnx/include", PORTLIBS / "include",
@@ -576,6 +578,20 @@ def main() -> int:
             return 1
     else:
         candidate.write_bytes(nro_bytes)
+    elf_bytes = elf.read_bytes()
+    matching_elf = BUILD / f"{artifact_stem}-{build_id}{content_suffix}.elf"
+    if matching_elf.exists():
+        if matching_elf.read_bytes() != elf_bytes:
+            report["first_failure"] = {
+                "phase": "immutable ELF", "exact_error": f"matching ELF differs: {matching_elf}"
+            }
+            save(report)
+            return 1
+    else:
+        matching_elf.write_bytes(elf_bytes)
+    report["matching_elf"] = {"path": matching_elf.relative_to(ROOT).as_posix(),
+                              "bytes": len(elf_bytes),
+                              "sha256": hashlib.sha256(elf_bytes).hexdigest().upper()}
     report["nro"] = {"path": candidate.relative_to(ROOT).as_posix(),
                      "working_path": nro.relative_to(ROOT).as_posix(),
                      "bytes": len(nro_bytes),

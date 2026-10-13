@@ -3181,7 +3181,7 @@
     {
       "api": "GetModuleHandleW",
       "expression": "FileName.pchar()",
-      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp:4307",
+      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp:4343",
       "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
       "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
       "implementation": "win32_compat_modules",
@@ -3192,7 +3192,7 @@
     {
       "api": "GetModuleHandleW",
       "expression": "FileName.pchar()",
-      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp:4311",
+      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp:4347",
       "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
       "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
       "implementation": "win32_compat_modules",
@@ -3203,7 +3203,7 @@
     {
       "api": "GetProcAddress",
       "expression": "moduleHandle, cpp_arg",
-      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/aScript.cpp:4284",
+      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/aScript.cpp:4363",
       "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
       "classification": "RUNTIME_MODULE",
       "implementation": "win32_compat_modules",
@@ -3214,7 +3214,7 @@
     {
       "api": "LoadLibraryW",
       "expression": "(cpp_text = Definition->GetParam(u\"Path\"sv), cpp_text.pchar())",
-      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/aScript.cpp:4370",
+      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/aScript.cpp:4449",
       "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
       "classification": "RUNTIME_MODULE",
       "implementation": "win32_compat_modules",

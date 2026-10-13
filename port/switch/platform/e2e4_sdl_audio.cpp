@@ -1,4 +1,5 @@
 #include "e2e4_sdl_audio.hpp"
+#include "e2e_stage.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -10,6 +11,12 @@
 
 namespace srhd_awa::platform::e2e4_audio {
 namespace {
+void UpdateMaximum(std::atomic<std::uint64_t>& maximum, std::uint64_t value) {
+    auto previous = maximum.load(std::memory_order_relaxed);
+    while (previous < value && !maximum.compare_exchange_weak(
+        previous, value, std::memory_order_relaxed)) {}
+}
+
 std::int16_t ToS16(float value) {
     const float limited = std::clamp(value, -1.0f, 1.0f);
     return static_cast<std::int16_t>(std::lround(limited < 0.0f ?
@@ -43,6 +50,17 @@ bool SdlOutput::Open(std::string* error) {
         return false;
     }
     output_rate_ = static_cast<std::uint32_t>(obtained.freq);
+    performance_frequency_ = SDL_GetPerformanceFrequency();
+    callback_count_.store(0, std::memory_order_relaxed);
+    callback_max_ticks_.store(0, std::memory_order_relaxed);
+    callback_gap_max_ticks_.store(0, std::memory_order_relaxed);
+    last_callback_start_.store(0, std::memory_order_relaxed);
+    char format_line[160]{};
+    std::snprintf(format_line, sizeof(format_line),
+        "audio obtained rate=%d format=%u channels=%u samples=%u",
+        obtained.freq, static_cast<unsigned>(obtained.format),
+        static_cast<unsigned>(obtained.channels), static_cast<unsigned>(obtained.samples));
+    srhd_awa::platform::e2e_stage::Log(format_line);
 #if defined(E2E5_HOST_SDL_WINDOW)
     SDL_Log("E2E AUDIO obtained freq=%d format=%u channels=%u samples=%u driver=%s",
             obtained.freq, static_cast<unsigned>(obtained.format),
@@ -70,6 +88,7 @@ void SdlOutput::Close() {
     mix_buffer_.clear();
     for (auto& slot : streams_) slot.ring.reset();
     output_rate_ = 0;
+    performance_frequency_ = 0;
     if (owns_audio_subsystem_) {
         SDL_QuitSubSystem(SDL_INIT_AUDIO);
         owns_audio_subsystem_ = false;
@@ -232,8 +251,17 @@ StreamStats SdlOutput::GetStreamStats(std::uint64_t handle) {
     if (!device_) return {};
     SDL_LockAudioDevice(device_);
     auto* slot = FindStream(handle);
-    const StreamStats stats = slot ? StreamStats{true, slot->ring->PlayedFrames(),
+    StreamStats stats = slot ? StreamStats{true, slot->ring->PlayedFrames(),
         slot->ring->UnderrunFrames(), slot->ring->RejectedWrites()} : StreamStats{};
+    if (stats.valid && performance_frequency_) {
+        const auto to_us = [this](std::uint64_t ticks) {
+            return ticks / performance_frequency_ * 1000000u +
+                ticks % performance_frequency_ * 1000000u / performance_frequency_;
+        };
+        stats.callback_count = callback_count_.load(std::memory_order_relaxed);
+        stats.callback_max_us = to_us(callback_max_ticks_.load(std::memory_order_relaxed));
+        stats.callback_gap_max_us = to_us(callback_gap_max_ticks_.load(std::memory_order_relaxed));
+    }
     SDL_UnlockAudioDevice(device_);
     return stats;
 }
@@ -248,10 +276,15 @@ void SdlOutput::CloseStream(std::uint64_t handle) {
 }
 
 void SdlOutput::AudioCallback(void* userdata, std::uint8_t* stream, int bytes) {
+    const auto started = SDL_GetPerformanceCounter();
     if (bytes <= 0 || stream == nullptr) return;
     std::memset(stream, 0, static_cast<std::size_t>(bytes));
     auto* self = static_cast<SdlOutput*>(userdata);
     if (self == nullptr || !self->mixer_ || self->mix_buffer_.empty()) return;
+    const auto previous = self->last_callback_start_.exchange(started, std::memory_order_relaxed);
+    if (previous && started >= previous)
+        UpdateMaximum(self->callback_gap_max_ticks_, started - previous);
+    self->callback_count_.fetch_add(1, std::memory_order_relaxed);
     auto* samples = reinterpret_cast<std::int16_t*>(stream);
     const std::size_t frames = static_cast<std::size_t>(bytes) /
         (2 * sizeof(std::int16_t));
@@ -268,6 +301,7 @@ void SdlOutput::AudioCallback(void* userdata, std::uint8_t* stream, int bytes) {
             samples[offset * 2 + i] = ToS16(mixed[i]);
         offset += count;
     }
+    UpdateMaximum(self->callback_max_ticks_, SDL_GetPerformanceCounter() - started);
 }
 
 } // namespace srhd_awa::platform::e2e4_audio
