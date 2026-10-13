@@ -1,0 +1,476 @@
+{
+  "schema": 1,
+  "status": "EXPERIMENTAL DIAGNOSTIC ONLY",
+  "confirmed_head": "34d546e8572ae4475f7956e18ace824555b1613b",
+  "host_binary_sha256": "008ee55f3c16850a8e17217295200e320abd80a11ac6a7a06a60aeb8fee67612",
+  "isolated_stage": "port/switch/build/e2e5-host-game/runs/750c8f33797843328fc17c29bba150ae",
+  "wide_variable_count": 66,
+  "script_count": 13,
+  "entries": [
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "playerStar",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "playerPlanet",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "otherPlanet",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "PlanetNone",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "Star2",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "Planet2",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "PlaceEA",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "P1",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "P3",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "P4",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "P5",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "PWait",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "P2",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "P6",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "P7",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "P8",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "ItemEA",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Begin",
+      "scope": "init",
+      "variable": "CurShip",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_SB1",
+      "scope": "init",
+      "variable": "playerStar",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_SB1",
+      "scope": "init",
+      "variable": "playerPlanet",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_SB1",
+      "scope": "init",
+      "variable": "CurShip",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Blazer",
+      "scope": "init",
+      "variable": "StarBlazer",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Blazer",
+      "scope": "init",
+      "variable": "PlanetBlazer",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Blazer",
+      "scope": "init",
+      "variable": "StarPlayer",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Blazer",
+      "scope": "init",
+      "variable": "CurShip",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Keller",
+      "scope": "init",
+      "variable": "StarKeller",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Keller",
+      "scope": "init",
+      "variable": "PlanetKeller",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Keller",
+      "scope": "init",
+      "variable": "StarPlayer",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Keller",
+      "scope": "init",
+      "variable": "CurShip",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Terron",
+      "scope": "init",
+      "variable": "StarTerron",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Terron",
+      "scope": "init",
+      "variable": "Planet",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Terron",
+      "scope": "init",
+      "variable": "StarPlayer",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Terron",
+      "scope": "init",
+      "variable": "PlaceToStar",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.MS_Terron",
+      "scope": "init",
+      "variable": "CurShip",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part7",
+      "scope": "init",
+      "variable": "StarNew",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part7",
+      "scope": "init",
+      "variable": "PlanetNew",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part7",
+      "scope": "init",
+      "variable": "CurShip",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_final",
+      "scope": "init",
+      "variable": "StarNew",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_final",
+      "scope": "init",
+      "variable": "PlanetNew",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_final",
+      "scope": "init",
+      "variable": "CurShip",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_destroyer",
+      "scope": "init",
+      "variable": "StarNew",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_destroyer",
+      "scope": "init",
+      "variable": "PlanetNew",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_destroyer",
+      "scope": "init",
+      "variable": "AncientCrystal",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_destroyer",
+      "scope": "init",
+      "variable": "CurShip",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_fem_rangers",
+      "scope": "init",
+      "variable": "StarNew",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_fem_rangers",
+      "scope": "init",
+      "variable": "PlanetNew",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_fem_rangers",
+      "scope": "init",
+      "variable": "BeaconContainer",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_fem_rangers",
+      "scope": "init",
+      "variable": "HybridDroid",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_fem_rangers",
+      "scope": "init",
+      "variable": "CurShip",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part1",
+      "scope": "init",
+      "variable": "StarNew",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part1",
+      "scope": "init",
+      "variable": "PlanetNew",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part1",
+      "scope": "init",
+      "variable": "MemoryModule",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part1",
+      "scope": "init",
+      "variable": "CurShip",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part5",
+      "scope": "init",
+      "variable": "StarNew",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part5",
+      "scope": "init",
+      "variable": "PlanetNew",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part5",
+      "scope": "init",
+      "variable": "CurShip",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part2",
+      "scope": "init",
+      "variable": "StarNew",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part2",
+      "scope": "init",
+      "variable": "PlanetNew",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part2",
+      "scope": "init",
+      "variable": "Stukach_Capsule",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part2",
+      "scope": "init",
+      "variable": "CurShip",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part6",
+      "scope": "init",
+      "variable": "temp_star",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part6",
+      "scope": "init",
+      "variable": "temp_planet",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part6",
+      "scope": "init",
+      "variable": "temp_sector",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part6",
+      "scope": "init",
+      "variable": "StarNew",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part6",
+      "scope": "init",
+      "variable": "PlanetNew",
+      "kind": "vkDword",
+      "category": "unclassified"
+    },
+    {
+      "script": "Script.PC_part6",
+      "scope": "init",
+      "variable": "CurShip",
+      "kind": "vkDword",
+      "category": "unclassified"
+    }
+  ],
+  "first_guard_refusal": "E2E4 script pointer cannot be serialized as DWORD: temp_planet",
+  "quicksave_created": false,
+  "note": "Names are a pre-serialization inventory; object categories and load rebinds remain unproved. This candidate is excluded from the user NRO."
+}
