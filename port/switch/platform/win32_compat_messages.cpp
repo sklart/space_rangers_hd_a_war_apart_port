@@ -314,6 +314,16 @@ bool PostHostReturnKey(std::uint32_t window) {
   return PostMessage(window, kWmKeyDown, kVkReturn, 0) &&
          PostMessage(window, kWmKeyUp, kVkReturn, 0);
 }
+bool PostHostLeftClick(std::uint32_t window, std::int32_t x, std::int32_t y) {
+  if (!window || !Handles().IsValid(window, HandleType::Window) ||
+      x < 0 || y < 0 || x >= 65536 || y >= 65536) return false;
+  const auto lparam = MouseLParam(x, y);
+  std::lock_guard lock(g_mutex);
+  Enqueue(window, kWmMouseMove, 0, lparam, x, y);
+  Enqueue(window, kWmLeftDown, 1, lparam, x, y);
+  Enqueue(window, kWmLeftUp, 0, lparam, x, y);
+  return true;
+}
 #endif
 
 ImportAddress ResolveMessageImport(std::string_view dll, std::string_view symbol) {

@@ -64,6 +64,40 @@ def replace_dialog_pointer_payloads(text: str, source_name: str) -> str:
         text = text.replace(close, "        ClearChoices();\n"
             "        srhd_awa::platform::e2e5_pointer_payload::ReleaseOwner(this);\n"
             "        MainPanel->OnClose();", 1)
+        callback = "            Choice->Callback(Choice->Value);"
+        if text.count(callback) != 1:
+            raise RuntimeError("RuinsTalk choice callback boundary changed")
+        text = text.replace(callback, callback + '''
+#if defined(E2E5_HOST_SDL_WINDOW)
+            srhd_awa::platform::e2e_stage::LogE2E3("dialog choice callback complete");
+#endif''', 1)
+        ready = "            Choices->UpdateScrollRanges();"
+        if text.count(ready) != 1:
+            raise RuntimeError("RuinsTalk choice-ready boundary changed")
+        text = text.replace(ready, ready + '''
+#if defined(E2E5_HOST_SDL_WINDOW)
+            for (auto* row = Choices->FirstChild; row != nullptr; row = row->NextSibling) {
+                if (row->UserValue >= 0) continue;
+                fTalk::TfTalkA* choice = nullptr;
+                try {
+                    choice = srhd_awa::platform::e2e5_pointer_payload::Resolve<fTalk::TfTalkA*>(this, row->UserValue);
+                } catch (const std::exception&) {
+                    continue;
+                }
+                if (!pas::assigned(choice->Callback)) continue;
+                const auto left = std::max(row->HitTestBounds.Left, Choices->HitTestBounds.Left);
+                const auto top = std::max(row->HitTestBounds.Top, Choices->HitTestBounds.Top);
+                const auto right = std::min(row->HitTestBounds.Right, Choices->HitTestBounds.Right);
+                const auto bottom = std::min(row->HitTestBounds.Bottom, Choices->HitTestBounds.Bottom);
+                if (left >= right || top >= bottom) continue;
+                char detail[100]{};
+                std::snprintf(detail, sizeof(detail), "dialog choice ready x=%d y=%d",
+                              left + (right - left) / 2, top + (bottom - top) / 2);
+                srhd_awa::platform::e2e_stage::LogE2E3(detail);
+                break;
+            }
+#endif''', 1)
+        text = '#if defined(E2E5_HOST_SDL_WINDOW)\n#include "e2e_stage.hpp"\n#include <algorithm>\n#include <cstdio>\n#include <exception>\n#endif\n' + text
     else:
         close = "            ClearChoices(false);\n            Count = "
         if text.count(close) != 1:

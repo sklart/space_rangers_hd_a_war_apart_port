@@ -56,6 +56,7 @@ def cmake_path(path: Path) -> str:
 
 
 def save(report: dict) -> None:
+    REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
 
 
@@ -166,6 +167,8 @@ def main() -> int:
                           help="build isolated E2E-4 SDL2 game-audio experiment")
     variants.add_argument("--experimental-e2e4-combined", action="store_true",
                           help="build one isolated quicksave, Audio ON, and script-width experiment")
+    parser.add_argument("--preflight-only", action="store_true",
+                        help="generate effective sources and check manifests before compilation")
     args = parser.parse_args()
     if args.experimental_e2e4_combined:
         BUILD = SWITCH / "build/e2e-game-combined-experiment"
@@ -176,6 +179,8 @@ def main() -> int:
     elif args.experimental_audio_on:
         BUILD = SWITCH / "build/e2e-game-audio-experiment"
         REPORT = ROOT / "e2e4-audio-build-report.json"
+    if args.preflight_only:
+        REPORT = BUILD / "preflight-report.json"
     if args.experimental_e2e4_combined:
         args.experimental_quicksave = True
         args.experimental_audio_on = True
@@ -241,6 +246,9 @@ def main() -> int:
     if args.experimental_audio_on:
         report["source_overrides"] = sorted(set(report["source_overrides"]) |
                                             set(AUDIO_ON_FUNCTIONS))
+    if args.experimental_e2e4_combined:
+        report["source_overrides"] = sorted(set(report["source_overrides"]) |
+                                            {"fRuinsTalk.cpp", "fTalk.cpp"})
     # These were created for the old diagnostic slice. They define symbols
     # already present in the complete original units and cannot be linked
     # alongside them; their replacement behavior must move behind original APIs.
@@ -253,10 +261,28 @@ def main() -> int:
     replaced_upstream = {
         "EC_HsFile.cpp": "original EC_HsFile API backed by portable ec_file_adapter.cpp",
     }
-    if not CXX.is_file():
-        report["first_failure"] = {"phase": "toolchain", "error": f"missing {CXX}"}
+    for name, expected in (("cpp", "57fa689c630193a66fdea6ca4c79a188814991cd"),
+                           ("okgf", "c01aa7a168a6f1772541501074b7bba1b96550ef")):
+        submodule = ROOT / "upstream" / name
+        code, actual = run([git, "-C", native_path(submodule), "rev-parse", "HEAD"])
+        dirty_code, dirty = run([git, "-C", native_path(submodule), "status", "--porcelain"])
+        if code or dirty_code or actual != expected or dirty:
+            report["first_failure"] = {"phase": "preflight upstream pin",
+                "exact_error": f"{name}: expected {expected}, actual {actual}, dirty={dirty}"}
+            save(report)
+            return 1
+    tool_suffix = ".exe" if os.name == "nt" else ""
+    required_toolchain = (CXX, DEVKITPRO / "tools/bin" / ("nacptool" + tool_suffix),
+                          DEVKITPRO / "tools/bin" / ("elf2nro" + tool_suffix),
+                          DEVKITPRO / "libnx/include/switch.h",
+                          PORTLIBS / "include/SDL2/SDL.h",
+                          PORTLIBS / "lib/libSDL2.a")
+    missing_toolchain = [str(path) for path in required_toolchain if not path.is_file()]
+    if missing_toolchain:
+        report["first_failure"] = {"phase": "preflight toolchain",
+                                   "exact_error": "missing: " + ", ".join(missing_toolchain)}
         save(report)
-        print(f"E2E toolchain missing: {CXX}", file=sys.stderr)
+        print(f"E2E toolchain missing: {missing_toolchain}", file=sys.stderr)
         return 1
     patched_sources = prepare_patched_sources()
     script_source_root = (prepare_script_source_overlay(GAME / "src", BUILD / "source-overlay")
@@ -269,7 +295,9 @@ def main() -> int:
         report["first_failure"] = {"phase": "Win32 source inventory", "exact_error": output}
         save(report)
         return 1
-    manifest_path = ROOT / "win32-effective-import-manifest.json"
+    manifest_path = ROOT / ("win32-effective-combined-import-manifest.json"
+                            if args.experimental_e2e4_combined
+                            else "win32-effective-import-manifest.json")
     if not manifest_path.is_file():
         report["first_failure"] = {"phase": "Win32 manifest stamp",
                                    "exact_error": "effective manifest is missing"}
@@ -295,6 +323,56 @@ def main() -> int:
         report["source_overrides"] = sorted(set(report["source_overrides"]) |
                                             {"aScriptFun.cpp", "types/aScript.hpp",
                                              "EC_Expression.cpp", "types/EC_Expression.hpp"})
+    # Generate the exact sources first. The Win32 manifest must be checked
+    # against these files before the expensive ARM64 compile/link loop.
+    effective_sources: dict[Path, Path] = {}
+    source_map: dict[str, str] = {}
+    for source in sources:
+        effective_source = patched_sources.get(source.name,
+            script_source_root / source.name if script_source_root and source.parent == GAME / "src"
+            else source)
+        compile_source = generated_source(effective_source,
+                                          BUILD / "generated" / source.name,
+                                          build_id, manifest_stamp,
+                                          audio_on=args.experimental_audio_on,
+                                          e2e5_profile=args.experimental_e2e4_combined,
+                                          script_width=script_width_enabled)
+        if script_source_root and source.parent == GAME / "src":
+            current = compile_source.read_text(encoding="utf-8")
+            repaired = apply_ui_width_overrides(source.name, current)
+            if args.experimental_e2e4_combined and source.name == "EC_CacheGI.cpp":
+                repaired = apply_cachegi_trace(repaired)
+            if repaired != current:
+                ui_source = BUILD / "generated-ui" / source.name
+                ui_source.parent.mkdir(parents=True, exist_ok=True)
+                if not ui_source.is_file() or ui_source.read_text(encoding="utf-8") != repaired:
+                    ui_source.write_text(repaired, encoding="utf-8")
+                compile_source = ui_source
+        effective_sources[source] = compile_source
+        source_map[source.relative_to(ROOT).as_posix()] = compile_source.relative_to(ROOT).as_posix()
+    map_path = BUILD / "effective-source-map.json"
+    if (len(sources) != 298 or len(source_map) != len(sources) or
+            len(set(source_map.values())) != len(sources)):
+        report["first_failure"] = {"phase": "preflight build graph",
+                                   "exact_error": "effective source graph is incomplete or ambiguous"}
+        save(report)
+        return 1
+    map_path.write_text(json.dumps(source_map, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    audit_command = [sys.executable, python_path(ROOT / "tools/audit_win32_surface.py"),
+                     "--effective", "--build-root", native_path(BUILD),
+                     "--manifest", native_path(manifest_path), "--check"]
+    code, audit_output = run(audit_command)
+    if code:
+        report["first_failure"] = {"phase": "preflight Win32 effective manifest",
+                                   "exact_error": audit_output}
+        save(report)
+        print(f"E2E preflight failed: {audit_output}", file=sys.stderr)
+        return 1
+    report["preflight"] = "PASS"
+    if args.preflight_only:
+        save(report)
+        print(f"E2E preflight PASS: {manifest_path.name}")
+        return 0
     flags = ["-std=gnu++20", "-D__SWITCH__", "-march=armv8-a+crc+crypto",
              "-mtune=cortex-a57", "-mtp=soft", "-fPIE",
              "-ffunction-sections", "-fdata-sections"]
@@ -349,26 +427,7 @@ def main() -> int:
             continue
         obj = BUILD / category / (source.stem + ".o")
         obj.parent.mkdir(parents=True, exist_ok=True)
-        effective_source = patched_sources.get(source.name,
-            script_source_root / source.name if script_source_root and source.parent == GAME / "src"
-            else source)
-        compile_source = generated_source(effective_source,
-                                          BUILD / "generated" / source.name,
-                                          build_id, manifest_stamp,
-                                          audio_on=args.experimental_audio_on,
-                                          e2e5_profile=args.experimental_e2e4_combined,
-                                          script_width=script_width_enabled)
-        if script_source_root and category == "upstream" and source.parent == GAME / "src":
-            current = compile_source.read_text(encoding="utf-8")
-            repaired = apply_ui_width_overrides(source.name, current)
-            if args.experimental_e2e4_combined and source.name == "EC_CacheGI.cpp":
-                repaired = apply_cachegi_trace(repaired)
-            if repaired != current:
-                ui_source = BUILD / "generated-ui" / source.name
-                ui_source.parent.mkdir(parents=True, exist_ok=True)
-                if not ui_source.is_file() or ui_source.read_text(encoding="utf-8") != repaired:
-                    ui_source.write_text(repaired, encoding="utf-8")
-                compile_source = ui_source
+        compile_source = effective_sources[source] if category == "upstream" else source
         depfile = obj.with_suffix(".d")
         if object_current(obj, depfile, [compile_source], flags_stamp):
             code, output = 0, ""
@@ -445,8 +504,7 @@ def main() -> int:
                                    f"required original game symbols missing: {report['required_game_symbols']}"}
         save(report)
         return 1
-    code, audit_output = run([sys.executable, python_path(ROOT / "tools/audit_win32_surface.py"),
-                              "--effective", "--check"])
+    code, audit_output = run(audit_command)
     if manifest_path.is_file():
         manifest_bytes = manifest_path.read_bytes()
         manifest = json.loads(manifest_bytes)

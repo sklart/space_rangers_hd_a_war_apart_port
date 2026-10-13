@@ -47,12 +47,23 @@ def screen_frame_milestones(log: str) -> dict[int, set[int]]:
 
 
 def tail(path: Path, limit: int = 5000) -> str:
-    return path.read_text(encoding="utf-8", errors="replace")[-limit:] if path.is_file() else ""
+    return read_log(path)[-limit:]
+
+
+def read_log(path: Path) -> str:
+    for _ in range(3):
+        try:
+            return path.read_text(encoding="utf-8", errors="replace") if path.is_file() else ""
+        except OSError:
+            # The game appends to this log on another thread over WSL DrvFS.
+            time.sleep(0.05)
+    return ""
 
 
 def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         crash_trace: Path | None, continue_after_frame: bool,
-        auto_new_game: bool = False, auto_start_game: bool = False) -> dict:
+        auto_new_game: bool = False, auto_start_game: bool = False,
+        auto_select_dialog: bool = False) -> dict:
     binary = binary.resolve(strict=True)
     game_root = game_root.resolve(strict=True)
     library_dir = library_dir.resolve(strict=True)
@@ -67,10 +78,12 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     env = os.environ.copy()
     env.update(E2E5_GAME_ROOT=str(game_root), SDL_VIDEODRIVER="dummy",
                SDL_AUDIODRIVER="dummy", LD_LIBRARY_PATH=str(library_dir))
-    if auto_new_game or auto_start_game:
+    if auto_new_game or auto_start_game or auto_select_dialog:
         env["E2E5_HOST_AUTO_NEW_GAME"] = "1"
-    if auto_start_game:
+    if auto_start_game or auto_select_dialog:
         env["E2E5_HOST_AUTO_START_GAME"] = "1"
+    if auto_select_dialog:
+        env["E2E5_HOST_AUTO_SELECT_DIALOG"] = "1"
     if crash_trace:
         env["LD_PRELOAD"] = str(crash_trace.resolve(strict=True))
     began = time.monotonic()
@@ -78,6 +91,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     seen_new_game_frame = False
     seen_gameplay_frame = False
     seen_gameplay_60_frames = False
+    dialog_callback_at: float | None = None
     stopped_by_probe = False
     timed_out = False
     with stderr_path.open("w", encoding="utf-8") as stderr:
@@ -85,19 +99,25 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                                    stdout=subprocess.DEVNULL, stderr=stderr)
         while process.poll() is None and time.monotonic() - began < timeout:
             if seen_frame is None and e2e_log.is_file():
-                seen_frame = FRAME.search(e2e_log.read_text(encoding="utf-8", errors="replace"))
-            if (auto_new_game or auto_start_game) and e2e_log.is_file():
-                current = e2e_log.read_text(encoding="utf-8", errors="replace")
+                seen_frame = FRAME.search(read_log(e2e_log))
+            if (auto_new_game or auto_start_game or auto_select_dialog) and e2e_log.is_file():
+                current = read_log(e2e_log)
                 frames = screen_frames(current)
                 seen_new_game_frame = 33 in frames
                 seen_gameplay_frame = bool(frames & GAMEPLAY_SCREENS)
                 milestones = screen_frame_milestones(current)
                 seen_gameplay_60_frames = any(
                     60 in milestones.get(screen, set()) for screen in GAMEPLAY_SCREENS)
+                if dialog_callback_at is None and "dialog choice callback complete" in current:
+                    dialog_callback_at = time.monotonic()
             if ((seen_frame and not continue_after_frame and
-                 not auto_new_game and not auto_start_game) or
-                    (auto_new_game and not auto_start_game and seen_new_game_frame) or
-                    (auto_start_game and seen_gameplay_frame and seen_gameplay_60_frames)):
+                 not auto_new_game and not auto_start_game and not auto_select_dialog) or
+                    (auto_new_game and not auto_start_game and not auto_select_dialog
+                     and seen_new_game_frame) or
+                    (auto_start_game and not auto_select_dialog and seen_gameplay_frame
+                     and seen_gameplay_60_frames) or
+                    (auto_select_dialog and dialog_callback_at is not None
+                     and time.monotonic() - dialog_callback_at >= 5.0)):
                 stopped_by_probe = True
                 process.terminate()
                 break
@@ -112,10 +132,10 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
             process.kill()
             process.wait()
     if not seen_frame and e2e_log.is_file():
-        seen_frame = FRAME.search(e2e_log.read_text(encoding="utf-8", errors="replace"))
+        seen_frame = FRAME.search(read_log(e2e_log))
     elapsed = round(time.monotonic() - began, 2)
     stderr_tail = tail(stderr_path)
-    full_stderr = stderr_path.read_text(encoding="utf-8", errors="replace") if stderr_path.is_file() else ""
+    full_stderr = read_log(stderr_path)
     crashed = not stopped_by_probe and (
         (process.returncode is not None and process.returncode < 0) or
         "E2E5 HOST SIGNAL" in full_stderr)
@@ -131,8 +151,10 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         state = "SIGNAL_BEFORE_FIRST_FRAME"
     else:
         state = "EXIT_BEFORE_FIRST_FRAME"
-    full_e2e_log = e2e_log.read_text(encoding="utf-8", errors="replace") if e2e_log.is_file() else ""
-    full_game_log = game_log.read_text(encoding="utf-8", errors="replace") if game_log.is_file() else ""
+    full_e2e_log = read_log(e2e_log)
+    full_game_log = read_log(game_log)
+    callback_offset = full_e2e_log.find("dialog choice callback complete")
+    after_callback = full_e2e_log[callback_offset:] if callback_offset >= 0 else ""
     dispatches = [int(match.group(1)) for match in SCREEN_DISPATCH.finditer(full_e2e_log)]
     observed_frames = screen_frames(full_e2e_log)
     frame_milestones = screen_frame_milestones(full_e2e_log)
@@ -165,10 +187,20 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "game_settings_first_frame": (
             "PRESENTATION ATTEMPT OBSERVED" if seen_new_game_frame else "NOT OBSERVED"),
         "new_game": ("SCREEN DISPATCH OBSERVED" if 33 in dispatches else
-                     "INPUT REQUESTED; NO DISPATCH" if auto_new_game or auto_start_game
+                     "INPUT REQUESTED; NO DISPATCH" if auto_new_game or auto_start_game or auto_select_dialog
                      else "NOT RUN"),
         "auto_new_game_input": auto_new_game,
         "auto_start_game_input": auto_start_game,
+        "auto_select_dialog_input": auto_select_dialog,
+        "dialog_choice_ready": "dialog choice ready" in full_e2e_log,
+        "dialog_choice_callback_complete":
+            callback_offset >= 0,
+        "dialog_choice_ready_after_callback":
+            after_callback.count("dialog choice ready") > 0,
+        "dialog_60_frames_after_callback":
+            "screen Run frames=60" in after_callback,
+        "dialog_callback_survived_five_seconds":
+            dialog_callback_at is not None and stopped_by_probe and not timed_out,
         "generation_stages": generation_stages,
         "generation_failure_stage": (int(generation_failure[1]) if generation_failure else None),
         "settings_saved": "game_settings action=apply settings=saved" in full_e2e_log,
@@ -215,13 +247,14 @@ def main() -> None:
     parser.add_argument("--continue-after-frame", action="store_true")
     parser.add_argument("--auto-new-game", action="store_true")
     parser.add_argument("--auto-start-game", action="store_true")
+    parser.add_argument("--auto-select-dialog", action="store_true")
     args = parser.parse_args()
     if args.game_root is None or args.timeout <= 0:
         parser.error("--game-root or GAME_ROOT and a positive --timeout are required")
     print(json.dumps(run(args.binary, args.game_root, args.library_dir,
                          args.timeout, args.crash_trace,
                          args.continue_after_frame, args.auto_new_game,
-                         args.auto_start_game), indent=2))
+                         args.auto_start_game, args.auto_select_dialog), indent=2))
 
 
 if __name__ == "__main__":

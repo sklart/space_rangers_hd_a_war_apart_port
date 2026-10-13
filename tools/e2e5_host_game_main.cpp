@@ -8,6 +8,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <cstdio>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -18,17 +19,25 @@
 namespace {
 void DriveOriginalGameKeys(const std::filesystem::path& stage,
                            const std::atomic<bool>& running,
-                           bool start_game) {
+                           bool start_game, bool select_dialog) {
   const auto log = stage / "sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log";
   constexpr auto kMenu = "screen dispatch id=1 postload=";
   constexpr auto kReady = "screen Run OnOpen ready";
   bool new_game_sent = false;
   bool start_game_sent = false;
+  bool introduction_sent = false;
   while (running.load()) {
-    std::ifstream stream(log);
-    if (stream) {
-      const std::string lines((std::istreambuf_iterator<char>(stream)),
-                              std::istreambuf_iterator<char>());
+    std::string lines;
+    try {
+      std::ifstream stream(log);
+      if (stream)
+        lines.assign(std::istreambuf_iterator<char>(stream),
+                     std::istreambuf_iterator<char>());
+    } catch (const std::ios_base::failure&) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      continue;
+    }
+    if (!lines.empty()) {
       const auto menu = lines.find(kMenu);
       const auto settings = lines.find("screen dispatch id=33 postload=");
       const bool ready_to_send = !new_game_sent
@@ -36,7 +45,8 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
           : !start_game_sent
             ? start_game && settings != std::string::npos &&
               lines.find("screen Run frames=60", settings) != std::string::npos
-            : lines.find("introduction status=continue-enabled") != std::string::npos;
+            : !introduction_sent &&
+              lines.find("introduction status=continue-enabled") != std::string::npos;
       if (ready_to_send) {
         const auto window = srhd_awa::platform::win32_compat::MainWindow();
         if (window) {
@@ -47,8 +57,21 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
           } else if (!start_game_sent) {
             start_game_sent = true;
           } else {
-            return;
+            introduction_sent = true;
+            if (!select_dialog) return;
           }
+        }
+      }
+      if (select_dialog && introduction_sent) {
+        constexpr auto kChoice = "dialog choice ready x=";
+        const auto choice = lines.rfind(kChoice);
+        int x = -1, y = -1;
+        if (choice != std::string::npos &&
+            std::sscanf(lines.c_str() + choice, "dialog choice ready x=%d y=%d",
+                        &x, &y) == 2 && x >= 0 && y >= 0) {
+          const auto window = srhd_awa::platform::win32_compat::MainWindow();
+          if (window && srhd_awa::platform::win32_compat::PostHostLeftClick(window, x, y))
+            return;
         }
       }
     }
@@ -81,9 +104,13 @@ int main() {
   std::thread new_game_driver;
   const char* drive = std::getenv("E2E5_HOST_AUTO_NEW_GAME");
   const char* start = std::getenv("E2E5_HOST_AUTO_START_GAME");
-  if ((drive && *drive == '1') || (start && *start == '1'))
+  const char* select = std::getenv("E2E5_HOST_AUTO_SELECT_DIALOG");
+  if ((drive && *drive == '1') || (start && *start == '1') ||
+      (select && *select == '1'))
     new_game_driver = std::thread(DriveOriginalGameKeys, stage,
-                                  std::cref(running), start && *start == '1');
+                                  std::cref(running),
+                                  (start && *start == '1') || (select && *select == '1'),
+                                  select && *select == '1');
   Rangers::ProgramMain();
   running = false;
   if (new_game_driver.joinable()) new_game_driver.join();

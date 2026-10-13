@@ -100,13 +100,22 @@ jobs:
           test -z "$(git -C upstream/cpp status --porcelain)"
           python3 tools/audit_win32_surface.py --self-test
           python3 tools/audit_win32_surface.py --check
+      - name: Python generator syntax and import smoke
+        run: |
+          python3 -m compileall -q tools
+          python3 -c 'import sys; sys.path.insert(0, "tools"); import audit_win32_surface, e2e_arm64_build, e2e_source_overrides, e2e4_script_width_overrides, e2e5_host_game_probe'
+      - name: Preflight ordinary effective sources and manifest
+        run: python3 tools/e2e_arm64_build.py --preflight-only
       - name: Compile full original game and audit Switch dependencies
         run: python3 tools/e2e_arm64_build.py
+      - name: Preflight combined effective sources and manifest
+        run: python3 tools/e2e_arm64_build.py --experimental-e2e4-combined --preflight-only
       - name: Compile one combined E2E-4 experiment
         run: python3 tools/e2e_arm64_build.py --experimental-e2e4-combined
       - name: E2E Win32 Compatibility Surface effective gate
         run: |
-          python3 tools/audit_win32_surface.py --effective --check
+          python3 tools/audit_win32_surface.py --effective --build-root port/switch/build/e2e-game --check
+          python3 tools/audit_win32_surface.py --effective --build-root port/switch/build/e2e-game-combined-experiment --manifest win32-effective-combined-import-manifest.json --check
           python3 tools/generate_win32_portable_cases.py --check
       - name: Verify pinned upstream remains clean
         if: always()

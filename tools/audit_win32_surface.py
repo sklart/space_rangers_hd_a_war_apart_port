@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 from collections import Counter, defaultdict
 import hashlib
+import difflib
 import json
 from pathlib import Path
 import re
@@ -96,7 +97,8 @@ def args_from(content: str, open_paren: int) -> str:
     raise ValueError("unbalanced C++ call")
 
 
-def selected_sources(effective: bool) -> list[Path]:
+def selected_sources(effective: bool, build_root: Path = BUILD) -> list[Path]:
+    build_root = build_root.resolve()
     paths = sorted((*((CPP / "src").rglob("*.cpp")),
                     *((CPP / "src").rglob("*.hpp")),
                     *((CPP / "runtime").rglob("*.cpp")),
@@ -104,19 +106,37 @@ def selected_sources(effective: bool) -> list[Path]:
     if not effective:
         return paths
     selected: list[Path] = []
-    generated = BUILD / "generated"
-    patched = BUILD / "patched-upstream/src"
-    overlay = BUILD / "runtime-overlay"
+    generated = build_root / "generated"
+    generated_ui = build_root / "generated-ui"
+    patched = build_root / "patched-upstream/src"
+    overlay = build_root / "runtime-overlay"
+    source_overlay = build_root / "source-overlay"
+    map_file = build_root / "effective-source-map.json"
+    source_map = json.loads(map_file.read_text(encoding="utf-8")) if map_file.is_file() else {}
     for path in paths:
         replacement: Path | None = None
-        if path.parent == CPP / "src" and path.suffix == ".cpp":
+        mapped = source_map.get(path.relative_to(ROOT).as_posix())
+        if mapped:
+            replacement = ROOT / mapped
+            if not replacement.is_file():
+                raise FileNotFoundError(f"effective source is missing: {replacement}")
+        elif path.parent == CPP / "src" and path.suffix == ".cpp":
             candidate = generated / path.name
             generated_names = {"Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp",
-                               "aSaveLoad.cpp", "program.cpp"}
-            if candidate.exists() and (path.name in FUNCTIONS or path.name in generated_names):
+                               "aSaveLoad.cpp", "aPlayer.cpp", "aScript.cpp", "aShip.cpp",
+                               "fGameSettings.cpp", "fGameSettings2.cpp", "fIntroduction.cpp",
+                               "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"}
+            ui_candidate = generated_ui / path.name
+            if ui_candidate.exists():
+                replacement = ui_candidate
+            elif candidate.exists() and (path.name in FUNCTIONS or path.name in generated_names):
                 replacement = candidate
             elif (patched / path.name).exists():
                 replacement = patched / path.name
+            elif (source_overlay / path.name).exists():
+                replacement = source_overlay / path.name
+        elif path.is_relative_to(CPP / "src") and (source_overlay / path.relative_to(CPP / "src")).exists():
+            replacement = source_overlay / path.relative_to(CPP / "src")
         elif path.parent == CPP / "runtime":
             candidate = overlay / path.name
             if candidate.exists():
@@ -180,14 +200,15 @@ def scan_text(name: str, content: str, entries: dict,
                            "classification": "UNKNOWN"})
 
 
-def scan(effective: bool, classification: dict | None = None) -> dict:
+def scan(effective: bool, classification: dict | None = None,
+         build_root: Path = BUILD) -> dict:
     classification = classification or {}
     entries: dict[tuple[str, str], set[str]] = defaultdict(set)
     literals: dict[str, set[str]] = defaultdict(set)
     dynamic: list[dict] = []
     direct: list[dict] = []
     unparsed: list[dict] = []
-    sources = selected_sources(effective)
+    sources = selected_sources(effective, build_root)
     for path in sources:
         content = path.read_text(encoding="utf-8")
         if effective:
@@ -271,15 +292,17 @@ def main() -> int:
     parser.add_argument("--effective", action="store_true")
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--build-root", type=Path, default=BUILD)
+    parser.add_argument("--manifest", type=Path)
     args = parser.parse_args()
     if args.self_test:
         self_test()
         print("win32 surface scanner self-test PASS")
         return 0
     classification = json.loads(CLASSIFICATIONS.read_text(encoding="utf-8")) if CLASSIFICATIONS.exists() else {}
-    result = scan(args.effective, classification)
-    output = ROOT / ("win32-effective-import-manifest.json" if args.effective
-                     else "win32-import-manifest.json")
+    result = scan(args.effective, classification, args.build_root)
+    output = args.manifest or ROOT / ("win32-effective-import-manifest.json" if args.effective
+                                     else "win32-import-manifest.json")
     rendered = json.dumps(result, indent=2, ensure_ascii=False) + "\n"
     stale = not output.exists() or output.read_text(encoding="utf-8") != rendered
     if stale and not args.check:
@@ -291,6 +314,13 @@ def main() -> int:
           f"SHA-256={hashlib.sha256(rendered.encode()).hexdigest().upper()}")
     if args.check and stale:
         print(f"stale Win32 manifest: {output.name}")
+        old = output.read_text(encoding="utf-8").splitlines(keepends=True) if output.is_file() else []
+        diff = list(difflib.unified_diff(old, rendered.splitlines(keepends=True),
+                                         fromfile=output.name, tofile="effective source"))
+        for line in diff[:80]:
+            print(line, end="")
+        if len(diff) > 80:
+            print(f"... {len(diff) - 80} additional diff lines omitted")
     return 1 if args.check and (stale or result["classification_counts"].get("UNKNOWN", 0)
                                or result["startup_unimplemented"]) else 0
 
