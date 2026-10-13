@@ -64,7 +64,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         crash_trace: Path | None, continue_after_frame: bool,
         auto_new_game: bool = False, auto_start_game: bool = False,
         auto_select_dialog: bool = False,
-        mouse_new_game: bool = False) -> dict:
+        mouse_new_game: bool = False, capture_audio: bool = False) -> dict:
     binary = binary.resolve(strict=True)
     game_root = game_root.resolve(strict=True)
     library_dir = library_dir.resolve(strict=True)
@@ -76,9 +76,14 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     game_log = stage / "user/config/########.log"
     e2e_log = stage / "sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log"
     stderr_path = stage / "stderr.txt"
+    audio_path = stage / "audio-output.raw"
     env = os.environ.copy()
     env.update(E2E5_GAME_ROOT=str(game_root), SDL_VIDEODRIVER="dummy",
                SDL_AUDIODRIVER="dummy", LD_LIBRARY_PATH=str(library_dir))
+    if capture_audio:
+        env["SDL_AUDIODRIVER"] = "disk"
+        env["SDL_DISKAUDIOFILE"] = str(audio_path)
+        env["SDL_DISKAUDIODELAY"] = "11"
     if auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game:
         env["E2E5_HOST_AUTO_NEW_GAME"] = "1"
     if mouse_new_game:
@@ -114,7 +119,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                 if dialog_callback_at is None and "dialog choice callback complete" in current:
                     dialog_callback_at = time.monotonic()
             if ((seen_frame and not continue_after_frame and
-                 not auto_new_game and not auto_start_game and not auto_select_dialog and not mouse_new_game) or
+                 not auto_new_game and not auto_start_game and not auto_select_dialog and
+                 not mouse_new_game and not capture_audio) or
                     ((auto_new_game or mouse_new_game) and not auto_start_game and not auto_select_dialog
                      and seen_new_game_frame) or
                     (auto_start_game and not auto_select_dialog and seen_gameplay_frame
@@ -183,6 +189,30 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     ring_rows = [(int(played), int(underrun), int(rejected)) for played, underrun, rejected in
                  re.findall(r"\[MUSIC\] ring played_frames=(\d+) underrun_frames=(\d+) "
                             r"rejected_writes=(\d+)", full_game_log)]
+    audio_capture = None
+    if capture_audio:
+        spec = re.search(
+            r"E2E AUDIO obtained freq=(\d+) format=(\d+) channels=(\d+) "
+            r"samples=(\d+) driver=(\w+)", full_stderr)
+        audio_capture = {"status": "CAPTURE UNAVAILABLE", "path": str(audio_path)}
+        if spec and spec[5] == "disk" and int(spec[3]) == 2 and audio_path.is_file():
+            size = audio_path.stat().st_size
+            if 0 < size <= 16 * 1024 * 1024 and size % 4 == 0:
+                from e2e5_audio_capture import analyze_pcm
+                raw = audio_path.read_bytes()
+                audio_capture = analyze_pcm(raw, 2, int(spec[1]),
+                    "original ProgramMain through SDL2 disk output",
+                    "ORIGINAL GAME HOST SDL OUTPUT")
+                audio_capture["path"] = str(audio_path)
+                audio_capture["sha256"] = hashlib.sha256(raw).hexdigest().upper()
+                audio_capture["driver"] = spec[5]
+                audio_capture["sdl_format"] = int(spec[2])
+                audio_capture["original_game_event_verified"] = (
+                    "[AUDIO] music status=decoding" in full_game_log and
+                    max((row[0] for row in ring_rows), default=0) > 0)
+                audio_capture["status"] = "CAPTURED" if audio_capture["peak"] > 0 else "SILENT"
+            else:
+                audio_capture["error"] = f"raw size {size} outside bounded stereo S16 capture"
     result = {
         "schema": 1,
         "level": "ORIGINAL GAME HOST PROCESS",
@@ -241,7 +271,10 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
             "music_ring_max_played_frames": max((row[0] for row in ring_rows), default=0),
             "music_ring_max_underrun_frames": max((row[1] for row in ring_rows), default=0),
             "music_ring_max_rejected_writes": max((row[2] for row in ring_rows), default=0),
-            "pcm_output_verified": False,
+            "pcm_output_verified": bool(audio_capture and
+                audio_capture.get("status") == "CAPTURED" and
+                audio_capture.get("original_game_event_verified")),
+            "capture": audio_capture,
         },
         "stage": str(stage),
         "game_log_tail": tail(game_log),
@@ -266,14 +299,17 @@ def main() -> None:
     parser.add_argument("--auto-start-game", action="store_true")
     parser.add_argument("--auto-select-dialog", action="store_true")
     parser.add_argument("--mouse-new-game", action="store_true")
+    parser.add_argument("--capture-audio", action="store_true")
     args = parser.parse_args()
     if args.game_root is None or args.timeout <= 0:
         parser.error("--game-root or GAME_ROOT and a positive --timeout are required")
+    if args.capture_audio and args.timeout > 60:
+        parser.error("--capture-audio requires --timeout at most 60 seconds")
     print(json.dumps(run(args.binary, args.game_root, args.library_dir,
                          args.timeout, args.crash_trace,
                          args.continue_after_frame, args.auto_new_game,
                          args.auto_start_game, args.auto_select_dialog,
-                         args.mouse_new_game), indent=2))
+                         args.mouse_new_game, args.capture_audio), indent=2))
 
 
 if __name__ == "__main__":

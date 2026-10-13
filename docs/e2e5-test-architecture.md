@@ -22,10 +22,10 @@ diagnostics to `reports/e2e5/`. No package or decoded image is copied to Git.
 | Original GameSettings cache load | Same host script and ARM64/QEMU script, built with `E2E5_ORIGINAL_CACHEGI` | Unchanged original `TCGiEC::ApplyWideScreenLayoutFixups` and `LoadFromConfigBuffer` run on the installed `2bg.gi` with the generated Switch GraphBuf override. A real cache object loads the transformed 1280×720 RGB565 GI into `Image`, records `ResidentBytes`, and is freed. Its 1,843,200-byte payload matches the independent x86 oracle (`8dc3555a82d454db`) on x86 and the separate original ARM64 GraphBuf/GI result (`1107dc234c3883f5`) under QEMU. Expected rescale start and completion log text is observed for both calls. Synthetic and installed x86 runs passed normally and with ASan/UBSan (`vptr` excluded); synthetic and installed ARM64 runs passed under QEMU. | UI object creation, first screen frame, Switch runtime |
 | Observed game log | `tools/e2e5_scenario_runner.py` | Checkpoints actually present after the New Game transition | Unobserved later stages |
 | Crash correlation | `tools/e2e5_crash_analyzer.py` | First explicit log failure, unfinished original log stage, Atmosphere offsets | Causal stack unless matching ELF is supplied |
-| Offline PCM | `tools/e2e5_audio_capture.py` | Properties of a supplied signed 16-bit WAV | Full `GR_Music`/`GR_Sound` path or audible quality |
+| Original host PCM | `tools/e2e5_host_game_probe.py --capture-audio` and `tools/e2e5_compare_host_audio.py` | SDL2 disk output from original `ProgramMain`/`GR_Music`, measured S16LE PCM, and alignment to the exact logged package track through independent FFmpeg decoding | Audible Switch output or sound effects not exercised in the captured menu interval |
 | Installed music oracle | `tools/e2e5_audio_capture.py --game-root ... --resource music/REV/theo_running_away.dat` | Source Ogg independently decodes to PCM; 30-second level/clipping/DC measurements | Original Vorbis worker, mixer, SDL, audible Switch output |
 | Host coordination | `tools/e2e5_host_runner.py` | Available tests and explicit missing gates | Complete `ProgramMain` execution |
-| Original process smoke on Linux x86-64 | `tools/e2e5_host_game_build.py`, `tools/e2e5_host_game_main.cpp`, and `tools/e2e5_host_game_probe.py` | Reproducible full-effective host ELF ran original `ProgramMain` with installed assets, submitted a 1280×720 RGB565 loading frame, processed original Return-key actions in Main Menu, GameSettings and Introduction, completed generation, opened RuinsTalk, and logged 60 gameplay frame iterations without a signal. The builder records its 331-object source map and binary SHA-256; the probe records isolated logs. | No later gameplay interaction, original save/load, independently captured GameSettings pixel frame, PCM quality or Switch runtime proof. |
+| Original process smoke on Linux x86-64 | `tools/e2e5_host_game_build.py`, `tools/e2e5_host_game_main.cpp`, and `tools/e2e5_host_game_probe.py` | Reproducible full-effective host ELF ran original `ProgramMain` with installed assets, submitted a 1280×720 RGB565 loading frame, processed original Return-key actions in Main Menu, GameSettings and Introduction, completed generation, opened RuinsTalk, and logged 60 gameplay frame iterations without a signal. A separate mouse probe followed one original New button press through its callback into GameSettings. The builder records its 331-object source map and binary SHA-256; the probe records isolated logs. | No later gameplay interaction, original save/load, independently captured GameSettings pixel frame, or Switch runtime proof. |
 
 `tools/e2e5_report.py` combines the levels without elevating resource or
 method-level PASS to a game-scenario PASS. An exploratory full-effective
@@ -79,6 +79,15 @@ software frame and preserves `report.json` plus the logs in that directory.
 after the original Main Menu `OnOpen` marker; it waits for New Game screen 33
 and its first frame attempt or stops at the timeout. The exact outcome is
 reported without promoting an attempted frame to visual or hardware proof.
+`--mouse-new-game` clicks the centre of the original New button's logged bounds
+and verifies one matching press ID through the button callback. `--capture-audio`
+selects SDL2's host disk driver and keeps recording until the bounded probe
+timeout. It writes raw stereo S16LE only to the ignored run directory, records
+the obtained SDL format and reports PCM statistics. Pass that run's `report.json`
+and installed game root to `tools/e2e5_compare_host_audio.py`: it checks the
+capture hash, extracts the exact track named in the game log, independently
+decodes it with FFmpeg in a temporary directory, then reports aligned sample
+correlation and gain. NumPy and SciPy are needed for this optional comparison.
 `--auto-start-game` sends a second Return key after 60 GameSettings frames,
 waits until the original Introduction enables Continue, then sends a third
 Return key through the same queue. It stops after 60 frames of a gameplay

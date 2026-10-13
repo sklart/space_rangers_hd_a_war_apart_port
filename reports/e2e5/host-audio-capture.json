@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "level": "ORIGINAL GAME HOST SDL OUTPUT",
+  "host_binary_sha256": "66C5E614AD41CA310CDEA34E30A475709631266BDBD12E11FB36651F4F28D1D8",
+  "selected_music_resource": "music/special/spaceiscalling.dat",
+  "selected_resource_sha256": "BACDAA51ABA306AFEDF19123300F2A03AD9DE2650CE97AF46AC401B67979A417",
+  "sdl_output": {
+    "driver": "disk",
+    "sample_rate": 44100,
+    "channels": 2,
+    "format": "S16LE",
+    "frames": 2557952,
+    "first_audible_seconds": 20.759,
+    "capture_sha256": "AEB41B27C24B577B96C2F108B4CBEEAC80717F2AA0D7B228AF6404B70432ABED",
+    "peak": 32768,
+    "rms_including_startup_silence": 5378.124,
+    "clipped_samples": 18,
+    "music_ring_underruns": 0,
+    "music_ring_rejected_writes": 0
+  },
+  "independent_decoder_comparison": {
+    "decoder": "FFmpeg",
+    "same_logged_resource": true,
+    "compared_seconds": 30.0,
+    "sample_correlation": 0.995234,
+    "gain_ratio": 0.986251,
+    "matches_reference": true
+  },
+  "switch_playback_verified": false,
+  "audible_quality_verified": false
+}

@@ -43,6 +43,12 @@ bool SdlOutput::Open(std::string* error) {
         return false;
     }
     output_rate_ = static_cast<std::uint32_t>(obtained.freq);
+#if defined(E2E5_HOST_SDL_WINDOW)
+    SDL_Log("E2E AUDIO obtained freq=%d format=%u channels=%u samples=%u driver=%s",
+            obtained.freq, static_cast<unsigned>(obtained.format),
+            static_cast<unsigned>(obtained.channels),
+            static_cast<unsigned>(obtained.samples), SDL_GetCurrentAudioDriver());
+#endif
     try {
         mixer_ = std::make_unique<Mixer>(output_rate_);
         mix_buffer_.resize(std::max<std::size_t>(1, obtained.samples) * 2);
