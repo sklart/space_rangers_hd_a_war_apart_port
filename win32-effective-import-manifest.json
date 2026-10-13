@@ -1,7 +1,7 @@
 {
   "source": "effective-e2e",
   "upstream_pin": "57fa689c630193a66fdea6ca4c79a188814991cd",
-  "source_file_count": 1390,
+  "source_file_count": 1392,
   "imports": [
     {
       "dll": "advapi32.dll",
@@ -3058,6 +3058,28 @@
   ],
   "dynamic_calls": [
     {
+      "api": "GetModuleHandleW",
+      "expression": "ModuleName.pchar()",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:1347",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "reason": "Windows DirectX/WOW64/integrity path is bypassed by generated Switch GR_Main source.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
+      "api": "GetModuleHandleW",
+      "expression": "ModuleName.pchar()",
+      "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:1351",
+      "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
+      "classification": "OPTIONAL_DISABLED",
+      "implementation": "GR_Main Switch source adaptation",
+      "reason": "Windows DirectX/WOW64/integrity path is bypassed by generated Switch GR_Main source.",
+      "startup_required": false,
+      "gameplay_required": false
+    },
+    {
       "api": "GetModuleHandle",
       "expression": "pas::literal_pointer(\"kernel32.dll\")",
       "callsite": "port/switch/build/e2e-game/generated/GR_Main.cpp:815",
@@ -3967,7 +3989,7 @@
   "unparsed_import_patterns": [],
   "classification_counts": {
     "NOT_REACHED_UNTIL_GAMEPLAY": 15,
-    "OPTIONAL_DISABLED": 50,
+    "OPTIONAL_DISABLED": 52,
     "PORTABLE": 137,
     "RUNTIME_MODULE": 7,
     "STATIC_LIBRARY": 88
