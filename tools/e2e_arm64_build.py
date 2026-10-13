@@ -248,7 +248,7 @@ def main() -> int:
                                             set(AUDIO_ON_FUNCTIONS))
     if args.experimental_e2e4_combined:
         report["source_overrides"] = sorted(set(report["source_overrides"]) |
-                                            {"fRuinsTalk.cpp", "fTalk.cpp"})
+                                            {"fHangar.cpp", "fRuinsTalk.cpp", "fTalk.cpp"})
     # These were created for the old diagnostic slice. They define symbols
     # already present in the complete original units and cannot be linked
     # alongside them; their replacement behavior must move behind original APIs.

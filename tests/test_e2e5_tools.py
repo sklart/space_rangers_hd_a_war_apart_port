@@ -240,6 +240,19 @@ class E2E5ToolTests(unittest.TestCase):
                 self.assertNotIn("static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(", text)
                 self.assertIn("e2e5_pointer_payload::ReleaseOwner(this)", text)
 
+    def test_hangar_mirror_keeps_full_framebuffer_address_in_experiment(self):
+        overrides = module("e2e_source_overrides")
+        source = ROOT / "upstream/cpp/src/fHangar.cpp"
+        with tempfile.TemporaryDirectory() as directory:
+            generated = overrides.generated_source(
+                source, Path(directory) / "fHangar.cpp", e2e5_profile=True)
+            text = generated.read_text(encoding="utf-8")
+        self.assertIn("std::uint8_t* cpp_left = static_cast<std::uint8_t*>(", text)
+        self.assertIn("void* cpp_arg = cpp_left + Position.Y", text)
+        self.assertNotIn("std::uint32_t cpp_left = static_cast<std::uint32_t>(", text)
+        self.assertIn("std::uint32_t cpp_left = static_cast<std::uint32_t>(",
+                      source.read_text(encoding="utf-8"))
+
     def test_ordinary_player_build_keeps_matching_original_declaration(self):
         overrides = module("e2e_source_overrides")
         source = ROOT / "upstream/cpp/src/aPlayer.cpp"

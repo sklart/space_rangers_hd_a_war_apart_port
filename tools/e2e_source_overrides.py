@@ -356,7 +356,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aShip.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fIntroduction.cpp", "fMainForm.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aShip.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fMainForm.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "aPlayer.cpp":
@@ -987,6 +987,14 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = '#include "e2e3_generation_state.hpp"\n' + text
     if e2e5_profile and source.name in ("fRuinsTalk.cpp", "fTalk.cpp"):
         text = replace_dialog_pointer_payloads(text, source.name)
+    if e2e5_profile and source.name == "fHangar.cpp":
+        truncated = ("std::uint32_t cpp_left = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(GR_Main::ScreenRenderBuffer->GetPixels())) + static_cast<std::uint32_t>(Position.X * 2);\n"
+                     "                void* cpp_arg = reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(cpp_left + static_cast<std::uint32_t>(Position.Y * GR_Main::ScreenRenderBuffer->PitchBytes))));")
+        if text.count(truncated) != 1:
+            raise RuntimeError("Hangar screen-buffer pointer boundary changed")
+        text = text.replace(truncated,
+            "std::uint8_t* cpp_left = static_cast<std::uint8_t*>(GR_Main::ScreenRenderBuffer->GetPixels()) + Position.X * 2;\n"
+            "                void* cpp_arg = cpp_left + Position.Y * GR_Main::ScreenRenderBuffer->PitchBytes;", 1)
     if source.name == "GR_GraphBuf.cpp":
         use_texture = "        Self->UseTexture = AUseTexture;"
         if text.count(use_texture) != 1:

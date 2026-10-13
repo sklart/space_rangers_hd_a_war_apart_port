@@ -125,7 +125,7 @@ def selected_sources(effective: bool, build_root: Path = BUILD) -> list[Path]:
             generated_names = {"Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp",
                                "aSaveLoad.cpp", "aPlayer.cpp", "aScript.cpp", "aShip.cpp",
                                "fGameSettings.cpp", "fGameSettings2.cpp", "fIntroduction.cpp",
-                               "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"}
+                               "fHangar.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"}
             ui_candidate = generated_ui / path.name
             if ui_candidate.exists():
                 replacement = ui_candidate

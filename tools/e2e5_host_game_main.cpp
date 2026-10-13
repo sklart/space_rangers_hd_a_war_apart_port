@@ -20,13 +20,15 @@ namespace {
 void DriveOriginalGameKeys(const std::filesystem::path& stage,
                            const std::atomic<bool>& running,
                            bool start_game, bool select_dialog,
-                           bool mouse_new_game) {
+                           bool mouse_new_game, bool advance_dialog) {
   const auto log = stage / "sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log";
   constexpr auto kMenu = "screen dispatch id=1 postload=";
   constexpr auto kReady = "screen Run OnOpen ready";
   bool new_game_sent = false;
   bool start_game_sent = false;
   bool introduction_sent = false;
+  std::size_t last_choice = 0;
+  unsigned choices_sent = 0;
   while (running.load()) {
     std::string lines;
     try {
@@ -77,15 +79,32 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
         }
       }
       if (select_dialog && introduction_sent) {
+        if (advance_dialog && lines.find("screen returned id=20") != std::string::npos)
+          return;
+        if (choices_sent >= (advance_dialog ? 8u : 1u)) return;
+        const auto callbacks = [&lines] {
+          constexpr auto kCallback = "dialog choice callback complete";
+          unsigned count = 0;
+          for (auto offset = lines.find(kCallback); offset != std::string::npos;
+               offset = lines.find(kCallback, offset + 1)) ++count;
+          return count;
+        }();
+        if (callbacks < choices_sent) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          continue;
+        }
         constexpr auto kChoice = "dialog choice ready x=";
         const auto choice = lines.rfind(kChoice);
         int x = -1, y = -1;
-        if (choice != std::string::npos &&
+        if (choice != std::string::npos && choice > last_choice &&
             std::sscanf(lines.c_str() + choice, "dialog choice ready x=%d y=%d",
                         &x, &y) == 2 && x >= 0 && y >= 0) {
           const auto window = srhd_awa::platform::win32_compat::MainWindow();
-          if (window && srhd_awa::platform::win32_compat::PostHostLeftClick(window, x, y))
-            return;
+          if (window && srhd_awa::platform::win32_compat::PostHostLeftClick(window, x, y)) {
+            last_choice = choice;
+            ++choices_sent;
+            if (!advance_dialog) return;
+          }
         }
       }
     }
@@ -119,14 +138,17 @@ int main() {
   const char* drive = std::getenv("E2E5_HOST_AUTO_NEW_GAME");
   const char* start = std::getenv("E2E5_HOST_AUTO_START_GAME");
   const char* select = std::getenv("E2E5_HOST_AUTO_SELECT_DIALOG");
+  const char* advance = std::getenv("E2E5_HOST_AUTO_ADVANCE_DIALOG");
   const char* mouse_new = std::getenv("E2E5_HOST_MOUSE_NEW_GAME");
   if ((drive && *drive == '1') || (start && *start == '1') ||
-      (select && *select == '1') || (mouse_new && *mouse_new == '1'))
+      (select && *select == '1') || (mouse_new && *mouse_new == '1') ||
+      (advance && *advance == '1'))
     new_game_driver = std::thread(DriveOriginalGameKeys, stage,
                                   std::cref(running),
-                                  (start && *start == '1') || (select && *select == '1'),
-                                  select && *select == '1',
-                                  mouse_new && *mouse_new == '1');
+                                  (start && *start == '1') || (select && *select == '1') ||
+                                      (advance && *advance == '1'),
+                                  (select && *select == '1') || (advance && *advance == '1'),
+                                  mouse_new && *mouse_new == '1', advance && *advance == '1');
   Rangers::ProgramMain();
   running = false;
   if (new_game_driver.joinable()) new_game_driver.join();
