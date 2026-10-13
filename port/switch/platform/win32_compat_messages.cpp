@@ -47,8 +47,16 @@ struct Timer {
   std::uint32_t window = 0, id = 0, interval = 0;
   std::uint64_t due = 0;
 };
+struct QueuedMessage {
+  Windows::TMsg message{};
+  std::uint64_t press_id{};
+  std::uint64_t hid_sequence{};
+};
 std::mutex g_mutex;
-std::deque<Windows::TMsg> g_queue;
+std::deque<QueuedMessage> g_queue;
+std::uint64_t g_next_press_id{};
+std::uint64_t g_active_press_id{};
+thread_local std::uint64_t g_dispatched_press_id{};
 std::unordered_map<std::string, std::uint32_t> g_registered;
 std::uint32_t g_next_registered = 0xc000u;
 std::vector<std::shared_ptr<Timer>> g_timers;
@@ -72,7 +80,8 @@ std::int32_t MouseLParam(std::int32_t x, std::int32_t y) {
 
 void Enqueue(std::uint32_t window, std::uint32_t message,
              std::uint32_t wparam = 0, std::int32_t lparam = 0,
-             std::int32_t x = 0, std::int32_t y = 0) {
+             std::int32_t x = 0, std::int32_t y = 0,
+             std::uint64_t hid_sequence = 0) {
   Windows::TMsg item{};
   item.hwnd = window;
   item.message = message;
@@ -80,7 +89,15 @@ void Enqueue(std::uint32_t window, std::uint32_t message,
   item.lParam = lparam;
   item.time = e2e_clock::Milliseconds();
   item.pt = {x, y};
-  g_queue.push_back(item);
+  std::uint64_t press_id{};
+  if (message == kWmLeftDown) {
+    press_id = ++g_next_press_id;
+    g_active_press_id = press_id;
+  } else if (message == kWmLeftUp) {
+    press_id = g_active_press_id;
+    g_active_press_id = 0;
+  }
+  g_queue.push_back({item, press_id, hid_sequence});
 }
 
 void Pump() {
@@ -96,7 +113,9 @@ void Pump() {
 #endif
   std::int32_t width = 1280, height = 720;
   MainWindowSize(&width, &height);
-  const auto input = input_platform::Poll(&g_input, width, height);
+  const auto batch = input_platform::PollHistory(&g_input, width, height);
+  if (!batch.count) return;
+  const auto& input = batch.snapshots[batch.count - 1];
   SetInputCursor(input.x, input.y);
 #if defined(__SWITCH__)
   const auto poll_us = e2e_clock::Microseconds();
@@ -120,44 +139,56 @@ void Pump() {
     g_poll_count = g_pointer_move_count = g_max_poll_gap_us = 0;
   }
   const auto diagnostic_tick = e2e_clock::Milliseconds();
-  const bool button_edge = input.left_down || input.left_up || input.right_down ||
-      input.right_up || input.enter_down || input.enter_up || input.escape_down ||
-      input.escape_up || input.plus_down || input.quicksave_down ||
-      input.quicksave_up;
+  const bool button_edge = std::any_of(batch.snapshots.begin(),
+      batch.snapshots.begin() + batch.count, [](const auto& item) {
+        return item.left_down || item.left_up || item.right_down ||
+            item.right_up || item.enter_down || item.enter_up ||
+            item.escape_down || item.escape_up || item.plus_down ||
+            item.quicksave_down || item.quicksave_up;
+      });
   if (!g_input_diagnostic_started || button_edge ||
       diagnostic_tick - g_last_input_diagnostic_tick >= 1000u) {
-    char detail[160]{};
+    char detail[192]{};
     std::snprintf(detail, sizeof(detail),
-        "input poll window=%u size=%dx%d cursor=%d,%d buttons=A%d B%d X%d Y%d PLUS%d",
+        "input poll window=%u size=%dx%d cursor=%d,%d buttons=A%d B%d X%d Y%d PLUS%d samples=%zu missed=%llu",
         window, width, height, input.x, input.y,
         input.left_held, input.right_held, input.enter_held,
-        input.escape_held, input.plus_down);
+        input.escape_held, input.plus_down, batch.count,
+        static_cast<unsigned long long>(batch.missed_samples));
     e2e_stage::Log(detail);
     g_last_input_diagnostic_tick = diagnostic_tick;
     g_input_diagnostic_started = true;
   }
 #endif
   std::lock_guard lock(g_mutex);
-  const auto lparam = MouseLParam(input.x, input.y);
-  if (input.x != g_last_x || input.y != g_last_y) {
-    Enqueue(window, kWmMouseMove, 0, lparam, input.x, input.y);
-    g_last_x = input.x; g_last_y = input.y;
+  for (std::size_t index = 0; index < batch.count; ++index) {
+    const auto& sample = batch.snapshots[index];
+    const auto lparam = MouseLParam(sample.x, sample.y);
+    const bool pointer_target = index + 1 == batch.count || sample.left_down ||
+        sample.left_up || sample.right_down || sample.right_up;
+    if (pointer_target && (sample.x != g_last_x || sample.y != g_last_y)) {
+      Enqueue(window, kWmMouseMove, 0, lparam, sample.x, sample.y,
+              sample.hid_sequence);
+      g_last_x = sample.x; g_last_y = sample.y;
+    }
+    if (sample.left_down) Enqueue(window, kWmLeftDown, 1, lparam, sample.x, sample.y,
+                                  sample.hid_sequence);
+    if (sample.left_up) Enqueue(window, kWmLeftUp, 0, lparam, sample.x, sample.y,
+                                sample.hid_sequence);
+    if (sample.right_down) Enqueue(window, kWmRightDown, 2, lparam, sample.x, sample.y);
+    if (sample.right_up) Enqueue(window, kWmRightUp, 0, lparam, sample.x, sample.y);
+    auto key = [&](std::uint32_t vk, bool down, bool up, bool held) {
+      g_keys[vk] = held;
+      if (down) Enqueue(window, kWmKeyDown, vk);
+      if (up) Enqueue(window, kWmKeyUp, vk);
+    };
+    key(kVkReturn, sample.enter_down, sample.enter_up, sample.enter_held);
+    key(kVkEscape, sample.escape_down, sample.escape_up, sample.escape_held);
+    key(kVkF5, sample.quicksave_down, sample.quicksave_up, sample.quicksave_held);
+    g_keys[kVkLeftMouse] = sample.left_held;
+    g_keys[kVkRightMouse] = sample.right_held;
+    if (sample.plus_down) Enqueue(0, kWmQuit); // PLUS is process exit, never a VK.
   }
-  if (input.left_down) Enqueue(window, kWmLeftDown, 1, lparam, input.x, input.y);
-  if (input.left_up) Enqueue(window, kWmLeftUp, 0, lparam, input.x, input.y);
-  if (input.right_down) Enqueue(window, kWmRightDown, 2, lparam, input.x, input.y);
-  if (input.right_up) Enqueue(window, kWmRightUp, 0, lparam, input.x, input.y);
-  auto key = [&](std::uint32_t vk, bool down, bool up, bool held) {
-    g_keys[vk] = held;
-    if (down) Enqueue(window, kWmKeyDown, vk);
-    if (up) Enqueue(window, kWmKeyUp, vk);
-  };
-  key(kVkReturn, input.enter_down, input.enter_up, input.enter_held);
-  key(kVkEscape, input.escape_down, input.escape_up, input.escape_held);
-  key(kVkF5, input.quicksave_down, input.quicksave_up, input.quicksave_held);
-  g_keys[kVkLeftMouse] = input.left_held;
-  g_keys[kVkRightMouse] = input.right_held;
-  if (input.plus_down) Enqueue(0, kWmQuit); // PLUS is process exit, never a VK.
   const auto now = static_cast<std::uint64_t>(e2e_clock::Milliseconds());
   for (const auto& timer : g_timers) {
     if (now >= timer->due) {
@@ -181,17 +212,43 @@ std::int32_t PeekMessage(Windows::TMsg* output, std::uint32_t window,
                           std::uint32_t remove) {
   if (!output) { SetLastError(kErrorInvalidParameter); return 0; }
   Pump();
-  std::lock_guard lock(g_mutex);
+  std::unique_lock lock(g_mutex);
   auto found = std::find_if(g_queue.begin(), g_queue.end(), [&](const auto& item) {
-    const bool hwnd_match = !window || item.hwnd == window || item.message == kWmQuit;
+    const bool hwnd_match = !window || item.message.hwnd == window ||
+        item.message.message == kWmQuit;
     const bool filter_match = (!first && !last) ||
-        (item.message >= first && item.message <= last) || item.message == kWmQuit;
+        (item.message.message >= first && item.message.message <= last) ||
+        item.message.message == kWmQuit;
     return hwnd_match && filter_match;
   });
   if (found == g_queue.end()) return 0;
-  *output = *found;
-  if (remove & 1u) g_queue.erase(found);
+  *output = found->message;
+  const auto press_id = found->press_id;
+  const auto hid_sequence = found->hid_sequence;
+  if (remove & 1u) {
+    g_dispatched_press_id = found->press_id;
+    if (output->message == kWmLeftDown) g_keys[kVkLeftMouse] = true;
+    if (output->message == kWmLeftUp) g_keys[kVkLeftMouse] = false;
+    if (output->message == kWmRightDown) g_keys[kVkRightMouse] = true;
+    if (output->message == kWmRightUp) g_keys[kVkRightMouse] = false;
+    if ((output->message == kWmKeyDown || output->message == kWmKeyUp) &&
+        output->wParam < g_keys.size())
+      g_keys[output->wParam] = output->message == kWmKeyDown;
+    g_queue.erase(found);
+  }
   SetLastError(kErrorSuccess);
+  lock.unlock();
+  if ((remove & 1u) && press_id &&
+      (output->message == kWmLeftDown || output->message == kWmLeftUp)) {
+    char detail[160]{};
+    std::snprintf(detail, sizeof(detail),
+        "input press_id=%llu phase=dispatch message=%u hid_sequence=%llu queued_ms=%u dispatch_ms=%u x=%d y=%d",
+        static_cast<unsigned long long>(press_id), output->message,
+        static_cast<unsigned long long>(hid_sequence), output->time,
+        e2e_clock::Milliseconds(), static_cast<std::int16_t>(output->lParam),
+        static_cast<std::int16_t>(output->lParam >> 16));
+    e2e_stage::Log(detail);
+  }
   return 1;
 }
 
@@ -308,6 +365,7 @@ void WarpInputCursor(std::int32_t x, std::int32_t y) {
   SetInputCursor(g_input.last.x, g_input.last.y);
 }
 void PostPaint(std::uint32_t window) { PostMessage(window, kWmPaint, 0, 0); }
+std::uint64_t CurrentPressId() { return g_dispatched_press_id; }
 #if defined(E2E5_HOST_SDL_WINDOW)
 bool PostHostReturnKey(std::uint32_t window) {
   if (!window) return false;

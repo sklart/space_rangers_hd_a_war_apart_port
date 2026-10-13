@@ -70,6 +70,12 @@ jobs:
             tests/e2e5_pointer_payload_test.cpp -pthread \
             -o build/e2e4-sanitizers/pointer_payload
           build/e2e4-sanitizers/pointer_payload
+          g++ -std=c++20 -O1 -g -fno-omit-frame-pointer \
+            -fsanitize=address,undefined -Iport/switch/platform \
+            tests/test_e2e5_input_history.cpp \
+            port/switch/platform/input_platform.cpp \
+            -o build/e2e4-sanitizers/input_history
+          build/e2e4-sanitizers/input_history
 
   e2e5-arm64-host:
     runs-on: ubuntu-24.04

@@ -356,7 +356,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aShip.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fIntroduction.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aShip.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fIntroduction.cpp", "fMainForm.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "aPlayer.cpp":
@@ -810,19 +810,21 @@ void CloseVorbisStream(TOggWorker* worker) {
             detail = f'''
 #if defined(E2E3_TRACE) && E2E3_TRACE
         if (pas::view(ControlName) == u"New"sv) {{
-            char detail[160]{{}};
+            char detail[224]{{}};
             std::snprintf(detail, sizeof(detail),
-                "button=New event={event} x=%d y=%d hit=%u hovered=%u occluded=%u disabled=%u down=%u kind=%u",
+                "button=New press_id=%llu event={event} x=%d y=%d hit=%u hovered=%u focused=%u occluded=%u disabled=%u down=%u kind=%u callback=%u",
+                static_cast<unsigned long long>(srhd_awa::platform::win32_compat::CurrentPressId()),
                 Point.X, Point.Y, static_cast<unsigned>(HitTest(Point)),
                 static_cast<unsigned>(MessageLoop->HoveredControl == this),
+                static_cast<unsigned>(MessageLoop->FocusedControl == this),
                 static_cast<unsigned>(IsOccludedAtPoint(Point)),
                 static_cast<unsigned>(Disabled), static_cast<unsigned>(Down),
-                static_cast<unsigned>(Kind));
+                static_cast<unsigned>(Kind), static_cast<unsigned>(pas::assigned(UpCallback)));
             srhd_awa::platform::e2e_stage::LogE2E3(detail);
         }}
 #endif'''
             text = text[:begin] + original.replace(base, base + detail, 1) + text[end:]
-        text = '#include "e2e_stage.hpp"\n#include <cstdio>\n' + text
+        text = '#include "e2e_stage.hpp"\n#include "win32_compat_messages.hpp"\n#include <cstdio>\n' + text
     if source.name == "fMainForm.cpp":
         open_method = "    void TfMainForm::OnOpen() {"
         callback = "    void TfMainForm::NewGameClicked(GI_MessageLoop::TObjectGI* Sender) {"
@@ -832,11 +834,33 @@ void CloseVorbisStream(TOggWorker* worker) {
             raise RuntimeError("original main menu new-game boundary changed")
         text = text.replace(open_method, open_method +
             '\n        srhd_awa::platform::e2e_stage::LogE2E3("main_menu status=open");', 1)
-        text = text.replace(request, request +
-            '\n        srhd_awa::platform::e2e_stage::LogE2E3("menu_action=New result=accepted requested=new_game");', 1)
+        new_binding = '        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"New"sv))->UpCallback = pas::bind_method<&TfMainForm::NewGameClicked>(this);'
+        if text.count(new_binding) != 1:
+            raise RuntimeError("original New button binding boundary changed")
+        text = text.replace(new_binding, new_binding + '''
+#if defined(E2E3_TRACE) && E2E3_TRACE
+        {
+            const auto* button = GetByName(u"New"sv);
+            char detail[128]{};
+            std::snprintf(detail, sizeof(detail),
+                "menu_new_bounds left=%d top=%d right=%d bottom=%d active=%u",
+                button->HitTestBounds.Left, button->HitTestBounds.Top,
+                button->HitTestBounds.Right, button->HitTestBounds.Bottom,
+                static_cast<unsigned>(button->Active));
+            srhd_awa::platform::e2e_stage::LogE2E3(detail);
+        }
+#endif''', 1)
+        text = text.replace(request, request + '''
+        {
+            char detail[120]{};
+            std::snprintf(detail, sizeof(detail),
+                "menu_action=New press_id=%llu result=accepted requested=new_game",
+                static_cast<unsigned long long>(srhd_awa::platform::win32_compat::CurrentPressId()));
+            srhd_awa::platform::e2e_stage::LogE2E3(detail);
+        }''', 1)
         text = text.replace(keyboard,
             '            srhd_awa::platform::e2e_stage::LogE2E3("menu_action=New source=keyboard key=Enter");\n' + keyboard, 1)
-        text = '#include "e2e_stage.hpp"\n' + text
+        text = '#include "e2e_stage.hpp"\n#include "win32_compat_messages.hpp"\n#include <cstdio>\n' + text
     if source.name == "fGameSettings2.cpp":
         # The translated 32-bit UI stores object pointers in UserIndex/UserValue.
         # These controls are created as adjacent siblings, so resolve the live
@@ -1084,9 +1108,10 @@ void CloseVorbisStream(TOggWorker* worker) {
                         Msg.message == MessagesSdk::WM_QUIT;
                     if ((e2e_is_move && e2e_move_dispatch_logs < 4) ||
                         (e2e_is_button && e2e_button_dispatch_logs < 32)) {
-                        char detail[128]{};
+                        char detail[160]{};
                         std::snprintf(detail, sizeof(detail),
-                            "input dispatch message=%u hwnd=%u active=%u callback=%u",
+                            "input dispatch press_id=%llu message=%u hwnd=%u active=%u callback=%u",
+                            static_cast<unsigned long long>(srhd_awa::platform::win32_compat::CurrentPressId()),
                             static_cast<unsigned>(Msg.message), static_cast<unsigned>(Msg.hwnd),
                             static_cast<unsigned>(e2e_callback_active),
                             static_cast<unsigned>(pas::assigned(Callback)));
@@ -1225,6 +1250,7 @@ void CloseVorbisStream(TOggWorker* worker) {
             "        // OPTIONAL: no COM apartment exists in the Switch SDL runtime.", 1)
         text = ('#include "runtime_platform.hpp"\n#include "renderer_platform.hpp"\n'
                  '#include "win32_compat_window.hpp"\n'
+                 '#include "win32_compat_messages.hpp"\n'
                 '#include "e2e_clock.hpp"\n#include "e2e_stage.hpp"\n'
                 '#include "game_path.hpp"\n#include "user_root.hpp"\n'
                 '#include <SDL2/SDL.h>\n#if defined(__SWITCH__)\n'

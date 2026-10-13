@@ -21,6 +21,64 @@ double Axis(std::int32_t value, const Config& config) {
   const auto curved = normalized * normalized;
   return value < 0 ? -curved : curved;
 }
+#if defined(__SWITCH__)
+RawInput FromButtons(std::uint64_t held, HidAnalogStickState stick) {
+  RawInput raw{};
+  raw.stick_x = stick.x; raw.stick_y = stick.y;
+  raw.dpad_left = (held & HidNpadButton_Left) != 0;
+  raw.dpad_right = (held & HidNpadButton_Right) != 0;
+  raw.dpad_up = (held & HidNpadButton_Up) != 0;
+  raw.dpad_down = (held & HidNpadButton_Down) != 0;
+  raw.a = (held & HidNpadButton_A) != 0;
+  raw.b = (held & HidNpadButton_B) != 0;
+  raw.x = (held & HidNpadButton_X) != 0;
+  raw.y = (held & HidNpadButton_Y) != 0;
+  raw.plus = (held & HidNpadButton_Plus) != 0;
+#if defined(E2E4_QUICKSAVE_EXPERIMENT) && E2E4_QUICKSAVE_EXPERIMENT
+  raw.zl = (held & HidNpadButton_ZL) != 0;
+  raw.zr = (held & HidNpadButton_ZR) != 0;
+  raw.minus = (held & HidNpadButton_Minus) != 0;
+#endif
+  return raw;
+}
+
+std::size_t ReadNpadHistory(const PadState& pad,
+                            std::array<RawHistoryEntry, 17>& output,
+                            std::uint64_t* source_key) {
+  *source_key = 0;
+  HidNpadCommonState samples[17]{};
+  std::size_t count = 0;
+  HidNpadIdType id = HidNpadIdType_No1;
+  std::uint32_t style = 0;
+  if (padIsNpadActive(&pad, HidNpadIdType_No1)) {
+    style = hidGetNpadStyleSet(id);
+    if (style & HidNpadStyleTag_NpadFullKey)
+      count = hidGetNpadStatesFullKey(id, samples, 17);
+    else if (style & HidNpadStyleTag_NpadJoyDual)
+      count = hidGetNpadStatesJoyDual(id, samples, 17);
+    else if (style & HidNpadStyleTag_NpadJoyLeft)
+      count = hidGetNpadStatesJoyLeft(id, samples, 17);
+    else if (style & HidNpadStyleTag_NpadJoyRight)
+      count = hidGetNpadStatesJoyRight(id, samples, 17);
+  } else if (padIsHandheld(&pad)) {
+    id = HidNpadIdType_Handheld;
+    style = hidGetNpadStyleSet(id);
+    count = hidGetNpadStatesHandheld(id, samples, 17);
+  }
+  if (!count) return 0;
+  *source_key = (static_cast<std::uint64_t>(id) << 32) | style;
+  // libnx returns newest first. Sort by sampling_number to remain correct if
+  // a future libnx revision changes the output order.
+  for (std::size_t i = 0; i < count; ++i)
+    output[i] = {samples[i].sampling_number,
+                 FromButtons(samples[i].buttons, samples[i].analog_stick_l)};
+  std::sort(output.begin(), output.begin() + count,
+            [](const auto& left, const auto& right) {
+              return left.sequence < right.sequence;
+            });
+  return count;
+}
+#endif
 }  // namespace
 
 Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
@@ -105,27 +163,84 @@ Snapshot Poll(State* state, std::int32_t width, std::int32_t height) {
     pad_initialized = true;
   }
   padUpdate(&pad);
-  const auto held = padGetButtons(&pad);
-  const auto stick = padGetStickPos(&pad, 0);
-  RawInput raw{};
-  raw.stick_x = stick.x; raw.stick_y = stick.y;
-  raw.dpad_left = (held & HidNpadButton_Left) != 0;
-  raw.dpad_right = (held & HidNpadButton_Right) != 0;
-  raw.dpad_up = (held & HidNpadButton_Up) != 0;
-  raw.dpad_down = (held & HidNpadButton_Down) != 0;
-  raw.a = (held & HidNpadButton_A) != 0;
-  raw.b = (held & HidNpadButton_B) != 0;
-  raw.x = (held & HidNpadButton_X) != 0;
-  raw.y = (held & HidNpadButton_Y) != 0;
-  raw.plus = (held & HidNpadButton_Plus) != 0;
-#if defined(E2E4_QUICKSAVE_EXPERIMENT) && E2E4_QUICKSAVE_EXPERIMENT
-  raw.zl = (held & HidNpadButton_ZL) != 0;
-  raw.zr = (held & HidNpadButton_ZR) != 0;
-  raw.minus = (held & HidNpadButton_Minus) != 0;
-#endif
-  return Normalize(state, raw, width, height);
+  return Normalize(state, FromButtons(padGetButtons(&pad), padGetStickPos(&pad, 0)),
+                   width, height);
 #else
   return Normalize(state, state->host_raw, width, height);
+#endif
+}
+
+PollBatch NormalizeHistoryAt(State* state, const RawHistoryEntry* entries,
+                             std::size_t count, RawInput fallback,
+                             std::int32_t width, std::int32_t height,
+                             std::uint64_t now_us) {
+  PollBatch result{};
+  if (!state) return result;
+  auto append = [&](RawInput raw, std::uint64_t sample_us,
+                    std::uint64_t sequence) {
+    auto& snapshot = result.snapshots[result.count++];
+    snapshot = NormalizeAt(state, raw, width, height, sample_us);
+    snapshot.hid_sequence = sequence;
+  };
+  if (!entries || !count) {
+    append(fallback, now_us, state->last_hid_sequence);
+    return result;
+  }
+  count = std::min(count, kMaxInputSnapshots - 1);
+  const auto newest = entries[count - 1].sequence;
+  result.newest_sequence = newest;
+  if (!state->hid_history_ready || newest <= state->last_hid_sequence) {
+    state->last_hid_sequence = newest;
+    state->hid_history_ready = true;
+    append(entries[count - 1].raw, now_us, newest);
+    return result;
+  }
+  const auto previous_sequence = state->last_hid_sequence;
+  const auto previous_us = state->last_update_us;
+  const auto elapsed_us = now_us >= previous_us ? now_us - previous_us : 0;
+  const bool stalled = elapsed_us > state->config.stall_threshold_us;
+  bool first = true;
+  for (std::size_t i = 0; i < count; ++i) {
+    const auto& entry = entries[i];
+    if (entry.sequence <= previous_sequence) continue;
+    if (first && entry.sequence > previous_sequence + 1)
+      result.missed_samples = entry.sequence - previous_sequence - 1;
+    first = false;
+    const auto fraction = static_cast<long double>(entry.sequence - previous_sequence) /
+                          static_cast<long double>(newest - previous_sequence);
+    const auto sample_us = stalled ? now_us : previous_us +
+        static_cast<std::uint64_t>(static_cast<long double>(elapsed_us) * fraction);
+    append(entry.raw, sample_us, entry.sequence);
+  }
+  state->last_hid_sequence = newest;
+  if (!result.count) append(fallback, now_us, newest);
+  return result;
+}
+
+PollBatch PollHistory(State* state, std::int32_t width, std::int32_t height) {
+  if (!state) return {};
+#if defined(__SWITCH__)
+  static PadState pad;
+  static bool initialized{};
+  if (!initialized) {
+    padConfigureInput(1, HidNpadStyleSet_NpadStandard);
+    padInitializeDefault(&pad);
+    initialized = true;
+  }
+  padUpdate(&pad);
+  const auto fallback = FromButtons(padGetButtons(&pad), padGetStickPos(&pad, 0));
+  std::array<RawHistoryEntry, 17> entries{};
+  std::uint64_t source_key{};
+  const auto count = ReadNpadHistory(pad, entries, &source_key);
+  if (source_key != state->hid_source_key) {
+    state->hid_source_key = source_key;
+    state->hid_history_ready = false;
+  }
+  return NormalizeHistoryAt(state, entries.data(), count, fallback,
+                            width, height, e2e_clock::Microseconds());
+#else
+  return NormalizeHistoryAt(state, nullptr, 0, state->host_raw,
+                            width, height, e2e_clock::Microseconds());
 #endif
 }
 

@@ -215,6 +215,17 @@ class E2E5ToolTests(unittest.TestCase):
         self.assertGreater(text.count("e2e_profile.Enter("), 20)
         self.assertNotIn("e2e_profile", source.read_text(encoding="utf-8"))
 
+    def test_original_menu_diagnostics_reach_effective_source(self):
+        overrides = module("e2e_source_overrides")
+        source = ROOT / "upstream/cpp/src/fMainForm.cpp"
+        with tempfile.TemporaryDirectory() as directory:
+            generated = overrides.generated_source(
+                source, Path(directory) / "fMainForm.cpp", e2e5_profile=True)
+            text = generated.read_text(encoding="utf-8")
+        self.assertIn("menu_new_bounds left=", text)
+        self.assertIn("menu_action=New press_id=", text)
+        self.assertNotIn("menu_new_bounds", source.read_text(encoding="utf-8"))
+
     def test_dialog_pointer_payloads_keep_full_addresses_in_experiment(self):
         overrides = module("e2e_source_overrides")
         for name, expected in (("fRuinsTalk.cpp", 18), ("fTalk.cpp", 12)):

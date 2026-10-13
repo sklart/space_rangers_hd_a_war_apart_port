@@ -19,7 +19,8 @@
 namespace {
 void DriveOriginalGameKeys(const std::filesystem::path& stage,
                            const std::atomic<bool>& running,
-                           bool start_game, bool select_dialog) {
+                           bool start_game, bool select_dialog,
+                           bool mouse_new_game) {
   const auto log = stage / "sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log";
   constexpr auto kMenu = "screen dispatch id=1 postload=";
   constexpr auto kReady = "screen Run OnOpen ready";
@@ -50,7 +51,20 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
       if (ready_to_send) {
         const auto window = srhd_awa::platform::win32_compat::MainWindow();
         if (window) {
-          srhd_awa::platform::win32_compat::PostHostReturnKey(window);
+          if (!new_game_sent && mouse_new_game) {
+            const auto bounds = lines.find("menu_new_bounds left=");
+            int left = 0, top = 0, right = 0, bottom = 0;
+            if (bounds == std::string::npos ||
+                std::sscanf(lines.c_str() + bounds,
+                            "menu_new_bounds left=%d top=%d right=%d bottom=%d",
+                            &left, &top, &right, &bottom) != 4 ||
+                left >= right || top >= bottom ||
+                !srhd_awa::platform::win32_compat::PostHostLeftClick(
+                    window, (left + right) / 2, (top + bottom) / 2))
+              continue;
+          } else {
+            srhd_awa::platform::win32_compat::PostHostReturnKey(window);
+          }
           if (!new_game_sent) {
             if (!start_game) return;
             new_game_sent = true;
@@ -105,12 +119,14 @@ int main() {
   const char* drive = std::getenv("E2E5_HOST_AUTO_NEW_GAME");
   const char* start = std::getenv("E2E5_HOST_AUTO_START_GAME");
   const char* select = std::getenv("E2E5_HOST_AUTO_SELECT_DIALOG");
+  const char* mouse_new = std::getenv("E2E5_HOST_MOUSE_NEW_GAME");
   if ((drive && *drive == '1') || (start && *start == '1') ||
-      (select && *select == '1'))
+      (select && *select == '1') || (mouse_new && *mouse_new == '1'))
     new_game_driver = std::thread(DriveOriginalGameKeys, stage,
                                   std::cref(running),
                                   (start && *start == '1') || (select && *select == '1'),
-                                  select && *select == '1');
+                                  select && *select == '1',
+                                  mouse_new && *mouse_new == '1');
   Rangers::ProgramMain();
   running = false;
   if (new_game_driver.joinable()) new_game_driver.join();
