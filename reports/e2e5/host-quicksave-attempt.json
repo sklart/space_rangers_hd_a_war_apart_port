@@ -5,6 +5,18 @@
   "host_binary_sha256": "7ba917c5040be4912d833843bb1b9cff7df45b33a646fbf02bc2564f8cc2e9c9",
   "input": "WM_KEYDOWN virtual key 0x74 dispatched after Hangar frame 60",
   "game_log_error": "E2E4 script pointer cannot be serialized as DWORD",
+  "named_diagnostic": {
+    "host_binary_sha256": "9a3281be9f683c04f0fa9aa9a682373f83acdabe47dce7e3f5acd5dc8e81ad2e",
+    "first_rejected_variable": "GRunStar",
+    "crashed": false,
+    "quicksave_file_created": false
+  },
+  "exploratory_candidate_not_retained": {
+    "host_binary_sha256": "eede7e5fdb133c6bd6861763a2e8d9e2050706ded32ab358091d0e7541660013",
+    "change": "write zero for GRunStar without changing the live variable",
+    "next_rejected_variable": "playerStar",
+    "reason_not_retained": "no proven rebind or original load round-trip"
+  },
   "quicksave_file_created": false,
   "crashed": false,
   "probe_timed_out": true,

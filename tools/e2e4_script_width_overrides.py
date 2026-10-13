@@ -89,14 +89,14 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                 text = _replace_exact(text,
                     "                Buffer->AddIntegerValue(Cell->GetInt());",
                     "                if (!srhd_awa::platform::e2e4_script_value::FitsDiskInt(Cell->IntValue)) {\n"
-                    "                    pas::raise(pas::make_exception<pas::Exception>(\"E2E4 script pointer cannot be serialized as integer\"_a));\n"
+                    "                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u\"E2E4 script pointer cannot be serialized as integer: \", Cell->Name}))));\n"
                     "                }\n"
                     "                Buffer->AddIntegerValue(Cell->GetInt());",
                     2, relative.as_posix())
                 text = _replace_exact(text,
                     "                Buffer->AddDWord(Cell->GetDword());",
                     "                if (!srhd_awa::platform::e2e4_script_value::FitsDiskDword(Cell->GetDword())) {\n"
-                    "                    pas::raise(pas::make_exception<pas::Exception>(\"E2E4 script pointer cannot be serialized as DWORD\"_a));\n"
+                    "                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u\"E2E4 script pointer cannot be serialized as DWORD: \", Cell->Name}))));\n"
                     "                }\n"
                     "                Buffer->AddDWord(Cell->GetDword());",
                     2, relative.as_posix())
@@ -164,14 +164,14 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                 text = _replace_exact(text,
                     "                Buffer->AddIntegerValue(IntValue);",
                     "                if (!srhd_awa::platform::e2e4_script_value::FitsDiskInt(IntValue)) {\n"
-                    "                    pas::raise(pas::make_exception<ExceptionExpressionEC>(\"E2E4 script pointer cannot be serialized as integer\"_a));\n"
+                    "                    pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u\"E2E4 script pointer cannot be serialized as integer: \", Name}))));\n"
                     "                }\n"
                     "                Buffer->AddIntegerValue(IntValue);",
                     1, relative.as_posix())
                 text = _replace_exact(text,
                     "                Buffer->AddDWord(DwordValue);",
                     "                if (!srhd_awa::platform::e2e4_script_value::FitsDiskDword(DwordValue)) {\n"
-                    "                    pas::raise(pas::make_exception<ExceptionExpressionEC>(\"E2E4 script pointer cannot be serialized as DWORD\"_a));\n"
+                    "                    pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u\"E2E4 script pointer cannot be serialized as DWORD: \", Name}))));\n"
                     "                }\n"
                     "                Buffer->AddDWord(DwordValue);",
                     1, relative.as_posix())

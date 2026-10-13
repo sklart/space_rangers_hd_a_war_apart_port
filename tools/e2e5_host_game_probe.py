@@ -118,6 +118,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     dialog_callback_at: float | None = None
     quicksave_at: float | None = None
     quicksave_size = 0
+    quicksave_rejected = False
     frames: set[int] = set()
     milestones: dict[int, set[int]] = {}
     stopped_by_probe = False
@@ -144,6 +145,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                 if size > 0 and size != quicksave_size:
                     quicksave_size = size
                     quicksave_at = time.monotonic()
+            if auto_quicksave and "E2E4 script pointer cannot be serialized" in read_log(game_log):
+                quicksave_rejected = True
             if ((seen_frame and not continue_after_frame and
                  not auto_new_game and not auto_start_game and not auto_select_dialog and
                  not auto_advance_dialog and
@@ -162,6 +165,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                      bool(frames & POST_DIALOG_SCREENS) and
                      any(60 in milestones.get(screen, set())
                          for screen in POST_DIALOG_SCREENS)) or
+                    (auto_quicksave and quicksave_rejected) or
                     (auto_quicksave and quicksave_at is not None and
                      not (quicksave_path.parent / "save.tmp").exists() and
                      time.monotonic() - quicksave_at >= 2.0)):

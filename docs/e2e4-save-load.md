@@ -69,10 +69,12 @@ rebind test for every persisted script pointer is still required before the
 combined NRO is offered for hardware testing.
 The installed-resource host game now confirms that gate in the first Hangar:
 after 60 frames, F5 reached the original save handler and logged
-`E2E4 script pointer cannot be serialized as DWORD`. The isolated user directory
+`E2E4 script pointer cannot be serialized as DWORD: GRunStar`. The isolated user directory
 contained no `QuickSave.sav` or `save.tmp`; the process remained alive. See
 `reports/e2e5/host-quicksave-attempt.json`. This is a safe refusal, not a
-save/load round-trip PASS.
+save/load round-trip PASS. A temporary experiment that wrote zero for
+`GRunStar` only reached another native pointer, `playerStar`; it was not kept
+because a load rebind has not been proved.
 
 ## Manual recovery
 
