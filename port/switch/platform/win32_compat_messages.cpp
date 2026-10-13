@@ -367,11 +367,12 @@ void WarpInputCursor(std::int32_t x, std::int32_t y) {
 void PostPaint(std::uint32_t window) { PostMessage(window, kWmPaint, 0, 0); }
 std::uint64_t CurrentPressId() { return g_dispatched_press_id; }
 #if defined(E2E5_HOST_SDL_WINDOW)
-bool PostHostReturnKey(std::uint32_t window) {
+bool PostHostKey(std::uint32_t window, std::uint32_t virtual_key) {
   if (!window) return false;
-  return PostMessage(window, kWmKeyDown, kVkReturn, 0) &&
-         PostMessage(window, kWmKeyUp, kVkReturn, 0);
+  return PostMessage(window, kWmKeyDown, virtual_key, 0) &&
+         PostMessage(window, kWmKeyUp, virtual_key, 0);
 }
+bool PostHostReturnKey(std::uint32_t window) { return PostHostKey(window, kVkReturn); }
 bool PostHostLeftClick(std::uint32_t window, std::int32_t x, std::int32_t y) {
   if (!window || !Handles().IsValid(window, HandleType::Window) ||
       x < 0 || y < 0 || x >= 65536 || y >= 65536) return false;

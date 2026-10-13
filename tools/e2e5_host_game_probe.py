@@ -61,12 +61,21 @@ def read_log(path: Path) -> str:
     return ""
 
 
+def hash_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         crash_trace: Path | None, continue_after_frame: bool,
         auto_new_game: bool = False, auto_start_game: bool = False,
         auto_select_dialog: bool = False,
         mouse_new_game: bool = False, capture_audio: bool = False,
-        auto_advance_dialog: bool = False) -> dict:
+        auto_advance_dialog: bool = False,
+        auto_quicksave: bool = False) -> dict:
     binary = binary.resolve(strict=True)
     game_root = game_root.resolve(strict=True)
     library_dir = library_dir.resolve(strict=True)
@@ -79,6 +88,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     e2e_log = stage / "sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log"
     stderr_path = stage / "stderr.txt"
     audio_path = stage / "audio-output.raw"
+    quicksave_path = stage / "user/config/save/QuickSave.sav"
     env = os.environ.copy()
     env.update(E2E5_GAME_ROOT=str(game_root), SDL_VIDEODRIVER="dummy",
                SDL_AUDIODRIVER="dummy", LD_LIBRARY_PATH=str(library_dir))
@@ -86,16 +96,18 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         env["SDL_AUDIODRIVER"] = "disk"
         env["SDL_DISKAUDIOFILE"] = str(audio_path)
         env["SDL_DISKAUDIODELAY"] = "11"
-    if auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game or auto_advance_dialog:
+    if auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game or auto_advance_dialog or auto_quicksave:
         env["E2E5_HOST_AUTO_NEW_GAME"] = "1"
     if mouse_new_game:
         env["E2E5_HOST_MOUSE_NEW_GAME"] = "1"
-    if auto_start_game or auto_select_dialog or auto_advance_dialog:
+    if auto_start_game or auto_select_dialog or auto_advance_dialog or auto_quicksave:
         env["E2E5_HOST_AUTO_START_GAME"] = "1"
     if auto_select_dialog:
         env["E2E5_HOST_AUTO_SELECT_DIALOG"] = "1"
     if auto_advance_dialog:
         env["E2E5_HOST_AUTO_ADVANCE_DIALOG"] = "1"
+    if auto_quicksave:
+        env["E2E5_HOST_AUTO_QUICKSAVE"] = "1"
     if crash_trace:
         env["LD_PRELOAD"] = str(crash_trace.resolve(strict=True))
     began = time.monotonic()
@@ -104,6 +116,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     seen_gameplay_frame = False
     seen_gameplay_60_frames = False
     dialog_callback_at: float | None = None
+    quicksave_at: float | None = None
+    quicksave_size = 0
     frames: set[int] = set()
     milestones: dict[int, set[int]] = {}
     stopped_by_probe = False
@@ -115,7 +129,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
             if seen_frame is None and e2e_log.is_file():
                 seen_frame = FRAME.search(read_log(e2e_log))
             if (auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game or
-                    auto_advance_dialog) and e2e_log.is_file():
+                    auto_advance_dialog or auto_quicksave) and e2e_log.is_file():
                 current = read_log(e2e_log)
                 frames = screen_frames(current)
                 seen_new_game_frame = 33 in frames
@@ -125,22 +139,32 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                     60 in milestones.get(screen, set()) for screen in GAMEPLAY_SCREENS)
                 if dialog_callback_at is None and "dialog choice callback complete" in current:
                     dialog_callback_at = time.monotonic()
+            if auto_quicksave and quicksave_path.is_file():
+                size = quicksave_path.stat().st_size
+                if size > 0 and size != quicksave_size:
+                    quicksave_size = size
+                    quicksave_at = time.monotonic()
             if ((seen_frame and not continue_after_frame and
                  not auto_new_game and not auto_start_game and not auto_select_dialog and
                  not auto_advance_dialog and
-                 not mouse_new_game and not capture_audio) or
+                 not auto_quicksave and not mouse_new_game and not capture_audio) or
                     ((auto_new_game or mouse_new_game) and not auto_start_game and
-                     not auto_select_dialog and not auto_advance_dialog
+                     not auto_select_dialog and not auto_advance_dialog and not auto_quicksave
                      and seen_new_game_frame) or
                     (auto_start_game and not auto_select_dialog and not auto_advance_dialog and
+                     not auto_quicksave and
                      seen_gameplay_frame
                      and seen_gameplay_60_frames) or
                     (auto_select_dialog and dialog_callback_at is not None
-                     and not auto_advance_dialog and
+                     and not auto_advance_dialog and not auto_quicksave and
                      time.monotonic() - dialog_callback_at >= 5.0) or
-                    (auto_advance_dialog and bool(frames & POST_DIALOG_SCREENS) and
+                    (auto_advance_dialog and not auto_quicksave and
+                     bool(frames & POST_DIALOG_SCREENS) and
                      any(60 in milestones.get(screen, set())
-                         for screen in POST_DIALOG_SCREENS))):
+                         for screen in POST_DIALOG_SCREENS)) or
+                    (auto_quicksave and quicksave_at is not None and
+                     not (quicksave_path.parent / "save.tmp").exists() and
+                     time.monotonic() - quicksave_at >= 2.0)):
                 stopped_by_probe = True
                 process.terminate()
                 break
@@ -245,7 +269,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "game_settings_first_frame": (
             "PRESENTATION ATTEMPT OBSERVED" if seen_new_game_frame else "NOT OBSERVED"),
         "new_game": ("SCREEN DISPATCH OBSERVED" if 33 in dispatches else
-                     "INPUT REQUESTED; NO DISPATCH" if auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game or auto_advance_dialog
+                     "INPUT REQUESTED; NO DISPATCH" if auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game or auto_advance_dialog or auto_quicksave
                      else "NOT RUN"),
         "auto_new_game_input": auto_new_game,
         "mouse_new_game_input": mouse_new_game,
@@ -254,6 +278,12 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "auto_start_game_input": auto_start_game,
         "auto_select_dialog_input": auto_select_dialog,
         "auto_advance_dialog_input": auto_advance_dialog,
+        "auto_quicksave_input": auto_quicksave,
+        "quicksave_serialization_rejected":
+            "E2E4 script pointer cannot be serialized as DWORD" in full_game_log,
+        "quicksave": ({"path": str(quicksave_path), "size": quicksave_path.stat().st_size,
+                       "sha256": hash_file(quicksave_path)}
+                      if quicksave_path.is_file() else None),
         "dialog_choice_callback_count": full_e2e_log.count("dialog choice callback complete"),
         "post_dialog_screen_ids": sorted(observed_frames & POST_DIALOG_SCREENS),
         "dialog_choice_ready": "dialog choice ready" in full_e2e_log,
@@ -264,7 +294,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "dialog_60_frames_after_callback":
             "screen Run frames=60" in after_callback,
         "dialog_callback_survived_five_seconds":
-            dialog_callback_at is not None and stopped_by_probe and not timed_out,
+            dialog_callback_at is not None and not crashed and
+            time.monotonic() - dialog_callback_at >= 5.0,
         "generation_stages": generation_stages,
         "generation_failure_stage": (int(generation_failure[1]) if generation_failure else None),
         "settings_saved": "game_settings action=apply settings=saved" in full_e2e_log,
@@ -316,6 +347,7 @@ def main() -> None:
     parser.add_argument("--auto-start-game", action="store_true")
     parser.add_argument("--auto-select-dialog", action="store_true")
     parser.add_argument("--auto-advance-dialog", action="store_true")
+    parser.add_argument("--auto-quicksave", action="store_true")
     parser.add_argument("--mouse-new-game", action="store_true")
     parser.add_argument("--capture-audio", action="store_true")
     args = parser.parse_args()
@@ -328,7 +360,7 @@ def main() -> None:
                          args.continue_after_frame, args.auto_new_game,
                          args.auto_start_game, args.auto_select_dialog,
                          args.mouse_new_game, args.capture_audio,
-                         args.auto_advance_dialog), indent=2))
+                         args.auto_advance_dialog, args.auto_quicksave), indent=2))
 
 
 if __name__ == "__main__":

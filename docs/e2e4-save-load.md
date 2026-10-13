@@ -67,6 +67,12 @@ silently truncated script value from being published as a new save, but it may
 cause quicksave to fail during scripted gameplay. A reversible mapping and
 rebind test for every persisted script pointer is still required before the
 combined NRO is offered for hardware testing.
+The installed-resource host game now confirms that gate in the first Hangar:
+after 60 frames, F5 reached the original save handler and logged
+`E2E4 script pointer cannot be serialized as DWORD`. The isolated user directory
+contained no `QuickSave.sav` or `save.tmp`; the process remained alive. See
+`reports/e2e5/host-quicksave-attempt.json`. This is a safe refusal, not a
+save/load round-trip PASS.
 
 ## Manual recovery
 

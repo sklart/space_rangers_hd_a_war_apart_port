@@ -20,7 +20,8 @@ namespace {
 void DriveOriginalGameKeys(const std::filesystem::path& stage,
                            const std::atomic<bool>& running,
                            bool start_game, bool select_dialog,
-                           bool mouse_new_game, bool advance_dialog) {
+                           bool mouse_new_game, bool advance_dialog,
+                           bool quicksave) {
   const auto log = stage / "sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log";
   constexpr auto kMenu = "screen dispatch id=1 postload=";
   constexpr auto kReady = "screen Run OnOpen ready";
@@ -79,8 +80,19 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
         }
       }
       if (select_dialog && introduction_sent) {
-        if (advance_dialog && lines.find("screen returned id=20") != std::string::npos)
-          return;
+        if (quicksave) {
+          const auto hangar = lines.find("screen dispatch id=4 postload=");
+          if (hangar != std::string::npos &&
+              lines.find("screen Run frames=60", hangar) != std::string::npos) {
+            const auto window = srhd_awa::platform::win32_compat::MainWindow();
+            if (window && srhd_awa::platform::win32_compat::PostHostKey(window, 0x74))
+              return;  // VK_F5, original TfPanelMain::QuickSave shortcut.
+          }
+        }
+        if (advance_dialog && lines.find("screen returned id=20") != std::string::npos) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          continue;
+        }
         if (choices_sent >= (advance_dialog ? 8u : 1u)) return;
         const auto callbacks = [&lines] {
           constexpr auto kCallback = "dialog choice callback complete";
@@ -139,16 +151,20 @@ int main() {
   const char* start = std::getenv("E2E5_HOST_AUTO_START_GAME");
   const char* select = std::getenv("E2E5_HOST_AUTO_SELECT_DIALOG");
   const char* advance = std::getenv("E2E5_HOST_AUTO_ADVANCE_DIALOG");
+  const char* quicksave = std::getenv("E2E5_HOST_AUTO_QUICKSAVE");
   const char* mouse_new = std::getenv("E2E5_HOST_MOUSE_NEW_GAME");
   if ((drive && *drive == '1') || (start && *start == '1') ||
       (select && *select == '1') || (mouse_new && *mouse_new == '1') ||
-      (advance && *advance == '1'))
+      (advance && *advance == '1') || (quicksave && *quicksave == '1'))
     new_game_driver = std::thread(DriveOriginalGameKeys, stage,
                                   std::cref(running),
                                   (start && *start == '1') || (select && *select == '1') ||
-                                      (advance && *advance == '1'),
-                                  (select && *select == '1') || (advance && *advance == '1'),
-                                  mouse_new && *mouse_new == '1', advance && *advance == '1');
+                                      (advance && *advance == '1') || (quicksave && *quicksave == '1'),
+                                  (select && *select == '1') || (advance && *advance == '1') ||
+                                      (quicksave && *quicksave == '1'),
+                                  mouse_new && *mouse_new == '1',
+                                  (advance && *advance == '1') || (quicksave && *quicksave == '1'),
+                                  quicksave && *quicksave == '1');
   Rangers::ProgramMain();
   running = false;
   if (new_game_driver.joinable()) new_game_driver.join();
