@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import tempfile
@@ -94,10 +95,11 @@ def patched_sources() -> dict[str, Path]:
     return {name: destination / "src" / name for name in PATCHED_NAMES}
 
 
-def build_okgf() -> Path:
+def build_okgf(profile: str) -> Path:
     location = BUILD / "okgf"
     command(["cmake", "-S", str(ROOT / "upstream/okgf"), "-B", str(location),
-             "-DOKGF_MATH_BACKEND=NATIVE", "-DCMAKE_BUILD_TYPE=Debug"])
+             "-DOKGF_MATH_BACKEND=NATIVE",
+             "-DCMAKE_BUILD_TYPE=" + ("Release" if profile == "optimized" else "Debug")])
     command(["cmake", "--build", str(location), "--parallel", "2"])
     library = location / "libokgf.so"
     if not library.is_file():
@@ -135,6 +137,19 @@ def source_map() -> tuple[list[tuple[Path, Path]], dict[str, str]]:
     overlay = source_overlay()
     prepare_runtime_overlay(GAME / "runtime", BUILD / "runtime-overlay")
     patched = patched_sources()
+    cache_path = BUILD / "effective-source-cache.json"
+    generators = (ROOT / "tools/e2e_source_overrides.py",
+                  ROOT / "tools/e2e5_ui_width_overrides.py",
+                  ROOT / "tools/e2e5_cachegi_trace.py")
+    generator_hashes = {path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+                        for path in generators}
+    try:
+        previous = json.loads(cache_path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        previous = {}
+    cached_entries = (previous.get("entries", {})
+                      if previous.get("generator_hashes") == generator_hashes else {})
+    next_entries = {}
     mapping: list[tuple[Path, Path]] = []
     manifest: dict[str, str] = {}
     originals = sorted((GAME / "src").glob("*.cpp")) + [GAME / "runtime/runtime.cpp"]
@@ -144,19 +159,30 @@ def source_map() -> tuple[list[tuple[Path, Path]], dict[str, str]]:
             continue
         source_input = patched.get(source.name,
             overlay / source.name if source.parent == GAME / "src" else source)
-        effective = generated_source(source_input, BUILD / "generated" / source.name,
-                                     audio_on=True, e2e5_profile=True,
-                                     script_width=True)
-        if source.parent == GAME / "src":
-            current = effective.read_text(encoding="utf-8")
-            rendered = apply_ui_width_overrides(source.name, current)
-            if source.name == "EC_CacheGI.cpp":
-                rendered = apply_cachegi_trace(rendered)
-            if rendered != current:
-                effective = BUILD / "generated-ui" / source.name
-                effective.parent.mkdir(parents=True, exist_ok=True)
-                if not effective.is_file() or effective.read_text(encoding="utf-8") != rendered:
-                    effective.write_text(rendered, encoding="utf-8")
+        key = source.relative_to(ROOT).as_posix()
+        source_stat = source_input.stat()
+        fingerprint = [str(source_input.relative_to(ROOT)), source_stat.st_size,
+                       source_stat.st_mtime_ns]
+        prior = cached_entries.get(key, {})
+        candidate = ROOT / prior.get("effective", "") if prior.get("effective") else None
+        if prior.get("fingerprint") == fingerprint and candidate and candidate.is_file():
+            effective = candidate
+        else:
+            effective = generated_source(source_input, BUILD / "generated" / source.name,
+                                         audio_on=True, e2e5_profile=True,
+                                         script_width=True)
+            if source.parent == GAME / "src":
+                current = effective.read_text(encoding="utf-8")
+                rendered = apply_ui_width_overrides(source.name, current)
+                if source.name == "EC_CacheGI.cpp":
+                    rendered = apply_cachegi_trace(rendered)
+                if rendered != current:
+                    effective = BUILD / "generated-ui" / source.name
+                    effective.parent.mkdir(parents=True, exist_ok=True)
+                    if not effective.is_file() or effective.read_text(encoding="utf-8") != rendered:
+                        effective.write_text(rendered, encoding="utf-8")
+        next_entries[key] = {"fingerprint": fingerprint,
+                             "effective": effective.relative_to(ROOT).as_posix()}
         mapping.append((source, effective))
         manifest[source.relative_to(ROOT).as_posix()] = effective.relative_to(ROOT).as_posix()
     for name in PLATFORM_NAMES:
@@ -166,10 +192,14 @@ def source_map() -> tuple[list[tuple[Path, Path]], dict[str, str]]:
     main = ROOT / "tools/e2e5_host_game_main.cpp"
     mapping.append((main, main))
     manifest[main.relative_to(ROOT).as_posix()] = main.relative_to(ROOT).as_posix()
+    cache_path.write_text(json.dumps({"generator_hashes": generator_hashes,
+                                      "entries": next_entries}, sort_keys=True) + "\n",
+                          encoding="utf-8")
     return mapping, manifest
 
 
-def dependencies_current(obj: Path, effective: Path, flags_stamp: Path) -> bool:
+def dependencies_current(obj: Path, effective: Path, flags_stamp: Path,
+                         file_stamps: dict[Path, tuple[bool, int]]) -> bool:
     depfile = obj.with_suffix(".d")
     if not obj.is_file() or not depfile.is_file():
         return False
@@ -181,24 +211,42 @@ def dependencies_current(obj: Path, effective: Path, flags_stamp: Path) -> bool:
     prerequisites = [Path(name.replace("\\ ", " ")) for name in
                      re.split(r"(?<!\\)\s+", rendered[colon + 2:].strip()) if name]
     threshold = obj.stat().st_mtime_ns
-    return bool(prerequisites) and all(
-        path.is_file() and path.stat().st_mtime_ns <= threshold
-        for path in (effective, flags_stamp, *prerequisites))
+    if not prerequisites:
+        return False
+    for path in (effective, flags_stamp, *prerequisites):
+        if path not in file_stamps:
+            try:
+                info = path.stat()
+                file_stamps[path] = (stat.S_ISREG(info.st_mode), info.st_mtime_ns)
+            except OSError:
+                file_stamps[path] = (False, 0)
+        regular, modified = file_stamps[path]
+        if not regular or modified > threshold:
+            return False
+    return True
 
 
 def main() -> int:
+    global BUILD
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--jobs", type=int, default=4)
+    parser.add_argument("--profile", choices=("functional", "debug", "optimized"),
+                        default="functional")
     args = parser.parse_args()
     if args.jobs < 1:
         parser.error("--jobs must be positive")
+    if args.profile != "functional":
+        BUILD = SWITCH / "build/e2e5-host-game" / args.profile
     BUILD.mkdir(parents=True, exist_ok=True)
     git = native_git()
     build_git = command([git, "rev-parse", "HEAD"])
     dirty = bool(command([git, "status", "--porcelain", "--untracked-files=all"]))
-    library = build_okgf()
+    library = build_okgf(args.profile)
     mapping, manifest = source_map()
-    flags = ["-std=gnu++20", "-O0", "-g0", "-DE2E_HOST_RESOLVER_TEST",
+    profile_flags = {"functional": ("-O0", "-g0"),
+                     "debug": ("-O0", "-g1"),
+                     "optimized": ("-O2", "-g1", "-fno-strict-aliasing")}
+    flags = ["-std=gnu++20", *profile_flags[args.profile], "-DE2E_HOST_RESOLVER_TEST",
              "-DE2E3_TRACE=1",
              "-DE2E5_HOST_SDL_WINDOW", "-DSRHD_PORTABLE_RENDERER",
              "-DE2E4_AUDIO_ON=1", "-DE2E4_QUICKSAVE_EXPERIMENT=1",
@@ -214,13 +262,14 @@ def main() -> int:
         flags_stamp.write_text(rendered_flags, encoding="utf-8")
     objects: list[Path] = []
     work: list[tuple[Path, Path]] = []
+    file_stamps: dict[Path, tuple[bool, int]] = {}
     for original, effective in mapping:
         category = "platform" if original.parent == SWITCH / "platform" else (
             "host" if original.parent == ROOT / "tools" else "upstream")
         obj = BUILD / "objects" / category / (original.stem + ".o")
         obj.parent.mkdir(parents=True, exist_ok=True)
         objects.append(obj)
-        if not dependencies_current(obj, effective, flags_stamp):
+        if not dependencies_current(obj, effective, flags_stamp, file_stamps):
             work.append((effective, obj))
 
     def compile_one(entry: tuple[Path, Path]) -> None:
@@ -266,6 +315,9 @@ def main() -> int:
             binary.chmod(0o755)
     report = {
         "schema": 1, "level": "COMPLETE EFFECTIVE ORIGINAL-GAME HOST LINK",
+        "profile": args.profile, "compile_flags": flags,
+        "okgf_build_type": "Release" if args.profile == "optimized" else "Debug",
+        "okgf_library_sha256": hashlib.sha256(library.read_bytes()).hexdigest(),
         "git_head": build_git, "git_dirty": dirty,
         "original_translation_units": len(list((GAME / "src").glob("*.cpp"))) + 1,
         "original_units_replaced": ["program.cpp", "EC_HsFile.cpp"],

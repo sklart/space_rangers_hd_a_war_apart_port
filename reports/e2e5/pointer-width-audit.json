@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "level": "STATIC SOURCE INVENTORY",
-  "modules_scanned": 1390,
+  "modules_scanned": 1392,
   "findings": [
     {
       "id": "4242ba449f453f26e13d",

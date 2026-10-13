@@ -61,6 +61,18 @@ int main() {
     for (std::size_t chunk = 0; chunk < 3; ++chunk)
         assert(bridge::WriteStreamChunk(&music_owner, chunk, sample, sizeof(sample)));
     assert(bridge::Play(&music_owner, true, 1.0f));
+    // Exercise the real bridge with both buses live, then change gain while
+    // the music worker and SDL callback are active.
+    int overlapping_effect_owner = 0;
+    assert(bridge::PrepareEffect(&overlapping_effect_owner, effect.data(), effect.size(), format));
+    assert(bridge::Play(&overlapping_effect_owner, false, 0.5f));
+    assert(bridge::IsPlaying(&overlapping_effect_owner));
+    bridge::SetGain(&music_owner, 0.25f);
+    bridge::SetGain(&overlapping_effect_owner, 0.75f);
+    std::this_thread::sleep_for(std::chrono::milliseconds(25));
+    assert(bridge::IsPlaying(&overlapping_effect_owner));
+    bridge::Stop(&overlapping_effect_owner);
+    bridge::Clear(&overlapping_effect_owner);
     int first_event = -1;
     for (int attempt = 0; attempt < 100 && first_event < 0; ++attempt) {
         first_event = bridge::PollCompletion(&music_owner);

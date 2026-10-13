@@ -4,3 +4,7 @@
 !pointer-width-baseline.json
 !defects.json
 !host-audio-capture.json
+!save-load-roundtrip.json
+!host-gameplay-matrix.json
+!save-inventory-summary.json
+!ui-profile-summary.json

@@ -123,6 +123,90 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 }
+
+void DriveOriginalGameLoad(const std::filesystem::path& stage,
+                           const std::atomic<bool>& running) {
+  const auto log = stage / "sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log";
+  bool menu_clicked = false;
+  bool save_clicked = false;
+  bool ship_open_requested = false;
+  bool ship_close_requested = false;
+  auto ship_closed_at = std::chrono::steady_clock::time_point{};
+  while (running.load()) {
+    std::string lines;
+    try {
+      std::ifstream stream(log);
+      if (stream)
+        lines.assign(std::istreambuf_iterator<char>(stream),
+                     std::istreambuf_iterator<char>());
+    } catch (const std::ios_base::failure&) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      continue;
+    }
+    if (save_clicked) {
+      if (ship_open_requested) {
+        const auto open = lines.find("ship_equipment_open");
+        if (!ship_close_requested && open != std::string::npos &&
+            lines.find("screen Run frames=60", open) != std::string::npos) {
+          const auto window = srhd_awa::platform::win32_compat::MainWindow();
+          if (window && srhd_awa::platform::win32_compat::PostHostKey(window, 0x1b))
+            ship_close_requested = true;  // VK_ESCAPE in original ship screen.
+        }
+        if (ship_close_requested) {
+          const auto closed = lines.find("ship_equipment_closed", open);
+          if (closed != std::string::npos &&
+              ship_closed_at == std::chrono::steady_clock::time_point{})
+            ship_closed_at = std::chrono::steady_clock::now();
+          if (ship_closed_at != std::chrono::steady_clock::time_point{} &&
+              std::chrono::steady_clock::now() - ship_closed_at >=
+                  std::chrono::seconds(2)) {
+            const auto window = srhd_awa::platform::win32_compat::MainWindow();
+            if (window && srhd_awa::platform::win32_compat::PostHostKey(window, 0x20))
+              return;  // VK_SPACE in original Hangar runs a game turn.
+          }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        continue;
+      }
+      const auto load = lines.find("screen dispatch id=24 postload=");
+      const auto hangar = load == std::string::npos ? load :
+          lines.find("screen dispatch id=4 postload=", load);
+      if (hangar != std::string::npos &&
+          lines.find("screen Run frames=60", hangar) != std::string::npos) {
+        const auto window = srhd_awa::platform::win32_compat::MainWindow();
+        if (window && srhd_awa::platform::win32_compat::PostHostKey(window, 'S'))
+          ship_open_requested = true;  // Original Hangar shortcut.
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      continue;
+    }
+    const auto dispatch = lines.find(menu_clicked ? "screen dispatch id=23 postload="
+                                                  : "screen dispatch id=1 postload=");
+    const auto bounds = lines.find(menu_clicked ? "save_load_bounds left="
+                                                : "menu_load_bounds left=", dispatch);
+    if (dispatch != std::string::npos && bounds != std::string::npos &&
+        lines.find("screen Run frames=60", dispatch) != std::string::npos) {
+      int left = 0, top = 0, right = 0, bottom = 0;
+      const char* pattern = menu_clicked
+          ? "save_load_bounds left=%d top=%d right=%d bottom=%d"
+          : "menu_load_bounds left=%d top=%d right=%d bottom=%d";
+      if (std::sscanf(lines.c_str() + bounds, pattern,
+                      &left, &top, &right, &bottom) == 4 &&
+          left < right && top < bottom) {
+        const auto window = srhd_awa::platform::win32_compat::MainWindow();
+        if (window && srhd_awa::platform::win32_compat::PostHostLeftClick(
+                          window, (left + right) / 2, (top + bottom) / 2)) {
+          if (menu_clicked) {
+            save_clicked = true;
+            continue;
+          }
+          menu_clicked = true;
+        }
+      }
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+}
 }  // namespace
 
 // Test-only entrypoint. The original ProgramMain still performs startup and
@@ -153,7 +237,10 @@ int main() {
   const char* advance = std::getenv("E2E5_HOST_AUTO_ADVANCE_DIALOG");
   const char* quicksave = std::getenv("E2E5_HOST_AUTO_QUICKSAVE");
   const char* mouse_new = std::getenv("E2E5_HOST_MOUSE_NEW_GAME");
-  if ((drive && *drive == '1') || (start && *start == '1') ||
+  const char* load_save = std::getenv("E2E5_HOST_LOAD_SAVE");
+  if (load_save && *load_save == '1')
+    new_game_driver = std::thread(DriveOriginalGameLoad, stage, std::cref(running));
+  else if ((drive && *drive == '1') || (start && *start == '1') ||
       (select && *select == '1') || (mouse_new && *mouse_new == '1') ||
       (advance && *advance == '1') || (quicksave && *quicksave == '1'))
     new_game_driver = std::thread(DriveOriginalGameKeys, stage,

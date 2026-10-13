@@ -281,11 +281,11 @@ std::uint32_t FindFirst(const Char* pattern, Data* output) {
   std::replace(narrow.begin(), narrow.end(), '\\', '/');
   const auto requested = std::filesystem::path(narrow);
   const auto mask = requested.filename().string();
+  std::error_code error;
   const auto directory = requested.has_parent_path()
       ? Path(requested.parent_path().generic_string().c_str(), false)
-      : Path(".", false);
-  if (directory.empty()) { SetLastError(kErrorPathNotFound); return kInvalid; }
-  std::error_code error;
+      : std::filesystem::current_path(error).generic_string();
+  if (error || directory.empty()) { SetLastError(kErrorPathNotFound); return kInvalid; }
   auto found = std::make_shared<FindObject>();
   for (const auto& entry : std::filesystem::directory_iterator(directory, error)) {
     if (error) break;

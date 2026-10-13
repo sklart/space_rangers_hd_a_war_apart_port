@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -26,6 +27,44 @@ def module(name: str):
 
 
 class E2E5ToolTests(unittest.TestCase):
+    def test_save_inventory_collects_all_values_before_rejection(self):
+        probe = module("e2e5_host_game_probe")
+        report = probe.parse_save_inventory(
+            "E2E5_SAVE_INV|Script.One|init|Star|vkDword|STABLE_OBJECT_ID|star|7\n"
+            "E2E5_SAVE_INV|Script.Two|turn|Unknown|vkInt|UNKNOWN|unresolved|0\n"
+            "E2E5_SAVE_INV_SUMMARY|2|1\n")
+        self.assertEqual(report["status"], "BLOCKED")
+        self.assertEqual(len(report["entries"]), 2)
+        self.assertEqual(report["entries"][0]["object_id"], 7)
+
+    def test_host_runner_uses_matching_original_process_evidence(self):
+        runner = module("e2e5_host_runner")
+        with tempfile.TemporaryDirectory() as directory:
+            binary = Path(directory) / "game"
+            binary.write_bytes(b"original host ELF fixture")
+            report = Path(directory) / "probe.json"
+            probe = {"level": "ORIGINAL GAME HOST PROCESS",
+                     "binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
+                     "first_software_frame": {"width": 1280, "height": 720},
+                     "main_menu_on_open_ready": True,
+                     "new_game": "SCREEN DISPATCH OBSERVED",
+                     "generation_complete": True,
+                     "introduction_first_frame": "PRESENTATION ATTEMPT OBSERVED",
+                     "dialog_choice_callback_count": 4,
+                     "gameplay_screen_ids": [4], "gameplay_60_frames": True,
+                     "crashed": False, "timed_out": False}
+            report.write_text(json.dumps(probe), encoding="utf-8")
+            matched = runner.verified_probe_report(report, binary)
+            summary = runner.summarize_original_game(matched)
+            self.assertEqual(summary["integrated_original_program_main"]["status"], "PASS")
+            self.assertEqual(summary["new_game_to_gameplay"]["status"], "PASS")
+            self.assertEqual(summary["save_load"]["status"], "NOT RUN")
+            probe["crashed"] = True
+            self.assertEqual(runner.summarize_original_game(probe)["new_game_to_gameplay"]["status"], "FAIL")
+            binary.write_bytes(b"different ELF")
+            with self.assertRaisesRegex(ValueError, "hash"):
+                runner.verified_probe_report(report, binary)
+
     def test_independent_format0_rgb565_decoder(self):
         validator = module("e2e5_resource_validator")
         source = bytearray(98)
@@ -281,6 +320,24 @@ class E2E5ToolTests(unittest.TestCase):
             newer = obj.stat().st_mtime_ns + 2_000_000_000
             os.utime(header, ns=(newer, newer))
             self.assertFalse(build.object_current(obj, dep, [source], stamp))
+
+    def test_host_dependency_cache_is_scoped_to_one_build(self):
+        import os
+        build = module("e2e5_host_game_build")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, header, stamp = (root / name for name in
+                                     ("source.cpp", "used.hpp", "flags.json"))
+            for path in (source, header, stamp):
+                path.write_text("x", encoding="utf-8")
+            obj = root / "source.o"
+            obj.with_suffix(".d").write_text(
+                f"{obj}: {source} {header}\n", encoding="utf-8")
+            obj.write_text("object", encoding="utf-8")
+            self.assertTrue(build.dependencies_current(obj, source, stamp, {}))
+            newer = obj.stat().st_mtime_ns + 2_000_000_000
+            os.utime(header, ns=(newer, newer))
+            self.assertFalse(build.dependencies_current(obj, source, stamp, {}))
 
 
 if __name__ == "__main__":

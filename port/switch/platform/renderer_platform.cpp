@@ -1,6 +1,7 @@
 #include "renderer_platform.hpp"
 #include "e2e_clock.hpp"
 #include "e2e_stage.hpp"
+#include "e2e5_stage_profiler.hpp"
 
 #include "units/GR_DX.hpp"
 #include "units/GR_GraphBuf.hpp"
@@ -291,6 +292,7 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   g_presentation_diagnostics.present_succeeded = true;
 #endif
   ++g_presentation_count;
+  e2e5_stage_profiler::PresentFrame(width, height);
 #if defined(E2E5_HOST_SDL_WINDOW)
   if (g_presentation_count == 1) {
     char detail[160]{};

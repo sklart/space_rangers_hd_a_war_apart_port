@@ -7,11 +7,13 @@ Its optional New Game input uses the original menu's Return-key handler.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import hashlib
 import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import time
 from uuid import uuid4
@@ -69,13 +71,42 @@ def hash_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def parse_save_inventory(log: str) -> dict | None:
+    entries = []
+    summary = None
+    for line in log.splitlines():
+        if line.startswith("E2E5_SAVE_INV|"):
+            fields = line.split("|")
+            if len(fields) == 8:
+                entries.append({"script": fields[1], "scope": fields[2],
+                                "variable": fields[3], "value_kind": fields[4],
+                                "category": fields[5], "object_type": fields[6],
+                                "object_id": int(fields[7])})
+        elif line.startswith("E2E5_SAVE_INV_SUMMARY|"):
+            fields = line.split("|")
+            if len(fields) == 3:
+                summary = {"inspected": int(fields[1]), "unknown": int(fields[2])}
+    if summary is None:
+        return None
+    counts = Counter(entry["category"] for entry in entries)
+    complete = len(entries) == summary["inspected"]
+    return {"schema": 1, "status": "PASS" if summary["unknown"] == 0 and complete else "BLOCKED",
+            "inspected": summary["inspected"], "unknown": summary["unknown"],
+            "entries_complete": complete,
+            "category_counts": dict(sorted(counts.items())),
+            "entries": entries,
+            "limitations": ["Object identity is checked at the save checkpoint; producer semantics for numeric values still require review.",
+                            "TScriptPlace::TargetValue is reconstructed from script definitions and is not a direct disk field."]}
+
+
 def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         crash_trace: Path | None, continue_after_frame: bool,
         auto_new_game: bool = False, auto_start_game: bool = False,
         auto_select_dialog: bool = False,
         mouse_new_game: bool = False, capture_audio: bool = False,
         auto_advance_dialog: bool = False,
-        auto_quicksave: bool = False) -> dict:
+        auto_quicksave: bool = False,
+        load_save: Path | None = None) -> dict:
     binary = binary.resolve(strict=True)
     game_root = game_root.resolve(strict=True)
     library_dir = library_dir.resolve(strict=True)
@@ -89,6 +120,17 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     stderr_path = stage / "stderr.txt"
     audio_path = stage / "audio-output.raw"
     quicksave_path = stage / "user/config/save/QuickSave.sav"
+    load_source_sha256 = None
+    if load_save is not None:
+        source = load_save.resolve(strict=True)
+        if (load_save.is_symlink() or source.name != "QuickSave.sav" or
+                not source.is_file() or RUNS.resolve() not in source.parents):
+            raise ValueError("--load-save must be an isolated probe QuickSave.sav")
+        quicksave_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, quicksave_path)
+        load_source_sha256 = hash_file(source)
+        if hash_file(quicksave_path) != load_source_sha256:
+            raise RuntimeError("isolated save copy hash mismatch")
     env = os.environ.copy()
     env.update(E2E5_GAME_ROOT=str(game_root), SDL_VIDEODRIVER="dummy",
                SDL_AUDIODRIVER="dummy", LD_LIBRARY_PATH=str(library_dir))
@@ -108,6 +150,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         env["E2E5_HOST_AUTO_ADVANCE_DIALOG"] = "1"
     if auto_quicksave:
         env["E2E5_HOST_AUTO_QUICKSAVE"] = "1"
+    if load_save is not None:
+        env["E2E5_HOST_LOAD_SAVE"] = "1"
     if crash_trace:
         env["LD_PRELOAD"] = str(crash_trace.resolve(strict=True))
     began = time.monotonic()
@@ -119,6 +163,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     quicksave_at: float | None = None
     quicksave_size = 0
     quicksave_rejected = False
+    load_rejected = False
+    turn_complete_at: float | None = None
     frames: set[int] = set()
     milestones: dict[int, set[int]] = {}
     stopped_by_probe = False
@@ -127,10 +173,11 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         process = subprocess.Popen([str(binary)], cwd=stage, env=env,
                                    stdout=subprocess.DEVNULL, stderr=stderr)
         while process.poll() is None and time.monotonic() - began < timeout:
+            current = ""
             if seen_frame is None and e2e_log.is_file():
                 seen_frame = FRAME.search(read_log(e2e_log))
             if (auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game or
-                    auto_advance_dialog or auto_quicksave) and e2e_log.is_file():
+                    auto_advance_dialog or auto_quicksave or load_save is not None) and e2e_log.is_file():
                 current = read_log(e2e_log)
                 frames = screen_frames(current)
                 seen_new_game_frame = 33 in frames
@@ -140,17 +187,25 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                     60 in milestones.get(screen, set()) for screen in GAMEPLAY_SCREENS)
                 if dialog_callback_at is None and "dialog choice callback complete" in current:
                     dialog_callback_at = time.monotonic()
+                if (load_save is not None and turn_complete_at is None and
+                        "hangar_end_turn_done turn=" in current):
+                    turn_complete_at = time.monotonic()
             if auto_quicksave and quicksave_path.is_file():
                 size = quicksave_path.stat().st_size
                 if size > 0 and size != quicksave_size:
                     quicksave_size = size
                     quicksave_at = time.monotonic()
-            if auto_quicksave and "E2E4 script pointer cannot be serialized" in read_log(game_log):
+            if auto_quicksave and ("E2E4 script pointer cannot be serialized" in read_log(game_log) or
+                                   "E2E5 save inventory contains unknown" in read_log(game_log) or
+                                   "E2E4 quicksave rotation failed" in read_log(game_log)):
                 quicksave_rejected = True
+            if load_save is not None and "Exception E2E5 script object ID has no loaded object" in read_log(game_log):
+                load_rejected = True
             if ((seen_frame and not continue_after_frame and
                  not auto_new_game and not auto_start_game and not auto_select_dialog and
                  not auto_advance_dialog and
-                 not auto_quicksave and not mouse_new_game and not capture_audio) or
+                 not auto_quicksave and not mouse_new_game and not capture_audio and
+                 load_save is None) or
                     ((auto_new_game or mouse_new_game) and not auto_start_game and
                      not auto_select_dialog and not auto_advance_dialog and not auto_quicksave
                      and seen_new_game_frame) or
@@ -166,6 +221,9 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                      any(60 in milestones.get(screen, set())
                          for screen in POST_DIALOG_SCREENS)) or
                     (auto_quicksave and quicksave_rejected) or
+                    (load_save is not None and load_rejected) or
+                    (load_save is not None and turn_complete_at is not None and
+                     time.monotonic() - turn_complete_at >= 5.0) or
                     (auto_quicksave and quicksave_at is not None and
                      not (quicksave_path.parent / "save.tmp").exists() and
                      time.monotonic() - quicksave_at >= 2.0)):
@@ -187,10 +245,19 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     elapsed = round(time.monotonic() - began, 2)
     stderr_tail = tail(stderr_path)
     full_stderr = read_log(stderr_path)
+    save_inventory = parse_save_inventory(full_stderr)
+    game_states = [{"phase": phase, "turn": int(turn), "money": int(money),
+                    "player_ship_id": int(ship), "star_id": int(star),
+                    "planet_id": int(planet), "script_count": int(scripts)}
+                   for phase, turn, money, ship, star, planet, scripts in re.findall(
+                       r"E2E5_STATE\|(save|load)\|(\d+)\|(-?\d+)\|(\d+)\|(\d+)\|(\d+)\|(\d+)",
+                       full_stderr)]
     crashed = not stopped_by_probe and (
         (process.returncode is not None and process.returncode < 0) or
         "E2E5 HOST SIGNAL" in full_stderr)
-    if crashed:
+    if load_rejected and not game_states:
+        state = "LOAD_REJECTED"
+    elif crashed:
         state = "CRASH_AFTER_FIRST_FRAME" if seen_frame else "CRASH_BEFORE_FIRST_FRAME"
     elif not stopped_by_probe and process.returncode not in (None, 0):
         state = "PROCESS_ERROR_AFTER_FIRST_FRAME" if seen_frame else "PROCESS_ERROR_BEFORE_FIRST_FRAME"
@@ -209,6 +276,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     dispatches = [int(match.group(1)) for match in SCREEN_DISPATCH.finditer(full_e2e_log)]
     observed_frames = screen_frames(full_e2e_log)
     frame_milestones = screen_frame_milestones(full_e2e_log)
+    end_turns = [int(value) for value in re.findall(
+        r"hangar_end_turn_done turn=(\d+)", full_e2e_log)]
     seen_new_game_frame = 33 in observed_frames
     seen_introduction_frame = 3 in observed_frames
     generation_stages = [int(stage) for stage in re.findall(
@@ -259,6 +328,13 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "schema": 1,
         "level": "ORIGINAL GAME HOST PROCESS",
         "effective_source_scope": "UNVERIFIED BY THIS PROBE",
+        "resource_configuration": {
+            "game_root": str(game_root),
+            "main_dat_sha256": hash_file(game_root / "CFG/Main.dat")
+            if (game_root / "CFG/Main.dat").is_file() else None,
+            "cache_data_dat_sha256": hash_file(game_root / "CFG/CacheData.dat")
+            if (game_root / "CFG/CacheData.dat").is_file() else None,
+        },
         "status": state,
         "binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
         "elapsed_seconds": elapsed,
@@ -283,8 +359,27 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "auto_select_dialog_input": auto_select_dialog,
         "auto_advance_dialog_input": auto_advance_dialog,
         "auto_quicksave_input": auto_quicksave,
+        "load_save_input": load_save is not None,
+        "load_source_sha256": load_source_sha256,
+        "game_states": game_states,
+        "load_screen_dispatched": 24 in dispatches,
+        "loaded_hangar_60_frames": 24 in dispatches and 60 in frame_milestones.get(4, set()),
+        "post_load_ship_open": 24 in dispatches and "ship_equipment_open" in full_e2e_log,
+        "post_load_ship_60_frames": 24 in dispatches and
+            "ship_equipment_open" in full_e2e_log and
+            "screen Run frames=60" in full_e2e_log[full_e2e_log.find("ship_equipment_open"):],
+        "post_load_ship_closed": "ship_equipment_closed" in full_e2e_log,
+        "post_load_end_turn": end_turns[-1] if end_turns else None,
+        "post_load_turn_advanced": bool(end_turns and game_states and
+            end_turns[-1] > game_states[-1]["turn"]),
         "quicksave_serialization_rejected":
-            "E2E4 script pointer cannot be serialized as DWORD" in full_game_log,
+            ("E2E4 script pointer cannot be serialized" in full_game_log or
+             "E2E5 save inventory contains unknown" in full_game_log),
+        "load_rejected": load_rejected,
+        "save_inventory": {"status": save_inventory["status"],
+                           "inspected": save_inventory["inspected"],
+                           "unknown": save_inventory["unknown"]}
+                          if save_inventory else None,
         "quicksave": ({"path": str(quicksave_path), "size": quicksave_path.stat().st_size,
                        "sha256": hash_file(quicksave_path)}
                       if quicksave_path.is_file() else None),
@@ -335,6 +430,19 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     }
     (stage / "report.json").write_text(json.dumps(result, indent=2) + "\n",
                                        encoding="utf-8")
+    if auto_quicksave and save_inventory:
+        save_inventory.update(binary_sha256=result["binary_sha256"],
+                              resource_configuration=result["resource_configuration"],
+                              stage=str(stage))
+        build_report = ROOT / "port/switch/build/e2e5-host-game/reproducible/report.json"
+        if build_report.is_file():
+            provenance = json.loads(build_report.read_text(encoding="utf-8"))
+            if provenance.get("binary_sha256") == result["binary_sha256"]:
+                save_inventory["source_git_sha"] = provenance.get("git_head")
+                save_inventory["source_dirty_at_build"] = provenance.get("git_dirty")
+        output = ROOT / "reports/e2e5/save-pointer-inventory.json"
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(save_inventory, indent=2) + "\n", encoding="utf-8")
     return result
 
 
@@ -352,6 +460,8 @@ def main() -> None:
     parser.add_argument("--auto-select-dialog", action="store_true")
     parser.add_argument("--auto-advance-dialog", action="store_true")
     parser.add_argument("--auto-quicksave", action="store_true")
+    parser.add_argument("--load-save", type=Path,
+                        help="QuickSave.sav from an earlier isolated probe stage")
     parser.add_argument("--mouse-new-game", action="store_true")
     parser.add_argument("--capture-audio", action="store_true")
     args = parser.parse_args()
@@ -364,7 +474,8 @@ def main() -> None:
                          args.continue_after_frame, args.auto_new_game,
                          args.auto_start_game, args.auto_select_dialog,
                          args.mouse_new_game, args.capture_audio,
-                         args.auto_advance_dialog, args.auto_quicksave), indent=2))
+                         args.auto_advance_dialog, args.auto_quicksave,
+                         args.load_save), indent=2))
 
 
 if __name__ == "__main__":

@@ -31,6 +31,7 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
         target.parent.mkdir(parents=True, exist_ok=True)
         content = source.read_bytes()
         if relative.as_posix() in ("types/aScript.hpp", "types/aEFilm.hpp", "aScript.cpp", "aScriptFun.cpp", "aGalaxy.cpp",
+                                   "aSaveLoad.cpp", "fSaveManager.cpp",
                                    "types/EC_Expression.hpp", "EC_Expression.cpp",
                                    "units/aPlayer.hpp"):
             text = content.decode("utf-8")
@@ -62,7 +63,7 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                     "        std::uintptr_t TargetValue;", 2, relative.as_posix())
             elif relative.as_posix() == "aScript.cpp":
                 text = _replace_exact(text, '#include "layout/aScript.hpp"',
-                    '#include "e2e4_script_value.hpp"\n#include "layout/aScript.hpp"',
+                    '#include "e2e4_script_value.hpp"\n#include "e2e5_save_refs.hpp"\n#include "layout/aScript.hpp"',
                     1, relative.as_posix())
                 text = _replace_exact(text,
                     "static_cast<std::uint32_t>(TargetValue)",
@@ -96,91 +97,38 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                 save_state_start = text.index("void TScript::SaveState(")
                 save_state_end = text.index("void TScript::LoadState(", save_state_start)
                 save_state = text[save_state_start:save_state_end]
-                save_state = save_state.replace(
+                save_state = _replace_exact(save_state,
+                    "                Buffer->AddWideStringZ(Cell->Name);\n"
+                    "                Buffer->AddAnsiChar(static_cast<std::uint8_t>(Kind));\n"
                     "                Buffer->AddDWord(Cell->GetDword());",
-                    "                bool rebound_binding = false;\n"
-                    "                for (std::int32_t si = 0; si < pas::list_count(Stars); ++si) {\n"
-                    "                        TScriptStar* bound = pas::list_at<TScriptStar>(Stars, si);\n"
-                    "                        if (bound->Name == Cell->Name && bound->Star != nullptr &&\n"
-                    "                            Cell->GetDword() == reinterpret_cast<std::uintptr_t>(bound->Star)) {\n"
-                    "                            rebound_binding = true;\n"
-                    "                            break;\n"
-                    "                        }\n"
-                    "                        if (bound->Planets != nullptr) {\n"
-                    "                            for (std::int32_t pi = 0; pi < bound->Planets.length(); ++pi) {\n"
-                    "                                const auto& planet = bound->Planets[pi];\n"
-                    "                                if (planet.Name == Cell->Name && planet.Planet != nullptr &&\n"
-                    "                                    Cell->GetDword() == reinterpret_cast<std::uintptr_t>(planet.Planet)) {\n"
-                    "                                    rebound_binding = true;\n"
-                    "                                    break;\n"
-                    "                                }\n"
-                    "                            }\n"
-                    "                            if (rebound_binding) break;\n"
-                    "                        }\n"
-                    "                }\n"
-                    "                if (!rebound_binding) {\n"
-                    "                    for (std::int32_t pi = 0; pi < pas::list_count(Places); ++pi) {\n"
-                    "                        TScriptPlace* bound = pas::list_at<TScriptPlace>(Places, pi);\n"
-                    "                        if (bound->Name == Cell->Name &&\n"
-                    "                            Cell->GetDword() == reinterpret_cast<std::uintptr_t>(bound)) {\n"
-                    "                            rebound_binding = true;\n"
-                    "                            break;\n"
-                    "                        }\n"
-                    "                    }\n"
-                    "                }\n"
-                    "                if (!rebound_binding) {\n"
-                    "                    for (std::int32_t ii = 0; ii < pas::list_count(Items); ++ii) {\n"
-                    "                        TScriptItem* bound = pas::list_at<TScriptItem>(Items, ii);\n"
-                    "                        if (bound->Name == Cell->Name &&\n"
-                    "                            Cell->GetDword() == reinterpret_cast<std::uintptr_t>(bound)) {\n"
-                    "                            rebound_binding = true;\n"
-                    "                            break;\n"
-                    "                        }\n"
-                    "                    }\n"
-                    "                }\n"
-                    "                const bool rebound_ship = Cell->Name == u\"CurShip\" && CurrentShip != nullptr &&\n"
-                    "                    Cell->GetDword() == reinterpret_cast<std::uintptr_t>(CurrentShip);\n"
-                    "                std::uint32_t rebound_planet_id = 0;\n"
-                    "                bool rebound_planet = false;\n"
-                    "                if (Cell->Name == u\"temp_planet\" && aGalaxy::Galaxy != nullptr) {\n"
-                    "                    for (std::int32_t pi = 0; pi < pas::list_count(aGalaxy::Galaxy->Planets); ++pi) {\n"
-                    "                        aPlanet::TPlanet* planet = pas::list_at<aPlanet::TPlanet>(aGalaxy::Galaxy->Planets, pi);\n"
-                    "                        if (Cell->GetDword() == reinterpret_cast<std::uintptr_t>(planet)) {\n"
-                    "                            rebound_planet_id = planet->Id;\n"
-                    "                            rebound_planet = true;\n"
-                    "                            break;\n"
-                    "                        }\n"
-                    "                    }\n"
-                    "                    if (!rebound_planet) {\n"
-                    "                        for (std::int32_t si = 0; si < pas::list_count(aGalaxy::Galaxy->Stars); ++si) {\n"
-                    "                            aGalaxy::TStar* star = pas::list_at<aGalaxy::TStar>(aGalaxy::Galaxy->Stars, si);\n"
-                    "                            for (std::int32_t pi = 0; pi < pas::list_count(star->Planets); ++pi) {\n"
-                    "                                aPlanet::TPlanet* planet = pas::list_at<aPlanet::TPlanet>(star->Planets, pi);\n"
-                    "                                if (Cell->GetDword() == reinterpret_cast<std::uintptr_t>(planet)) {\n"
-                    "                                    rebound_planet_id = planet->Id;\n"
-                    "                                    rebound_planet = true;\n"
-                    "                                    break;\n"
-                    "                                }\n"
-                    "                            }\n"
-                    "                            if (rebound_planet) break;\n"
-                    "                        }\n"
-                    "                    }\n"
-                    "                }\n"
-                    "                if (!rebound_binding && !rebound_ship && !rebound_planet &&\n"
-                    "                    !srhd_awa::platform::e2e4_script_value::FitsDiskDword(Cell->GetDword())) {\n"
-                    "                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u\"E2E4 script pointer cannot be serialized as DWORD: \", Cell->Name}))));\n"
-                    "                }\n"
-                    "                Buffer->AddDWord(rebound_binding ? 0u :\n"
-                    "                    (rebound_ship ? CurrentShip->Id :\n"
-                    "                    (rebound_planet ? rebound_planet_id : Cell->GetDword())));",
-                    1)
+                    "                srhd_awa::platform::e2e5_save_refs::WriteScriptDword(Buffer, this, Cell);",
+                    2, relative.as_posix())
+                save_state = _replace_exact(save_state,
+                    "        Ether->SaveToBuffer(Buffer);",
+                    "        srhd_awa::platform::e2e5_save_refs::ScriptScope e2e_script_scope(this);\n"
+                    "        Ether->SaveToBuffer(Buffer);",
+                    1, relative.as_posix())
                 text = text[:save_state_start] + save_state + text[save_state_end:]
                 load_state_start = text.index("void TScript::LoadState(")
-                load_state = text[load_state_start:]
-                load_state = load_state.replace(
+                load_state_end = text.index("void TScript::BindImportedFunctions(", load_state_start)
+                load_state = text[load_state_start:load_state_end]
+                load_state = _replace_exact(load_state,
+                    "            Kind = static_cast<EC_Expression::TVarKind>(EC_Buf::TBufEC_GetByte(Buffer));",
+                    "            const std::uint8_t e2e_disk_kind = EC_Buf::TBufEC_GetByte(Buffer);\n"
+                    "            if (srhd_awa::platform::e2e5_save_refs::IsObjectKind(e2e_disk_kind) &&\n"
+                    "                !srhd_awa::platform::e2e5_save_refs::LoadFormatIsV168())\n"
+                    "                pas::raise(pas::make_exception<pas::Exception>(\"E2E5 typed reference in legacy save\"_a));\n"
+                    "            Kind = srhd_awa::platform::e2e5_save_refs::IsObjectKind(e2e_disk_kind) ?\n"
+                    "                EC_Expression::vkDword : static_cast<EC_Expression::TVarKind>(e2e_disk_kind);",
+                    2, relative.as_posix())
+                load_state = _replace_exact(load_state,
                     "                    Cell->SetDword(EC_Buf::TBufEC_GetUInt32(Buffer));",
                     "                    const std::uint32_t saved_dword = EC_Buf::TBufEC_GetUInt32(Buffer);\n"
-                    "                    if (Name == u\"CurShip\" && !TemporaryCell) {\n"
+                    "                    if (srhd_awa::platform::e2e5_save_refs::IsObjectKind(e2e_disk_kind)) {\n"
+                    "                        if (TemporaryCell) pas::raise(pas::make_exception<pas::Exception>(\"E2E5 typed variable missing from script definition\"_a));\n"
+                    "                        Cell->SetDword(saved_dword);\n"
+                    "                        srhd_awa::platform::e2e5_save_refs::QueueLoadedPointer(Cell, e2e_disk_kind, saved_dword);\n"
+                    "                    } else if (Name == u\"CurShip\" && !TemporaryCell) {\n"
                     "                        CurrentShip = static_cast<aShip::TShip*>(Galaxy->IdToShip(saved_dword, true));\n"
                     "                        Cell->SetDword(reinterpret_cast<std::uintptr_t>(CurrentShip));\n"
                     "                    } else if (Name == u\"temp_planet\" && !TemporaryCell) {\n"
@@ -188,16 +136,33 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                     "                    } else {\n"
                     "                        Cell->SetDword(saved_dword);\n"
                     "                    }",
-                    1)
-                text = text[:load_state_start] + load_state
-                text = _replace_exact(text,
-                    "                Buffer->AddDWord(Cell->GetDword());",
-                    "                if (!srhd_awa::platform::e2e4_script_value::FitsDiskDword(Cell->GetDword())) {\n"
-                    "                    pas::raise(pas::make_exception<pas::Exception>(static_cast<pas::AnsiString>(pas::concat_wide({u\"E2E4 script pointer cannot be serialized as DWORD: \", Cell->Name}))));\n"
-                    "                }\n"
-                    "                Buffer->AddDWord(Cell->GetDword());",
-                    1, relative.as_posix())
+                    2, relative.as_posix())
+                text = text[:load_state_start] + load_state + text[load_state_end:]
             elif relative.as_posix() == "aGalaxy.cpp":
+                text = _replace_exact(text, "namespace aGalaxy {",
+                    '#include "e2e5_save_inventory.hpp"\nnamespace aGalaxy {',
+                    1, relative.as_posix())
+                text = _replace_exact(text,
+                    "    void TGalaxy::SaveToBuffer(EC_Buf::TBufEC* Buffer) {",
+                    "    void TGalaxy::SaveToBuffer(EC_Buf::TBufEC* Buffer) {\n"
+                    "        srhd_awa::platform::e2e5_save_refs::SaveScope e2e_save_scope(this);",
+                    1, relative.as_posix())
+                text = _replace_exact(text,
+                    "        TGalaxy::RunConfigOnSaveHandlers();\n        Buffer->AddWideStringZ(GR_Main::SelectedMods);",
+                    "        TGalaxy::RunConfigOnSaveHandlers();\n"
+                    "        if (!srhd_awa::platform::e2e5_save_inventory::preflight(this)) {\n"
+                    "            pas::raise(pas::make_exception<pas::Exception>(\"E2E5 save inventory contains unknown script values\"_a));\n"
+                    "        }\n"
+                    "        srhd_awa::platform::e2e5_save_inventory::log_game_state(this, \"save\");\n"
+                    "        Buffer->AddWideStringZ(GR_Main::SelectedMods);",
+                    1, relative.as_posix())
+                text = _replace_exact(text,
+                    "            Stage = 41;\n            Count = pas::list_count(Self->Scripts);",
+                    "            Stage = 41;\n"
+                    "            srhd_awa::platform::e2e5_save_refs::RebindPending(Self);\n"
+                    "            srhd_awa::platform::e2e5_save_inventory::log_game_state(Self, \"load\");\n"
+                    "            Count = pas::list_count(Self->Scripts);",
+                    1, relative.as_posix())
                 text = _replace_exact(text,
                     "            Script->SaveState(Buffer);",
                     "            EC_Expression::TVarArrayEC* scopes[2] = {Script->InitCode->LocalVar, Script->TurnCode->LocalVar};\n"
@@ -216,25 +181,22 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                     1, relative.as_posix())
                 text = _replace_exact(text,
                     "        Globals::SharedScriptVariables->SaveToBuffer(Buffer);",
-                    "        EC_Expression::TVarEC* run_star = Globals::SharedScriptVariables->GetVar(u\"GRunStar\"_wref.get());\n"
-                    "        const std::uintptr_t run_star_address = run_star->GetDword();\n"
-                    "        std::uint32_t run_star_id = 0;\n"
-                    "        if (run_star_address != 0) {\n"
-                    "            bool found = false;\n"
-                    "            for (std::int32_t si = 0; si < pas::list_count(Stars); ++si) {\n"
-                    "                TStar* candidate = pas::list_at<TStar>(Stars, si);\n"
-                    "                if (reinterpret_cast<std::uintptr_t>(candidate) == run_star_address) {\n"
-                    "                    run_star_id = candidate->Id;\n"
-                    "                    found = true;\n"
-                    "                    break;\n"
-                    "                }\n"
-                    "            }\n"
-                    "            if (!found) pas::raise(pas::make_exception<pas::Exception>(\"E2E4 GRunStar does not refer to a galaxy star\"_a));\n"
-                    "        }\n"
-                    "        run_star->SetDword(run_star_id);\n"
-                    "        try { Globals::SharedScriptVariables->SaveToBuffer(Buffer); }\n"
-                    "        catch (...) { run_star->SetDword(run_star_address); throw; }\n"
-                    "        run_star->SetDword(run_star_address);",
+                    "        auto* shared = Globals::SharedScriptVariables;\n"
+                    "        Buffer->AddIntegerValue(shared->Count);\n"
+                    "        for (std::int32_t vi = 0; vi < shared->Count; ++vi) {\n"
+                    "            auto* cell = EC_Expression::TVarArrayEC_GetItem(shared, vi);\n"
+                    "            if (cell->Name != u\"GRunStar\") { cell->SaveToBuffer(Buffer); continue; }\n"
+                    "            if (cell->Kind != EC_Expression::vkDword)\n"
+                    "                pas::raise(pas::make_exception<pas::Exception>(\"E2E5 GRunStar kind changed\"_a));\n"
+                    "            const auto binding = srhd_awa::platform::e2e5_save_inventory::classify(this, nullptr, cell);\n"
+                    "            if (cell->GetDword() != 0 &&\n"
+                    "                (std::string(binding.category) != \"STABLE_OBJECT_ID\" ||\n"
+                    "                 std::string(binding.object_type) != \"star\"))\n"
+                    "                pas::raise(pas::make_exception<pas::Exception>(\"E2E5 GRunStar is not a galaxy star\"_a));\n"
+                    "            Buffer->AddWideStringZ(cell->Name);\n"
+                    "            Buffer->AddAnsiChar(static_cast<std::uint8_t>(cell->Kind));\n"
+                    "            Buffer->AddDWord(cell->GetDword() == 0 ? 0u : binding.object_id);\n"
+                    "        }",
                     1, relative.as_posix())
                 text = _replace_exact(text,
                     "                if (Existing != nullptr) {\n                    Existing->AssignFrom(Variable, true);\n                }",
@@ -248,6 +210,46 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                     "                    Existing->AssignFrom(Variable, true);\n"
                     "                }",
                     1, relative.as_posix())
+            elif relative.as_posix() == "aSaveLoad.cpp":
+                text = _replace_exact(text, '#include "layout/aSaveLoad.hpp"',
+                    '#include "e2e5_save_refs.hpp"\n#include "layout/aSaveLoad.hpp"',
+                    1, relative.as_posix())
+                text = _replace_exact(text,
+                    'Header->AddWideStringZ(u"RSG"_wref.get());',
+                    'Header->AddWideStringZ(u"RSG64"_wref.get());',
+                    1, relative.as_posix())
+                text = _replace_exact(text,
+                    'Header->AddWideStringZ(static_cast<pas::WideString>(pas::concat_ansi({"v", SysUtils::IntToStr(aConst::CurrentSaveVersion)})));',
+                    'Header->AddWideStringZ(u"v168"_wref.get());',
+                    1, relative.as_posix())
+                text = _replace_exact(text,
+                    '            if (F->ReadWideString() != u"RSG") {',
+                    '            const pas::WideString e2e_signature = F->ReadWideString();\n'
+                    '            if (e2e_signature != u"RSG" && e2e_signature != u"RSG64") {',
+                    1, relative.as_posix())
+                text = _replace_exact(text,
+                    '            GlobalsV::LoadedSaveVersion = EC_Str::ExtractDigitsToIntW(pas::view(F->ReadWideString()));',
+                    '            GlobalsV::LoadedSaveVersion = EC_Str::ExtractDigitsToIntW(pas::view(F->ReadWideString()));\n'
+                    '            if (e2e_signature == u"RSG64" && GlobalsV::LoadedSaveVersion != 168)\n'
+                    '                pas::raise(pas::make_exception<pas::Abort>("E2E5 unsupported typed save version"_a));\n'
+                    '            srhd_awa::platform::e2e5_save_refs::SetLoadFormat(e2e_signature == u"RSG64");',
+                    1, relative.as_posix())
+                text = _replace_exact(text,
+                    '        GlobalsV::LoadedSaveVersion = aConst::CurrentSaveVersion;',
+                    '        GlobalsV::LoadedSaveVersion = 168;\n'
+                    '        srhd_awa::platform::e2e5_save_refs::SetLoadFormat(true);',
+                    1, relative.as_posix())
+            elif relative.as_posix() == "fSaveManager.cpp":
+                text = _replace_exact(text,
+                    '                                if (FileObject->ReadWideString() != u"RSG") {',
+                    '                                const pas::WideString e2e_signature = FileObject->ReadWideString();\n'
+                    '                                if (e2e_signature != u"RSG" && e2e_signature != u"RSG64") {',
+                    1, relative.as_posix())
+                text = _replace_exact(text,
+                    '                                if (I < 13 || I > aConst::CurrentSaveVersion) {',
+                    '                                if (I < 13 || I > 168 ||\n'
+                    '                                    (e2e_signature == u"RSG64" && I != 168)) {',
+                    1, relative.as_posix())
             elif relative.as_posix() == "types/EC_Expression.hpp":
                 for old, new in (
                     ("std::uint32_t GetDword();", "std::uintptr_t GetDword();"),
@@ -258,7 +260,7 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                     text = _replace_exact(text, old, new, 1, relative.as_posix())
             elif relative.as_posix() == "EC_Expression.cpp":
                 text = _replace_exact(text, '#include "layout/EC_Expression.hpp"',
-                                      '#include "e2e4_script_value.hpp"\n#include "layout/EC_Expression.hpp"',
+                                      '#include "e2e4_script_value.hpp"\n#include "e2e5_save_refs.hpp"\n#include "layout/EC_Expression.hpp"',
                                       1, relative.as_posix())
                 text = _replace_exact(text, "IntValue = DwordValue;",
                     "IntValue = srhd_awa::platform::e2e4_script_value::IntStorageFromDword(DwordValue);",
@@ -318,11 +320,37 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                     1, relative.as_posix())
                 text = _replace_exact(text,
                     "                Buffer->AddDWord(DwordValue);",
-                    "                if (!srhd_awa::platform::e2e4_script_value::FitsDiskDword(DwordValue)) {\n"
-                    "                    pas::raise(pas::make_exception<ExceptionExpressionEC>(static_cast<pas::AnsiString>(pas::concat_wide({u\"E2E4 script pointer cannot be serialized as DWORD: \", Name}))));\n"
-                    "                }\n"
-                    "                Buffer->AddDWord(DwordValue);",
+                    "                Buffer->AddDWord(srhd_awa::platform::e2e5_save_refs::NestedDiskValue(this));",
                     1, relative.as_posix())
+                save_start = text.index("void TVarEC::SaveToBuffer(")
+                save_end = text.index("void TVarEC::LoadFromBuffer(", save_start)
+                save_body = text[save_start:save_end]
+                save_body = _replace_exact(save_body,
+                    "        Buffer->AddAnsiChar(static_cast<std::uint8_t>(Kind));",
+                    "        Buffer->AddAnsiChar(Kind == vkDword ?\n"
+                    "            srhd_awa::platform::e2e5_save_refs::NestedDiskKind(this) :\n"
+                    "            static_cast<std::uint8_t>(Kind));",
+                    1, relative.as_posix())
+                text = text[:save_start] + save_body + text[save_end:]
+                load_start = text.index("void TVarEC::LoadFromBuffer(")
+                load_end = text.index("void TVarArrayEC_Create(", load_start)
+                load_body = text[load_start:load_end]
+                load_body = _replace_exact(load_body,
+                    "        ResetKind(static_cast<TVarKind>(EC_Buf::TBufEC_GetByte(Buffer)));",
+                    "        const std::uint8_t e2e_disk_kind = EC_Buf::TBufEC_GetByte(Buffer);\n"
+                    "        if (srhd_awa::platform::e2e5_save_refs::IsObjectKind(e2e_disk_kind) &&\n"
+                    "            !srhd_awa::platform::e2e5_save_refs::LoadFormatIsV168())\n"
+                    "            pas::raise(pas::make_exception<ExceptionExpressionEC>(\"E2E5 typed reference in legacy save\"_a));\n"
+                    "        ResetKind(srhd_awa::platform::e2e5_save_refs::IsObjectKind(e2e_disk_kind) ?\n"
+                    "            vkDword : static_cast<TVarKind>(e2e_disk_kind));",
+                    1, relative.as_posix())
+                load_body = _replace_exact(load_body,
+                    "                DwordValue = EC_Buf::TBufEC_GetUInt32(Buffer);",
+                    "                DwordValue = EC_Buf::TBufEC_GetUInt32(Buffer);\n"
+                    "                if (srhd_awa::platform::e2e5_save_refs::IsObjectKind(e2e_disk_kind))\n"
+                    "                    srhd_awa::platform::e2e5_save_refs::QueueLoadedPointer(this, e2e_disk_kind, static_cast<std::uint32_t>(DwordValue));",
+                    1, relative.as_posix())
+                text = text[:load_start] + load_body + text[load_end:]
             else:
                 text = _replace_exact(text,
                     "static_cast<std::uint32_t>(Place->TargetValue)",

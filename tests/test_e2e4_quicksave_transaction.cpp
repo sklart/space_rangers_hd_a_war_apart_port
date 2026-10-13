@@ -22,9 +22,12 @@ static void U16Text(std::vector<unsigned char>& out, const std::string& value) {
     for (const char byte : value) { out.push_back(static_cast<unsigned char>(byte)); out.push_back(0); }
     out.push_back(0); out.push_back(0);
 }
-static std::vector<unsigned char> ValidSave() {
+static std::vector<unsigned char> ValidSave(const std::string& signature = "RSG",
+                                            const std::string& version = "1.0") {
     std::vector<unsigned char> out;
-    for (const auto& text : {"RSG", "1.0", "test", "1", "100", "pilot", "race", "EZ"})
+    for (const auto& text : {signature, version, std::string("test"), std::string("1"),
+                             std::string("100"), std::string("pilot"),
+                             std::string("race"), std::string("EZ")})
         U16Text(out, text);
     U32(out, 0); U32(out, 0);
     const std::string state = "synthetic checked galaxy state for quicksave rotation";
@@ -85,6 +88,17 @@ int main(int argc, char** argv) {
         std::chrono::steady_clock::now().time_since_epoch().count()));
     assert(fs::create_directory(root));
     const auto valid = ValidSave();
+    {
+        const auto dir = root / "typed-format";
+        fs::create_directory(dir);
+        std::string detail;
+        Write(dir / "save.tmp", ValidSave("RSG64", "v168"));
+        assert(ValidateSave(dir / "save.tmp", detail));
+        Write(dir / "save.tmp", ValidSave("RSG64", "v167"));
+        assert(!ValidateSave(dir / "save.tmp", detail));
+        Write(dir / "save.tmp", ValidSave("RSG65", "v168"));
+        assert(!ValidateSave(dir / "save.tmp", detail));
+    }
     {
         const auto dir = root / "success"; Populate(dir);
         std::string detail;

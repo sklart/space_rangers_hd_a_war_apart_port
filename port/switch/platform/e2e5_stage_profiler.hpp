@@ -10,6 +10,34 @@
 
 namespace srhd_awa::platform::e2e5_stage_profiler {
 
+struct UiWork {
+    std::uint64_t queued_rects{};
+    std::uint64_t queued_area_px{};
+    std::uint64_t root_draw_calls{};
+    std::uint64_t control_visits{};
+    std::uint64_t framebuffer_bytes{};
+    std::uint64_t presentations{};
+};
+
+// The original UI runs on one game thread. These counters share the existing
+// five-second stage window and have no per-control logging or allocation.
+inline UiWork ui_work{};
+
+inline void QueueRect(std::int32_t left, std::int32_t top,
+                      std::int32_t right, std::int32_t bottom) {
+    ++ui_work.queued_rects;
+    const auto width = std::max<std::int64_t>(0, static_cast<std::int64_t>(right) - left);
+    const auto height = std::max<std::int64_t>(0, static_cast<std::int64_t>(bottom) - top);
+    ui_work.queued_area_px += static_cast<std::uint64_t>(width * height);
+}
+
+inline void PresentFrame(std::int32_t width, std::int32_t height) {
+    if (width > 0 && height > 0) {
+        ui_work.framebuffer_bytes += static_cast<std::uint64_t>(width) * height * 2u;
+        ++ui_work.presentations;
+    }
+}
+
 // Each original GI_MessageLoop::Run Stage assignment closes the preceding
 // interval.  A bounded sample retains percentile evidence without per-frame
 // allocation.  Numeric stage IDs map directly to the original source.
@@ -56,6 +84,19 @@ public:
                 stats.sample_count);
             e2e_stage::Log(line);
             stats = {};
+        }
+        if (ui_work.presentations || ui_work.queued_rects || ui_work.control_visits) {
+            char line[256]{};
+            std::snprintf(line, sizeof(line),
+                "perf ui presents=%llu rects=%llu rect_area_px=%llu root_draw_calls=%llu control_visits=%llu framebuffer_bytes=%llu",
+                static_cast<unsigned long long>(ui_work.presentations),
+                static_cast<unsigned long long>(ui_work.queued_rects),
+                static_cast<unsigned long long>(ui_work.queued_area_px),
+                static_cast<unsigned long long>(ui_work.root_draw_calls),
+                static_cast<unsigned long long>(ui_work.control_visits),
+                static_cast<unsigned long long>(ui_work.framebuffer_bytes));
+            e2e_stage::Log(line);
+            ui_work = {};
         }
     }
 

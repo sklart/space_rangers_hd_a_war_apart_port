@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "source_git_head": "9acdf5ccc088723947bcf0e43258ec7fb74efb50",
+  "source_dirty_at_build": true,
+  "host_elf_sha256": "f92136bc426ba467da10a1937fabceb2ec9626061ed53275007c638088108950",
+  "resource_main_dat_sha256": "2544c91df96508a0e94b383b980d2344d792534f8d2c502ada30d6a99a44281a",
+  "switch_hardware": "PENDING",
+  "status": "HOST PROFILED",
+  "optimized_generation": {
+    "stage_6_to_8_ms": 11144,
+    "total_ms": 15063
+  },
+  "functional_generation": {
+    "stage_6_to_8_ms": 41163,
+    "total_ms": 44704,
+    "host_elf_sha256": "e7d3866170d09513feccdf0164cf9113c7a0df9663e2c3418eaf7480d1b044be",
+    "stage": "port/switch/build/e2e5-host-game/runs/45d01debfd7d40a7aeb6ddfebbb92e43"
+  },
+  "ui": {
+    "sample_count": 12,
+    "all_rects_full_1280x720": true,
+    "example": {
+      "presents": 224,
+      "rects": 383,
+      "rect_area_px": 352972800,
+      "root_draw_calls": 383,
+      "control_visits": 0,
+      "framebuffer_bytes": 412876800
+    },
+    "note": "zero control_visits means queued-control traversal path was not used"
+  },
+  "interpretation": "Full-screen dirty rectangles dominate this host path; O2 host profile is indicative because campaigns have different random states. No renderer rewrite."
+}

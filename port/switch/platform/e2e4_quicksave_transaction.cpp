@@ -299,7 +299,8 @@ Result Rollback(const fs::path& save_directory, const fs::path& transaction,
 }
 
 bool ReadU16String(std::ifstream& stream, std::uint64_t& remaining,
-                   const char* expected, std::string& error) {
+                   const char* expected, std::string& error,
+                   std::string* actual = nullptr) {
     std::string ascii;
     for (unsigned i = 0; i < 2048; ++i) {
         if (remaining < 2) { error = "truncated UTF-16 header"; return false; }
@@ -307,8 +308,11 @@ bool ReadU16String(std::ifstream& stream, std::uint64_t& remaining,
         if (!stream.read(reinterpret_cast<char*>(bytes), 2)) { error = "header read failed"; return false; }
         remaining -= 2;
         const auto code = static_cast<unsigned>(bytes[0]) | (static_cast<unsigned>(bytes[1]) << 8);
-        if (code == 0) return !expected || ascii == expected;
-        if (expected) {
+        if (code == 0) {
+            if (actual) *actual = ascii;
+            return !expected || ascii == expected;
+        }
+        if (expected || actual) {
             if (code > 127) { error = "signature is not ASCII"; return false; }
             ascii.push_back(static_cast<char>(code));
         }
@@ -340,12 +344,18 @@ bool ValidateSave(const fs::path& source, std::string& detail) {
     std::ifstream input(source, std::ios::binary);
     if (!input) { detail = "save.tmp open failed"; return false; }
     std::uint64_t remaining = whole.size;
+    std::string signature, version;
     for (unsigned i = 0; i < 8; ++i) {
-        const char* expected = i == 0 ? "RSG" : (i == 7 ? "EZ" : nullptr);
-        if (!ReadU16String(input, remaining, expected, detail)) {
+        const char* expected = i == 7 ? "EZ" : nullptr;
+        std::string* actual = i == 0 ? &signature : (i == 1 ? &version : nullptr);
+        if (!ReadU16String(input, remaining, expected, detail, actual)) {
             if (detail.empty()) detail = "save header signature mismatch";
             return false;
         }
+    }
+    if (signature != "RSG" && !(signature == "RSG64" && version == "v168")) {
+        detail = "save header signature or typed version mismatch";
+        return false;
     }
     for (unsigned i = 0; i < 2; ++i) {
         std::uint32_t size{};

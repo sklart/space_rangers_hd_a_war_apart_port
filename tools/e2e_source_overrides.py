@@ -362,7 +362,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aShip.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fMainForm.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aShip.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "aPlayer.cpp":
@@ -795,6 +795,15 @@ void CloseVorbisStream(TOggWorker* worker) {
                 raise RuntimeError(f"E2E-5 profiler stage inventory changed: {switches}")
         text = text[:start] + run + text[end:]
         if e2e5_profile:
+            draw_updates_start = text.index("    void TObjectGI::DrawUpdateRects(WindowsSdk::TRect ClipRect) {")
+            draw_updates_end = text.index("    void TObjectGI::", draw_updates_start + 1)
+            draw_updates = text[draw_updates_start:draw_updates_end]
+            draw_updates = _replace_exact(draw_updates,
+                "    void TObjectGI::DrawUpdateRects(WindowsSdk::TRect ClipRect) {",
+                "    void TObjectGI::DrawUpdateRects(WindowsSdk::TRect ClipRect) {\n"
+                "        ++srhd_awa::platform::e2e5_stage_profiler::ui_work.control_visits;",
+                1, source.name)
+            text = text[:draw_updates_start] + draw_updates + text[draw_updates_end:]
             draw_start = text.index("    void TMessageLoopGI::DrawQueuedUpdateRects() {")
             draw_end = text.index("    void TMessageLoopGI::DrawQueuedControlRects() {", draw_start)
             draw = text[draw_start:draw_end]
@@ -807,6 +816,13 @@ void CloseVorbisStream(TOggWorker* worker) {
                 "        GR_Rect::TRectGR* RectNode = UpdateRects->FirstRect;",
                 "        e2e_dirty_profile.Enter(31);\n"
                 "        GR_Rect::TRectGR* RectNode = UpdateRects->FirstRect;", 1, source.name)
+            draw = _replace_exact(draw,
+                "            RootUiObject->Draw(RectNode->Bounds);",
+                "            srhd_awa::platform::e2e5_stage_profiler::QueueRect(\n"
+                "                RectNode->Bounds.Left, RectNode->Bounds.Top,\n"
+                "                RectNode->Bounds.Right, RectNode->Bounds.Bottom);\n"
+                "            ++srhd_awa::platform::e2e5_stage_profiler::ui_work.root_draw_calls;\n"
+                "            RootUiObject->Draw(RectNode->Bounds);", 1, source.name)
             draw = _replace_exact(draw,
                 "            RectNode = RectNode->Next;\n        }\n    }",
                 "            RectNode = RectNode->Next;\n        }\n"
@@ -874,6 +890,22 @@ void CloseVorbisStream(TOggWorker* worker) {
             srhd_awa::platform::e2e_stage::LogE2E3(detail);
         }
 #endif''', 1)
+        load_binding = '        pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Load"sv))->UpCallback = pas::bind_method<&TfMainForm::LoadGameClicked>(this);'
+        if text.count(load_binding) != 1:
+            raise RuntimeError("original Load button binding boundary changed")
+        text = text.replace(load_binding, load_binding + '''
+#if defined(E2E3_TRACE) && E2E3_TRACE
+        {
+            const auto* button = GetByName(u"Load"sv);
+            char detail[128]{};
+            std::snprintf(detail, sizeof(detail),
+                "menu_load_bounds left=%d top=%d right=%d bottom=%d active=%u",
+                button->HitTestBounds.Left, button->HitTestBounds.Top,
+                button->HitTestBounds.Right, button->HitTestBounds.Bottom,
+                static_cast<unsigned>(button->Active));
+            srhd_awa::platform::e2e_stage::LogE2E3(detail);
+        }
+#endif''', 1)
         text = text.replace(request, request + '''
         {
             char detail[120]{};
@@ -885,6 +917,75 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = text.replace(keyboard,
             '            srhd_awa::platform::e2e_stage::LogE2E3("menu_action=New source=keyboard key=Enter");\n' + keyboard, 1)
         text = '#include "e2e_stage.hpp"\n#include "win32_compat_messages.hpp"\n#include <cstdio>\n' + text
+    if source.name == "fSaveManager.cpp":
+        # The original uses both Save and save for one directory. The portable
+        # host filesystem resolves those as different paths, while the slot
+        # writer and user-root layout already use the lowercase spelling.
+        directory = 'GR_Main::GetGameUserDirectory(), u"Save"'
+        if text.count(directory) != 2:
+            raise RuntimeError("original SaveManager directory boundary changed")
+        text = text.replace(directory, 'GR_Main::GetGameUserDirectory(), u"save"')
+        scan_call = '        ScanSaveFiles();'
+        if text.count(scan_call) != 1:
+            raise RuntimeError("original SaveManager slot scan boundary changed")
+        text = text.replace(scan_call, scan_call + '''
+        {
+            char detail[96]{};
+            std::snprintf(detail, sizeof(detail), "save_scan slots=%d newest=%d",
+                          pas::list_count(Slots), FindNewestSlot());
+            srhd_awa::platform::e2e_stage::LogE2E3(detail);
+        }''', 1)
+        load_callback = '    void TfSaveManager::LoadClicked(GI_MessageLoop::TObjectGI* Sender) {'
+        if text.count(load_callback) != 1:
+            raise RuntimeError("original SaveManager load callback boundary changed")
+        text = text.replace(load_callback, load_callback + '''
+        {
+            char detail[96]{};
+            std::snprintf(detail, sizeof(detail), "save_load_clicked selected=%d slots=%d",
+                          SelectedSlot, pas::list_count(Slots));
+            srhd_awa::platform::e2e_stage::LogE2E3(detail);
+        }''', 1)
+        scan_rejection = '''                            } catch (...) {
+                                pas::dispose(Slot);
+                            }'''
+        if text.count(scan_rejection) != 1:
+            raise RuntimeError("original SaveManager scan rejection boundary changed")
+        text = text.replace(scan_rejection, '''                            } catch (...) {
+                                srhd_awa::platform::e2e_stage::LogE2E3("save_scan slot_rejected");
+                                pas::dispose(Slot);
+                            }''', 1)
+        scan_search = '                Search = WindowsSdk::FindFirstFile(pas::literal_pointer("*.sav"), FindData);'
+        if text.count(scan_search) != 1:
+            raise RuntimeError("original SaveManager search boundary changed")
+        text = text.replace(scan_search, scan_search + '''
+                srhd_awa::platform::e2e_stage::LogE2E3(
+                    Search == WindowsImports::INVALID_HANDLE_VALUE ?
+                    "save_scan search_empty" : "save_scan search_found");''', 1)
+        load_binding = '            ButLoad->UpCallback = pas::bind_method<&TfSaveManager::LoadClicked>(this);'
+        if text.count(load_binding) != 1:
+            raise RuntimeError("original SaveManager Load button binding boundary changed")
+        text = text.replace(load_binding, load_binding + '''
+#if defined(E2E3_TRACE) && E2E3_TRACE
+            {
+                char detail[160]{};
+                std::snprintf(detail, sizeof(detail),
+                    "save_load_bounds left=%d top=%d right=%d bottom=%d active=%u",
+                    ButLoad->HitTestBounds.Left, ButLoad->HitTestBounds.Top,
+                    ButLoad->HitTestBounds.Right, ButLoad->HitTestBounds.Bottom,
+                    static_cast<unsigned>(ButLoad->Active));
+                srhd_awa::platform::e2e_stage::LogE2E3(detail);
+            }
+#endif''', 1)
+        text = '#include "e2e_stage.hpp"\n#include <cstdio>\n' + text
+    if source.name == "fShip2.cpp":
+        ship_run = '        std::uint8_t Result = Globals::ShipScreen->Run() == 1;'
+        if text.count(ship_run) != 1:
+            raise RuntimeError("original ship equipment modal boundary changed")
+        text = text.replace(ship_run,
+            '        srhd_awa::platform::e2e_stage::LogE2E3("ship_equipment_open");\n' +
+            ship_run + '\n' +
+            '        srhd_awa::platform::e2e_stage::LogE2E3("ship_equipment_closed");', 1)
+        text = '#include "e2e_stage.hpp"\n' + text
     if source.name == "fGameSettings2.cpp":
         # The translated 32-bit UI stores object pointers in UserIndex/UserValue.
         # These controls are created as adjacent siblings, so resolve the live
@@ -1019,6 +1120,17 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = text.replace(truncated,
             "std::uint8_t* cpp_left = static_cast<std::uint8_t*>(GR_Main::ScreenRenderBuffer->GetPixels()) + Position.X * 2;\n"
             "                void* cpp_arg = cpp_left + Position.Y * GR_Main::ScreenRenderBuffer->PitchBytes;", 1)
+        turn_call = '        MainPanel->EndTurnClicked(Sender);'
+        if text.count(turn_call) != 1:
+            raise RuntimeError("original Hangar end-turn boundary changed")
+        text = text.replace(turn_call, turn_call + '''
+        {
+            char detail[96]{};
+            std::snprintf(detail, sizeof(detail), "hangar_end_turn_done turn=%u",
+                          static_cast<unsigned>(aGalaxy::Galaxy->CurrentTurn));
+            srhd_awa::platform::e2e_stage::LogE2E3(detail);
+        }''', 1)
+        text = '#include "e2e_stage.hpp"\n#include <cstdio>\n' + text
     if source.name == "GR_GraphBuf.cpp":
         use_texture = "        Self->UseTexture = AUseTexture;"
         if text.count(use_texture) != 1:
@@ -1228,9 +1340,9 @@ void CloseVorbisStream(TOggWorker* worker) {
         if text.count(dll_checksum_begin) != 1 or text.count(dll_checksum_end) != 1:
             raise RuntimeError("original Windows DLL integrity boundary changed")
         text = text.replace(dll_checksum_begin,
-            "#if !defined(__SWITCH__)\n" + dll_checksum_begin, 1)
+            "#if defined(_WIN32) && !defined(__SWITCH__)\n" + dll_checksum_begin, 1)
         text = text.replace(dll_checksum_end,
-            "#endif // Windows DLL integrity paths are absent on Switch.\n" + dll_checksum_end, 1)
+            "#endif // Windows DLL integrity paths are absent on portable targets.\n" + dll_checksum_end, 1)
         audio_anchor = '        EC_BlockPar::TBlockParEC* Block = LanguageDataConfig->GetBlock(u"CaseConv"sv);'
         if text.count(audio_anchor) != 1:
             raise RuntimeError("original sound initialization boundary changed")

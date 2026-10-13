@@ -375,7 +375,7 @@ def main() -> int:
         return 0
     flags = ["-std=gnu++20", "-D__SWITCH__", "-march=armv8-a+crc+crypto",
              "-mtune=cortex-a57", "-mtp=soft", "-fPIE",
-             "-ffunction-sections", "-fdata-sections"]
+             "-ffunction-sections", "-fdata-sections", "-g1"]
     if args.profile == "release":
         flags += ["-O2", "-fno-strict-aliasing", "-DE2E_DIAGNOSTICS=0"]
     else:
