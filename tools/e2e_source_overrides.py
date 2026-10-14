@@ -295,6 +295,7 @@ STAGES = {
 }
 
 PROGRAM_SOURCE = '''#include "e2e_stage.hpp"
+#include "e2e_config.hpp"
 #include "ec_file_adapter.hpp"
 #include "user_root.hpp"
 #include "win32_compat.hpp"
@@ -326,6 +327,13 @@ int main() {
     platform::e2e_stage::LogWinApi("portable=PORTABLE_COUNT_PLACEHOLDER");
     platform::e2e_stage::LogWinApi("optional=OPTIONAL_COUNT_PLACEHOLDER");
     platform::e2e_stage::LogWinApi("unknown=UNKNOWN_COUNT_PLACEHOLDER");
+    std::string cfg_detail;
+    if (!platform::e2e_config::EnsureUserConfig(&cfg_detail)) {
+        platform::e2e_stage::LogWinApi(cfg_detail.c_str());
+        platform::e2e_stage::Log("FAIL stage=runtime/settings copy-cfg");
+        return 1;
+    }
+    platform::e2e_stage::LogWinApi(cfg_detail.c_str());
     try {
         Rangers::ProgramMain();
     } catch (const pas::Raised& error) {
@@ -337,24 +345,20 @@ int main() {
         detail += " post-load=" + std::to_string(static_cast<unsigned>(GlobalsV::PostLoadScreenId));
         platform::e2e_stage::Log(detail.c_str());
         platform::win32_compat::LogRuntimeStats();
-        platform::e2e_stage::Log((std::string("BOOT FAILED first=") + platform::e2e_stage::FirstFailure()).c_str());
         return 1;
     } catch (const std::exception& error) {
         const std::string detail = std::string("FAIL stage=ProgramMain exception=") + error.what();
         platform::e2e_stage::Log(detail.c_str());
         platform::win32_compat::LogRuntimeStats();
-        platform::e2e_stage::Log((std::string("BOOT FAILED first=") + platform::e2e_stage::FirstFailure()).c_str());
         return 1;
     } catch (...) {
         platform::e2e_stage::Log("FAIL stage=ProgramMain unhandled-exception");
         platform::win32_compat::LogRuntimeStats();
-        platform::e2e_stage::Log((std::string("BOOT FAILED first=") + platform::e2e_stage::FirstFailure()).c_str());
         return 1;
     }
     platform::win32_compat::LogRuntimeStats();
     const auto first_failure = platform::e2e_stage::FirstFailure();
     if (!first_failure.empty()) {
-        platform::e2e_stage::Log((std::string("BOOT FAILED first=") + first_failure).c_str());
         return 1;
     }
     if (!platform::e2e_stage::MenuReady()) {
@@ -872,6 +876,13 @@ void CloseVorbisStream(TOggWorker* worker) {
         continuous_start = text.index("    std::int32_t TMessageLoopGI::RunContinuous() {")
         continuous_end = text.index("    void TMessageLoopGI::ProcessWindowMessage(", continuous_start)
         continuous = text[continuous_start:continuous_end]
+        continuous_frame = "            GR_Main::FullFrameRedrawRequested = true;\n            DrawFrame();"
+        if continuous.count(continuous_frame) != 1:
+            raise RuntimeError("continuous main-menu frame boundary changed")
+        continuous = continuous.replace(continuous_frame, continuous_frame + '''
+            if (GlobalsV::CurrentScreenId == GlobalsV::screenMainMenu &&
+                srhd_awa::platform::renderer_platform::LastPresentationDiagnostics().present_succeeded)
+                srhd_awa::platform::e2e_stage::MarkMenuReady();''', 1)
         present = "            FinishQueuedDraw();\n            GR_Main::EndFramePresentation();"
         if continuous.count(present) != 1:
             raise RuntimeError("main-menu presentation boundary changed")

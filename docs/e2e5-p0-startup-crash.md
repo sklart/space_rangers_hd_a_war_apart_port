@@ -45,7 +45,9 @@ condition on that card cannot be recovered from it. The revised path resolves
 existing user CFG names without case sensitivity, checks the real template,
 reports file types, readability, destination directory, error values and
 filesystem space, and copies only when the user CFG is absent. A missing or
-unreadable template fails startup without creating a placeholder.
+unreadable template fails the entrypoint before script workers are started,
+without creating a placeholder. The same check remains at the original
+runtime/settings boundary.
 
 On Switch, thread creation now calls `pthread_create` directly with an
 explicit 256 KiB stack and checks its return code without throwing a C++
@@ -57,6 +59,9 @@ The original host `ProgramMain` reached a presented Main Menu frame, logged
 `BOOT READY`, accepted New Game, and opened GameSettings. Isolated CFG tests
 covered missing template, creating from a real template, preserving user
 settings, mixed-case names, invalid destination, unreadable source, and a
-second process run. The CFG test passed under ASan/UBSan. These host checks do
+second process run. A full host launch with the template removed returned
+code 5 before `ProgramMain` and logged the first `copy-cfg` failure followed
+by `BOOT FAILED`; it did not create a CFG. The CFG test passed under
+ASan/UBSan. These host checks do
 not establish Switch runtime success; the new combined NRO requires a physical
 retest with its matching ELF and hashes.

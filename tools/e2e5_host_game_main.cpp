@@ -2,6 +2,8 @@
 #include "units/GR_Main.hpp"
 #include "units/Rangers.hpp"
 #include "game_path.hpp"
+#include "e2e_config.hpp"
+#include "e2e_stage.hpp"
 #include "user_root.hpp"
 #include "win32_compat_messages.hpp"
 #include "win32_compat_window.hpp"
@@ -227,6 +229,13 @@ int main() {
   srhd_awa::platform::game_path::SetRoot(game.string());
   srhd_awa::platform::user_root::SetRoot(user.string());
   if (!srhd_awa::platform::user_root::EnsureLayout()) return 4;
+  std::string cfg_detail;
+  if (!srhd_awa::platform::e2e_config::EnsureUserConfig(&cfg_detail)) {
+    srhd_awa::platform::e2e_stage::LogWinApi(cfg_detail.c_str());
+    srhd_awa::platform::e2e_stage::Log("FAIL stage=runtime/settings copy-cfg");
+    return 5;
+  }
+  srhd_awa::platform::e2e_stage::LogWinApi(cfg_detail.c_str());
   GR_Main::OverrideGameUserDirectory =
       pas::WideString((user / "config").u16string().c_str());
   std::atomic<bool> running{true};

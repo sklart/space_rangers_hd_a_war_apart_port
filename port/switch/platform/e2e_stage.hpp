@@ -27,10 +27,13 @@ inline void Append(const char* prefix, const char* message) {
 inline void Log(const char* stage) {
   std::lock_guard lock(g_stage_mutex);
   const std::string_view view(stage ? stage : "");
-  if (view.starts_with("FAIL") && g_first_failure.empty()) g_first_failure = view;
+  const bool first_boot_failure = view.starts_with("FAIL") && !g_menu_ready && g_first_failure.empty();
+  if (first_boot_failure) g_first_failure = view;
   if (!view.starts_with("FAIL") && !view.starts_with("build_git="))
     g_current_stage = view;
   Append("[E2E] ", stage ? stage : "");
+  if (first_boot_failure)
+    Append("[E2E] ", (std::string("BOOT FAILED first=") + g_first_failure).c_str());
 }
 
 inline void MarkMenuReady() {
