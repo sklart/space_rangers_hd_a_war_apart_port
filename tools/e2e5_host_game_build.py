@@ -35,7 +35,7 @@ PATCH_NAMES = ("gr_main_portable.patch", "gr_main_zlib_portable.patch",
                "dat_zlib_guard.patch")
 PATCHED_NAMES = ("GR_Main.cpp", "EC_BlockPar.cpp", "EC_Data.cpp")
 PLATFORM_NAMES = (
-    "e2e_calendar.cpp", "e2e_events.cpp", "e2e_file_match.cpp",
+    "e2e_calendar.cpp", "e2e_config.cpp", "e2e_events.cpp", "e2e_file_match.cpp",
     "e2e_file_search.cpp", "e2e_threads.cpp", "e2e4_game_audio_bridge.cpp",
     "e2e4_native_vorbis.cpp", "e2e4_quicksave_transaction.cpp",
     "e2e4_sdl_audio.cpp", "ec_file_adapter.cpp", "game_path.cpp",

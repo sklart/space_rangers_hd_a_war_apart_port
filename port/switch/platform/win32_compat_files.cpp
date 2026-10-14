@@ -58,8 +58,10 @@ std::string Path(const char* input, bool writing) {
   std::replace(normalized.begin(), normalized.end(), '\\', '/');
   // The game root and the portable user root are selected by existing path
   // adapters. An absolute path produced by either adapter stays absolute.
-  if (normalized.starts_with("sdmc:/") || std::filesystem::path(normalized).is_absolute())
-    return normalized;
+  if (normalized.starts_with("sdmc:/") || std::filesystem::path(normalized).is_absolute()) {
+    const auto user = user_root::ResolveConfigPath(normalized);
+    return user.empty() ? normalized : user;
+  }
   if (!writing) {
     const auto user = user_root::ResolveConfigPath(normalized);
     if (!user.empty() && std::filesystem::exists(user)) return user;

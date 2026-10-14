@@ -337,19 +337,30 @@ int main() {
         detail += " post-load=" + std::to_string(static_cast<unsigned>(GlobalsV::PostLoadScreenId));
         platform::e2e_stage::Log(detail.c_str());
         platform::win32_compat::LogRuntimeStats();
+        platform::e2e_stage::Log((std::string("BOOT FAILED first=") + platform::e2e_stage::FirstFailure()).c_str());
         return 1;
     } catch (const std::exception& error) {
         const std::string detail = std::string("FAIL stage=ProgramMain exception=") + error.what();
         platform::e2e_stage::Log(detail.c_str());
         platform::win32_compat::LogRuntimeStats();
+        platform::e2e_stage::Log((std::string("BOOT FAILED first=") + platform::e2e_stage::FirstFailure()).c_str());
         return 1;
     } catch (...) {
         platform::e2e_stage::Log("FAIL stage=ProgramMain unhandled-exception");
         platform::win32_compat::LogRuntimeStats();
+        platform::e2e_stage::Log((std::string("BOOT FAILED first=") + platform::e2e_stage::FirstFailure()).c_str());
         return 1;
     }
     platform::win32_compat::LogRuntimeStats();
-    platform::e2e_stage::Log("BOOT COMPLETE");
+    const auto first_failure = platform::e2e_stage::FirstFailure();
+    if (!first_failure.empty()) {
+        platform::e2e_stage::Log((std::string("BOOT FAILED first=") + first_failure).c_str());
+        return 1;
+    }
+    if (!platform::e2e_stage::MenuReady()) {
+        platform::e2e_stage::Log("BOOT RETURNED EARLY");
+        return 1;
+    }
     return 0;
 }
 '''
@@ -362,7 +373,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aShip.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_Thread.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "aPlayer.cpp":
@@ -721,6 +732,33 @@ void CloseVorbisStream(TOggWorker* worker) {
                 }''', 1)
         text = text[:start] + loop + text[end:]
         text = '#include "e2e_stage.hpp"\n' + text
+    if source.name == "aScript.cpp":
+        for call, stage in (
+            ("ScriptProcess = pas::construct_call<EC_Expression::TCodeProcessEC>(EC_Expression::TCodeProcessEC_Create);", "script engine process"),
+            ("ScriptFunctionScope = pas::construct_call<EC_Expression::TVarArrayEC>(EC_Expression::TVarArrayEC_Create);", "script engine scope"),
+            ("aScriptFun::InitializeScriptBuiltinsAndConstants(ScriptFunctionScope);", "script engine builtins"),
+            ("EC_Expression::SetScriptStepCallback(EC_Expression::TScriptStepCallback(LogScriptStepCount), 100000);", "script engine callback"),
+        ):
+            if text.count(call) != 1:
+                raise RuntimeError(f"script-engine checkpoint changed: {call}")
+            text = text.replace(call, f'srhd_awa::platform::e2e_stage::Log("{stage}");\n        {call}', 1)
+        text = '#include "e2e_stage.hpp"\n' + text
+    if source.name == "aScriptFun.cpp":
+        call = 'aScript::ScriptRequestThread = pas::construct_call<aScript::TScriptThread>(aScript::TScriptThread_Create);'
+        if text.count(call) != 1:
+            raise RuntimeError("script request thread boundary changed")
+        text = text.replace(call, 'srhd_awa::platform::e2e_stage::Log("script engine request thread");\n        ' + call, 1)
+        text = '#include "e2e_stage.hpp"\n' + text
+    if source.name == "EC_Thread.cpp":
+        call = '        WindowsSdk::SetThreadPriority(Self->ThreadHandle, WindowsSdk::THREAD_PRIORITY_NORMAL);'
+        if text.count(call) != 1:
+            raise RuntimeError("script thread creation boundary changed")
+        text = text.replace(call, '''        if (Self->ThreadHandle == 0) {
+            srhd_awa::platform::e2e_stage::Log("FAIL stage=script-thread create");
+            pas::raise(pas::make_exception<pas::Exception>("Switch script thread creation failed"_a));
+        }
+''' + call, 1)
+        text = '#include "e2e_stage.hpp"\n' + text
     if source.name == "GI_MessageLoop.cpp":
         start = text.index("    std::int32_t TMessageLoopGI::Run() {")
         end = text.index("    std::int32_t TMessageLoopGI::RunContinuous() {", start)
@@ -735,6 +773,9 @@ void CloseVorbisStream(TOggWorker* worker) {
                     if (!e2e_first_frame_logged) {
                         srhd_awa::platform::e2e_stage::Log("screen Run first frame attempted");
                         e2e_first_frame_logged = true;
+                        if (GlobalsV::CurrentScreenId == GlobalsV::screenMainMenu &&
+                            srhd_awa::platform::renderer_platform::LastPresentationDiagnostics().present_succeeded)
+                            srhd_awa::platform::e2e_stage::MarkMenuReady();
                     } else if (e2e_frame_count == 2 || e2e_frame_count == 10 ||
                                e2e_frame_count == 60) {
                         char detail[96]{};
@@ -828,7 +869,18 @@ void CloseVorbisStream(TOggWorker* worker) {
                 "            RectNode = RectNode->Next;\n        }\n"
                 "        e2e_dirty_profile.Stop();\n    }", 1, source.name)
             text = text[:draw_start] + draw + text[draw_end:]
-        text = ('#include "e2e5_stage_profiler.hpp"\n' if e2e5_profile else '') + '#include "e2e_stage.hpp"\n' + text
+        continuous_start = text.index("    std::int32_t TMessageLoopGI::RunContinuous() {")
+        continuous_end = text.index("    void TMessageLoopGI::ProcessWindowMessage(", continuous_start)
+        continuous = text[continuous_start:continuous_end]
+        present = "            FinishQueuedDraw();\n            GR_Main::EndFramePresentation();"
+        if continuous.count(present) != 1:
+            raise RuntimeError("main-menu presentation boundary changed")
+        continuous = continuous.replace(present, present + '''
+            if (GlobalsV::CurrentScreenId == GlobalsV::screenMainMenu &&
+                srhd_awa::platform::renderer_platform::LastPresentationDiagnostics().present_succeeded)
+                srhd_awa::platform::e2e_stage::MarkMenuReady();''', 1)
+        text = text[:continuous_start] + continuous + text[continuous_end:]
+        text = ('#include "e2e5_stage_profiler.hpp"\n' if e2e5_profile else '') + '#include "renderer_platform.hpp"\n#include "e2e_stage.hpp"\n' + text
     if source.name == "GI_GraphButton.cpp":
         timer_gate = "pas::assigned(UpCallback) && MessageLoop->ConsumeTimerTickChange()"
         if text.count(timer_gate) != 1:
@@ -1318,15 +1370,20 @@ void CloseVorbisStream(TOggWorker* worker) {
         config_copy = '            WindowsSdk::CopyFileW(pas::literal_pointer(u"cfg.txt"), Text.pchar(), 0);'
         if text.count(config_copy) != 1:
             raise RuntimeError("original CFG.TXT creation boundary changed")
-        text = text.replace(config_copy, '''            std::error_code copy_error;
-            const auto cfg_source = srhd_awa::platform::game_path::Resolve("cfg.txt");
-            const auto cfg_target = srhd_awa::platform::user_root::ResolveConfigPath("CFG.TXT");
-            if (cfg_source.empty() || cfg_target.empty() ||
-                !std::filesystem::copy_file(cfg_source, cfg_target,
-                    std::filesystem::copy_options::overwrite_existing, copy_error) || copy_error) {
-                srhd_awa::platform::e2e_stage::Log("FAIL stage=runtime/settings copy-cfg");
-                pas::raise(pas::make_exception<pas::Exception>("Switch CFG.TXT copy failed"_a));
-            }''', 1)
+        cfg_check = '        if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(Text))) {'
+        if text.count(cfg_check) != 1:
+            raise RuntimeError("original CFG.TXT existence boundary changed")
+        text = text.replace(cfg_check, '''        const bool cfg_existed = SysUtilsImports::FileExists(static_cast<pas::AnsiString>(Text));
+        std::string cfg_detail;
+        if (!srhd_awa::platform::e2e_config::EnsureUserConfig(&cfg_detail)) {
+            srhd_awa::platform::e2e_stage::LogWinApi(cfg_detail.c_str());
+            srhd_awa::platform::e2e_stage::Log("FAIL stage=runtime/settings copy-cfg");
+            pas::raise(pas::make_exception<pas::Exception>("Switch CFG.TXT unavailable"_a));
+        }
+        srhd_awa::platform::e2e_stage::LogWinApi(cfg_detail.c_str());
+        if (!cfg_existed) {''', 1)
+        text = text.replace(config_copy, '            // EnsureUserConfig copied the real template without overwriting user data.', 1)
+        text = '#include "e2e_config.hpp"\n' + text
         affinity = "        GR_Main::ApplyProcessAffinity();"
         if text.count(affinity) != 1:
             raise RuntimeError("original optional process-affinity call changed")

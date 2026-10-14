@@ -76,6 +76,13 @@ jobs:
             port/switch/platform/input_platform.cpp \
             -o build/e2e4-sanitizers/input_history
           build/e2e4-sanitizers/input_history
+          g++ -std=c++20 -O1 -g -fno-omit-frame-pointer \
+            -fsanitize=address,undefined -Iport/switch/platform \
+            tests/test_e2e_config.cpp port/switch/platform/e2e_config.cpp \
+            port/switch/platform/game_path.cpp port/switch/platform/user_root.cpp \
+            -o build/e2e4-sanitizers/e2e_config
+          build/e2e4-sanitizers/e2e_config build/e2e4-sanitizers/cfg-workspace
+          build/e2e4-sanitizers/e2e_config build/e2e4-sanitizers/cfg-workspace reuse
 
   e2e5-arm64-host:
     runs-on: ubuntu-24.04

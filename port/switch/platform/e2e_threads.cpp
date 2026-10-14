@@ -1,6 +1,8 @@
 #include "e2e_threads.hpp"
 #if defined(__SWITCH__)
 #include "e2e_stage.hpp"
+#include <pthread.h>
+#include <cstdio>
 #endif
 
 #include <chrono>
@@ -21,12 +23,51 @@ struct ThreadState {
   bool failed = false;
   bool self_close_requested = false;
   std::int32_t priority = 0;
+#if defined(__SWITCH__)
+  pthread_t worker{};
+  bool started = false;
+#else
   std::thread worker;
+#endif
 };
 
 std::mutex g_mutex;
 std::unordered_map<std::uint32_t, std::shared_ptr<ThreadState>> g_threads;
 std::uint32_t g_next_handle = 0x50000000u;
+
+struct StartContext {
+  std::shared_ptr<ThreadState> state;
+  Entry entry;
+  void* parameter;
+};
+
+void Run(StartContext context) {
+  const auto& state = context.state;
+  {
+    std::unique_lock lock(state->mutex);
+    state->changed.wait(lock, [&] { return !state->suspended; });
+  }
+  try { context.entry(context.parameter); } catch (...) {
+    std::lock_guard lock(state->mutex);
+    state->failed = true;
+#if defined(__SWITCH__)
+    e2e_stage::Log("FAIL stage=worker-thread uncaught-exception");
+#endif
+  }
+  {
+    std::lock_guard lock(state->mutex);
+    state->finished = true;
+  }
+  state->changed.notify_all();
+}
+
+#if defined(__SWITCH__)
+void* ThreadEntry(void* opaque) {
+  std::unique_ptr<StartContext> context(static_cast<StartContext*>(opaque));
+  Run(std::move(*context));
+  return nullptr;
+}
+#endif
 }  // namespace
 
 std::uint32_t CurrentId() {
@@ -42,30 +83,36 @@ std::uint32_t Create(Entry entry, void* parameter, bool suspended,
   if (g_next_handle == 0xffffffffu) return 0;
   const auto handle = g_next_handle++;
   g_threads.emplace(handle, state);
+#if defined(__SWITCH__)
+  auto context = std::make_unique<StartContext>(StartContext{state, entry, parameter});
+  pthread_attr_t attributes;
+  int error = pthread_attr_init(&attributes);
+  const bool attributes_ready = error == 0;
+  if (!error) error = pthread_attr_setstacksize(&attributes, 256 * 1024);
+  if (!error) {
+    error = pthread_create(&state->worker, &attributes, ThreadEntry, context.get());
+    if (!error) { state->started = true; context.release(); }
+  }
+  if (attributes_ready) pthread_attr_destroy(&attributes);
+  if (error) {
+    char detail[96]{};
+    std::snprintf(detail, sizeof(detail), "FAIL stage=thread-create pthread_error=%d", error);
+    e2e_stage::Log(detail);
+    g_threads.erase(handle);
+    return 0;
+  }
+  *thread_id = static_cast<std::uint32_t>(std::hash<pthread_t>{}(state->worker)) | 1u;
+#else
   try {
     state->worker = std::thread([state, entry, parameter] {
-      {
-        std::unique_lock lock(state->mutex);
-        state->changed.wait(lock, [&] { return !state->suspended; });
-      }
-      try { entry(parameter); } catch (...) {
-        std::lock_guard lock(state->mutex);
-        state->failed = true;
-#if defined(__SWITCH__)
-        e2e_stage::Log("FAIL stage=worker-thread uncaught-exception");
-#endif
-      }
-      {
-        std::lock_guard lock(state->mutex);
-        state->finished = true;
-      }
-      state->changed.notify_all();
+      Run(StartContext{state, entry, parameter});
     });
   } catch (...) {
     g_threads.erase(handle);
     return 0;
   }
   *thread_id = static_cast<std::uint32_t>(std::hash<std::thread::id>{}(state->worker.get_id())) | 1u;
+#endif
   return handle;
 }
 
@@ -109,7 +156,11 @@ bool Close(std::uint32_t handle) {
     std::lock_guard lock(g_mutex);
     const auto found = g_threads.find(handle);
     if (found == g_threads.end()) return false;
+#if defined(__SWITCH__)
+    if (found->second->started && pthread_equal(found->second->worker, pthread_self())) {
+#else
     if (found->second->worker.get_id() == std::this_thread::get_id()) {
+#endif
       std::lock_guard state_lock(found->second->mutex);
       found->second->self_close_requested = true;
       return true;
@@ -117,10 +168,21 @@ bool Close(std::uint32_t handle) {
     state = std::move(found->second);
     g_threads.erase(found);
   }
-  if (state->worker.joinable()) {
+  if (
+#if defined(__SWITCH__)
+      state->started
+#else
+      state->worker.joinable()
+#endif
+      ) {
     std::lock_guard lock(state->mutex);
+#if defined(__SWITCH__)
+    if (state->finished) pthread_join(state->worker, nullptr);
+    else pthread_detach(state->worker);
+#else
     if (state->finished) state->worker.join();
     else state->worker.detach();
+#endif
   }
   return true;
 }

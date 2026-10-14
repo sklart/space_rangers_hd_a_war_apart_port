@@ -15,6 +15,15 @@ bool IsContained(const std::filesystem::path& child, const std::filesystem::path
   }
   return true;
 }
+
+bool SameAsciiName(const std::string& a, const std::string& b) {
+  if (a.size() != b.size()) return false;
+  for (std::size_t i = 0; i < a.size(); ++i) {
+    const auto fold = [](unsigned char c) { return c >= 'A' && c <= 'Z' ? c - 'A' + 'a' : c; };
+    if (fold(a[i]) != fold(b[i])) return false;
+  }
+  return true;
+}
 }  // namespace
 
 void SetRoot(const std::string& root) { g_root = std::filesystem::path(root).lexically_normal(); }
@@ -50,7 +59,18 @@ std::string ResolveConfigPath(const std::string& path) {
   // not append config/ again when that path reaches CreateNew/SaveTextFile.
   const std::filesystem::path resolved =
       (input.is_absolute() || IsContained(input, config) ? input : config / input).lexically_normal();
-  return IsContained(resolved, config) ? resolved.generic_string() : std::string{};
+  if (!IsContained(resolved, config)) return {};
+  // FAT paths are case-insensitive. Resolve an existing spelling so that
+  // CFG.TXT also opens a user's older cfg.txt without creating a duplicate.
+  std::error_code error;
+  if (!std::filesystem::exists(resolved, error) && !error) {
+    const auto parent = resolved.parent_path();
+    for (const auto& entry : std::filesystem::directory_iterator(parent, error)) {
+      if (SameAsciiName(entry.path().filename().string(), resolved.filename().string()))
+        return entry.path().generic_string();
+    }
+  }
+  return resolved.generic_string();
 }
 
 }  // namespace srhd_awa::platform::user_root
