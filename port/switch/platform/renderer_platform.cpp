@@ -359,7 +359,9 @@ void ShutdownPresentation() {
   g_sdl_renderer = nullptr;
   g_texture_width = 0;
   g_texture_height = 0;
+#if defined(E2E_DEBUG_CURSOR_OVERLAY) && E2E_DEBUG_CURSOR_OVERLAY
   g_cursor_overlay_logged = false;
+#endif
   g_rate_start_tick = 0;
   g_rate_start_count = 0;
   g_present_us_sum = 0;
