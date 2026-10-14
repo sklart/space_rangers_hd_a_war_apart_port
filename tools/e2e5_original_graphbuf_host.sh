@@ -28,7 +28,7 @@ cmake -S "$root/upstream/okgf" -B "$build/okgf" \
 cmake --build "$build/okgf" --parallel 2
 
 common=(-std=gnu++20 -D__SWITCH__ -ffunction-sections -fdata-sections
-        -Wno-invalid-offsetof -I"$root/upstream/cpp/src"
+        -Wno-invalid-offsetof -I"$root/port/switch/platform" -I"$root/upstream/cpp/src"
         -I"$root/upstream/cpp/runtime" -I"$root/upstream/okgf/include")
 link=(-Wl,--gc-sections -L"$build/okgf" -lokgf
       -Wl,-rpath,"$build/okgf")

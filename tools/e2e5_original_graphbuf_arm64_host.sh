@@ -55,7 +55,7 @@ generated_source(root / "upstream/cpp/src/GR_GraphBuf.cpp", build / "GR_GraphBuf
 PY
 
 common=(-std=gnu++20 -D__SWITCH__ -O0 -ffunction-sections -fdata-sections
-        -Wno-invalid-offsetof -I"$root/upstream/cpp/src"
+        -Wno-invalid-offsetof -I"$root/port/switch/platform" -I"$root/upstream/cpp/src"
         -I"$root/upstream/cpp/runtime" -I"$root/upstream/okgf/include")
 for name in GR_GraphBuf GR_gi EC_Buf EC_Struct EC_Str EC_CacheGI EC_Cache; do
   source="$root/upstream/cpp/src/$name.cpp"
