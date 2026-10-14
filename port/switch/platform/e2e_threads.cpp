@@ -1,8 +1,7 @@
 #include "e2e_threads.hpp"
 #if defined(__SWITCH__)
 #include "e2e_stage.hpp"
-#include <switch/kernel/thread.h>
-#include <switch/result.h>
+#include <switch.h>
 #include <cstdlib>
 #endif
 
