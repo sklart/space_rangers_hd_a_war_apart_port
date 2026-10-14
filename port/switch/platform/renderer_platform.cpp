@@ -35,21 +35,23 @@ SDL_Renderer* g_sdl_renderer{};
 SDL_Texture* g_sdl_texture{};
 std::int32_t g_texture_width{};
 std::int32_t g_texture_height{};
+#if defined(E2E_DEBUG_CURSOR_OVERLAY) && E2E_DEBUG_CURSOR_OVERLAY
 bool g_cursor_overlay_logged{};
+#endif
 std::uint32_t g_rate_start_tick{};
 std::uint64_t g_rate_start_count{};
 std::uint64_t g_present_us_sum{};
 std::uint64_t g_present_us_max{};
 std::uint32_t g_last_hash_tick{};
 
+#if defined(E2E_DEBUG_CURSOR_OVERLAY) && E2E_DEBUG_CURSOR_OVERLAY
 bool DrawInputCursor(const SDL_Rect& destination, std::int32_t width,
                      std::int32_t height) {
   std::int32_t input_x{}, input_y{};
   win32_compat::InputCursor(&input_x, &input_y);
   const int x = destination.x + input_x * destination.w / width;
   const int y = destination.y + input_y * destination.h / height;
-  // The supplied Switch run has no visible cursor despite live pointer input.
-  // Draw a high-contrast controller pointer at the same coordinates as clicks.
+  // Explicit diagnostic overlay. The original game cursor is drawn in RGB565.
   const SDL_Rect shadow_vertical{x - 2, y - 12, 5, 25};
   const SDL_Rect shadow_horizontal{x - 12, y - 2, 25, 5};
   const SDL_Rect pointer_vertical{x, y - 10, 1, 21};
@@ -69,6 +71,7 @@ bool DrawInputCursor(const SDL_Rect& destination, std::int32_t width,
   }
   return true;
 }
+#endif
 #endif
 
 bool ValidDimensions(std::int32_t width, std::int32_t height, std::int32_t pitch) {
@@ -146,6 +149,21 @@ bool InitializeSoftwareRenderer(const RendererConfig& config, std::string* error
   GR_Main::ExtraScreenHeight = config.game_height - 768;
   GR_Main::PresentationWidth = config.presentation_width > 0 ? config.presentation_width : config.game_width;
   GR_Main::PresentationHeight = config.presentation_height > 0 ? config.presentation_height : config.game_height;
+  // GR_DXInit normally enumerates these modes.  The software renderer bypasses
+  // that path, but Options still indexes the selected mode during OnOpen.
+  const GR_Main::TDisplayModeGR fixed_mode{
+      static_cast<std::uint32_t>(config.game_width),
+      static_cast<std::uint32_t>(config.game_height), 60u, 0u};
+  GR_Main::DesktopDisplayMode = fixed_mode;
+  GR_Main::GameDisplayModes.set_length(1);
+  GR_Main::RobotDisplayModes.set_length(1);
+  GR_Main::GameDisplayModes[0] = fixed_mode;
+  GR_Main::RobotDisplayModes[0] = fixed_mode;
+  GR_Main::GameDisplayModeCount = 1;
+  GR_Main::RobotDisplayModeCount = 1;
+  GR_Main::SelectedGameDisplayMode = 0;
+  GR_Main::SelectedRobotDisplayMode = 0;
+  GR_Main::SmallestGameDisplayMode = 0;
 #if defined(__SWITCH__)
   {
     char detail[128]{};
@@ -281,8 +299,10 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
     return PresentationFailure("SDL_RenderClear");
   if (SDL_RenderCopy(g_sdl_renderer, g_sdl_texture, nullptr, &destination) != 0)
     return PresentationFailure("SDL_RenderCopy");
+#if defined(E2E_DEBUG_CURSOR_OVERLAY) && E2E_DEBUG_CURSOR_OVERLAY
   if (!DrawInputCursor(destination, width, height))
     return PresentationFailure("controller cursor overlay");
+#endif
   SDL_RenderPresent(g_sdl_renderer);
   g_presentation_diagnostics.present_succeeded = true;
   const auto present_us = e2e_clock::Microseconds() - present_start_us;

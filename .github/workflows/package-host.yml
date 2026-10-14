@@ -170,6 +170,8 @@ jobs:
         run: make -C port/switch host-e2e4-audio-stream-test
       - name: E2E-4 script UI cache key
         run: make -C port/switch host-e2e4-ui-cache-test
+      - name: E2E-5 GAI bounds and pointer slots
+        run: make -C port/switch host-e2e5-gai-bounds-test host-e2e5-gai-slots-test
       - name: E2E-4 log analyzer contract
         run: python3 tools/e2e4_log_analyzer.py --self-test
       - name: Validate E2E startup command line

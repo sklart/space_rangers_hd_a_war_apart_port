@@ -18,6 +18,89 @@
 #include <thread>
 
 namespace {
+void DriveOriginalOptions(const std::filesystem::path& stage,
+                          const std::atomic<bool>& running) {
+  const auto log = stage / "sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log";
+  unsigned opened = 0;
+  unsigned closed = 0;
+  unsigned interaction_step = 0;
+  while (running.load()) {
+    std::string lines;
+    try {
+      std::ifstream stream(log);
+      if (stream)
+        lines.assign(std::istreambuf_iterator<char>(stream),
+                     std::istreambuf_iterator<char>());
+    } catch (const std::ios_base::failure&) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      continue;
+    }
+    const auto count = [&](const char* marker) {
+      unsigned value = 0;
+      for (auto at = lines.find(marker); at != std::string::npos;
+           at = lines.find(marker, at + 1)) ++value;
+      return value;
+    };
+    const auto window = srhd_awa::platform::win32_compat::MainWindow();
+    const auto menu_at = lines.rfind("screen dispatch id=1 postload=");
+    if (window && opened < 2 &&
+        count("screen dispatch id=1 postload=") > opened &&
+        menu_at != std::string::npos &&
+        lines.find("screen Run OnOpen ready", menu_at) != std::string::npos &&
+        srhd_awa::platform::win32_compat::PostHostKey(window, 'C')) {
+      ++opened;
+    }
+    const auto options_at = lines.rfind("screen dispatch id=26 postload=");
+    const bool options_ready = window && opened > closed &&
+        count("screen dispatch id=26 postload=") > closed &&
+        options_at != std::string::npos &&
+        lines.find("options groups constructed", options_at) != std::string::npos &&
+        lines.find("screen Run first frame attempted", options_at) != std::string::npos;
+    if (options_ready) {
+      const auto current = lines.substr(options_at);
+      const auto click_logged_bounds = [&](const std::string& marker) {
+        const auto at = current.find(marker);
+        if (at == std::string::npos) return false;
+        int left{}, top{}, right{}, bottom{};
+        if (std::sscanf(current.c_str() + at + marker.size(),
+                        "%d,%d,%d,%d", &left, &top, &right, &bottom) != 4 ||
+            right <= left || bottom <= top) return false;
+        return srhd_awa::platform::win32_compat::PostHostLeftClick(
+            window, (left + right) / 2, (top + bottom) / 2);
+      };
+      const auto group = [&](unsigned index) {
+        return click_logged_bounds("options group button=" +
+                                   std::to_string(index) + " bounds=");
+      };
+      if (closed == 0) {
+        if (interaction_step == 0 && group(1)) ++interaction_step;
+        else if (interaction_step == 1 &&
+                 current.find("options active group=1") != std::string::npos &&
+                 click_logged_bounds("options choice target=VSync bounds=")) ++interaction_step;
+        else if (interaction_step == 2 &&
+                 current.find("options choice selected VSync=") != std::string::npos &&
+                 group(2)) ++interaction_step;
+        else if (interaction_step == 3 &&
+                 current.find("options active group=2") != std::string::npos &&
+                 group(4)) ++interaction_step;
+        else if (interaction_step == 4 &&
+                 current.find("options mode=1") != std::string::npos &&
+                 group(1)) ++interaction_step;
+        else if (interaction_step == 5 &&
+                 current.find("options active group=5") != std::string::npos &&
+                 srhd_awa::platform::win32_compat::PostHostKey(window, 0x1b)) {
+          ++interaction_step;
+          ++closed;
+        }
+      } else if (srhd_awa::platform::win32_compat::PostHostKey(window, 0x1b)) {
+        ++closed;
+        if (closed == 2) return;
+      }
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+}
+
 void DriveOriginalGameKeys(const std::filesystem::path& stage,
                            const std::atomic<bool>& running,
                            bool start_game, bool select_dialog,
@@ -239,8 +322,11 @@ int main() {
   const char* quicksave = std::getenv("E2E5_HOST_AUTO_QUICKSAVE");
   const char* mouse_new = std::getenv("E2E5_HOST_MOUSE_NEW_GAME");
   const char* load_save = std::getenv("E2E5_HOST_LOAD_SAVE");
+  const char* options = std::getenv("E2E5_HOST_AUTO_OPTIONS");
   if (load_save && *load_save == '1')
     new_game_driver = std::thread(DriveOriginalGameLoad, stage, std::cref(running));
+  else if (options && *options == '1')
+    new_game_driver = std::thread(DriveOriginalOptions, stage, std::cref(running));
   else if ((drive && *drive == '1') || (start && *start == '1') ||
       (select && *select == '1') || (mouse_new && *mouse_new == '1') ||
       (advance && *advance == '1') || (quicksave && *quicksave == '1'))

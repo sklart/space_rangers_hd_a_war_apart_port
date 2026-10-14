@@ -106,7 +106,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         mouse_new_game: bool = False, capture_audio: bool = False,
         auto_advance_dialog: bool = False,
         auto_quicksave: bool = False,
-        load_save: Path | None = None) -> dict:
+        load_save: Path | None = None,
+        auto_options: bool = False, cfg_file: Path | None = None) -> dict:
     binary = binary.resolve(strict=True)
     game_root = game_root.resolve(strict=True)
     library_dir = library_dir.resolve(strict=True)
@@ -115,6 +116,13 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     RUNS.mkdir(parents=True, exist_ok=True)
     stage = RUNS / uuid4().hex
     stage.mkdir()
+    cfg_input_sha256 = None
+    if cfg_file is not None:
+        cfg_source = cfg_file.resolve(strict=True)
+        cfg_target = stage / "user/config/CFG.TXT"
+        cfg_target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(cfg_source, cfg_target)
+        cfg_input_sha256 = hash_file(cfg_target)
     game_log = stage / "user/config/########.log"
     e2e_log = stage / "sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log"
     stderr_path = stage / "stderr.txt"
@@ -152,6 +160,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         env["E2E5_HOST_AUTO_QUICKSAVE"] = "1"
     if load_save is not None:
         env["E2E5_HOST_LOAD_SAVE"] = "1"
+    if auto_options:
+        env["E2E5_HOST_AUTO_OPTIONS"] = "1"
     if crash_trace:
         env["LD_PRELOAD"] = str(crash_trace.resolve(strict=True))
     began = time.monotonic()
@@ -177,7 +187,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
             if seen_frame is None and e2e_log.is_file():
                 seen_frame = FRAME.search(read_log(e2e_log))
             if (auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game or
-                    auto_advance_dialog or auto_quicksave or load_save is not None) and e2e_log.is_file():
+                    auto_advance_dialog or auto_quicksave or load_save is not None or
+                    auto_options) and e2e_log.is_file():
                 current = read_log(e2e_log)
                 frames = screen_frames(current)
                 seen_new_game_frame = 33 in frames
@@ -205,6 +216,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                  not auto_new_game and not auto_start_game and not auto_select_dialog and
                  not auto_advance_dialog and
                  not auto_quicksave and not mouse_new_game and not capture_audio and
+                 not auto_options and
                  load_save is None) or
                     ((auto_new_game or mouse_new_game) and not auto_start_game and
                      not auto_select_dialog and not auto_advance_dialog and not auto_quicksave
@@ -220,6 +232,13 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                      bool(frames & POST_DIALOG_SCREENS) and
                      any(60 in milestones.get(screen, set())
                          for screen in POST_DIALOG_SCREENS)) or
+                    (auto_options and current.count("screen dispatch id=26 postload=") >= 2 and
+                     current.count("options groups constructed") >= 2 and
+                     "options active group=5" in current and
+                     "options choice selected VSync=" in current and
+                     current.count("screen dispatch id=1 postload=") >= 3 and
+                     current.rfind("screen Run OnOpen ready") >
+                         current.rfind("screen dispatch id=1 postload=")) or
                     (auto_quicksave and quicksave_rejected) or
                     (load_save is not None and load_rejected) or
                     (load_save is not None and turn_complete_at is not None and
@@ -330,6 +349,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "effective_source_scope": "UNVERIFIED BY THIS PROBE",
         "resource_configuration": {
             "game_root": str(game_root),
+            "cfg_input_sha256": cfg_input_sha256,
             "main_dat_sha256": hash_file(game_root / "CFG/Main.dat")
             if (game_root / "CFG/Main.dat").is_file() else None,
             "cache_data_dat_sha256": hash_file(game_root / "CFG/CacheData.dat")
@@ -359,6 +379,12 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "auto_select_dialog_input": auto_select_dialog,
         "auto_advance_dialog_input": auto_advance_dialog,
         "auto_quicksave_input": auto_quicksave,
+        "auto_options_input": auto_options,
+        "options_open_count": full_e2e_log.count("screen dispatch id=26 postload="),
+        "options_groups_constructed_count": full_e2e_log.count("options groups constructed"),
+        "options_active_groups": [int(index) for index in
+            re.findall(r"options active group=(\d+)", full_e2e_log)],
+        "options_choice_selected": "options choice selected VSync=" in full_e2e_log,
         "load_save_input": load_save is not None,
         "load_source_sha256": load_source_sha256,
         "game_states": game_states,
@@ -464,6 +490,9 @@ def main() -> None:
                         help="QuickSave.sav from an earlier isolated probe stage")
     parser.add_argument("--mouse-new-game", action="store_true")
     parser.add_argument("--capture-audio", action="store_true")
+    parser.add_argument("--auto-options", action="store_true")
+    parser.add_argument("--cfg-file", type=Path,
+                        help="copy this CFG.TXT into the isolated user directory")
     args = parser.parse_args()
     if args.game_root is None or args.timeout <= 0:
         parser.error("--game-root or GAME_ROOT and a positive --timeout are required")
@@ -475,7 +504,7 @@ def main() -> None:
                          args.auto_start_game, args.auto_select_dialog,
                          args.mouse_new_game, args.capture_audio,
                          args.auto_advance_dialog, args.auto_quicksave,
-                         args.load_save), indent=2))
+                         args.load_save, args.auto_options, args.cfg_file), indent=2))
 
 
 if __name__ == "__main__":

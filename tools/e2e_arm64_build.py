@@ -359,8 +359,8 @@ def main() -> int:
         return 1
     map_path.write_text(json.dumps(source_map, sort_keys=True, indent=2) + "\n", encoding="utf-8")
     audit_command = [sys.executable, python_path(ROOT / "tools/audit_win32_surface.py"),
-                     "--effective", "--build-root", native_path(BUILD),
-                     "--manifest", native_path(manifest_path), "--check"]
+                     "--effective", "--build-root", python_path(BUILD),
+                     "--manifest", python_path(manifest_path), "--check"]
     code, audit_output = run(audit_command)
     if code:
         report["first_failure"] = {"phase": "preflight Win32 effective manifest",
