@@ -1,4 +1,5 @@
 #include "runtime_support.hpp"
+#include "e2e_stage.hpp"
 #include "units/GR_Main.hpp"
 #include "units/Rangers.hpp"
 #include "game_path.hpp"
@@ -255,5 +256,13 @@ int main() {
   Rangers::ProgramMain();
   running = false;
   if (new_game_driver.joinable()) new_game_driver.join();
+  if (!srhd_awa::platform::e2e_stage::FirstFailure().empty()) {
+    srhd_awa::platform::e2e_stage::LogBootFailed();
+    std::_Exit(1);
+  }
+  if (!srhd_awa::platform::e2e_stage::BootReady()) {
+    srhd_awa::platform::e2e_stage::Log("BOOT RETURNED EARLY");
+    return 1;
+  }
   return 0;
 }

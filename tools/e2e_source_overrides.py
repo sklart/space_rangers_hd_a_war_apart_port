@@ -303,6 +303,7 @@ PROGRAM_SOURCE = '''#include "e2e_stage.hpp"
 
 #include <filesystem>
 #include <exception>
+#include <cstdlib>
 #include <string>
 
 int main() {
@@ -337,19 +338,29 @@ int main() {
         detail += " post-load=" + std::to_string(static_cast<unsigned>(GlobalsV::PostLoadScreenId));
         platform::e2e_stage::Log(detail.c_str());
         platform::win32_compat::LogRuntimeStats();
-        return 1;
+        platform::e2e_stage::LogBootFailed();
+        std::_Exit(1);
     } catch (const std::exception& error) {
         const std::string detail = std::string("FAIL stage=ProgramMain exception=") + error.what();
         platform::e2e_stage::Log(detail.c_str());
         platform::win32_compat::LogRuntimeStats();
-        return 1;
+        platform::e2e_stage::LogBootFailed();
+        std::_Exit(1);
     } catch (...) {
         platform::e2e_stage::Log("FAIL stage=ProgramMain unhandled-exception");
         platform::win32_compat::LogRuntimeStats();
-        return 1;
+        platform::e2e_stage::LogBootFailed();
+        std::_Exit(1);
     }
     platform::win32_compat::LogRuntimeStats();
-    platform::e2e_stage::Log("BOOT COMPLETE");
+    if (!platform::e2e_stage::FirstFailure().empty()) {
+        platform::e2e_stage::LogBootFailed();
+        std::_Exit(1);
+    }
+    if (!platform::e2e_stage::BootReady()) {
+        platform::e2e_stage::Log("BOOT RETURNED EARLY");
+        return 1;
+    }
     return 0;
 }
 '''
@@ -793,6 +804,13 @@ void CloseVorbisStream(TOggWorker* worker) {
                 lambda match: f"{match.group(1)}e2e_profile.Enter({match.group(2)});\n{match.group(0)}", run)
             if switches < 20:
                 raise RuntimeError(f"E2E-5 profiler stage inventory changed: {switches}")
+        ready_anchor = "                    ++e2e_frame_count;"
+        if run.count(ready_anchor) != 1:
+            raise RuntimeError("main menu ready boundary changed")
+        run = run.replace(ready_anchor, '''                    if (GlobalsV::CurrentScreenId == GlobalsV::screenMainMenu &&
+                        srhd_awa::platform::renderer_platform::LastPresentationDiagnostics().present_succeeded)
+                        srhd_awa::platform::e2e_stage::MarkBootReady();
+                    ++e2e_frame_count;''', 1)
         text = text[:start] + run + text[end:]
         if e2e5_profile:
             draw_updates_start = text.index("    void TObjectGI::DrawUpdateRects(WindowsSdk::TRect ClipRect) {")
@@ -828,7 +846,7 @@ void CloseVorbisStream(TOggWorker* worker) {
                 "            RectNode = RectNode->Next;\n        }\n"
                 "        e2e_dirty_profile.Stop();\n    }", 1, source.name)
             text = text[:draw_start] + draw + text[draw_end:]
-        text = ('#include "e2e5_stage_profiler.hpp"\n' if e2e5_profile else '') + '#include "e2e_stage.hpp"\n' + text
+        text = ('#include "e2e5_stage_profiler.hpp"\n' if e2e5_profile else '') + '#include "renderer_platform.hpp"\n#include "e2e_stage.hpp"\n' + text
     if source.name == "GI_GraphButton.cpp":
         timer_gate = "pas::assigned(UpCallback) && MessageLoop->ConsumeTimerTickChange()"
         if text.count(timer_gate) != 1:
@@ -1248,6 +1266,7 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = text[:saver_start] + saver + text[saver_end:]
         text = '#include "e2e4_quicksave_transaction.hpp"\n' + text
     if source.name == "GR_Main.cpp":
+        text = '#include "e2e5_cfg_bootstrap.hpp"\n' + text
         callback_gate = "                    if (Msg.hwnd == MainWindowHandle && pas::assigned(Callback) && Forms::Application->GetActive()) {"
         if text.count(callback_gate) != 1:
             raise RuntimeError("original input callback gate changed")
@@ -1316,17 +1335,37 @@ void CloseVorbisStream(TOggWorker* worker) {
         }
 ''' + text[end:]
         config_copy = '            WindowsSdk::CopyFileW(pas::literal_pointer(u"cfg.txt"), Text.pchar(), 0);'
-        if text.count(config_copy) != 1:
+        config_path = '        Text = pas::concat_wide({GR_Main::GetGameUserDirectory(), u"CFG.TXT"});\n        if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(Text))) {'
+        if text.count(config_copy) != 1 or text.count(config_path) != 1:
             raise RuntimeError("original CFG.TXT creation boundary changed")
-        text = text.replace(config_copy, '''            std::error_code copy_error;
-            const auto cfg_source = srhd_awa::platform::game_path::Resolve("cfg.txt");
-            const auto cfg_target = srhd_awa::platform::user_root::ResolveConfigPath("CFG.TXT");
-            if (cfg_source.empty() || cfg_target.empty() ||
-                !std::filesystem::copy_file(cfg_source, cfg_target,
-                    std::filesystem::copy_options::overwrite_existing, copy_error) || copy_error) {
-                srhd_awa::platform::e2e_stage::Log("FAIL stage=runtime/settings copy-cfg");
-                pas::raise(pas::make_exception<pas::Exception>("Switch CFG.TXT copy failed"_a));
-            }''', 1)
+        text = text.replace(config_path, '''        auto cfg_result = srhd_awa::platform::e2e5_cfg_bootstrap::Inspect(
+            srhd_awa::platform::game_path::Resolve("cfg.txt"),
+            srhd_awa::platform::user_root::ResolveConfigPath("CFG.TXT"));
+        {
+            const std::string detail = "cfg source=" + cfg_result.source +
+                " source_type=" + cfg_result.source_type +
+                " source_readable=" + std::to_string(cfg_result.source_readable) +
+                " target=" + cfg_result.target +
+                " target_type=" + cfg_result.target_type +
+                " target_readable=" + std::to_string(cfg_result.target_readable) +
+                " target_dir=" + std::to_string(cfg_result.target_directory_exists) +
+                " space_available=" + std::to_string(cfg_result.space_available) +
+                " ec=" + std::to_string(cfg_result.error_value) +
+                " ec_message=" + cfg_result.error_message;
+            srhd_awa::platform::e2e_stage::Log(detail.c_str());
+        }
+        if (!cfg_result.used_existing && cfg_result.problem.empty())
+            srhd_awa::platform::e2e5_cfg_bootstrap::Create(cfg_result);
+        if (!cfg_result.ok()) {
+            const std::string failure = "FAIL stage=runtime/settings cfg=" + cfg_result.problem +
+                " ec=" + std::to_string(cfg_result.error_value) +
+                " ec_message=" + cfg_result.error_message;
+            srhd_awa::platform::e2e_stage::Log(failure.c_str());
+            pas::raise(pas::make_exception<pas::Exception>(pas::AnsiString(failure.c_str())));
+        }
+        Text = static_cast<pas::WideString>(pas::AnsiString(cfg_result.target.c_str()));
+        if (cfg_result.created) {''', 1)
+        text = text.replace(config_copy, '            // The verified template was already copied without overwriting a user file.', 1)
         affinity = "        GR_Main::ApplyProcessAffinity();"
         if text.count(affinity) != 1:
             raise RuntimeError("original optional process-affinity call changed")

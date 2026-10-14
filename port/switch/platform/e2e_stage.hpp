@@ -10,6 +10,8 @@ namespace srhd_awa::platform::e2e_stage {
 inline constexpr const char* kRoot = "sdmc:/switch/space-rangers-hd-a-war-apart";
 inline std::mutex g_stage_mutex;
 inline std::string g_current_stage = "entry";
+inline std::string g_first_failure;
+inline bool g_boot_ready = false;
 
 inline void Append(const char* prefix, const char* message) {
   std::error_code error;
@@ -25,9 +27,34 @@ inline void Append(const char* prefix, const char* message) {
 inline void Log(const char* stage) {
   std::lock_guard lock(g_stage_mutex);
   const std::string_view view(stage ? stage : "");
+  if (view.starts_with("FAIL") && g_first_failure.empty())
+    g_first_failure = view;
   if (!view.starts_with("FAIL") && !view.starts_with("build_git="))
     g_current_stage = view;
   Append("[E2E] ", stage ? stage : "");
+}
+
+inline void MarkBootReady() {
+  std::lock_guard lock(g_stage_mutex);
+  if (g_boot_ready || !g_first_failure.empty()) return;
+  g_boot_ready = true;
+  Append("[E2E] ", "BOOT READY");
+}
+
+inline bool BootReady() {
+  std::lock_guard lock(g_stage_mutex);
+  return g_boot_ready;
+}
+
+inline std::string FirstFailure() {
+  std::lock_guard lock(g_stage_mutex);
+  return g_first_failure;
+}
+
+inline void LogBootFailed() {
+  const auto failure = FirstFailure();
+  const auto detail = "BOOT FAILED first=" + (failure.empty() ? std::string("unknown") : failure);
+  Log(detail.c_str());
 }
 
 inline std::string CurrentStage() {

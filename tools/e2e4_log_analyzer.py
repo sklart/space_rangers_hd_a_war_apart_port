@@ -40,9 +40,12 @@ def classify(lines: list[str]) -> dict:
             "performance": status("[PERF]", ("sample status=complete",)),
         },
     }
-    if any(line.startswith("[E2E] FAIL") for line in lines):
+    if any(line.startswith("[E2E] FAIL") or line.startswith("[E2E] BOOT FAILED")
+           for line in lines):
         result["runtime"] = "FAIL"
-    elif "[E2E] BOOT COMPLETE" in text:
+    elif "[E2E] BOOT RETURNED EARLY" in text:
+        result["runtime"] = "RETURNED EARLY"
+    elif "[E2E] BOOT READY" in text:
         result["runtime"] = "PASS"
     elif any(line.startswith("[E2E]") for line in lines):
         result["runtime"] = "NOT VERIFIED"
@@ -70,6 +73,10 @@ def self_test() -> None:
                        "[MUSIC] FAIL decode error=-137"])
     assert failed["stages"]["music"] == "FAIL"
     assert classify(["[E2E] FAIL stage=ProgramMain"])["runtime"] == "FAIL"
+    assert classify(["[E2E] BOOT READY"])["runtime"] == "PASS"
+    assert classify(["[E2E] BOOT RETURNED EARLY"])["runtime"] == "RETURNED EARLY"
+    assert classify(["[E2E] FAIL stage=runtime/settings copy-cfg",
+                     "[E2E] BOOT READY"])["runtime"] == "FAIL"
 
 
 def main() -> int:
