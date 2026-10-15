@@ -388,9 +388,58 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
+    if source.name == "EC_Data.cpp" and e2e5_profile:
+        # The checksum verifier already loads the complete package entry.
+        # Reuse that buffer only when the subsequent read wants the whole
+        # file and no caller has an open cursor into the shared file object.
+        text = _replace_exact(text,
+            "    void VerifyResourceFileChecksum(const pas::WideString& FileName) {",
+            "    EC_Buf::TBufEC* VerifyResourceFileChecksumRetain(const pas::WideString& FileName) {",
+            1, source.name)
+        text = _replace_exact(text,
+            "                    pas::free(Buf);\n                    break;",
+            "                    return Buf;",
+            1, source.name)
+        text = _replace_exact(text,
+            "    }\n\n    void TDataFileEC_Create(TDataFileEC* Self) {",
+            """        return nullptr;
+    }
+
+    void VerifyResourceFileChecksum(const pas::WideString& FileName) {
+        if (auto* verified = VerifyResourceFileChecksumRetain(FileName)) {
+            pas::free(verified);
+        }
+    }
+
+    void TDataFileEC_Create(TDataFileEC* Self) {""",
+            1, source.name)
+        text = _replace_exact(text,
+            "        EC_Data::VerifyResourceFileChecksum(Entry->SharedFileRef->FileRef->FileName);\n        pas::critical_enter(FileLock);",
+            '''        EC_Buf::TBufEC* Verified = EC_Data::VerifyResourceFileChecksumRetain(
+            Entry->SharedFileRef->FileRef->FileName);
+        if (Verified != nullptr) {
+            if (Entry->FileOffset == 0 && Entry->ByteCount < 0 &&
+                Entry->SharedFileRef->FileRef->OpenDepth == 0) {
+                try {
+                    Dest->Clear();
+                    if (Verified->DataSize > 0) {
+                        Dest->AddBytes(Verified->Data, Verified->DataSize);
+                    }
+                    Dest->SetPosition(0);
+                } catch (...) {
+                    pas::free(Verified);
+                    throw;
+                }
+                pas::free(Verified);
+                return;
+            }
+            pas::free(Verified);
+        }
+        pas::critical_enter(FileLock);''',
+            1, source.name)
     if source.name == "aPlayer.cpp":
         old_slots = "reinterpret_cast<aShip::PShipEquipmentCacheView>(this)->Slots"
         if text.count(old_slots) != 1:

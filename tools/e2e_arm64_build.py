@@ -263,7 +263,7 @@ def main() -> int:
     if args.experimental_e2e4_combined:
         report["source_overrides"] = sorted(set(report["source_overrides"]) |
                                             {"fHangar.cpp", "fRuinsTalk.cpp", "fTalk.cpp",
-                                             "GI_GAI.cpp"})
+                                             "GI_GAI.cpp", "EC_Data.cpp"})
         report["okgf_fast_rescale_24"] = True
     # These were created for the old diagnostic slice. They define symbols
     # already present in the complete original units and cannot be linked
