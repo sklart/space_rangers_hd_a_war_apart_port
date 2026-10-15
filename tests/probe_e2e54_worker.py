@@ -16,6 +16,9 @@ code=r'''
 #include <mutex>
 #include <new>
 #include <string>
+#include <cstdio>
+#include <typeinfo>
+namespace srhd_awa::platform::e2e5_failure_diagnostics {void Write(const char*) {} void Memory(const char*) {}}
 namespace events=srhd_awa::platform::e2e_events;
 namespace threads=srhd_awa::platform::e2e_threads;
 std::string operator""_a(const char* s,std::size_t n) {return std::string(s,n);}
@@ -38,6 +41,7 @@ void SetEvent(unsigned h) {assert(events::Set(h));}
 }
 namespace GR_Main {void AppendLogLineThreadSafe(const std::string&) {}}
 struct Mock {
+ unsigned ThreadHandle=0;
  std::recursive_mutex mutex;std::recursive_mutex* Lock=&mutex;
  unsigned ShutdownEvent=events::Create(true,false),StartEvent=events::Create(false,true),
  StopEvent=events::Create(true,false),IdleEvent=events::Create(true,false),RunningEvent=events::Create(true,true);

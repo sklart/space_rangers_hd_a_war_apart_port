@@ -1,0 +1,104 @@
+{
+  "archive": "D:/log.zip",
+  "archive_sha256": "dd2f8aede3edfb8abe27c12b7531fd7fbf1a159a99ad8322b085062f102c1f43",
+  "build_git": "b6a7922",
+  "crash_dump_present": false,
+  "files": {
+    "1-e2e.log": {
+      "bytes": 548013,
+      "sha256": "b2e904b68cf1fe1357bfc106e60e7aac35f1a39270e08e2acdaf1a09a421e0fa"
+    },
+    "3-########.log": {
+      "bytes": 20534,
+      "sha256": "14c03dfd99f6b0c76d9f8e74897b591c28f86ad2e8563a1a42c033c16bd0b12f"
+    },
+    "4-CFG.TXT": {
+      "bytes": 1512,
+      "sha256": "8db94560331461eadffbcafa8367d20469fdc622214eed17d763fdc9e5c0a784"
+    },
+    "5-Lang.txt": {
+      "bytes": 14,
+      "sha256": "0cb1184a60c49a67277e84777360ae72a89d7bba493cbd1e5e482938eb7969f9"
+    },
+    "6-newgame.txt": {
+      "bytes": 956,
+      "sha256": "118343229730e0b3561d55ddaecbebce1254be11b57c3ad6cf8ca545a14c7d23"
+    }
+  },
+  "generation": {
+    "total_ms": 375282,
+    "warmup_stage_6_ms": 351610,
+    "turns_completed": 300,
+    "continue_enabled": true,
+    "star_segments_us": [
+      21492920,
+      23051536,
+      24036552,
+      24537652,
+      29208518,
+      27507767,
+      27551262,
+      26519510,
+      27324062,
+      29817711,
+      31701334,
+      30972999
+    ],
+    "galaxy_segments_us": [
+      21866862,
+      23462886,
+      24449976,
+      24921388,
+      29579809,
+      27872241,
+      27918222,
+      26886963,
+      27693664,
+      30187073,
+      32073646,
+      31346124
+    ],
+    "star_share_of_galaxy_segments": 0.9861784961937387
+  },
+  "affinity": "[E2E] calculation affinity ui_core=0 requested=1 allowed=7 actual=1 mask=2 info_result=0 set_result=0 query_result=0 applied=1",
+  "memory_at_start": "[E2E] memory process_mib=3189 kernel_free_mib=3 heap_mib=3168 heap_used_mib=110 available_mib=3061",
+  "keyboard_accept_count": 11,
+  "battle_present_windows": [
+    "[E2E] perf screen=21 source=present stage=45 count=23 avg_us=210845 p50_us=150201 p95_us=387179 p99_us=600011 max_us=600011 sample=23",
+    "[E2E] perf screen=21 source=present stage=45 count=22 avg_us=240569 p50_us=264554 p95_us=479568 p99_us=487267 max_us=487267 sample=22",
+    "[E2E] perf screen=21 source=present stage=45 count=61 avg_us=87529 p50_us=49020 p95_us=366140 p99_us=503248 max_us=503248 sample=61",
+    "[E2E] perf screen=21 source=present stage=45 count=63 avg_us=77058 p50_us=20984 p95_us=383301 p99_us=523821 max_us=523821 sample=63",
+    "[E2E] perf screen=21 source=present stage=45 count=22 avg_us=243574 p50_us=240279 p95_us=502200 p99_us=546397 max_us=546397 sample=22",
+    "[E2E] perf screen=21 source=present stage=45 count=18 avg_us=276384 p50_us=259470 p95_us=538048 p99_us=538048 max_us=538048 sample=18",
+    "[E2E] perf screen=21 source=present stage=45 count=18 avg_us=282484 p50_us=277039 p95_us=519936 p99_us=519936 max_us=519936 sample=18",
+    "[E2E] perf screen=21 source=present stage=45 count=16 avg_us=338884 p50_us=386379 p95_us=706175 p99_us=706175 max_us=706175 sample=16",
+    "[E2E] perf screen=21 source=present stage=45 count=21 avg_us=252969 p50_us=249250 p95_us=452372 p99_us=532620 max_us=532620 sample=21",
+    "[E2E] perf screen=21 source=present stage=45 count=19 avg_us=264563 p50_us=174789 p95_us=488462 p99_us=488462 max_us=488462 sample=19",
+    "[E2E] perf screen=21 source=present stage=45 count=119 avg_us=45630 p50_us=19018 p95_us=181407 p99_us=448227 max_us=448359 sample=119",
+    "[E2E] perf screen=21 source=present stage=45 count=23 avg_us=37264 p50_us=27517 p95_us=81404 p99_us=83443 max_us=83443 sample=23"
+  ],
+  "game_last_lines": [
+    "[MUSIC] ring played_frames=10661888 underrun_frames=0 rejected_writes=0 callback_count=12611 callback_max_us=1814 callback_gap_max_us=51334 ready_chunks=3",
+    "[MUSIC] ring played_frames=10883072 underrun_frames=0 rejected_writes=0 callback_count=12719 callback_max_us=1814 callback_gap_max_us=51334 ready_chunks=3",
+    "music\\rev\\theo_running_away.dat",
+    "music\\rev\\theo_running_away.dat",
+    "Out of memory",
+    "Thread exception"
+  ],
+  "critical_markers": [
+    "[E2E3] generation stage=8 status=complete previous_stage=6 previous_ms=351610 total_ms=375282",
+    "[E2E3] introduction status=continue-enabled"
+  ],
+  "user_observations": [
+    "Battles and mods open; battle slow and control uncertain",
+    "Only one unclear Mod Info entry in mods",
+    "Keyboard works but also opens on unrelated taps",
+    "Touch works; generation background smooth",
+    "Freeze after Ready: music, cursor and Continue animation stop"
+  ],
+  "limits": [
+    "No thread dump or allocation size/allocator snapshot at failure. The exact failed worker and physical OOM trigger are not established.",
+    "Generation finished in 375282 ms; perceived 10-15 minute wait includes time outside the measured generation stage.",
+    "Star segment totals exclude player-star path; do not interpret as total warmup CPU percentage."
+  ]
+}

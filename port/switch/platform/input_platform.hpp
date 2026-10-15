@@ -22,6 +22,7 @@ struct RawInput {
   std::int32_t touch_x{}, touch_y{}; // HID coordinates in the 1280x720 panel.
 };
 struct Snapshot {
+  std::uint8_t flight_keys{}; // up/down/left/right/primary/secondary, arcade only
   std::int32_t x{}, y{};
   std::uint64_t hid_sequence{};
   bool left_down{}, left_up{}, left_held{};
@@ -65,6 +66,7 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
 Snapshot Normalize(State* state, RawInput raw, std::int32_t width, std::int32_t height);
 void InjectHostRaw(State* state, RawInput raw);
 void SuppressUntilReleased();
+void SetArcadeControls(bool enabled);
 void Warp(State* state, std::int32_t x, std::int32_t y,
           std::int32_t width, std::int32_t height);
 Snapshot Poll(State* state, std::int32_t width, std::int32_t height);

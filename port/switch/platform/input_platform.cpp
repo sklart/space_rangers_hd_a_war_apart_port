@@ -13,6 +13,7 @@
 namespace srhd_awa::platform::input_platform {
 namespace {
 std::atomic_bool suppress_applet_input{false};
+std::atomic_bool arcade_controls{false};
 bool Suppressed(const RawInput& raw) {
   if (!suppress_applet_input.load()) return false;
   if (!raw.touch && !raw.a && !raw.b && !raw.x && !raw.y && !raw.plus &&
@@ -123,6 +124,13 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
   state->last_update_us = now_us;
   state->time_initialized = true;
   const auto& config = state->config;
+  std::uint8_t flight = 0;
+  if (arcade_controls.load()) {
+    flight = raw.dpad_up | (raw.dpad_down << 1) | (raw.dpad_left << 2) |
+        (raw.dpad_right << 3) | (raw.zr << 4) | (raw.zl << 5);
+    if (raw.zl && raw.zr && raw.minus) flight &= 15; // Preserve quicksave chord.
+    raw.dpad_left = raw.dpad_right = raw.dpad_up = raw.dpad_down = false;
+  }
   if (raw.touch) {
     state->precise_x = std::clamp<std::int32_t>(
         static_cast<std::int64_t>(raw.touch_x) * width / 1280, 0, width - 1);
@@ -144,6 +152,7 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
   state->precise_y = std::clamp(state->precise_y + dy, 0.0,
                                 static_cast<double>(height - 1));
   Snapshot result{};
+  result.flight_keys = flight;
   result.x = static_cast<std::int32_t>(std::lround(state->precise_x));
   result.y = static_cast<std::int32_t>(std::lround(state->precise_y));
   result.left_down = raw.a && !state->last.left_held;
@@ -172,6 +181,7 @@ Snapshot Normalize(State* state, RawInput raw, std::int32_t width,
 }
 void InjectHostRaw(State* state, RawInput raw) { if (state) state->host_raw = raw; }
 void SuppressUntilReleased() { suppress_applet_input.store(true); }
+void SetArcadeControls(bool enabled) { arcade_controls.store(enabled); }
 void Warp(State* state, std::int32_t x, std::int32_t y,
           std::int32_t width, std::int32_t height) {
   if (!state || width <= 0 || height <= 0) return;

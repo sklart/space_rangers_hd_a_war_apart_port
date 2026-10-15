@@ -46,10 +46,18 @@ void SetRoot(const std::string& root) {
 }
 
 std::string Resolve(const std::string& game_relative_path) {
-  const std::string relative = NormalizeRelative(game_relative_path);
-  if (relative.empty()) return {};
+  std::string input = game_relative_path;
+  std::replace(input.begin(), input.end(), '\\', '/');
   std::lock_guard lock(g_resolve_mutex);
   if (g_root.empty()) return {};
+  std::string relative;
+  if (input.starts_with("sdmc:/") || std::filesystem::path(input).is_absolute()) {
+    auto root = std::filesystem::path(g_root);
+    if (!g_root.starts_with("sdmc:/")) root = std::filesystem::absolute(root);
+    relative = NormalizeRelative(std::filesystem::path(input).lexically_relative(root).generic_string());
+    if (relative.empty()) return input;
+  } else relative = NormalizeRelative(input);
+  if (relative.empty()) return {};
   if (const auto cached = g_resolved_paths.find(relative); cached != g_resolved_paths.end())
     return cached->second;
   std::filesystem::path resolved(g_root);

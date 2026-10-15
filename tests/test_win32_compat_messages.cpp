@@ -89,6 +89,16 @@ int main() {
   InjectHostInput(input);
   assert(peek(&message, 0, 0x0101, 0x0101, 1));
   assert(message.message == 0x0101 && message.wParam == 0x0d);
+  srhd_awa::platform::input_platform::SetArcadeControls(true);
+  input.dpad_up = true; input.zr = true;
+  InjectHostInput(input);
+  assert(peek(&message, 0, 0x0100, 0x0100, 1) && message.wParam == 0x26);
+  assert(peek(&message, 0, 0x0100, 0x0100, 1) && message.wParam == 0x11);
+  assert(!peek(&message, 0, 0x0100, 0x0100, 1));
+  srhd_awa::platform::input_platform::SetArcadeControls(false);
+  InjectHostInput(input);
+  assert(peek(&message, 0, 0x0101, 0x0101, 1) && message.wParam == 0x26);
+  assert(peek(&message, 0, 0x0101, 0x0101, 1) && message.wParam == 0x11);
   input.plus = true;
   InjectHostInput(input);
   assert(peek(&message, 0, 0x0012, 0x0012, 1) && message.message == 0x0012);

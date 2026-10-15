@@ -185,6 +185,13 @@ void Pump() {
     key(kVkReturn, sample.enter_down, sample.enter_up, sample.enter_held);
     key(kVkEscape, sample.escape_down, sample.escape_up, sample.escape_held);
     key(kVkF5, sample.quicksave_down, sample.quicksave_up, sample.quicksave_held);
+    constexpr std::uint32_t flight_vks[]{0x26, 0x28, 0x25, 0x27, 0x11, 0x20};
+    for (unsigned bit = 0; bit < 6; ++bit) {
+      const auto vk = flight_vks[bit];
+      const bool held = (sample.flight_keys & (1u << bit)) != 0;
+      const bool previous = g_keys[vk];
+      key(vk, held && !previous, !held && previous, held);
+    }
     g_keys[kVkLeftMouse] = sample.left_held;
     g_keys[kVkRightMouse] = sample.right_held;
     if (sample.plus_down) Enqueue(0, kWmQuit); // PLUS is process exit, never a VK.

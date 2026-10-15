@@ -395,9 +395,63 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ('ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
+    if source.name == "aModsInfo.cpp":
+        text = '#include <filesystem>\n#include <algorithm>\n#include "e2e_stage.hpp"\n#include "game_path.hpp"\n' + text
+        text = _replace_exact(text, 'namespace aModsInfo {', '''namespace aModsInfo {
+    bool E2EModFileExists(const pas::AnsiString& name) {
+        std::string path(name.c_str());
+        std::replace(path.begin(), path.end(), '\\\\', '/');
+        if (!path.starts_with("sdmc:/") && !std::filesystem::path(path).is_absolute())
+            path = (std::filesystem::current_path() / path).generic_string();
+        return SysUtilsImports::FileExists(pas::AnsiString(path.c_str()));
+    }
+''', 1, source.name)
+        start = text.index('    std::uint8_t LoadModInfo(')
+        end = text.index('    void InitializeModInfos()', start)
+        body = text[start:end].replace('SysUtilsImports::FileExists(', 'E2EModFileExists(')
+        body = _replace_exact(body,
+            'Block->LoadFromTextFileWithEncodingProbe(pas::literal_pointer(u"ModuleInfo.txt"), false);',
+            'Block->LoadFromTextFileWithEncodingProbe(pas::concat_wide({Folder, u"\\\\ModuleInfo.txt"}).pchar(), false);', 1, source.name)
+        body = _replace_exact(body, '    void ScanModFolders(pas::WideString Folder, pas::WideString Prefix) {',
+            '''    void ScanModFolders(pas::WideString Folder, pas::WideString Prefix) {
+        const auto e2e_saved_directory = SysUtilsImports::GetCurrentDir();
+        pas::ScopeExit e2e_restore_directory = [&]() noexcept {
+            SysUtilsImports::SetCurrentDir(e2e_saved_directory);
+        };''', 1, source.name)
+        text = text[:start] + body + text[end:]
+        text = _replace_exact(text, '''        Folder = static_cast<pas::WideString>(SavedDir);
+        Folder = pas::concat_wide({Folder, u"\\\\Mods"});''',
+            '''        const auto e2e_mod_root = srhd_awa::platform::game_path::Resolve("Mods");
+        Folder = static_cast<pas::WideString>(pas::AnsiString(e2e_mod_root.c_str()));''', 1, source.name)
+        marker = '                            Info->Folder = pas::concat_wide({Prefix, FileName});'
+        text = _replace_exact(text, marker, marker + '''
+                            const pas::AnsiString e2e_name = static_cast<pas::AnsiString>(Info->Name);
+                            char detail[256]{};
+                            std::snprintf(detail, sizeof(detail), "mods discovered name=%.100s description_chars=%d", e2e_name.c_str(), Info->FullDescription.length());
+                            srhd_awa::platform::e2e_stage::Log(detail);''', 1, source.name)
+    if source.name == "ab_MainForm.cpp":
+        text = '#include "input_platform.hpp"\n#include "e2e5_stage_profiler.hpp"\n' + text
+        for method, enabled in [('OnOpen', 'true'), ('OnClose', 'false')]:
+            marker = f'    void TfAB::{method}() {{'
+            text = _replace_exact(text, marker, marker +
+                f'\n        srhd_awa::platform::input_platform::SetArcadeControls({enabled});', 1, source.name)
+        for marker, stage in [('    void TfAB::DrawFrame() {', 46),
+                              ('    void TfAB::TimerTakt(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {', 47)]:
+            text = _replace_exact(text, marker, marker +
+                f'\n        srhd_awa::platform::e2e5_stage_profiler::Scope e2e_ab_scope(srhd_awa::platform::e2e5_stage_profiler::detail_window, {stage});', 1, source.name)
+    if source.name == "GR_Main.cpp":
+        for name in ['AppendLogLineThreadSafe', 'AppendLogTextThreadSafe', 'AppendDebugLogLine']:
+            start = text.index(f'    void {name}(const pas::AnsiString& Text) {{')
+            end = text.index('\n    }', start) + len('\n    }')
+            body = text[start:end]
+            body = _replace_exact(body, '        pas::critical_enter(SessionLogLock);',
+                '''        pas::critical_enter(SessionLogLock);
+        pas::ScopeExit e2e_log_unlock = [&]() noexcept { pas::critical_leave(SessionLogLock); };''', 1, source.name)
+            body = _replace_exact(body, '\n        pas::critical_leave(SessionLogLock);', '', 1, source.name)
+            text = text[:start] + body + text[end:]
     if source.name == "EC_Thread.cpp":
         start = text.index('    void TThreadEC::ProcessRequests() {')
         end = text.index('    void TThreadEC_Execute(', start)
@@ -411,6 +465,13 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
                 WindowsSdk::SetEvent(IdleEvent);
             }'''
         body = _replace_exact(body, finish, '', 1, source.name)
+        body = _replace_exact(body, '            } catch (...) {', '''            } catch (...) {
+                char detail[256]{};
+                std::snprintf(detail, sizeof(detail), "worker exception class=%s handle=%u",
+                    typeid(*this).name(), static_cast<unsigned>(ThreadHandle));
+                srhd_awa::platform::e2e5_failure_diagnostics::Write(detail);
+                srhd_awa::platform::e2e5_failure_diagnostics::Memory("worker-exception");
+''', 1, source.name)
         body = _replace_exact(body, '''            try {
                 this->virtual_TThreadEC_Execute();''', '''            pas::ScopeExit e2e_finish_job = [&]() noexcept {
                 if (std::uncaught_exceptions() > 0)
@@ -422,7 +483,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
             };
             try {
                 this->virtual_TThreadEC_Execute();''', 1, source.name)
-        text = '#include "e2e_threads.hpp"\n#include "win32_compat_sync.hpp"\n#include <exception>\n' + text[:start] + body + text[end:]
+        text = '#include "e2e_threads.hpp"\n#include "e2e5_failure_diagnostics.hpp"\n#include "win32_compat_sync.hpp"\n#include <exception>\n#include <typeinfo>\n#include <cstdio>\n' + text[:start] + body + text[end:]
         start = text.index('    void TThreadEC::Start() {')
         end = text.index('    std::uint8_t TThreadEC::IsRunning()', start)
         body = text[start:end]
@@ -1928,13 +1989,22 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = '#include "renderer_platform.hpp"\n#include "e2e_stage.hpp"\n#include <cstdio>\n' + text
     if source.name == "fGameSettings2.cpp":
         text = '#include "e2e5_text_input.hpp"\n' + text
+        text = _replace_exact(text, 'namespace fGameSettings2 {', '''namespace fGameSettings2 {
+    void E2EArmNameKeyboard(GI_MessageLoop::TObjectGI* Sender,
+                            std::uint32_t, WindowsSdk::TPoint Point) {
+        Sender->UserState = Sender->ContainsPoint(Point) ? 1 : 0;
+    }
+''', 1, source.name)
         text = _replace_exact(text, '            PlayerName->MaxLength = 13;',
-            '            PlayerName->MaxLength = 13;\n            PlayerName->LeftButtonUpCallback = pas::bind_method<&TfGameSettings2::PlayerNameMouseDown>(this);', 1, source.name)
+            '            PlayerName->MaxLength = 13;\n            PlayerName->LeftButtonDownCallback = pas::bind_static_method<&E2EArmNameKeyboard>(this);\n            PlayerName->LeftButtonUpCallback = pas::bind_method<&TfGameSettings2::PlayerNameMouseDown>(this);', 1, source.name)
         callback_start = text.index('    void TfGameSettings2::PlayerNameMouseDown(')
         callback_end = text.index('    void TfGameSettings2::ToggleLevelPanel(', callback_start)
         callback = text[callback_start:callback_end]
-        callback = _replace_exact(callback, '        SetFocusedControl(GetByName(u"PlayerName"sv));', '''        SetFocusedControl(GetByName(u"PlayerName"sv));
-        if (Sender != nullptr && Sender->ControlName == u"PlayerName") {
+        callback = _replace_exact(callback, '        SetFocusedControl(GetByName(u"PlayerName"sv));', '''        auto* field = GetByName(u"PlayerName"sv);
+        SetFocusedControl(field);
+        const bool activate = Sender == field && field->UserState == 1 && field->ContainsPoint(Point);
+        field->UserState = 0;
+        if (activate) {
             auto* edit = pas::checked_cast<GI_Edit::TEditGI*>(Sender);
             auto name = edit->Text;
             if (srhd_awa::platform::e2e5_text_input::EditPlayerName(name)) {
@@ -2575,6 +2645,49 @@ void CloseVorbisStream(TOggWorker* worker) {
                 '#include <switch.h>\n#endif\n#include <thread>\n'
                 'namespace { srhd_awa::platform::runtime_platform::State g_e2e_platform; }\n' + text)
     if audio_on and source.name == "GR_Music.cpp":
+        text = '#include "e2e5_failure_diagnostics.hpp"\n' + text
+        text = _replace_exact(text,
+            '            Stream = pas::construct_call<EC_FileStream::TFileStreamEC>(EC_FileStream::TFileStreamEC_Create, 0x000400ff, FileName);',
+            '''            srhd_awa::platform::e2e5_failure_diagnostics::Memory("music-load");
+            Stream = pas::construct_call<EC_FileStream::TFileStreamEC>(EC_FileStream::TFileStreamEC_Create, 0x000400ff, FileName);''', 1, source.name)
+        # A failed filename copy or decoder cleanup must not abandon a mutex
+        # owned by a worker: the UI also takes these locks on track changes.
+        for signature in ['    void TMusicUnit::Clear() {',
+                          '    pas::WideString TMusicUnit::GetFileName() {']:
+            begin = text.index(signature)
+            end = text.index('\n    }', begin) + len('\n    }')
+            body = text[begin:end]
+            body = _replace_exact(body, '        pas::critical_enter(DecodeLock);',
+                '''        pas::critical_enter(DecodeLock);
+        pas::ScopeExit e2e_decode_unlock = [&]() noexcept { pas::critical_leave(DecodeLock); };''', 1, source.name)
+            body = _replace_exact(body, '\n        pas::critical_leave(DecodeLock);', '', 1, source.name)
+            text = text[:begin] + body + text[end:]
+        begin = text.index('    void TMusicControl_Execute(TMusicControl* Self) {')
+        end = text.index('    void TMusicControl::PlayFile(', begin)
+        body = text[begin:end]
+        body = _replace_exact(body, '            pas::critical_enter(Self->ControlLock);',
+            '''            try {
+            pas::critical_enter(Self->ControlLock);
+            pas::ScopeExit e2e_control_unlock = [&]() noexcept { pas::critical_leave(Self->ControlLock); };''', 1, source.name)
+        body = _replace_exact(body, '                if (Self->Current->IsRunning()) Self->Current->RequestStop();',
+            '''#if defined(E2E5_HOST_SDL_WINDOW)
+                static bool e2e_name_failure_injected = false;
+                if (!e2e_name_failure_injected && std::getenv("E2E5_HOST_FAIL_MUSIC_CONTROL_NAME")) {
+                    e2e_name_failure_injected = true;
+                    throw std::bad_alloc();
+                }
+#endif
+                auto e2e_next_name = Self->Queued->GetFileName();
+                if (Self->Current->IsRunning()) Self->Current->RequestStop();''', 1, source.name)
+        body = _replace_exact(body, '                Self->CurrentFileName = Self->Current->GetFileName();',
+            '                Self->CurrentFileName = std::move(e2e_next_name);', 1, source.name)
+        body = _replace_exact(body, '            pas::critical_leave(Self->ControlLock);',
+            '''            } catch (...) {
+                srhd_awa::platform::e2e5_failure_diagnostics::Write("music control recovered exception");
+                srhd_awa::platform::e2e5_failure_diagnostics::Memory("music-control-exception");
+                SysUtilsImports::Sleep(1000u);
+            }''', 1, source.name)
+        text = text[:begin] + body + text[end:]
         start = text.index('    void TMusicUnit_Execute(TMusicUnit* Self) {')
         end = text.index('    void TMusicControl_Create(', start)
         body = text[start:end]
@@ -2590,7 +2703,8 @@ void CloseVorbisStream(TOggWorker* worker) {
             } catch (...) {
                 std::snprintf(e2e_error, sizeof(e2e_error), "music worker recovered exception type=unknown");
             }
-            try { srhd_awa::platform::e2e_stage::Log(e2e_error); } catch (...) {}
+            srhd_awa::platform::e2e5_failure_diagnostics::Write(e2e_error);
+            srhd_awa::platform::e2e5_failure_diagnostics::Memory("music-unit-exception");
             try { Self->Clear(); } catch (...) {
                 try { srhd_awa::platform::e2e_stage::Log("music worker cleanup exception"); } catch (...) {}
             }
@@ -2599,7 +2713,10 @@ void CloseVorbisStream(TOggWorker* worker) {
 ''' + body[closing:]
         body = body.replace('    void TMusicUnit_Execute(TMusicUnit* Self) {',
             '    void TMusicUnit_Execute(TMusicUnit* Self) {\n        try {', 1)
-        text = '#include "e2e_stage.hpp"\n#include <cstdio>\n#include <exception>\n' + text[:start] + body + text[end:]
+        text = '#include "e2e_stage.hpp"\n#include <cstdio>\n#include <exception>\n#include <cstdlib>\n#include <new>\n' + text[:start] + body + text[end:]
+    if e2e5_profile and source.name in ("aGalaxy.cpp", "aShip.cpp", "aMyFunction.cpp", "ab_MainForm.cpp"):
+        text = '#include "e2e5_round.hpp"\n' + text.replace('System::Round(',
+            'srhd_awa::platform::e2e5_round::Round(')
     destination.parent.mkdir(parents=True, exist_ok=True)
     if not destination.exists() or destination.read_text(encoding="utf-8") != text:
         destination.write_text(text, encoding="utf-8")
