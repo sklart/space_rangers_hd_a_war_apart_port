@@ -64,6 +64,11 @@ std::int32_t Uncompress(void* destination, std::int32_t destination_capacity,
     return static_cast<std::int32_t>(written);
   }
 
+  // ZL01 stores the exact output size. The caller immediately makes a second
+  // call with a destination, where zlib validates the payload and checksum.
+  // Inflating the entire frame here doubles the cost of each GAI frame load.
+  if (input.expected_size != 0) return input.expected_size;
+
   z_stream stream{};
   stream.next_in = const_cast<Bytef*>(input.data);
   stream.avail_in = static_cast<uInt>(input.size);
