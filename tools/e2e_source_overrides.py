@@ -502,6 +502,24 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
         bonus_begin = text.index("    std::int32_t TShip::GetTotalStatBonus(")
         bonus_end = text.index("    std::int32_t TShip::GetRadarRange(", bonus_begin)
         bonus = text[bonus_begin:bonus_end]
+        # With no micro module, special module or extra specials,
+        # TEquipment::GetStatBonus returns zero for every bonus kind.  Avoid
+        # ship-type and equipment-tech checks for these common entries.
+        inventory_condition = "if ((I == 0 || Item->EquippedFlag != 0) && aShip::TShip_IsEquipmentUsable(this, Item)) {"
+        inventory_guard = '''if ((I == 0 || Item->EquippedFlag != 0) && Item != nullptr &&
+                (Item->MicroModuleIndex != 0 || Item->SpecialModuleIndex != 0 ||
+                 Item->ExtraSpecials != nullptr) &&
+                aShip::TShip_IsEquipmentUsable(this, Item)) {'''
+        if bonus.count(inventory_condition) != 1:
+            raise RuntimeError("inventory stat bonus boundary changed")
+        bonus = bonus.replace(inventory_condition, inventory_guard, 1)
+        artefact_condition = "if (Item->EquippedFlag != 0 && Item->BrokenFlag == 0) {"
+        artefact_guard = '''if (Item->EquippedFlag != 0 && Item->BrokenFlag == 0 &&
+                    (Item->MicroModuleIndex != 0 || Item->SpecialModuleIndex != 0 ||
+                     Item->ExtraSpecials != nullptr)) {'''
+        if bonus.count(artefact_condition) != 1:
+            raise RuntimeError("artefact stat bonus boundary changed")
+        bonus = bonus.replace(artefact_condition, artefact_guard, 1)
         old = "        std::int32_t Strength = System::Round(GetCombatStatusStrength(cseMagnetic));"
         new = '''        // Magnetic status changes only these four bonuses.  Its lookup is
         // read-only, so skip the list scan for every other bonus kind.
