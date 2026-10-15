@@ -205,8 +205,23 @@ FUNCTIONS: dict[str, dict[str, str]] = {
         pas::ScopeExit unlock = [&]() noexcept {
             pas::critical_leave(pas::load_unaligned<pas::CriticalSection*>(Decoder->Lock));
         };
+#if defined(__SWITCH__)
+        const auto e2e_decode_begin = std::chrono::steady_clock::now();
+#endif
         const auto read = srhd_awa::platform::e2e4_native_vorbis::Read(
             NativeVorbis(Decoder), Buffer, requested);
+#if defined(__SWITCH__)
+        const auto e2e_decode_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now() - e2e_decode_begin).count();
+        static std::atomic<unsigned> e2e_slow_decode_logs{0};
+        if (e2e_decode_ms >= 100 && e2e_slow_decode_logs.fetch_add(1) < 8) {
+            char detail[112]{};
+            std::snprintf(detail, sizeof(detail),
+                "music decode slow ms=%lld requested=%d bytes=%d",
+                static_cast<long long>(e2e_decode_ms), requested, read.bytes);
+            srhd_awa::platform::e2e_stage::Log(detail);
+        }
+#endif
         if (read.error != 0) {
             GR_Main::AppendLogLineThreadSafe("[MUSIC] Vorbis decode error"_a);
         }
@@ -373,7 +388,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "aPlayer.cpp":
@@ -491,8 +506,23 @@ srhd_awa::platform::e2e4_game_audio::Format E2E4AudioFormat(
         std::size_t total = 0;
         auto* stream = static_cast<EC_FileStream::TFileStreamEC*>(source);
         while (total < wanted) {
+#if defined(__SWITCH__)
+            const auto e2e_source_begin = std::chrono::steady_clock::now();
+#endif
             const auto bytes = stream->Read(static_cast<std::uint8_t*>(output) + total,
                 static_cast<std::int32_t>(wanted - total));
+#if defined(__SWITCH__)
+            const auto e2e_source_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now() - e2e_source_begin).count();
+            static std::atomic<unsigned> e2e_slow_source_logs{0};
+            if (e2e_source_ms >= 100 && e2e_slow_source_logs.fetch_add(1) < 8) {
+                char detail[112]{};
+                std::snprintf(detail, sizeof(detail),
+                    "music source read slow ms=%lld wanted=%zu bytes=%d",
+                    static_cast<long long>(e2e_source_ms), wanted - total, bytes);
+                srhd_awa::platform::e2e_stage::Log(detail);
+            }
+#endif
             if (bytes < 0) throw std::runtime_error("Vorbis source read failed");
             if (bytes == 0) break;
             total += static_cast<std::size_t>(bytes);
@@ -513,8 +543,10 @@ void CloseVorbisStream(TOggWorker* worker) {
         if text.count(marker) != 1:
             raise RuntimeError("native Vorbis namespace boundary changed")
         text = text.replace(marker, marker + native_helpers, 1)
-        text = ('#include "e2e4_native_vorbis.hpp"\n#include <algorithm>\n'
-                '#include <climits>\n#include <cstring>\n#include <stdexcept>\n' + text)
+        text = ('#include "e2e4_native_vorbis.hpp"\n#include "e2e_stage.hpp"\n'
+                '#include <algorithm>\n#include <atomic>\n#include <chrono>\n'
+                '#include <climits>\n#include <cstdio>\n#include <cstring>\n'
+                '#include <stdexcept>\n' + text)
     if source.name == "GR_Music.cpp":
         marker = "namespace GR_Music {\n"
         if text.count(marker) != 1:
@@ -522,6 +554,89 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = text.replace(marker,
             'namespace VorbisFile { void CloseVorbisStream(TOggWorker* worker); }\n'
             + marker, 1)
+        music_stream = '''            Stream = pas::construct_call<EC_FileStream::TFileStreamEC>(EC_FileStream::TFileStreamEC_Create, 0x000400ff, FileName);'''
+        if text.count(music_stream) != 1:
+            raise RuntimeError("music file reader boundary changed")
+        text = text.replace(music_stream, music_stream + '''
+#if defined(__SWITCH__)
+            // Vorbis decoding waits for this separate file-prefetch worker.
+            // Its original Lowest priority can starve behind galaxy turns.
+            const Result e2e_reader_priority = svcSetThreadPriority(Stream->ThreadId, 0x29);
+            if (R_FAILED(e2e_reader_priority)) {
+                char detail[96]{};
+                std::snprintf(detail, sizeof(detail),
+                    "music file reader priority failed result=%u", static_cast<unsigned>(e2e_reader_priority));
+                srhd_awa::platform::e2e_stage::Log(detail);
+            } else srhd_awa::platform::e2e_stage::Log("music file reader priority=0x29");
+#endif''', 1)
+        worker = "    void TMusicUnit_Execute(TMusicUnit* Self) {\n"
+        if text.count(worker) != 1:
+            raise RuntimeError("music decode worker boundary changed")
+        text = text.replace(worker, worker + '''#if defined(__SWITCH__)
+        // Generation runs its calculation worker at 0x2A. Give the PCM
+        // producer a higher priority so that its nine-second ring can refill
+        // while that worker is busy; the SDL callback remains independent.
+        const Result e2e_music_priority = svcSetThreadPriority(threadGetCurHandle(), 0x29);
+        if (R_FAILED(e2e_music_priority)) {
+            char detail[96]{};
+            std::snprintf(detail, sizeof(detail),
+                "music worker priority failed result=%u", static_cast<unsigned>(e2e_music_priority));
+            srhd_awa::platform::e2e_stage::Log(detail);
+        } else srhd_awa::platform::e2e_stage::Log("music worker priority=0x29");
+#endif
+''', 1)
+        priority_reset = '''                Self->SetPriority(EC_Thread::ThreadPriorityAboveNormal);'''
+        playback_begin = text.index(worker)
+        playback_end = text.index("    void TMusicControl_Create(", playback_begin)
+        playback = text[playback_begin:playback_end]
+        if playback.count(priority_reset) != 1:
+            raise RuntimeError("music playback priority reset boundary changed")
+        playback = playback.replace(priority_reset, priority_reset + '''
+#if defined(__SWITCH__)
+                // The original SetPriority above lowers the producer from 0x29
+                // to 0x2B after queued playback starts. Restore the priority.
+                const Result e2e_playback_priority = svcSetThreadPriority(threadGetCurHandle(), 0x29);
+                if (R_FAILED(e2e_playback_priority)) {
+                    char detail[96]{};
+                    std::snprintf(detail, sizeof(detail),
+                        "music playback priority failed result=%u", static_cast<unsigned>(e2e_playback_priority));
+                    srhd_awa::platform::e2e_stage::Log(detail);
+                } else srhd_awa::platform::e2e_stage::Log("music playback priority=0x29");
+#endif''', 1)
+        text = text[:playback_begin] + playback + text[playback_end:]
+        if audio_on:
+            control_begin = text.index("    void TMusicControl_Execute(TMusicControl* Self) {")
+            control_end = text.index("    void TMusicControl::PlayFile(", control_begin)
+            control = text[control_begin:control_end]
+            wait = "            WindowsSdk::WaitForSingleObject(Self->CompletionEvent, WindowsSdk::INFINITE);"
+            ready = "            if (Self->Queued->IsRunning()) {"
+            swap = "                Previous = Self->Current;"
+            if control.count(wait) != 1 or control.count(ready) != 1 or control.count(swap) != 1:
+                raise RuntimeError("music transition controller boundary changed")
+            control = control.replace(wait,
+                "            WindowsSdk::WaitForSingleObject(Self->CompletionEvent, 20u);", 1)
+            control = control.replace(ready, '''            if (Self->Queued->IsRunning() &&
+                srhd_awa::platform::e2e4_game_audio::IsStreamPrimed(Self->Queued->Buffer)) {''', 1)
+            control = control.replace(swap, '''                // Keep the old track audible while the new track decodes its
+                // initial PCM ring. Request its fade only after priming.
+                if (Self->Current->IsRunning()) Self->Current->RequestStop();
+''' + swap, 1)
+            text = text[:control_begin] + control + text[control_end:]
+            play_begin = text.index("    void TMusicControl::PlayFile(")
+            play_end = text.index("    void TMusicControl::PlayCategory(", play_begin)
+            play = text[play_begin:play_end]
+            old_stop = '''            if (Current->IsRunning()) {
+                Current->RequestStop();
+            } else {
+                WindowsSdk::SetEvent(CompletionEvent);
+            }'''
+            if play.count(old_stop) != 1:
+                raise RuntimeError("music transition stop boundary changed")
+            play = play.replace(old_stop, '''            if (!Current->IsRunning())
+                WindowsSdk::SetEvent(CompletionEvent);''', 1)
+            text = text[:play_begin] + play + text[play_end:]
+            text = '#include "e2e4_game_audio_bridge.hpp"\n' + text
+        text = '#if defined(__SWITCH__)\n#include <switch.h>\n#include <cstdio>\n#include "e2e_stage.hpp"\n#endif\n' + text
     if source.name == "aScript.cpp":
         key = "        std::uint32_t Key = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Block));"
         entry_key = "static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Entry->Block))"
@@ -533,6 +648,58 @@ void CloseVorbisStream(TOggWorker* worker) {
             "srhd_awa::platform::e2e4_ui_cache::Key(Entry->Block)")
         text = '#include "e2e4_ui_cache_key.hpp"\n' + text
     if source.name == "aGalaxy.cpp":
+        if e2e5_profile:
+            assignment_begin = text.index("    void TGalaxy::AssignTextQuestsToPlanets() {")
+            assignment_end = text.index("    std::uint8_t TGalaxy::HasPlayerQuestHistory(", assignment_begin)
+            assignment = text[assignment_begin:assignment_end]
+            count_anchor = '''        std::int32_t Count = GR_Main::LanguageDataConfig->GetBlockByPath(u"PlanetQuest.PlanetQuest"_wref.get())->GetParamCount();'''
+            acquire_anchor = '''                        Buffer = EC_CacheBuf::AcquireOrCreateBuffer(Control);
+                        Quest->LoadFromReader(Buffer->Buffer, true);'''
+            search_anchor = '''                Index = aMyFunction::NextRandomIntRange(0, pas::list_count(Planets) - 1, RandomState);'''
+            free_anchor = '''                pas::free(Quest);'''
+            for anchor in (count_anchor, acquire_anchor, search_anchor, free_anchor):
+                if assignment.count(anchor) != 1:
+                    raise RuntimeError("quest assignment timing boundary changed")
+            assignment = assignment.replace(count_anchor, '''        const auto e2e_quest_start = std::chrono::steady_clock::now();
+        std::uint64_t e2e_acquire_us = 0, e2e_parse_us = 0, e2e_search_us = 0;
+        unsigned e2e_quest_count = 0;
+''' + count_anchor, 1)
+            assignment = assignment.replace(acquire_anchor, '''                        const auto e2e_acquire_begin = std::chrono::steady_clock::now();
+                        Buffer = EC_CacheBuf::AcquireOrCreateBuffer(Control);
+                        e2e_acquire_us += std::chrono::duration_cast<std::chrono::microseconds>(
+                            std::chrono::steady_clock::now() - e2e_acquire_begin).count();
+                        const auto e2e_parse_begin = std::chrono::steady_clock::now();
+                        Quest->LoadFromReader(Buffer->Buffer, true);
+                        e2e_parse_us += std::chrono::duration_cast<std::chrono::microseconds>(
+                            std::chrono::steady_clock::now() - e2e_parse_begin).count();''', 1)
+            assignment = assignment.replace(search_anchor,
+                '''                const auto e2e_search_begin = std::chrono::steady_clock::now();
+''' + search_anchor, 1)
+            assignment = assignment.replace(free_anchor, '''                e2e_search_us += std::chrono::duration_cast<std::chrono::microseconds>(
+                    std::chrono::steady_clock::now() - e2e_search_begin).count();
+                ++e2e_quest_count;
+''' + free_anchor, 1)
+            tail = '''        }
+    }
+
+'''
+            if not assignment.endswith(tail):
+                raise RuntimeError("quest assignment summary boundary changed")
+            assignment = assignment[:-len(tail)] + '''        }
+        char e2e_quest_detail[180]{};
+        std::snprintf(e2e_quest_detail, sizeof(e2e_quest_detail),
+            "quest assignment count=%u total_us=%lld acquire_us=%llu parse_us=%llu search_us=%llu",
+            e2e_quest_count,
+            static_cast<long long>(std::chrono::duration_cast<std::chrono::microseconds>(
+                std::chrono::steady_clock::now() - e2e_quest_start).count()),
+            static_cast<unsigned long long>(e2e_acquire_us),
+            static_cast<unsigned long long>(e2e_parse_us),
+            static_cast<unsigned long long>(e2e_search_us));
+        srhd_awa::platform::e2e_stage::LogE2E3(e2e_quest_detail);
+    }
+
+'''
+            text = text[:assignment_begin] + assignment + text[assignment_end:]
         rating_begin = text.index("    void TGalaxy::RefreshRangerRatingPlaces() {")
         rating_end = text.index("\n    }", rating_begin) + len("\n    }")
         rating = text[rating_begin:rating_end]
@@ -1681,6 +1848,31 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = '#include "e2e3_generation_state.hpp"\n' + text
     if e2e5_profile and source.name in ("fRuinsTalk.cpp", "fTalk.cpp"):
         text = replace_dialog_pointer_payloads(text, source.name)
+    if audio_on and source.name == "fLoad.cpp":
+        load_begin = text.index("    void TfLoad::OnOpen() {")
+        load_end = text.index("    void TfLoad::OnClose() {", load_begin)
+        load = text[load_begin:load_end]
+        fade = '''        if (IntroFinished && GR_Main::MusicManager->CategoryOverride == u"") {'''
+        if load.count(fade) != 1:
+            raise RuntimeError("loading-screen music fade boundary changed")
+        load = load.replace(fade, '''        // Keep the hangar track during the potentially long StarMap load.
+        // StarMap selects its new category after loading; the music controller
+        // fades this track once the next PCM ring is ready.
+        if (IntroFinished && GR_Main::MusicManager->CategoryOverride == u"" &&
+            GlobalsV::PostLoadScreenId != GlobalsV::screenStarMap) {''', 1)
+        text = text[:load_begin] + load + text[load_end:]
+    if audio_on and source.name == "fHangar.cpp":
+        takeoff_begin = text.index("    void TfHangar::TakeOffClicked(")
+        takeoff_end = text.index("    void TfHangar::StopAnimation(", takeoff_begin)
+        takeoff = text[takeoff_begin:takeoff_end]
+        fade = '''        if (GR_Main::MusicManager->CategoryOverride == u"") {
+            GR_Main::MusicManager->RequestFadeOut();
+        }'''
+        if takeoff.count(fade) != 1:
+            raise RuntimeError("hangar takeoff music fade boundary changed")
+        takeoff = takeoff.replace(fade,
+            "        // Retain the current track through the StarMap loading screen.\n", 1)
+        text = text[:takeoff_begin] + takeoff + text[takeoff_end:]
     if e2e5_profile and source.name == "fHangar.cpp":
         truncated = ("std::uint32_t cpp_left = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(GR_Main::ScreenRenderBuffer->GetPixels())) + static_cast<std::uint32_t>(Position.X * 2);\n"
                      "                void* cpp_arg = reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(cpp_left + static_cast<std::uint32_t>(Position.Y * GR_Main::ScreenRenderBuffer->PitchBytes))));")

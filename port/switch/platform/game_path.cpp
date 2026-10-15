@@ -2,10 +2,15 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <mutex>
+#include <unordered_map>
 
 namespace srhd_awa::platform::game_path {
 namespace {
 std::string g_root;
+std::mutex g_resolve_mutex;
+std::unordered_map<std::string, std::string> g_resolved_paths;
+std::unordered_map<std::string, std::string> g_missing_prefixes;
 
 std::string NormalizeRelative(std::string path) {
   std::replace(path.begin(), path.end(), '\\', '/');
@@ -33,13 +38,28 @@ bool EqualsAsciiInsensitive(const std::string& left, const std::string& right) {
 }
 }  // namespace
 
-void SetRoot(const std::string& root) { g_root = root; }
+void SetRoot(const std::string& root) {
+  std::lock_guard lock(g_resolve_mutex);
+  g_root = root;
+  g_resolved_paths.clear();
+  g_missing_prefixes.clear();
+}
 
 std::string Resolve(const std::string& game_relative_path) {
   const std::string relative = NormalizeRelative(game_relative_path);
-  if (relative.empty() || g_root.empty()) return {};
+  if (relative.empty()) return {};
+  std::lock_guard lock(g_resolve_mutex);
+  if (g_root.empty()) return {};
+  if (const auto cached = g_resolved_paths.find(relative); cached != g_resolved_paths.end())
+    return cached->second;
   std::filesystem::path resolved(g_root);
+  std::string prefix;
   for (const auto& component : std::filesystem::path(relative)) {
+    if (!prefix.empty()) prefix.push_back('/');
+    prefix += component.generic_string();
+    if (const auto missing = g_missing_prefixes.find(prefix);
+        missing != g_missing_prefixes.end())
+      return g_resolved_paths.emplace(relative, missing->second).first->second;
     const auto direct = resolved / component;
     if (std::filesystem::exists(direct)) {
       resolved = direct;
@@ -54,9 +74,15 @@ std::string Resolve(const std::string& game_relative_path) {
         break;
       }
     }
-    if (error || !matched) return direct.string();
+    if (error) return direct.string();
+    if (!matched) {
+      // The game installation is read-only during a run. In particular,
+      // package-backed quests miss this loose path on every lookup.
+      g_missing_prefixes.emplace(prefix, direct.string());
+      return g_resolved_paths.emplace(relative, direct.string()).first->second;
+    }
   }
-  return resolved.string();
+  return g_resolved_paths.emplace(relative, resolved.string()).first->second;
 }
 
 bool FileExists(const std::string& game_relative_path) {

@@ -14,13 +14,16 @@ int main() {
     assert(ring.Initialize(352800, 44100, 44100, 2, 16));
     assert(ring.Initialize(4, 44100, 44100, 2, 16));
     assert(!ring.Start());
+    assert(!ring.IsPrimed());
 
     const std::array<std::uint8_t, 4> left{0x00, 0x40, 0x00, 0x40};
     const std::array<std::uint8_t, 4> right{0x00, 0x20, 0x00, 0x20};
     assert(ring.WriteChunk(0, left.data(), left.size()));
     assert(ring.WriteChunk(1, right.data(), right.size()));
     assert(ring.WriteChunk(2, left.data(), left.size()));
+    assert(ring.IsPrimed());
     assert(ring.Start());
+    assert(!ring.IsPrimed());
     assert(!ring.WriteChunk(0, right.data(), right.size()));
     assert(ring.RejectedWrites() == 1);
 
@@ -48,6 +51,7 @@ int main() {
     assert(ring.UnderrunFrames() == 1);
     ring.Stop();
     assert(!ring.IsPlaying());
+    assert(!ring.IsPrimed()); // A stopped old track cannot become queued again.
 
     // Rate conversion crosses multiple chunks in one output frame and never
     // loses notifications. Unsigned 8-bit silence is 128, not zero.

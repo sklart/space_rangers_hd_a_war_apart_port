@@ -37,7 +37,13 @@ bool SdlOutput::Open(std::string* error) {
     requested.freq = 44100;
     requested.format = AUDIO_S16SYS;
     requested.channels = 2;
+#if defined(__SWITCH__)
+    // Hardware logs show callback gaps above 24 ms; 512 frames last only
+    // 11.6 ms at 44.1 kHz. Keep more PCM queued through render spikes.
+    requested.samples = 2048;
+#else
     requested.samples = 512;
+#endif
     requested.callback = &SdlOutput::AudioCallback;
     requested.userdata = this;
     SDL_AudioSpec obtained{};
@@ -225,6 +231,15 @@ bool SdlOutput::IsStreamPlaying(std::uint64_t handle) {
     const bool playing = slot && slot->ring->IsPlaying();
     SDL_UnlockAudioDevice(device_);
     return playing;
+}
+
+bool SdlOutput::IsStreamPrimed(std::uint64_t handle) {
+    if (!device_) return false;
+    SDL_LockAudioDevice(device_);
+    auto* slot = FindStream(handle);
+    const bool primed = slot && slot->ring->IsPrimed();
+    SDL_UnlockAudioDevice(device_);
+    return primed;
 }
 
 bool SdlOutput::SetStreamGain(std::uint64_t handle, float gain) {

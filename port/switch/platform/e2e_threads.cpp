@@ -5,6 +5,7 @@
 #include <cstdlib>
 #endif
 
+#include <algorithm>
 #include <chrono>
 #include <condition_variable>
 #include <functional>
@@ -215,6 +216,21 @@ bool SetPriority(std::uint32_t handle, std::int32_t priority) {
   const auto found = g_threads.find(handle);
   if (found == g_threads.end()) return handle == CurrentId();
   std::lock_guard state_lock(found->second->mutex);
+#if defined(__SWITCH__)
+  // The original music worker requests Win32 ABOVE_NORMAL (+1). Its libnx
+  // thread otherwise stays at the default 0x2C throughout long render work.
+  // Switch uses lower numeric values for higher scheduling priority.
+  const auto switch_priority = static_cast<std::uint32_t>(
+      0x2C - std::clamp(priority, -2, 2));
+  const Result result = svcSetThreadPriority(found->second->worker.handle,
+                                              switch_priority);
+  if (R_FAILED(result)) {
+    const std::string detail = "FAIL stage=thread-priority libnx_result=" +
+        std::to_string(result) + " requested=" + std::to_string(priority);
+    e2e_stage::Log(detail.c_str());
+    return false;
+  }
+#endif
   found->second->priority = priority;
   return true;
 }

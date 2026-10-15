@@ -174,6 +174,13 @@ bool IsPlaying(void* owner) {
     return it->second.voice && output.IsPlaying(it->second.voice);
 }
 
+bool IsStreamPrimed(void* owner) {
+    std::lock_guard guard(lock);
+    const auto it = buffers.find(owner);
+    return it != buffers.end() && it->second.stream &&
+        output.IsStreamPrimed(it->second.stream);
+}
+
 void SetGain(void* owner, float gain) {
     std::lock_guard guard(lock);
     const auto it = buffers.find(owner);

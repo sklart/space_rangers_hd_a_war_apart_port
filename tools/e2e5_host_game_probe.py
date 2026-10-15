@@ -517,8 +517,8 @@ def main() -> None:
     args = parser.parse_args()
     if args.game_root is None or args.timeout <= 0:
         parser.error("--game-root or GAME_ROOT and a positive --timeout are required")
-    if args.capture_audio and args.timeout > 60:
-        parser.error("--capture-audio requires --timeout at most 60 seconds")
+    if args.capture_audio and args.timeout > 80:
+        parser.error("--capture-audio requires --timeout at most 80 seconds")
     print(json.dumps(run(args.binary, args.game_root, args.library_dir,
                          args.timeout, args.crash_trace,
                          args.continue_after_frame, args.auto_new_game,

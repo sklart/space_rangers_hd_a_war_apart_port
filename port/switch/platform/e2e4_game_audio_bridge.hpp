@@ -41,6 +41,7 @@ bool Play(void* owner, bool looping, float gain);
 void Stop(void* owner);
 void Clear(void* owner);
 bool IsPlaying(void* owner);
+bool IsStreamPrimed(void* owner);
 void SetGain(void* owner, float gain);
 void SetPan(void* owner, float pan);
 // Returns -1 for no completion; otherwise original event numbers 1, 2, 0

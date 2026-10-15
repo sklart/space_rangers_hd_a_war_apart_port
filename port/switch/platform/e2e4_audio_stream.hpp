@@ -40,6 +40,7 @@ public:
         completed_.fill(0);
         ready_.fill(false);
         playing_ = false;
+        started_once_ = false;
         return true;
     }
 
@@ -66,6 +67,7 @@ public:
     bool Start() {
         if (!ready_[0] || !ready_[1] || !ready_[2]) return false;
         playing_ = true;
+        started_once_ = true;
         position_ = 0.0;
         played_frames_ = 0;
         completed_.fill(0);
@@ -73,6 +75,9 @@ public:
     }
 
     void Stop() { playing_ = false; }
+    bool IsPrimed() const {
+        return !started_once_ && ready_[0] && ready_[1] && ready_[2];
+    }
     bool IsPlaying() const { return playing_; }
     std::uint64_t PlayedFrames() const { return played_frames_; }
     std::uint64_t UnderrunFrames() const { return underrun_frames_; }
@@ -146,7 +151,11 @@ private:
                         ++completed_[done];
                 }
             }
-            position_ = std::fmod(advanced, static_cast<double>(total_frames));
+            // The normal stream advances within the ring for nearly every
+            // sample. Preserve fmod at the rare wrap (and for extreme rate
+            // ratios) without calling libm for each output frame.
+            position_ = advanced < static_cast<double>(total_frames) ? advanced :
+                std::fmod(advanced, static_cast<double>(total_frames));
             ++played_frames_;
         }
     }
@@ -173,6 +182,7 @@ private:
     std::uint8_t bits_ = 0;
     double position_ = 0.0;
     bool playing_ = false;
+    bool started_once_ = false;
 };
 
 } // namespace srhd_awa::platform::e2e4_audio

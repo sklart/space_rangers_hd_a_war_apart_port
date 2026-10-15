@@ -52,6 +52,7 @@ public:
     bool StartStream(std::uint64_t handle);
     bool StopStream(std::uint64_t handle);
     bool IsStreamPlaying(std::uint64_t handle);
+    bool IsStreamPrimed(std::uint64_t handle);
     bool SetStreamGain(std::uint64_t handle, float gain);
     std::array<std::uint32_t, StreamRing::kChunks> DrainStreamCompleted(
         std::uint64_t handle);
