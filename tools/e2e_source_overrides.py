@@ -1362,18 +1362,25 @@ void CloseVorbisStream(TOggWorker* worker) {
     }'''
         if text.count(frame_end) != 1:
             raise RuntimeError("GAI frame decoder return boundary changed")
-        text = text.replace(frame_end, '''        if (srhd_awa::platform::e2e_stage::BootReady()) {
-            static std::uint32_t e2e_frame_logs = 0;
-            if (e2e_frame_logs < 80) {
-                const pas::AnsiString e2e_name = static_cast<pas::AnsiString>(CacheKey);
+        text = text.replace(frame_end, '''        const bool e2e_boot_ready = srhd_awa::platform::e2e_stage::BootReady();
+        static std::uint32_t e2e_frame_logs = 0;
+        static std::uint32_t e2e_intro_frame_logs = 0;
+        if ((e2e_boot_ready && e2e_frame_logs < 80) ||
+            (!e2e_boot_ready && e2e_intro_frame_logs < 24)) {
+            const pas::AnsiString e2e_name = static_cast<pas::AnsiString>(CacheKey);
+            const bool e2e_intro_frame = !e2e_boot_ready &&
+                std::strstr(e2e_name.c_str(), "FormLoad2") != nullptr;
+            if (e2e_boot_ready || e2e_intro_frame) {
                 char e2e_detail[256]{};
                 std::snprintf(e2e_detail, sizeof(e2e_detail),
-                    "gai frame key=%.140s index=%d decode_us=%llu bytes=%d",
+                    "gai %sframe key=%.140s index=%d decode_us=%llu bytes=%d",
+                    e2e_intro_frame ? "intro " : "",
                     e2e_name.c_str(), FrameIndex,
                     static_cast<unsigned long long>(srhd_awa::platform::e2e_clock::Microseconds() - e2e_frame_begin_us),
                     DecodedFrameGi->DataSize);
                 srhd_awa::platform::e2e_stage::Log(e2e_detail);
-                ++e2e_frame_logs;
+                if (e2e_intro_frame) ++e2e_intro_frame_logs;
+                else ++e2e_frame_logs;
             }
         }
         if (!DecodedFrameGi->IsEmpty()) {
@@ -1427,7 +1434,7 @@ void CloseVorbisStream(TOggWorker* worker) {
         ResidentBytes = SourceBuffer->DataSize;
         Header = static_cast<GR_gi::PGaiHeader>(RawGaiData);'''
         text = text.replace(old, new, 1)
-        text = '#include "e2e5_gai_bounds.hpp"\n#include "e2e_stage.hpp"\n#include "e2e_clock.hpp"\n#include <cstdio>\n' + text
+        text = '#include "e2e5_gai_bounds.hpp"\n#include "e2e_stage.hpp"\n#include "e2e_clock.hpp"\n#include <cstdio>\n#include <cstring>\n' + text
     if source.name == "GI_GAIFile.cpp":
         # FrameBuffers is allocated as an array of void*. The original
         # translation used 32-bit integer accessors for its pointer entries.
