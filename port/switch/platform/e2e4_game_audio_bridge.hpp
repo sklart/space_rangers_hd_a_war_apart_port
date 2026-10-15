@@ -23,6 +23,7 @@ struct StreamStats {
     std::uint64_t callback_count;
     std::uint64_t callback_max_us;
     std::uint64_t callback_gap_max_us;
+    std::uint32_t ready_chunks;
 };
 
 enum class DeferredWriteResult { None, Written, Pending, Unavailable };

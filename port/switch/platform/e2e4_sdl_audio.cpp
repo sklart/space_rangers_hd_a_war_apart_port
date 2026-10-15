@@ -268,6 +268,7 @@ StreamStats SdlOutput::GetStreamStats(std::uint64_t handle) {
     auto* slot = FindStream(handle);
     StreamStats stats = slot ? StreamStats{true, slot->ring->PlayedFrames(),
         slot->ring->UnderrunFrames(), slot->ring->RejectedWrites()} : StreamStats{};
+    if (slot) stats.ready_chunks = slot->ring->ReadyChunks();
     if (stats.valid && performance_frequency_) {
         const auto to_us = [this](std::uint64_t ticks) {
             return ticks / performance_frequency_ * 1000000u +

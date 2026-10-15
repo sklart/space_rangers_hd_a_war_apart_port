@@ -211,8 +211,10 @@ FUNCTIONS: dict[str, dict[str, str]] = {
         const auto read = srhd_awa::platform::e2e4_native_vorbis::Read(
             NativeVorbis(Decoder), Buffer, requested);
 #if defined(__SWITCH__)
-        const auto e2e_decode_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+        const auto e2e_decode_us = std::chrono::duration_cast<std::chrono::microseconds>(
             std::chrono::steady_clock::now() - e2e_decode_begin).count();
+        srhd_awa::platform::e2e_stage::audio_decode.Add(e2e_decode_us);
+        const auto e2e_decode_ms = e2e_decode_us / 1000;
         static std::atomic<unsigned> e2e_slow_decode_logs{0};
         if (e2e_decode_ms >= 100 && e2e_slow_decode_logs.fetch_add(1) < 8) {
             char detail[112]{};
@@ -388,9 +390,31 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
+    if source.name == "fAbout.cpp":
+        text = '#include "units/MMSystem.hpp"\n' + text
+        text = _replace_exact(text,
+            'pas::bind_method<&TfAbout::ScrollCredits>(this), 0);',
+            'pas::bind_method<&TfAbout::ScrollCredits>(this), static_cast<std::int32_t>(MMSystem::timeGetTime()));',
+            1, source.name)
+        text = _replace_exact(text,
+            '        CreditsPanel->SetPosition(ClassesImports::Point(0, CreditsPanel->LocalPosition.Y - 1));',
+            '''        // Preserve 1 pixel / 20 ms even when rendering delays the callback.
+        const auto previous = static_cast<std::uint32_t>(Timer->UserData);
+        const auto steps = (MMSystem::timeGetTime() - previous) / 20u;
+        Timer->UserData = static_cast<std::int32_t>(previous + steps * 20u);
+        if (!steps) return;
+        const auto cycle = static_cast<std::uint32_t>(
+            ViewportPanel->ClientSize.Y + CreditsPanel->ClientSize.Y);
+        if (!cycle) return;
+        const auto offset = static_cast<std::uint32_t>(
+            ViewportPanel->ClientSize.Y - CreditsPanel->LocalPosition.Y);
+        const auto next = (static_cast<std::uint64_t>(offset) + steps) % cycle;
+        CreditsPanel->SetPosition(ClassesImports::Point(0,
+            ViewportPanel->ClientSize.Y - static_cast<std::int32_t>(next)));''',
+            1, source.name)
     if source.name == "EC_FileStream.cpp" and audio_on:
         text = _replace_exact(text,
             "        Self->BlockSize = 4096;",
@@ -619,8 +643,10 @@ srhd_awa::platform::e2e4_game_audio::Format E2E4AudioFormat(
             const auto bytes = stream->Read(static_cast<std::uint8_t*>(output) + total,
                 static_cast<std::int32_t>(wanted - total));
 #if defined(__SWITCH__)
-            const auto e2e_source_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            const auto e2e_source_us = std::chrono::duration_cast<std::chrono::microseconds>(
                 std::chrono::steady_clock::now() - e2e_source_begin).count();
+            srhd_awa::platform::e2e_stage::audio_source.Add(e2e_source_us);
+            const auto e2e_source_ms = e2e_source_us / 1000;
             static std::atomic<unsigned> e2e_slow_source_logs{0};
             if (e2e_source_ms >= 100 && e2e_slow_source_logs.fetch_add(1) < 8) {
                 char detail[112]{};
@@ -655,6 +681,7 @@ void CloseVorbisStream(TOggWorker* worker) {
                 '#include <climits>\n#include <cstdio>\n#include <cstring>\n'
                 '#include <stdexcept>\n' + text)
     if source.name == "GR_Music.cpp":
+        text = '#include "e2e_threads.hpp"\n' + text
         marker = "namespace GR_Music {\n"
         if text.count(marker) != 1:
             raise RuntimeError("music namespace boundary changed")
@@ -669,6 +696,7 @@ void CloseVorbisStream(TOggWorker* worker) {
             // Vorbis decoding waits for this separate file-prefetch worker.
             // Its original Lowest priority can starve behind galaxy turns.
             const Result e2e_reader_priority = svcSetThreadPriority(Stream->ThreadId, 0x29);
+            srhd_awa::platform::e2e_threads::LogPriority("music-file", Stream->ThreadId, 0x29, e2e_reader_priority);
             if (R_FAILED(e2e_reader_priority)) {
                 char detail[96]{};
                 std::snprintf(detail, sizeof(detail),
@@ -684,6 +712,7 @@ void CloseVorbisStream(TOggWorker* worker) {
         // producer a higher priority so that its nine-second ring can refill
         // while that worker is busy; the SDL callback remains independent.
         const Result e2e_music_priority = svcSetThreadPriority(threadGetCurHandle(), 0x29);
+            srhd_awa::platform::e2e_threads::LogPriority("music-decode", threadGetCurHandle(), 0x29, e2e_music_priority);
         if (R_FAILED(e2e_music_priority)) {
             char detail[96]{};
             std::snprintf(detail, sizeof(detail),
@@ -703,6 +732,7 @@ void CloseVorbisStream(TOggWorker* worker) {
                 // The original SetPriority above lowers the producer from 0x29
                 // to 0x2B after queued playback starts. Restore the priority.
                 const Result e2e_playback_priority = svcSetThreadPriority(threadGetCurHandle(), 0x29);
+            srhd_awa::platform::e2e_threads::LogPriority("music-playback", threadGetCurHandle(), 0x29, e2e_playback_priority);
                 if (R_FAILED(e2e_playback_priority)) {
                     char detail[96]{};
                     std::snprintf(detail, sizeof(detail),
@@ -1130,6 +1160,11 @@ void CloseVorbisStream(TOggWorker* worker) {
                     SysUtilsImports::Sleep(1u);''', 1)
         text = text[:continuous_start] + continuous + text[continuous_end:]
         if e2e5_profile:
+            for entry in ("    std::int32_t TMessageLoopGI::Run() {",
+                          "    std::int32_t TMessageLoopGI::RunContinuous() {"):
+                text = _replace_exact(text, entry, entry +
+                    "\n        srhd_awa::platform::e2e5_stage_profiler::SetScreen(GlobalsV::CurrentScreenId);",
+                    1, source.name)
             object_draw_start = text.index("    void TObjectGI::Draw(WindowsSdk::TRect ClipRect) {")
             object_draw_end = text.index("    void TObjectGI::DrawUpdateRects(", object_draw_start)
             object_draw = text[object_draw_start:object_draw_end]
@@ -1178,7 +1213,7 @@ void CloseVorbisStream(TOggWorker* worker) {
             draw = _replace_exact(draw,
                 "    void TMessageLoopGI::DrawQueuedUpdateRects() {",
                 "    void TMessageLoopGI::DrawQueuedUpdateRects() {\n"
-                "        static srhd_awa::platform::e2e5_stage_profiler::Window e2e_dirty_profile;\n"
+                "        static srhd_awa::platform::e2e5_stage_profiler::Window e2e_dirty_profile{\"dirty\"};\n"
                 "        e2e_dirty_profile.Enter(30);", 1, source.name)
             draw = _replace_exact(draw,
                 "        GR_Rect::TRectGR* RectNode = UpdateRects->FirstRect;",
@@ -1380,6 +1415,10 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = text.replace(frame_start, frame_start + '''
         const auto e2e_frame_begin_us = srhd_awa::platform::e2e_clock::Microseconds();
 ''', 1)
+        if e2e5_profile:
+            text = '#include "e2e5_stage_profiler.hpp"\n' + text
+            text = text.replace(frame_start, frame_start +
+                '\n        srhd_awa::platform::e2e5_stage_profiler::Scope e2e_decode(srhd_awa::platform::e2e5_stage_profiler::detail_window, 38);', 1)
         frame_end = '''        if (!DecodedFrameGi->IsEmpty()) {
             return DecodedFrameGi;
         }
@@ -1497,6 +1536,27 @@ void CloseVorbisStream(TOggWorker* worker) {
             text = text.replace(old, slot + "(" + buffers + ", " + index + ") = " + new_value + ";", 1)
         text = '#include "e2e5_gai_slots.hpp"\n' + text
     if source.name == "GI_GAI.cpp":
+        if e2e5_profile:
+            text = '#include "e2e5_stage_profiler.hpp"\n' + text
+            entry = '    void TgaiGI::Draw(WindowsSdk::TRect ClipRect) {'
+            text = _replace_exact(text, entry, entry + '''
+        const bool e2e_intro = ControlName == u"Intro" && !FirstFrameOnly && SequenceFrameCount > 1;
+        srhd_awa::platform::e2e5_stage_profiler::Scope e2e_composite(
+            srhd_awa::platform::e2e5_stage_profiler::detail_window, 46, e2e_intro);
+        if (e2e_intro) {
+            ++srhd_awa::platform::e2e5_stage_profiler::ui_work.intro_draws;
+            srhd_awa::platform::e2e5_stage_profiler::intro_position = SequenceFrame;
+            srhd_awa::platform::e2e5_stage_profiler::intro_pending = true;
+        }''', 1, source.name)
+            start = text.index(entry)
+            end = text.index('\n    void TgaiGI::', start + len(entry))
+            draw = text[start:end]
+            load = 'Frame = Image->LoadFrameGi(GetSequenceFrameSourceIndex(FrameIndex));'
+            if draw.count(load) != 3:
+                raise RuntimeError('GAI playback composition boundaries changed')
+            draw = draw.replace(load, load +
+                '\n                            if (e2e_intro) ++srhd_awa::platform::e2e5_stage_profiler::ui_work.intro_applied;')
+            text = text[:start] + draw + text[end:]
         tiled_frame = '''                            Frame = Image->LoadFrameGi(GetSequenceFrameSourceIndex(SequenceFrame));
                             Frame->DrawToGraphBuf(Buffer, X + Frame->GetBoundsRect().Left - Bounds.Left, Y + Frame->GetBoundsRect().Top - Bounds.Top, Clip, 0, 255);'''
         if text.count(tiled_frame) != 1:

@@ -2,6 +2,7 @@
 #include "e2e_clock.hpp"
 #include "e2e_stage.hpp"
 #include "e2e5_stage_profiler.hpp"
+#include "e2e_threads.hpp"
 
 #include "units/GR_DX.hpp"
 #include "units/GR_GraphBuf.hpp"
@@ -246,15 +247,41 @@ bool ApplyVSyncSetting(bool enabled) {
 }
 
 bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, std::int32_t height) {
+  using e2e5_stage_profiler::Window;
+  e2e5_stage_profiler::SetScreen(GlobalsV::CurrentScreenId);
+  static Window presentation_profile{"present"};
+  static std::int32_t last_screen = -1;
+  static std::uint64_t previous_present_us{};
 #if defined(__SWITCH__)
-  const auto present_start_us = e2e_clock::Microseconds();
+  if (!g_presentation_count) {
+    e2e_threads::LogPriority("game-present", threadGetCurHandle(), -1, 0);
+    u32 cpu_hz{};
+    const Result clock_init = clkrstInitialize();
+    Result clock_read = clock_init;
+    if (R_SUCCEEDED(clock_init)) {
+      ClkrstSession session{};
+      clock_read = clkrstOpenSession(&session, PcvModuleId_CpuBus, 3);
+      if (R_SUCCEEDED(clock_read)) {
+        clock_read = clkrstGetClockRate(&session, &cpu_hz);
+        clkrstCloseSession(&session);
+      }
+      clkrstExit();
+    }
+    char detail[192]{};
+    std::snprintf(detail, sizeof(detail),
+        "runtime applet_type=%u game_core=%d cpu_hz=%u clock_result=%u",
+        static_cast<unsigned>(appletGetAppletType()), svcGetCurrentProcessorNumber(),
+        cpu_hz, clock_read);
+    e2e_stage::Log(detail);
+  }
 #endif
+  const auto present_start_us = e2e_clock::Microseconds();
   if (!g_initialized) return PresentationFailure("renderer not initialized");
   if (!pixels) return PresentationFailure("pixels missing");
   if (!ValidDimensions(width, height, pitch)) return PresentationFailure("invalid dimensions");
 #if defined(__SWITCH__) && defined(E2E_DIAGNOSTICS) && !E2E_DIAGNOSTICS
   const auto hash_tick = e2e_clock::Milliseconds();
-  if (!g_presentation_count ||
+  if (!g_presentation_count || last_screen != GlobalsV::CurrentScreenId ||
       static_cast<std::uint32_t>(hash_tick - g_last_hash_tick) >= 5000u) {
     g_last_presentation_hash = HashRgb565(pixels, pitch, width, height);
     g_last_hash_tick = hash_tick;
@@ -262,6 +289,7 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
 #else
   g_last_presentation_hash = HashRgb565(pixels, pitch, width, height);
 #endif
+  presentation_profile.Measure(40, e2e_clock::Microseconds() - present_start_us);
   g_presentation_diagnostics = {};
 #if defined(__SWITCH__)
   if (!g_native_window) return PresentationFailure("SDL window missing");
@@ -281,8 +309,11 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
     g_texture_height = height;
   }
   g_presentation_diagnostics.texture_ready = g_sdl_texture != nullptr;
+  const auto upload_start_us = e2e_clock::Microseconds();
   if (SDL_UpdateTexture(g_sdl_texture, nullptr, pixels, pitch) != 0)
     return PresentationFailure("SDL_UpdateTexture");
+  presentation_profile.Measure(41, e2e_clock::Microseconds() - upload_start_us);
+  const auto copy_start_us = e2e_clock::Microseconds();
   int output_width{};
   int output_height{};
   if (SDL_GetRendererOutputSize(g_sdl_renderer, &output_width, &output_height) != 0 ||
@@ -310,11 +341,14 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
     return PresentationFailure("SDL_RenderClear");
   if (SDL_RenderCopy(g_sdl_renderer, g_sdl_texture, nullptr, &destination) != 0)
     return PresentationFailure("SDL_RenderCopy");
+  presentation_profile.Measure(42, e2e_clock::Microseconds() - copy_start_us);
 #if defined(E2E_DEBUG_CURSOR_OVERLAY) && E2E_DEBUG_CURSOR_OVERLAY
   if (!DrawInputCursor(destination, width, height))
     return PresentationFailure("controller cursor overlay");
 #endif
+  const auto swap_start_us = e2e_clock::Microseconds();
   SDL_RenderPresent(g_sdl_renderer);
+  presentation_profile.Measure(43, e2e_clock::Microseconds() - swap_start_us);
   g_presentation_diagnostics.present_succeeded = true;
   const auto present_us = e2e_clock::Microseconds() - present_start_us;
   g_present_us_sum += present_us;
@@ -324,6 +358,20 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
 #endif
   ++g_presentation_count;
   e2e5_stage_profiler::PresentFrame(width, height);
+  const auto completed_us = e2e_clock::Microseconds();
+  presentation_profile.Measure(44, completed_us - present_start_us);
+  if (last_screen == GlobalsV::CurrentScreenId && previous_present_us)
+    presentation_profile.Measure(45, completed_us - previous_present_us);
+  if (last_screen != GlobalsV::CurrentScreenId) {
+    char detail[192]{};
+    std::snprintf(detail, sizeof(detail),
+        "screen first presented id=%d presentations=%llu width=%d height=%d rgb565_hash=%016llx",
+        GlobalsV::CurrentScreenId, static_cast<unsigned long long>(g_presentation_count),
+        width, height, static_cast<unsigned long long>(g_last_presentation_hash));
+    e2e_stage::Log(detail);
+    last_screen = GlobalsV::CurrentScreenId;
+  }
+  previous_present_us = completed_us;
 #if defined(E2E5_HOST_SDL_WINDOW)
   if (g_presentation_count == 1) {
     char detail[160]{};

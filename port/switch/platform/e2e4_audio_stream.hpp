@@ -82,6 +82,9 @@ public:
     std::uint64_t PlayedFrames() const { return played_frames_; }
     std::uint64_t UnderrunFrames() const { return underrun_frames_; }
     std::uint64_t RejectedWrites() const { return rejected_writes_; }
+    std::uint32_t ReadyChunks() const {
+        return static_cast<std::uint32_t>(std::count(ready_.begin(), ready_.end(), true));
+    }
     std::uint32_t PlayCursorBytes() const {
         return static_cast<std::uint32_t>(static_cast<std::size_t>(position_) * frame_bytes_);
     }

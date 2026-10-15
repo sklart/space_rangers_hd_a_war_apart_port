@@ -222,7 +222,7 @@ StreamStats GetStreamStats(void* owner) {
     const auto stats = output.GetStreamStats(it->second.stream);
     return {stats.valid, stats.played_frames, stats.underrun_frames,
             stats.rejected_writes, stats.callback_count, stats.callback_max_us,
-            stats.callback_gap_max_us};
+            stats.callback_gap_max_us, stats.ready_chunks};
 }
 
 } // namespace srhd_awa::platform::e2e4_game_audio

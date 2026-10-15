@@ -15,6 +15,7 @@ int main() {
     assert(ring.Initialize(4, 44100, 44100, 2, 16));
     assert(!ring.Start());
     assert(!ring.IsPrimed());
+    assert(ring.ReadyChunks() == 0);
 
     const std::array<std::uint8_t, 4> left{0x00, 0x40, 0x00, 0x40};
     const std::array<std::uint8_t, 4> right{0x00, 0x20, 0x00, 0x20};
@@ -22,6 +23,7 @@ int main() {
     assert(ring.WriteChunk(1, right.data(), right.size()));
     assert(ring.WriteChunk(2, left.data(), left.size()));
     assert(ring.IsPrimed());
+    assert(ring.ReadyChunks() == 3);
     assert(ring.Start());
     assert(!ring.IsPrimed());
     assert(!ring.WriteChunk(0, right.data(), right.size()));
@@ -31,6 +33,7 @@ int main() {
     ring.RenderAdd(mixed.data(), 1);
     assert(mixed[0] == 16384 && mixed[1] == 16384);
     assert(ring.PlayCursorBytes() == 4 && ring.CurrentChunk() == 1);
+    assert(ring.ReadyChunks() == 2);
     auto events = ring.DrainCompleted();
     assert(events[0] == 1 && events[1] == 0 && events[2] == 0);
     assert(ring.WriteChunk(0, right.data(), right.size()));
@@ -49,6 +52,7 @@ int main() {
     ring.RenderAdd(mixed.data(), 1); // Missing refill is silence, not old PCM.
     assert(mixed[0] == 0 && mixed[1] == 0);
     assert(ring.UnderrunFrames() == 1);
+    assert(ring.ReadyChunks() == 0);
     ring.Stop();
     assert(!ring.IsPlaying());
     assert(!ring.IsPrimed()); // A stopped old track cannot become queued again.

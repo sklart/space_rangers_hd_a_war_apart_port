@@ -17,12 +17,15 @@ for symbol in symbols:
 
 lines = [
     '#include "win32_compat_okgf.hpp"',
+    '#include "okgf_fast_alpha.hpp"',
     '#include "okgf.h"',
     'namespace srhd_awa::platform::win32_compat {',
     'ImportAddress ResolveOkgfImport(std::string_view symbol) {',
 ]
 for symbol in symbols:
-    lines.append(f'  if (symbol == "{symbol}") return reinterpret_cast<ImportAddress>(&{symbol});')
+    implementation = ("okgf_fast_alpha::AlphaSimpleBufDraw16"
+                      if symbol == "OKGR_AlphaSimpleBuf_Draw_16" else symbol)
+    lines.append(f'  if (symbol == "{symbol}") return reinterpret_cast<ImportAddress>(&{implementation});')
 lines += ['  return nullptr;', '}', '}  // namespace srhd_awa::platform::win32_compat', '']
 output = ROOT / "port/switch/platform/win32_compat_okgf.cpp"
 rendered = "\n".join(lines)

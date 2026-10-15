@@ -8,9 +8,11 @@ import json
 from pathlib import Path
 import re
 import struct
+import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 import wave
 import zipfile
 
@@ -27,6 +29,54 @@ def module(name: str):
 
 
 class E2E5ToolTests(unittest.TestCase):
+    def test_existing_okgf_archive_is_reconfigured_with_explicit_optimization(self):
+        builder = module("e2e_arm64_build")
+        with tempfile.TemporaryDirectory() as directory:
+            build = Path(directory)
+            library = build / "okgf-no-tls/libokgf.a"
+            softfloat = build / "okgf-no-tls/vendor/softfloat/libokgf_softfloat.a"
+            for path in (library, softfloat):
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(b"preexisting unconfigured archive")
+            commands = []
+            def run(command):
+                commands.append(command)
+                return 0, ""
+            with mock.patch.object(builder, "BUILD", build), \
+                 mock.patch.object(builder, "cmake_path", str), \
+                 mock.patch.object(builder, "run", run):
+                builder.build_okgf(profile="release")
+                configure = [c for c in commands if "-S" in c]
+                self.assertEqual(len(configure), 1)
+                self.assertIn("-DCMAKE_BUILD_TYPE=Release", configure[0])
+                self.assertIn("-DCMAKE_C_FLAGS_RELEASE=-O2 -g1 -DNDEBUG", configure[0])
+                self.assertTrue(any("-D_Thread_local=" in flag for flag in configure[0]))
+                commands.clear()
+                builder.build_okgf(profile="release")
+                self.assertFalse(any("-S" in c for c in commands))
+                builder.build_okgf(profile="debug")
+                self.assertTrue(any("-DCMAKE_BUILD_TYPE=Debug" in c for c in commands))
+
+    def test_regenerated_okgf_table_preserves_validated_alpha_path(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for relative in ("tools/generate_okgf_compat_exports.py",
+                             "win32-import-manifest.json", "upstream/okgf/include/okgf.h"):
+                source = ROOT / relative
+                target = root / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(source.read_bytes())
+            output = root / "port/switch/platform/win32_compat_okgf.cpp"
+            output.parent.mkdir(parents=True)
+            command = [sys.executable, str(root / "tools/generate_okgf_compat_exports.py")]
+            subprocess.run(command, check=True, capture_output=True)
+            expected = (ROOT / "port/switch/platform/win32_compat_okgf.cpp").read_text(encoding="utf-8")
+            self.assertEqual(output.read_text(encoding="utf-8"), expected)
+            self.assertIn('&okgf_fast_alpha::AlphaSimpleBufDraw16', expected)
+            first = output.read_bytes()
+            subprocess.run(command, check=True, capture_output=True)
+            self.assertEqual(output.read_bytes(), first)
+
     def test_save_inventory_collects_all_values_before_rejection(self):
         probe = module("e2e5_host_game_probe")
         report = probe.parse_save_inventory(

@@ -127,19 +127,31 @@ def prepare_patched_sources() -> dict[str, Path]:
     return {name: patch_root / "src" / name for name in names}
 
 
-def build_okgf(fast_rescale: bool = False) -> tuple[Path, Path]:
+def build_okgf(fast_rescale: bool = False, profile: str = "release") -> tuple[Path, Path]:
     """Build the existing no-TLS Switch OKGF backend in the disposable tree."""
     build = BUILD / ("okgf-fast24-no-tls" if fast_rescale else "okgf-no-tls")
     source = (prepare_fast_rescale_source(ROOT / "upstream/okgf",
               BUILD / "okgf-fast24-source") if fast_rescale else ROOT / "upstream/okgf")
     library = build / "libokgf.a"
     softfloat = build / "vendor/softfloat/libokgf_softfloat.a"
-    if not library.is_file() or not softfloat.is_file():
+    configuration = {
+        "profile": "Release" if profile == "release" else "Debug",
+        "c_flags": "-D_Thread_local= -march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fno-strict-aliasing",
+        "release_flags": "-O2 -g1 -DNDEBUG",
+        "debug_flags": "-O0 -g1",
+    }
+    stamp = build / "e2e-configuration.json"
+    expected = json.dumps(configuration, sort_keys=True, indent=2) + "\n"
+    if (not library.is_file() or not softfloat.is_file() or not stamp.is_file()
+            or stamp.read_text(encoding="utf-8") != expected):
         command = ["cmake", "-S", cmake_path(source),
                    "-B", cmake_path(build), "-G", "Unix Makefiles",
                    "-DCMAKE_SYSTEM_NAME=Generic",
                    "-DCMAKE_C_COMPILER=" + cmake_path(DEVKITA64 / "bin/aarch64-none-elf-gcc"),
-                   "-DCMAKE_C_FLAGS=-D_Thread_local=",
+                   "-DCMAKE_BUILD_TYPE=" + configuration["profile"],
+                   "-DCMAKE_C_FLAGS=" + configuration["c_flags"],
+                   "-DCMAKE_C_FLAGS_RELEASE=" + configuration["release_flags"],
+                   "-DCMAKE_C_FLAGS_DEBUG=" + configuration["debug_flags"],
                    "-DCMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY",
                    "-DCMAKE_FIND_ROOT_PATH=" + cmake_path(PORTLIBS),
                    "-DCMAKE_PREFIX_PATH=" + cmake_path(PORTLIBS),
@@ -147,6 +159,7 @@ def build_okgf(fast_rescale: bool = False) -> tuple[Path, Path]:
         code, output = run(command)
         if code:
             raise RuntimeError("OKGF CMake configure failed: " + output)
+        stamp.write_text(expected, encoding="utf-8")
     # Recheck archive freshness on every build so a changed disposable source
     # override cannot silently reuse an earlier OKGF library.
     # MSYS CMake 4.4 writes Windows drive paths as make targets in this
@@ -244,7 +257,10 @@ def main() -> int:
         print(f"E2E build provenance failed: {build_git}", file=sys.stderr)
         return 1
     report["build_git"] = build_git
-    code, status = run([git, "status", "--porcelain", "--untracked-files=all"])
+    # User saves are runtime inputs, never build sources. Preserve them and
+    # exclude only this directory from the source cleanliness stamp.
+    code, status = run([git, "status", "--porcelain", "--untracked-files=all",
+                        "--", ".", ":(exclude)saves/"])
     if code:
         report["first_failure"] = {"phase": "build provenance", "exact_error": status}
         save(report)
@@ -256,7 +272,7 @@ def main() -> int:
     build_id = build_git[:7] + ("-dirty" if dirty_sources else "")
     report["source_overrides"] = sorted([*FUNCTIONS, "Rangers.cpp", "Globals.cpp",
                                           "GI_MessageLoop.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp",
-                                          "aSaveLoad.cpp", "aScript.cpp", "program.cpp"])
+                                          "aSaveLoad.cpp", "aScript.cpp", "fAbout.cpp", "program.cpp"])
     if args.experimental_audio_on:
         report["source_overrides"] = sorted(set(report["source_overrides"]) |
                                             set(AUDIO_ON_FUNCTIONS))
@@ -486,13 +502,15 @@ def main() -> int:
         obj.stem for obj in objects if obj.parent.name == "platform"
     ]
     try:
-        okgf_library, okgf_softfloat = build_okgf(args.experimental_e2e4_combined)
+        okgf_library, okgf_softfloat = build_okgf(args.experimental_e2e4_combined, args.profile)
     except RuntimeError as error:
         report["first_failure"] = {"phase": "OKGF ARM64 build", "exact_error": str(error)}
         save(report)
         print(error, file=sys.stderr)
         return 1
     report["portable_implementations_used"].append("okgf_no_tls")
+    report["okgf_configuration"] = json.loads(
+        (okgf_library.parent / "e2e-configuration.json").read_text(encoding="utf-8"))
     artifact_stem = ("SpaceRangersHDAWarApartE2E4Combined" if args.experimental_e2e4_combined
                      else "SpaceRangersHDAWarApartE2EAudioON" if args.experimental_audio_on
                      else "SpaceRangersHDAWarApartE2E")

@@ -20,6 +20,7 @@ struct StreamStats {
     std::uint64_t callback_count = 0;
     std::uint64_t callback_max_us = 0;
     std::uint64_t callback_gap_max_us = 0;
+    std::uint32_t ready_chunks = 0;
 };
 
 // Narrow SDL2 output device for the PCM mixer. Game/DirectSound integration

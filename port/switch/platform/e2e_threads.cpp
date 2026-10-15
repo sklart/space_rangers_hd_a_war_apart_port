@@ -224,6 +224,7 @@ bool SetPriority(std::uint32_t handle, std::int32_t priority) {
       0x2C - std::clamp(priority, -2, 2));
   const Result result = svcSetThreadPriority(found->second->worker.handle,
                                               switch_priority);
+  LogPriority("worker", found->second->worker.handle, switch_priority, result);
   if (R_FAILED(result)) {
     const std::string detail = "FAIL stage=thread-priority libnx_result=" +
         std::to_string(result) + " requested=" + std::to_string(priority);
