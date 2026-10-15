@@ -1,4 +1,5 @@
 #include "win32_compat_okgf.hpp"
+#include "okgf_fast_alpha.hpp"
 #include "okgf.h"
 namespace srhd_awa::platform::win32_compat {
 ImportAddress ResolveOkgfImport(std::string_view symbol) {
@@ -30,7 +31,7 @@ ImportAddress ResolveOkgfImport(std::string_view symbol) {
   if (symbol == "OKGR_AlphaIndexed_CopyDrawClip_WORD") return reinterpret_cast<ImportAddress>(&OKGR_AlphaIndexed_CopyDrawClip_WORD);
   if (symbol == "OKGR_AlphaIndexed_Draw_RGBA") return reinterpret_cast<ImportAddress>(&OKGR_AlphaIndexed_Draw_RGBA);
   if (symbol == "OKGR_AlphaSimpleBufPalAlpha_Draw_16") return reinterpret_cast<ImportAddress>(&OKGR_AlphaSimpleBufPalAlpha_Draw_16);
-  if (symbol == "OKGR_AlphaSimpleBuf_Draw_16") return reinterpret_cast<ImportAddress>(&OKGR_AlphaSimpleBuf_Draw_16);
+  if (symbol == "OKGR_AlphaSimpleBuf_Draw_16") return reinterpret_cast<ImportAddress>(&okgf_fast_alpha::AlphaSimpleBufDraw16);
   if (symbol == "OKGR_AnimLine_Draw_16") return reinterpret_cast<ImportAddress>(&OKGR_AnimLine_Draw_16);
   if (symbol == "OKGR_AnimShadowLine_Draw_16") return reinterpret_cast<ImportAddress>(&OKGR_AnimShadowLine_Draw_16);
   if (symbol == "OKGR_Circle_DrawClip_BYTE") return reinterpret_cast<ImportAddress>(&OKGR_Circle_DrawClip_BYTE);
