@@ -431,6 +431,25 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
             '#include "layout/aShip.hpp"\n#include <cstddef>\n'
             'static_assert(offsetof(aShip::TShip, DefGenerator) - '
             'offsetof(aShip::TShip, Hull) == 7 * sizeof(void*));', 1)
+        tech_begin = text.index("    std::uint8_t TShip_CanUseEquipmentTech(")
+        tech_end = text.index("    std::uint8_t TShip_CanRepairEquipmentTech(", tech_begin)
+        tech = text[tech_begin:tech_end]
+        old = '''        } else if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(Self); tranclucator != nullptr && tranclucator->OwnerShip != nullptr) {
+            return aShip::TShip_CanUseEquipmentTech(tranclucator->OwnerShip, Item);
+        } else if (pas::class_cast_if<aKling::TKling*>(Self) != nullptr || Item->OwnerId != aGalaxyStruct::oiDominator) {
+            return true;
+        } else {'''
+        new = '''        } else if (Item->OwnerId != aGalaxyStruct::oiDominator) {
+            // Ordinary equipment needs no ship-type or knowledge checks.
+            return true;
+        } else if (aTranclucator::TTranclucator* tranclucator = pas::class_cast_if<aTranclucator::TTranclucator*>(Self); tranclucator != nullptr && tranclucator->OwnerShip != nullptr) {
+            return aShip::TShip_CanUseEquipmentTech(tranclucator->OwnerShip, Item);
+        } else if (pas::class_cast_if<aKling::TKling*>(Self) != nullptr) {
+            return true;
+        } else {'''
+        if tech.count(old) != 1:
+            raise RuntimeError("equipment-tech short-circuit boundary changed")
+        text = text[:tech_begin] + tech.replace(old, new, 1) + text[tech_end:]
     if source.name == "aPirate.cpp":
         # Native expression reduced PlanetQueue + 0 to a signed 32-bit
         # integer before treating it as a list pointer.
