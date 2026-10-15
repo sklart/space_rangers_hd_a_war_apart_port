@@ -1388,25 +1388,28 @@ void CloseVorbisStream(TOggWorker* worker) {
         if text.count(frame_end) != 1:
             raise RuntimeError("GAI frame decoder return boundary changed")
         text = text.replace(frame_end, '''        const bool e2e_boot_ready = srhd_awa::platform::e2e_stage::BootReady();
-        static std::uint32_t e2e_frame_logs = 0;
+        static std::uint32_t e2e_menu_frame_logs = 0;
         static std::uint32_t e2e_intro_frame_logs = 0;
-        if ((e2e_boot_ready && e2e_frame_logs < 80) ||
-            (!e2e_boot_ready && e2e_intro_frame_logs < 24)) {
+        const bool e2e_menu_frame = e2e_boot_ready &&
+            e2e_menu_frame_logs < 48 && CacheKey == u"Bm.FormMain3.2ShipA3";
+        bool e2e_intro_frame = false;
+        if (!e2e_boot_ready && e2e_intro_frame_logs < 24) {
             const pas::AnsiString e2e_name = static_cast<pas::AnsiString>(CacheKey);
-            const bool e2e_intro_frame = !e2e_boot_ready &&
-                std::strstr(e2e_name.c_str(), "FormLoad2") != nullptr;
-            if (e2e_boot_ready || e2e_intro_frame) {
-                char e2e_detail[256]{};
-                std::snprintf(e2e_detail, sizeof(e2e_detail),
-                    "gai %sframe key=%.140s index=%d decode_us=%llu bytes=%d",
-                    e2e_intro_frame ? "intro " : "",
-                    e2e_name.c_str(), FrameIndex,
-                    static_cast<unsigned long long>(srhd_awa::platform::e2e_clock::Microseconds() - e2e_frame_begin_us),
-                    DecodedFrameGi->DataSize);
-                srhd_awa::platform::e2e_stage::Log(e2e_detail);
-                if (e2e_intro_frame) ++e2e_intro_frame_logs;
-                else ++e2e_frame_logs;
-            }
+            e2e_intro_frame = std::strstr(e2e_name.c_str(), "FormLoad2") != nullptr;
+        }
+        if (e2e_menu_frame || e2e_intro_frame) {
+            const pas::AnsiString e2e_name = static_cast<pas::AnsiString>(CacheKey);
+            char e2e_detail[256]{};
+            std::snprintf(e2e_detail, sizeof(e2e_detail),
+                "gai %sframe key=%.140s index=%d load_us=%llu bytes=%d format=%d",
+                e2e_intro_frame ? "intro " : "menu ",
+                e2e_name.c_str(), FrameIndex,
+                static_cast<unsigned long long>(srhd_awa::platform::e2e_clock::Microseconds() - e2e_frame_begin_us),
+                DecodedFrameGi->DataSize,
+                DecodedFrameGi->Header ? DecodedFrameGi->Header->Format : -1);
+            srhd_awa::platform::e2e_stage::Log(e2e_detail);
+            if (e2e_intro_frame) ++e2e_intro_frame_logs;
+            else ++e2e_menu_frame_logs;
         }
         if (!DecodedFrameGi->IsEmpty()) {
             return DecodedFrameGi;
