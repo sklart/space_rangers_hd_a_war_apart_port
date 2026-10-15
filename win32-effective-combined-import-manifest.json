@@ -1,7 +1,7 @@
 {
   "source": "effective-e2e",
   "upstream_pin": "57fa689c630193a66fdea6ca4c79a188814991cd",
-  "source_file_count": 1396,
+  "source_file_count": 1397,
   "imports": [
     {
       "dll": "advapi32.dll",

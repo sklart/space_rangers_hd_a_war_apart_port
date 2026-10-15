@@ -31,6 +31,7 @@ int main() {
   std::this_thread::sleep_for(std::chrono::milliseconds(20));
   if (runs != 0 || threads::Wait(handle, 0) != 258u) return 2;
   if (!threads::SetPriority(handle, 2) || threads::GetPriority(handle) != 2) return 3;
+  if (!threads::PreferCalculationCore(handle) || threads::PreferCalculationCore(0)) return 7;
   if (threads::Resume(handle) != 1u || threads::Wait(handle, 500) != 0u || runs != 1) return 4;
   if (!threads::Close(handle)) return 5;
   SelfCloseState self_close;

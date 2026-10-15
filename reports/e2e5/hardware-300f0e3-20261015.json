@@ -1,0 +1,602 @@
+{
+  "archive_sha256": "f8c7fabce8ad8f0e178c0b73e995a0f607ccde7056bf0cbdd537e116788bf955",
+  "build_git_logged": "300f0e3",
+  "note": "7-character runtime stamp matches delivered 300f0e3 prefix; archive has no NRO/ELF or Atmosphere crash report",
+  "members": {
+    "e2e.log": {
+      "bytes": 871629,
+      "sha256": "91fe90816ccf1465a2621a04d5fc6ad4a201600168bf067a85c42bb166c5613d"
+    },
+    "newgame.txt": {
+      "bytes": 949,
+      "sha256": "466abf35f1f52778cf7f3e68492c9198fd621f5f0702c111f331f47457c9e271"
+    },
+    "########.log": {
+      "bytes": 31292,
+      "sha256": "a1b08c0ae14fd96e6bac776fb9d7abe33748145a5a7aae23b9b915469dc46d2a"
+    }
+  },
+  "generation_stages": [
+    {
+      "stage": 1,
+      "previous_stage": 0,
+      "previous_ms": 101,
+      "total_ms": 101
+    },
+    {
+      "stage": 2,
+      "previous_stage": 1,
+      "previous_ms": 14098,
+      "total_ms": 14199
+    },
+    {
+      "stage": 3,
+      "previous_stage": 2,
+      "previous_ms": 3048,
+      "total_ms": 17248
+    },
+    {
+      "stage": 4,
+      "previous_stage": 3,
+      "previous_ms": 2590,
+      "total_ms": 19838
+    },
+    {
+      "stage": 5,
+      "previous_stage": 4,
+      "previous_ms": 2240,
+      "total_ms": 22079
+    },
+    {
+      "stage": 6,
+      "previous_stage": 5,
+      "previous_ms": 209,
+      "total_ms": 22289
+    },
+    {
+      "stage": 8,
+      "previous_stage": 6,
+      "previous_ms": 718410,
+      "total_ms": 740700
+    }
+  ],
+  "warmup_segments": [
+    [
+      1,
+      2802172,
+      53412580
+    ],
+    [
+      2,
+      3326202,
+      51505016
+    ],
+    [
+      3,
+      4026934,
+      52473909
+    ],
+    [
+      4,
+      2866954,
+      55373223
+    ],
+    [
+      5,
+      2508496,
+      54185482
+    ],
+    [
+      6,
+      2281782,
+      53510015
+    ],
+    [
+      7,
+      2635030,
+      58769276
+    ],
+    [
+      8,
+      2232124,
+      56237693
+    ],
+    [
+      9,
+      2282425,
+      55820842
+    ],
+    [
+      10,
+      2213920,
+      59318796
+    ],
+    [
+      11,
+      2557699,
+      66967432
+    ],
+    [
+      12,
+      2422391,
+      66227975
+    ]
+  ],
+  "galaxy_turns_sampled": 300,
+  "star_loop_us": 674626542,
+  "galaxy_turn_us": 682353186,
+  "star_fraction": 0.988676474062803,
+  "audio": {
+    "ring_observations": 182,
+    "max_underrun_frames": 0,
+    "max_rejected_writes": 0,
+    "ready_chunks_range": [
+      3,
+      3
+    ]
+  },
+  "first_gai_failure": {
+    "line": 7886,
+    "text": "[E2E] FAIL stage=gai key=Bm.Gov.2FeiAnim1a bytes=0 reason=buffer size"
+  },
+  "game_log_allocation_failure": [
+    "Failed to allocate memory, trying to free some textures... fail"
+  ],
+  "runtime": [
+    "[E2E] runtime applet_type=0 game_core=0 cpu_hz=1020000000 clock_result=0"
+  ],
+  "final_log_cost": "[E2E] perf log cumulative calls=7893 write_us=918998 flushes=190 flush_us=891355",
+  "perf_note": "Weighted means use rounded per-window averages. Percentile ranges describe individual bounded 128-sample windows, not global percentiles. Stage45 is interval between successful presents, not CPU frame time.",
+  "perf": {
+    "screen=22 source=loop stage=15": {
+      "windows": 5,
+      "count": 2690,
+      "max_us": 8899,
+      "weighted_avg_us_rounded_input": 486.62,
+      "window_p50_range_us": [
+        1,
+        2
+      ],
+      "window_p95_range_us": [
+        2,
+        6925
+      ],
+      "window_p99_range_us": [
+        3,
+        7603
+      ]
+    },
+    "screen=22 source=present stage=41": {
+      "windows": 4,
+      "count": 886,
+      "max_us": 31203,
+      "weighted_avg_us_rounded_input": 8280.39,
+      "window_p50_range_us": [
+        7651,
+        7978
+      ],
+      "window_p95_range_us": [
+        9420,
+        10349
+      ],
+      "window_p99_range_us": [
+        9874,
+        11590
+      ]
+    },
+    "screen=22 source=present stage=43": {
+      "windows": 4,
+      "count": 886,
+      "max_us": 7464,
+      "weighted_avg_us_rounded_input": 1599.95,
+      "window_p50_range_us": [
+        499,
+        514
+      ],
+      "window_p95_range_us": [
+        3797,
+        4407
+      ],
+      "window_p99_range_us": [
+        4090,
+        5221
+      ]
+    },
+    "screen=22 source=present stage=45": {
+      "windows": 4,
+      "count": 885,
+      "max_us": 4422988,
+      "weighted_avg_us_rounded_input": 24095.96,
+      "window_p50_range_us": [
+        18690,
+        19831
+      ],
+      "window_p95_range_us": [
+        23553,
+        25901
+      ],
+      "window_p99_range_us": [
+        24123,
+        34084
+      ]
+    },
+    "screen=1 source=loop stage=15": {
+      "windows": 7,
+      "count": 653,
+      "max_us": 469180,
+      "weighted_avg_us_rounded_input": 35608.56,
+      "window_p50_range_us": [
+        33417,
+        34926
+      ],
+      "window_p95_range_us": [
+        35504,
+        49307
+      ],
+      "window_p99_range_us": [
+        40377,
+        68347
+      ]
+    },
+    "screen=1 source=present stage=41": {
+      "windows": 7,
+      "count": 654,
+      "max_us": 90903,
+      "weighted_avg_us_rounded_input": 8111.96,
+      "window_p50_range_us": [
+        7659,
+        7776
+      ],
+      "window_p95_range_us": [
+        9081,
+        9713
+      ],
+      "window_p99_range_us": [
+        9692,
+        90903
+      ]
+    },
+    "screen=1 source=present stage=43": {
+      "windows": 7,
+      "count": 654,
+      "max_us": 6123,
+      "weighted_avg_us_rounded_input": 1514.3,
+      "window_p50_range_us": [
+        488,
+        515
+      ],
+      "window_p95_range_us": [
+        3784,
+        4262
+      ],
+      "window_p99_range_us": [
+        4262,
+        4534
+      ]
+    },
+    "screen=1 source=present stage=45": {
+      "windows": 7,
+      "count": 651,
+      "max_us": 140545,
+      "weighted_avg_us_rounded_input": 44792.7,
+      "window_p50_range_us": [
+        42034,
+        44405
+      ],
+      "window_p95_range_us": [
+        48129,
+        57510
+      ],
+      "window_p99_range_us": [
+        53607,
+        140545
+      ]
+    },
+    "screen=26 source=loop stage=15": {
+      "windows": 12,
+      "count": 4769,
+      "max_us": 1061058,
+      "weighted_avg_us_rounded_input": 768.91,
+      "window_p50_range_us": [
+        220,
+        702
+      ],
+      "window_p95_range_us": [
+        395,
+        1662
+      ],
+      "window_p99_range_us": [
+        424,
+        2684
+      ]
+    },
+    "screen=26 source=present stage=41": {
+      "windows": 12,
+      "count": 1761,
+      "max_us": 36482,
+      "weighted_avg_us_rounded_input": 7934.86,
+      "window_p50_range_us": [
+        7586,
+        7745
+      ],
+      "window_p95_range_us": [
+        8874,
+        9578
+      ],
+      "window_p99_range_us": [
+        9333,
+        11098
+      ]
+    },
+    "screen=26 source=present stage=43": {
+      "windows": 12,
+      "count": 1761,
+      "max_us": 31072,
+      "weighted_avg_us_rounded_input": 1506.17,
+      "window_p50_range_us": [
+        488,
+        508
+      ],
+      "window_p95_range_us": [
+        3644,
+        4416
+      ],
+      "window_p99_range_us": [
+        4204,
+        5949
+      ]
+    },
+    "screen=26 source=present stage=45": {
+      "windows": 12,
+      "count": 1760,
+      "max_us": 119678,
+      "weighted_avg_us_rounded_input": 32439.02,
+      "window_p50_range_us": [
+        18685,
+        33716
+      ],
+      "window_p95_range_us": [
+        53853,
+        82791
+      ],
+      "window_p99_range_us": [
+        79862,
+        119678
+      ]
+    },
+    "screen=31 source=loop stage=15": {
+      "windows": 1,
+      "count": 176,
+      "max_us": 1166110,
+      "weighted_avg_us_rounded_input": 11194.0,
+      "window_p50_range_us": [
+        5636,
+        5636
+      ],
+      "window_p95_range_us": [
+        9237,
+        9237
+      ],
+      "window_p99_range_us": [
+        9919,
+        9919
+      ]
+    },
+    "screen=31 source=present stage=41": {
+      "windows": 1,
+      "count": 107,
+      "max_us": 11431,
+      "weighted_avg_us_rounded_input": 7924.0,
+      "window_p50_range_us": [
+        7791,
+        7791
+      ],
+      "window_p95_range_us": [
+        9103,
+        9103
+      ],
+      "window_p99_range_us": [
+        11023,
+        11023
+      ]
+    },
+    "screen=31 source=present stage=43": {
+      "windows": 1,
+      "count": 107,
+      "max_us": 31289,
+      "weighted_avg_us_rounded_input": 1820.0,
+      "window_p50_range_us": [
+        504,
+        504
+      ],
+      "window_p95_range_us": [
+        4262,
+        4262
+      ],
+      "window_p99_range_us": [
+        4623,
+        4623
+      ]
+    },
+    "screen=31 source=present stage=45": {
+      "windows": 1,
+      "count": 106,
+      "max_us": 611932,
+      "weighted_avg_us_rounded_input": 26343.0,
+      "window_p50_range_us": [
+        20174,
+        20174
+      ],
+      "window_p95_range_us": [
+        24313,
+        24313
+      ],
+      "window_p99_range_us": [
+        48216,
+        48216
+      ]
+    },
+    "screen=33 source=loop stage=15": {
+      "windows": 3,
+      "count": 1665,
+      "max_us": 1196728,
+      "weighted_avg_us_rounded_input": 1089.19,
+      "window_p50_range_us": [
+        124,
+        555
+      ],
+      "window_p95_range_us": [
+        583,
+        1334
+      ],
+      "window_p99_range_us": [
+        785,
+        2248
+      ]
+    },
+    "screen=33 source=present stage=41": {
+      "windows": 3,
+      "count": 459,
+      "max_us": 35673,
+      "weighted_avg_us_rounded_input": 8059.54,
+      "window_p50_range_us": [
+        7627,
+        7659
+      ],
+      "window_p95_range_us": [
+        9483,
+        9715
+      ],
+      "window_p99_range_us": [
+        10039,
+        10232
+      ]
+    },
+    "screen=33 source=present stage=43": {
+      "windows": 3,
+      "count": 459,
+      "max_us": 5645,
+      "weighted_avg_us_rounded_input": 1499.21,
+      "window_p50_range_us": [
+        485,
+        500
+      ],
+      "window_p95_range_us": [
+        4009,
+        4119
+      ],
+      "window_p99_range_us": [
+        4259,
+        4438
+      ]
+    },
+    "screen=33 source=present stage=45": {
+      "windows": 3,
+      "count": 458,
+      "max_us": 94744,
+      "weighted_avg_us_rounded_input": 26049.62,
+      "window_p50_range_us": [
+        19190,
+        29826
+      ],
+      "window_p95_range_us": [
+        52688,
+        71988
+      ],
+      "window_p99_range_us": [
+        67659,
+        94744
+      ]
+    },
+    "screen=3 source=loop stage=15": {
+      "windows": 162,
+      "count": 46339,
+      "max_us": 723645,
+      "weighted_avg_us_rounded_input": 4930.53,
+      "window_p50_range_us": [
+        64,
+        11021
+      ],
+      "window_p95_range_us": [
+        7770,
+        12515
+      ],
+      "window_p99_range_us": [
+        8024,
+        17542
+      ]
+    },
+    "screen=3 source=present stage=41": {
+      "windows": 161,
+      "count": 24007,
+      "max_us": 42901,
+      "weighted_avg_us_rounded_input": 6686.97,
+      "window_p50_range_us": [
+        4489,
+        8067
+      ],
+      "window_p95_range_us": [
+        8187,
+        10491
+      ],
+      "window_p99_range_us": [
+        8629,
+        35593
+      ]
+    },
+    "screen=3 source=present stage=43": {
+      "windows": 161,
+      "count": 24007,
+      "max_us": 32776,
+      "weighted_avg_us_rounded_input": 1170.22,
+      "window_p50_range_us": [
+        480,
+        541
+      ],
+      "window_p95_range_us": [
+        1551,
+        5012
+      ],
+      "window_p99_range_us": [
+        1694,
+        6256
+      ]
+    },
+    "screen=3 source=present stage=45": {
+      "windows": 161,
+      "count": 24006,
+      "max_us": 212102,
+      "weighted_avg_us_rounded_input": 33615.12,
+      "window_p50_range_us": [
+        19763,
+        41501
+      ],
+      "window_p95_range_us": [
+        27667,
+        45683
+      ],
+      "window_p99_range_us": [
+        40242,
+        73018
+      ]
+    }
+  },
+  "local_resources": [
+    {
+      "path": "DATA/Gov/2FeiAnim0.gai",
+      "bytes": 2729728,
+      "sha256": "fe232127c92958d6eeac236b23efc5fba21f54beb11a4682a9a3a3e1b57dc4de",
+      "frames": 100,
+      "sequences": 1,
+      "oracle": "PASS header, sequence indices, all frame bounds and compressed payload sizes; local Windows installation only"
+    },
+    {
+      "path": "DATA/Gov/2FeiAnim1.gai",
+      "bytes": 11296250,
+      "sha256": "63696e42fc44a3b410a3a692c9ed825d5e90edb61b533036a778e01f51803175",
+      "frames": 100,
+      "sequences": 1,
+      "oracle": "PASS header, sequence indices, all frame bounds and compressed payload sizes; local Windows installation only"
+    }
+  ]
+}

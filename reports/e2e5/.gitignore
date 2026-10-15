@@ -1,5 +1,6 @@
 # Keep local reports private by default; allow reviewed metadata-only reports.
 *.json
+!hardware-300f0e3-20261015.json
 !pointer-width-audit.json
 !pointer-width-baseline.json
 !defects.json

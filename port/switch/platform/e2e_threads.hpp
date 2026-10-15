@@ -16,6 +16,7 @@ std::uint32_t Resume(std::uint32_t handle);
 std::uint32_t Wait(std::uint32_t handle, std::uint32_t timeout_ms);
 bool Close(std::uint32_t handle);
 bool SetPriority(std::uint32_t handle, std::int32_t priority);
+bool PreferCalculationCore(std::uint32_t handle);
 std::int32_t GetPriority(std::uint32_t handle);
 std::uint32_t CurrentId();
 

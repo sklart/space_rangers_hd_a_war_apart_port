@@ -211,6 +211,37 @@ bool Close(std::uint32_t handle) {
   return true;
 }
 
+bool PreferCalculationCore(std::uint32_t handle) {
+  std::lock_guard lock(g_mutex);
+  const auto found = g_threads.find(handle);
+  if (found == g_threads.end()) return false;
+#if defined(__SWITCH__)
+  std::uint64_t allowed = 0;
+  const Result info = svcGetInfo(&allowed, InfoType_CoreMask, CUR_PROCESS_HANDLE, 0);
+  const auto ui_core = svcGetCurrentProcessorNumber();
+  int target = -1;
+  if (R_SUCCEEDED(info)) {
+    for (int core = 0; core < 3; ++core)
+      if (core != ui_core && (allowed & (1ull << core))) { target = core; break; }
+  }
+  const Result set = target < 0 ? info :
+      svcSetThreadCoreMask(found->second->worker.handle, target, 1u << target);
+  std::int32_t actual_core = -1;
+  std::uint64_t actual_mask = 0;
+  const Result query = svcGetThreadCoreMask(&actual_core, &actual_mask, found->second->worker.handle);
+  char detail[256]{};
+  std::snprintf(detail, sizeof(detail),
+      "calculation affinity ui_core=%d requested=%d allowed=%llx actual=%d mask=%llx info_result=%u set_result=%u query_result=%u applied=%d",
+      ui_core, target, static_cast<unsigned long long>(allowed), actual_core,
+      static_cast<unsigned long long>(actual_mask), info, set, query,
+      target >= 0 && R_SUCCEEDED(set) && R_SUCCEEDED(query));
+  e2e_stage::Log(detail);
+  return target >= 0 && R_SUCCEEDED(set) && R_SUCCEEDED(query);
+#else
+  return true; // Host scheduling already permits separate CPU cores.
+#endif
+}
+
 bool SetPriority(std::uint32_t handle, std::int32_t priority) {
   std::lock_guard lock(g_mutex);
   const auto found = g_threads.find(handle);

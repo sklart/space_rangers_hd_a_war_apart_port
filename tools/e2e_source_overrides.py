@@ -390,9 +390,59 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
+    if source.name == "EC_Buf.cpp":
+        start = text.index("    void TBufEC::LoadFromFileChunk(")
+        end = text.index("    void TBufEC::LoadFromFile(", start)
+        body = text[start:end]
+        body = _replace_exact(body, "        Clear();\n        SourceFile->AcquireReadWriteHandle();", "        const auto e2e_requested_bytes = ByteCount;\n        const auto e2e_initial_position = SourceFile->GetPointer();\n        Clear();\n        SourceFile->AcquireReadWriteHandle();\n        for (int e2e_attempt = 0; e2e_attempt < 2; ++e2e_attempt) {", 1, source.name)
+        body = _replace_exact(body, '''        } catch (...) {
+            Clear();
+        }''', '''        } catch (...) {
+            Clear();
+            if (e2e_attempt == 0 && srhd_awa::platform::e2e5_memory_recovery::Reclaim("resource-read", e2e_requested_bytes)) {
+                try {
+                    SourceFile->SetPointer(e2e_initial_position, 0);
+                } catch (...) {
+                    SourceFile->ReleaseHandle();
+                    throw;
+                }
+                ByteCount = e2e_requested_bytes;
+                continue;
+            }
+            try {
+                const pas::AnsiString e2e_path = static_cast<pas::AnsiString>(SourceFile->GetFileName());
+                char detail[384]{};
+                std::snprintf(detail, sizeof(detail),
+                    "FAIL stage=resource-read path=%.240s requested_bytes=%d remaining_bytes=%d",
+                    e2e_path.c_str(), e2e_requested_bytes, ByteCount);
+                srhd_awa::platform::e2e_stage::Log(detail);
+            } catch (...) {
+                // Formatting the path may itself allocate after an OOM.
+                srhd_awa::platform::e2e_stage::Log("FAIL stage=resource-read diagnostic-unavailable");
+            }
+            SourceFile->ReleaseHandle();
+            throw;
+        }''', 1, source.name)
+        body = _replace_exact(body, '        SourceFile->ReleaseHandle();\n        return;',
+            '        break;\n        }\n        SourceFile->ReleaseHandle();\n        return;', 1, source.name)
+        text = '#include "e2e_stage.hpp"\n#include "e2e5_memory_recovery.hpp"\n#include <cstdio>\n' + text[:start] + body + text[end:]
+    if source.name == "EC_Mem.cpp":
+        for operation in ("AllocEC", "AllocClearEC", "ReAllocREC"):
+            start = text.index("    void* " + operation + "(")
+            end = text.index("\n    void", start + 1)
+            body = text[start:end]
+            anchor = '                GR_Main::AppendLogLineThreadSafe("fail"_a);'
+            body = _replace_exact(body, anchor, '''                char detail[128]{};
+                std::snprintf(detail, sizeof(detail),
+                    "allocation failure operation=OP bytes=%d", ByteCount);
+                srhd_awa::platform::e2e_stage::Log(detail);
+'''.replace("operation=OP", "operation=" + operation) + anchor,
+                2 if operation == "ReAllocREC" else 1, source.name)
+            text = text[:start] + body + text[end:]
+        text = '#include "e2e_stage.hpp"\n#include <cstdio>\n' + text
     if source.name == "fAbout.cpp":
         text = '#include "units/MMSystem.hpp"\n' + text
         text = _replace_exact(text,
@@ -994,6 +1044,9 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = '#include "renderer_platform.hpp"\n' + text
         text = '#include "e2e_stage.hpp"\n' + text
     if source.name == "Globals.cpp":
+        text = '#include "e2e_threads.hpp"\n' + text
+        text = _replace_exact(text, '        TurnCalculationThread->SetPriority(2);',
+            '        TurnCalculationThread->SetPriority(2);\n        srhd_awa::platform::e2e_threads::PreferCalculationCore(TurnCalculationThread->ThreadHandle);', 1, source.name)
         for call, stage in (
             ("aPath::InitializePathNodePool();", "script host path pool"),
             ("TurnCalculationThread = pas::construct_call<ThreadCalc::TThreadCalc>(EC_Thread::TThreadEC_Create);", "script host worker"),
@@ -1981,6 +2034,22 @@ void CloseVorbisStream(TOggWorker* worker) {
             Stage = 18;''', 1)
         text = '#include "e2e_stage.hpp"\n#include <chrono>\n#include <cstdio>\n#include <cstdint>\n#include "e2e3_generation_state.hpp"\n' + text
     if source.name == "fIntroduction.cpp":
+        text = '#include "units/MMSystem.hpp"\n' + text
+        text = _replace_exact(text,
+            'ScheduleCallbackTimer(40, 40, pas::bind_method<&TfIntroduction::ScrollBackground>(this), 0)',
+            'ScheduleCallbackTimer(16, 16, pas::bind_method<&TfIntroduction::ScrollBackground>(this), static_cast<std::int32_t>(MMSystem::timeGetTime()))',
+            1, source.name)
+        text = _replace_exact(text, '        ++BackgroundScrollOffset;', '''        // Preserve 25 pixels/second while catching up after a delayed callback.
+        // Store the remainder in the timer epoch, including uint32 tick wrap.
+        const auto now = MMSystem::timeGetTime();
+        const auto previous = Timer ? static_cast<std::uint32_t>(Timer->UserData) : now;
+        const auto steps = static_cast<std::uint32_t>(now - previous) / 40u;
+        if (Timer) Timer->UserData = static_cast<std::int32_t>(previous + steps * 40u);
+        const auto width = GetByName(u"ImageFon1"sv)->ClientSize.X;
+        if (width <= 0) return;
+        BackgroundScrollOffset = static_cast<std::int32_t>(
+            (static_cast<std::uint64_t>(BackgroundScrollOffset) + steps) %
+            static_cast<std::uint32_t>(width));''', 1, source.name)
         stage_read = "DisplayedGenerationStage < NewGameGenerationStage"
         if text.count(stage_read) != 1:
             raise RuntimeError("Introduction generation stage read boundary changed")
