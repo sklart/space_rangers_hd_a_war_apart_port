@@ -31,6 +31,7 @@ struct PresentationDiagnostics {
 void SetNativeWindow(void* native_window);
 bool InitializeSoftwareRenderer(const RendererConfig& config, std::string* error);
 bool InitializeReleaseCompatibleDefaults(std::string* error);
+bool ApplyVSyncSetting(bool enabled);
 void ShutdownPresentation();
 void ShutdownSoftwareRenderer();
 bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width,

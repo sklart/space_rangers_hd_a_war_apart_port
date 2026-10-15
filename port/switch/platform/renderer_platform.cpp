@@ -235,6 +235,16 @@ bool InitializeReleaseCompatibleDefaults(std::string* error) {
   return InitializeSoftwareRenderer(config, error);
 }
 
+bool ApplyVSyncSetting(bool enabled) {
+#if defined(__SWITCH__)
+  if (g_sdl_renderer && SDL_RenderSetVSync(g_sdl_renderer, enabled ? 1 : 0) != 0)
+    return PresentationFailure("SDL_RenderSetVSync");
+#else
+  (void)enabled;
+#endif
+  return true;
+}
+
 bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, std::int32_t height) {
 #if defined(__SWITCH__)
   const auto present_start_us = e2e_clock::Microseconds();
@@ -257,7 +267,8 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   if (!g_native_window) return PresentationFailure("SDL window missing");
   if (!g_sdl_renderer) {
     g_sdl_renderer = SDL_CreateRenderer(static_cast<SDL_Window*>(g_native_window), -1,
-                                        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        SDL_RENDERER_ACCELERATED |
+        (GR_Main::VSyncEnabled ? SDL_RENDERER_PRESENTVSYNC : 0));
     if (!g_sdl_renderer) return PresentationFailure("SDL_CreateRenderer");
   }
   g_presentation_diagnostics.renderer_ready = g_sdl_renderer != nullptr;

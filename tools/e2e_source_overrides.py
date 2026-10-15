@@ -373,7 +373,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ("Rangers.cpp", "Globals.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "aPlayer.cpp":
@@ -812,6 +812,49 @@ void CloseVorbisStream(TOggWorker* worker) {
                         srhd_awa::platform::e2e_stage::MarkBootReady();
                     ++e2e_frame_count;''', 1)
         text = text[:start] + run + text[end:]
+        continuous_start = text.index("    std::int32_t TMessageLoopGI::RunContinuous() {")
+        continuous_end = text.index("    void TMessageLoopGI::AdvanceTimerTick() {", continuous_start)
+        continuous = text[continuous_start:continuous_end]
+        for anchor in ("            Stage = 1;", "            Stage = 6;\n            OnOpen();",
+                       "            if (ExitCode == 0) {\n                DrawFrame();\n            }"):
+            if continuous.count(anchor) != 1:
+                raise RuntimeError("continuous screen checkpoint boundary changed")
+        continuous = continuous.replace("            Stage = 1;",
+            '            srhd_awa::platform::e2e_stage::Log("screen RunContinuous begin");\n            Stage = 1;', 1)
+        continuous = continuous.replace("        std::int32_t Stage = 0;",
+            "        std::int32_t Stage = 0;\n        std::uint32_t e2e_continuous_frames = 0;", 1)
+        continuous = continuous.replace("            Stage = 6;\n            OnOpen();", '''            Stage = 6;
+            srhd_awa::platform::e2e_stage::Log("screen RunContinuous OnOpen begin");
+            OnOpen();
+            srhd_awa::platform::e2e_stage::Log("screen RunContinuous OnOpen ready");''', 1)
+        continuous = continuous.replace("            if (ExitCode == 0) {\n                DrawFrame();\n            }", '''            if (ExitCode == 0) {
+                DrawFrame();
+                ++e2e_continuous_frames;
+                char e2e_frame[128]{};
+                std::snprintf(e2e_frame, sizeof(e2e_frame),
+                    "screen RunContinuous frames=%u presentations=%llu",
+                    e2e_continuous_frames,
+                    static_cast<unsigned long long>(
+                        srhd_awa::platform::renderer_platform::PresentationCount()));
+                srhd_awa::platform::e2e_stage::Log(e2e_frame);
+            }''', 1)
+        loop_drawn = "                    Stage = 19;\n                    SysUtilsImports::Sleep(1u);"
+        if continuous.count(loop_drawn) != 1:
+            raise RuntimeError("continuous screen frame milestone boundary changed")
+        continuous = continuous.replace(loop_drawn, '''                    Stage = 19;
+                    ++e2e_continuous_frames;
+                    if (e2e_continuous_frames == 2 || e2e_continuous_frames == 10 ||
+                        e2e_continuous_frames == 60) {
+                        char e2e_frame[128]{};
+                        std::snprintf(e2e_frame, sizeof(e2e_frame),
+                            "screen RunContinuous frames=%u presentations=%llu",
+                            e2e_continuous_frames,
+                            static_cast<unsigned long long>(
+                                srhd_awa::platform::renderer_platform::PresentationCount()));
+                        srhd_awa::platform::e2e_stage::Log(e2e_frame);
+                    }
+                    SysUtilsImports::Sleep(1u);''', 1)
+        text = text[:continuous_start] + continuous + text[continuous_end:]
         if e2e5_profile:
             object_draw_start = text.index("    void TObjectGI::Draw(WindowsSdk::TRect ClipRect) {")
             object_draw_end = text.index("    void TObjectGI::DrawUpdateRects(", object_draw_start)
@@ -822,12 +865,24 @@ void CloseVorbisStream(TOggWorker* worker) {
                 Child->Draw(Intersection);
                 const auto e2e_child_us = std::chrono::duration_cast<std::chrono::microseconds>(
                     std::chrono::steady_clock::now() - e2e_child_start).count();
+                static std::int32_t e2e_slow_child_screen = -1;
                 static std::uint32_t e2e_slow_child_logs = 0;
-                if (e2e_child_us >= 50000 && e2e_slow_child_logs < 80) {
+                if (e2e_slow_child_screen != GlobalsV::CurrentScreenId) {
+                    e2e_slow_child_screen = GlobalsV::CurrentScreenId;
+                    e2e_slow_child_logs = 0;
+                }
+#if defined(E2E5_HOST_SDL_WINDOW)
+                constexpr auto e2e_slow_child_threshold_us = 500;
+#else
+                constexpr auto e2e_slow_child_threshold_us = 50000;
+#endif
+                if (e2e_child_us >= e2e_slow_child_threshold_us && e2e_slow_child_logs < 8) {
                     const pas::AnsiString e2e_child_name = static_cast<pas::AnsiString>(Child->ControlName);
+                    const pas::AnsiString e2e_child_type = pas::class_name(pas::class_type(Child));
                     char e2e_detail[240]{};
                     std::snprintf(e2e_detail, sizeof(e2e_detail),
-                        "ui child draw name=%.120s us=%lld bounds=%d,%d,%d,%d",
+                        "ui child draw screen=%d type=%.60s name=%.60s us=%lld bounds=%d,%d,%d,%d",
+                        GlobalsV::CurrentScreenId, e2e_child_type.c_str(),
                         e2e_child_name.c_str(), static_cast<long long>(e2e_child_us),
                         Intersection.Left, Intersection.Top, Intersection.Right, Intersection.Bottom);
                     srhd_awa::platform::e2e_stage::Log(e2e_detail);
@@ -867,7 +922,7 @@ void CloseVorbisStream(TOggWorker* worker) {
                 "            RectNode = RectNode->Next;\n        }\n"
                 "        e2e_dirty_profile.Stop();\n    }", 1, source.name)
             text = text[:draw_start] + draw + text[draw_end:]
-        text = ('#include "e2e5_stage_profiler.hpp"\n' if e2e5_profile else '') + '#include "renderer_platform.hpp"\n#include "e2e_stage.hpp"\n' + text
+        text = ('#include "e2e5_stage_profiler.hpp"\n' if e2e5_profile else '') + '#include "renderer_platform.hpp"\n#include "e2e_stage.hpp"\n#include <cstdio>\n' + text
     if source.name == "GI_GraphButton.cpp":
         timer_gate = "pas::assigned(UpCallback) && MessageLoop->ConsumeTimerTickChange()"
         if text.count(timer_gate) != 1:
@@ -1081,9 +1136,12 @@ void CloseVorbisStream(TOggWorker* worker) {
         TCGaiEC::ApplyAB2BackgroundFixup(SourceBuffer, CacheKey);
         const pas::AnsiString e2e_gai_name = static_cast<pas::AnsiString>(CacheKey);
         char e2e_gai_detail[320]{};
+        const bool e2e_terminal_blank = CacheKey == u"Bm.Hits.05" &&
+            SourceBuffer->DataSize == 31020;
         const char* e2e_gai_error = SourceBuffer->DataSize < 0 ? "negative size" :
             srhd_awa::platform::e2e5_gai_bounds::Validate(
-                SourceBuffer->Data, static_cast<std::size_t>(SourceBuffer->DataSize));
+                SourceBuffer->Data, static_cast<std::size_t>(SourceBuffer->DataSize),
+                e2e_terminal_blank);
         if (e2e_gai_error != nullptr) {
             std::snprintf(e2e_gai_detail, sizeof(e2e_gai_detail),
                 "FAIL stage=gai key=%s bytes=%d reason=%s",
@@ -1091,6 +1149,8 @@ void CloseVorbisStream(TOggWorker* worker) {
             srhd_awa::platform::e2e_stage::Log(e2e_gai_detail);
             pas::raise(pas::make_exception<pas::Exception>("GAI bounds invalid"_a));
         }
+        if (e2e_terminal_blank)
+            srhd_awa::platform::e2e_stage::Log("gai terminal blank allowed key=Bm.Hits.05");
         std::snprintf(e2e_gai_detail, sizeof(e2e_gai_detail),
             "gai load key=%s bytes=%d", e2e_gai_name.c_str(), SourceBuffer->DataSize);
         srhd_awa::platform::e2e_stage::Log(e2e_gai_detail);
@@ -1133,10 +1193,104 @@ void CloseVorbisStream(TOggWorker* worker) {
                 raise RuntimeError("GAI file pointer write boundary changed: " + index)
             text = text.replace(old, slot + "(" + buffers + ", " + index + ") = " + new_value + ";", 1)
         text = '#include "e2e5_gai_slots.hpp"\n' + text
+    if source.name == "GI_GAI.cpp":
+        tiled_frame = '''                            Frame = Image->LoadFrameGi(GetSequenceFrameSourceIndex(SequenceFrame));
+                            Frame->DrawToGraphBuf(Buffer, X + Frame->GetBoundsRect().Left - Bounds.Left, Y + Frame->GetBoundsRect().Top - Bounds.Top, Clip, 0, 255);'''
+        if text.count(tiled_frame) != 1:
+            raise RuntimeError("GAI tiled frame draw boundary changed")
+        text = text.replace(tiled_frame, '''                            Frame = Image->LoadFrameGi(GetSequenceFrameSourceIndex(SequenceFrame));
+                            if (Frame != nullptr)
+                                Frame->DrawToGraphBuf(Buffer, X + Frame->GetBoundsRect().Left - Bounds.Left, Y + Frame->GetBoundsRect().Top - Bounds.Top, Clip, 0, 255);''', 1)
+    if source.name == "GI_GI.cpp":
+        draw_call = "                        Image->Image->DrawToGraphBuf(GR_Main::ScreenRenderBuffer, X, Y, ClipRect, 0, Alpha);"
+        if text.count(draw_call) != 1:
+            raise RuntimeError("GI draw profiling boundary changed")
+        text = text.replace(draw_call, '''                        const auto e2e_gi_draw_begin = std::chrono::steady_clock::now();
+                        Image->Image->DrawToGraphBuf(GR_Main::ScreenRenderBuffer, X, Y, ClipRect, 0, Alpha);
+                        const auto e2e_gi_draw_us = std::chrono::duration_cast<std::chrono::microseconds>(
+                            std::chrono::steady_clock::now() - e2e_gi_draw_begin).count();
+#if defined(E2E5_HOST_SDL_WINDOW)
+                        constexpr auto e2e_gi_slow_us = 5000;
+#else
+                        constexpr auto e2e_gi_slow_us = 30000;
+#endif
+                        static std::int32_t e2e_gi_log_screen = -1;
+                        static std::uint32_t e2e_gi_log_count = 0;
+                        if (e2e_gi_log_screen != GlobalsV::CurrentScreenId) {
+                            e2e_gi_log_screen = GlobalsV::CurrentScreenId;
+                            e2e_gi_log_count = 0;
+                        }
+                        if (e2e_gi_draw_us >= e2e_gi_slow_us && e2e_gi_log_count < 8) {
+                            const pas::AnsiString e2e_gi_key = static_cast<pas::AnsiString>(Image->CacheKey);
+                            char e2e_gi_detail[220]{};
+                            std::snprintf(e2e_gi_detail, sizeof(e2e_gi_detail),
+                                "gi draw screen=%d key=%.80s format=%d us=%lld clip=%d,%d,%d,%d",
+                                GlobalsV::CurrentScreenId, e2e_gi_key.c_str(), Image->Image->Header->Format,
+                                static_cast<long long>(e2e_gi_draw_us), ClipRect.Left, ClipRect.Top,
+                                ClipRect.Right, ClipRect.Bottom);
+                            srhd_awa::platform::e2e_stage::Log(e2e_gi_detail);
+                            ++e2e_gi_log_count;
+                        }''', 1)
+        text = '#include "e2e_stage.hpp"\n#include <chrono>\n#include <cstdio>\n' + text
+    if source.name == "aGalaxy.cpp":
+        start = text.index("    void TGalaxy::NextDay() {")
+        end = text.index("\n    void TGalaxy::", start + 1)
+        next_day = text[start:end]
+        begin = "        std::int32_t Stage = 0;"
+        star_begin = "                for (auto cpp_range = pas::for_to<std::int32_t>(0, pas::list_count(Stars) - 1); cpp_range.next(I); ) {"
+        star_end = "                Stage = 2;"
+        finish = "                Stage = 26;\n                SE_Garbage::CheckMemoryUsage();"
+        if any(next_day.count(anchor) != 1 for anchor in (begin, star_begin, star_end, finish)):
+            raise RuntimeError("galaxy turn profiling boundary changed")
+        next_day = next_day.replace(begin, begin + '''
+        const auto e2e_galaxy_turn_begin = std::chrono::steady_clock::now();
+        std::chrono::steady_clock::time_point e2e_star_begin;
+        std::uint64_t e2e_star_us = 0;''', 1)
+        next_day = next_day.replace(star_begin,
+            "                e2e_star_begin = std::chrono::steady_clock::now();\n" + star_begin, 1)
+        next_day = next_day.replace(star_end, '''                e2e_star_us = std::chrono::duration_cast<std::chrono::microseconds>(
+                    std::chrono::steady_clock::now() - e2e_star_begin).count();
+''' + star_end, 1)
+        next_day = next_day.replace(finish, finish + '''
+                static std::uint64_t e2e_star_sum_us = 0;
+                static std::uint64_t e2e_turn_sum_us = 0;
+                static std::uint32_t e2e_turn_count = 0;
+                e2e_star_sum_us += e2e_star_us;
+                e2e_turn_sum_us += std::chrono::duration_cast<std::chrono::microseconds>(
+                    std::chrono::steady_clock::now() - e2e_galaxy_turn_begin).count();
+                if (++e2e_turn_count == 25) {
+                    char e2e_detail[160]{};
+                    std::snprintf(e2e_detail, sizeof(e2e_detail),
+                        "galaxy turn segment=25 star_us=%llu total_us=%llu stars=%d",
+                        static_cast<unsigned long long>(e2e_star_sum_us),
+                        static_cast<unsigned long long>(e2e_turn_sum_us), pas::list_count(Stars));
+                    srhd_awa::platform::e2e_stage::Log(e2e_detail);
+                    e2e_star_sum_us = e2e_turn_sum_us = 0;
+                    e2e_turn_count = 0;
+                }''', 1)
+        text = text[:start] + next_day + text[end:]
+        text = '#include "e2e_stage.hpp"\n#include <chrono>\n#include <cstdio>\n#include <cstdint>\n' + text
     if source.name == "fCfgSettings.cpp":
         marker = "    void TfCfgSettings::OnOpen() {"
         if text.count(marker) != 1:
             raise RuntimeError("Options opening boundary changed")
+        missing_option = '''        GR_Main::RaiseWideMessage(pas::concat_wide({u"UnitGet Type=", OptionName}));'''
+        if text.count(missing_option) != 1:
+            raise RuntimeError("Options value lookup boundary changed")
+        text = text.replace(missing_option, '''        // A fixed Switch display mode is shown as a label, so it has no
+        // interactive choice or slider for GetOptionValue to find on Save.
+        if (OptionName == u"Resolution" && GR_Main::GameDisplayModeCount == 1)
+            return GR_Main::SelectedGameDisplayMode;
+        if (OptionName == u"RobotResolution" && GR_Main::RobotDisplayModeCount == 1)
+            return GR_Main::SelectedRobotDisplayMode;
+''' + missing_option, 1)
+        language_choice = '''            Language = EC_Str::ExtractDelimitedPartW(pas::view(GR_Main::AvailableLanguageCodes), GetOptionValue(u"Lang"sv), u","sv);'''
+        if text.count(language_choice) != 1:
+            raise RuntimeError("Options language choice boundary changed")
+        text = text.replace(language_choice, language_choice + '''
+            // Host filesystems may not match INSTALL_*.txt case-insensitively.
+            // Keep the already loaded language if no installed-code list was found.
+            if (Language == u"") Language = GR_Main::SelectedLanguage;''', 1)
         resolution_branch = "        if (GR_Main::AltResolutionSwitch) {"
         if text.count(resolution_branch) != 2:
             raise RuntimeError("Options resolution choice boundaries changed")
@@ -1194,6 +1348,7 @@ void CloseVorbisStream(TOggWorker* worker) {
         e2e_log_group_button(2, GetByName(u"ButGroup2"sv));
         e2e_log_group_button(3, GetByName(u"ButGroup3"sv));
         e2e_log_group_button(4, GetByName(u"ModeLeftButtonN"sv));
+        e2e_log_group_button(6, GetByName(u"Ok"sv));
         for (auto* control = GroupPanels[1]->FirstChild; control != nullptr;
              control = control->NextSibling) {
             if (control->ControlName == u"VSync" &&
@@ -1203,6 +1358,30 @@ void CloseVorbisStream(TOggWorker* worker) {
                 std::snprintf(detail, sizeof(detail),
                     "options choice target=VSync bounds=%d,%d,%d,%d",
                     control->HitTestBounds.Left, control->HitTestBounds.Top,
+                    control->HitTestBounds.Right, control->HitTestBounds.Bottom);
+                srhd_awa::platform::e2e_stage::Log(detail);
+            }
+        }
+        for (auto* control = GroupPanels[2]->FirstChild; control != nullptr;
+             control = control->NextSibling) {
+            if (control->ControlName == u"Music" &&
+                control->UserValue != GlobalsV::MusicEnabled &&
+                pas::class_cast_if<GI_Image::TImageGI*>(control) != nullptr) {
+                char detail[160]{};
+                std::snprintf(detail, sizeof(detail),
+                    "options choice target=Music bounds=%d,%d,%d,%d",
+                    control->HitTestBounds.Left, control->HitTestBounds.Top,
+                    control->HitTestBounds.Right, control->HitTestBounds.Bottom);
+                srhd_awa::platform::e2e_stage::Log(detail);
+            }
+            if ((control->ControlName == u"SoundVolume" ||
+                 control->ControlName == u"MusicVolume") &&
+                pas::class_cast_if<GI_CountBar::TCountBarGI*>(control) != nullptr) {
+                const pas::AnsiString key = static_cast<pas::AnsiString>(control->ControlName);
+                char detail[160]{};
+                std::snprintf(detail, sizeof(detail),
+                    "options slider target=%.30s bounds=%d,%d,%d,%d",
+                    key.c_str(), control->HitTestBounds.Left, control->HitTestBounds.Top,
                     control->HitTestBounds.Right, control->HitTestBounds.Bottom);
                 srhd_awa::platform::e2e_stage::Log(detail);
             }
@@ -1280,7 +1459,20 @@ void CloseVorbisStream(TOggWorker* worker) {
             "auto* e2e_label = Sender;\n"
             "            Sender = pas::class_cast_if<GI_Image::TImageGI*>(e2e_label->NextSibling);\n"
             "            if (Sender == nullptr || Sender->Parent != e2e_label->Parent) return;", 3)
-        text = '#include "e2e_stage.hpp"\n#include <cstdio>\n' + text
+        dx_reset = '''        if (ResetNeeded && static_cast<std::uint8_t>(RestartNeeded ^ 1)) {
+            GR_Main::GR_DXReset();
+        }'''
+        if text.count(dx_reset) != 1:
+            raise RuntimeError("Options display reset boundary changed")
+        text = text.replace(dx_reset, '''        if (ResetNeeded && static_cast<std::uint8_t>(RestartNeeded ^ 1)) {
+#if defined(SRHD_PORTABLE_RENDERER)
+            if (!srhd_awa::platform::renderer_platform::ApplyVSyncSetting(GR_Main::VSyncEnabled))
+                RestartNeeded = true;
+#else
+            GR_Main::GR_DXReset();
+#endif
+        }''', 1)
+        text = '#include "renderer_platform.hpp"\n#include "e2e_stage.hpp"\n#include <cstdio>\n' + text
     if source.name == "fGameSettings2.cpp":
         # The translated 32-bit UI stores object pointers in UserIndex/UserValue.
         # These controls are created as adjacent siblings, so resolve the live
@@ -1384,7 +1576,9 @@ void CloseVorbisStream(TOggWorker* worker) {
             srhd_awa::platform::e2e_stage::Log("generation warmup initial-galaxy-turn begin");
             aCalc::CalculateGalaxyTurnAndWait();
             srhd_awa::platform::e2e_stage::Log("generation warmup initial-galaxy-turn done");''', 1)
-        text = text.replace(warmup_loop, '''            for (I = 1; I <= aGalaxyStruct::GalaxyWarmupTurns; ++I) {
+        text = text.replace(warmup_loop, '''            std::uint64_t e2e_player_turn_us = 0;
+            std::uint64_t e2e_galaxy_turn_us = 0;
+            for (I = 1; I <= aGalaxyStruct::GalaxyWarmupTurns; ++I) {
                 if (I == 1 || I % 25 == 0) {
                     char detail[96]{};
                     std::snprintf(detail, sizeof(detail), "generation warmup turn=%d/%d begin",
@@ -1394,8 +1588,14 @@ void CloseVorbisStream(TOggWorker* worker) {
                 if (I % 20 == 0) {
                     SysUtilsImports::Sleep(1u);
                 }
-                aCalc::CalculatePlayerStarTurnAndWait();''', 1)
-        text = text.replace(warmup_end, '''                aCalc::CalculateGalaxyTurnAndWait();
+                const auto e2e_player_turn_begin = std::chrono::steady_clock::now();
+                aCalc::CalculatePlayerStarTurnAndWait();
+                e2e_player_turn_us += std::chrono::duration_cast<std::chrono::microseconds>(
+                    std::chrono::steady_clock::now() - e2e_player_turn_begin).count();''', 1)
+        text = text.replace(warmup_end, '''                const auto e2e_galaxy_turn_begin = std::chrono::steady_clock::now();
+                aCalc::CalculateGalaxyTurnAndWait();
+                e2e_galaxy_turn_us += std::chrono::duration_cast<std::chrono::microseconds>(
+                    std::chrono::steady_clock::now() - e2e_galaxy_turn_begin).count();
                 if (GR_Main::ExitScreenLoop) {
                     return;
                 }
@@ -1405,9 +1605,18 @@ void CloseVorbisStream(TOggWorker* worker) {
                         I, aGalaxyStruct::GalaxyWarmupTurns);
                     srhd_awa::platform::e2e_stage::Log(detail);
                 }
+                if (I % 25 == 0) {
+                    char detail[128]{};
+                    std::snprintf(detail, sizeof(detail),
+                        "generation warmup segment=%d player_us=%llu galaxy_us=%llu",
+                        I / 25, static_cast<unsigned long long>(e2e_player_turn_us),
+                        static_cast<unsigned long long>(e2e_galaxy_turn_us));
+                    srhd_awa::platform::e2e_stage::Log(detail);
+                    e2e_player_turn_us = e2e_galaxy_turn_us = 0;
+                }
             }
             Stage = 18;''', 1)
-        text = '#include "e2e_stage.hpp"\n#include <cstdio>\n#include "e2e3_generation_state.hpp"\n' + text
+        text = '#include "e2e_stage.hpp"\n#include <chrono>\n#include <cstdio>\n#include <cstdint>\n#include "e2e3_generation_state.hpp"\n' + text
     if source.name == "fIntroduction.cpp":
         stage_read = "DisplayedGenerationStage < NewGameGenerationStage"
         if text.count(stage_read) != 1:
@@ -1626,6 +1835,15 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = '#include "e2e4_quicksave_transaction.hpp"\n' + text
     if source.name == "GR_Main.cpp":
         text = '#include "e2e5_cfg_bootstrap.hpp"\n' + text
+        finalize_buffers = "        GR_Main::FreeScreenRenderBuffers();\n        WideCaseTable = nullptr;"
+        if text.count(finalize_buffers) != 1:
+            raise RuntimeError("portable renderer restart cleanup boundary changed")
+        text = text.replace(finalize_buffers, '''#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
+        srhd_awa::platform::renderer_platform::ShutdownSoftwareRenderer();
+#else
+        GR_Main::FreeScreenRenderBuffers();
+#endif
+        WideCaseTable = nullptr;''', 1)
         callback_gate = "                    if (Msg.hwnd == MainWindowHandle && pas::assigned(Callback) && Forms::Application->GetActive()) {"
         if text.count(callback_gate) != 1:
             raise RuntimeError("original input callback gate changed")

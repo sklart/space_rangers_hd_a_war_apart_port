@@ -6,7 +6,8 @@
 
 namespace srhd_awa::platform::e2e5_gai_bounds {
 
-inline const char* Validate(const void* input, std::size_t size) {
+inline const char* Validate(const void* input, std::size_t size,
+                            bool allow_terminal_empty_frame = false) {
   if (!input || size < 48 || size > 256u * 1024u * 1024u) return "buffer size";
   const auto* bytes = static_cast<const std::uint8_t*>(input);
   auto i32 = [&](std::size_t at) {
@@ -54,7 +55,13 @@ inline const char* Validate(const void* input, std::size_t size) {
     for (std::int32_t frame = 0; frame < count; ++frame) {
       const auto source = i32(base + static_cast<std::size_t>(block) + 4 +
                               static_cast<std::size_t>(frame) * 8);
-      if (source < 0 || source >= frames) return "sequence frame index";
+      if (source < 0 || source >= frames) {
+        // Weapon/Effect/05.GAI has one final source index equal to FrameCount.
+        // The software renderer treats that one-past index as a blank end frame.
+        if (!(allow_terminal_empty_frame && sequence == sequences - 1 &&
+              frame == count - 1 && source == frames))
+          return "sequence frame index";
+      }
     }
   }
   return nullptr;

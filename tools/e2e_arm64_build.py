@@ -18,6 +18,7 @@ from e2e_runtime_overrides import prepare_runtime_overlay
 from e2e4_script_width_overrides import prepare_script_source_overlay
 from e2e5_ui_width_overrides import apply as apply_ui_width_overrides
 from e2e5_cachegi_trace import apply as apply_cachegi_trace
+from e2e5_okgf_rescale_override import prepare as prepare_fast_rescale_source
 
 ROOT = Path(__file__).resolve().parents[1]
 SWITCH = ROOT / "port/switch"
@@ -126,13 +127,15 @@ def prepare_patched_sources() -> dict[str, Path]:
     return {name: patch_root / "src" / name for name in names}
 
 
-def build_okgf() -> tuple[Path, Path]:
+def build_okgf(fast_rescale: bool = False) -> tuple[Path, Path]:
     """Build the existing no-TLS Switch OKGF backend in the disposable tree."""
-    build = BUILD / "okgf-no-tls"
+    build = BUILD / ("okgf-fast24-no-tls" if fast_rescale else "okgf-no-tls")
+    source = (prepare_fast_rescale_source(ROOT / "upstream/okgf",
+              BUILD / "okgf-fast24-source") if fast_rescale else ROOT / "upstream/okgf")
     library = build / "libokgf.a"
     softfloat = build / "vendor/softfloat/libokgf_softfloat.a"
     if not library.is_file() or not softfloat.is_file():
-        command = ["cmake", "-S", cmake_path(ROOT / "upstream/okgf"),
+        command = ["cmake", "-S", cmake_path(source),
                    "-B", cmake_path(build), "-G", "Unix Makefiles",
                    "-DCMAKE_SYSTEM_NAME=Generic",
                    "-DCMAKE_C_COMPILER=" + cmake_path(DEVKITA64 / "bin/aarch64-none-elf-gcc"),
@@ -144,9 +147,20 @@ def build_okgf() -> tuple[Path, Path]:
         code, output = run(command)
         if code:
             raise RuntimeError("OKGF CMake configure failed: " + output)
-        code, output = run(["cmake", "--build", cmake_path(build), "--parallel", "2"])
-        if code:
-            raise RuntimeError("OKGF ARM64 build failed: " + output)
+    # Recheck archive freshness on every build so a changed disposable source
+    # override cannot silently reuse an earlier OKGF library.
+    # MSYS CMake 4.4 writes Windows drive paths as make targets in this
+    # generated dependency cache. The next incremental make cannot parse it.
+    # Source dependencies remain in build.make; regenerate just these
+    # disposable compiler-dependency fragments as empty makefiles.
+    if os.name == "nt":
+        for generated_make in build.glob("**/CMakeFiles/*.dir/build.make"):
+            (generated_make.parent / "compiler_depend.make").write_text(
+                "# MSYS CMake Windows-path dependency cache removed.\n",
+                encoding="utf-8")
+    code, output = run(["cmake", "--build", cmake_path(build), "--parallel", "2"])
+    if code:
+        raise RuntimeError("OKGF ARM64 build failed: " + output)
     readelf = DEVKITA64 / "bin" / ("aarch64-none-elf-readelf.exe" if os.name == "nt" else "aarch64-none-elf-readelf")
     code, symbols = run([str(readelf), "-sW", native_path(library), native_path(softfloat)])
     if code or any(" TLS " in line for line in symbols.splitlines()):
@@ -248,7 +262,9 @@ def main() -> int:
                                             set(AUDIO_ON_FUNCTIONS))
     if args.experimental_e2e4_combined:
         report["source_overrides"] = sorted(set(report["source_overrides"]) |
-                                            {"fHangar.cpp", "fRuinsTalk.cpp", "fTalk.cpp"})
+                                            {"fHangar.cpp", "fRuinsTalk.cpp", "fTalk.cpp",
+                                             "GI_GAI.cpp"})
+        report["okgf_fast_rescale_24"] = True
     # These were created for the old diagnostic slice. They define symbols
     # already present in the complete original units and cannot be linked
     # alongside them; their replacement behavior must move behind original APIs.
@@ -368,6 +384,16 @@ def main() -> int:
         save(report)
         print(f"E2E preflight failed: {audit_output}", file=sys.stderr)
         return 1
+    if args.experimental_e2e4_combined:
+        try:
+            prepare_fast_rescale_source(ROOT / "upstream/okgf",
+                                        BUILD / "okgf-fast24-source")
+        except (OSError, RuntimeError) as failure:
+            report["first_failure"] = {"phase": "preflight OKGF override",
+                                       "exact_error": str(failure)}
+            save(report)
+            return 1
+        report["okgf_fast_rescale_source"] = "PASS"
     report["preflight"] = "PASS"
     if args.preflight_only:
         save(report)
@@ -460,7 +486,7 @@ def main() -> int:
         obj.stem for obj in objects if obj.parent.name == "platform"
     ]
     try:
-        okgf_library, okgf_softfloat = build_okgf()
+        okgf_library, okgf_softfloat = build_okgf(args.experimental_e2e4_combined)
     except RuntimeError as error:
         report["first_failure"] = {"phase": "OKGF ARM64 build", "exact_error": str(error)}
         save(report)

@@ -25,7 +25,7 @@ FRAME = re.compile(
     r"HOST first software frame width=(\d+) height=(\d+) rgb565_hash=([0-9a-f]{16})"
 )
 SCREEN_DISPATCH = re.compile(r"screen dispatch id=(\d+) postload=\d+")
-SCREEN_FRAME_COUNT = re.compile(r"screen Run frames=(\d+)")
+SCREEN_FRAME_COUNT = re.compile(r"screen Run(?:Continuous)? frames=(\d+)")
 GAMEPLAY_SCREENS = frozenset((4, 5, 6, 20))
 POST_DIALOG_SCREENS = frozenset((4, 5, 6))
 
@@ -33,9 +33,12 @@ POST_DIALOG_SCREENS = frozenset((4, 5, 6))
 def screen_frames(log: str) -> set[int]:
     dispatches = list(SCREEN_DISPATCH.finditer(log))
     return {int(match.group(1)) for index, match in enumerate(dispatches)
-            if "screen Run first frame attempted" in log[
+            if ("screen Run first frame attempted" in log[
                 match.end():dispatches[index + 1].start()
-                if index + 1 < len(dispatches) else len(log)]}
+                if index + 1 < len(dispatches) else len(log)] or
+                "screen RunContinuous frames=1" in log[
+                match.end():dispatches[index + 1].start()
+                if index + 1 < len(dispatches) else len(log)])}
 
 
 def screen_frame_milestones(log: str) -> dict[int, set[int]]:
@@ -107,7 +110,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         auto_advance_dialog: bool = False,
         auto_quicksave: bool = False,
         load_save: Path | None = None,
-        auto_options: bool = False, cfg_file: Path | None = None) -> dict:
+        auto_options: bool = False, cfg_file: Path | None = None,
+        lang_file: Path | None = None, auto_takeoff: bool = False) -> dict:
     binary = binary.resolve(strict=True)
     game_root = game_root.resolve(strict=True)
     library_dir = library_dir.resolve(strict=True)
@@ -123,6 +127,11 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         cfg_target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(cfg_source, cfg_target)
         cfg_input_sha256 = hash_file(cfg_target)
+    if lang_file is not None:
+        lang_source = lang_file.resolve(strict=True)
+        lang_target = stage / "user/config/Lang.txt"
+        lang_target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(lang_source, lang_target)
     game_log = stage / "user/config/########.log"
     e2e_log = stage / "sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log"
     stderr_path = stage / "stderr.txt"
@@ -146,11 +155,11 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         env["SDL_AUDIODRIVER"] = "disk"
         env["SDL_DISKAUDIOFILE"] = str(audio_path)
         env["SDL_DISKAUDIODELAY"] = "11"
-    if auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game or auto_advance_dialog or auto_quicksave:
+    if auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game or auto_advance_dialog or auto_quicksave or auto_takeoff:
         env["E2E5_HOST_AUTO_NEW_GAME"] = "1"
     if mouse_new_game:
         env["E2E5_HOST_MOUSE_NEW_GAME"] = "1"
-    if auto_start_game or auto_select_dialog or auto_advance_dialog or auto_quicksave:
+    if auto_start_game or auto_select_dialog or auto_advance_dialog or auto_quicksave or auto_takeoff:
         env["E2E5_HOST_AUTO_START_GAME"] = "1"
     if auto_select_dialog:
         env["E2E5_HOST_AUTO_SELECT_DIALOG"] = "1"
@@ -158,6 +167,10 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         env["E2E5_HOST_AUTO_ADVANCE_DIALOG"] = "1"
     if auto_quicksave:
         env["E2E5_HOST_AUTO_QUICKSAVE"] = "1"
+    if auto_takeoff:
+        env["E2E5_HOST_AUTO_SELECT_DIALOG"] = "1"
+        env["E2E5_HOST_AUTO_ADVANCE_DIALOG"] = "1"
+        env["E2E5_HOST_AUTO_TAKEOFF"] = "1"
     if load_save is not None:
         env["E2E5_HOST_LOAD_SAVE"] = "1"
     if auto_options:
@@ -187,7 +200,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
             if seen_frame is None and e2e_log.is_file():
                 seen_frame = FRAME.search(read_log(e2e_log))
             if (auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game or
-                    auto_advance_dialog or auto_quicksave or load_save is not None or
+                    auto_advance_dialog or auto_quicksave or auto_takeoff or load_save is not None or
                     auto_options) and e2e_log.is_file():
                 current = read_log(e2e_log)
                 frames = screen_frames(current)
@@ -216,7 +229,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                  not auto_new_game and not auto_start_game and not auto_select_dialog and
                  not auto_advance_dialog and
                  not auto_quicksave and not mouse_new_game and not capture_audio and
-                 not auto_options and
+                 not auto_options and not auto_takeoff and
                  load_save is None) or
                     ((auto_new_game or mouse_new_game) and not auto_start_game and
                      not auto_select_dialog and not auto_advance_dialog and not auto_quicksave
@@ -228,10 +241,12 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                     (auto_select_dialog and dialog_callback_at is not None
                      and not auto_advance_dialog and not auto_quicksave and
                      time.monotonic() - dialog_callback_at >= 5.0) or
-                    (auto_advance_dialog and not auto_quicksave and
+                    (auto_advance_dialog and not auto_quicksave and not auto_takeoff and
                      bool(frames & POST_DIALOG_SCREENS) and
                      any(60 in milestones.get(screen, set())
                          for screen in POST_DIALOG_SCREENS)) or
+                    (auto_takeoff and 16 in frames and
+                     60 in milestones.get(16, set())) or
                     (auto_options and current.count("screen dispatch id=26 postload=") >= 2 and
                      current.count("options groups constructed") >= 2 and
                      "options active group=5" in current and
@@ -369,16 +384,19 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "game_settings_first_frame": (
             "PRESENTATION ATTEMPT OBSERVED" if seen_new_game_frame else "NOT OBSERVED"),
         "new_game": ("SCREEN DISPATCH OBSERVED" if 33 in dispatches else
-                     "INPUT REQUESTED; NO DISPATCH" if auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game or auto_advance_dialog or auto_quicksave
+                     "INPUT REQUESTED; NO DISPATCH" if auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game or auto_advance_dialog or auto_quicksave or auto_takeoff
                      else "NOT RUN"),
         "auto_new_game_input": auto_new_game,
         "mouse_new_game_input": mouse_new_game,
         "mouse_new_game_press_ids": new_mouse_ids if mouse_new_game else [],
         "mouse_new_game_trace_pass": mouse_trace_pass if mouse_new_game else None,
-        "auto_start_game_input": auto_start_game,
-        "auto_select_dialog_input": auto_select_dialog,
-        "auto_advance_dialog_input": auto_advance_dialog,
+        "auto_start_game_input": auto_start_game or auto_takeoff,
+        "auto_select_dialog_input": auto_select_dialog or auto_takeoff,
+        "auto_advance_dialog_input": auto_advance_dialog or auto_takeoff,
         "auto_quicksave_input": auto_quicksave,
+        "auto_takeoff_input": auto_takeoff,
+        "takeoff_loading_dispatched": "screen dispatch id=22 postload=16" in full_e2e_log,
+        "post_takeoff_screen_60_frames": 60 in frame_milestones.get(16, set()),
         "auto_options_input": auto_options,
         "options_open_count": full_e2e_log.count("screen dispatch id=26 postload="),
         "options_groups_constructed_count": full_e2e_log.count("options groups constructed"),
@@ -491,8 +509,11 @@ def main() -> None:
     parser.add_argument("--mouse-new-game", action="store_true")
     parser.add_argument("--capture-audio", action="store_true")
     parser.add_argument("--auto-options", action="store_true")
+    parser.add_argument("--auto-takeoff", action="store_true")
     parser.add_argument("--cfg-file", type=Path,
                         help="copy this CFG.TXT into the isolated user directory")
+    parser.add_argument("--lang-file", type=Path,
+                        help="copy this Lang.txt into the isolated user directory")
     args = parser.parse_args()
     if args.game_root is None or args.timeout <= 0:
         parser.error("--game-root or GAME_ROOT and a positive --timeout are required")
@@ -504,7 +525,8 @@ def main() -> None:
                          args.auto_start_game, args.auto_select_dialog,
                          args.mouse_new_game, args.capture_audio,
                          args.auto_advance_dialog, args.auto_quicksave,
-                         args.load_save, args.auto_options, args.cfg_file), indent=2))
+                         args.load_save, args.auto_options, args.cfg_file,
+                         args.lang_file, args.auto_takeoff), indent=2))
 
 
 if __name__ == "__main__":
