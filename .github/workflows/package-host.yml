@@ -76,6 +76,11 @@ jobs:
             port/switch/platform/input_platform.cpp \
             -o build/e2e4-sanitizers/input_history
           build/e2e4-sanitizers/input_history
+          g++ -std=c++20 -O1 -g -fno-omit-frame-pointer \
+            -fsanitize=address,undefined -Iport/switch/platform \
+            tests/test_e2e5_cfg_bootstrap.cpp \
+            -o build/e2e4-sanitizers/cfg_bootstrap
+          build/e2e4-sanitizers/cfg_bootstrap
 
   e2e5-arm64-host:
     runs-on: ubuntu-24.04

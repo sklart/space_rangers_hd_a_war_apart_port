@@ -1,4 +1,5 @@
 #include "ec_file_adapter.hpp"
+#include "user_root.hpp"
 #include "units/EC_File.hpp"
 #include "units/EC_HsFile.hpp"
 
@@ -66,6 +67,17 @@ int main(int argc, char** argv) {
   }
   EC_File::TFileEC_Destroy(&reader);
   const bool config_ok = ok && loaded == payload;
+  const auto lower_config = root / "config" / "cfg.txt";
+  std::filesystem::rename(config_path, lower_config, error);
+  const auto expected_config = std::filesystem::exists(config_path)
+      ? config_path : lower_config.generic_string();
+  ok = ok && !error &&
+       srhd_awa::platform::user_root::ResolveConfigPath("CFG.TXT") ==
+           expected_config &&
+       srhd_awa::platform::user_root::ResolveConfigPath(config_path) ==
+           expected_config;
+  std::filesystem::rename(lower_config, config_path, error);
+  ok = ok && !error;
 
   auto round_trip = [&](const std::filesystem::path& path,
                         const std::string& contents) {

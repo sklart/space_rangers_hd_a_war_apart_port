@@ -1,6 +1,7 @@
 #include "user_root.hpp"
 
 #include <filesystem>
+#include <string_view>
 
 namespace srhd_awa::platform::user_root {
 namespace {
@@ -12,6 +13,18 @@ bool IsContained(const std::filesystem::path& child, const std::filesystem::path
   auto child_part = normalized_child.begin();
   for (auto parent_part = normalized_parent.begin(); parent_part != normalized_parent.end(); ++parent_part, ++child_part) {
     if (child_part == normalized_child.end() || *child_part != *parent_part) return false;
+  }
+  return true;
+}
+
+bool SameAsciiName(std::string_view a, std::string_view b) {
+  if (a.size() != b.size()) return false;
+  for (std::size_t i = 0; i < a.size(); ++i) {
+    const auto fold = [](unsigned char value) {
+      return value >= 'A' && value <= 'Z' ? value - 'A' + 'a' : value;
+    };
+    if (fold(static_cast<unsigned char>(a[i])) !=
+        fold(static_cast<unsigned char>(b[i]))) return false;
   }
   return true;
 }
@@ -50,7 +63,23 @@ std::string ResolveConfigPath(const std::string& path) {
   // not append config/ again when that path reaches CreateNew/SaveTextFile.
   const std::filesystem::path resolved =
       (input.is_absolute() || IsContained(input, config) ? input : config / input).lexically_normal();
-  return IsContained(resolved, config) ? resolved.generic_string() : std::string{};
+  if (!IsContained(resolved, config)) return {};
+  std::error_code error;
+  if (std::filesystem::exists(resolved, error)) return resolved.generic_string();
+  if (error) return {};
+  const auto parent = resolved.parent_path();
+  if (!std::filesystem::is_directory(parent, error))
+    return resolved.generic_string();
+  std::string matching_path;
+  for (const auto& entry : std::filesystem::directory_iterator(parent, error)) {
+    if (error) break;
+    if (!SameAsciiName(entry.path().filename().string(), resolved.filename().string()))
+      continue;
+    if (!matching_path.empty()) return {};  // Ambiguous spelling on case-sensitive hosts.
+    matching_path = entry.path().generic_string();
+  }
+  if (error) return {};
+  return matching_path.empty() ? resolved.generic_string() : matching_path;
 }
 
 }  // namespace srhd_awa::platform::user_root
