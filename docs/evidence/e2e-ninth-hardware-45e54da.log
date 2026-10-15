@@ -1,0 +1,40 @@
+[E2E] build_git=45e54da
+[E2E][WINAPI] manifest=E68992A5CB33EB24D30C110E317F8E66705F03EFC6E188919694F65B23E2AD22
+[E2E][WINAPI] portable=137
+[E2E][WINAPI] optional=76
+[E2E][WINAPI] unknown=0
+[E2E] ProgramMain BEGIN
+[E2E] Forms UnitInitialize
+[E2E] ExceptionInfo
+[E2E] CheatCode
+[E2E] Application Initialize
+[E2E] platform runtime
+[E2E] platform runtime SDL services ready
+[E2E] platform runtime package collection ready
+[E2E] platform runtime SDL window ready
+[E2E] platform runtime session log ready
+[E2E] platform runtime install parser ready
+[E2E] platform runtime install.txt loaded
+[E2E] language/packages
+[E2E] script host
+[E2E] script host path pool
+[E2E] script host worker
+[E2E] script host engine
+[E2E] script host engine ready
+[E2E] script host ready
+[E2E] startup clock
+[E2E] runtime/settings
+[E2E] global UI
+[E2E] robot runtime
+[E2E] entering RunMainScreenStateLoop
+[E2E] screen dispatch id=22 postload=1
+[E2E] screen Run OnOpen begin
+[E2E] screen Run OnOpen ready
+[E2E] screen returned id=22 requested=1
+[E2E] screen dispatch id=1 postload=0
+[E2E] screen Run OnOpen begin
+[E2E] screen Run OnOpen ready
+[E2E] screen returned id=1 requested=0
+[E2E] screen loop returned requested=0 postload=0 presents=0 hash=0000000000000000 renderer=0 texture=0 present_ok=0 output=0x0
+[E2E][WINAPI] resolved=51 optional_disabled=0 unmapped=0 dynamic_loads=0 physical_dll_loads=0
+[E2E] BOOT COMPLETE

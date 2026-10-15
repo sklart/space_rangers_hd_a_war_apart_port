@@ -2,7 +2,7 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Текущий статус E2E-5: SOFTWARE PARTIAL / HARDWARE PENDING.** Последняя проверенная на Switch combined-сборка — `build_git=e959e85` (14 октября 2026 года). Она открывает главное меню, Options, New Game и ангар; пользователь прошёл экраны персонажа, карты и магазина. При этом заставка подтормаживает, музыка искажается или прерывается, курсор двигается рывками, меню работают медленно, а загрузка после вылета из ангара остановилась на 85%. Последние локальные исправления ещё не проверены на консоли. Код проверенной combined-сборки находится в ветке [`codex/e2e5-hardware-integration`](https://github.com/sklart/space_rangers_hd_a_war_apart_port/tree/codex/e2e5-hardware-integration). Игра не готова к прохождению; следующая NRO будет одной общей сборкой после исследования открытых проблем.
+> **Текущий статус E2E-5: SOFTWARE PARTIAL / HARDWARE PENDING.** Последняя проверенная на Switch combined-сборка — `build_git=e959e85` (14 октября 2026 года). Она открывает главное меню, Options, New Game и ангар; пользователь прошёл экраны персонажа, карты и магазина. При этом заставка подтормаживает, музыка искажается или прерывается, курсор двигается рывками, меню работают медленно, а загрузка после вылета из ангара остановилась на 85%. Последние локальные исправления ещё не проверены на консоли. Игра не готова к прохождению; следующая NRO будет одной общей сборкой после исследования открытых проблем.
 
 ## Что уже работает
 
@@ -33,7 +33,7 @@
 | M27 portable input, focus and event dispatch | host/oracles, CI, ARM64 и накопительный Switch-прогон `f9c98de` PASS; M27 COMPLETE |
 | E2E-5: меню, Options и New Game | аппаратная `e959e85` прошла меню, Options, выбор персонажа, генерацию и вход в игру; сохранение русского языка требует повторной проверки после локального исправления Save и перезапуска |
 | E2E-5: игровая навигация | пользователь открыл ангар, карту и магазин; низкий FPS и рывки курсора остаются; host также проверил оригинальный `ProgramMain` и базовый New Game |
-| E2E-5: вылет из ангара | на Switch загрузка остановилась на 85% с `FAIL stage=gai key=Bm.Hits.05`; общий GAI-путь исправлен локально и прошёл этот ресурс, но первый кадр StarMap ещё не подтверждён |
+| E2E-5: вылет из ангара | на Switch загрузка остановилась на 85% с `FAIL stage=gai key=Bm.Hits.05`; общий GAI-путь исправлен локально, а новый host-прогон прошёл этот ресурс и 60 циклов StarMap; аппаратная проверка ожидается |
 | Оригинальный save/load | host F5 достиг оригинального save path, но безопасно отказал при 64-битном указателе скрипта; round-trip не проверен |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
@@ -148,9 +148,9 @@ port/switch/Space Rangers HD - A War Apart.nro
 
 Ранние переносимые подсистемы M14P–M25 прошли свои аппаратные проверки; это отдельные milestone, а не подтверждение полного игрового сценария. Аппаратная combined-сборка `e959e85` уже проходит прежнее место аварии RuinsTalk, открывает игровое меню, ангар, карту и магазин. При сохранении настроек в Options журнал фиксировал `Exception UnitGet Type=Resolution`; локально исправлен поиск фиксированного режима экрана, применение VSync и повторная инициализация рендерера после штатного перезапуска. Host-тест сохранил русский язык, громкость и переключение `Music=False`, автоматически перезапустил игру и повторно открыл Options. Аппаратное подтверждение этих новых исправлений ещё требуется.
 
-По последним архивам `1.zip` и `2.zip` музыка на Switch искажается и прерывается при переходах и 300-ходовой генерации, а программная отрисовка меню занимает 60–143 мс. Для звука локально подготовлены увеличение SDL-блока до 2048 кадров, повышение приоритета музыкального потока и сокращение вычислений в callback. Для первого кадра Options подготовлено пиксельно идентичное быстрое масштабирование: host-время операции снизилось с 2,15 до 0,064 с. Host-профиль генерации сузил основное время до ежедневного обновления кораблей, но поведение игры ради ускорения не изменялось. Вылет из ангара выявил конечный пустой элемент последовательности `Bm.Hits.05`; исправление общего GAI-пути прошло проверку реального ресурса с ASan/UBSan и host-загрузку до вызова StarMap. Первый кадр StarMap, плавность курсора, слышимое качество музыки и скорость работы на Switch остаются открытыми. Подробная [сводка всех 11 аппаратных замечаний](reports/e2e5/hardware-e959e85-followup.md) отделяет причины, локальные проверки и оставшуюся работу.
+По последним архивам `1.zip` и `2.zip` музыка на Switch искажается и прерывается при переходах и 300-ходовой генерации, а программная отрисовка меню занимает 60–143 мс. Для звука локально подготовлены увеличение SDL-блока до 2048 кадров, повышение приоритета музыкального потока и сокращение вычислений в callback. В общем UI-цикле локально исправлена очередь областей: начальный полный viewport больше не отрисовывается бесконечно; при одинаковом CFG host-площадь отрисовки снизилась примерно с 179 до 85 млн пикселей за сопоставимое окно. Для первого кадра Options подготовлено пиксельно идентичное быстрое масштабирование: host-время операции снизилось с 2,15 до 0,064 с. Host-профиль генерации сузил основное время до ежедневного обновления кораблей, но поведение игры ради ускорения не изменялось. Вылет из ангара выявил конечный пустой элемент последовательности `Bm.Hits.05`; исправление общего GAI-пути прошло проверку реального ресурса с ASan/UBSan и новый host-прогон до 60 циклов StarMap. Плавность курсора, слышимое качество музыки и скорость работы на Switch остаются открытыми. Подробная [сводка всех 11 аппаратных замечаний](reports/e2e5/hardware-e959e85-followup.md) отделяет причины, локальные проверки и оставшуюся работу.
 
-Предыдущие host-доказательства сохранены: [отчёт о диалоге и ангаре](https://github.com/sklart/space_rangers_hd_a_war_apart_port/blob/codex/e2e5-hardware-integration/reports/e2e5/host-dialog-hangar.json), [аудиоотчёт](https://github.com/sklart/space_rangers_hd_a_war_apart_port/blob/codex/e2e5-hardware-integration/reports/e2e5/host-audio-capture.json) с корреляцией PCM 0,995 и [матрица покрытия](https://github.com/sklart/space_rangers_hd_a_war_apart_port/blob/codex/e2e5-hardware-integration/docs/e2e5-coverage-matrix.md). Оригинальный save/load всё ещё не прошёл round-trip. На ветке `codex/e2e5-hardware-integration` текущие исправления пока незакоммичены; pinned upstream не изменён. Новую полную ARM64-сборку, NRO и длительный CI для этих правок ещё не запускали. Существующий `Switch-E2E5-TEST.nro` в корне репозитория **устарел и не предназначен для повторного теста**. После дальнейшей проработки открытых пунктов будет собрана одна combined NRO с соответствующим ELF и SHA-256.
+Предыдущие host-доказательства сохранены: [отчёт о диалоге и ангаре](reports/e2e5/host-dialog-hangar.json), [аудиоотчёт](reports/e2e5/host-audio-capture.json) с корреляцией PCM 0,995 и [матрица покрытия](docs/e2e5-coverage-matrix.md). Оригинальный save/load всё ещё не прошёл round-trip. На ветке `codex/e2e5-hardware-integration` экспериментальные исправления звука пока незакоммичены; pinned upstream не изменён. Новую полную ARM64-сборку, NRO и длительный CI для этих правок ещё не запускали. Существующий `Switch-E2E5-TEST.nro` в корне репозитория **устарел и не предназначен для повторного теста**. После дальнейшей проработки открытых пунктов будет собрана одна combined NRO с соответствующим ELF и SHA-256.
 
 ```text
 [M9] FAIL runtime config=... DAT zlib decompression failed
@@ -174,7 +174,7 @@ bash tools/e2e5_original_graphbuf_arm64_host.sh "<каталог установ�
 python tools/e2e5_report.py --output reports/e2e5/summary.json
 ```
 
-Для ARM64/QEMU нужны `aarch64-linux-gnu` GCC/G++, QEMU user mode, CMake и заголовки JPEG/PNG. Уровни проверок, зависимости и ограничения описаны в [архитектуре тестов E2E-5](https://github.com/sklart/space_rangers_hd_a_war_apart_port/blob/codex/e2e5-hardware-integration/docs/e2e5-test-architecture.md). Отчёт может показывать `PARTIAL` или `NOT RUN` при успешном завершении отдельных команд: это не результат полного игрового сценария.
+Для ARM64/QEMU нужны `aarch64-linux-gnu` GCC/G++, QEMU user mode, CMake и заголовки JPEG/PNG. Уровни проверок, зависимости и ограничения описаны в [архитектуре тестов E2E-5](docs/e2e5-test-architecture.md). Отчёт может показывать `PARTIAL` или `NOT RUN` при успешном завершении отдельных команд: это не результат полного игрового сценария.
 
 Локальная ARM64-сборка проверяет создание NRO. Дополнительно для финального артефакта следует подтвердить:
 
@@ -207,13 +207,13 @@ python tools/e2e5_report.py --output reports/e2e5/summary.json
 - [M25 portable GI/GAI UI and first real subtree](docs/milestone25-gi-gai-real-ui.md) — COMPLETE / HARDWARE PASS
 - [M26 GraphBuf, scroll controls, Edit and larger real UI](docs/milestone26-graphbuf-scroll-edit-real-ui.md) — COMPLETE / HARDWARE PASS
 - [M27 portable input, focus and event dispatch](docs/milestone27-input-focus-events.md) — COMPLETE / HARDWARE PASS
-- [E2E-4: безопасная экспериментальная ротация quicksave и ручное восстановление](https://github.com/sklart/space_rangers_hd_a_war_apart_port/blob/codex/e2e5-hardware-integration/docs/e2e4-save-load.md)
-- [E2E-5: архитектура тестов](https://github.com/sklart/space_rangers_hd_a_war_apart_port/blob/codex/e2e5-hardware-integration/docs/e2e5-test-architecture.md)
-- [E2E-5: матрица покрытия](https://github.com/sklart/space_rangers_hd_a_war_apart_port/blob/codex/e2e5-hardware-integration/docs/e2e5-coverage-matrix.md)
-- [E2E-5: обнаруженные дефекты](https://github.com/sklart/space_rangers_hd_a_war_apart_port/blob/codex/e2e5-hardware-integration/docs/e2e5-found-defects.md)
-- [E2E-5: измерение производительности](https://github.com/sklart/space_rangers_hd_a_war_apart_port/blob/codex/e2e5-hardware-integration/docs/e2e5-performance.md)
+- [E2E-4: безопасная экспериментальная ротация quicksave и ручное восстановление](docs/e2e4-save-load.md)
+- [E2E-5: архитектура тестов](docs/e2e5-test-architecture.md)
+- [E2E-5: матрица покрытия](docs/e2e5-coverage-matrix.md)
+- [E2E-5: обнаруженные дефекты](docs/e2e5-found-defects.md)
+- [E2E-5: измерение производительности](docs/e2e5-performance.md)
 - [E2E-5: сводка 11 замечаний по аппаратной combined-сборке e959e85](reports/e2e5/hardware-e959e85-followup.md)
-- [E2E-5: план одного аппаратного теста](https://github.com/sklart/space_rangers_hd_a_war_apart_port/blob/codex/e2e5-hardware-integration/docs/e2e5-hardware-plan.md)
+- [E2E-5: план одного аппаратного теста](docs/e2e5-hardware-plan.md)
 
 ## Лицензирование и обратная связь
 

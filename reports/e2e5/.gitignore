@@ -1,0 +1,10 @@
+# Keep local reports private by default; allow reviewed metadata-only reports.
+*.json
+!pointer-width-audit.json
+!pointer-width-baseline.json
+!defects.json
+!host-audio-capture.json
+!save-load-roundtrip.json
+!host-gameplay-matrix.json
+!save-inventory-summary.json
+!ui-profile-summary.json

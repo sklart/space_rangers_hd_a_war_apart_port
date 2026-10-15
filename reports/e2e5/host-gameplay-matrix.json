@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "source_git_head": "9acdf5ccc088723947bcf0e43258ec7fb74efb50",
+  "source_dirty_at_build": true,
+  "host_elf_sha256": "f92136bc426ba467da10a1937fabceb2ec9626061ed53275007c638088108950",
+  "resource_main_dat_sha256": "2544c91df96508a0e94b383b980d2344d792534f8d2c502ada30d6a99a44281a",
+  "switch_hardware": "PENDING",
+  "status": "PASS",
+  "save_sha256": "8f1b1be4a9cf0bd101f2bdebe470c2c5c85764432b8b60955741b92ee4479104",
+  "scenarios": [
+    {
+      "scenario": "New Game to Hangar and F5",
+      "process": "A",
+      "checkpoints": [
+        "GameSettings",
+        "Introduction",
+        "RuinsTalk",
+        "Hangar 60 frames",
+        "QuickSave"
+      ],
+      "status": "PASS"
+    },
+    {
+      "scenario": "UI Load, Ship, End Turn",
+      "process": "B",
+      "checkpoints": [
+        "Save Manager",
+        "Game Load",
+        "Hangar 60 frames",
+        "Ship 60 frames",
+        "End Turn 301 to 302"
+      ],
+      "status": "PASS"
+    },
+    {
+      "scenario": "Corrupt typed Ship ID",
+      "process": "C",
+      "checkpoints": [
+        "Game Load",
+        "Unknown ID rejected",
+        "No playable state",
+        "No crash"
+      ],
+      "status": "PASS"
+    }
+  ],
+  "limitations": [
+    "Host SDL output only; Switch interaction pending."
+  ]
+}

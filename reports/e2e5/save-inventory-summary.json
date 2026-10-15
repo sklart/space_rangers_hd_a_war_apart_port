@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "status": "PASS_AT_TESTED_SAVE_CHECKPOINT",
+  "source_git_head": "9acdf5ccc088723947bcf0e43258ec7fb74efb50",
+  "source_dirty_at_build": true,
+  "host_elf_sha256": "f92136bc426ba467da10a1937fabceb2ec9626061ed53275007c638088108950",
+  "resource_main_dat_sha256": "2544c91df96508a0e94b383b980d2344d792534f8d2c502ada30d6a99a44281a",
+  "checkpoint": "original new game, dialog progression, Hangar F5",
+  "inspected": 928,
+  "unknown": 0,
+  "entries_complete": true,
+  "classifications": {
+    "NUMERIC": 850,
+    "REBIND_FROM_EXISTING_METADATA": 57,
+    "STABLE_OBJECT_ID": 21
+  },
+  "full_local_inventory": "reports/e2e5/save-pointer-inventory.json (ignored; contains script identifiers)",
+  "limitations": [
+    "The inventory describes one game state, not every possible script state.",
+    "Numeric values are range checked; dynamic producer semantics for every value are not proven."
+  ]
+}

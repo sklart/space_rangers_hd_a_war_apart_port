@@ -1,33 +1,30 @@
-#if defined(__SWITCH__)
-#include <switch.h>
-#else
-#include <chrono>
-#endif
-
+#include "e2e_clock.hpp"
 #include "units/WindowsImports.hpp"
+#include "units/WindowsSdk.hpp"
+#include "units/SysUtilsImports.hpp"
 
-// Narrow replacement for the two timing imports reached by
-// SystemImports::Randomize. It deliberately does not emulate the Win32 API.
+// Portable clock and sleep entry points used by the diagnostic runtime.
+// The complete-game build injects the same clock behind the original APIs.
 namespace WindowsImports {
 std::int32_t PAS_STDCALL QueryPerformanceCounter(std::int64_t& counter) {
-#if defined(__SWITCH__)
-  counter = static_cast<std::int64_t>(armGetSystemTick());
-#else
-  counter = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                std::chrono::steady_clock::now().time_since_epoch())
-                .count();
-#endif
+  counter = static_cast<std::int64_t>(srhd_awa::platform::e2e_clock::Counter());
   return 1;
 }
 
 std::uint32_t PAS_STDCALL GetTickCount() {
-#if defined(__SWITCH__)
-  return static_cast<std::uint32_t>(armTicksToNs(armGetSystemTick()) / 1000000ULL);
-#else
-  return static_cast<std::uint32_t>(
-      std::chrono::duration_cast<std::chrono::milliseconds>(
-          std::chrono::steady_clock::now().time_since_epoch())
-          .count());
-#endif
+  return srhd_awa::platform::e2e_clock::Milliseconds();
 }
 }  // namespace WindowsImports
+
+namespace WindowsSdk {
+BOOL PAS_STDCALL QueryPerformanceFrequency(Windows::TLargeInteger& frequency) {
+  frequency = static_cast<Windows::TLargeInteger>(srhd_awa::platform::e2e_clock::Frequency());
+  return frequency > 0;
+}
+}  // namespace WindowsSdk
+
+namespace SysUtilsImports {
+void PAS_STDCALL Sleep(std::uint32_t milliseconds) {
+  srhd_awa::platform::e2e_clock::SleepMilliseconds(milliseconds);
+}
+}  // namespace SysUtilsImports

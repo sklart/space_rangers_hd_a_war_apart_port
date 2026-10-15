@@ -1,0 +1,97 @@
+# E2E-3 — New Game software preflight
+
+Branch: `codex/e2e3-preflight`, based on E2E-2 evidence commit `8bf9dc0ad064de692feacea18a81e004c946306a`. The E2E-2 NRO `SpaceRangersHDAWarApartE2E-0eb7380.nro` remains in its original worktree at 16,021,808 bytes, SHA-256 `EA33173E0D5898EFEAA2D1AF7CF27B125DB9664738B8E6D8D5A59E20AA419F5F`. Its embedded build is `0eb738039a1b1422720bc0aa39c456548ae69706`. No E2E-2 hardware result is inferred from this preflight.
+
+## Original New Game path
+
+`input_platform::Poll` emits one A edge as `WM_LBUTTONDOWN/UP` and one X edge as `WM_KEYDOWN/UP(VK_RETURN)`. `win32_compat::Pump` queues these with the current cursor coordinates; `GR_Main::GR_WinMessage` dispatches to `TMessageLoopGI::ProcessWindowMessage`. Mouse messages traverse `RootUiObject` to `TGraphButtonGI`, whose `New` button receives `TfMainForm::NewGameClicked` as its `UpCallback` in `TfMainForm::OnOpen`. For `WM_KEYDOWN`, `TMessageLoopGI` calls `RootUiObject->BroadcastKeyDown`; that method recursively invokes each child's `KeyDownCallback` independently of `FocusedControl`. `TfMainForm::OnOpen` binds the `MainPanel` callback to `MainPanelKeyDown`, whose unmodified Enter branch calls `NewGameClicked`. `NewGameClicked` clears the selected ship hold, sets `RequestedScreenId=screenNewGame` and calls `RequestClose(1)`. `Globals::RunMainScreenStateLoop` then records the completed main-menu screen, consumes the requested ID, and invokes the registered `TfGameSettings2::Run`. Registration is in `Globals::InitializeGlobalUiRuntime` with `InitializeFromConfig(..., "GameSettings", ...)`.
+
+A read-only local probe of the user's original `CFG/Main.dat` found `ML/MainForm/Panel/GraphButton` named `New`, positioned at local `(611,275)`, with `Kind=Normal`, `KindHit=Rect`, and no `UpOnlyDown` or `OnPressCode`. The same resource contains `GameSettings`, its `Ok` control and all 13 statically named controls referenced by `TfGameSettings2::OnOpen`. This verifies the fixture's button mode and resource names, but does not execute the complete resource UI on host. No commercial data is checked in. `TfGameSettings2::InitializeLayout` sizes its main panel to `GameScreenWidth × GameScreenHeight` and offsets character, level, skill and extended panels by `ExtraScreenWidth/2` and `ExtraScreenHeight/2`; the existing GI message loop converts mouse coordinates through the selected viewport mode. Physical geometry and hit testing remain pending.
+
+The next original path is `TfGameSettings2::ApplyClicked` → save `newgame.txt` → create `TThreadCreateNewGame` → `StartNewGameGeneration` → `TThreadCreateNewGame_Execute` → `screenIntroduction` → `TfIntroduction::UpdateGenerationProgress` → `ContinueClicked` → an initial location screen. No forced screen ID or parallel gameplay implementation has been added.
+
+| Handler or transition | Current evidence | Limit |
+|---|---|---|
+| A/X controller edges and Win32 coordinates | Host `test_m27_input_platform.cpp` and `test_win32_compat_messages.cpp` pass, including moving click and X Enter down/up without hold repeat. | No physical controller run of E2E-3. |
+| Original `TGraphButtonGI` and `NewGameClicked` | `test_e2e3_original_new_game.py` compiles verbatim original methods with a controlled host UI fixture and checks exact callback count, `screenNewGame`, disabled/occluded/missed/hover cases, hold and same-tick release. An optional local read-only `Main.dat` probe confirms the actual button mode. | Fixture does not execute the whole original window tree. |
+| Original Enter handler | The fixture executes verbatim `TObjectGI::BroadcastKeyDown` through a root/`MainPanel` tree into `MainPanelKeyDown`; Enter requests New Game once while Ctrl prevents it. Source audit confirms that `WM_KEYDOWN` invokes this broadcast without requiring focus. | The full `ProcessWindowMessage` and resource-backed screen are not reproduced by this fixture. |
+| Registered `screenNewGame` / state loop | Source inspection confirms registration; a controlled host fixture executes verbatim `RunMainScreenStateLoop`, opens main menu and New Game once each, then checks requested/current/previous IDs. | Full GameSettings resource initialization and `Run` need hardware or a resource-backed host runtime. |
+| Generation progress and failure | Atomic progress/error channel has a host thread test. Disposable source overrides publish each original stage and route a failed worker back to `screenNewGame` instead of leaving Introduction waiting forever. | Full galaxy generation has not executed on host or Switch. |
+
+## Confirmed defects and narrow fixes
+
+- The E2E-2 cursor integrated at most 50 ms per poll. A new test first reproduced low-rate slowdown at 5 polls/s. The E2E-3 adapter now integrates real intervals up to 500 ms, while a 1–3 s stall still contributes at most 50 ms. Host tests cover 5/10/15/20/30/60/600/6000 polls/s, diagonal motion, deadzone, D-pad, bounds and A while moving.
+- An unmodified normal `TGraphButtonGI` release is gated by `ConsumeTimerTickChange()` even after `Down` was set. The original-method fixture reproduced a missed second valid release in the same UI tick. The Switch disposable override accepts a matching down/up edge even when the tick is unchanged; original upstream remains untouched.
+- The original generation worker catch dereferences `aGalaxy::Galaxy->GenerationSeed` even if construction of `Galaxy` threw. The disposable copy logs `seed=unavailable` when no galaxy exists and publishes a failure stage. The Introduction UI checks that stage, closes its progress screen and returns to GameSettings. The old shared integer stage had unsynchronized worker/UI access, and `OnOpen` could reset it after the worker had started. The E2E-3 copy publishes stages through an atomic channel reset before starting the worker; the original stage numbering is retained. This is source-level and host-state evidence, not a full generation run.
+
+## GameSettings, generation and save path audit
+
+`TfGameSettings2` loads `GameSettings`, initializes race, name, portrait, skills, items, difficulty and custom-rule controls, then writes the selected parameters to `GR_Main::NewGameSettingsConfig`. `ApplyClicked` writes `GetGameUserDirectory() + "newgame.txt"` before the worker is started. The Switch GR_Main adapter maps `GetGameUserDirectory()` to `sdmc:/switch/space-rangers-hd-a-war-apart/config/`; `user_root::ResolveConfigPath` confines writes to that root. Empty/invalid name is handled by `ValidatePlayerName` and the disabled OK button; resource-backed validation of every option remains unverified.
+
+`TThreadEC::Start` schedules the worker on its existing OS thread, `IsRunning` checks the idle event, and `TThreadEC_Destroy` signals shutdown and waits for the thread. The portable thread, event and private-heap primitives have independent host regressions. `System::Set8087CW` updates the runtime's thread-local emulated control word on ARM64; it does not provide x87 precision, so numerical equivalence is unverified. `fIntroduction::NewGameGenerationStage` was a plain cross-thread integer; the disposable E2E-3 path now avoids reading it across threads.
+
+The original save code calls `CreateDir(GetGameUserDirectory()+"Save")`, then opens `GetGameUserDirectory()+"save\\save.tmp"`. These differ on case-sensitive host filesystems, and `EnsureLayout` creates `root/save`, not `root/config/save`. The portable `EC_File::CreateLooseFile` creates the actual parent path. The extended `test_user_writable.cpp` passed on a temporary host user root: `config/newgame.txt` and `config/save/save.tmp` were written and read through `EC_File`, an absent save was handled, and neither file escaped to `root/`. This proves the adapter path, not an original game save round-trip. The original save sequence writes a temp file, deletes the prior target, then renames the temp file; a failed rename can therefore leave no previous save. Incomplete-write handling, Extended serialization and Switch SD behavior remain unverified.
+
+## ARM64 pointer-width audit
+
+`aSaveLoad` transient memory-snapshot galaxy-token truncation has an earlier disposable source-copy fix; runtime round-trip is pending. `aGalaxy::TGalaxy::XorProtectedState` still truncates actual process addresses to 32 bits and skips only four VMT/field bytes; `ObfuscateProtectedState` is reached from snapshot save and `RestoreProtectedState` from snapshot restore or game cleanup. A width-only edit would still corrupt 64-bit object layout, so this remains a separate high-priority save/snapshot blocker. In `aScript`, `lvDword` stores actual object and function pointers in several places; global scripts run near the end of new-game generation, so this is potentially reachable before first gameplay. A token/handle representation needs a targeted behavioral test before altering the script ABI. Serialized 32-bit game IDs remain 32-bit. ARM64 `long double` is binary128, not x87 Extended; no raw Extended round-trip has been verified.
+
+## Remaining software blockers
+
+- The 32-bit address operations in `aGalaxy::XorProtectedState` and pointer values in `aScript::lvDword` need focused object-layout and script-binding tests before a safe 64-bit representation can be selected. The script case may affect first-game generation; neither is cleared by the ARM64 link.
+- No host environment in this preflight runs the complete commercial `GameSettings` resource tree or galaxy-generation worker. The read-only resource metadata probe validates names and button mode, while the first screen, selected settings, Introduction and gameplay remain runtime gates.
+- Original game save/load and Extended numeric serialization have no round-trip proof. The portable user-root file operations passed, but the original temp-save/delete/rename order can lose an older save if final rename fails.
+
+## Evidence boundary and next hardware run
+
+The E2E-3 host tests exercise selected original methods and portable adapters. They cannot prove a full resource-backed menu, GameSettings screen, galaxy generation, first gameplay frame or save/load. A clean-identity full ARM64 compile and link passed locally, including the effective Win32 surface audit (254 imports, 69 dynamic calls, no unknown classification). The first local build attempt exposed an MSYS CMake path conversion error, which was corrected in `e2e_arm64_build.py`; a subsequent audit found a stale generated effective manifest, which was regenerated. The immutable candidate `port/switch/build/e2e-game/SpaceRangersHDAWarApartE2E-b34b7bf.nro` is 16,025,904 bytes with SHA-256 `6A5290EBBDCD69D1E093285DF2C8DA3D83410658239088AC62E4FF72F087E7B8` and embedded build `b34b7bfc3b1a72701d0340012100af481c36e177` (`build_dirty=false`). First CI run [38118480203](https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38118480203) exposed a Linux GCC naming error in the controlled test fixture (`Kind Kind`); the fixture now uses a distinct enum type name. CI run [38118705557](https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38118705557) completed successfully for both host regression and full ARM64 link at commit `6818c15f94d23f7c5267f4db91b5093b8dcf6026`. The next Switch run should verify embedded build ID, pointer movement, A over New, X as an alternate Enter route, GameSettings display, option changes, generation/Introduction, first game screen, save/load and clean exit. Return both `e2e.log` and `########.log`; `[E2E3]` lines report actual callback, transition and stage changes only.
+
+| Stage | Host | ARM64 build | Switch |
+|---|---|---|---|
+| A/X input | Adapter PASS | Link PASS | PENDING |
+| Original NEW GAME handlers | Method fixture PASS | Link PASS | PENDING |
+| GameSettings screen | Registration source mapped; resource runtime NOT VERIFIED | Link PASS; runtime NOT VERIFIED | PENDING |
+| Generation worker start | State primitive PASS; original path mapped | Link PASS; runtime NOT VERIFIED | PENDING |
+| Galaxy generation | NOT VERIFIED | Link PASS; runtime NOT VERIFIED | PENDING |
+| First gameplay screen | NOT VERIFIED | Link PASS; runtime NOT VERIFIED | PENDING |
+| Save/load | User path/file adapter PASS; original game round-trip NOT VERIFIED | Link PASS; round-trip NOT VERIFIED | PENDING |
+
+**Status: E2E-3 SOFTWARE PREFLIGHT PARTIAL / SWITCH HARDWARE PENDING.** CI passed, but the pointer-width, resource-backed generation and save/load blockers above prevent a full software or gameplay PASS.
+
+## Combined E2E-4 hardware report, 2026-10-11
+
+The user tested the single combined `c87e239` NRO and supplied `D:\report.zip`
+(SHA-256 `30391DC14DE1864B0D3757F2E6C43BA44A650912DDF2EF8FE575EBB761F23C25`).
+`e2e.log` confirms the New button down/up, transition to screen 33, then ends
+at `game_settings status=open`. The two latest Atmosphère reports identify the
+same Data Abort at module offset `0x380048`; the matching ELF resolves it to
+`TfGameSettings2::FormatExtendedAutoPercent`. The upstream-translated UI puts
+a 64-bit label address into a 32-bit `UserIndex` and immediately dereferences
+the truncated value when constructing the first extended slider. A disposable
+source override now resolves the live sibling label. Similar 32-bit pointer
+fields for extended choices and IronWill labels use sibling lookup as well.
+The host method fixture passes; the resource-backed Switch screen still needs
+a fresh run.
+
+The same log shows only 4.35 to 5.11 presents per second in the menu. This
+matches the user's observation that the controller cursor moves in visible
+steps. The next combined build adds `present_avg_us` and `present_max_us` to
+the five-second rate line to distinguish slow SDL presentation from time spent
+in game rendering and its loop. Cursor smoothness is **NOT VERIFIED**.
+
+The follow-up combined `6c9d3a7` Switch run is in a newer `D:\report.zip`
+(SHA-256 `CBB0A708C5AE99339D126CBC14B65F8752F090FE4EB8F8106C58865BF8BD9D76`).
+`GameSettings` now reaches `OnOpen ready`, confirming that the previous
+slider crash was passed. The original game log then stops at
+`Rescaling Bm.FormGameSet2.2bg...`; the new Atmosphère report crashes in
+`FinalizeGlobalUiRuntime` during exception cleanup, so that PC does not
+identify the initial exception. The Switch source override now routes
+`RescaleRGBA_HW` through the existing CPU aspect crop and resampler for
+load-time UI backgrounds. The screen-run catch also logs its stage and any
+`std::exception` text before cleanup. Neither change has a resource-backed
+hardware result yet.
+
+Menu presentation remains 4.32 to 5.18 FPS. The measured SDL presentation
+averages 9.7 to 10.4 ms and peaks at 21.7 ms. This localizes most of each
+roughly 200 ms frame outside the final SDL present; software UI drawing and
+game-loop work still need separate timing. The cursor still moves in steps.

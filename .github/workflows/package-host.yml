@@ -9,15 +9,175 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  e2e5-fast:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+      - name: Guard new pointer-width sites
+        run: python3 tools/e2e5_static_audit.py --check --output reports/e2e5/pointer-width-audit.json
+      - name: E2E-5 tool regressions
+        run: python3 -m unittest discover -s tests -p 'test_e2e5_tools.py' -v
+      - name: Report unavailable private assets honestly
+        run: python3 tools/e2e5_resource_validator.py --output reports/e2e5/resource-validation.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e5-fast-reports
+          path: reports/e2e5/*-audit.json
+          if-no-files-found: ignore
+  e2e4-sanitizers:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - run: sudo apt-get update && sudo apt-get install -y libvorbis-dev libsdl2-dev
+      - name: Asset-free audio and protected-state ASan/UBSan
+        run: |
+          set -euo pipefail
+          mkdir -p build/e2e4-sanitizers
+          for test in wav vorbis_read protected_state audio_mixer audio_stream ui_cache_key script_value; do
+            g++ -std=c++20 -O1 -g -fno-omit-frame-pointer \
+              -fsanitize=address,undefined -Iport/switch/platform \
+              "tests/test_e2e4_${test}.cpp" -o "build/e2e4-sanitizers/${test}"
+            "build/e2e4-sanitizers/${test}"
+          done
+          g++ -std=c++20 -O1 -g -fno-omit-frame-pointer \
+            -fsanitize=address,undefined -Iport/switch/platform \
+            tests/test_e2e4_native_vorbis.cpp \
+            port/switch/platform/e2e4_native_vorbis.cpp \
+            $(pkg-config --cflags --libs vorbisfile) \
+            -o build/e2e4-sanitizers/native_vorbis
+          build/e2e4-sanitizers/native_vorbis \
+            tests/fixtures/e2e4_sine_22050_stereo.ogg
+          g++ -std=c++20 -O1 -g -fno-omit-frame-pointer \
+            -fsanitize=address,undefined -Iport/switch/platform \
+            tests/test_e2e4_sdl_audio.cpp \
+            port/switch/platform/e2e4_sdl_audio.cpp \
+            port/switch/platform/e2e4_game_audio_bridge.cpp \
+            $(pkg-config --cflags --libs sdl2) -pthread \
+            -o build/e2e4-sanitizers/sdl_audio
+          build/e2e4-sanitizers/sdl_audio
+          g++ -std=gnu++20 -O1 -g -fno-omit-frame-pointer \
+            -fsanitize=address,undefined -Iport/switch/platform \
+            tests/test_e2e4_quicksave_transaction.cpp \
+            port/switch/platform/e2e4_quicksave_transaction.cpp -lz \
+            -o build/e2e4-sanitizers/quicksave_transaction
+          build/e2e4-sanitizers/quicksave_transaction \
+            build/e2e4-sanitizers/quicksave-test
+          g++ -std=c++20 -O1 -g -fno-omit-frame-pointer \
+            -fsanitize=address,undefined -Iport/switch/platform \
+            tests/e2e5_pointer_payload_test.cpp -pthread \
+            -o build/e2e4-sanitizers/pointer_payload
+          build/e2e4-sanitizers/pointer_payload
+          g++ -std=c++20 -O1 -g -fno-omit-frame-pointer \
+            -fsanitize=address,undefined -Iport/switch/platform \
+            tests/test_e2e5_input_history.cpp \
+            port/switch/platform/input_platform.cpp \
+            -o build/e2e4-sanitizers/input_history
+          build/e2e4-sanitizers/input_history
+
+  e2e5-arm64-host:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+      - name: Install ARM64 Linux emulator and cross compiler
+        run: sudo apt-get update && sudo apt-get install -y qemu-user g++-aarch64-linux-gnu cmake libpng-dev libjpeg-dev
+      - name: Effective Switch GI rescale on Linux ARM64 under QEMU
+        run: bash tools/e2e5_original_graphbuf_arm64_host.sh --synthetic
+
+  e2e-full-arm64-link:
+    needs: [e2e5-fast, e2e4-sanitizers, e2e5-arm64-host, host-regression]
+    runs-on: ubuntu-24.04
+    container: devkitpro/devkita64:latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+      - name: Trust checkout paths inside build container
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE/upstream/cpp"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE/upstream/okgf"
+      - name: E2E Win32 Compatibility Surface inventory
+        run: |
+          test -z "$(git -C upstream/cpp status --porcelain)"
+          python3 tools/audit_win32_surface.py --self-test
+          python3 tools/audit_win32_surface.py --check
+      - name: Python generator syntax and import smoke
+        run: |
+          python3 -m compileall -q tools
+          python3 -c 'import sys; sys.path.insert(0, "tools"); import audit_win32_surface, e2e_arm64_build, e2e_source_overrides, e2e4_script_width_overrides, e2e5_host_game_probe'
+      - name: Preflight ordinary effective sources and manifest
+        run: python3 tools/e2e_arm64_build.py --preflight-only
+      - name: Compile full original game and audit Switch dependencies
+        run: python3 tools/e2e_arm64_build.py
+      - name: Preflight combined effective sources and manifest
+        run: python3 tools/e2e_arm64_build.py --experimental-e2e4-combined --preflight-only
+      - name: Compile one combined E2E-4 experiment
+        run: python3 tools/e2e_arm64_build.py --experimental-e2e4-combined
+      - name: E2E Win32 Compatibility Surface effective gate
+        run: |
+          python3 tools/audit_win32_surface.py --effective --build-root port/switch/build/e2e-game --check
+          python3 tools/audit_win32_surface.py --effective --build-root port/switch/build/e2e-game-combined-experiment --manifest win32-effective-combined-import-manifest.json --check
+          python3 tools/generate_win32_portable_cases.py --check
+      - name: Verify pinned upstream remains clean
+        if: always()
+        run: test -z "$(git -C upstream/cpp status --short)"
+
   host-regression:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
         with:
           submodules: recursive
-      - run: sudo apt-get update && sudo apt-get install -y zlib1g-dev libpng-dev libjpeg-dev cmake
+      - run: sudo apt-get update && sudo apt-get install -y zlib1g-dev libpng-dev libjpeg-dev libvorbis-dev cmake
+      - name: Original GI and buffer decode, rescale, repack with ASan/UBSan
+        run: bash tools/e2e5_original_graphbuf_host.sh --synthetic
       - name: Validate Switch NRO icon
         run: python3 tools/validate-switch-icon.py port/switch/assets/icon.jpg
+      - name: Validate E2E game clock and Sleep
+        run: python3 tools/e2e_time_test.py
+      - name: Validate E2E synchronization events
+        run: make -C port/switch host-e2e-events-test
+      - name: Validate E2E worker threads
+        run: make -C port/switch host-e2e-threads-test
+      - name: Validate E2E private heaps
+        run: python3 tools/e2e_heap_test.py
+      - name: Validate E2E startup calendar
+        run: make -C port/switch host-e2e-calendar-test
+      - name: E2E Win32 Compatibility Surface host gate
+        run: make -C port/switch host-e2e-win32-compat-test
+      - name: E2E-3 original New Game preflight
+        run: make -C port/switch host-e2e3-new-game-preflight-test
+      - name: E2E-4 RIFF/WAVE PCM parser
+        run: make -C port/switch host-e2e4-wav-test
+      - name: E2E-4 bounded Vorbis PCM reads
+        run: make -C port/switch host-e2e4-vorbis-read-test
+      - name: E2E-4 native Vorbis stream
+        run: make -C port/switch host-e2e4-native-vorbis-test
+      - name: E2E-4 protected-state pointer ranges
+        run: make -C port/switch host-e2e4-protected-state-test
+      - name: E2E-4 save replacement failure paths
+        run: make -C port/switch host-e2e4-save-replace-test
+      - name: E2E-4 recoverable quicksave transaction
+        run: make -C port/switch host-e2e4-quicksave-transaction-test
+      - name: E2E-4 PCM mixer
+        run: make -C port/switch host-e2e4-audio-mixer-test
+      - name: E2E-4 streaming PCM ring
+        run: make -C port/switch host-e2e4-audio-stream-test
+      - name: E2E-4 script UI cache key
+        run: make -C port/switch host-e2e4-ui-cache-test
+      - name: E2E-5 GAI bounds and pointer slots
+        run: make -C port/switch host-e2e5-gai-bounds-test host-e2e5-gai-slots-test
+      - name: E2E-4 log analyzer contract
+        run: python3 tools/e2e4_log_analyzer.py --self-test
+      - name: Validate E2E startup command line
+        run: make -C port/switch host-e2e-command-line-test
+      - name: Validate E2E install language search
+        run: make -C port/switch host-e2e-file-search-test
       - name: Build and run asset-free corrupt package regression
         run: |
           mkdir -p build port/switch/build
@@ -33,31 +193,33 @@ jobs:
           port/switch/build/test_user_writable port/switch/build/m9-user-root
           g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_blockpar_synthetic.cpp $startup_sources -Wl,--gc-sections -lz -o port/switch/build/test_blockpar_synthetic
           port/switch/build/test_blockpar_synthetic
-          git -C upstream/cpp apply ../../port/switch/platform/gr_main_portable.patch
-          git -C upstream/cpp apply --ignore-space-change ../../port/switch/platform/gr_main_zlib_portable.patch
-          git -C upstream/cpp apply ../../port/switch/platform/dat_zlib_guard.patch
-          dat_sources="port/switch/platform/package.cpp port/switch/platform/game_path.cpp port/switch/platform/user_root.cpp port/switch/platform/ec_file_adapter.cpp port/switch/platform/windows_imports_portable.cpp port/switch/platform/sysutils_imports_portable.cpp port/switch/platform/runtime_time.cpp port/switch/platform/runtime_failure_hooks_portable.cpp port/switch/platform/runtime_settings_slice.cpp port/switch/platform/ui_metadata_slice.cpp port/switch/platform/zlib_bridge.cpp upstream/cpp/src/CrcUnit.cpp upstream/cpp/src/System.cpp upstream/cpp/src/SystemImports.cpp upstream/cpp/src/BlockParException.cpp upstream/cpp/src/GI_Main.cpp upstream/cpp/src/GlobalsV.cpp upstream/cpp/src/aMyFunction.cpp upstream/cpp/src/EC_File.cpp upstream/cpp/src/EC_Struct.cpp upstream/cpp/src/EC_Buf.cpp upstream/cpp/src/EC_Cache.cpp upstream/cpp/src/EC_BlockPar.cpp upstream/cpp/src/EC_Data.cpp upstream/cpp/src/EC_Str.cpp upstream/cpp/src/EC_Mem.cpp upstream/cpp/src/aPacket.cpp upstream/cpp/src/MessageText.cpp upstream/cpp/src/GR_GraphBuf.cpp upstream/cpp/src/GR_Main.cpp upstream/cpp/runtime/runtime.cpp"
+          patched_dir=port/switch/build/host-patched-upstream/src
+          mkdir -p "$patched_dir"
+          cp upstream/cpp/src/{GR_Main,EC_BlockPar,EC_Data}.cpp "$patched_dir/"
+          git apply --directory=port/switch/build/host-patched-upstream --ignore-space-change port/switch/platform/gr_main_portable.patch
+          git apply --directory=port/switch/build/host-patched-upstream --ignore-space-change port/switch/platform/gr_main_zlib_portable.patch
+          git apply --directory=port/switch/build/host-patched-upstream --ignore-space-change port/switch/platform/dat_zlib_guard.patch
+          dat_sources="port/switch/platform/package.cpp port/switch/platform/game_path.cpp port/switch/platform/user_root.cpp port/switch/platform/ec_file_adapter.cpp port/switch/platform/windows_imports_portable.cpp port/switch/platform/sysutils_imports_portable.cpp port/switch/platform/runtime_time.cpp port/switch/platform/runtime_failure_hooks_portable.cpp port/switch/platform/runtime_settings_slice.cpp port/switch/platform/ui_metadata_slice.cpp port/switch/platform/zlib_bridge.cpp upstream/cpp/src/CrcUnit.cpp upstream/cpp/src/System.cpp upstream/cpp/src/SystemImports.cpp upstream/cpp/src/BlockParException.cpp upstream/cpp/src/GI_Main.cpp upstream/cpp/src/GlobalsV.cpp upstream/cpp/src/aMyFunction.cpp upstream/cpp/src/EC_File.cpp upstream/cpp/src/EC_Struct.cpp upstream/cpp/src/EC_Buf.cpp upstream/cpp/src/EC_Cache.cpp $patched_dir/EC_BlockPar.cpp $patched_dir/EC_Data.cpp upstream/cpp/src/EC_Str.cpp upstream/cpp/src/EC_Mem.cpp upstream/cpp/src/aPacket.cpp upstream/cpp/src/MessageText.cpp upstream/cpp/src/GR_GraphBuf.cpp $patched_dir/GR_Main.cpp upstream/cpp/runtime/runtime.cpp"
           g++ -std=c++20 -Wall -Wextra -Wpedantic -DSRHD_PORTABLE_RENDERER -DSRHD_PORTABLE_RUNTIME_SLICE -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_dat_synthetic.cpp $dat_sources -Wl,--gc-sections -lz -o port/switch/build/test_dat_synthetic
           port/switch/build/test_dat_synthetic
-          git -C upstream/cpp apply -R ../../port/switch/platform/dat_zlib_guard.patch
-          git -C upstream/cpp apply -R --ignore-space-change ../../port/switch/platform/gr_main_zlib_portable.patch
-          git -C upstream/cpp apply -R --ignore-space-change ../../port/switch/platform/gr_main_portable.patch
           g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_gr_main_no_mod_startup.cpp $startup_sources -Wl,--gc-sections -lz -o port/switch/build/test_gr_main_no_mod_startup
           port/switch/build/test_gr_main_no_mod_startup
           g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_gr_main_config_startup.cpp $startup_sources -Wl,--gc-sections -lz -o port/switch/build/test_gr_main_config_startup
           port/switch/build/test_gr_main_config_startup
           g++ -std=c++20 -Wall -Wextra -Wpedantic -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime tests/test_platform_startup.cpp $platform_startup_sources -Wl,--gc-sections -lz -o port/switch/build/test_platform_startup
           port/switch/build/test_platform_startup
-          git -C upstream/cpp apply ../../port/switch/platform/gr_main_portable.patch
+          renderer_dir=port/switch/build/host-renderer-upstream/src
+          mkdir -p "$renderer_dir"
+          cp upstream/cpp/src/GR_Main.cpp "$renderer_dir/"
+          git apply --directory=port/switch/build/host-renderer-upstream --ignore-space-change port/switch/platform/gr_main_portable.patch
           mkdir -p port/switch/build/host-renderer
           for source in pixels copy alpha_buffers gradients; do
             gcc -std=c11 -Iupstream/okgf/include -Iupstream/okgf/src -c "upstream/okgf/src/$source.c" -o "port/switch/build/host-renderer/$source.o"
           done
           gcc -std=c11 -Iupstream/okgf/include -Iupstream/okgf/src -c upstream/okgf/src/math/precision.c -o port/switch/build/host-renderer/precision.o
-          g++ -std=c++20 -Wall -Wextra -Wpedantic -DSRHD_PORTABLE_RENDERER -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime -Iupstream/okgf/include tests/test_renderer_software.cpp port/switch/platform/okgf_bridge.cpp port/switch/platform/renderer_platform.cpp port/switch/platform/runtime_time.cpp port/switch/platform/runtime_failure_hooks_portable.cpp port/switch/platform/windows_imports_portable.cpp upstream/cpp/src/System.cpp upstream/cpp/src/SystemImports.cpp upstream/cpp/src/GlobalsV.cpp upstream/cpp/src/EC_Struct.cpp upstream/cpp/src/EC_Mem.cpp upstream/cpp/src/GR_GraphBuf.cpp upstream/cpp/src/GR_Main.cpp upstream/cpp/runtime/runtime.cpp port/switch/build/host-renderer/pixels.o port/switch/build/host-renderer/copy.o port/switch/build/host-renderer/alpha_buffers.o port/switch/build/host-renderer/gradients.o port/switch/build/host-renderer/precision.o -Wl,--gc-sections -lm -o port/switch/build/test_renderer_software
+          g++ -std=c++20 -Wall -Wextra -Wpedantic -DSRHD_PORTABLE_RENDERER -ffunction-sections -fdata-sections -Iport/switch/platform -Iupstream/cpp/src -Iupstream/cpp/runtime -Iupstream/okgf/include tests/test_renderer_software.cpp port/switch/platform/okgf_bridge.cpp port/switch/platform/renderer_platform.cpp port/switch/platform/runtime_time.cpp port/switch/platform/runtime_failure_hooks_portable.cpp port/switch/platform/windows_imports_portable.cpp upstream/cpp/src/System.cpp upstream/cpp/src/SystemImports.cpp upstream/cpp/src/GlobalsV.cpp upstream/cpp/src/EC_Struct.cpp upstream/cpp/src/EC_Mem.cpp upstream/cpp/src/GR_GraphBuf.cpp "$renderer_dir/GR_Main.cpp" upstream/cpp/runtime/runtime.cpp port/switch/build/host-renderer/pixels.o port/switch/build/host-renderer/copy.o port/switch/build/host-renderer/alpha_buffers.o port/switch/build/host-renderer/gradients.o port/switch/build/host-renderer/precision.o -Wl,--gc-sections -lm -o port/switch/build/test_renderer_software
           echo renderer-build-pass
           port/switch/build/test_renderer_software
-          git -C upstream/cpp apply -R --ignore-space-change ../../port/switch/platform/gr_main_portable.patch
           g++ -std=c++20 -Wall -Wextra -Wpedantic -Iport/switch/platform tests/test_zl02_synthetic.cpp port/switch/platform/package.cpp -lz -o port/switch/build/test_zl02_synthetic
           port/switch/build/test_zl02_synthetic
       - name: Run M12 runtime loop regression

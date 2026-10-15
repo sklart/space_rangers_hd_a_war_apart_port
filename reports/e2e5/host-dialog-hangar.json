@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "level": "ORIGINAL GAME HOST PROCESS",
+  "scenario": "Main Menu mouse New Game -> GameSettings -> Introduction -> four RuinsTalk choices -> Hangar",
+  "assets": "installed original game resources, read only; isolated user directory",
+  "before_fix": {
+    "host_binary_sha256": "bf6c4b5a35f2ce497bac5ca81a8dabd7a9698a86c4d18f0ade78395d1d86d2c6",
+    "dialog_callbacks": 4,
+    "last_screen_dispatch": 4,
+    "signal": 11,
+    "fault_address": "0xa581f540",
+    "symbolized_path": ["fHangar::TfHangar::CaptureDispatcherMirror", "GR_Main::Ex_OKGR_Copy_XY_XY_WORD", "OKGR_Copy_XY_XY_WORD", "okgf_load32"]
+  },
+  "after_fix": {
+    "host_binary_sha256": "6b101cc249af73a5002af663466052e936a15f27b436b77e0ebc3c168db03cfc",
+    "dialog_callbacks": 4,
+    "screen_dispatches": [22, 1, 33, 3, 20, 4],
+    "hangar_on_open_ready": true,
+    "hangar_first_frame": true,
+    "hangar_60_frames": true,
+    "crashed": false,
+    "stopped_by_probe_after_checkpoint": true,
+    "elapsed_seconds": 111.95
+  },
+  "scope": "software host evidence only; no Switch hardware or save/load claim"
+}

@@ -1,4 +1,7 @@
 #include "renderer_platform.hpp"
+#include "e2e_clock.hpp"
+#include "e2e_stage.hpp"
+#include "e2e5_stage_profiler.hpp"
 
 #include "units/GR_DX.hpp"
 #include "units/GR_GraphBuf.hpp"
@@ -10,9 +13,12 @@
 #include "types/aMyFunction.hpp"
 
 #if defined(__SWITCH__)
+#include "win32_compat_window.hpp"
 #include <SDL2/SDL.h>
 #endif
 
+#include <algorithm>
+#include <cstdio>
 #include <limits>
 
 namespace srhd_awa::platform::renderer_platform {
@@ -22,12 +28,50 @@ bool g_initialized{};
 std::uint64_t g_presentation_count{};
 std::uint64_t g_last_presentation_hash{};
 PresentationDiagnostics g_presentation_diagnostics{};
+bool g_presentation_failure_logged{};
 
 #if defined(__SWITCH__)
 SDL_Renderer* g_sdl_renderer{};
 SDL_Texture* g_sdl_texture{};
 std::int32_t g_texture_width{};
 std::int32_t g_texture_height{};
+#if defined(E2E_DEBUG_CURSOR_OVERLAY) && E2E_DEBUG_CURSOR_OVERLAY
+bool g_cursor_overlay_logged{};
+#endif
+std::uint32_t g_rate_start_tick{};
+std::uint64_t g_rate_start_count{};
+std::uint64_t g_present_us_sum{};
+std::uint64_t g_present_us_max{};
+std::uint32_t g_last_hash_tick{};
+
+#if defined(E2E_DEBUG_CURSOR_OVERLAY) && E2E_DEBUG_CURSOR_OVERLAY
+bool DrawInputCursor(const SDL_Rect& destination, std::int32_t width,
+                     std::int32_t height) {
+  std::int32_t input_x{}, input_y{};
+  win32_compat::InputCursor(&input_x, &input_y);
+  const int x = destination.x + input_x * destination.w / width;
+  const int y = destination.y + input_y * destination.h / height;
+  // Explicit diagnostic overlay. The original game cursor is drawn in RGB565.
+  const SDL_Rect shadow_vertical{x - 2, y - 12, 5, 25};
+  const SDL_Rect shadow_horizontal{x - 12, y - 2, 25, 5};
+  const SDL_Rect pointer_vertical{x, y - 10, 1, 21};
+  const SDL_Rect pointer_horizontal{x - 10, y, 21, 1};
+  const SDL_Rect pointer_center{x - 1, y - 1, 3, 3};
+  if (SDL_SetRenderDrawColor(g_sdl_renderer, 0, 0, 0, 255) != 0 ||
+      SDL_RenderFillRect(g_sdl_renderer, &shadow_vertical) != 0 ||
+      SDL_RenderFillRect(g_sdl_renderer, &shadow_horizontal) != 0 ||
+      SDL_SetRenderDrawColor(g_sdl_renderer, 255, 230, 0, 255) != 0 ||
+      SDL_RenderFillRect(g_sdl_renderer, &pointer_vertical) != 0 ||
+      SDL_RenderFillRect(g_sdl_renderer, &pointer_horizontal) != 0 ||
+      SDL_RenderFillRect(g_sdl_renderer, &pointer_center) != 0)
+    return false;
+  if (!g_cursor_overlay_logged) {
+    e2e_stage::Log("controller cursor overlay active");
+    g_cursor_overlay_logged = true;
+  }
+  return true;
+}
+#endif
 #endif
 
 bool ValidDimensions(std::int32_t width, std::int32_t height, std::int32_t pitch) {
@@ -37,9 +81,26 @@ bool ValidDimensions(std::int32_t width, std::int32_t height, std::int32_t pitch
          static_cast<std::uint64_t>(std::numeric_limits<std::int32_t>::max());
 }
 
+bool PresentationFailure(const char* reason) {
+#if defined(__SWITCH__)
+  if (!g_presentation_failure_logged) {
+    char detail[384]{};
+    std::snprintf(detail, sizeof(detail), "present failed reason=%s sdl=%s",
+                  reason, SDL_GetError());
+    e2e_stage::Log(detail);
+    g_presentation_failure_logged = true;
+  }
+#else
+  static_cast<void>(reason);
+#endif
+  return false;
+}
+
 std::uint64_t HashRgb565(const void* pixels, std::int32_t pitch, std::int32_t width,
                          std::int32_t height) {
   const auto* rows = static_cast<const std::uint8_t*>(pixels);
+  // Legacy project fingerprint basis, retained for Mxx hardware evidence.
+  // Standard FNV-1a-64 starts at 14695981039346656037.
   std::uint64_t value = UINT64_C(1469598103934665603);
   for (std::int32_t y = 0; y < height; ++y) {
     for (std::int32_t x = 0; x < width * 2; ++x) {
@@ -59,6 +120,8 @@ void ClearSoftwareGlobals() {
   GR_DX::PendingPointCapacity = 0;
   GR_Main::GameScreenWidth = 0;
   GR_Main::GameScreenHeight = 0;
+  GR_Main::ExtraScreenWidth = 0;
+  GR_Main::ExtraScreenHeight = 0;
   GR_Main::PresentationWidth = 0;
   GR_Main::PresentationHeight = 0;
 }
@@ -81,8 +144,36 @@ bool InitializeSoftwareRenderer(const RendererConfig& config, std::string* error
   ClearSoftwareGlobals();
   GR_Main::GameScreenWidth = config.game_width;
   GR_Main::GameScreenHeight = config.game_height;
+  // Mirror the original display-mode setup before UI InitializeLayout runs.
+  GR_Main::ExtraScreenWidth = config.game_width - 1024;
+  GR_Main::ExtraScreenHeight = config.game_height - 768;
   GR_Main::PresentationWidth = config.presentation_width > 0 ? config.presentation_width : config.game_width;
   GR_Main::PresentationHeight = config.presentation_height > 0 ? config.presentation_height : config.game_height;
+  // GR_DXInit normally enumerates these modes.  The software renderer bypasses
+  // that path, but Options still indexes the selected mode during OnOpen.
+  const GR_Main::TDisplayModeGR fixed_mode{
+      static_cast<std::uint32_t>(config.game_width),
+      static_cast<std::uint32_t>(config.game_height), 60u, 0u};
+  GR_Main::DesktopDisplayMode = fixed_mode;
+  GR_Main::GameDisplayModes.set_length(1);
+  GR_Main::RobotDisplayModes.set_length(1);
+  GR_Main::GameDisplayModes[0] = fixed_mode;
+  GR_Main::RobotDisplayModes[0] = fixed_mode;
+  GR_Main::GameDisplayModeCount = 1;
+  GR_Main::RobotDisplayModeCount = 1;
+  GR_Main::SelectedGameDisplayMode = 0;
+  GR_Main::SelectedRobotDisplayMode = 0;
+  GR_Main::SmallestGameDisplayMode = 0;
+#if defined(__SWITCH__)
+  {
+    char detail[128]{};
+    std::snprintf(detail, sizeof(detail), "renderer geometry game=%dx%d presentation=%dx%d extra=%d,%d",
+        GR_Main::GameScreenWidth, GR_Main::GameScreenHeight,
+        GR_Main::PresentationWidth, GR_Main::PresentationHeight,
+        GR_Main::ExtraScreenWidth, GR_Main::ExtraScreenHeight);
+    e2e_stage::Log(detail);
+  }
+#endif
   GR_Main::GameScreenRect = {0, 0, config.game_width, config.game_height};
   GR_Main::PresentationRect = {0, 0, GR_Main::PresentationWidth, GR_Main::PresentationHeight};
   GR_Main::VSyncEnabled = config.vsync;
@@ -144,32 +235,59 @@ bool InitializeReleaseCompatibleDefaults(std::string* error) {
   return InitializeSoftwareRenderer(config, error);
 }
 
+bool ApplyVSyncSetting(bool enabled) {
+#if defined(__SWITCH__)
+  if (g_sdl_renderer && SDL_RenderSetVSync(g_sdl_renderer, enabled ? 1 : 0) != 0)
+    return PresentationFailure("SDL_RenderSetVSync");
+#else
+  (void)enabled;
+#endif
+  return true;
+}
+
 bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, std::int32_t height) {
-  if (!g_initialized || !pixels || !ValidDimensions(width, height, pitch)) return false;
+#if defined(__SWITCH__)
+  const auto present_start_us = e2e_clock::Microseconds();
+#endif
+  if (!g_initialized) return PresentationFailure("renderer not initialized");
+  if (!pixels) return PresentationFailure("pixels missing");
+  if (!ValidDimensions(width, height, pitch)) return PresentationFailure("invalid dimensions");
+#if defined(__SWITCH__) && defined(E2E_DIAGNOSTICS) && !E2E_DIAGNOSTICS
+  const auto hash_tick = e2e_clock::Milliseconds();
+  if (!g_presentation_count ||
+      static_cast<std::uint32_t>(hash_tick - g_last_hash_tick) >= 5000u) {
+    g_last_presentation_hash = HashRgb565(pixels, pitch, width, height);
+    g_last_hash_tick = hash_tick;
+  }
+#else
   g_last_presentation_hash = HashRgb565(pixels, pitch, width, height);
+#endif
   g_presentation_diagnostics = {};
 #if defined(__SWITCH__)
-  if (!g_native_window) return false;
+  if (!g_native_window) return PresentationFailure("SDL window missing");
   if (!g_sdl_renderer) {
     g_sdl_renderer = SDL_CreateRenderer(static_cast<SDL_Window*>(g_native_window), -1,
-                                        SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (!g_sdl_renderer) return false;
+        SDL_RENDERER_ACCELERATED |
+        (GR_Main::VSyncEnabled ? SDL_RENDERER_PRESENTVSYNC : 0));
+    if (!g_sdl_renderer) return PresentationFailure("SDL_CreateRenderer");
   }
   g_presentation_diagnostics.renderer_ready = g_sdl_renderer != nullptr;
   if (!g_sdl_texture || g_texture_width != width || g_texture_height != height) {
     if (g_sdl_texture) SDL_DestroyTexture(g_sdl_texture);
     g_sdl_texture = SDL_CreateTexture(g_sdl_renderer, SDL_PIXELFORMAT_RGB565,
                                       SDL_TEXTUREACCESS_STREAMING, width, height);
-    if (!g_sdl_texture) return false;
+    if (!g_sdl_texture) return PresentationFailure("SDL_CreateTexture");
     g_texture_width = width;
     g_texture_height = height;
   }
   g_presentation_diagnostics.texture_ready = g_sdl_texture != nullptr;
-  if (SDL_UpdateTexture(g_sdl_texture, nullptr, pixels, pitch) != 0) return false;
+  if (SDL_UpdateTexture(g_sdl_texture, nullptr, pixels, pitch) != 0)
+    return PresentationFailure("SDL_UpdateTexture");
   int output_width{};
   int output_height{};
   if (SDL_GetRendererOutputSize(g_sdl_renderer, &output_width, &output_height) != 0 ||
-      output_width <= 0 || output_height <= 0) return false;
+      output_width <= 0 || output_height <= 0)
+    return PresentationFailure("SDL_GetRendererOutputSize");
   const float scale_x = static_cast<float>(output_width) / static_cast<float>(width);
   const float scale_y = static_cast<float>(output_height) / static_cast<float>(height);
   const float scale = scale_x < scale_y ? scale_x : scale_y;
@@ -187,14 +305,60 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   g_presentation_diagnostics.destination_y = destination.y;
   g_presentation_diagnostics.destination_width = destination.w;
   g_presentation_diagnostics.destination_height = destination.h;
-  SDL_RenderClear(g_sdl_renderer);
-  if (SDL_RenderCopy(g_sdl_renderer, g_sdl_texture, nullptr, &destination) != 0) return false;
+  if (SDL_SetRenderDrawColor(g_sdl_renderer, 0, 0, 0, 255) != 0 ||
+      SDL_RenderClear(g_sdl_renderer) != 0)
+    return PresentationFailure("SDL_RenderClear");
+  if (SDL_RenderCopy(g_sdl_renderer, g_sdl_texture, nullptr, &destination) != 0)
+    return PresentationFailure("SDL_RenderCopy");
+#if defined(E2E_DEBUG_CURSOR_OVERLAY) && E2E_DEBUG_CURSOR_OVERLAY
+  if (!DrawInputCursor(destination, width, height))
+    return PresentationFailure("controller cursor overlay");
+#endif
   SDL_RenderPresent(g_sdl_renderer);
   g_presentation_diagnostics.present_succeeded = true;
+  const auto present_us = e2e_clock::Microseconds() - present_start_us;
+  g_present_us_sum += present_us;
+  g_present_us_max = std::max(g_present_us_max, present_us);
 #else
   g_presentation_diagnostics.present_succeeded = true;
 #endif
   ++g_presentation_count;
+  e2e5_stage_profiler::PresentFrame(width, height);
+#if defined(E2E5_HOST_SDL_WINDOW)
+  if (g_presentation_count == 1) {
+    char detail[160]{};
+    std::snprintf(detail, sizeof(detail),
+                  "HOST first software frame width=%d height=%d rgb565_hash=%016llx",
+                  width, height,
+                  static_cast<unsigned long long>(g_last_presentation_hash));
+    e2e_stage::Log(detail);
+  }
+#endif
+#if defined(__SWITCH__)
+  const auto now = e2e_clock::Milliseconds();
+  if (!g_rate_start_tick) {
+    g_rate_start_tick = now;
+    g_rate_start_count = g_presentation_count;
+    g_present_us_sum = 0;
+    g_present_us_max = 0;
+  } else if (static_cast<std::uint32_t>(now - g_rate_start_tick) >= 5000u) {
+    const auto elapsed = static_cast<std::uint32_t>(now - g_rate_start_tick);
+    const auto frames = g_presentation_count - g_rate_start_count;
+    const auto fps_x100 = frames * UINT64_C(100000) / elapsed;
+    char detail[192]{};
+    std::snprintf(detail, sizeof(detail),
+                  "presentation rate frames=%llu elapsed_ms=%u fps_x100=%llu present_avg_us=%llu present_max_us=%llu",
+                  static_cast<unsigned long long>(frames), elapsed,
+                  static_cast<unsigned long long>(fps_x100),
+                  static_cast<unsigned long long>(frames ? g_present_us_sum / frames : 0),
+                  static_cast<unsigned long long>(g_present_us_max));
+    e2e_stage::Log(detail);
+    g_rate_start_tick = now;
+    g_rate_start_count = g_presentation_count;
+    g_present_us_sum = 0;
+    g_present_us_max = 0;
+  }
+#endif
   return true;
 }
 
@@ -206,10 +370,19 @@ void ShutdownPresentation() {
   g_sdl_renderer = nullptr;
   g_texture_width = 0;
   g_texture_height = 0;
+#if defined(E2E_DEBUG_CURSOR_OVERLAY) && E2E_DEBUG_CURSOR_OVERLAY
+  g_cursor_overlay_logged = false;
+#endif
+  g_rate_start_tick = 0;
+  g_rate_start_count = 0;
+  g_present_us_sum = 0;
+  g_present_us_max = 0;
+  g_last_hash_tick = 0;
 #endif
   g_presentation_count = 0;
   g_last_presentation_hash = 0;
   g_presentation_diagnostics = {};
+  g_presentation_failure_logged = false;
 }
 
 void ShutdownSoftwareRenderer() {

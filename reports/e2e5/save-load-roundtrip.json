@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "source_git_head": "9acdf5ccc088723947bcf0e43258ec7fb74efb50",
+  "source_dirty_at_build": true,
+  "host_elf_sha256": "f92136bc426ba467da10a1937fabceb2ec9626061ed53275007c638088108950",
+  "resource_main_dat_sha256": "2544c91df96508a0e94b383b980d2344d792534f8d2c502ada30d6a99a44281a",
+  "switch_hardware": "PENDING",
+  "status": "PASS",
+  "proof": "Two independent original ProgramMain processes; original UI quicksave and load; same host ELF and real assets",
+  "save": {
+    "file_sha256": "8f1b1be4a9cf0bd101f2bdebe470c2c5c85764432b8b60955741b92ee4479104",
+    "size_bytes": 763947,
+    "inventory": {
+      "status": "PASS",
+      "inspected": 928,
+      "unknown": 0
+    },
+    "state": {
+      "phase": "save",
+      "turn": 301,
+      "money": 5940,
+      "player_ship_id": 3,
+      "star_id": 3,
+      "planet_id": 0,
+      "script_count": 16
+    },
+    "stage": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/.worktrees/e2e4-offline-runtime-audio/port/switch/build/e2e5-host-game/runs/a2226d2f8f9b4d228fcb38a0081a3e2f"
+  },
+  "load": {
+    "input_sha256": "8f1b1be4a9cf0bd101f2bdebe470c2c5c85764432b8b60955741b92ee4479104",
+    "state": {
+      "phase": "load",
+      "turn": 301,
+      "money": 5940,
+      "player_ship_id": 3,
+      "star_id": 3,
+      "planet_id": 0,
+      "script_count": 16
+    },
+    "stage": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/.worktrees/e2e4-offline-runtime-audio/port/switch/build/e2e5-host-game/runs/bfeb7640b075410888443648a6e4199c",
+    "elapsed_seconds": 48.57
+  },
+  "checks": {
+    "same_host_elf": true,
+    "same_resources": true,
+    "state_fields_equal": true,
+    "original_load_screen": true,
+    "loaded_hangar_60_frames": true,
+    "ship_60_frames": true,
+    "next_turn": 302,
+    "no_crash_or_timeout": true
+  },
+  "corrupt_typed_reference": {
+    "fixture_sha256": "011bbe7d4a742cf145a8fa96bf6d4618800f1eab86b2ab7cf06fdb688daad0d7",
+    "status": "LOAD_REJECTED",
+    "crashed": false,
+    "loaded_state_count": 0,
+    "stage": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/.worktrees/e2e4-offline-runtime-audio/port/switch/build/e2e5-host-game/runs/baba44ff70724b1ea0ef6631aabd3e0f"
+  },
+  "audio": {
+    "sample_rate": 44100,
+    "channels": 2,
+    "frames": 2080768,
+    "peak": 32081,
+    "clipped_samples": 0,
+    "ring_underruns": 0,
+    "rejected_writes": 0,
+    "pcm_sha256": "A3142E98E73CAA2C12332A25C454BAD2BE930EB1F995F54AFD4633F171210E1B"
+  },
+  "limitations": [
+    "RSG64/v168 is port-specific; native Windows acceptance unverified.",
+    "Switch save remains disabled and hardware tests pending."
+  ]
+}

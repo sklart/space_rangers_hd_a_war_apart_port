@@ -1,0 +1,38 @@
+[E2E] build_git=1f745ef
+[E2E][WINAPI] manifest=FC5FBD744721BCE9A65C4E2B012D9B5365181F3D113D9C317A58C6823FAB2F93
+[E2E][WINAPI] portable=137
+[E2E][WINAPI] optional=76
+[E2E][WINAPI] unknown=0
+[E2E] ProgramMain BEGIN
+[E2E] Forms UnitInitialize
+[E2E] ExceptionInfo
+[E2E] CheatCode
+[E2E] Application Initialize
+[E2E] platform runtime
+[E2E] platform runtime SDL services ready
+[E2E] platform runtime package collection ready
+[E2E] platform runtime SDL window ready
+[E2E] platform runtime session log ready
+[E2E] platform runtime install parser ready
+[E2E] platform runtime install.txt loaded
+[E2E] language/packages
+[E2E] script host
+[E2E] script host path pool
+[E2E] script host worker
+[E2E] script host engine
+[E2E] script host engine ready
+[E2E] script host ready
+[E2E] startup clock
+[E2E] runtime/settings
+[E2E] global UI
+[E2E] robot runtime
+[E2E] entering RunMainScreenStateLoop
+[E2E] screen dispatch id=22 postload=1
+[E2E] screen Run OnOpen begin
+[E2E] screen Run OnOpen ready
+[E2E] screen Run first frame attempted
+[E2E] screen returned id=22 requested=1
+[E2E] screen dispatch id=1 postload=0
+[E2E] screen Run OnOpen begin
+[E2E] screen Run OnOpen ready
+[E2E] screen Run first frame attempted

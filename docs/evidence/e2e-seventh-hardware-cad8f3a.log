@@ -1,0 +1,62 @@
+[E2E] build_git=cad8f3a
+[E2E][WINAPI] manifest=54B3D73688CB4C2E4C845C288699782188823668594DAF4747F2B7A31CAB55FE
+[E2E][WINAPI] portable=136
+[E2E][WINAPI] optional=77
+[E2E][WINAPI] unknown=0
+[E2E] ProgramMain BEGIN
+[E2E] Forms UnitInitialize
+[E2E] ExceptionInfo
+[E2E] CheatCode
+[E2E] Application Initialize
+[E2E] platform runtime
+[E2E] platform runtime SDL services ready
+[E2E] platform runtime package collection ready
+[E2E] platform runtime SDL window ready
+[E2E] platform runtime session log ready
+[E2E] platform runtime install parser ready
+[E2E] platform runtime install.txt loaded
+[E2E] language/packages
+[E2E] script host
+[E2E] script host path pool
+[E2E] script host worker
+[E2E] script host engine
+[E2E] script host engine ready
+[E2E] script host ready
+[E2E] startup clock
+[E2E] runtime/settings
+[E2E] global UI
+[E2E][WINAPI] OPTIONAL_DISABLED stage=global UI dll=avifil32.dll symbol=AVIFileExit
+[E2E][WINAPI] OPTIONAL_DISABLED stage=global UI dll=avifil32.dll symbol=AVIFileExit
+[E2E] FAIL stage=ProgramMain exception=OPTIONAL_DISABLED stage=global UI dll=avifil32.dll symbol=AVIFileExit
+[E2E][WINAPI] resolved=20 optional_disabled=2 unmapped=0 dynamic_loads=0 physical_dll_loads=0
+[E2E] build_git=cad8f3a
+[E2E][WINAPI] manifest=54B3D73688CB4C2E4C845C288699782188823668594DAF4747F2B7A31CAB55FE
+[E2E][WINAPI] portable=136
+[E2E][WINAPI] optional=77
+[E2E][WINAPI] unknown=0
+[E2E] ProgramMain BEGIN
+[E2E] Forms UnitInitialize
+[E2E] ExceptionInfo
+[E2E] CheatCode
+[E2E] Application Initialize
+[E2E] platform runtime
+[E2E] platform runtime SDL services ready
+[E2E] platform runtime package collection ready
+[E2E] platform runtime SDL window ready
+[E2E] platform runtime session log ready
+[E2E] platform runtime install parser ready
+[E2E] platform runtime install.txt loaded
+[E2E] language/packages
+[E2E] script host
+[E2E] script host path pool
+[E2E] script host worker
+[E2E] script host engine
+[E2E] script host engine ready
+[E2E] script host ready
+[E2E] startup clock
+[E2E] runtime/settings
+[E2E] global UI
+[E2E][WINAPI] OPTIONAL_DISABLED stage=global UI dll=avifil32.dll symbol=AVIFileExit
+[E2E][WINAPI] OPTIONAL_DISABLED stage=global UI dll=avifil32.dll symbol=AVIFileExit
+[E2E] FAIL stage=ProgramMain exception=OPTIONAL_DISABLED stage=global UI dll=avifil32.dll symbol=AVIFileExit
+[E2E][WINAPI] resolved=20 optional_disabled=2 unmapped=0 dynamic_loads=0 physical_dll_loads=0
