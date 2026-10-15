@@ -450,6 +450,20 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
         if tech.count(old) != 1:
             raise RuntimeError("equipment-tech short-circuit boundary changed")
         text = text[:tech_begin] + tech.replace(old, new, 1) + text[tech_end:]
+        bonus_begin = text.index("    std::int32_t TShip::GetTotalStatBonus(")
+        bonus_end = text.index("    std::int32_t TShip::GetRadarRange(", bonus_begin)
+        bonus = text[bonus_begin:bonus_end]
+        old = "        std::int32_t Strength = System::Round(GetCombatStatusStrength(cseMagnetic));"
+        new = '''        // Magnetic status changes only these four bonuses.  Its lookup is
+        // read-only, so skip the list scan for every other bonus kind.
+        if (BonusKind != aConst::bonScan && BonusKind != aConst::bonDef &&
+            BonusKind != aConst::bonWRadius && BonusKind != aConst::bonRadar) {
+            return Result;
+        }
+        std::int32_t Strength = System::Round(GetCombatStatusStrength(cseMagnetic));'''
+        if bonus.count(old) != 1:
+            raise RuntimeError("magnetic stat bonus boundary changed")
+        text = text[:bonus_begin] + bonus.replace(old, new, 1) + text[bonus_end:]
     if source.name == "aPirate.cpp":
         # Native expression reduced PlanetQueue + 0 to a signed 32-bit
         # integer before treating it as a list pointer.
