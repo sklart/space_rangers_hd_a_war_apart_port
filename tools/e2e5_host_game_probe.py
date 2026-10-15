@@ -231,6 +231,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                  not auto_quicksave and not mouse_new_game and not capture_audio and
                  not auto_options and not auto_takeoff and
                  load_save is None) or
+                    (os.environ.get("E2E5_HOST_MENU_PROBE") and
+                     "HOST menu probe completed" in current) or
                     ((auto_new_game or mouse_new_game) and not auto_start_game and
                      not auto_select_dialog and not auto_advance_dialog and not auto_quicksave
                      and seen_new_game_frame) or

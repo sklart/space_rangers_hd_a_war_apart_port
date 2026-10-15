@@ -4,6 +4,11 @@
 
 #include <limits>
 #include <memory>
+#if defined(E2E5_HOST_SDL_WINDOW)
+#include <atomic>
+#include <cstdlib>
+#include <new>
+#endif
 
 namespace srhd_awa::platform::e2e4_native_vorbis {
 
@@ -36,6 +41,14 @@ std::size_t ReadCallback(void* bytes, std::size_t size,
 } // namespace
 
 OpenResult Open(void* source, ReadSource read) {
+#if defined(E2E5_HOST_SDL_WINDOW)
+    // Isolated host fault injection exercises the original worker boundary.
+    if (const char* value = std::getenv("E2E5_HOST_FAIL_VORBIS_OPEN")) {
+        static std::atomic<long> calls{0};
+        const auto target = std::strtol(value, nullptr, 10);
+        if (target > 0 && calls.fetch_add(1) + 1 == target) throw std::bad_alloc();
+    }
+#endif
     OpenResult result;
     if (!source || !read) {
         result.error = OV_EINVAL;

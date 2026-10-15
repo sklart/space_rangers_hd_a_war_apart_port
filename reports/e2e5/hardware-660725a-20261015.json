@@ -1,0 +1,297 @@
+{
+  "build_git": "660725a4044484b5f86cc1c9473236c9d8ab60d1",
+  "elf_sha256": "e3640a2f994abeb2e6f3b8e2c497703824ebfcd7369607c10e628cd19fe1c2a2",
+  "archives": [
+    {
+      "file": "D:\\1.zip",
+      "sha256": "e2067300d6ea8e1ed48689fd2c88ec69936e8a7ed9a10046c103830977f9fe32",
+      "build_logged": "[E2E] build_git=660725a",
+      "game_log_tail": [
+        "[MUSIC] ring played_frames=442368 underrun_frames=0 rejected_writes=0 callback_count=837 callback_max_us=848 callback_gap_max_us=52419 ready_chunks=3",
+        "Rescaling Bm.FormPQuest2.2S1... ok",
+        "Rescaling Bm.FormPQuest2.2Panel... ok",
+        "[MUSIC] ring played_frames=663552 underrun_frames=0 rejected_writes=0 callback_count=945 callback_max_us=883 callback_gap_max_us=52419 ready_chunks=3",
+        "[MUSIC] ring played_frames=884736 underrun_frames=0 rejected_writes=0 callback_count=1053 callback_max_us=883 callback_gap_max_us=52419 ready_chunks=3",
+        "[MUSIC] ring played_frames=1105920 underrun_frames=0 rejected_writes=0 callback_count=1161 callback_max_us=883 callback_gap_max_us=52419 ready_chunks=3",
+        "[MUSIC] ring played_frames=1325056 underrun_frames=0 rejected_writes=0 callback_count=1268 callback_max_us=883 callback_gap_max_us=52419 ready_chunks=3",
+        "[MUSIC] ring played_frames=1546240 underrun_frames=0 rejected_writes=0 callback_count=1376 callback_max_us=883 callback_gap_max_us=52419 ready_chunks=3",
+        "music\\rev\\theo_running_away.dat",
+        "[AUDIO] music status=decoding",
+        "[MUSIC] ring played_frames=0 underrun_frames=0 rejected_writes=0 callback_count=1508 callback_max_us=883 callback_gap_max_us=52419 ready_chunks=3",
+        "[MUSIC] ring played_frames=219136 underrun_frames=0 rejected_writes=0 callback_count=1615 callback_max_us=883 callback_gap_max_us=52419 ready_chunks=3"
+      ],
+      "e2e_tail": [
+        "[E2E] input poll window=1610612737 size=1280x720 cursor=416,580 buttons=A0 B0 X0 Y0 PLUS0 samples=1 missed=0",
+        "[E2E] screen Run frames=60",
+        "[E2E] gi draw screen=40 key=Bm.FormLoadAB.BG format=2 us=30935 clip=493,433,494,463",
+        "[E2E] input poll window=1610612737 size=1280x720 cursor=680,391 buttons=A0 B0 X0 Y0 PLUS0 samples=2 missed=0",
+        "[E2E] input cadence polls=2487 moves=420 window_us=5007158 max_gap_us=313797"
+      ],
+      "crash": {
+        "file": "crash_reports/01792088242_0100ba4026e94000.log",
+        "build_id_match": true,
+        "offsets": [
+          "0x437e0",
+          "0x40a20",
+          "0x4cef4",
+          "0x430b8",
+          "0x527ac",
+          "0x57284",
+          "0x561b34",
+          "0x5ab29c",
+          "0x609f80",
+          "0x303f0",
+          "0x1a600",
+          "0xc1764c",
+          "0xb8f0bc",
+          "0xb8f018"
+        ],
+        "symbols": {
+          "0x437e0": [
+            "pas::StaticMethodAdapter<&ab_MainForm::TfAB::WeaponStateChanged>::invoke(void*, GI_MessageLoop::TObjectGI*)",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\upstream\\cpp\\runtime/callables.hpp:111"
+          ],
+          "0x40a20": [
+            "pas::MethodAdapter<&ab_MainForm::TfAB::UpdateHelp>::invoke(void*, GI_MessageLoop::TObjectGI*, unsigned char)",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\upstream\\cpp\\runtime/callables.hpp:97"
+          ],
+          "0x4cef4": [
+            "ab_MainForm::TfAB::UpdateWeaponPanel()",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated-ui/ab_MainForm.cpp:1150 (discriminator 1)"
+          ],
+          "0x430b8": [
+            "ab_MainForm::TfAB::WeaponStateChanged(GI_MessageLoop::TObjectGI*)",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated-ui/ab_MainForm.cpp:1204"
+          ],
+          "0x527ac": [
+            "ab_MainForm::TfAB::EnterCurrentSpace()",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated-ui/ab_MainForm.cpp:2362"
+          ],
+          "0x57284": [
+            "ab_MainForm::TfAB::OnOpen()",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated-ui/ab_MainForm.cpp:597"
+          ],
+          "0x561b34": [
+            "GI_MessageLoop::TMessageLoopGI::RunContinuous()",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated/GI_MessageLoop.cpp:1615"
+          ],
+          "0x5ab29c": [
+            "Globals::RunMainScreenStateLoop()",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated/Globals.cpp:4056"
+          ],
+          "0x609f80": [
+            "Rangers::ProgramMain()",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated/Rangers.cpp:436"
+          ],
+          "0x303f0": [
+            "main",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated/program.cpp:59"
+          ],
+          "0x1a600": [
+            "exit",
+            "??:?"
+          ],
+          "0xc1764c": [
+            "__libc_init_array",
+            "??:?"
+          ],
+          "0xb8f0bc": [
+            "condvarWaitTimeout",
+            "/home/davem/projects/devkitpro/pacman-packages/libnx/src/libnx-4.12.0/nx/source/kernel/condvar.c:11 (discriminator 1)"
+          ],
+          "0xb8f018": [
+            "svcWaitProcessWideKeyAtomic",
+            "/home/davem/projects/devkitpro/pacman-packages/libnx/src/libnx-4.12.0/nx/source/kernel/svc.s:172"
+          ]
+        }
+      }
+    },
+    {
+      "file": "D:\\2.zip",
+      "sha256": "9ca5d13a50a35b3bf36399dfffce6d81e2c973dd1a7fee5e1818710debe88b5a",
+      "build_logged": "[E2E] build_git=660725a",
+      "game_log_tail": [
+        "fJournal... ok",
+        "fPanelLoad... ok",
+        "fLoadRobot... ok",
+        "fPanelLoad... ok",
+        "fLoadQuest... ok",
+        "fLoadAB... ok",
+        "fAchievements... ok",
+        "music\\special\\spaceiscalling.dat",
+        "[AUDIO] music status=decoding",
+        "Rescaling Bm.FormMain2.2AnimMain... ok",
+        "[MUSIC] ring played_frames=0 underrun_frames=0 rejected_writes=0 callback_count=522 callback_max_us=819 callback_gap_max_us=50740 ready_chunks=3",
+        "[MUSIC] ring played_frames=221184 underrun_frames=0 rejected_writes=0 callback_count=630 callback_max_us=884 callback_gap_max_us=50740 ready_chunks=3"
+      ],
+      "e2e_tail": [
+        "[E2E] perf screen=1 source=detail stage=38 count=453 avg_us=0 p50_us=1 p95_us=2 p99_us=3 max_us=4 sample=128",
+        "[E2E] perf ui screen=1 presents=8 rects=8 rect_area_px=7372800 root_draw_calls=8 control_visits=0 framebuffer_bytes=14745600",
+        "[E2E] perf audio cumulative source_calls=136 source_us=132083 source_max_us=122079 decode_calls=7 decode_inclusive_us=176811 decode_max_us=29977",
+        "[E2E] perf log cumulative calls=371 write_us=38984 flushes=5 flush_us=33041",
+        "[E2E] perf screen=1 source=present stage=40 count=114 avg_us=191 p50_us=1 p95_us=2 p99_us=10876 max_us=10893 sample=114"
+      ],
+      "crash": {
+        "file": "crash_reports/01792090843_0100ba4026e94000.log",
+        "build_id_match": true,
+        "offsets": [
+          "0x5434b0",
+          "0x3f5c24",
+          "0x544b68",
+          "0x3fade8",
+          "0x3f5688",
+          "0x3ed0fc",
+          "0x544310",
+          "0x55a0e0",
+          "0x56308c",
+          "0x5e9b98",
+          "0x564a68",
+          "0x5ab29c",
+          "0x609f80",
+          "0x303f0"
+        ],
+        "symbols": {
+          "0x5434b0": [
+            "GI_GraphButton::TGraphButtonGI_Create(GI_GraphButton::TGraphButtonGI*, GI_MessageLoop::TObjectGI*)",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated/GI_GraphButton.cpp:21"
+          ],
+          "0x3f5c24": [
+            "pas::PointerSlot<char16_t>::operator=(char16_t*)",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\upstream\\cpp\\runtime/pointer_slot.hpp:21"
+          ],
+          "0x544b68": [
+            "GI_GraphButton::TGraphButtonGI::SetImageNormalPath(pas::WideString const&)",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated/GI_GraphButton.cpp:134"
+          ],
+          "0x3fade8": [
+            "fMods::TfModsManager::InitializeLayout()",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated-ui/fMods.cpp:149 (discriminator 4)"
+          ],
+          "0x3f5688": [
+            "fMods::ShowModsManager(GI_MessageLoop::TMessageLoopGI*)",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated-ui/fMods.cpp:71"
+          ],
+          "0x3ed0fc": [
+            "fMainForm::TfMainForm::ModsClicked(GI_MessageLoop::TObjectGI*)",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated/fMainForm.cpp:660"
+          ],
+          "0x544310": [
+            "GI_GraphButton::TGraphButtonGI::ProcessLeftButtonUp(unsigned int, Types::TPoint)",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated/GI_GraphButton.cpp:702"
+          ],
+          "0x55a0e0": [
+            "GI_MessageLoop::TObjectGI::ProcessLeftButtonUp(unsigned int, Types::TPoint)",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated/GI_MessageLoop.cpp:585"
+          ],
+          "0x56308c": [
+            "GI_MessageLoop::TMessageLoopGI::ProcessWindowMessage(unsigned int, unsigned int, int)",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated/GI_MessageLoop.cpp:1953"
+          ],
+          "0x5e9b98": [
+            "GR_Main::GR_WinMessage(pas::Method<void (unsigned int, unsigned int, int)>)",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated/GR_Main.cpp:2235"
+          ],
+          "0x564a68": [
+            "GI_MessageLoop::TMessageLoopGI::Run()",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated/GI_MessageLoop.cpp:1399 (discriminator 3)"
+          ],
+          "0x5ab29c": [
+            "Globals::RunMainScreenStateLoop()",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated/Globals.cpp:4056"
+          ],
+          "0x609f80": [
+            "Rangers::ProgramMain()",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated/Rangers.cpp:436"
+          ],
+          "0x303f0": [
+            "main",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\generated/program.cpp:59"
+          ]
+        }
+      }
+    },
+    {
+      "file": "D:\\3.zip",
+      "sha256": "5009bad4b1d5037b08cd7bba228a60c8444007a373c39ac46973ec8590004099",
+      "build_logged": "[E2E] build_git=660725a",
+      "game_log_tail": [
+        "[MUSIC] ring played_frames=3530752 underrun_frames=0 rejected_writes=0 callback_count=8702 callback_max_us=1045 callback_gap_max_us=51267 ready_chunks=3",
+        "[MUSIC] ring played_frames=3751936 underrun_frames=0 rejected_writes=0 callback_count=8810 callback_max_us=1045 callback_gap_max_us=51267 ready_chunks=3",
+        "[MUSIC] ring played_frames=3973120 underrun_frames=0 rejected_writes=0 callback_count=8918 callback_max_us=1045 callback_gap_max_us=51267 ready_chunks=3",
+        "[MUSIC] ring played_frames=4192256 underrun_frames=0 rejected_writes=0 callback_count=9025 callback_max_us=1045 callback_gap_max_us=51267 ready_chunks=3",
+        "[MUSIC] ring played_frames=4413440 underrun_frames=0 rejected_writes=0 callback_count=9133 callback_max_us=1045 callback_gap_max_us=51267 ready_chunks=3",
+        "[MUSIC] ring played_frames=4634624 underrun_frames=0 rejected_writes=0 callback_count=9241 callback_max_us=1045 callback_gap_max_us=51267 ready_chunks=3",
+        "[MUSIC] ring played_frames=4855808 underrun_frames=0 rejected_writes=0 callback_count=9349 callback_max_us=1045 callback_gap_max_us=51267 ready_chunks=3",
+        "[MUSIC] ring played_frames=5074944 underrun_frames=0 rejected_writes=0 callback_count=9456 callback_max_us=1045 callback_gap_max_us=51267 ready_chunks=3",
+        "[MUSIC] ring played_frames=5296128 underrun_frames=0 rejected_writes=0 callback_count=9564 callback_max_us=1045 callback_gap_max_us=51267 ready_chunks=3",
+        "music\\rev\\theo_running_away.dat",
+        "Out of memory",
+        "Thread exception"
+      ],
+      "e2e_tail": [
+        "[E2E] galaxy turn segment=25 star_us=29885173 total_us=30241359 stars=73",
+        "[E2E] generation warmup turn=275/300 begin",
+        "[E2E] generation warmup turn=275/300 done",
+        "[E2E] generation warmup segment=11 player_us=1093207 galaxy_us=30356504",
+        "[E2E] galaxy turn segment=25 star_us=29609369 total_us=29970750 stars=73"
+      ],
+      "generation_markers": [
+        "[E2E3] generation stage=1 status=running previous_stage=0 previous_ms=100 total_ms=100",
+        "[E2E3] generation stage=2 status=running previous_stage=1 previous_ms=1209 total_ms=1310",
+        "[E2E3] generation stage=3 status=running previous_stage=2 previous_ms=2573 total_ms=3883",
+        "[E2E3] generation stage=4 status=running previous_stage=3 previous_ms=2962 total_ms=6845",
+        "[E2E3] generation stage=5 status=running previous_stage=4 previous_ms=2956 total_ms=9802",
+        "[E2E3] generation stage=6 status=running previous_stage=5 previous_ms=335 total_ms=10138",
+        "[E2E] generation warmup turn=1/300 begin",
+        "[E2E] generation warmup turn=1/300 done",
+        "[E2E] generation warmup turn=25/300 begin",
+        "[E2E] generation warmup turn=25/300 done",
+        "[E2E] generation warmup segment=1 player_us=2582125 galaxy_us=56086023",
+        "[E2E] generation warmup turn=50/300 begin",
+        "[E2E] generation warmup turn=50/300 done",
+        "[E2E] generation warmup segment=2 player_us=2221655 galaxy_us=58094459",
+        "[E2E] generation warmup turn=75/300 begin",
+        "[E2E] generation warmup turn=75/300 done",
+        "[E2E] generation warmup segment=3 player_us=2681722 galaxy_us=56755153",
+        "[E2E] generation warmup turn=100/300 begin",
+        "[E2E] generation warmup turn=100/300 done",
+        "[E2E] generation warmup segment=4 player_us=2910132 galaxy_us=55468600",
+        "[E2E] generation warmup turn=125/300 begin",
+        "[E2E] generation warmup turn=125/300 done",
+        "[E2E] generation warmup segment=5 player_us=2990943 galaxy_us=61004203",
+        "[E2E] generation warmup turn=150/300 begin",
+        "[E2E] generation warmup turn=150/300 done",
+        "[E2E] generation warmup segment=6 player_us=2195562 galaxy_us=60524466",
+        "[E2E] generation warmup turn=175/300 begin",
+        "[E2E] generation warmup turn=175/300 done",
+        "[E2E] generation warmup segment=7 player_us=1443758 galaxy_us=38783074",
+        "[E2E] generation warmup turn=200/300 begin",
+        "[E2E] generation warmup turn=200/300 done",
+        "[E2E] generation warmup segment=8 player_us=1213896 galaxy_us=27814284",
+        "[E2E] generation warmup turn=225/300 begin",
+        "[E2E] generation warmup turn=225/300 done",
+        "[E2E] generation warmup segment=9 player_us=1032696 galaxy_us=29165264",
+        "[E2E] generation warmup turn=250/300 begin",
+        "[E2E] generation warmup turn=250/300 done",
+        "[E2E] generation warmup segment=10 player_us=1170740 galaxy_us=30494495",
+        "[E2E] generation warmup turn=275/300 begin",
+        "[E2E] generation warmup turn=275/300 done",
+        "[E2E] generation warmup segment=11 player_us=1093207 galaxy_us=30356504"
+      ],
+      "all_failure_lines": [
+        {
+          "file": "########.log",
+          "line": 198,
+          "text": "Out of memory"
+        },
+        {
+          "file": "########.log",
+          "line": 199,
+          "text": "Thread exception"
+        }
+      ],
+      "affinity_marker_present": false,
+      "note": "No crash dump. The UI stopped while calculation checkpoints continued through 275/300 and a later 25-turn galaxy aggregate. No completed stage 8."
+    }
+  ]
+}

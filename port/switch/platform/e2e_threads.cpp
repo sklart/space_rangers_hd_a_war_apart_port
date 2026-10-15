@@ -51,7 +51,8 @@ void RunThread(void* opaque) {
   try { args->entry(args->parameter); } catch (...) {
     std::lock_guard lock(state->mutex);
     state->failed = true;
-    e2e_stage::Log("FAIL stage=worker-thread uncaught-exception");
+    try { e2e_stage::Log("FAIL stage=worker-thread uncaught-exception"); }
+    catch (...) { /* Publishing completion must survive low-memory logging. */ }
   }
   {
     std::lock_guard lock(state->mutex);
@@ -209,6 +210,30 @@ bool Close(std::uint32_t handle) {
   }
 #endif
   return true;
+}
+
+bool IsUsable(std::uint32_t handle) {
+  std::lock_guard lock(g_mutex);
+  const auto found = g_threads.find(handle);
+  if (found == g_threads.end()) return false;
+  std::lock_guard state_lock(found->second->mutex);
+  return !found->second->failed && !found->second->finished;
+}
+
+void MarkCurrentFailed() {
+  std::lock_guard lock(g_mutex);
+  for (const auto& [handle, state] : g_threads) {
+#if defined(__SWITCH__)
+    const bool current = state->worker.handle == threadGetCurHandle();
+#else
+    const bool current = state->worker.get_id() == std::this_thread::get_id();
+#endif
+    if (current) {
+      std::lock_guard state_lock(state->mutex);
+      state->failed = true;
+      return;
+    }
+  }
 }
 
 bool PreferCalculationCore(std::uint32_t handle) {

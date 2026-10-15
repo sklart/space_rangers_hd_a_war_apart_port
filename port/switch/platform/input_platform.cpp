@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <atomic>
 
 #if defined(__SWITCH__)
 #include <switch.h>
@@ -11,6 +12,15 @@
 
 namespace srhd_awa::platform::input_platform {
 namespace {
+std::atomic_bool suppress_applet_input{false};
+bool Suppressed(const RawInput& raw) {
+  if (!suppress_applet_input.load()) return false;
+  if (!raw.touch && !raw.a && !raw.b && !raw.x && !raw.y && !raw.plus &&
+      !raw.zl && !raw.zr && !raw.minus && !raw.dpad_left && !raw.dpad_right &&
+      !raw.dpad_up && !raw.dpad_down)
+    suppress_applet_input.store(false);
+  return true; // Discard the release sample and old applet history as well.
+}
 double Axis(std::int32_t value, const Config& config) {
   value = std::clamp(value, -32767, 32767);
   const auto magnitude = std::abs(value);
@@ -22,6 +32,16 @@ double Axis(std::int32_t value, const Config& config) {
   return value < 0 ? -curved : curved;
 }
 #if defined(__SWITCH__)
+void ReadTouch(RawInput* raw) {
+  static bool initialized = false;
+  if (!initialized) { hidInitializeTouchScreen(); initialized = true; }
+  HidTouchScreenState sample{};
+  if (hidGetTouchScreenStates(&sample, 1) && sample.count) {
+    raw->touch = true;
+    raw->touch_x = sample.touches[0].x;
+    raw->touch_y = sample.touches[0].y;
+  }
+}
 RawInput FromButtons(std::uint64_t held, HidAnalogStickState stick) {
   RawInput raw{};
   raw.stick_x = stick.x; raw.stick_y = stick.y;
@@ -103,6 +123,15 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
   state->last_update_us = now_us;
   state->time_initialized = true;
   const auto& config = state->config;
+  if (raw.touch) {
+    state->precise_x = std::clamp<std::int32_t>(
+        static_cast<std::int64_t>(raw.touch_x) * width / 1280, 0, width - 1);
+    state->precise_y = std::clamp<std::int32_t>(
+        static_cast<std::int64_t>(raw.touch_y) * height / 720, 0, height - 1);
+    raw.stick_x = raw.stick_y = 0;
+    raw.dpad_left = raw.dpad_right = raw.dpad_up = raw.dpad_down = false;
+  }
+  raw.a = raw.a || raw.touch;
   const auto seconds = static_cast<double>(delta_us) / 1000000.0;
   const auto dx = (Axis(raw.stick_x, config) * config.stick_pixels_per_second +
                    (static_cast<int>(raw.dpad_right) - static_cast<int>(raw.dpad_left)) *
@@ -142,6 +171,7 @@ Snapshot Normalize(State* state, RawInput raw, std::int32_t width,
   return NormalizeAt(state, raw, width, height, e2e_clock::Microseconds());
 }
 void InjectHostRaw(State* state, RawInput raw) { if (state) state->host_raw = raw; }
+void SuppressUntilReleased() { suppress_applet_input.store(true); }
 void Warp(State* state, std::int32_t x, std::int32_t y,
           std::int32_t width, std::int32_t height) {
   if (!state || width <= 0 || height <= 0) return;
@@ -163,8 +193,10 @@ Snapshot Poll(State* state, std::int32_t width, std::int32_t height) {
     pad_initialized = true;
   }
   padUpdate(&pad);
-  return Normalize(state, FromButtons(padGetButtons(&pad), padGetStickPos(&pad, 0)),
-                   width, height);
+  auto raw = FromButtons(padGetButtons(&pad), padGetStickPos(&pad, 0));
+  ReadTouch(&raw);
+  if (Suppressed(raw)) raw = {};
+  return Normalize(state, raw, width, height);
 #else
   return Normalize(state, state->host_raw, width, height);
 #endif
@@ -228,7 +260,12 @@ PollBatch PollHistory(State* state, std::int32_t width, std::int32_t height) {
     initialized = true;
   }
   padUpdate(&pad);
-  const auto fallback = FromButtons(padGetButtons(&pad), padGetStickPos(&pad, 0));
+  auto fallback = FromButtons(padGetButtons(&pad), padGetStickPos(&pad, 0));
+  ReadTouch(&fallback);
+  if (Suppressed(fallback)) {
+    state->hid_history_ready = false;
+    return NormalizeHistoryAt(state, nullptr, 0, {}, width, height, e2e_clock::Microseconds());
+  }
   std::array<RawHistoryEntry, 17> entries{};
   std::uint64_t source_key{};
   const auto count = ReadNpadHistory(pad, entries, &source_key);
@@ -236,10 +273,19 @@ PollBatch PollHistory(State* state, std::int32_t width, std::int32_t height) {
     state->hid_source_key = source_key;
     state->hid_history_ready = false;
   }
+  // Touch is sampled now, rather than replayed into older Npad samples. The
+  // merged latest sample preserves transitions when switching finger/button.
+  if (fallback.touch || state->touch_was_active) {
+    state->touch_was_active = fallback.touch;
+    state->hid_history_ready = false;
+    return NormalizeHistoryAt(state, nullptr, 0, fallback,
+                              width, height, e2e_clock::Microseconds());
+  }
   return NormalizeHistoryAt(state, entries.data(), count, fallback,
                             width, height, e2e_clock::Microseconds());
 #else
-  return NormalizeHistoryAt(state, nullptr, 0, state->host_raw,
+  const auto raw = Suppressed(state->host_raw) ? RawInput{} : state->host_raw;
+  return NormalizeHistoryAt(state, nullptr, 0, raw,
                             width, height, e2e_clock::Microseconds());
 #endif
 }

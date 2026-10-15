@@ -18,6 +18,47 @@
 #include <thread>
 
 namespace {
+void DriveMenuProbe(const std::filesystem::path& stage,
+                    const std::atomic<bool>& running, char key) {
+  const auto log = stage / "sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log";
+  unsigned step = 0;
+  while (running.load()) {
+    std::string lines;
+    try {
+      std::ifstream stream(log);
+      if (stream) lines.assign(std::istreambuf_iterator<char>(stream), {});
+    } catch (const std::ios_base::failure&) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      continue;
+    }
+    const auto window = srhd_awa::platform::win32_compat::MainWindow();
+    if (window && step == 0 && lines.find("screen first presented id=1 ") != std::string::npos) {
+      srhd_awa::platform::e2e_stage::Log("HOST menu probe begin");
+      srhd_awa::platform::win32_compat::PostHostKey(window, key);
+      step = 1;
+    }
+    const auto began = lines.find("HOST menu probe begin");
+    const auto panel = lines.rfind("screen dispatch id=40 postload=");
+    if (key == 'A' && step == 1 && panel != std::string::npos &&
+        lines.find("screen Run frames=60", panel) != std::string::npos) {
+      srhd_awa::platform::win32_compat::PostHostKey(window, 0x28);
+      srhd_awa::platform::win32_compat::PostHostReturnKey(window);
+      step = 2;
+    }
+    const auto arena = lines.rfind("screen dispatch id=21 postload=");
+    const bool done = key == 'M'
+        ? began != std::string::npos && lines.find("screen Run OnOpen ready", began) != std::string::npos &&
+          lines.find("screen Run frames=60", began) != std::string::npos
+        : step == 2 && arena != std::string::npos &&
+          lines.find("screen RunContinuous frames=60", arena) != std::string::npos;
+    if (done) {
+      srhd_awa::platform::e2e_stage::Log("HOST menu probe completed");
+      return;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+}
+
 void DriveOriginalOptions(const std::filesystem::path& stage,
                           const std::atomic<bool>& running) {
   const bool save_first = std::getenv("E2E5_HOST_OPTIONS_SAVE") != nullptr;
@@ -353,7 +394,10 @@ int main() {
   const char* mouse_new = std::getenv("E2E5_HOST_MOUSE_NEW_GAME");
   const char* load_save = std::getenv("E2E5_HOST_LOAD_SAVE");
   const char* options = std::getenv("E2E5_HOST_AUTO_OPTIONS");
-  if (load_save && *load_save == '1')
+  const char* menu_probe = std::getenv("E2E5_HOST_MENU_PROBE");
+  if (menu_probe && (*menu_probe == 'M' || *menu_probe == 'A'))
+    new_game_driver = std::thread(DriveMenuProbe, stage, std::cref(running), *menu_probe);
+  else if (load_save && *load_save == '1')
     new_game_driver = std::thread(DriveOriginalGameLoad, stage, std::cref(running));
   else if (options && *options == '1')
     new_game_driver = std::thread(DriveOriginalOptions, stage, std::cref(running));

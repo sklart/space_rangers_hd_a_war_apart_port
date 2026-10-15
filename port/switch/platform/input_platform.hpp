@@ -18,6 +18,8 @@ struct RawInput {
   bool dpad_left{}, dpad_right{}, dpad_up{}, dpad_down{};
   bool a{}, b{}, x{}, y{}, plus{};
   bool zl{}, zr{}, minus{};
+  bool touch{};
+  std::int32_t touch_x{}, touch_y{}; // HID coordinates in the 1280x720 panel.
 };
 struct Snapshot {
   std::int32_t x{}, y{};
@@ -55,12 +57,14 @@ struct State {
   std::uint64_t last_hid_sequence{};
   std::uint64_t hid_source_key{};
   bool hid_history_ready{};
+  bool touch_was_active{};
 };
 
 Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
                      std::int32_t height, std::uint64_t now_us);
 Snapshot Normalize(State* state, RawInput raw, std::int32_t width, std::int32_t height);
 void InjectHostRaw(State* state, RawInput raw);
+void SuppressUntilReleased();
 void Warp(State* state, std::int32_t x, std::int32_t y,
           std::int32_t width, std::int32_t height);
 Snapshot Poll(State* state, std::int32_t width, std::int32_t height);

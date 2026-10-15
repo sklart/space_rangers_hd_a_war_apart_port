@@ -139,6 +139,16 @@ template <class F> ImportAddress Address(F function) {
 }
 }  // namespace
 
+bool IsThreadUsable(std::uint32_t token) {
+  const auto backend = Backend(token, HandleType::Thread, true);
+  return backend && e2e_threads::IsUsable(backend);
+}
+
+bool PreferCalculationCore(std::uint32_t token) {
+  const auto backend = Backend(token, HandleType::Thread, true);
+  return backend && e2e_threads::PreferCalculationCore(backend);
+}
+
 ImportAddress ResolveSyncImport(std::string_view dll, std::string_view symbol) {
   if (dll != "kernel32.dll") return nullptr;
   if (symbol == "CreateEventA") return Address(&CreateEventThunk);

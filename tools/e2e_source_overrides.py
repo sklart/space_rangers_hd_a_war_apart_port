@@ -186,7 +186,12 @@ FUNCTIONS: dict[str, dict[str, str]] = {
             GR_Main::AppendLogLineThreadSafe("[AUDIO] Vorbis open failed"_a);
             pas::raise(pas::make_exception<pas::Exception>("Error open audiofile."_a));
         }
-        StoreNativeVorbis(Decoder, opened.decoder);
+        try {
+            StoreNativeVorbis(Decoder, opened.decoder);
+        } catch (...) {
+            srhd_awa::platform::e2e4_native_vorbis::Close(opened.decoder);
+            throw;
+        }
         Format.FormatTag = MMSystemSdk::WAVE_FORMAT_PCM;
         Format.Channels = static_cast<std::uint16_t>(opened.channels);
         Format.BitsPerSample = 16;
@@ -393,6 +398,38 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     if not overrides and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
+    if source.name == "EC_Thread.cpp":
+        start = text.index('    void TThreadEC::ProcessRequests() {')
+        end = text.index('    void TThreadEC_Execute(', start)
+        body = text[start:end]
+        finish = '''            pas::critical_enter(Lock);
+            {
+                pas::ScopeExit cpp_cleanup_2 = [&]() noexcept {
+                    pas::critical_leave(Lock);
+                };
+                WindowsSdk::ResetEvent(RunningEvent);
+                WindowsSdk::SetEvent(IdleEvent);
+            }'''
+        body = _replace_exact(body, finish, '', 1, source.name)
+        body = _replace_exact(body, '''            try {
+                this->virtual_TThreadEC_Execute();''', '''            pas::ScopeExit e2e_finish_job = [&]() noexcept {
+                if (std::uncaught_exceptions() > 0)
+                    srhd_awa::platform::e2e_threads::MarkCurrentFailed();
+                pas::critical_enter(Lock);
+                WindowsSdk::ResetEvent(RunningEvent);
+                WindowsSdk::SetEvent(IdleEvent);
+                pas::critical_leave(Lock);
+            };
+            try {
+                this->virtual_TThreadEC_Execute();''', 1, source.name)
+        text = '#include "e2e_threads.hpp"\n#include "win32_compat_sync.hpp"\n#include <exception>\n' + text[:start] + body + text[end:]
+        start = text.index('    void TThreadEC::Start() {')
+        end = text.index('    std::uint8_t TThreadEC::IsRunning()', start)
+        body = text[start:end]
+        body = _replace_exact(body, '            if (IsRunning()) {', '''            if (!srhd_awa::platform::win32_compat::IsThreadUsable(ThreadHandle))
+                pas::raise(pas::make_exception<pas::Exception>("Worker thread unavailable"_a));
+            if (IsRunning()) {''', 1, source.name)
+        text = text[:start] + body + text[end:]
     if source.name == "EC_Buf.cpp":
         start = text.index("    void TBufEC::LoadFromFileChunk(")
         end = text.index("    void TBufEC::LoadFromFile(", start)
@@ -1044,9 +1081,9 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = '#include "renderer_platform.hpp"\n' + text
         text = '#include "e2e_stage.hpp"\n' + text
     if source.name == "Globals.cpp":
-        text = '#include "e2e_threads.hpp"\n' + text
+        text = '#include "win32_compat_sync.hpp"\n' + text
         text = _replace_exact(text, '        TurnCalculationThread->SetPriority(2);',
-            '        TurnCalculationThread->SetPriority(2);\n        srhd_awa::platform::e2e_threads::PreferCalculationCore(TurnCalculationThread->ThreadHandle);', 1, source.name)
+            '        TurnCalculationThread->SetPriority(2);\n        srhd_awa::platform::win32_compat::PreferCalculationCore(TurnCalculationThread->ThreadHandle);', 1, source.name)
         for call, stage in (
             ("aPath::InitializePathNodePool();", "script host path pool"),
             ("TurnCalculationThread = pas::construct_call<ThreadCalc::TThreadCalc>(EC_Thread::TThreadEC_Create);", "script host worker"),
@@ -1890,6 +1927,22 @@ void CloseVorbisStream(TOggWorker* worker) {
         }''', 1)
         text = '#include "renderer_platform.hpp"\n#include "e2e_stage.hpp"\n#include <cstdio>\n' + text
     if source.name == "fGameSettings2.cpp":
+        text = '#include "e2e5_text_input.hpp"\n' + text
+        text = _replace_exact(text, '            PlayerName->MaxLength = 13;',
+            '            PlayerName->MaxLength = 13;\n            PlayerName->LeftButtonUpCallback = pas::bind_method<&TfGameSettings2::PlayerNameMouseDown>(this);', 1, source.name)
+        callback_start = text.index('    void TfGameSettings2::PlayerNameMouseDown(')
+        callback_end = text.index('    void TfGameSettings2::ToggleLevelPanel(', callback_start)
+        callback = text[callback_start:callback_end]
+        callback = _replace_exact(callback, '        SetFocusedControl(GetByName(u"PlayerName"sv));', '''        SetFocusedControl(GetByName(u"PlayerName"sv));
+        if (Sender != nullptr && Sender->ControlName == u"PlayerName") {
+            auto* edit = pas::checked_cast<GI_Edit::TEditGI*>(Sender);
+            auto name = edit->Text;
+            if (srhd_awa::platform::e2e5_text_input::EditPlayerName(name)) {
+                edit->SetText(name);
+                PlayerNameChanged(edit);
+            }
+        }''', 1, source.name)
+        text = text[:callback_start] + callback + text[callback_end:]
         # The translated 32-bit UI stores object pointers in UserIndex/UserValue.
         # These controls are created as adjacent siblings, so resolve the live
         # object from the UI tree instead of narrowing its address on Switch.
@@ -2521,6 +2574,32 @@ void CloseVorbisStream(TOggWorker* worker) {
                 '#include <SDL2/SDL.h>\n#if defined(__SWITCH__)\n'
                 '#include <switch.h>\n#endif\n#include <thread>\n'
                 'namespace { srhd_awa::platform::runtime_platform::State g_e2e_platform; }\n' + text)
+    if audio_on and source.name == "GR_Music.cpp":
+        start = text.index('    void TMusicUnit_Execute(TMusicUnit* Self) {')
+        end = text.index('    void TMusicControl_Create(', start)
+        body = text[start:end]
+        closing = body.rfind('    }')
+        body = body[:closing] + '''        } catch (...) {
+            // Opening the decoder can throw before the original try block.
+            // Finish this track without killing the worker or stranding waits.
+            char e2e_error[256]{};
+            try { throw; }
+            catch (const std::exception& error) {
+                std::snprintf(e2e_error, sizeof(e2e_error),
+                    "music worker recovered exception what=%.180s", error.what());
+            } catch (...) {
+                std::snprintf(e2e_error, sizeof(e2e_error), "music worker recovered exception type=unknown");
+            }
+            try { srhd_awa::platform::e2e_stage::Log(e2e_error); } catch (...) {}
+            try { Self->Clear(); } catch (...) {
+                try { srhd_awa::platform::e2e_stage::Log("music worker cleanup exception"); } catch (...) {}
+            }
+            if (Self->CompletionEvent != 0) WindowsSdk::SetEvent(Self->CompletionEvent);
+        }
+''' + body[closing:]
+        body = body.replace('    void TMusicUnit_Execute(TMusicUnit* Self) {',
+            '    void TMusicUnit_Execute(TMusicUnit* Self) {\n        try {', 1)
+        text = '#include "e2e_stage.hpp"\n#include <cstdio>\n#include <exception>\n' + text[:start] + body + text[end:]
     destination.parent.mkdir(parents=True, exist_ok=True)
     if not destination.exists() or destination.read_text(encoding="utf-8") != text:
         destination.write_text(text, encoding="utf-8")

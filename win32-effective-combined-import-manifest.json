@@ -1,7 +1,7 @@
 {
   "source": "effective-e2e",
   "upstream_pin": "57fa689c630193a66fdea6ca4c79a188814991cd",
-  "source_file_count": 1397,
+  "source_file_count": 1398,
   "imports": [
     {
       "dll": "advapi32.dll",
@@ -3170,7 +3170,7 @@
     {
       "api": "LoadLibraryW",
       "expression": "LibraryName",
-      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/GR_Music.cpp:84",
+      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/GR_Music.cpp:87",
       "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
       "classification": "OPTIONAL_DISABLED",
       "implementation": "win32_compat_modules",
@@ -3737,7 +3737,7 @@
         "port/switch/platform/win32_compat_modules.cpp:166",
         "port/switch/platform/win32_compat_modules.cpp:53",
         "port/switch/platform/win32_compat_process.cpp:223",
-        "port/switch/platform/win32_compat_sync.cpp:143",
+        "port/switch/platform/win32_compat_sync.cpp:153",
         "port/switch/platform/win32_compat_text.cpp:131"
       ]
     },
@@ -3951,9 +3951,9 @@
     {
       "dll": "vorbisfile.dll",
       "callsites": [
-        "port/switch/build/e2e-game-combined-experiment/generated/GR_Music.cpp:303",
-        "port/switch/build/e2e-game-combined-experiment/generated/GR_Music.cpp:305",
-        "port/switch/build/e2e-game-combined-experiment/generated/GR_Music.cpp:75",
+        "port/switch/build/e2e-game-combined-experiment/generated/GR_Music.cpp:324",
+        "port/switch/build/e2e-game-combined-experiment/generated/GR_Music.cpp:326",
+        "port/switch/build/e2e-game-combined-experiment/generated/GR_Music.cpp:78",
         "port/switch/platform/win32_compat_modules.cpp:46"
       ]
     },
