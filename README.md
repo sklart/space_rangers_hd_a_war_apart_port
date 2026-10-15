@@ -2,14 +2,14 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Текущий статус E2E-5: SOFTWARE PARTIAL / HARDWARE PENDING.** Предыдущий экспериментальный запуск на Switch дошёл до главного меню: музыка звучала с искажениями, курсор двигался рывками, а выбор New Game завершался аварией. Изменения после этого запуска ещё не проверены на консоли. Игра пока не готова к прохождению; единый тестовый E2E-5 NRO будет подготовлен после программных проверок.
+> **Текущий статус E2E-5: SOFTWARE PARTIAL / HARDWARE PENDING.** Последняя проверенная на Switch combined-сборка — `build_git=e959e85` (14 октября 2026 года). Она открывает главное меню, Options, New Game и ангар; пользователь прошёл экраны персонажа, карты и магазина. При этом заставка подтормаживает, музыка искажается или прерывается, курсор двигается рывками, меню работают медленно, а загрузка после вылета из ангара остановилась на 85%. Последние локальные исправления ещё не проверены на консоли. Игра не готова к прохождению; следующая NRO будет одной общей сборкой после исследования открытых проблем.
 
 ## Что уже работает
 
 | Область | Состояние |
 | --- | --- |
-| Сборка ARM64/NRO | PASS |
-| CI `package-host` | текущий E2E-5: 4/5 jobs PASS; Win32 preflight исправлен локально, новый полный CI ожидается |
+| Сборка ARM64/NRO | Последняя аппаратно проверенная combined-сборка `e959e85` существует; для текущих незакоммиченных исправлений новая полная ARM64-сборка и NRO ещё не выполнялись |
+| CI `package-host` | предыдущий E2E-5: 4/5 jobs PASS; Win32 preflight исправлен локально, новый полный CI для текущих правок ожидается |
 | Иконка, NACP и метаданные NRO | PASS — имя, JPEG в ASET |
 | Package filesystem и `common.pkg` | host PASS, ARM64 build PASS |
 | Переведённый `EC_File` | host PASS, ARM64 build PASS |
@@ -29,10 +29,11 @@
 | M23 portable AFT/text/Label foundation | host/Python oracle, CI `37803515979`, clean ARM64/symbol audit PASS; cumulative M24 Switch log: checkpoint и dynamic stage PASS; M23 COMPLETE |
 | M24 portable GraphButton/Window/Zone foundation | host/Python oracle, CI `37823081354` и `37825116392`, clean ARM64/symbol audit PASS; cumulative Switch log: checkpoint, dynamic stage, PLUS и shutdown PASS; M24 COMPLETE |
 | M25 portable GI/GAI UI and real release subtree | host/CI/ARM64/Switch PASS; 18-node PLBar and live GAI; M25 COMPLETE |
-| M26 portable GraphBuf, ScrollBar, PanelScrollBar, Edit and 50-node real UI | host/oracles PASS, CI M26 gate PASS, clean ARM64/NRO PASS; Switch hardware PENDING |
-| E2E-4: оригинальный запуск и меню | аппаратно достигнуто меню; искажения музыки, рывки курсора и авария при New Game остаются открытыми |
-| E2E-5: оригинальная загрузка GameSettings GI и кэша | host и Linux ARM64/QEMU: исходные методы на установленном фоне прошли; полный host-процесс открыл GameSettings и Introduction и показал кадры; Switch не проверен |
-| New Game → RuinsTalk → ангар | host: четыре оригинальных выбора, открытие ангара и 60 кадров; save/load и Switch PENDING |
+| M26 portable GraphBuf, ScrollBar, PanelScrollBar, Edit and 50-node real UI | host/oracles, CI, ARM64 и накопительный Switch-прогон `f9c98de` PASS; M26 COMPLETE |
+| M27 portable input, focus and event dispatch | host/oracles, CI, ARM64 и накопительный Switch-прогон `f9c98de` PASS; M27 COMPLETE |
+| E2E-5: меню, Options и New Game | аппаратная `e959e85` прошла меню, Options, выбор персонажа, генерацию и вход в игру; сохранение русского языка требует повторной проверки после локального исправления Save и перезапуска |
+| E2E-5: игровая навигация | пользователь открыл ангар, карту и магазин; низкий FPS и рывки курсора остаются; host также проверил оригинальный `ProgramMain` и базовый New Game |
+| E2E-5: вылет из ангара | на Switch загрузка остановилась на 85% с `FAIL stage=gai key=Bm.Hits.05`; общий GAI-путь исправлен локально и прошёл этот ресурс, но первый кадр StarMap ещё не подтверждён |
 | Оригинальный save/load | host F5 достиг оригинального save path, но безопасно отказал при 64-битном указателе скрипта; round-trip не проверен |
 
 Аппаратные проверки — отдельный gate: результаты host, CI и кросс-сборки не считаются доказательством работоспособности на консоли.
@@ -105,6 +106,7 @@ port/switch/Space Rangers HD - A War Apart.nro
     port.log               # диагностический лог порта
     port-prev.log          # предыдущий диагностический запуск
     gr-main.log            # отдельный лог GR_Main
+    e2e.log                # этапы оригинального E2E-5; дополняется при запусках
   runtime/
     deployment.txt
 ```
@@ -134,19 +136,21 @@ port/switch/Space Rangers HD - A War Apart.nro
   -UpdateOnly
 ```
 
-Сбор журналов без изменения SD-карты:
+Сбор базовых журналов без изменения SD-карты:
 
 ```powershell
 .\tools\deploy-switch.ps1 -SdRoot 'E:\' -CollectLogs
 ```
 
-При подключении по DBI/MTP/Wi-Fi скопируйте NRO и каталог `game/` в ту же структуру вручную. После запуска сохраняйте `port.log` и `gr-main.log` до следующего запуска: они нужны для аппаратной диагностики.
+При подключении по DBI/MTP/Wi-Fi скопируйте NRO и каталог `game/` в ту же структуру вручную. После каждого теста сохраняйте `port.log`, `gr-main.log` и `e2e.log`, а при аварии — новый отчёт Atmosphère. Текущий `-CollectLogs` собирает только `port.log`, `port-prev.log` и `gr-main.log`, поэтому `e2e.log` нужно скопировать отдельно. Код E2E открывает его в режиме добавления: удалять файл перед запуском не обязательно, но отдельная копия после каждого теста помогает точно сопоставить попытки.
 
 ## Границы подтверждённого аппаратного пути
 
-Ранние переносимые подсистемы M14P–M25 прошли свои аппаратные проверки; это отдельные milestone, а не проверка полного игрового сценария. В последнем экспериментальном запуске оригинального пути на Switch игра прошла GameSettings, генерацию и Introduction, но аварийно завершилась при открытии RuinsTalk. Сохранённый ELF от той же NRO относит PC к `TScript::CallDialogMessage(int)`; класс усечения указателя воспроизведён и исправлен через disposable source override. Музыка по-прежнему искажалась, курсор двигался рывками (в раннем журнале меню было 4,32–5,18 кадра/с). Причины этих двух проблем и эффект исправлений на Switch пока не установлены.
+Ранние переносимые подсистемы M14P–M25 прошли свои аппаратные проверки; это отдельные milestone, а не подтверждение полного игрового сценария. Аппаратная combined-сборка `e959e85` уже проходит прежнее место аварии RuinsTalk, открывает игровое меню, ангар, карту и магазин. При сохранении настроек в Options журнал фиксировал `Exception UnitGet Type=Resolution`; локально исправлен поиск фиксированного режима экрана, применение VSync и повторная инициализация рендерера после штатного перезапуска. Host-тест сохранил русский язык, громкость и переключение `Music=False`, автоматически перезапустил игру и повторно открыл Options. Аппаратное подтверждение этих новых исправлений ещё требуется.
 
-Текущий E2E-5 проверяет оригинальные методы GI и кэша на host и ARM64/QEMU, в том числе с ASan/UBSan на host. Воспроизводимый Linux host-прогон запустил полный `ProgramMain`, нажал настоящую кнопку New Game мышью, прошёл GameSettings, генерацию и Introduction, затем вызвал четыре оригинальных обработчика выбора в RuinsTalk. Следующий экран, ангар, сначала выявил усечение 64-битного адреса framebuffer в `fHangar`; после точечного disposable source override ангар открылся и проработал 60 кадров без исключения. [Отчёт host-прогона](reports/e2e5/host-dialog-hangar.json). Короткие нажатия A при 5–60 кадрах/с проходят host-тест истории HID. Дальнейший игровой процесс и save/load ещё не проверены. PCM оригинальной музыки захвачен из SDL-выхода host-игры: 30 секунд совпадают с независимым декодированием выбранного трека с корреляцией 0,995; [аудиоотчёт](reports/e2e5/host-audio-capture.json). Слышимое качество музыки и плавность курсора на консоли ещё не подтверждены. [Матрица покрытия](docs/e2e5-coverage-matrix.md) отделяет каждый подтверждённый уровень от непроверенных сценариев. Текущий `Switch-E2E5-TEST.nro` в корне репозитория **устарел и не предназначен для повторного теста**; один обновлённый файл будет подготовлен после программных проверок и полного CI. [Аппаратный план](docs/e2e5-hardware-plan.md) рассчитан на один совокупный тест.
+По последним архивам `1.zip` и `2.zip` музыка на Switch искажается и прерывается при переходах и 300-ходовой генерации, а программная отрисовка меню занимает 60–143 мс. Для звука локально подготовлены увеличение SDL-блока до 2048 кадров, повышение приоритета музыкального потока и сокращение вычислений в callback. Для первого кадра Options подготовлено пиксельно идентичное быстрое масштабирование: host-время операции снизилось с 2,15 до 0,064 с. Host-профиль генерации сузил основное время до ежедневного обновления кораблей, но поведение игры ради ускорения не изменялось. Вылет из ангара выявил конечный пустой элемент последовательности `Bm.Hits.05`; исправление общего GAI-пути прошло проверку реального ресурса с ASan/UBSan и host-загрузку до вызова StarMap. Первый кадр StarMap, плавность курсора, слышимое качество музыки и скорость работы на Switch остаются открытыми. Подробная [сводка всех 11 аппаратных замечаний](reports/e2e5/hardware-e959e85-followup.md) отделяет причины, локальные проверки и оставшуюся работу.
+
+Предыдущие host-доказательства сохранены: [отчёт о диалоге и ангаре](reports/e2e5/host-dialog-hangar.json), [аудиоотчёт](reports/e2e5/host-audio-capture.json) с корреляцией PCM 0,995 и [матрица покрытия](docs/e2e5-coverage-matrix.md). Оригинальный save/load всё ещё не прошёл round-trip. На ветке `codex/e2e5-hardware-integration` экспериментальные исправления звука пока незакоммичены; pinned upstream не изменён. Новую полную ARM64-сборку, NRO и длительный CI для этих правок ещё не запускали. Существующий `Switch-E2E5-TEST.nro` в корне репозитория **устарел и не предназначен для повторного теста**. После дальнейшей проработки открытых пунктов будет собрана одна combined NRO с соответствующим ELF и SHA-256.
 
 ```text
 [M9] FAIL runtime config=... DAT zlib decompression failed
@@ -201,13 +205,14 @@ python tools/e2e5_report.py --output reports/e2e5/summary.json
 - [M23 portable AFT/text/Label foundation](docs/milestone23-font-label.md) — COMPLETE / HARDWARE PASS in cumulative M24 run
 - [M24 portable GraphButton/Window/Zone foundation](docs/milestone24-ui-controls.md) — COMPLETE / HARDWARE PASS
 - [M25 portable GI/GAI UI and first real subtree](docs/milestone25-gi-gai-real-ui.md) — COMPLETE / HARDWARE PASS
-- [M26 GraphBuf, scroll controls, Edit and larger real UI](docs/milestone26-graphbuf-scroll-edit-real-ui.md) — hardware pending
-- [M27 portable input, focus and event dispatch](docs/milestone27-input-focus-events.md) — software complete; hardware pending
+- [M26 GraphBuf, scroll controls, Edit and larger real UI](docs/milestone26-graphbuf-scroll-edit-real-ui.md) — COMPLETE / HARDWARE PASS
+- [M27 portable input, focus and event dispatch](docs/milestone27-input-focus-events.md) — COMPLETE / HARDWARE PASS
 - [E2E-4: безопасная экспериментальная ротация quicksave и ручное восстановление](docs/e2e4-save-load.md)
 - [E2E-5: архитектура тестов](docs/e2e5-test-architecture.md)
 - [E2E-5: матрица покрытия](docs/e2e5-coverage-matrix.md)
 - [E2E-5: обнаруженные дефекты](docs/e2e5-found-defects.md)
 - [E2E-5: измерение производительности](docs/e2e5-performance.md)
+- [E2E-5: сводка 11 замечаний по аппаратной combined-сборке e959e85](reports/e2e5/hardware-e959e85-followup.md)
 - [E2E-5: план одного аппаратного теста](docs/e2e5-hardware-plan.md)
 
 ## Лицензирование и обратная связь
