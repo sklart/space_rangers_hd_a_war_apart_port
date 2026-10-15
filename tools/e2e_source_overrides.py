@@ -922,7 +922,26 @@ void CloseVorbisStream(TOggWorker* worker) {
                 "            RectNode = RectNode->Next;\n        }\n"
                 "        e2e_dirty_profile.Stop();\n    }", 1, source.name)
             text = text[:draw_start] + draw + text[draw_end:]
-        text = ('#include "e2e5_stage_profiler.hpp"\n' if e2e5_profile else '') + '#include "renderer_platform.hpp"\n#include "e2e_stage.hpp"\n#include <cstdio>\n' + text
+        draw_start = text.index("    void TMessageLoopGI::DrawQueuedUpdateRects() {")
+        draw_end = text.index("    void TMessageLoopGI::DrawQueuedControlRects() {", draw_start)
+        draw = text[draw_start:draw_end]
+        node = "        GR_Rect::TRectGR* RectNode = UpdateRects->FirstRect;"
+        loop = "        while (RectNode != nullptr) {"
+        advance = "            RectNode = RectNode->Next;"
+        if draw.count(node) != 1 or draw.count(loop) != 1 or draw.count(advance) != 1:
+            raise RuntimeError("queued UI rectangle consumption boundary changed")
+        draw = draw.replace(node, '''        // Consume the queued coverage before drawing. New invalidations made by
+        // a control during Draw belong to the next frame.
+        std::vector<WindowsSdk::TRect> e2e_pending_rects;
+        for (auto* e2e_node = UpdateRects->FirstRect; e2e_node != nullptr;
+             e2e_node = e2e_node->Next)
+            e2e_pending_rects.push_back(e2e_node->Bounds);
+        UpdateRects->Clear();''', 1)
+        draw = draw.replace(loop, "        for (const auto& e2e_rect : e2e_pending_rects) {", 1)
+        draw = draw.replace("RectNode->Bounds", "e2e_rect")
+        draw = draw.replace(advance, "", 1)
+        text = text[:draw_start] + draw + text[draw_end:]
+        text = ('#include "e2e5_stage_profiler.hpp"\n' if e2e5_profile else '') + '#include "renderer_platform.hpp"\n#include "e2e_stage.hpp"\n#include <cstdio>\n#include <vector>\n' + text
     if source.name == "GI_GraphButton.cpp":
         timer_gate = "pas::assigned(UpCallback) && MessageLoop->ConsumeTimerTickChange()"
         if text.count(timer_gate) != 1:
