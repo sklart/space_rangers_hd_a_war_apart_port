@@ -387,6 +387,19 @@
       "arcade_60_frames": true,
       "elapsed_seconds": 26.71,
       "report_sha256": "46498bcc52e462f12c23f05e362505188887f45b87853031cab08c54b1707379"
+    },
+    "mode-cancel": {
+      "status": "FIRST_SOFTWARE_FRAME_OBSERVED",
+      "binary_sha256": "41861580f6a25a594a729be1d1e4edf1ce182e9bb706db24016a778ee65e3f29",
+      "crashed": false,
+      "timed_out": false,
+      "stopped_by_probe": true,
+      "requested_end_turns": 5,
+      "observed_end_turns": 5,
+      "native_map_swipe_order_preserved": true,
+      "native_map_mode_cancel_pass": true,
+      "elapsed_seconds": 62.56,
+      "report_sha256": "1786635ca1cbced1f4594aa8885dbeb3de5a53dbbc651a11efe3e658d2e51e0d"
     }
   },
   "serializer_reference": {

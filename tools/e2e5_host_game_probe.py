@@ -406,6 +406,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "auto_takeoff_input": auto_takeoff,
         "requested_end_turns": int(os.environ.get("E2E59_HOST_END_TURNS", "0")),
         "native_map_swipe_order_preserved": "HOST native map swipe moved=1 ship_order_preserved=1" in full_e2e_log,
+        "native_map_mode_cancel_pass": "HOST native canceled gesture released without tap PASS" in full_e2e_log,
         "observed_end_turns": (max(0, full_e2e_log.count("HOST map orders ready") - 1)
                                if auto_takeoff else full_e2e_log.count("turn operation=end-turn-ui")),
         "turn_timings": [{"operation": op, "screen": int(screen), "elapsed_us": int(us)}

@@ -181,6 +181,7 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
   bool takeoff_sent = false;
   bool first_map_orders_seen = false;
   bool swipe_sent = false;
+  unsigned cancel_stage = 0, cancel_turn = 0, cancel_taps = 0, cancel_releases = 0;
   while (running.load()) {
     std::string lines;
     try {
@@ -266,6 +267,39 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
                 continue;
               }
+            }
+            if (takeoff && first_map_orders_seen && std::getenv("E2E59_HOST_MAP_CANCEL") && cancel_stage < 3) {
+              const auto count = [&](const char* marker) {
+                unsigned result = 0;
+                for (auto pos = lines.find(marker); pos != std::string::npos; pos = lines.find(marker, pos + 1)) ++result;
+                return result;
+              };
+              if (cancel_stage == 0) {
+                cancel_taps = count("HOST native map tap committed");
+                srhd_awa::platform::input_platform::RawInput touch{};
+                touch.touch = true; touch.touch_x = 500; touch.touch_y = 350;
+                srhd_awa::platform::win32_compat::InjectHostInput(touch);
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                const auto window = srhd_awa::platform::win32_compat::MainWindow();
+                if (window && srhd_awa::platform::win32_compat::PostHostKey(window, 0x20)) {
+                  cancel_turn = completed + 1; turns_sent = cancel_turn; cancel_stage = 1;
+                }
+              } else if (cancel_stage == 1 && completed >= cancel_turn) {
+                cancel_releases = count("HOST native map touch release without capture");
+                srhd_awa::platform::win32_compat::InjectHostInput({});
+                cancel_stage = 2;
+              } else if (cancel_stage == 2 && count("HOST native map touch release without capture") > cancel_releases) {
+                if (count("HOST native map tap committed") == cancel_taps &&
+                    lines.find("HOST native map touch canceled by mode change") != std::string::npos) {
+                  srhd_awa::platform::e2e_stage::LogE2E3("HOST native canceled gesture released without tap PASS");
+                  cancel_stage = 3;
+                } else {
+                  srhd_awa::platform::e2e_stage::LogE2E3("HOST native canceled gesture FAILED");
+                  return;
+                }
+              }
+              std::this_thread::sleep_for(std::chrono::milliseconds(100));
+              continue;
             }
             if (completed >= static_cast<unsigned>(turns_requested)) return;
             if (completed >= turns_sent) {

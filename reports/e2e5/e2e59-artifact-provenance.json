@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "status": "FINAL ARTIFACT PENDING",
+  "superseded_before_delivery": [
+    {
+      "build_git": "f5087426503284e0e6ff8887174f1b19a76ca30e",
+      "reason": "Final review found an unfinished touch could survive order-to-film mode changes. Native regression now proves cancellation; only the corrected candidate is to be delivered.",
+      "files": {
+        "nro": {
+          "path": "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\SpaceRangersHDAWarApartE2E4Combined-f508742.nro",
+          "bytes": 16447792,
+          "sha256": "72B51F4E0FB3C1C7C184E5CFC9472A0D746958FADAF1D63510B3E6DF87C473D6"
+        },
+        "elf": {
+          "path": "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\SpaceRangersHDAWarApartE2E4Combined-f508742.elf",
+          "bytes": 56528264,
+          "sha256": "33AD39A577854D6F673C0ADC0469B2015400C1B8E0F93370684656C8772EC506"
+        }
+      }
+    }
+  ]
+}

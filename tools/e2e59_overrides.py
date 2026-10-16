@@ -144,8 +144,15 @@ def star_map(text):
 #endif''')
     text = once(text, "void TfStarMap::OnClose() {", "void TfStarMap::OnClose() {\n"
                 "        e2e_swipe.Cancel();\n"
-                "        if (MapControls && MapControls->MessageLoop->FocusedControl == MapControls)\n"
-                "            MapControls->MessageLoop->SetFocusedControl(nullptr);")
+                "        if (FocusedControl && FocusedControl == MapControls) SetFocusedControl(nullptr);")
+    text = once(text, "void TfStarMap::StopOrderMode() {", '''void TfStarMap::StopOrderMode() {
+        if (e2e_swipe.owner == this) {
+            e2e_swipe.Cancel();
+            if (FocusedControl == MapControls) SetFocusedControl(nullptr);
+#if defined(E2E5_HOST_SDL_WINDOW)
+            srhd_awa::platform::e2e_stage::LogE2E3("HOST native map touch canceled by mode change");
+#endif
+        }''')
     text = once(text, "void TfStarMap::OnOpen() {", "void TfStarMap::OnOpen() {\n        e2e_swipe.Cancel();")
     text = once(text, "MapControls->LeftButtonDownCallback = pas::bind_method<&TfStarMap::MapLeftButtonDown>(this);",
                 "MapControls->LeftButtonDownCallback = pas::bind_method<&TfStarMap::MapLeftButtonDown>(this);\n"
@@ -169,9 +176,15 @@ def star_map(text):
     }
 
     void TfStarMap::MapTouchRelease(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
-        if (e2e_swipe.owner != this) return;
+        if (e2e_swipe.owner != this) {
+#if defined(E2E5_HOST_SDL_WINDOW)
+            if (srhd_awa::platform::win32_compat::CurrentMessageIsTouch())
+                srhd_awa::platform::e2e_stage::LogE2E3("HOST native map touch release without capture");
+#endif
+            return;
+        }
         e2e_swipe.Move(this, Point.X, Point.Y);
-        const bool tap = !e2e_swipe.dragging && srhd_awa::platform::win32_compat::CurrentMessageIsTouch();
+        const bool tap = Mode == smmOrders && !e2e_swipe.dragging && srhd_awa::platform::win32_compat::CurrentMessageIsTouch();
         const auto keys = e2e_swipe.keys;
 #if defined(E2E5_HOST_SDL_WINDOW)
         if (e2e_swipe.dragging) {
@@ -190,11 +203,15 @@ def star_map(text):
         if (tap) MapOriginalLeftButtonDown(Sender, keys, Point);
     }
 
-    void TfStarMap::MapOriginalLeftButtonDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {''')
+    void TfStarMap::MapOriginalLeftButtonDown(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {
+#if defined(E2E5_HOST_SDL_WINDOW)
+        if (srhd_awa::platform::win32_compat::CurrentMessageIsTouch())
+            srhd_awa::platform::e2e_stage::LogE2E3("HOST native map tap committed");
+#endif''')
     signature = "    void TfStarMap::MapMouseMove(GI_MessageLoop::TObjectGI* Sender, std::uint32_t KeyState, WindowsSdk::TPoint Point) {"
     text = once(text, signature, signature + '''
         if (e2e_swipe.owner == this) {
-            if (MainPanel->NavigationLocked || Globals::ShipScreen->ReopenRequested) {
+            if (Mode != smmOrders || MainPanel->NavigationLocked || Globals::ShipScreen->ReopenRequested) {
                 e2e_swipe.Cancel();
                 if (MapControls->MessageLoop->FocusedControl == MapControls)
                     MapControls->MessageLoop->SetFocusedControl(nullptr);
