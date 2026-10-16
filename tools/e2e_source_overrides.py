@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 import re
+from e2e56_cache_overrides import apply as apply_cache_safety
+from e2e56_geometry_overrides import apply as apply_geometry_reuse
 
 
 def _replace_exact(text: str, old: str, new: str, count: int, source_name: str) -> str:
@@ -395,9 +397,63 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ('ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ('ab_Global.cpp', 'EC_Cache.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
+    if source.name == "EC_Cache.cpp":
+        text = apply_cache_safety(text)
+    if source.name == "ab_Global.cpp":
+        text = apply_geometry_reuse(text)
+    if source.name == "fLoad.cpp":
+        text = '#include <atomic>\n#include "win32_compat_sync.hpp"\n#include "e2e_clock.hpp"\n#include "e2e5_failure_diagnostics.hpp"\n' + text
+        text = _replace_exact(text, '        SetPriority(1);', '''        SetPriority(1);
+        // Resource decoding otherwise competes with the UI on its default core
+        // at priority 46. Use the same allowed non-UI core as the idle calculator.
+        const bool e2e_loader_core = srhd_awa::platform::win32_compat::PreferCalculationCore(ThreadHandle);
+        srhd_awa::platform::e2e5_failure_diagnostics::Write(e2e_loader_core ?
+            "cache-loader affinity applied=1" : "cache-loader affinity applied=0");''', 1, source.name)
+        start = text.index('    void TCacheLoader_Execute(TCacheLoader* Self) {')
+        end = text.index('\n    }', start) + len('\n    }')
+        body = text[start:end]
+        anchor = '            Count = pas::list_count(Self->PendingLoads);'
+        body = _replace_exact(body, anchor, anchor + '''
+            pas::ScopeExit e2e_pending_cleanup = [&]() noexcept {
+                for (std::int32_t j = 0; j < Count; ++j)
+                    pas::free(pas::list_at<EC_Cache::TCacheControlEC>(Self->PendingLoads, j));
+                pas::free(Self->PendingLoads);
+                Self->PendingLoads = nullptr;
+            };''', 1, source.name)
+        body = _replace_exact(body, '                pas::free(Control);',
+            '                pas::list_put(Self->PendingLoads, I, nullptr);\n                pas::free(Control);', 1, source.name)
+        body = _replace_exact(body, '            pas::free(Self->PendingLoads);\n            Self->PendingLoads = nullptr;', '', 1, source.name)
+        text = text[:start] + body + text[end:]
+        start = text.index('                if (([&] {')
+        end = text.index(' && First->CacheKey == Second->CacheKey)', start)
+        text = text[:start] + '                if ((pas::class_type(First) == pas::class_type(Second))' + text[end:]
+        anchor = '                Control = pas::list_at<EC_Cache::TCacheControlEC>(Self->PendingLoads, I);'
+        text = _replace_exact(text, anchor, anchor + '''
+                char e2e_key[160]{};
+                const auto e2e_view = pas::view(Control->CacheKey);
+                for (std::size_t j = 0; j < e2e_view.size() && j + 1 < sizeof(e2e_key); ++j)
+                    e2e_key[j] = e2e_view[j] < 128 ? static_cast<char>(e2e_view[j]) : '?';
+                char e2e_detail[256]{};
+                std::snprintf(e2e_detail, sizeof(e2e_detail), "loader begin index=%d total=%d key=%s", I, Count, e2e_key);
+                srhd_awa::platform::e2e5_failure_diagnostics::Write(e2e_detail);
+                const auto e2e_started = srhd_awa::platform::e2e_clock::Microseconds();''', 1, source.name)
+        anchor = '                ++Self->CompletedLoadCount;'
+        text = _replace_exact(text, anchor, anchor + '''
+                std::snprintf(e2e_detail, sizeof(e2e_detail), "loader end completed=%d total=%d elapsed_us=%llu key=%s",
+                    Self->CompletedLoadCount, Count,
+                    static_cast<unsigned long long>(srhd_awa::platform::e2e_clock::Microseconds() - e2e_started), e2e_key);
+                srhd_awa::platform::e2e5_failure_diagnostics::Write(e2e_detail);''', 1, source.name)
+        text = text.replace('++Self->CompletedLoadCount;',
+            'std::atomic_ref<std::int32_t>(Self->CompletedLoadCount).fetch_add(1);')
+        text = text.replace('Self->CompletedLoadCount, Count,',
+            'std::atomic_ref<std::int32_t>(Self->CompletedLoadCount).load(), Count,')
+        text = text.replace('        CompletedLoadCount = 0;',
+            '        std::atomic_ref<std::int32_t>(CompletedLoadCount).store(0);')
+        text = text.replace('Globals::CacheLoader->CompletedLoadCount,',
+            'std::atomic_ref<std::int32_t>(Globals::CacheLoader->CompletedLoadCount).load(),')
     if source.name == "aModsInfo.cpp":
         text = '#include <filesystem>\n#include <algorithm>\n#include "e2e_stage.hpp"\n#include "game_path.hpp"\n' + text
         text = _replace_exact(text, 'namespace aModsInfo {', '''namespace aModsInfo {
@@ -433,7 +489,35 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
                             std::snprintf(detail, sizeof(detail), "mods discovered name=%.100s description_chars=%d", e2e_name.c_str(), Info->FullDescription.length());
                             srhd_awa::platform::e2e_stage::Log(detail);''', 1, source.name)
     if source.name == "ab_MainForm.cpp":
-        text = '#include "input_platform.hpp"\n#include "e2e5_stage_profiler.hpp"\n' + text
+        text = '#include <atomic>\n#include "input_platform.hpp"\n#include "e2e56_arcade_steering.hpp"\n#include "e2e5_stage_profiler.hpp"\n' + text
+        text = text.replace('CacheLoader->CompletedLoadCount,',
+            'std::atomic_ref<std::int32_t>(CacheLoader->CompletedLoadCount).load(),')
+        marker = '                    if (ForwardKeyDown) {'
+        # This occurrence belongs to the live, unpaused ship control block.
+        start = text.index('                ++ab_Global::ArcadeTickCount;')
+        end = text.index('                    Stage = 19;', start)
+        body = text[start:end]
+        body = _replace_exact(body, marker, '''                    const auto e2e_stick = srhd_awa::platform::input_platform::GetFlightStick();
+                    const bool e2e_steering = e2e_stick.x || e2e_stick.y;
+                    if (e2e_steering) {
+                        auto* ship = ab_Ship::PlayerArcadeShip;
+                        const auto command = srhd_awa::platform::e2e56_arcade_steering::Steer(
+                            ship->GetProjectedHeading(ship->GetProjectedPosition()), e2e_stick.x, e2e_stick.y);
+                        ship->SetTurnInput(command.turn);
+                        if (command.thrust) ship->StartThrust(); else ship->StopThrust();
+                    } else if (ForwardKeyDown) {''', 1, source.name)
+        body = _replace_exact(body, '                    if (TurnLeftKeyDown) {',
+            '                    if (e2e_steering) {\n                        // Stick has already selected the shortest turn.\n                    } else if (TurnLeftKeyDown) {', 1, source.name)
+        text = text[:start] + body + text[end:]
+        start = text.index('    void TfAB::TimerTakt(')
+        end = text.index('\n    void ', start + 1)
+        body = text[start:end]
+        for first, last, stage in [(21, 22, 1), (22, 24, 2), (30, 32, 3), (32, 33, 4), (33, 34, 5), (37, None, 6)]:
+            a = body.index(f'            Stage = {first};')
+            b = body.index(f'            Stage = {last};', a) if last else body.index('        } catch (...) {', a)
+            block = body[a:b]
+            body = body[:a] + '            {\n                static srhd_awa::platform::e2e5_stage_profiler::Window e2e_ab_phases("arcade-phase");\n' + f'                srhd_awa::platform::e2e5_stage_profiler::Scope e2e_phase(e2e_ab_phases, {stage});\n' + block + '            }\n' + body[b:]
+        text = text[:start] + body + text[end:]
         for method, enabled in [('OnOpen', 'true'), ('OnClose', 'false')]:
             marker = f'    void TfAB::{method}() {{'
             text = _replace_exact(text, marker, marker +

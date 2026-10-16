@@ -1,0 +1,71 @@
+{
+  "archive": "G:\\pack.zip",
+  "archive_sha256": "77dd4eaed59b2664fad76e40e8b5a634eebfce44a07571bd2e85d24d3ffbf39a",
+  "runtime_build_git": "9b691cb",
+  "entries": [
+    {
+      "name": "config/########.log",
+      "bytes": 25690,
+      "sha256": "6ff109c18f5d43d9da9194327830164e30c841ea5eae183001e26d1995fab421"
+    },
+    {
+      "name": "config/CFG.TXT",
+      "bytes": 1512,
+      "sha256": "8db94560331461eadffbcafa8367d20469fdc622214eed17d763fdc9e5c0a784"
+    },
+    {
+      "name": "config/Lang.txt",
+      "bytes": 14,
+      "sha256": "0cb1184a60c49a67277e84777360ae72a89d7bba493cbd1e5e482938eb7969f9"
+    },
+    {
+      "name": "config/newgame.txt",
+      "bytes": 955,
+      "sha256": "19548ffd64f82a4de4c1f1cd832862a97b702bb09d9992b511e29e2edd04c8cd"
+    },
+    {
+      "name": "logs/e2e.log",
+      "bytes": 732134,
+      "sha256": "672ef3ee8e3dc1e81c4c5147f772006451c7ddff89e98358931cc375e434bf7f"
+    }
+  ],
+  "generation": {
+    "stage1_ms": 68523,
+    "stage6_ms": 349792,
+    "total_ms": 426547,
+    "warmup_turns": 300
+  },
+  "last_transition": {
+    "from_screen": 4,
+    "loading_screen": 22,
+    "postload_screen": 16,
+    "user_reported_progress_percent": 51,
+    "explicit_exception_or_crash_dump": false
+  },
+  "memory": {
+    "warmup_arena_bytes": 3316555776,
+    "warmup_used_bytes": 477911120,
+    "warmup_free_blocks_bytes": 2838644656,
+    "recovered_request_bytes": 11296506,
+    "physical_cause": "not established; total free blocks do not prove a sufficiently large contiguous block"
+  },
+  "arcade": {
+    "draw_typical_ms": [
+      31,
+      36
+    ],
+    "timer_observed_average_ms_range": [
+      44,
+      147
+    ],
+    "kind": "realtime space arcade; not planetary robot battles"
+  },
+  "user_confirmed": [
+    "mods menu opens and modules selectable; execution deferred",
+    "new game reached hangar and shops",
+    "generation background smooth",
+    "interface and realtime arcade still lag",
+    "takeoff load stalled at 51 percent"
+  ],
+  "hardware_status_for_new_fixes": "PENDING"
+}

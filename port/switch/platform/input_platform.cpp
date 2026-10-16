@@ -14,6 +14,7 @@ namespace srhd_awa::platform::input_platform {
 namespace {
 std::atomic_bool suppress_applet_input{false};
 std::atomic_bool arcade_controls{false};
+std::atomic<std::uint64_t> flight_stick{};
 bool Suppressed(const RawInput& raw) {
   if (!suppress_applet_input.load()) return false;
   if (!raw.touch && !raw.a && !raw.b && !raw.x && !raw.y && !raw.plus &&
@@ -43,9 +44,10 @@ void ReadTouch(RawInput* raw) {
     raw->touch_y = sample.touches[0].y;
   }
 }
-RawInput FromButtons(std::uint64_t held, HidAnalogStickState stick) {
+RawInput FromButtons(std::uint64_t held, HidAnalogStickState stick, HidAnalogStickState right) {
   RawInput raw{};
   raw.stick_x = stick.x; raw.stick_y = stick.y;
+  raw.right_stick_x = right.x; raw.right_stick_y = right.y;
   raw.dpad_left = (held & HidNpadButton_Left) != 0;
   raw.dpad_right = (held & HidNpadButton_Right) != 0;
   raw.dpad_up = (held & HidNpadButton_Up) != 0;
@@ -92,7 +94,7 @@ std::size_t ReadNpadHistory(const PadState& pad,
   // a future libnx revision changes the output order.
   for (std::size_t i = 0; i < count; ++i)
     output[i] = {samples[i].sampling_number,
-                 FromButtons(samples[i].buttons, samples[i].analog_stick_l)};
+                 FromButtons(samples[i].buttons, samples[i].analog_stick_l, samples[i].analog_stick_r)};
   std::sort(output.begin(), output.begin() + count,
             [](const auto& left, const auto& right) {
               return left.sequence < right.sequence;
@@ -126,6 +128,15 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
   const auto& config = state->config;
   std::uint8_t flight = 0;
   if (arcade_controls.load()) {
+    const auto sx = std::clamp(raw.stick_x, -32767, 32767);
+    const auto sy = std::clamp(raw.stick_y, -32767, 32767);
+    const auto deadzone = std::clamp(config.stick_deadzone, 0, 32766);
+    flight_stick.store(static_cast<std::int64_t>(sx) * sx + static_cast<std::int64_t>(sy) * sy >
+        static_cast<std::int64_t>(deadzone) * deadzone ?
+        static_cast<std::uint64_t>(static_cast<std::uint32_t>(sx)) |
+          (static_cast<std::uint64_t>(static_cast<std::uint32_t>(sy)) << 32) : 0);
+    raw.stick_x = raw.right_stick_x;
+    raw.stick_y = raw.right_stick_y;
     flight = raw.dpad_up | (raw.dpad_down << 1) | (raw.dpad_left << 2) |
         (raw.dpad_right << 3) | (raw.zr << 4) | (raw.zl << 5);
     if (raw.zl && raw.zr && raw.minus) flight &= 15; // Preserve quicksave chord.
@@ -181,7 +192,11 @@ Snapshot Normalize(State* state, RawInput raw, std::int32_t width,
 }
 void InjectHostRaw(State* state, RawInput raw) { if (state) state->host_raw = raw; }
 void SuppressUntilReleased() { suppress_applet_input.store(true); }
-void SetArcadeControls(bool enabled) { arcade_controls.store(enabled); }
+void SetArcadeControls(bool enabled) { flight_stick.store(0); arcade_controls.store(enabled); }
+FlightStick GetFlightStick() {
+  const auto packed = flight_stick.load();
+  return {static_cast<std::int32_t>(packed), static_cast<std::int32_t>(packed >> 32)};
+}
 void Warp(State* state, std::int32_t x, std::int32_t y,
           std::int32_t width, std::int32_t height) {
   if (!state || width <= 0 || height <= 0) return;
@@ -203,7 +218,7 @@ Snapshot Poll(State* state, std::int32_t width, std::int32_t height) {
     pad_initialized = true;
   }
   padUpdate(&pad);
-  auto raw = FromButtons(padGetButtons(&pad), padGetStickPos(&pad, 0));
+  auto raw = FromButtons(padGetButtons(&pad), padGetStickPos(&pad, 0), padGetStickPos(&pad, 1));
   ReadTouch(&raw);
   if (Suppressed(raw)) raw = {};
   return Normalize(state, raw, width, height);
@@ -270,7 +285,7 @@ PollBatch PollHistory(State* state, std::int32_t width, std::int32_t height) {
     initialized = true;
   }
   padUpdate(&pad);
-  auto fallback = FromButtons(padGetButtons(&pad), padGetStickPos(&pad, 0));
+  auto fallback = FromButtons(padGetButtons(&pad), padGetStickPos(&pad, 0), padGetStickPos(&pad, 1));
   ReadTouch(&fallback);
   if (Suppressed(fallback)) {
     state->hid_history_ready = false;

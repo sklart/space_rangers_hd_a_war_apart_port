@@ -67,7 +67,12 @@ inline void *heap_alloc(Cardinal heap, Cardinal flags, Cardinal bytes) {
   void *p = std::malloc(std::max<std::size_t>(bytes, 1));
   if (p) {
     if (flags & 8) std::memset(p, 0, bytes);
-    heap_allocations.emplace(p, HeapAllocation{heap, bytes});
+    try {
+      heap_allocations.emplace(p, HeapAllocation{heap, bytes});
+    } catch (...) {
+      std::free(p);
+      throw;
+    }
   }
   return p;
 }
@@ -81,8 +86,12 @@ inline void *heap_realloc(Cardinal heap, Cardinal flags, void *data,
   const auto old_size = found->second.size;
   void *p = std::realloc(data, std::max<std::size_t>(bytes, 1));
   if (p) {
-    heap_allocations.erase(found);
-    heap_allocations.emplace(p, HeapAllocation{heap, bytes});
+    // Reuse the tracking node. Reallocating this node on every buffer resize
+    // creates allocator churn and can throw after realloc already freed data.
+    auto node = heap_allocations.extract(found);
+    node.key() = p;
+    node.mapped().size = bytes;
+    heap_allocations.insert(std::move(node));
     if ((flags & 8) && bytes > old_size)
       std::memset(static_cast<std::uint8_t *>(p) + old_size, 0,
                   bytes - old_size);
