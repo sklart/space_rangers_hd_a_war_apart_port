@@ -139,6 +139,8 @@ def source_map() -> tuple[list[tuple[Path, Path]], dict[str, str]]:
     patched = patched_sources()
     cache_path = BUILD / "effective-source-cache.json"
     generators = (ROOT / "tools/e2e_source_overrides.py",
+                  ROOT / "tools/e2e56_cache_overrides.py",
+                  ROOT / "tools/e2e56_geometry_overrides.py",
                   ROOT / "tools/e2e5_ui_width_overrides.py",
                   ROOT / "tools/e2e5_cachegi_trace.py")
     generator_hashes = {path.name: hashlib.sha256(path.read_bytes()).hexdigest()
