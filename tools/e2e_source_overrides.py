@@ -4,9 +4,14 @@ from __future__ import annotations
 
 from pathlib import Path
 import re
-from e2e56_cache_overrides import apply as apply_cache_safety
-from e2e56_geometry_overrides import apply as apply_geometry_reuse
-from e2e58_file_overrides import apply_file, apply_data
+if __package__:
+    from .e2e56_cache_overrides import apply as apply_cache_safety
+    from .e2e56_geometry_overrides import apply as apply_geometry_reuse
+    from .e2e58_file_overrides import apply_file, apply_data
+else:
+    from e2e56_cache_overrides import apply as apply_cache_safety
+    from e2e56_geometry_overrides import apply as apply_geometry_reuse
+    from e2e58_file_overrides import apply_file, apply_data
 
 
 def _replace_exact(text: str, old: str, new: str, count: int, source_name: str) -> str:

@@ -61,7 +61,7 @@
       "log_sha256": "b00dff702c73a6b2b597cb030544ae824824d81762d6ee93819bd61c9fa5a517",
       "tail": [
         "      |                                                            ^~~~~~~~~~~~~",
-        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/upstream/cpp/src/SysUtilsImports.cpp:559:61: warning: narrowing conversion of РІР‚пїЅStarterРІР‚в„ў from РІР‚пїЅuint8_tРІР‚в„ў {aka РІР‚пїЅunsigned charРІР‚в„ў} to РІР‚пїЅcharРІР‚в„ў [-Wnarrowing]",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/upstream/cpp/src/SysUtilsImports.cpp:559:61: warning: narrowing conversion of Р Р†Р вЂљРїС—Р…StarterР Р†Р вЂљРІвЂћСћ from Р Р†Р вЂљРїС—Р…uint8_tР Р†Р вЂљРІвЂћСћ {aka Р Р†Р вЂљРїС—Р…unsigned charР Р†Р вЂљРІвЂћСћ} to Р Р†Р вЂљРїС—Р…charР Р†Р вЂљРІвЂћСћ [-Wnarrowing]",
         "  559 |                 default: Result = pas::concat_ansi({Result, Starter}); break;",
         "      |                                                             ^~~~~~~",
         "original-wrappers: PASS",
@@ -219,6 +219,54 @@
         "[E2E] allocation recovery operation=resource-read bytes=12402421 cache_before=121784400 cache_after=0",
         "[E2E] screen first presented id=16 presentations=1326 width=1280 height=720 rgb565_hash=5d3d94063eb0c9c2"
       ]
+    },
+    "host-mods": {
+      "binary_sha256": "c8457175d1c7f815ad42e52d44e00de022a26baa3803bdeed35abbd0c47e0d8a",
+      "elapsed_seconds": 44.5,
+      "crashed": false,
+      "timed_out": false,
+      "menu_probe_completed": true,
+      "game_settings_first_frame": "NOT OBSERVED",
+      "run_id": "a9faff2388a54466b200a83f4c197736",
+      "log_sha256": "0d85ac549d1f98b1612ba1dcec963003a3f3558e42fbc0069e4b72e8035cf8a7",
+      "specific_evidence": [
+        "[E2E] screen dispatch id=22 postload=1",
+        "[E2E] screen dispatch id=1 postload=0",
+        "[E2E] HOST menu probe begin",
+        "[E2E] mods discovered name=Deutsch Modifikation description_chars=160",
+        "[E2E] mods discovered name=LeoDomikShipsUpdate15 description_chars=575",
+        "[E2E] mods discovered name=LeoDomikShipsUpdate30 description_chars=559",
+        "[E2E] mods discovered name=Modificaciуn al Espaсol description_chars=144",
+        "[E2E] mods discovered name=SR2LoadingScreen description_chars=405",
+        "[E2E] mods discovered name=SR2PQuestStyle description_chars=473",
+        "[E2E] HOST menu probe completed"
+      ]
+    },
+    "host-intro": {
+      "binary_sha256": "c8457175d1c7f815ad42e52d44e00de022a26baa3803bdeed35abbd0c47e0d8a",
+      "elapsed_seconds": 39.46,
+      "crashed": false,
+      "timed_out": false,
+      "menu_probe_completed": false,
+      "game_settings_first_frame": "PRESENTATION ATTEMPT OBSERVED",
+      "run_id": "6925a0d7cc664724b6e629df88db6fbb",
+      "log_sha256": "3f6a2a10ae4e32faf0a3305f46b3a99d343f2b2616eb2dbf205052d53404d4ea",
+      "specific_evidence": [
+        "[E2E] screen dispatch id=22 postload=1",
+        "[E2E] perf intro draws=3 applied=0 presented=3 repeated=0 skipped_positions=0 position=2",
+        "[E2E] perf intro draws=1 applied=0 presented=0 repeated=0 skipped_positions=0 position=0",
+        "[E2E] perf intro draws=106 applied=108 presented=107 repeated=0 skipped_positions=1 position=107",
+        "[E2E] perf intro draws=18 applied=18 presented=18 repeated=0 skipped_positions=0 position=125",
+        "[E2E] perf intro draws=1 applied=0 presented=0 repeated=0 skipped_positions=0 position=126",
+        "[E2E] perf intro draws=0 applied=1 presented=1 repeated=0 skipped_positions=0 position=126",
+        "[E2E] perf intro draws=106 applied=106 presented=106 repeated=0 skipped_positions=0 position=232",
+        "[E2E] perf intro draws=18 applied=18 presented=18 repeated=0 skipped_positions=0 position=250",
+        "[E2E] perf intro draws=1 applied=0 presented=0 repeated=0 skipped_positions=0 position=251",
+        "[E2E] perf intro draws=0 applied=1 presented=1 repeated=0 skipped_positions=0 position=251",
+        "[E2E] perf intro draws=50 applied=49 presented=50 repeated=0 skipped_positions=0 position=0",
+        "[E2E] screen dispatch id=1 postload=0",
+        "[E2E] screen dispatch id=33 postload=0"
+      ]
     }
   },
   "arm64_syntax": {
@@ -245,5 +293,12 @@
     "arcade_60_frames": true,
     "phase4_single_window_avg_us": 408,
     "comparison_limit": "different process states, one window; not A/B"
+  },
+  "ci_first_run": {
+    "id": 38868245685,
+    "sha": "5bb56e4caca633a1d184256ec1f915428f3af7ee",
+    "result": "FAIL",
+    "cause": "tools.e2e_source_overrides package import used script-only sibling imports",
+    "local_fix_validation": "exact failing New Game preflight PASS; 11 effective gameplay source SHA unchanged; NRO unchanged"
   }
 }

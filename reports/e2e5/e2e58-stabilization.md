@@ -85,10 +85,13 @@ RAII completion/IdleEvent и запрет Start на аварийном worker E
   Первый запуск помечен timeout из-за ошибки чтения маркера в Python monitor;
   журнал показывает завершённый сценарий, исправленный monitor прошёл 37.48 с.
 - T5: Options реально открыт дважды (39.20 с), имя/focus/drag/duplicate-release
-  regression PASS. Ангар/диалог покрыты полным сценарием. Intro/Credits/магазины,
-  квесты, mods display и видимое touchscreen/keyboard поведение в этом этапе
-  отдельно не перепройдены; прежняя доказательная база сохранена, новый PASS
-  для них не заявляется. Выполнение модов по-прежнему отложено.
+  regression PASS. Ангар/диалог покрыты полным сценарием. Дополнительный Intro
+  с SkipIntro=False прошёл видео → меню → New Game (39.46 с), без crash/timeout.
+  Меню модов обнаружило шесть реальных установленных записей и завершило
+  60 кадров (44.50 с). Выполнение модов по-прежнему отложено. Credits/магазины,
+  квесты и видимое touchscreen/keyboard поведение в этом этапе отдельно
+  не перепройдены; прежняя доказательная база сохранена, новый PASS для них
+  не заявляется.
 - T6: devkitA64 -fsyntax-only девяти модулей; оба preflight PASS;
   254 imports / 45 dynamic / UNKNOWN=0, семантика классификаций прежняя.
   Pointer-width new_unclassified=0, 25 tool tests PASS.
@@ -148,6 +151,17 @@ build_dirty=false, E2E5_DISABLE_DISK_SAVE=1, -O2 -fno-strict-aliasing.
 verification**. Следующий push документации и исходников запускает существующий
 package-host workflow; его текущий результат проверяется на GitHub для точного
 SHA отправленного коммита. Локальная ARM64-сборка не является CI PASS.
+
+Первый CI [38868245685](https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38868245685)
+для `5bb56e4` прошёл e2e5-fast, e2e4-sanitizers и e2e5-arm64-host, но упал в
+host-regression: test_e2e3_original_new_game импортирует генератор как Python
+package, а новые sibling imports E2E-5.7/5.8 поддерживали только script mode.
+Исправлено разделением relative imports/package и absolute imports/script.
+Ровно отказавшая make-команда локально прошла; повторный combined preflight
+PASS, все 11 сохранённых SHA effective gameplay/file/thread sources совпали
+с паспортом NRO. Игровой C++ и готовый артефакт не менялись; повторная NRO
+не собиралась. Исправление и дополнительные результаты отправляются новым
+коммитом для повторного полного CI.
 
 Следующий аппаратный запуск: A) меню → аркада, stick directions/диагонали/180°,
 right stick/сенсор/ZR/ZL, Options/имя; B) одна новая игра с зафиксированными
