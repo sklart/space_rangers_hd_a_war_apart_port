@@ -409,5 +409,21 @@
     "reference_us": 182045,
     "cached_us": 77074,
     "scope": "host ASan/UBSan fixture; not Switch FPS"
+  },
+  "local_switch_build": {
+    "build_git": "b6cf3be97eb8b20ac8a7ed54209545f538c693df",
+    "build_dirty": false,
+    "arm64_link": "PASS",
+    "undefined_symbols": 0,
+    "elf_build_id": "77ddaa44036b34f2d0f4543982932ad6074c0faa",
+    "nro_sha256": "32177A3F856B5A59F2252DEE17432670A192D55DD24B8CD7C00EAB6D78C7DE9D",
+    "status": "SOFTWARE AUDIT PASS; HARDWARE PENDING"
+  },
+  "ci": {
+    "conclusion": "success",
+    "head_sha": "b6cf3be97eb8b20ac8a7ed54209545f538c693df",
+    "url": "https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38891044457",
+    "jobs_passed": 5,
+    "report": "e2e59-ci.json"
   }
 }

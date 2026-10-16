@@ -129,7 +129,7 @@ jobs:
       - name: Preflight combined effective sources and manifest
         run: python3 tools/e2e_arm64_build.py --experimental-e2e4-combined --preflight-only
       - name: Guard repaired native pointer producers and consumers
-        run: python3 tools/e2e59_pointer_audit.py --check --output reports/e2e5/e2e59-pointer-width-audit.json
+        run: python3 tools/e2e59_pointer_audit.py --check --output build/e2e59/pointer-width-audit.json
       - name: Compile one combined E2E-4 experiment
         run: python3 tools/e2e_arm64_build.py --experimental-e2e4-combined
       - name: E2E Win32 Compatibility Surface effective gate

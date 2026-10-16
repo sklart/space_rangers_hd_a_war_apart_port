@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "status": "FINAL ARTIFACT PENDING",
+  "status": "SOFTWARE AUDIT PASS; CI PASS; HARDWARE PENDING",
   "superseded_before_delivery": [
     {
       "build_git": "f5087426503284e0e6ff8887174f1b19a76ca30e",
@@ -18,5 +18,68 @@
         }
       }
     }
-  ]
+  ],
+  "build_git": "b6cf3be97eb8b20ac8a7ed54209545f538c693df",
+  "build_dirty": false,
+  "elf_build_id": "77ddaa44036b34f2d0f4543982932ad6074c0faa",
+  "final": {
+    "nro": {
+      "path": "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\SpaceRangersHDAWarApartE2E4Combined-b6cf3be.nro",
+      "bytes": 16447792,
+      "sha256": "32177A3F856B5A59F2252DEE17432670A192D55DD24B8CD7C00EAB6D78C7DE9D"
+    },
+    "elf": {
+      "path": "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\SpaceRangersHDAWarApartE2E4Combined-b6cf3be.elf",
+      "bytes": 56528352,
+      "sha256": "C6D5DF4024F68C3498F4D13D3D14A50BC91D9D31CDE4F1AFE02B434943B918C8"
+    }
+  },
+  "arm64_link": "PASS",
+  "undefined_symbols": 0,
+  "required_stubs": [],
+  "link_objects": 379,
+  "compiled_objects_this_run": 2,
+  "reused_objects_this_run": 378,
+  "disk_save_enabled": false,
+  "compile_flags": [
+    "-std=gnu++20",
+    "-D__SWITCH__",
+    "-march=armv8-a+crc+crypto",
+    "-mtune=cortex-a57",
+    "-mtp=soft",
+    "-fPIE",
+    "-ffunction-sections",
+    "-fdata-sections",
+    "-g1",
+    "-O2",
+    "-fno-strict-aliasing",
+    "-DE2E_DIAGNOSTICS=0",
+    "-DE2E3_TRACE=1",
+    "-DE2E4_QUICKSAVE_EXPERIMENT=1",
+    "-DE2E5_DISABLE_DISK_SAVE=1",
+    "-DE2E4_AUDIO_ON=1",
+    "-IC:\\devkitPro\\libnx\\include",
+    "-IC:\\devkitPro\\portlibs\\switch\\include",
+    "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\runtime-overlay",
+    "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\platform",
+    "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\source-overlay",
+    "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\upstream\\cpp\\src",
+    "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\upstream\\cpp\\runtime",
+    "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\upstream\\okgf\\include"
+  ],
+  "effective_source_map_sha256": "1c9bcb9f791aeb4c0e864972b99e2f0c9f6100cf93c1e2cc2f3e799f1ce0bb9e",
+  "build_report_sha256": "fe81c03e5b0c849cc399a96b60ccbc78748ff4372679246daa306103d11cd14b",
+  "ci_head": "b6cf3be97eb8b20ac8a7ed54209545f538c693df",
+  "hardware": "PENDING",
+  "hardware_baseline_preserved": {
+    "path": "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\SpaceRangersHDAWarApartE2E4Combined-1e47335.nro",
+    "sha256": "4315D141E1B1E77374CDA11282E14FBA828F89DE4BE2D96099E528D030EA4527"
+  },
+  "ci": {
+    "conclusion": "success",
+    "head_sha": "b6cf3be97eb8b20ac8a7ed54209545f538c693df",
+    "url": "https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38891044457",
+    "jobs_passed": 5,
+    "report": "e2e59-ci.json"
+  }
 }

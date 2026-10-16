@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "status": "completed",
+  "conclusion": "success",
+  "head_sha": "b6cf3be97eb8b20ac8a7ed54209545f538c693df",
+  "url": "https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38891044457",
+  "jobs": [
+    {
+      "name": "host-regression",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-10-16T11:02:38Z",
+      "completedAt": "2026-10-16T11:20:21Z",
+      "url": "https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38891044457/job/116940743211"
+    },
+    {
+      "name": "e2e5-arm64-host",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-10-16T11:02:38Z",
+      "completedAt": "2026-10-16T11:07:01Z",
+      "url": "https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38891044457/job/116940743743"
+    },
+    {
+      "name": "e2e5-fast",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-10-16T11:02:41Z",
+      "completedAt": "2026-10-16T11:02:56Z",
+      "url": "https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38891044457/job/116940743781"
+    },
+    {
+      "name": "e2e4-sanitizers",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-10-16T11:02:38Z",
+      "completedAt": "2026-10-16T11:03:44Z",
+      "url": "https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38891044457/job/116940743807"
+    },
+    {
+      "name": "e2e-full-arm64-link",
+      "status": "completed",
+      "conclusion": "success",
+      "startedAt": "2026-10-16T11:20:24Z",
+      "completedAt": "2026-10-16T11:43:17Z",
+      "url": "https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38891044457/job/116947112740"
+    }
+  ],
+  "scope": "Game source at b6cf3be; local delivered NRO has its own verified provenance. Final report and generated CI output-path changes do not modify game sources.",
+  "hardware": "PENDING"
+}
