@@ -1,7 +1,7 @@
 {
   "source": "effective-e2e",
   "upstream_pin": "57fa689c630193a66fdea6ca4c79a188814991cd",
-  "source_file_count": 1408,
+  "source_file_count": 1409,
   "imports": [
     {
       "dll": "advapi32.dll",
@@ -3181,7 +3181,7 @@
     {
       "api": "GetModuleHandleW",
       "expression": "ModuleName.pchar()",
-      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp:308",
+      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp:309",
       "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
       "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
       "implementation": "win32_compat_modules",
@@ -3192,7 +3192,7 @@
     {
       "api": "GetModuleHandleW",
       "expression": "ModuleName.pchar()",
-      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp:312",
+      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp:313",
       "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
       "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
       "implementation": "win32_compat_modules",
@@ -3203,7 +3203,7 @@
     {
       "api": "GetModuleHandleW",
       "expression": "FileName.pchar()",
-      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp:4379",
+      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp:4380",
       "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
       "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
       "implementation": "win32_compat_modules",
@@ -3214,7 +3214,7 @@
     {
       "api": "GetModuleHandleW",
       "expression": "FileName.pchar()",
-      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp:4383",
+      "callsite": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp:4384",
       "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
       "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
       "implementation": "win32_compat_modules",

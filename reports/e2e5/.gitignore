@@ -21,3 +21,6 @@
 !e2e59-static-analysis.json
 !e2e59-artifact-provenance.json
 !e2e59-ci.json
+!e2e510-validation.json
+!e2e510-artifact-provenance.json
+!e2e510-ci.json

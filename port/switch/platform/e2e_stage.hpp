@@ -8,6 +8,7 @@
 #include <mutex>
 #include <string>
 #include <string_view>
+#include "e2e510_heap_reserve.hpp"
 
 namespace srhd_awa::platform::e2e_stage {
 inline constexpr const char* kRoot = "sdmc:/switch/space-rangers-hd-a-war-apart";
@@ -56,6 +57,16 @@ inline void Append(const char* prefix, const char* message) {
     g_log.last_flush = std::chrono::steady_clock::now();
   }
   std::fprintf(g_log.file, "%s%s\n", prefix, message);
+  static std::uint64_t reported_recoveries = 0;
+  static std::size_t reported_reserve = 0;
+  const auto reserve = heap_reserve::reserved_bytes.load(std::memory_order_relaxed);
+  const auto recoveries = heap_reserve::recoveries.load(std::memory_order_relaxed);
+  if (reserve != reported_reserve || recoveries != reported_recoveries) {
+    std::fprintf(g_log.file, "[E2E] heap-reserve bytes=%llu recoveries=%llu\n",
+        static_cast<unsigned long long>(reserve), static_cast<unsigned long long>(recoveries));
+    reported_reserve = reserve;
+    reported_recoveries = recoveries;
+  }
   const auto now = std::chrono::steady_clock::now();
   const std::string_view view(message);
   // The host probe consumes these markers as its control protocol. Its local

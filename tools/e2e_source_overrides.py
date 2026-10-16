@@ -9,11 +9,13 @@ if __package__:
     from .e2e56_geometry_overrides import apply as apply_geometry_reuse
     from .e2e58_file_overrides import apply_file, apply_data
     from .e2e59_overrides import film_history, film_index, star_map, turn_profile
+    from .e2e510_overrides import apply as apply_followup
 else:
     from e2e56_cache_overrides import apply as apply_cache_safety
     from e2e56_geometry_overrides import apply as apply_geometry_reuse
     from e2e58_file_overrides import apply_file, apply_data
     from e2e59_overrides import film_history, film_index, star_map, turn_profile
+    from e2e510_overrides import apply as apply_followup
 
 
 def _replace_exact(text: str, old: str, new: str, count: int, source_name: str) -> str:
@@ -2890,6 +2892,8 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = apply_data(text)
     if e2e5_profile:
         text = turn_profile(source.name, text)
+    if script_width:
+        text = apply_followup(source.name, text)
     destination.parent.mkdir(parents=True, exist_ok=True)
     if not destination.exists() or destination.read_text(encoding="utf-8") != text:
         destination.write_text(text, encoding="utf-8")

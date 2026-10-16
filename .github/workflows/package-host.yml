@@ -99,6 +99,10 @@ jobs:
         run: bash tools/e2e5_original_graphbuf_arm64_host.sh --synthetic
       - name: Gesture and bounded film ordinal checks on host and ARM64
         run: python3 tests/probe_e2e59_input_index.py
+      - name: Native heap reserve and generation counters on host and ARM64
+        run: python3 tests/probe_e2e510_runtime.py
+      - name: Exact geometry and pixel length checks on host and ARM64
+        run: python3 tests/probe_e2e510_geometry.py
 
   e2e-full-arm64-link:
     needs: [e2e5-fast, e2e4-sanitizers, e2e5-arm64-host, host-regression]

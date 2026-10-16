@@ -1,0 +1,170 @@
+{
+  "schema": 1,
+  "date": "2026-10-16",
+  "base_commit": "43585577a0752ce5b3aec33a9edcd64ab92fc350",
+  "hardware_input": {
+    "build_git": "b6cf3be",
+    "pack_sha256": "a5050d2e9e52e874054c9846f8ef8df5e3251e7479872838fce58a3d4e7d43c7",
+    "failure": "ReAllocREC size=13407092, resource data/FormHangar2/2Open.gai, main-loop exception at Hangar stage 4",
+    "root_cause": "Allocation failure confirmed; fragmentation or allocator corruption not distinguished by available telemetry"
+  },
+  "tests": {
+    "geometry": {
+      "sha256": "0baa870eb38d5f2c6b9e9783c77a68306bfb1064464522a2648d538162095c2c",
+      "tail": [
+        "geometry fixture cached=0 us=1613 checksum=27690512.906194493",
+        "geometry fixture cached=1 us=1508 checksum=27690512.906194493",
+        "pixel length fixture fast=0 us=2807 checksum=147798185",
+        "pixel length fixture fast=1 us=2812 checksum=147798185",
+        "3000000 distance pairs, integer pixel lengths at square boundaries, stored-coordinate round checks, four rounding modes and three precision controls PASS",
+        "geometry fixture cached=0 us=190348 checksum=27690512.906194493",
+        "geometry fixture cached=1 us=162968 checksum=27690512.906194493",
+        "pixel length fixture fast=0 us=186649 checksum=147798185",
+        "pixel length fixture fast=1 us=7463 checksum=147798185"
+      ]
+    },
+    "runtime-tests": {
+      "sha256": "2b871e574b775f7a7f57d975e62ad53a58b815845449dd5dc050cf4571ccf54d",
+      "tail": [
+        "native heap reserve: hardware allocation sizes, failure ownership, zero fill, private destroy and coalescing PASS",
+        "generation progress: counts, attempts, clamping, reset and worker/UI publication PASS",
+        "native heap reserve: hardware allocation sizes, failure ownership, zero fill, private destroy and coalescing PASS",
+        "generation progress: counts, attempts, clamping, reset and worker/UI publication PASS"
+      ]
+    },
+    "heap-existing": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tail": []
+    },
+    "win32": {
+      "sha256": "34d9ca6770a25597e5dce8652e81658acc7446bf41df5e2f521d77337e7594f0",
+      "tail": [
+        "  537 |                         Result = pas::concat_ansi({Result, DateSeparator});",
+        "      |                                                            ^~~~~~~~~~~~~",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/upstream/cpp/src/SysUtilsImports.cpp:543:60: warning: narrowing conversion of вЂ�SysUtilsImports::TimeSeparatorвЂ™ from вЂ�uint8_tвЂ™ {aka вЂ�unsigned charвЂ™} to вЂ�charвЂ™ [-Wnarrowing]",
+        "  543 |                         Result = pas::concat_ansi({Result, TimeSeparator});",
+        "      |                                                            ^~~~~~~~~~~~~",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/upstream/cpp/src/SysUtilsImports.cpp:559:61: warning: narrowing conversion of вЂ�StarterвЂ™ from вЂ�uint8_tвЂ™ {aka вЂ�unsigned charвЂ™} to вЂ�charвЂ™ [-Wnarrowing]",
+        "  559 |                 default: Result = pas::concat_ansi({Result, Starter}); break;",
+        "      |                                                             ^~~~~~~",
+        "original-wrappers: PASS"
+      ]
+    },
+    "tools": {
+      "sha256": "f76e87e111b37071ddd81f8ab36fd46ce5b9eb8f7dff463290f2824316d1de7e",
+      "tail": [
+        ".........................",
+        "----------------------------------------------------------------------",
+        "Ran 25 tests in 1.834s",
+        "",
+        "OK"
+      ]
+    },
+    "preflight": {
+      "sha256": "b6f42bcf36a1e79282407e5a8c2152a6ac92c2a75d97978e75f9b91846ed66e6",
+      "tail": [
+        "E2E preflight PASS: win32-effective-combined-import-manifest.json"
+      ]
+    },
+    "preflight-ordinary": {
+      "sha256": "59799b2803d863ca0c750edeb03e67ea9d418baf6db7b3fee7e3597809293fb8",
+      "tail": [
+        "E2E preflight PASS: win32-effective-import-manifest.json"
+      ]
+    },
+    "analysis-run": {
+      "sha256": "51a64fcf7add58e09f5fa903369a607035dd74b9d6e9070aae790a3e930eaacc",
+      "tail": [
+        "[ 14%] Analyzing: port\\switch\\build\\e2e-game-combined-experiment\\generated\\aMyFunction.cpp",
+        "[ 28%] Analyzing: port\\switch\\build\\e2e-game-combined-experiment\\generated\\fGameSettings.cpp",
+        "[ 42%] Analyzing: port\\switch\\build\\e2e-game-combined-experiment\\generated\\ab_WorldLine.cpp",
+        "[ 57%] Analyzing: port\\switch\\build\\e2e-game-combined-experiment\\generated\\fIntroduction.cpp",
+        "[ 71%] Analyzing: port\\switch\\platform\\win32_compat_heap.cpp",
+        "[ 85%] Analyzing: port\\switch\\platform\\win32_compat_process.cpp",
+        "[100%] Analyzing: port\\switch\\build\\e2e-game-combined-experiment\\generated\\aGalaxy.cpp",
+        "Analysis finished in 0:00:20.21",
+        "The results are saved to D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e510\\analysis.plog"
+      ]
+    }
+  },
+  "scenarios": {
+    "space-final": {
+      "binary_sha256": "ee6459f380a703c2bd58ab0bed7ba155b9f33306bb53917d12a68b62ca4bbe41",
+      "crashed": false,
+      "timed_out": false,
+      "stopped_by_probe": true,
+      "observed_end_turns": 5,
+      "arcade_60_frames": false,
+      "menu_probe_completed": false,
+      "elapsed_seconds": 65.75,
+      "report_sha256": "a8c805b2419dcdd4c5660b5b885475cd1114a7cdcb341cc749f46c0fe0b30682",
+      "ui_progress": {
+        "observed_updates": 111,
+        "labels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "width_overflow": 0,
+        "maximum_content_width": 166
+      }
+    },
+    "planet-final": {
+      "binary_sha256": "ee6459f380a703c2bd58ab0bed7ba155b9f33306bb53917d12a68b62ca4bbe41",
+      "crashed": false,
+      "timed_out": false,
+      "stopped_by_probe": true,
+      "observed_end_turns": 5,
+      "arcade_60_frames": false,
+      "menu_probe_completed": false,
+      "elapsed_seconds": 40.42,
+      "report_sha256": "0c34b619f9152d7634b27dfa54987d328582d154bb993499eb1b68596c4fb531",
+      "ui_progress": {
+        "observed_updates": 111,
+        "labels": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "width_overflow": 0,
+        "maximum_content_width": 166
+      }
+    },
+    "arcade-final": {
+      "binary_sha256": "ee6459f380a703c2bd58ab0bed7ba155b9f33306bb53917d12a68b62ca4bbe41",
+      "crashed": false,
+      "timed_out": false,
+      "stopped_by_probe": true,
+      "observed_end_turns": 0,
+      "arcade_60_frames": true,
+      "menu_probe_completed": true,
+      "elapsed_seconds": 29.82,
+      "report_sha256": "227bc339593062b86ca74970b5d850dbae6a93e3ca9081b7ae3b9cbbbd599b07"
+    }
+  },
+  "local_switch_build": "PENDING",
+  "ci": "PENDING",
+  "new_hardware": "PENDING",
+  "static_analysis": {
+    "effective_arm64_translation_units": 7,
+    "diagnostic_rows": 3604,
+    "preprocessing_errors": 0,
+    "new_reserve_findings": "V122 layout notices only; native pointer/size_t metadata is intentional",
+    "other_findings": "Existing reconstructed UI/general findings remain; this is not a complete general-warning cleanup",
+    "raw_sha256": "d5091b7d3210212c1117dcee2492e06faf296b6c6fbaca537a873285e41e8f5c"
+  },
+  "pointer_guard": {
+    "scanned_files": 1386,
+    "translation_units": 380,
+    "fixed_site_regression_failures": [],
+    "new_unclassified_narrowing": 0
+  }
+}

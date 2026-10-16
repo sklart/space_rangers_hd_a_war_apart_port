@@ -1,6 +1,8 @@
 #pragma once
 
 #include <atomic>
+#include <array>
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <cstdio>
@@ -15,6 +17,21 @@ inline std::atomic<std::int32_t> g_stage{0};
 inline std::atomic<std::int32_t> g_failure_stage{-1};
 inline std::atomic<std::int64_t> g_stage_start_us{0};
 inline std::atomic<std::int64_t> g_generation_start_us{0};
+// Encoded as percent+1, negative attempt number, or zero when no denominator
+// is known. Separate stages retain 100% after the worker advances.
+inline std::array<std::atomic<int>, 8> g_progress{};
+inline void Work(int stage, int completed, int total) {
+  if (stage < 0 || stage >= 8 || total <= 0) return;
+  const auto percent = 100LL * std::clamp(completed, 0, total) / total;
+  g_progress[stage].store(static_cast<int>(percent) + 1, std::memory_order_relaxed);
+}
+inline void Attempt(int stage, int attempt) {
+  if (stage >= 0 && stage < 8)
+    g_progress[stage].store(-std::max(1, attempt), std::memory_order_relaxed);
+}
+inline int Progress(int stage) {
+  return stage >= 0 && stage < 8 ? g_progress[stage].load(std::memory_order_relaxed) : 0;
+}
 
 inline std::int64_t ClockUs() {
   return std::chrono::duration_cast<std::chrono::microseconds>(
@@ -27,6 +44,7 @@ inline void Reset() {
   g_stage_start_us.store(now, std::memory_order_release);
   g_failure_stage.store(-1, std::memory_order_release);
   g_stage.store(0, std::memory_order_release);
+  for (auto& progress : g_progress) progress.store(0, std::memory_order_relaxed);
   e2e_stage::LogE2E3("generation status=starting");
 }
 
@@ -34,6 +52,8 @@ inline void SetStage(std::int32_t stage) {
   const auto now = ClockUs();
   const auto previous = g_stage.exchange(stage, std::memory_order_acq_rel);
   if (previous != stage) {
+    if (previous >= 0 && previous < 8 && stage > previous)
+      g_progress[previous].store(101, std::memory_order_relaxed);
     const auto prior_start = g_stage_start_us.exchange(now, std::memory_order_acq_rel);
     const auto origin = g_generation_start_us.load(std::memory_order_acquire);
     char detail[128]{};

@@ -48,7 +48,7 @@ inline bool heap_destroy(Cardinal heap) {
   if (!private_heaps.erase(heap)) return false;
   for (auto it = heap_allocations.begin(); it != heap_allocations.end();) {
     if (it->second.owner == heap) {
-      std::free(it->first);
+      srhd_awa::platform::heap_reserve::Free(it->first);
       it = heap_allocations.erase(it);
     } else {
       ++it;
@@ -64,13 +64,14 @@ inline void check_heap(Cardinal heap, Cardinal flags) {
 inline void *heap_alloc(Cardinal heap, Cardinal flags, Cardinal bytes) {
   std::lock_guard lock(heap_mutex);
   check_heap(heap, flags);
-  void *p = std::malloc(std::max<std::size_t>(bytes, 1));
+  srhd_awa::platform::heap_reserve::Initialize();
+  void *p = srhd_awa::platform::heap_reserve::Allocate(std::max<std::size_t>(bytes, 1));
   if (p) {
     if (flags & 8) std::memset(p, 0, bytes);
     try {
       heap_allocations.emplace(p, HeapAllocation{heap, bytes});
     } catch (...) {
-      std::free(p);
+      srhd_awa::platform::heap_reserve::Free(p);
       throw;
     }
   }
@@ -84,7 +85,8 @@ inline void *heap_realloc(Cardinal heap, Cardinal flags, void *data,
   if (found == heap_allocations.end() || found->second.owner != heap)
     throw std::runtime_error("invalid native heap realloc");
   const auto old_size = found->second.size;
-  void *p = std::realloc(data, std::max<std::size_t>(bytes, 1));
+  void *p = srhd_awa::platform::heap_reserve::Reallocate(data,
+      std::max<std::size_t>(bytes, 1), old_size);
   if (p) {
     // Reuse the tracking node. Reallocating this node on every buffer resize
     // creates allocator churn and can throw after realloc already freed data.
@@ -106,13 +108,17 @@ inline bool heap_free(Cardinal heap, Cardinal flags, void *data) {
   if (found == heap_allocations.end() || found->second.owner != heap)
     throw std::runtime_error("invalid native heap free");
   heap_allocations.erase(found);
-  std::free(data);
+  srhd_awa::platform::heap_reserve::Free(data);
   return true;
 }
 #endif
 '''
     destination.parent.mkdir(parents=True, exist_ok=True)
-    rendered = prefix + replacement + suffix
+    helper = Path(__file__).resolve().parents[1] / "port/switch/platform/e2e510_heap_reserve.hpp"
+    helper_copy = destination.parent / helper.name
+    if not helper_copy.exists() or not filecmp.cmp(helper, helper_copy, shallow=False):
+        shutil.copyfile(helper, helper_copy)
+    rendered = '#include "e2e510_heap_reserve.hpp"\n' + prefix + replacement + suffix
     if not destination.exists() or destination.read_text(encoding="utf-8") != rendered:
         destination.write_text(rendered, encoding="utf-8")
     return destination
