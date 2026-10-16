@@ -3,6 +3,7 @@
 /upstream/*
 !/upstream/cpp/
 !/upstream/okgf/
+!/upstream/matrixgame
 /windows/
 *.nro
 *.elf

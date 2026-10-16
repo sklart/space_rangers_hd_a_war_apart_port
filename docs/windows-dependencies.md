@@ -11,5 +11,5 @@
 | libogg/libvorbis/libvorbisfile | music | DLLs | native Vorbis | DLL ABI | static portable decoder | planned |
 | zlib | compression | `ZLib.dll` | portable zlib | `ZLib.dll` | static zlib | planned |
 | okgf.dll | software renderer | DLL | vendored OKGF | DLL ABI | portable OKGF | spike partial PASS |
-| MatrixGame.dll | planetary battles | D3D9/D3DX9 + Win32 imports | wrappers only | external DLL path | separate port | BLOCKED future |
+| MatrixGame.dll | planetary battles | D3D9/D3DX9 + Win32 imports | wrappers only | external DLL path; sources pinned in `upstream/matrixgame` | separate source port required | sources available; Switch integration pending |
 | Steam | achievements/overlay | inspect runtime calls later | wrappers | Achievements unit | clean disable only | planned |

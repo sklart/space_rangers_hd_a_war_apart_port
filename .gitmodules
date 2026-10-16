@@ -4,3 +4,6 @@
 [submodule "okgf"]
 	path = upstream/okgf
 	url = https://github.com/pakompom/okgf.git
+[submodule "upstream/matrixgame"]
+	path = upstream/matrixgame
+	url = https://github.com/vladislavrv/MatrixGame.git

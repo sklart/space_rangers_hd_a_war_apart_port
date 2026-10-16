@@ -64,6 +64,12 @@ cd space_rangers_hd_a_war_apart_port
 git submodule update --init --recursive
 ```
 
+Исходники движка планетарных боёв подключены отдельным подмодулем
+[`upstream/matrixgame`](upstream/matrixgame) из [vladislavrv/MatrixGame](https://github.com/vladislavrv/MatrixGame).
+Зафиксирована ревизия `218115a72fa9c5d43269f4ca84a8596a0bcb82f1`.
+Движок пока не включён в сборку Switch; состояние и план переноса описаны в
+[MatrixGame Switch plan](docs/matrixgame-switch-plan.md).
+
 ## Требования к сборке
 
 - devkitPro MSYS2;
