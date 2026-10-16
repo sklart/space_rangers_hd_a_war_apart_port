@@ -7,13 +7,14 @@
 namespace srhd_awa::platform {
 // One immutable matrix and floating-point mode per update. Only the result of
 // the original projector is reused; no arithmetic or projection order changes.
-template<class Vector, class Projector> class ProjectionCache {
+template<class Vector, class Projector, std::size_t Capacity = 512> class ProjectionCache {
+  static_assert(Capacity && (Capacity & (Capacity - 1)) == 0);
   struct Entry {
     std::array<std::uint64_t, 3> key{};
     Vector value{};
     bool valid{};
   };
-  std::array<Entry, 128> entries_{};
+  std::array<Entry, Capacity> entries_{};
   Projector projector_;
   std::uint64_t hits_{}, misses_{};
 public:
@@ -37,8 +38,8 @@ public:
     return value;
   }
 };
-template<class Vector, class Projector>
+template<class Vector, std::size_t Capacity = 512, class Projector>
 auto MakeProjectionCache(Projector projector) {
-  return ProjectionCache<Vector, Projector>(std::move(projector));
+  return ProjectionCache<Vector, Projector, Capacity>(std::move(projector));
 }
 }

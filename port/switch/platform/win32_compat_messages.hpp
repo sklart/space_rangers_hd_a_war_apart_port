@@ -9,6 +9,7 @@ void InjectHostInput(input_platform::RawInput input);
 void WarpInputCursor(std::int32_t x, std::int32_t y);
 void PostPaint(std::uint32_t window);
 std::uint64_t CurrentPressId();
+bool CurrentMessageIsTouch();
 #if defined(E2E5_HOST_SDL_WINDOW)
 bool PostHostKey(std::uint32_t window, std::uint32_t virtual_key);
 bool PostHostReturnKey(std::uint32_t window);

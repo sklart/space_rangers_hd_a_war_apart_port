@@ -99,6 +99,22 @@ int main() {
   InjectHostInput(input);
   assert(peek(&message, 0, 0x0101, 0x0101, 1) && message.wParam == 0x26);
   assert(peek(&message, 0, 0x0101, 0x0101, 1) && message.wParam == 0x11);
+  input = {};
+  InjectHostInput(input);
+  while (peek(&message, 0, 0, 0, 1)) {}
+  input.touch = true; input.touch_x = 400; input.touch_y = 250;
+  InjectHostInput(input);
+  assert(peek(&message, 0, 0x0201, 0x0201, 0)); // Queue touch down, leave it pending.
+  input.touch = false;
+  InjectHostInput(input);
+  assert(peek(&message, 0, 0x0201, 0x0201, 1) && CurrentMessageIsTouch());
+  assert(peek(&message, 0, 0x0202, 0x0202, 1) && CurrentMessageIsTouch());
+  input.a = true;
+  InjectHostInput(input);
+  assert(peek(&message, 0, 0x0201, 0x0201, 1) && !CurrentMessageIsTouch());
+  input.a = false;
+  InjectHostInput(input);
+  assert(peek(&message, 0, 0x0202, 0x0202, 1) && !CurrentMessageIsTouch());
   input.plus = true;
   InjectHostInput(input);
   assert(peek(&message, 0, 0x0012, 0x0012, 1) && message.message == 0x0012);

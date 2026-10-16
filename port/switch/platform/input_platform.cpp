@@ -163,6 +163,8 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
   state->precise_y = std::clamp(state->precise_y + dy, 0.0,
                                 static_cast<double>(height - 1));
   Snapshot result{};
+  result.touch_held = raw.touch;
+  result.touch_message = raw.touch || (state->last.touch_held && !raw.a);
   result.flight_keys = flight;
   result.x = static_cast<std::int32_t>(std::lround(state->precise_x));
   result.y = static_cast<std::int32_t>(std::lround(state->precise_y));

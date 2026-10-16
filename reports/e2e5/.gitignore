@@ -16,3 +16,8 @@
 !e2e58-validation.json
 !e2e58-artifact-provenance.json
 !e2e58-ci.json
+!e2e59-validation.json
+!e2e59-pointer-width-audit.json
+!e2e59-static-analysis.json
+!e2e59-artifact-provenance.json
+!e2e59-ci.json

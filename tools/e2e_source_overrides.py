@@ -8,10 +8,12 @@ if __package__:
     from .e2e56_cache_overrides import apply as apply_cache_safety
     from .e2e56_geometry_overrides import apply as apply_geometry_reuse
     from .e2e58_file_overrides import apply_file, apply_data
+    from .e2e59_overrides import film_history, film_index, star_map, turn_profile
 else:
     from e2e56_cache_overrides import apply as apply_cache_safety
     from e2e56_geometry_overrides import apply as apply_geometry_reuse
     from e2e58_file_overrides import apply_file, apply_data
+    from e2e59_overrides import film_history, film_index, star_map, turn_profile
 
 
 def _replace_exact(text: str, old: str, new: str, count: int, source_name: str) -> str:
@@ -47,7 +49,7 @@ def replace_dialog_pointer_payloads(text: str, source_name: str) -> str:
         text = text[:start] + replacement + text[end + 1:]
         offset = start + len(replacement)
         changed += 1
-    expected = {"fRuinsTalk.cpp": 18, "fTalk.cpp": 12}[source_name]
+    expected = {"fRuinsTalk.cpp": 18, "fTalk.cpp": 12, "fGov.cpp": 8}[source_name]
     if changed != expected:
         raise RuntimeError(f"{source_name} pointer producers changed: {changed}")
 
@@ -59,10 +61,17 @@ def replace_dialog_pointer_payloads(text: str, source_name: str) -> str:
     def decode_pointer(match: re.Match[str]) -> str:
         if source_name == "fTalk.cpp" and match.group(2) == "Sender->UserValue" and \
                 "RequestedMapCenter = " in text[text.rfind("\n", 0, match.start()) + 1:match.start()]:
-            return match.group(0)  # ObjectId, not a pointer token.
+            # Inline markup carries a native address; choice callbacks use tokens.
+            return "reinterpret_cast<" + match.group(1) + ">(static_cast<std::uintptr_t>(Sender->UserValue))"
         return ("srhd_awa::platform::e2e5_pointer_payload::Resolve<" +
                 match.group(1) + ">(this, " + match.group(2) + ")")
     text = decode.sub(decode_pointer, text)
+    if source_name == "fGov.cpp":
+        text = _replace_exact(text, "        ClearDialogChoices();\n        MainPanel->OnClose();",
+            "        ClearDialogChoices();\n"
+            "        srhd_awa::platform::e2e5_pointer_payload::ReleaseOwner(this);\n"
+            "        MainPanel->OnClose();", 1, source_name)
+        return '#include "e2e5_pointer_payload.hpp"\n' + text
 
     # The decoder above also rewrites this expression; release only the row's
     # choice token after its managed object has been freed.
@@ -403,7 +412,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ('ab_WorldLine.cpp', 'EC_File.cpp', 'ab_Global.cpp', 'EC_Cache.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ('ab_WorldLine.cpp', 'ThreadCalc.cpp', 'aEFilm.cpp', 'aCalc.cpp', 'fPanelMain.cpp', 'fFilmFile.cpp', 'fGov.cpp', 'fStarMap.cpp', 'EC_File.cpp', 'ab_Global.cpp', 'EC_Cache.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "EC_Cache.cpp":
@@ -530,6 +539,8 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
                 f'\n        srhd_awa::platform::input_platform::SetArcadeControls({enabled});', 1, source.name)
         for marker, stage in [('    void TfAB::DrawFrame() {', 46),
                               ('    void TfAB::TimerTakt(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {', 47)]:
+            if script_width:
+                marker = marker.replace("std::int32_t UserData", "std::intptr_t UserData")
             text = _replace_exact(text, marker, marker +
                 f'\n        srhd_awa::platform::e2e5_stage_profiler::Scope e2e_ab_scope(srhd_awa::platform::e2e5_stage_profiler::detail_window, {stage});', 1, source.name)
     if source.name == "GR_Main.cpp":
@@ -2282,6 +2293,8 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = text.replace(stage_read,
             "DisplayedGenerationStage < srhd_awa::platform::e2e3_generation_state::Stage()", 1)
         timer = "    void TfIntroduction::UpdateGenerationProgress(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {"
+        if script_width:
+            timer = timer.replace("std::int32_t UserData", "std::intptr_t UserData")
         if text.count(timer) != 1:
             raise RuntimeError("Introduction progress timer boundary changed")
         text = text.replace(timer, timer + '''
@@ -2318,7 +2331,7 @@ void CloseVorbisStream(TOggWorker* worker) {
 ''' + continue_request, 1)
         text = text[:continue_start] + continuation + text[continue_end:]
         text = '#include "e2e3_generation_state.hpp"\n' + text
-    if e2e5_profile and source.name in ("fRuinsTalk.cpp", "fTalk.cpp"):
+    if e2e5_profile and source.name in ("fRuinsTalk.cpp", "fTalk.cpp", "fGov.cpp"):
         text = replace_dialog_pointer_payloads(text, source.name)
     if audio_on and source.name == "fLoad.cpp":
         load_begin = text.index("    void TfLoad::OnOpen() {")
@@ -2865,10 +2878,18 @@ void CloseVorbisStream(TOggWorker* worker) {
             e2e_last_report = e2e_now; e2e_hits = e2e_misses = 0;
         }''' + text[end:]
         text = '#include "e2e58_projection_cache.hpp"\n#include "e2e_clock.hpp"\n#include "e2e5_failure_diagnostics.hpp"\n' + text
+    if script_width and source.name == "fStarMap.cpp":
+        text = star_map(text)
+    if e2e5_profile and source.name == "aEFilm.cpp":
+        text = film_index(text)
+    if source.name == "fFilmFile.cpp":
+        text = film_history(text)
     if source.name == "EC_File.cpp":
         text = apply_file(text)
     if source.name == "EC_Data.cpp":
         text = apply_data(text)
+    if e2e5_profile:
+        text = turn_profile(source.name, text)
     destination.parent.mkdir(parents=True, exist_ok=True)
     if not destination.exists() or destination.read_text(encoding="utf-8") != text:
         destination.write_text(text, encoding="utf-8")

@@ -113,6 +113,7 @@ def source_overlay() -> Path:
     tracked_source_changes = command(
         [native_git(), "status", "--porcelain", "--", "upstream/cpp/src"])
     scripts = (ROOT / "tools/e2e4_script_width_overrides.py",
+               ROOT / "tools/e2e59_overrides.py",
                ROOT / "tools/e2e5_ui_width_overrides.py")
     fingerprint = {
         "git_head": command([native_git(), "rev-parse", "HEAD"]),
@@ -139,6 +140,8 @@ def source_map() -> tuple[list[tuple[Path, Path]], dict[str, str]]:
     patched = patched_sources()
     cache_path = BUILD / "effective-source-cache.json"
     generators = (ROOT / "tools/e2e_source_overrides.py",
+                  ROOT / "tools/e2e58_file_overrides.py",
+                  ROOT / "tools/e2e59_overrides.py",
                   ROOT / "tools/e2e56_cache_overrides.py",
                   ROOT / "tools/e2e56_geometry_overrides.py",
                   ROOT / "tools/e2e5_ui_width_overrides.py",

@@ -23,6 +23,7 @@ struct RawInput {
   std::int32_t right_stick_x{}, right_stick_y{};
 };
 struct Snapshot {
+  bool touch_held{}, touch_message{}; // Provenance travels with the queued mouse event.
   std::uint8_t flight_keys{}; // up/down/left/right/primary/secondary, arcade only
   std::int32_t x{}, y{};
   std::uint64_t hid_sequence{};

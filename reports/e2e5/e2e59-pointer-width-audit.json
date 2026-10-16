@@ -1,0 +1,2164 @@
+{
+  "schema": 1,
+  "level": "EFFECTIVE SOURCE INVENTORY; NOT HARDWARE COVERAGE",
+  "original_translation_units": 298,
+  "platform_translation_units": 82,
+  "translation_units": 380,
+  "scanned_files": 1384,
+  "source_sha256": {
+    "upstream/cpp/runtime/runtime.cpp": "37b7c861ac893bf10a99a65f1de050971960e59e801e395c26e94ef2177eac7b",
+    "upstream/cpp/src/Achievements.cpp": "aab699873e8730d5451de3c0b5397351b7705d6b96d500dadb0ab8fc2f95b341",
+    "upstream/cpp/src/ActiveXSdk.cpp": "0c274dcb84b0ce65e7da5d44448601eaa99f83d09fb497c80d6d1e5cc2425c12",
+    "upstream/cpp/src/BlockParException.cpp": "bdfae4d0d58921ae029419eb28820f5c9e752b7166506c1210f39cd1e81f2e24",
+    "upstream/cpp/src/BreakMessageGIException.cpp": "635437b8d0a8fdd3dc704ba6606d299b506fab650eac3fe9354a96fbdd15444c",
+    "upstream/cpp/src/CPDiapClass.cpp": "da8705149e15412dcff5377e626e4ccf7cae2146abb1c5ed9baffd6c0797f133",
+    "upstream/cpp/src/CPVarClass.cpp": "c58f05f5cb5ef38a165f503703cedf251968314627af0966434ec78bf0f04708",
+    "upstream/cpp/src/CalcParseClass.cpp": "2cdcd3f67e533382015ffcac00ea957304af9bae22ecd274b0ca3881bbbcb5de",
+    "upstream/cpp/src/CheatCode.cpp": "cfe5ee9de98e75a706172960d653fd66009e5e99d07c50ec5c7adb3a04d6b5f0",
+    "upstream/cpp/src/ClassesImports.cpp": "6557a96b318fa7dfccd354dd1b3a16ca7c688aedf1c5cfdac09b5c71bf53166d",
+    "upstream/cpp/src/CrcUnit.cpp": "42b790b2bda3fb5be92697246e6a0ed871244194588aa2f8a436450338775d5d",
+    "upstream/cpp/src/DateUtils.cpp": "2d218fbc263edae3483f55956751476cb7c7e0dbd53b6f5e238801e30dbbd0ac",
+    "upstream/cpp/src/Dialogs.cpp": "5a031a8109d902398168bdb85b7834c32190316ab7b87babef72b8dd66d98470",
+    "upstream/cpp/src/Direct3D9.cpp": "72729a8ee639db5c39a5c4bbde8d78f14ad8e4b0ba0037d28b1fc2b90b537e16",
+    "upstream/cpp/src/DirectSound.cpp": "030768749b2598e7ae852ae154f8cf07b1e45bb5258844bfc30da989ac64764c",
+    "upstream/cpp/src/DirectXRenderException.cpp": "e64475b143c5b5cdcfdf426d2deac256a3cc86b11cfc6bac7977c99697875801",
+    "upstream/cpp/src/EC_BlockPar.cpp": "9547d0f0962eaa4844069045b9f7ac500dbf759f1f17a8419054d802846f057e",
+    "upstream/cpp/src/EC_Buf.cpp": "9bba94bc7e52c3ef113ab6e380c27575dce3ccba6fe01b701b29dfc72be9210b",
+    "upstream/cpp/src/EC_Cache.cpp": "48a3c5114244762a89e121db3f2547511beba76720d4e8d44ebb9497885a018c",
+    "upstream/cpp/src/EC_CacheAlphaBitmap.cpp": "e37692ccb6b1e62c1978987c008b7c376a824a16e35c9e4f3ee2e0369c2ca633",
+    "upstream/cpp/src/EC_CacheBitmap.cpp": "7332b6cf9c1104cd3e452e4ed044ec2dc83d3c19f5db48b9228804f52492a640",
+    "upstream/cpp/src/EC_CacheBuf.cpp": "75a0d70f5c19bb05254ccd0778b0157ebccecaf4f71b857d5043077ed8a9a773",
+    "upstream/cpp/src/EC_CacheFont.cpp": "8c4c70ec08bd8b9cd374a310fca03a2906637f7979c93c9ab37f86d02f5c546a",
+    "upstream/cpp/src/EC_CacheGAI.cpp": "ac97bc6e155a57cd14e73939acf1dc53723666b89585caf81c5bb89cf3a62320",
+    "upstream/cpp/src/EC_CacheGI.cpp": "6d5cba14d6934d9bb0bb5f9bb8a6a1f50d6a9c692797d9f2a0d0b78f496d5124",
+    "upstream/cpp/src/EC_CacheHSAI.cpp": "238d5fb306d2d1618bd0dbe43831398a0f859ac9bab5569bd13bc3da140315ab",
+    "upstream/cpp/src/EC_CacheLightPal.cpp": "0255ab9e14ab981153097487cb32977062c5038c9dbf76f0e51dafeb92feedbe",
+    "upstream/cpp/src/EC_CachePalBitmap.cpp": "70d2651b91f7bf932e4d3fc5d6852038a777be70ae7d2c44dd46e1d825235432",
+    "upstream/cpp/src/EC_CachePlanetTempl.cpp": "704f4016daedb8b5d7b328aae933da1e23ffbc6348441fbe1967329054a92b17",
+    "upstream/cpp/src/EC_CacheRotateBuf.cpp": "097507118325188160763a683128e3c7f3837cb7b1a6710588cfc14713d1c398",
+    "upstream/cpp/src/EC_CacheSound.cpp": "f6a8fdd027fb6c90f6a7718e9a4c17962525f78273f20502cc75fd9b64100708",
+    "upstream/cpp/src/EC_CacheTBitmap.cpp": "690528bbe5f8441a1b0853afce0261fbd0efb0c1421f3b430779cfd656ffde6d",
+    "upstream/cpp/src/EC_Data.cpp": "272ce90b34f0d485c3c8777a097814453062019748a1c29adc9ac1d00e63c8fd",
+    "upstream/cpp/src/EC_Ether.cpp": "72a2f3f2dc5de245495118d68060e8184a20ea049351ffc46cf633251aa3c8f0",
+    "upstream/cpp/src/EC_Expression.cpp": "8e60e1b6f826f7fe773e8b8f22af9d95b42e92a93a92050fc48104c125be9889",
+    "upstream/cpp/src/EC_File.cpp": "86441021da94045613815123859757cddb212e720392d9abe9b1ad45aa779a86",
+    "upstream/cpp/src/EC_FileStream.cpp": "bdc4a7ef7b57146a95272aecd298c39c8e94ece9dce95df0c2170f464db09300",
+    "upstream/cpp/src/EC_HsFile.cpp": "9a2e8a0391e51df2316e5ddf531568ec12fd2a47aa0988ebec3da41755b68490",
+    "upstream/cpp/src/EC_Mem.cpp": "e432e15c7b032490959bd3ce5bfb775cf09662fc17816e6ee03613a494137eb7",
+    "upstream/cpp/src/EC_OKGF.cpp": "7ddfe1828446d2e2a58902e01fc7d3b4f19aee429fc5042510ad21047dd55cc3",
+    "upstream/cpp/src/EC_Str.cpp": "492ce4523323c89443c52f7e99bb315608696a18d975c846616d3f6b44a64b64",
+    "upstream/cpp/src/EC_Struct.cpp": "7ea62f19ad2a555cf5ab782c68fe0b7e8127174fe11431e535758edfaa8441d4",
+    "upstream/cpp/src/EC_Thread.cpp": "e2e8619c11e74750021aa95366265e37e29d70c8818979096b74849e9b6b6572",
+    "upstream/cpp/src/EventClass.cpp": "c5e5cd0df338effca41612ef1eada54f359be3a58fd57750d9c39f523ad5c6ea",
+    "upstream/cpp/src/ExceptionInfo.cpp": "ee58f685249187d01386d8d97f12663a409133a334ed4690728bfab0b96ac2d2",
+    "upstream/cpp/src/FGInt.cpp": "293ed61398c21985fa2ae3149dd7f5ac57e3a08e93af3a2a7b27a1cfe4090180",
+    "upstream/cpp/src/Forms.cpp": "171f505265c9f249a86b8ab60d2616663a7fe69c1ec39767ff6ff7a26ce3c501",
+    "upstream/cpp/src/GI_AImage.cpp": "cbe15f6f8db05d967aae56678e90d6f5dcad4d86e9f477410e7b2a7eee24bb2a",
+    "upstream/cpp/src/GI_AlphaImage.cpp": "872c7f83397c157548729cd74260dbe907d9c47424a137bc452fcc5b400ff458",
+    "upstream/cpp/src/GI_CheckBox.cpp": "5ba9574c016ec38678b15fc1d6174a1ba6ea61a652a4316c94661fa76ac7f65b",
+    "upstream/cpp/src/GI_Circle.cpp": "974d31558faeec8c92d478b1d37dfeabfedfd214cfa3756d67846fe246a67325",
+    "upstream/cpp/src/GI_CountBar.cpp": "ff67b055abb5867b94bff2b8c2582ec571d6e50fd6ec2188c699126348aa7ebc",
+    "upstream/cpp/src/GI_Cursor.cpp": "614836b1586126173cc89f0ea6da399aca94af09dcc1dfeb568e866fcb82b020",
+    "upstream/cpp/src/GI_Door.cpp": "017f629d98e3ffaa94a9eb7a09d6ce7bc0f53151b91b2d6d1816ba7269abf77a",
+    "upstream/cpp/src/GI_Edit.cpp": "8b0e3c8f0b45362d5b9c3f825ce647d902b2a6db443c1e44d41f91cdf8de947b",
+    "upstream/cpp/src/GI_Frame.cpp": "72c82303884b34c70456f55624578e48589c38f8b6e8e3a8afcf73aa7f2103d6",
+    "upstream/cpp/src/GI_GAI.cpp": "4591e789c782fa28dddf3b656c132aed23ac5b788b9b15f6d8f79a446f66543c",
+    "upstream/cpp/src/GI_GAIFile.cpp": "36bba0b41f0cab6c71efc02939b9df9c7de6c57c075563d3e33857f4fef24654",
+    "upstream/cpp/src/GI_GI.cpp": "e0a983ff0c8fd93c08802824859b0b50db696136c4a28c5a50821cfeea51f8ec",
+    "upstream/cpp/src/GI_GraphBuf.cpp": "bfcb04d7b4ef3b880a81c40c41a6b801103422333b010e7ed44bec928c0f9fd6",
+    "upstream/cpp/src/GI_GraphButton.cpp": "23f86149166783267b44fee8933ab32cd706a1fd63e42582e41fbe577d02195c",
+    "upstream/cpp/src/GI_Grid.cpp": "f3d1fe46e78a7f195685021e66f9b1c806994bcf2765969c86161257a575d3c4",
+    "upstream/cpp/src/GI_Image.cpp": "486500e60a75c34fd9f393cd1eebdd51f154324e3349811a6660d57c370fdb23",
+    "upstream/cpp/src/GI_InfiniteImage.cpp": "776fdf8e6b708ceb52ca3385f0c6a6cb88236ca8e43a7980cdd0acb7dc7d3332",
+    "upstream/cpp/src/GI_Label.cpp": "db13a4a76545c6f68ed8edc16f4dcd0982c8880a4ab7ea2c5396f09e64ee7308",
+    "upstream/cpp/src/GI_Line.cpp": "566c24cd689ac89211aa91e5255dd4e7469cabd582486c8bf958d778bb9d1869",
+    "upstream/cpp/src/GI_Main.cpp": "6cbbab27a92f7e21f848602043429e1067ca889715eab883aea9986d3d78dda0",
+    "upstream/cpp/src/GI_MessageBox.cpp": "600d01e51b76e42e47152cd437a35e6c74eca1fdca50138d5d63402850dd052d",
+    "upstream/cpp/src/GI_MessageLoop.cpp": "e49bb85a31a0ed771c8ac1ffe7dfda59faff9793b20f8874b9c94081ec8ee143",
+    "upstream/cpp/src/GI_MultiImage.cpp": "02440dfde3b92798246c5c3716b60a0781d962fb561084c2952f59c2e6e9cee5",
+    "upstream/cpp/src/GI_PDTurretWeapon.cpp": "04b9a930d8f435e3956cb283d95d4a7d2262e3eb88832459469ef997a4c5110f",
+    "upstream/cpp/src/GI_PSEyes.cpp": "55307dfcce67bd7e87fc37f0d101aad9f95a4d231804801440f8a9c5c1324995",
+    "upstream/cpp/src/GI_PSMissileHit.cpp": "d6a1431cc0e8361e7a4b99803fb15d2ced3c27fdef9980f617bfad3b98c60698",
+    "upstream/cpp/src/GI_PSWeapon.cpp": "bece4f6ba4c84a6d67d4b1bd5409541f9edfc6f8b6932d501a8e81ae9afe1d1c",
+    "upstream/cpp/src/GI_PSWeapon01Laser.cpp": "2fc8f3a97f50690a93fc30e5ddb46e244c7bb844de96d5822d0e8a4c743ce580",
+    "upstream/cpp/src/GI_PSWeapon02FragCannon.cpp": "d90f91a878859e3fb0243f0576ffd70416f99d9de8e02f289c53729e82112a07",
+    "upstream/cpp/src/GI_PSWeapon03Lezka.cpp": "8e2aee8560e4fe9eb0ca68ce101f6d309e41ee0fe20f224bbb81bf3dbf9351ad",
+    "upstream/cpp/src/GI_PSWeapon05Treton.cpp": "a9e14a2ca66144d3cecdff43ff90b8602c35435f32ea0b97135c8fee2000b7e6",
+    "upstream/cpp/src/GI_PSWeapon06Phaser.cpp": "14c9ee960a272114810f387749f1481edce84678252309b144f8df9bbbbf3ea7",
+    "upstream/cpp/src/GI_PSWeapon07Blaster.cpp": "bfcdc59a81ca85748b9b2161075701dd2e0972d60a5a95c86afec978331d78a1",
+    "upstream/cpp/src/GI_PSWeapon08ECutter.cpp": "0d89a7535e901b4209ace5027e82cff71d6f5d39a9789d6cd4c96f586c6df450",
+    "upstream/cpp/src/GI_PSWeapon09MResonator.cpp": "1848c385295601ecb3421ae27de91247e3c54573cf0807d5ba090c778c08e070",
+    "upstream/cpp/src/GI_PSWeapon10AVision.cpp": "b1965a1a700c0c08f5f363dabe5006ec543b36654f0e6dd148daab1519bdf123",
+    "upstream/cpp/src/GI_PSWeapon11Desintegrator.cpp": "fb55615678b87e39bb24d9629f098ea88b6513d40fdbfd0f057b6386e78a9e8d",
+    "upstream/cpp/src/GI_PSWeapon12Turbogravir.cpp": "17dc031594f2840acc0f5cb44b9cb22f7a63329205aecbfa8b4e2d5d34587651",
+    "upstream/cpp/src/GI_PSWeapon13IMHO.cpp": "43cdcf4a0c0c2ce83f2e2d7c2c0243bb40cedbd183ff444b7e8cc51f055df896",
+    "upstream/cpp/src/GI_PSWeapon14Vertix.cpp": "9e954c8e1ce43cd99c41243766d97b0a4a409733eb044ea9cde44dd412847e6a",
+    "upstream/cpp/src/GI_PSWeapon16Esodafer.cpp": "c13638e58bd73574e62424423e5b506ac4f1d2fd694bd4b52f0780a74290fde2",
+    "upstream/cpp/src/GI_PSWeapon17Kafacitor.cpp": "3ce42a93d5fcdf134dbb9af8fa7771151459515a2d5d63d2c44ef3da0c66d4d6",
+    "upstream/cpp/src/GI_Panel.cpp": "2ea61064ad444778d3f2a66ee58f087c84aa1db65028ffdca9884141874ad6b4",
+    "upstream/cpp/src/GI_PanelScrollBar.cpp": "b4323b839b8c1437b09a65dceda5075211ebcef4fe51ae743562e64bda5a97c3",
+    "upstream/cpp/src/GI_Planet.cpp": "e418816a48f2b7d6581ab5024da938f02a3347bc77dd67418bed89a453eb3c85",
+    "upstream/cpp/src/GI_PlanetButton.cpp": "f74968ae7b132187184c8b03302fc8d97fa339fd6aab3b640cdf6a82a4f2972f",
+    "upstream/cpp/src/GI_PolyLine.cpp": "bfecc270896bcd7e5b91c6d1fc776d2cca1db3d5e97a7262911c2bb25ee0c203",
+    "upstream/cpp/src/GI_RadialEffect.cpp": "fa40d985036e33ddda072330e10346adcc2a57bcb16ee42f74c3db69d9e4ea07",
+    "upstream/cpp/src/GI_RadioGroup.cpp": "12a7fd9514a0d41fbfe635f102beb9e15b620d7b3553c79aaff20443a1a3aee5",
+    "upstream/cpp/src/GI_RotateImage.cpp": "1623a21c6de295cbbe4d66ef994ad57831550ca86c979030037ee8ccab515e0f",
+    "upstream/cpp/src/GI_RotateImage2.cpp": "b0006ed6e471e63a8a2038b2be1520e3c26bfedc12e1edabbf3fe30cff73aa7c",
+    "upstream/cpp/src/GI_RotateImage5.cpp": "b48cc9ca9a9e840a78da0369cc2bc27c38186376a53a24c48d6259e265c4c2dd",
+    "upstream/cpp/src/GI_RotateImageGAI.cpp": "2f8b0a42331236e41e3f81e671c0f701847a7221e2d3af6de192d796e1484560",
+    "upstream/cpp/src/GI_SBPath.cpp": "6b8ff2360a39be72e27b2b8a59b2713c39fd8fc03c1dcacf751e16828cbbfd62",
+    "upstream/cpp/src/GI_ScrollBar.cpp": "240d2bdc0e9af6b06e937e9c931f21c1e8f81ef5297575514d73aee77e008e8d",
+    "upstream/cpp/src/GI_ShrLight.cpp": "4db90c36c305ff11a51512172898b25ab9dffeda5761bf3643d7403c5f57f119",
+    "upstream/cpp/src/GI_SimpleButton.cpp": "591d474b8ac4e3830eae34b4a0b4858992f08cb56d1a9ff729326ed2566d0910",
+    "upstream/cpp/src/GI_SimpleImage.cpp": "4750a11b30340fd1eec6e1cd001593a56d6b69d3e3f9471cf60c010d570e8a92",
+    "upstream/cpp/src/GI_SpaceCircle.cpp": "bd83672c364f1fe71239faabe6b90aa31f9d634f902658b46fbff6312845f35d",
+    "upstream/cpp/src/GI_SpaceImg.cpp": "1a4b29cb52de903b36ca27198d9f7b056a8f52d8b033ce7a9720c06a9a1a0cde",
+    "upstream/cpp/src/GI_StarField.cpp": "d08589f671fdcd9f38d46354649aa55095ce0ae199f35654e7b39ddfb18e01d2",
+    "upstream/cpp/src/GI_StarFieldImg.cpp": "14e1aeceecad296bac5814494fe57d9d98ff63f56b61a525b13793223efe6772",
+    "upstream/cpp/src/GI_StarFieldM.cpp": "f28a2a7a4866269da7f0f0f84dedc58df9778db0383ca4065e79cf6770766378",
+    "upstream/cpp/src/GI_StatusBar.cpp": "bf9ec4522faf27eeb12f1c3b4c664ccafcb9e3bc60d2632b65c48d7756e86a6b",
+    "upstream/cpp/src/GI_Tail.cpp": "c889d4ec09433786b03a0aa6102f1289b138eefa7fd2aa8c027f0c2ee4b9688d",
+    "upstream/cpp/src/GI_TextButton.cpp": "553ab219ef40bd7f6cb961f6d0fba14d42f3254e43b13e89213b3c6159cada02",
+    "upstream/cpp/src/GI_TransImage.cpp": "e16889f0bad0eedb82cb25cd0391caeb7179211e22c281c8ddbca93fb97fdf34",
+    "upstream/cpp/src/GI_Window.cpp": "7f170ae83eaf4122059e3cb1f8b7570b9404e2cc041a9bae6d06bc6ea0ab306e",
+    "upstream/cpp/src/GI_XviD.cpp": "7e68656ec858b3cc4d73e55e49fa0fc83194f8e7530334ddd382746ab13d7141",
+    "upstream/cpp/src/GI_Zone.cpp": "27b05b9f56a358c999f707335939ce7d131022e60a51081b35ff7f61f0232c8e",
+    "upstream/cpp/src/GR_DX.cpp": "84d6e27a46dd1797547649e9b0a8454ba8dbc7b16d680214a2566fabeb5f1dc5",
+    "upstream/cpp/src/GR_GraphBuf.cpp": "1565a7e909151661c3a3ffb428d2db554ba29c76a67f45e0cfd6242d57d27c7e",
+    "upstream/cpp/src/GR_GraphBufPal.cpp": "6735cfd7cc5b7db9930371d86ad28dd5b4a3c4aedcd4d04c18a9e2880f4a32ef",
+    "upstream/cpp/src/GR_Main.cpp": "357f6eccbfd06aead7be5c1998290e71bfa98923ebf25b724c2451d59418a58d",
+    "upstream/cpp/src/GR_Music.cpp": "dc4a87f062d03358d28f92b3799d04205ca20f6a1c7ab86edd0555612cb59780",
+    "upstream/cpp/src/GR_Rect.cpp": "725928f01f80e2d96faa00faddb8820f316ad74569644a6d2e357f590492cb20",
+    "upstream/cpp/src/GR_Sound.cpp": "bb1211203bc8896b2208d99152edf92bd1059053e29c0949bb9585ef4a8c661a",
+    "upstream/cpp/src/GR_gi.cpp": "d6afff5dbc634a1cb14361ee5eac15b1f22f7fc743e74023928c95581edebe59",
+    "upstream/cpp/src/Globals.cpp": "e6d9d26e123308fe90d4bc9e2c7bdd34667dfa2719ea3336de59010657215982",
+    "upstream/cpp/src/GlobalsV.cpp": "48787efa4c43eb336c58f8ea414ed166db482ef19fa302332d1576c7cc1173b1",
+    "upstream/cpp/src/LocationClass.cpp": "ac5ff27c332955f98e26c84a2c215bc58c9df43d5ad0fa7f4175aa1b841e99b0",
+    "upstream/cpp/src/MMSystem.cpp": "02f86fd83267f271f40aec7cb1ee370e8e84a5bcf6dccd15a9166fb11cd4bb39",
+    "upstream/cpp/src/MathImports.cpp": "d857dfa40073cc29cfce33b2052c2ee45d20465a277d86d829b37f8c461cc639",
+    "upstream/cpp/src/MessageText.cpp": "f326f3dfe93ba9da867f966b276535cf208b60f77f4ffd76c14ae8bc217d75e6",
+    "upstream/cpp/src/NoSteamAchievemens.cpp": "34a0900c615b4cd4193ed82f5978f25086f822cefe9de675c3f2b63762330a6b",
+    "upstream/cpp/src/ParViewStringClass.cpp": "527760549a7f3684c1c8b8383ef1df42236a7b5a85fa1065700ac224991fc1cd",
+    "upstream/cpp/src/ParameterClass.cpp": "8bad2aa35103be87a3e5126537f29ebc1c241fc8bf849cfe2dc6e55618162eed",
+    "upstream/cpp/src/ParameterDeltaClass.cpp": "9b108f7a72d687c240d32a469f3b8ce4d9fe5684d10f79c9d9c79dfa58b9141f",
+    "upstream/cpp/src/PathClass.cpp": "0a0a1c3b687d4bf632fb33b4b80f73fb1dbfc0259e4214d0231b88739f322123",
+    "upstream/cpp/src/PopUp.cpp": "8a03f995e75d8155d45c00f09f89e861dcc3f3e47a9975515f499327b6722817",
+    "upstream/cpp/src/Rangers.cpp": "18f88f06c25a4b09fe9f8e827fd6c4cb6418ca7ed2c090981068cba71f1adaea",
+    "upstream/cpp/src/Registry.cpp": "8c97aace08cc7888453de7864234e955c21f3908720532ddfd45f64675b4fa00",
+    "upstream/cpp/src/Robot.cpp": "5565e57c03cceeca92d52e58c6fd1d520d3fcf13cd24ab2df80655483e9e8dd1",
+    "upstream/cpp/src/SE_Angel.cpp": "20194337add220b37411dd87144bd73044a3b9152a1bdc42bb9c84dc55ac76c0",
+    "upstream/cpp/src/SE_Anim.cpp": "c21d85948e46a974053cc42b0dfe51c92986a16e7675cc6e0f5160e2ebb9d802",
+    "upstream/cpp/src/SE_Asteroid.cpp": "ecc7c3d248fddecd54ede2ddc33bfb4c628a16a007675458e8d229cd017a8bbf",
+    "upstream/cpp/src/SE_BGObj.cpp": "ce10c04118c89fc979e3c2d6e0df48b7190232ce53ff52e2d5e4a432fca830ee",
+    "upstream/cpp/src/SE_Comet.cpp": "aa9dcf5543eaf472fdef00080522f1835a8dc26cd1f93323da19023473c5bed8",
+    "upstream/cpp/src/SE_Container.cpp": "deaaf8852828f41f69633b9339137792f14f02068b4a0f3d2fbf244fd7ab4ee2",
+    "upstream/cpp/src/SE_GAIEffect.cpp": "db424d7d04820c53ecc5208cfe0ad321d532a4f2d818327d6f4b8f855a3f7697",
+    "upstream/cpp/src/SE_Garbage.cpp": "3414e50cd36cf7c8232a4d8d27874d1290f80b082099c42058bae0ea93f1584a",
+    "upstream/cpp/src/SE_Gate.cpp": "9f978d7b2a9b188ad224b517cfe55e223960eb27a243e9ff582197b9115963a0",
+    "upstream/cpp/src/SE_Hole.cpp": "c3afb440e55814fc7dc5b7cf5c0e815437a07d12a95795ff312df2ccdabd745c",
+    "upstream/cpp/src/SE_Laser.cpp": "57e592a315e731c90abbd823fd099cb6b14a61aec5ef96cbda62172e7b1fa830",
+    "upstream/cpp/src/SE_Meteorite.cpp": "4c71b084bf3348a7f731b15ec8e889a5dc2cf59a28a52862dad0c10fadc7d81d",
+    "upstream/cpp/src/SE_Missile.cpp": "3cce4d98a0c174bb0873b0ebcb9df07a0b029c065537be42c2b7be2ddbd8f475",
+    "upstream/cpp/src/SE_Planet.cpp": "5f1911e72a4c33c22bac43d6f886b17b683a763243d6a1bcd54e42aea8f41889",
+    "upstream/cpp/src/SE_Process.cpp": "2ea8bb68a0199cdceee62482a844a7178c0052f3d5d5858d6ec9d2e19d70d20c",
+    "upstream/cpp/src/SE_Ruins.cpp": "2ba5d4c886e9d6120fc8d592c91f2358275a4a3f02c281220e0752479f16e90e",
+    "upstream/cpp/src/SE_Ship2.cpp": "ee9e02ad111f22b70ffef5303ab166af3011b4c0bd466f0bd4d34ac25b167a12",
+    "upstream/cpp/src/SE_SoundRnd.cpp": "4d0c6cbfd2780314400b2a7c9e001546e8006a8cbcb7f1eb83a169f460437bf6",
+    "upstream/cpp/src/SE_Space.cpp": "30b1150e2a4cafaae3aaebc53de7c817d78d5588978730287c977f6010ae6aab",
+    "upstream/cpp/src/SE_Sputnik.cpp": "6bb67511a71de0c7e9cb4300355ea07bf4868b94faa27b0e9e31817b48e0a9ac",
+    "upstream/cpp/src/SE_Star.cpp": "95854d65cc0f75b42b374f47b309f66fdff1a07ae0bf7f73595f94d7535f343a",
+    "upstream/cpp/src/SE_StarsField.cpp": "340d24bbe4b4d808f56b23144c44ae641d25d399fd8e6f640484d5c54d2907a5",
+    "upstream/cpp/src/SE_Weapon.cpp": "f4d65c73ea070b17f9d5542c8088d987a7e3f03983866f651f033896aa57e7cd",
+    "upstream/cpp/src/SequenceClass.cpp": "7445b805bc349959b76fd2f09efa29b04ca0a22bf94c78b165f24f455a7c8d17",
+    "upstream/cpp/src/ShellAPI.cpp": "32d2130e919a211257a4c24c63555e7dd197f5dc5871c87574bb07549843ac18",
+    "upstream/cpp/src/ShlObj.cpp": "cbeac79e4d07537e045aeae6a239fa9744f2a39cf0842f59ae4c78e91953420a",
+    "upstream/cpp/src/SimpleSteamApi.cpp": "5b103e2bc0868244ea11d8dc173364bfebf8fc7cb24a151213100ba6ec02894f",
+    "upstream/cpp/src/SysUtils.cpp": "47076b6f0d278306ddb319b23a97ace65836127687efc601ed7d9ea8ccc5bc53",
+    "upstream/cpp/src/SysUtilsImports.cpp": "f0f3bb858c73949ad3a4131ba0dccf1dbe318c58e1d1723514d36ab536d79344",
+    "upstream/cpp/src/System.cpp": "a3255403963c19fb6559425609e2c40723dbd298b6c0e1779ef2da28bf34d1e6",
+    "upstream/cpp/src/SystemImports.cpp": "d3b003cf039b0930b8ee023df14ae275cc24cd9bf9e5662cc4efd7b98f09914a",
+    "upstream/cpp/src/TextFieldClass.cpp": "1befd3d2d6b5f4b0bfca78839f077abdabfca3a78144d90b04c585a92da80014",
+    "upstream/cpp/src/TextQuest.cpp": "e3fa7159b9426f59154a254e05aa56feb39e8f87e8a26b802e3c6849f68028e7",
+    "upstream/cpp/src/TextQuestInterface.cpp": "77f62cdb1194be3f09539243405096b906b27d0617882e6b4b1a97491a383ced",
+    "upstream/cpp/src/ThreadCalc.cpp": "69a2716adfc3b7a23333510948da0fc8c62f38d6aa23afb04e0c837e0a385c23",
+    "upstream/cpp/src/TlHelp32.cpp": "87deae9acdcccc59f67389132ef9d16f87beb1ad028e6f8a2bbea81bff91b1be",
+    "upstream/cpp/src/Types.cpp": "adf19c914591c2d15ecfc5b1f45227bf2064b5646840a02af01154af3f32c8ed",
+    "upstream/cpp/src/TypesImports.cpp": "08660a38b875e27b3c4d7a320d9eadc2d13bf541e56bdcf2cbc43ee93cbeac63",
+    "upstream/cpp/src/VFW.cpp": "11628be9c687616da2f45c84b289e3ee42c30cd28b0af2b858b3983ff5a8ae72",
+    "upstream/cpp/src/ValueListClass.cpp": "dcb8d8ffe439a67a8f2d2add6452eac592dfbf90b53872b1e93f60302acd7ef8",
+    "upstream/cpp/src/VorbisFile.cpp": "0f78ca35dd83ca146c83537f0561f83591005a53d50097d57981ed19b4f7c468",
+    "upstream/cpp/src/WStringUtils.cpp": "f17adde6e2377e85b1d0c82ec3c2bd4d72a237c3099fd5104d25a43a2c04030a",
+    "upstream/cpp/src/Windows.cpp": "47b218649cdf09b3bd4cbfea25caa670979c669e1a806b696aeca96cf649369b",
+    "upstream/cpp/src/WindowsImports.cpp": "17ff6d385ae2f6619adbdaffbc692df86958fb585334b87967d048599d14fb65",
+    "upstream/cpp/src/WindowsSdk.cpp": "7925531a203ab8d5d28751276d753d2acafb4f7f2a859bcc1c79ef3d5f431b44",
+    "upstream/cpp/src/aAsteroid.cpp": "7cfaf3aba333f14f1e2eca889b7ec474f64e0af5abc8b6c369ec0936f2df4d29",
+    "upstream/cpp/src/aCalc.cpp": "6c30424e3dc4489bcc6e28bea54f9b888353daa4c399e878e3d59e0c264bb0a7",
+    "upstream/cpp/src/aConst.cpp": "93bd4a4390fa4c6012c1afada13fc39aa9dbf5f5f283c4125172d7848d0329d1",
+    "upstream/cpp/src/aEFilm.cpp": "cc91707f3138a220b6a60df8f70f44429059d9594a03ffb3cc46f7601f9a4e22",
+    "upstream/cpp/src/aEFilmEnd.cpp": "bd049249f4a505b513d100a4ef4edd8d1e52ddec6d7a681eae638b5442513779",
+    "upstream/cpp/src/aEObjInfo.cpp": "bc00bd90500870522bf41adf3dbb9d7a98b9159b724d1f3196d22321badd4dd0",
+    "upstream/cpp/src/aGalaxy.cpp": "c5794c6ec8b12507632a5d69ccd07a2d34feb7ddddd108a1b2992383065ada71",
+    "upstream/cpp/src/aGalaxyEvent.cpp": "b69d8493696a563dcbb8f68fc767eeb7d34657949b8a2f4f61ec03298170cd9f",
+    "upstream/cpp/src/aGalaxyStruct.cpp": "75cbbce73c82244b3fab3a0b45165ba28be5b6bbb925baaa54760afb2d5e50f5",
+    "upstream/cpp/src/aGroup.cpp": "bc559516bb7363d3dadbd5cecb33091286ea49526cd1571f7674f4f960da17c6",
+    "upstream/cpp/src/aItem.cpp": "f346fef0b726a1d87f0561a6a233c0b35b0b891b0d53066d028398e69e66b2f5",
+    "upstream/cpp/src/aKling.cpp": "ad2ee9a3acb5944dd88f0b85891e2cbe775b42a559af0cffd413bb9cea60aa5b",
+    "upstream/cpp/src/aMissile.cpp": "b478a67b81a8c5e5841961f2b8d83dddddfaee52fc4a9207eea5595cc908bed2",
+    "upstream/cpp/src/aModsInfo.cpp": "222b8b5c084803640388e41f38f0ef4553f25c4a57e78bc30022324a283d3fae",
+    "upstream/cpp/src/aMyFunction.cpp": "6ecbdfb90cbe8aa0b491aa72138523bd0d89ca7c68d3aa3bae2e9f0efbd7dde6",
+    "upstream/cpp/src/aNormalShip.cpp": "10bc7ac8fd5fbcd01728f14b209966d5234b5823991458ccf972a6c2fbb9ad85",
+    "upstream/cpp/src/aPacket.cpp": "8d7df511fbcf011154f8c7afeebe640e1afa4ecefdd66c35c399ecb9466f0001",
+    "upstream/cpp/src/aPath.cpp": "b6b3584c9790d08f72ea6519e3e7793a0ca9affa399d00ef76bd64827eeaaafd",
+    "upstream/cpp/src/aPirate.cpp": "fb210ed9944a1fe2e1eb4ca7e67eb997565350ccedb8dc9b2ee58f113d9bdce7",
+    "upstream/cpp/src/aPlanet.cpp": "41a8db5a85ab8d21f24e8ece6bd41e8a419f72cd1fbd503455d4155629646ab6",
+    "upstream/cpp/src/aPlayer.cpp": "22740c9e626d465ec102138814f6dd3cc15cbd511f7e3a3fc2f518918f38e826",
+    "upstream/cpp/src/aRanger.cpp": "bfcfbd43ce0660f36344bd18b38a836329f9c5d687dec184aeca49de209bd0ae",
+    "upstream/cpp/src/aRuins.cpp": "1fb9c10dafbef59e5e121660fb03ae611959d18f6fa4532fef5f6feaee674f98",
+    "upstream/cpp/src/aSaveLoad.cpp": "93188fe40c40fc3f3a2e97b9caa224133d174777fa537dac02acec072a1a7054",
+    "upstream/cpp/src/aScript.cpp": "337c9ffa687c18669318388ba844732dce614e94be012930c5336bb7489a513b",
+    "upstream/cpp/src/aScriptFun.cpp": "5d48920683c7c74abc2de105d348762e4d811393ceaa8b17af0c8d5b756cf3d7",
+    "upstream/cpp/src/aShip.cpp": "8b753bc55d648b3330c5f27d4ce9349ede4b96b349b0369ba298b666af4eddd6",
+    "upstream/cpp/src/aTranclucator.cpp": "35e16879115af5dbb354e1860dcaf3a43588ff3cb94a2577cfdbeffad4944706",
+    "upstream/cpp/src/aTransport.cpp": "f218fae7b1d439974ac7aaed6e8c618111b7df8993c345b26351e14e2951fab2",
+    "upstream/cpp/src/aVector.cpp": "5c53e4a09c51c85aa75506e849c7970dbeba75d5a6acd715789431fb8b04c2e6",
+    "upstream/cpp/src/aWarrior.cpp": "9a5047fd7a1a7aa7fffd941e849b44da174b44eba99165a17f04c97f30ae18c2",
+    "upstream/cpp/src/abWall.cpp": "b41737fe08006e90ea7f076845b503e4a305e7e7c786701fbfb35ef60991ce08",
+    "upstream/cpp/src/ab_Global.cpp": "3ffdb7e6e6a6637d00cf9c4523fc7023db9c42cbd15d1535be6aaf16956317b6",
+    "upstream/cpp/src/ab_Hit.cpp": "0506a468be6047b7aa3bbce60972e866342802328668149d2fdb00f7d1c78114",
+    "upstream/cpp/src/ab_Item.cpp": "58d74ddcbc56cd52c78de524a56ebbf27398ef18c5486b931043e5b03c9b5b81",
+    "upstream/cpp/src/ab_MainForm.cpp": "07c17bfe4cbd2029f276329ee7aac5ea4ef604776ca36ec520f3ba922e587716",
+    "upstream/cpp/src/ab_Object.cpp": "94f96d0409818104bd8be725b84b7ce4c015f1ff75d4dbc36149dc37b89eafad",
+    "upstream/cpp/src/ab_Polygon.cpp": "35e696052ec04d1d04634d354da07b19a83c30b7771df1e15f4082d3128ae961",
+    "upstream/cpp/src/ab_Ship.cpp": "735e589dc9ca11fd7487b747e554d7e8f16fbf5b86d16321c02a599ef16c773a",
+    "upstream/cpp/src/ab_ShipAI.cpp": "f0077a65cfd4b4ca53b65e51a446103537641a4bf58d37b7b948a73d3fb6fec9",
+    "upstream/cpp/src/ab_Space.cpp": "791270ce4f98a8e746f0a2299b9f76c9bce9ad2f1749aa9051fd305e4f646860",
+    "upstream/cpp/src/ab_StopLine.cpp": "c200c3932161176223689fda9e5296321db26e83909677eb04bd560552a2fa6e",
+    "upstream/cpp/src/ab_W.cpp": "33c7cf287b40195834b998b0b0d22340add97be63881211e057390d1b4936847",
+    "upstream/cpp/src/ab_W01.cpp": "8e5224fc9508c24c41f893eee22089c4b51de223ac31b2748f2fd917d5295b62",
+    "upstream/cpp/src/ab_W02.cpp": "caca1565822b111aa804274bbce17ad4396cf18f623ce6befe96a601ae43307e",
+    "upstream/cpp/src/ab_W03.cpp": "5838621b0d37f6a454464de47c41e8962b7dc3a14a670c6ec25f3e7a7628fa47",
+    "upstream/cpp/src/ab_W04.cpp": "4dca809415454dc69c1aee5d0c9739e01ad2330f32519cdb9d1538b4d4444172",
+    "upstream/cpp/src/ab_W05.cpp": "4b9477342027abe3ea4edf72d9f3f22782466229816c681c301472d1480d575a",
+    "upstream/cpp/src/ab_W06.cpp": "def759f922f7bae0157c961eac4d0b1d898124b5e329abc90856c9a2a0627831",
+    "upstream/cpp/src/ab_W07.cpp": "6f4e037df6e0f7ecb51844a5705ab814a13d131390a40dcc31da461b07e06456",
+    "upstream/cpp/src/ab_W08.cpp": "29ebee058d216b3291454de7d6cf9b9d51d779d57696fe255500e2e058036e5c",
+    "upstream/cpp/src/ab_W09.cpp": "532a4b5e7d79ee5813801b8e17afbf0df1363ca9e78f25e1b417596c64e77297",
+    "upstream/cpp/src/ab_W10.cpp": "06eff14c6a6b8d0d69d58721a2f8c4a6506036958d2fdca8a85d5b1420a2bc3e",
+    "upstream/cpp/src/ab_W11.cpp": "368117d607ea4de9c508dc03e19917273bea17d7ab8b2cbbfe225871fedcfae7",
+    "upstream/cpp/src/ab_W12.cpp": "38c6b45d77c1ea42254baa0355c93a288910607926dea86acf234a3b7f1ef4c6",
+    "upstream/cpp/src/ab_W13.cpp": "d97f338f2340dc37ea6a8084b8b3bdf1dbad20bc9666057fdaf87bb31bca3dea",
+    "upstream/cpp/src/ab_W14.cpp": "5c8ab6717ff596797b863caa2c4e4f396f9581791a58f21334f6ed374af68e0c",
+    "upstream/cpp/src/ab_W15.cpp": "f66d67f3056953d45d07a3208f92bafa1880fad6d395b27ae5c37fdfea5b54e5",
+    "upstream/cpp/src/ab_W16.cpp": "2752b4994f5bc88e136829a0822cc901dd97bde042742e4c9de0e5585d0e6f11",
+    "upstream/cpp/src/ab_W17.cpp": "7eed4afc558dc445c4a3c64fce6f9237b2be543ad777641d0052237d4180d53a",
+    "upstream/cpp/src/ab_W18.cpp": "c25a0773320fcfc62173db84d8e663be6f1f181a9627081066706fa957818c4c",
+    "upstream/cpp/src/ab_WorldImage.cpp": "ede678da136e9fea398b61b00a91d4998e7f6d5ac9f75a2022c0b5839fe2f503",
+    "upstream/cpp/src/ab_WorldLine.cpp": "aed3d37becce13a860aacbe8f0d3808ee43f72782b6d936bccb4b2d5f8bd7df0",
+    "upstream/cpp/src/ab_Zone.cpp": "999b76111135c79a3c6ec25d3d6e9acead1434a29908ba28555db3fd03aba161",
+    "upstream/cpp/src/fAbout.cpp": "fa9f0ea9294cc01c09330ae2245150486138090351dff288bf72b41a906c3878",
+    "upstream/cpp/src/fAchievements.cpp": "1d39b244d3524092c01b242b552a8cbf91f199337a3cf45b0d03b49d1695b113",
+    "upstream/cpp/src/fCfgSettings.cpp": "df5099ccd9a1715104dc6d4bff458d946169fff94ad4b930184a2d9e43f51fe5",
+    "upstream/cpp/src/fChameleon.cpp": "54891310ea12a4bc74fe012037a2235488d2e8771836ad8869eb0a21204a2e72",
+    "upstream/cpp/src/fCount1.cpp": "50fa41090c8f59a3d3907044aee297e58af766a96d74b05383c9a43291034ae3",
+    "upstream/cpp/src/fCount2.cpp": "c4d803e40aa0486490dd339cb3ea345ece01ab18fc8424adc398ed7058510443",
+    "upstream/cpp/src/fCustom.cpp": "32014dfd32915414d5a8a56a7577676ff107c562e9c166ad190dfa9d46c467bd",
+    "upstream/cpp/src/fEquipmentShop.cpp": "028f0e3e1ce92875a92ecd456f3fca2b932a3f37941651e8bf5c6ffb78d36b68",
+    "upstream/cpp/src/fFilm.cpp": "3667d66ab90a9f3fafdedcff89292cf651e76ccf5e8f89fd506badfdb6ea52be",
+    "upstream/cpp/src/fFilmFile.cpp": "92eff11d0802dc6c20505b87df2a049b9c800c0cbf175364164d3c97b16d07ec",
+    "upstream/cpp/src/fGalaxy2.cpp": "91e2dedf7da3c5d4c00a355814b4341cff590112479e38bc9b5a575cb48b1928",
+    "upstream/cpp/src/fGameEnd.cpp": "2c467a0311a1bc71bcd8923865f91a44deb98a48024a94d03574e031fee75a6e",
+    "upstream/cpp/src/fGameLoad.cpp": "8f904bfe8235523581039935f6c85e015f398967ed0c1f8184cfc53f65a30538",
+    "upstream/cpp/src/fGameMenu.cpp": "8e6c69d59e4378d645734e41ade344b765fd5d7764df9bbad0c1e9305dbfb720",
+    "upstream/cpp/src/fGameSettings.cpp": "e06ea1c79161750ed43307d4703529da169d41f6109a9c6a80f1f6b663c4d88b",
+    "upstream/cpp/src/fGameSettings2.cpp": "0c89ee0285b9ca782796307de646805ac36fb8d1ce8bc0ae85e2f08f6714ad72",
+    "upstream/cpp/src/fGoodsShop2.cpp": "928b6ea39475cf0986a73b04c5313b32488c009cfc93727ec22dcab270615c2a",
+    "upstream/cpp/src/fGov.cpp": "406cadecf402be599e4e55202682bfbf90e32467c6733707750e4aa9e068e9b9",
+    "upstream/cpp/src/fHangar.cpp": "736ba2bbff42e14af92bf9119311133c2a541c3ae130e02e3dd7cd0891ada9e2",
+    "upstream/cpp/src/fInfo.cpp": "963c1c8a506820ed8c6b33007a83d0a3916ad95bcfd6cf7b031e1359214eb5a2",
+    "upstream/cpp/src/fIntroduction.cpp": "dbbaa1c14ddb9c327db4728493590ef68cbcec37528f45970ff8932ddbfad6cb",
+    "upstream/cpp/src/fJournal.cpp": "fa4394b6f59bde8832884ec2d0f698635f33735beec52a2911d452211d76d2fe",
+    "upstream/cpp/src/fJump.cpp": "9e590765f0167d3649dd3a4f50aa53db7de0e6bd4a93308ccf44c67db927bfbd",
+    "upstream/cpp/src/fListBox.cpp": "d1f61af6fc959b42fc4424871b57b3a4c05f475f617a6152925dbc5518091d12",
+    "upstream/cpp/src/fLoad.cpp": "dd89040d7da10d0a73e73ef17b2efd5cb32f5df24b721e72a0719999e6f45d5e",
+    "upstream/cpp/src/fLoadAB.cpp": "48e9e1bc3088b39f67e35fc3ab34a4b883b1dda78eafbf936d6bf70083fef304",
+    "upstream/cpp/src/fLoadQuest.cpp": "e748879859e4222aff9a6fb70cccfc3c981f0b5f0e8c5aaf41ecb540212a6589",
+    "upstream/cpp/src/fLoadRobot.cpp": "706eed034612f49bdb2f5ee4c1a3988ef6a72ba18dd930b0d0c7a4924a96aa61",
+    "upstream/cpp/src/fMainForm.cpp": "c7f71ce6f8a1d906182e4c88d1aaa8f7a194893b1c01628209a6971826572bd1",
+    "upstream/cpp/src/fMods.cpp": "5e7ae14da1e5a41973da5c392f054b85b1ecf59329f07db8d5b666e612bdf3f4",
+    "upstream/cpp/src/fPanelLoad.cpp": "eb3621aa6f84aed3e66a90f2ed959e8190ee1b1beb833b15e592684e527042f8",
+    "upstream/cpp/src/fPanelMain.cpp": "59314b2400343a9aee00881741a0f42fdca8ef016cb818aa7e8b916a9c0bd84a",
+    "upstream/cpp/src/fPanelPlanet.cpp": "1e616631bff8bdcb114cd304d3dd20b9d455c77a225068f5c1cf2f78dd152023",
+    "upstream/cpp/src/fPanelRuins.cpp": "c2d647e5d68d44e95cd9e1eab5d34c2d763557c97a675023db70ad70acb8ed6f",
+    "upstream/cpp/src/fPlanet.cpp": "6dfbfa1311d2c392eacfb1c7617f6264c20a093d4608732c64d46d388ac3c011",
+    "upstream/cpp/src/fPlanetNO.cpp": "f9a36b143a2471ca6f94e2517ce996eaeb8f23e15ed3f316416b71d99e2e5ebf",
+    "upstream/cpp/src/fPlanetQuest.cpp": "ee0d08325caf92fcb3dbc6f431ed9481d5692c65622a64d473a4fea90abaa0a9",
+    "upstream/cpp/src/fRating2.cpp": "4fe1ad7cd8b6035cf01edd368974a37481a451568a894f81005199d62889ae52",
+    "upstream/cpp/src/fRewards.cpp": "05db97c156e3d60e0a4945525197dac6801e432be1301b483ecf60fcec1216f0",
+    "upstream/cpp/src/fRuinsTalk.cpp": "a55c6c49f5da7e1f970317e0b4a48a416a62371d19d0dc06d604e8139435a1c5",
+    "upstream/cpp/src/fSaveManager.cpp": "0dbb3fbac15999158397d6899465adfaed13581d437ab4d37fade31089b0dade",
+    "upstream/cpp/src/fScaner.cpp": "da393b63a07485cb60fb2bbf72b4eb67d0ac40f4faa5274e54070c425c1cc231",
+    "upstream/cpp/src/fScore.cpp": "1c17b1c8735dd1ba2b8e795b3a735d8e5464dc3bdd1468776f26f525307616d5",
+    "upstream/cpp/src/fSelectFace.cpp": "d8ef626f41a562775b32dc769cd7c78bd4dcbb8b477a2211c476b5e7b82a0dac",
+    "upstream/cpp/src/fShip2.cpp": "2c31301b66c99314347e829a06e2c7b00dfc8d61467581eb4c805bcb4af95bda",
+    "upstream/cpp/src/fStarMap.cpp": "212f0a797f45670ef51269e09d86270110ece2efac187a456369cf3494c0bfbd",
+    "upstream/cpp/src/fTalk.cpp": "bf77ad9a6039bea08d7139c970bf7b1469eb70b932c898448af513c497439769",
+    "upstream/cpp/src/fTextBox.cpp": "24c2a86aeafccb92eea2ee7bfb7be85eabdcd2b899b2ab4832b0426f731d8c3f",
+    "upstream/cpp/src/program.cpp": "72fe748ac39a368fd1298a78c864865ecf847d2090ae12c2b7c77b735b8f0655",
+    "port/switch/platform/aft_font.cpp": "8d467be9cf8ec23b6a05347e09f310af03f7abccc06d43519bbddb41d25f1804",
+    "port/switch/platform/alpha_bitmap_cpu.cpp": "b375b0b021eafc9076c49682c73c265c382ab41589cea595dc73bffb3d91fd0e",
+    "port/switch/platform/blockpar_test_support.cpp": "e9f0e4f6cb8455a27fc2b0833c461391fd0dae8c86c4c862f1e42acedb6e17a3",
+    "port/switch/platform/e2e4_game_audio_bridge.cpp": "906c01c21280ceddc9ef02b20d6619f197e1419410c047726b1d9dcfc8098b7a",
+    "port/switch/platform/e2e4_native_vorbis.cpp": "e1cc5af7962084c60f04a0a626356f0fe920937d377674525534b0d479478ef5",
+    "port/switch/platform/e2e4_quicksave_transaction.cpp": "7d392d5583890987ec8b9c02c0b6485d952cc4bf097c8677efdc78ab523e7fa3",
+    "port/switch/platform/e2e4_sdl_audio.cpp": "9b8287f8436ffc96854a1d80b11358b39822365c795925f3a4987e001842f7dc",
+    "port/switch/platform/e2e_calendar.cpp": "469c8fa3eea5f5218927853baffab003f589d22a7d9e463865bf18535bd17fb8",
+    "port/switch/platform/e2e_events.cpp": "c71e7817169b286ee01f9b0ad812172f2bfab752d866d0cce78e520e93f216e6",
+    "port/switch/platform/e2e_file_match.cpp": "3458e1c045c7d4b3c075a9939246631641df21c198aea7f1593a86961dbaa157",
+    "port/switch/platform/e2e_file_search.cpp": "c54c318f65e1693e061b77128cddb221e7c621372b908eac89b4e8cd86e8da83",
+    "port/switch/platform/e2e_threads.cpp": "8d5aeeede9db570c2183f3038ae2d0b265346797101206ffe70a9f2083e5b7c1",
+    "port/switch/platform/ec_file_adapter.cpp": "975bb9c091c8c1cd01bd1d921a5bb22b698e4db9751486cba833d5c95767f5ec",
+    "port/switch/platform/filesystem.cpp": "00f9c409587ce5c5204090feb16681651f5180be23bbfe34f76d0876b84b8c28",
+    "port/switch/platform/font_cache_resolver.cpp": "fac88c3dbf3118aae188f33bd119005b3867648e1c1e254551990a523cc2a568",
+    "port/switch/platform/font_renderer.cpp": "8d83e7ae3b94d65a311bd71d70fbebfd85ffd894695c3f88450240c7342b67cb",
+    "port/switch/platform/font_repository.cpp": "ef18a052d15f12687bd01524d28c9a8c95d7525886a7909f3169a470ff7315ba",
+    "port/switch/platform/gai_cpu.cpp": "137c762bc49094651fdbf3651e9bb964e3782b7bc425feebbea42d43422e5aa0",
+    "port/switch/platform/gai_frame_sequence_cpu.cpp": "7470e41c4b244afb45322db4e23339b9c9fce392a9b4a4a54f32196d3733618f",
+    "port/switch/platform/gai_playback_cpu.cpp": "27fcc399fdb8584b1477dd25fca7e74547c43dcb7c536ca98622aa71ae0fdaf3",
+    "port/switch/platform/game_path.cpp": "ec23f477a230fadcad508fe96c8faec07b611ba6abcbfed1f2e88890fe066fcc",
+    "port/switch/platform/gi_format0_cpu.cpp": "7b77269ed2055f6f2d382b93f973c63016af0f3e82c3bbf9c4fbb10006868356",
+    "port/switch/platform/gi_format0_okgf_bridge.cpp": "2b56ab252bdb6a56d227385275bfe1ef00bdd65f6f39339e7cbfd7d46cbbf3b9",
+    "port/switch/platform/gi_format2_cpu.cpp": "03c1af3791572cec6968cd79f8abfe07445a3cb96df5af72db0c0d087390c458",
+    "port/switch/platform/gi_image_cpu.cpp": "02a0c7a97d3d0c7cad8a1e78f6a449efbc42914aa142ba5ce85d5af7538040f8",
+    "port/switch/platform/gi_object.cpp": "bcebb33302747fdcc542ea9ccb85073c9ba0ff25dd73c35b9e87495e2e0f9ced",
+    "port/switch/platform/graph_buffer_cpu.cpp": "f9b7f6188652f0b766091aaa9a46f339483eb42f5aa967a9510d83ae24e21429",
+    "port/switch/platform/image_cpu.cpp": "a3c4b56e6b143ade72243ca98b6e19a978abc95e006f25ffb19efa5a4d028f96",
+    "port/switch/platform/image_layout.cpp": "3c543f6df388707ef62e161bb561836c832444a7635b9ba32658df4e98677f83",
+    "port/switch/platform/image_object.cpp": "bc7a393fae2fd9e8631d42fe452e18021f28b4602823bb60a1555e98176eab3d",
+    "port/switch/platform/image_okgf_bridge.cpp": "9bdbe3c04951c3686c9d3842984017851665e33105747fe60571aabc1bf22650",
+    "port/switch/platform/input_platform.cpp": "34ac8cc86816e865d5ff4617275e2ba6bfb2188fb0e01f9d2a0dea0f9670d072",
+    "port/switch/platform/okgf_bridge.cpp": "4ea48df76279cca3abb346d620bee59d47306b1bc9cf138fe489aed67d65eced",
+    "port/switch/platform/okgf_rle_bridge.cpp": "43743756444773bb64af6407b92076d97b3952c1814c1eef9fc00b142393b651",
+    "port/switch/platform/package.cpp": "7cc2c53fadeeeb63f7e12137cb9cdcc77cb83a5df31ad1c584cec008785e4ba1",
+    "port/switch/platform/presentation_scene.cpp": "b83d8cd3c7d6b9453fd2f2a5d959fc0fccea4b7fcc00e3974462118353049876",
+    "port/switch/platform/renderer_platform.cpp": "c488e48991ec7f9ff1d1e3f22dd627eb1eef0f9af581f0c03f8b43e28f1873e4",
+    "port/switch/platform/runtime_loop_slice.cpp": "02ea3738ea48cbb8bc1e5a005ffd67b18acbbdac2db107c88976fac0895308fd",
+    "port/switch/platform/runtime_platform.cpp": "2eb32cad54d2545a8db05409dd52e6f889f7d2d7047e86800885093b7c5fbd26",
+    "port/switch/platform/runtime_settings_slice.cpp": "c61be3540fc2a855c9608fb7c0a2cc62bdfc4567365fc52b052ef8dfc60b2852",
+    "port/switch/platform/scene_compositor.cpp": "aaa9fce1a72cc298162950d7ac128d9519e2b5d8060cb17dfa5d40b0caab0202",
+    "port/switch/platform/simple_bitmap_cpu.cpp": "d55e7cc185d6190959a4b3a08b7ab10730f52dc28b67cb7d89905117ad076e58",
+    "port/switch/platform/software_compositor.cpp": "9fcc5c7b0c7cd0a927f661fb226e106455aff988810dbed052eefb7d0068174c",
+    "port/switch/platform/startup_slice.cpp": "1fa5dae7c509a7b29e8e8ba2cd57f30d4a3254153618a19f299d4190eb8a41ef",
+    "port/switch/platform/tagged_text.cpp": "4aab386e9200547a19e9419c9a399d22ccc15313aa616a89bcef4a778cdd03bd",
+    "port/switch/platform/trans_bitmap_cpu.cpp": "a849e8978937fde3cac1d1ad7ea69a334baa701c25397654669cb49464f1a27d",
+    "port/switch/platform/ui_cache_resolver.cpp": "8b235b22a71ba17bc8d0c1acf483d8108e6a01f59889a98c3e22121044f8d916",
+    "port/switch/platform/ui_config.cpp": "e3262dcf3cea1d8d92dbccc217e10d7333b9d34f4b46649707d6fecd192889e3",
+    "port/switch/platform/ui_controls_checkpoint.cpp": "cc9b244c12c3872dcd9548b8b8fadc0c024315afd2ff65779481f0c305d229b9",
+    "port/switch/platform/ui_controls_fingerprint.cpp": "ee8a97d256b2d69fbac30717fec3de583c01e4d3f9e1dcf7d9f53fd06960fc0c",
+    "port/switch/platform/ui_edit.cpp": "91884c34ac48c8ffda79ac544331ff8a82ca91413999bca23f477e8539ac4592",
+    "port/switch/platform/ui_gai.cpp": "92e0f81b6a641aceee558a84ce30877d022e52a11726444eb9d0c42ba52b192f",
+    "port/switch/platform/ui_graph_buffer.cpp": "7eb321a6b893dab22939584120cf9fa9eb7933dc7a86242120c5f4930482830e",
+    "port/switch/platform/ui_graph_button.cpp": "321b793b878f4440ceb63dfe13d191eff223f0c95b07dc13943e8998dfa916e8",
+    "port/switch/platform/ui_input.cpp": "e8336aaf4df822e4325e463ae4becf85c91df3910f92c47895720832bffa2089",
+    "port/switch/platform/ui_label.cpp": "0381baf340800f2a95da3d9518cd7b998ee5495d25046e59a1133af932384a37",
+    "port/switch/platform/ui_metadata_slice.cpp": "8a960243c05d870c3f71fe9ea2ba449fc7d249c8631c560eb48d04e929a4fdef",
+    "port/switch/platform/ui_object.cpp": "b03175864c9d76e88ec9684ac3d96834a66f9e0038d59c7019da4cf6fa5a405b",
+    "port/switch/platform/ui_panel_scroll_bar.cpp": "7b78d7c8cf9ef0cc9cd2452d499ff038e669ed184236c7e0d1b7d9281ca55d3a",
+    "port/switch/platform/ui_scroll_bar.cpp": "53161ba57d76a0d42682a88e0c12bd19b28e32140eae0b88ee2401011df24228",
+    "port/switch/platform/ui_tree_fingerprint.cpp": "0d6dda47e05208e0bdfd2bc2d2a56fa3e8c8140a229c67c946dcaff07461a221",
+    "port/switch/platform/ui_tree_renderer.cpp": "57426ee84d2c3cdbbde049034b7c38a37d5fc660bdc00e444e5eba989285315b",
+    "port/switch/platform/ui_window.cpp": "2d77d6b5bda603c39a33fc676b392cb7f89c50ebb5dd3fa3a486da35a4a4b9db",
+    "port/switch/platform/ui_zone.cpp": "41408ba236c13028005fdf835d89e068de9ae16a1a56e148a4d9dd1a071b6413",
+    "port/switch/platform/user_root.cpp": "e3075daccbe43d092ab3f7731803c34ec5d8a05c7ba4b8482aa1d201846f9c2d",
+    "port/switch/platform/win32_compat.cpp": "2ffac96b9290ecc1373e852dbe4bac3d0033dfc913c515d013327ccc0cb8ca3d",
+    "port/switch/platform/win32_compat_clipboard.cpp": "c45b564ff2b5d64353dae8d94f684b368bac8672578097388fa198de4d514908",
+    "port/switch/platform/win32_compat_files.cpp": "7fabad6810dde937cd1b290ce5d58a0d0eb70249b7386266217ee5e39346bc5a",
+    "port/switch/platform/win32_compat_filetime.cpp": "02536f8735e96b02d18c52f43289650d0fc5d24dffc6a30d32fa26cb621245e1",
+    "port/switch/platform/win32_compat_gdi.cpp": "36fe40641ee3fe68a95a261a0209f6d1a02cbab6a7fbc3801054c040b8d9b1cd",
+    "port/switch/platform/win32_compat_heap.cpp": "306e6b01d2e148c564a3e499614e17bb327d8a00691ebbe958012a79c5308daf",
+    "port/switch/platform/win32_compat_messages.cpp": "29757a5670e9e82756e089c51abf908472b262516284a7e2973b8cd2bdfb009d",
+    "port/switch/platform/win32_compat_modules.cpp": "0483aa2c245ec406a6c1ca62da9f2185f2e6fad6c03dcdd732e0764db84c8935",
+    "port/switch/platform/win32_compat_okgf.cpp": "d121200ba04f15dd2ccb8a5f0478d8a24dfe549abb0cc52a09514a1877112466",
+    "port/switch/platform/win32_compat_process.cpp": "61abe812228dd3ecd16a0684faf95eeeb566cca78c057ca0c0feac237a261603",
+    "port/switch/platform/win32_compat_registry.cpp": "81bfdf9abc38a1feb850d8cbb0795892840944e523e4dfb8d4570149c61cbd10",
+    "port/switch/platform/win32_compat_sync.cpp": "52e0416f4d931c0630922131c92cef86115eb9f9082a43ee1905336b507dca8c",
+    "port/switch/platform/win32_compat_text.cpp": "c7e43a41a4777009f5b31fa40387a7fb93cbb9918975aa87a69c50e9cc7afab2",
+    "port/switch/platform/win32_compat_window.cpp": "fc92537844abe4834e7b009c9a64ec02c6b8de8c58ae61fbeff43b7d2ba02a6c",
+    "port/switch/platform/win32_compat_winmm.cpp": "36f348c3116cca3eef6863ee260b789425203aaabea97afc4b4ad4f54d42beeb",
+    "port/switch/platform/win32_handles.cpp": "8999013a1255caedcb97f53589be206de3813fc6454f06b12c526545331ffcfa",
+    "port/switch/platform/zlib_bridge.cpp": "072efb81fb087ddfc0023381569c8182a870c96d167793660a149335725f4de1"
+  },
+  "classifications": {
+    "SERIALIZED_ID": 77,
+    "FLOAT_BITS_PAYLOAD": 66,
+    "NUMERIC_PAYLOAD": 37,
+    "UNSUPPORTED_WIN32_DLL_ABI": 5,
+    "REVIEW_NATIVE_SEMANTICS": 1,
+    "FORMAT_OFFSET": 14,
+    "ALIGNMENT_LOW_BITS": 3,
+    "VISUAL_SEED": 3,
+    "DIAGNOSTIC_ADDRESS_ONLY": 14
+  },
+  "fixed_site_regression_failures": [],
+  "findings": [
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 1249,
+      "function": "TGalaxy_LoadFromBuffer",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "if (LoadedPlanet->Id <= static_cast<std::uint32_t>(Count) && static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Self->Planets, static_cast<std::int32_t>(LoadedPlanet->Id - 1)))) == LoadedPlanet->Id) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 1253,
+      "function": "TGalaxy_LoadFromBuffer",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "if (static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Self->Planets, K))) == LoadedPlanet->Id) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 1382,
+      "function": "TGalaxy_LoadFromBuffer",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "pas::list_put(Self->Rangers, I, reinterpret_cast<void*>(pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Self->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Self->Rangers, I))), true)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 1421,
+      "function": "TGalaxy_LoadFromBuffer",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->KellerTargetStar = pas::checked_cast<TStar*>(static_cast<pas::Object*>(Self->IdToStar(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->KellerTargetStar)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 1424,
+      "function": "TGalaxy_LoadFromBuffer",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "aRanger::PendingPlayerFollowTarget = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Self->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(aRanger::PendingPlayerFollowTarget)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 1425,
+      "function": "TGalaxy_LoadFromBuffer",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "aKling::BlazerShip = pas::checked_cast<aKling::TKling*>(static_cast<pas::Object*>(Self->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(aKling::BlazerShip)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 1426,
+      "function": "TGalaxy_LoadFromBuffer",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "aKling::KellerShip = pas::checked_cast<aKling::TKling*>(static_cast<pas::Object*>(Self->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(aKling::KellerShip)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 1427,
+      "function": "TGalaxy_LoadFromBuffer",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "aKling::TerronShip = pas::checked_cast<aKling::TKling*>(static_cast<pas::Object*>(Self->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(aKling::TerronShip)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 1428,
+      "function": "TGalaxy_LoadFromBuffer",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "PlayerStar = pas::checked_cast<TStar*>(static_cast<pas::Object*>(Self->IdToStar(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(PlayerStar)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 1431,
+      "function": "TGalaxy_LoadFromBuffer",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->EminentCareerShips[Career] = pas::checked_cast<aRanger::TRanger*>(static_cast<pas::Object*>(Self->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->EminentCareerShips[Career])), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 1448,
+      "function": "TGalaxy_LoadFromBuffer",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "OldQuest->Planet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Self->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(OldQuest->Planet)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 4040,
+      "function": "THole::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Star1 = pas::checked_cast<TStar*>(static_cast<pas::Object*>(Galaxy->IdToStar(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Star1)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 4041,
+      "function": "THole::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Star2 = pas::checked_cast<TStar*>(static_cast<pas::Object*>(Galaxy->IdToStar(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Star2)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 4744,
+      "function": "TStar::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Dominion = static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Dominion)), true));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 4746,
+      "function": "TStar::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Constellation = pas::checked_cast<TConstellation*>(static_cast<pas::Object*>(Galaxy->IdToConstellation(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Constellation)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6656,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "MaxX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(XList, 0))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6657,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "MinX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(XList, 0))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6658,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "MaxY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(YList, 0))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6659,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "MinY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(YList, 0))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6661,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "MaxX = pas::real_max<float>(MaxX, std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(XList, SegmentIndex)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6662,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "MinX = pas::real_min<float>(MinX, std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(XList, SegmentIndex)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6663,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "MaxY = pas::real_max<float>(MaxY, std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(YList, SegmentIndex)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6664,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "MinY = pas::real_min<float>(MinY, std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(YList, SegmentIndex)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6690,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "return cpp_left == std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(XList, pas::list_count(XList) - 1))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6693,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "return cpp_left_2 == std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(YList, pas::list_count(XList) - 1))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6696,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "return cpp_left_3 == std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(XList, pas::list_count(XList) - 2))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6699,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "return cpp_left_4 == std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(YList, pas::list_count(XList) - 2))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6705,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "return cpp_left_5 == std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(XList, pas::list_count(XList) - 1))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6708,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "return cpp_left_6 == std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(YList, pas::list_count(XList) - 1))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6711,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "return cpp_left_7 == std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(XList, pas::list_count(XList) - 2))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6714,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "return cpp_left_8 == std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(YList, pas::list_count(XList) - 2))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6747,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "return cpp_left_13 == std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(XList, pas::list_count(XList) - 1))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6750,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "return cpp_left_14 == std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(YList, pas::list_count(XList) - 1))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6753,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "return cpp_left_15 == std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(XList, pas::list_count(XList) - 2))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6756,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "return cpp_left_16 == std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(YList, pas::list_count(XList) - 2))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6762,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "return cpp_left_17 == std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(XList, pas::list_count(XList) - 1))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6765,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "return cpp_left_18 == std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(YList, pas::list_count(XList) - 1))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6768,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "return cpp_left_19 == std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(XList, pas::list_count(XList) - 2))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6771,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "return cpp_left_20 == std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(YList, pas::list_count(XList) - 2))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6820,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "AX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, EarIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6821,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "BX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, LastIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6822,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "CX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, MiddleIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6823,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "AY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, EarIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6824,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "BY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, LastIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6825,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "CY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, MiddleIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6830,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "float cpp_arg = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, J))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6831,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "float cpp_arg_2 = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, J))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6872,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "AX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, EarIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6873,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "BX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, LastIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6874,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "CX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, MiddleIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6875,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "AY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, EarIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6876,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "BY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, LastIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6877,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "CY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, MiddleIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6901,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "AX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, EarIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6902,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "BX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, LastIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6903,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "CX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, MiddleIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6904,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "AY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, EarIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6905,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "BY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, LastIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6906,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "CY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, MiddleIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6911,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "float cpp_arg_3 = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, J))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6912,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "float cpp_arg_4 = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, J))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6953,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "AX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, EarIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6954,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "BX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, LastIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6955,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "CX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, MiddleIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6956,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "AY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, EarIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6957,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "BY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, LastIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6958,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "CY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, MiddleIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6993,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "AX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, EarIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6994,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "BX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, LastIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6995,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "CX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, MiddleIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6996,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "AY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, EarIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6997,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "BY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, LastIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 6998,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "CY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, MiddleIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 7003,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "float cpp_arg_5 = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkX, J))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 7004,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "float cpp_arg_6 = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(WorkY, J))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 7057,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "AX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(BestX, EarIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 7058,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "BX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(BestX, LastIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 7059,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "CX = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(BestX, MiddleIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 7060,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "AY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(BestY, EarIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 7061,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "BY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(BestY, LastIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 7062,
+      "function": "TGalaxy::HideSpecialConstellation",
+      "classification": "FLOAT_BITS_PAYLOAD",
+      "reason": "Outline lists are populated with bit_cast<uint32_t>(float); these are coordinate bits, not addresses.",
+      "source": "CY = std::bit_cast<float>(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(BestY, MiddleIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 7633,
+      "function": "TConstellation::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "pas::list_put(Stars, I, reinterpret_cast<void*>(Galaxy->IdToStar(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Stars, I))))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "line": 7636,
+      "function": "TConstellation::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "pas::list_put(AdjacentConstellations, I, reinterpret_cast<void*>(Galaxy->IdToConstellation(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(AdjacentConstellations, I))))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aPirate.cpp",
+      "line": 1083,
+      "function": "TPirate::ReactToAttack",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "Value = std::max<std::int32_t>(0, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(aPlanet::MainPiratePlanet->RangerRelations, Index))) - 3);"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aPirate.cpp",
+      "line": 1092,
+      "function": "TPirate::ReactToAttack",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "Value = std::max<std::int32_t>(0, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(aPlanet::MainPiratePlanet->RangerRelations, Index))) - 1);"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aPlayer.cpp",
+      "line": 667,
+      "function": "TPlayer_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "if ((static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Entry->LocationOwner)) & aGalaxyStruct::StoredItemPlanetFlag) != 0) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aPlayer.cpp",
+      "line": 668,
+      "function": "TPlayer_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Entry->LocationOwner = static_cast<pas::Object*>(Galaxy->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Entry->LocationOwner)) & aGalaxyStruct::TaggedObjectIdMask, true));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aPlayer.cpp",
+      "line": 670,
+      "function": "TPlayer_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Entry->LocationOwner = static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Entry->LocationOwner)), true));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aPlayer.cpp",
+      "line": 679,
+      "function": "TPlayer_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "pas::list_put(Self->PiratePartners, I, Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Self->PiratePartners, I))), false));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aPlayer.cpp",
+      "line": 687,
+      "function": "TPlayer_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->QueuedTravelTarget = Galaxy->IdToStar(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->QueuedTravelTarget)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aPlayer.cpp",
+      "line": 693,
+      "function": "TPlayer_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->RuinsSavedPlanet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->RuinsSavedPlanet)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aPlayer.cpp",
+      "line": 696,
+      "function": "TPlayer_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->RuinsSavedDockedTo = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->RuinsSavedDockedTo)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aScript.cpp",
+      "line": 1510,
+      "function": "RunItemUseCode",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "Item-use return values and TGalaxyEvent::AddData are explicitly integer-valued; their list cells are not object pointers.",
+      "source": "Result = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Globals::ScriptActionParamStack, pas::list_count(Globals::ScriptActionParamStack) - 1)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aScript.cpp",
+      "line": 4238,
+      "function": "TScript::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Binding->Ship = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Binding->Ship)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aScript.cpp",
+      "line": 4328,
+      "function": "TLibraryHandler::InitFunction",
+      "classification": "UNSUPPORTED_WIN32_DLL_ABI",
+      "reason": "The dynamic library adapter explicitly rejects non-Win32-x86 calls; these words are not native game-object storage.",
+      "source": "Signature[1] = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Proc));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aScriptFun.cpp",
+      "line": 477,
+      "function": "SF_CountReward",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "av[0]->SetString(EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ship->AwardIds, 0)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aScriptFun.cpp",
+      "line": 479,
+      "function": "SF_CountReward",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "const pas::WideString& cpp_arg = pas::concat_wide({av[0]->GetString(), u\",\", EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ship->AwardIds, Index))))});"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aScriptFun.cpp",
+      "line": 491,
+      "function": "SF_CountReward",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "if (aConst::SysToReward(pas::view(GR_Main::LookupLocalizedTextByKey(static_cast<pas::WideString>(pas::concat_ansi({\"Reward.\", SysUtils::IntToStr(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ship->AwardIds, Index)))), \".Type\"}))))) == Kind) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aScriptFun.cpp",
+      "line": 515,
+      "function": "SF_CountRewardByNom",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "if (static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ship->AwardIds, Index))) == Award) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aScriptFun.cpp",
+      "line": 543,
+      "function": "SF_DeleteRewardByNom",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "if (static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ship->AwardIds, Index))) == Award || Award == -1) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aScriptFun.cpp",
+      "line": 2118,
+      "function": "SF_Dialog",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "if (Binding->GroupIndex == static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Obj)) && aPlayer::GetPlayer() != Binding->Ship) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aScriptFun.cpp",
+      "line": 2577,
+      "function": "SF_ItemIn",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "if (Binding->GroupIndex == static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Obj)) && (pas::list_indexof(Binding->Ship->Inventory, reinterpret_cast<void*>(Item)) > 0 || pas::list_indexof(Binding->Ship->Artefacts, reinterpret_cast<void*>(Item)) > 0)) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aScriptFun.cpp",
+      "line": 9157,
+      "function": "SF_RelationToRanger",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "av[0]->SetInt(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(planet->RangerRelations, pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(Ranger))))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aScriptFun.cpp",
+      "line": 9170,
+      "function": "SF_RelationToRanger",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "av[0]->SetInt(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(ship->RangerRelations, pas::list_indexof(aGalaxy::Galaxy->Rangers, reinterpret_cast<void*>(Ranger))))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aScriptFun.cpp",
+      "line": 10342,
+      "function": "SF_ShipDestination",
+      "classification": "REVIEW_NATIVE_SEMANTICS",
+      "reason": "ShipDestination Date reads FlyToStar in the pinned reconstruction; verify native field semantics before changing the query.",
+      "source": "av[0]->SetInt(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(ruins->FlyToStar)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aScriptFun.cpp",
+      "line": 16098,
+      "function": "SF_ScriptItemActionType",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "std::int32_t cpp_left = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Globals::ScriptActionTypeStack, pas::list_count(Globals::ScriptActionTypeStack) - 1)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 597,
+      "function": "TShip::SaveToBuffer",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "Buffer->AddDWord(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(RecentlyDroppedItemIds, I))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 925,
+      "function": "TShip::LoadFromBuffer",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "if (static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(SavedPartner)) > 0) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1238,
+      "function": "TShip::SaveToBlock",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "Text = pas::wide_int_to_str(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(AwardIds, 0))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1240,
+      "function": "TShip::SaveToBlock",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "Text = pas::concat_wide({Text, u\",\", pas::wide_int_to_str(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(AwardIds, I))))});"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1492,
+      "function": "TShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->TransitOriginStar = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(Galaxy->IdToStar(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->TransitOriginStar)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1493,
+      "function": "TShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->CurrentPlanet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->CurrentPlanet)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1497,
+      "function": "TShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->DockedTo = pas::checked_cast<TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->DockedTo)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1499,
+      "function": "TShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->HomePlanet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->HomePlanet)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1506,
+      "function": "TShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "pas::list_put(Self->PickupTargets, I, reinterpret_cast<void*>(pas::checked_cast<aItem::TItem*>(static_cast<pas::Object*>(Galaxy->IdToItem(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Self->PickupTargets, I))), true)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1509,
+      "function": "TShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->EnemyShip = pas::checked_cast<TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->EnemyShip)), false)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1510,
+      "function": "TShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->TruceShip = pas::checked_cast<TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->TruceShip)), false)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1511,
+      "function": "TShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->PartnerShip = pas::checked_cast<TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->PartnerShip)), false)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1512,
+      "function": "TShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->InterceptorSourceShip = pas::checked_cast<TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->InterceptorSourceShip)), false)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1514,
+      "function": "TShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->OrderTarget = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(Galaxy->IdToStar(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->OrderTarget)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1516,
+      "function": "TShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->OrderTarget = pas::checked_cast<aGalaxy::THole*>(static_cast<pas::Object*>(Galaxy->IdToHole(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->OrderTarget)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1518,
+      "function": "TShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->OrderTarget = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(Galaxy->IdToStar(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->OrderTarget)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1520,
+      "function": "TShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "if ((static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->OrderTarget)) & aGalaxyStruct::OrderTargetShipFlag) == aGalaxyStruct::OrderTargetShipFlag) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1521,
+      "function": "TShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->OrderTarget = pas::checked_cast<TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->OrderTarget)) & aGalaxyStruct::TaggedObjectIdMask, true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1523,
+      "function": "TShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->OrderTarget = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->OrderTarget)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 1526,
+      "function": "TShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->OrderTarget = pas::checked_cast<TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->OrderTarget)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 3225,
+      "function": "TShip::FindNextStarTowardDestination",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "if (Origin->Constellation->Id == 20 || static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Predecessors, I))) == -1) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 3237,
+      "function": "TShip::FindNextStarTowardDestination",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "Previous = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Predecessors, I)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 3241,
+      "function": "TShip::FindNextStarTowardDestination",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "Previous = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Predecessors, Previous - 1)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 3249,
+      "function": "TShip::FindNextStarTowardDestination",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "if (static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Predecessors, K))) == -1) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 4177,
+      "function": "TShip_FireWeaponAtShip",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "Damage = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Damages, Index)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 4178,
+      "function": "TShip_FireWeaponAtShip",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "Color = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Colors, Index)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 4184,
+      "function": "TShip_FireWeaponAtShip",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "Damage += static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Damages, I)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 4297,
+      "function": "TShip_FireWeaponAtShip",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "pas::list_put(Damages, pas::list_count(Damages) - 1, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Damages, pas::list_count(Damages) - 1))) + Damage))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 4316,
+      "function": "TShip_FireWeaponAtShip",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "Globals::PrimaryFilm->SetWeaponHit(StepIndex, Film, Color, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Damages, 1))), Target->IsHullDestroyed(), true);"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "line": 4328,
+      "function": "TShip_FireWeaponAtShip",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "std::int32_t cpp_arg_4 = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Damages, ShotIndex)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/EC_CacheGAI.cpp",
+      "line": 164,
+      "function": "TCGaiEC::LoadFrameGi",
+      "classification": "FORMAT_OFFSET",
+      "reason": "The synthetic pointer is a byte offset into an explicitly sized resource record.",
+      "source": "DecodedFrameGi->LoadCompressedGiBytes(EC_Mem::AddPointerOffset(RawGaiData, Offset), EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(RawGaiData, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_gi::PGaiFrameEntry>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(FrameIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)) + static_cast<std::int32_t>(sizeof(GR_gi::TGaiHeader)))))->DataSize)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/EC_CacheGAI.cpp",
+      "line": 169,
+      "function": "TCGaiEC::LoadFrameGi",
+      "classification": "FORMAT_OFFSET",
+      "reason": "The synthetic pointer is a byte offset into an explicitly sized resource record.",
+      "source": "DecodedFrameGi->LoadRawGiBytes(EC_Mem::AddPointerOffset(RawGaiData, Offset), EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(RawGaiData, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_gi::PGaiFrameEntry>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(FrameIndex * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)) + static_cast<std::int32_t>(sizeof(GR_gi::TGaiHeader)))))->DataSize)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/EC_CacheGAI.cpp",
+      "line": 247,
+      "function": "TCGaiEC::GetSequenceFrameIndex",
+      "classification": "FORMAT_OFFSET",
+      "reason": "The synthetic pointer is a byte offset into an explicitly sized resource record.",
+      "source": "return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(SequenceTableData, EC_CacheGAI::ReadGaiSequenceOffset(SequenceTableData, SequenceIndex) + static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_gi::PGaiSequenceFrameEntry>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(FrameInSequence * static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceFrameEntry)) + static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceDataBlock)))))->SourceFrameIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/EC_CacheGAI.cpp",
+      "line": 251,
+      "function": "TCGaiEC::GetSequenceFrameDelay",
+      "classification": "FORMAT_OFFSET",
+      "reason": "The synthetic pointer is a byte offset into an explicitly sized resource record.",
+      "source": "return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(SequenceTableData, EC_CacheGAI::ReadGaiSequenceOffset(SequenceTableData, SequenceIndex) + static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_gi::PGaiSequenceFrameEntry>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(FrameInSequence * static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceFrameEntry)) + static_cast<std::int32_t>(sizeof(GR_gi::TGaiSequenceDataBlock)))))->FrameDelay))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/fGameSettings.cpp",
+      "line": 299,
+      "function": "TThreadCreateNewGame_Execute",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "std::int32_t cpp_arg = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(NameLists[OwnerId], K)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/GI_GAIFile.cpp",
+      "line": 22,
+      "function": "ReadGaiFrameSize",
+      "classification": "FORMAT_OFFSET",
+      "reason": "The synthetic pointer is a byte offset into an explicitly sized resource record.",
+      "source": "return EC_Mem::ReadDWordEC(EC_Mem::AddPointerOffset(Directory, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_gi::PGaiFrameEntry>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Index * static_cast<std::int32_t>(sizeof(GR_gi::TGaiFrameEntry)))))->DataSize))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/GI_MessageLoop.cpp",
+      "line": 1158,
+      "function": "TFormSoundGroup::PlayIfDue",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "Weight -= static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Sounds->GetCurrentData()));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/GR_GraphBuf.cpp",
+      "line": 216,
+      "function": "TGraphBufGR::AllocateNative",
+      "classification": "ALIGNMENT_LOW_BITS",
+      "reason": "Only the low alignment bits are inspected.",
+      "source": "if ((PitchBytes & 3) != 0 || (static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Pixels)) & 3) != 0) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/GR_GraphBuf.cpp",
+      "line": 345,
+      "function": "TGraphBufGR::AllocateGrayscale",
+      "classification": "ALIGNMENT_LOW_BITS",
+      "reason": "Only the low alignment bits are inspected.",
+      "source": "if ((PitchBytes & 3) != 0 || (static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Pixels)) & 3) != 0) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/GR_GraphBuf.cpp",
+      "line": 763,
+      "function": "TGraphBufGR_ScaleAlpha",
+      "classification": "FORMAT_OFFSET",
+      "reason": "The synthetic pointer is a byte offset into an explicitly sized resource record.",
+      "source": "void* Data = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorRGBA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(Rect.Top * Self->PitchBytes + Rect.Left * static_cast<std::int32_t>(sizeof(TColorRGBA)))))->A)) + static_cast<std::uint8_t*>(Self->Pixels);"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/GR_GraphBuf.cpp",
+      "line": 1635,
+      "function": "TGraphBufGR::GetTexture",
+      "classification": "FORMAT_OFFSET",
+      "reason": "The synthetic pointer is a byte offset into an explicitly sized resource record.",
+      "source": "*static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorRGBA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorRGBA)))))->A)))) = 255;"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/GR_GraphBuf.cpp",
+      "line": 1683,
+      "function": "TGraphBufGR::LoadFromScreen",
+      "classification": "FORMAT_OFFSET",
+      "reason": "The synthetic pointer is a byte offset into an explicitly sized resource record.",
+      "source": "*static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Pixels, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorRGBA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorRGBA)))))->A)))) = Alpha;"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/GR_GraphBuf.cpp",
+      "line": 1813,
+      "function": "TGraphBufGR::ConvertBgraToRgb24",
+      "classification": "FORMAT_OFFSET",
+      "reason": "The synthetic pointer is a byte offset into an explicitly sized resource record.",
+      "source": "static_cast<PColorRGB>(EC_Mem::AddPointerOffset(Dest, X * static_cast<std::int32_t>(sizeof(TColorRGB))))->R = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorBGRA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorBGRA)))))->R))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/GR_GraphBuf.cpp",
+      "line": 1814,
+      "function": "TGraphBufGR::ConvertBgraToRgb24",
+      "classification": "FORMAT_OFFSET",
+      "reason": "The synthetic pointer is a byte offset into an explicitly sized resource record.",
+      "source": "*static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorRGB>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorRGB)))))->G)))) = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorBGRA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorBGRA)))))->G))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/GR_GraphBuf.cpp",
+      "line": 1815,
+      "function": "TGraphBufGR::ConvertBgraToRgb24",
+      "classification": "FORMAT_OFFSET",
+      "reason": "The synthetic pointer is a byte offset into an explicitly sized resource record.",
+      "source": "*static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<PColorRGB>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(TColorRGB)))))->B)))) = static_cast<PColorBGRA>(EC_Mem::AddPointerOffset(Source, X * static_cast<std::int32_t>(sizeof(TColorBGRA))))->B;"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/GR_Main.cpp",
+      "line": 2358,
+      "function": "CopyBgraToRgb24",
+      "classification": "FORMAT_OFFSET",
+      "reason": "The synthetic pointer is a byte offset into an explicitly sized resource record.",
+      "source": "static_cast<GR_GraphBuf::PColorRGB>(EC_Mem::AddPointerOffset(Dest, X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGB))))->R = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_GraphBuf::PColorBGRA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA)))))->R))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/GR_Main.cpp",
+      "line": 2359,
+      "function": "CopyBgraToRgb24",
+      "classification": "FORMAT_OFFSET",
+      "reason": "The synthetic pointer is a byte offset into an explicitly sized resource record.",
+      "source": "*static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_GraphBuf::PColorRGB>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGB)))))->G)))) = *static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Source, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_GraphBuf::PColorBGRA>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA)))))->G))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated/GR_Main.cpp",
+      "line": 2360,
+      "function": "CopyBgraToRgb24",
+      "classification": "FORMAT_OFFSET",
+      "reason": "The synthetic pointer is a byte offset into an explicitly sized resource record.",
+      "source": "*static_cast<std::uint8_t*>(EC_Mem::AddPointerOffset(Dest, static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(&reinterpret_cast<GR_GraphBuf::PColorRGB>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorRGB)))))->B)))) = static_cast<GR_GraphBuf::PColorBGRA>(EC_Mem::AddPointerOffset(Source, X * static_cast<std::int32_t>(sizeof(GR_GraphBuf::TColorBGRA))))->B;"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated-ui/fMods.cpp",
+      "line": 286,
+      "function": "TfModsManager::InitializeLayout",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "pas::list_put(Weights, J, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Weights, J))) + Weight))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated-ui/fMods.cpp",
+      "line": 318,
+      "function": "TfModsManager::InitializeLayout",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "pas::list_put(Weights, GroupIndex, reinterpret_cast<void*>(static_cast<std::uintptr_t>(static_cast<std::uint32_t>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Weights, GroupIndex))) + Weight))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated-ui/fMods.cpp",
+      "line": 326,
+      "function": "TfModsManager::InitializeLayout",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "if (static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Weights, I))) <= 1 && pas::list_count(pas::list_at<pas::List>(Groups, I)) == 1) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated-ui/fMods.cpp",
+      "line": 373,
+      "function": "TfModsManager::InitializeLayout",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "CandidateWeight = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Weights, GroupIndex)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated-ui/fMods.cpp",
+      "line": 396,
+      "function": "TfModsManager::InitializeLayout",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "CandidateWeight = static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Weights, GroupIndex)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated-ui/SE_Weapon.cpp",
+      "line": 647,
+      "function": "TWeaponSE::GetTargetPoint",
+      "classification": "VISUAL_SEED",
+      "reason": "A 32-bit visual seed is derived from addresses; it is never converted back to a pointer.",
+      "source": "Result = cpp_arg->GetTargetPoint(angle, static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(SourceObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(this)) >> 2);"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated-ui/SE_Weapon.cpp",
+      "line": 659,
+      "function": "TWeaponSE::GetSourcePoint",
+      "classification": "VISUAL_SEED",
+      "reason": "A 32-bit visual seed is derived from addresses; it is never converted back to a pointer.",
+      "source": "Result = ship2SE->GetWeaponPortPoint(SourceObject->GetAngle(), static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(SourceObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(this)) >> 2);"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/generated-ui/SE_Weapon.cpp",
+      "line": 661,
+      "function": "TWeaponSE::GetSourcePoint",
+      "classification": "VISUAL_SEED",
+      "reason": "A 32-bit visual seed is derived from addresses; it is never converted back to a pointer.",
+      "source": "Result = ruinsSE->GetWeaponPortPoint(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(SourceObject)) + static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(this)) >> 2);"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aGalaxyEvent.cpp",
+      "line": 72,
+      "function": "TGalaxyEvent::GetData",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "Item-use return values and TGalaxyEvent::AddData are explicitly integer-valued; their list cells are not object pointers.",
+      "source": "return static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Data, Index)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aGalaxyEvent.cpp",
+      "line": 152,
+      "function": "TGalaxyEvent::SaveToBuffer",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "Item-use return values and TGalaxyEvent::AddData are explicitly integer-valued; their list cells are not object pointers.",
+      "source": "Buffer->AddIntegerValue(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Data, i))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aGroup.cpp",
+      "line": 118,
+      "function": "TGroup::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "pas::list_put(Ships, I, reinterpret_cast<void*>(pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Ships, I))), true)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aGroup.cpp",
+      "line": 127,
+      "function": "TGroup::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Route[I].Target = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(Galaxy->IdToStar(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aGroup.cpp",
+      "line": 129,
+      "function": "TGroup::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Route[I].Target = pas::checked_cast<aGalaxy::THole*>(static_cast<pas::Object*>(Galaxy->IdToHole(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aGroup.cpp",
+      "line": 131,
+      "function": "TGroup::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "if ((static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)) & aGalaxyStruct::OrderTargetShipFlag) == aGalaxyStruct::OrderTargetShipFlag) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aGroup.cpp",
+      "line": 132,
+      "function": "TGroup::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Route[I].Target = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)) & aGalaxyStruct::TaggedObjectIdMask, true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aGroup.cpp",
+      "line": 134,
+      "function": "TGroup::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Route[I].Target = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aGroup.cpp",
+      "line": 137,
+      "function": "TGroup::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Route[I].Target = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Route[I].Target)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aItem.cpp",
+      "line": 2282,
+      "function": "THull::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "InterceptorTarget = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(InterceptorTarget)), false)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aItem.cpp",
+      "line": 4291,
+      "function": "TWeapon::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Target = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Target)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aItem.cpp",
+      "line": 4293,
+      "function": "TWeapon::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Target = pas::checked_cast<aItem::TItem*>(static_cast<pas::Object*>(Galaxy->IdToItem(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Target)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aItem.cpp",
+      "line": 4295,
+      "function": "TWeapon::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Target = pas::checked_cast<aAsteroid::TAsteroid*>(static_cast<pas::Object*>(Galaxy->IdToAsteroid(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Target)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aItem.cpp",
+      "line": 4297,
+      "function": "TWeapon::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Target = pas::checked_cast<aMissile::TMissile*>(static_cast<pas::Object*>(Galaxy->IdToMissile(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Target)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aItem.cpp",
+      "line": 5504,
+      "function": "TSatellite::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "TargetPlanet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetPlanet)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aItem.cpp",
+      "line": 5622,
+      "function": "TTreasureMap::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "TargetPlanet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(TargetPlanet)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aMissile.cpp",
+      "line": 326,
+      "function": "TMissile::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "CurrentStar = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(World->IdToStar(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(CurrentStar)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aMissile.cpp",
+      "line": 327,
+      "function": "TMissile::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "OwnerShip = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(World->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(OwnerShip)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aMissile.cpp",
+      "line": 329,
+      "function": "TMissile::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Target = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(World->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Target)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aMissile.cpp",
+      "line": 331,
+      "function": "TMissile::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Target = pas::checked_cast<aItem::TItem*>(static_cast<pas::Object*>(World->IdToItem(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Target)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aMissile.cpp",
+      "line": 333,
+      "function": "TMissile::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Target = pas::checked_cast<aAsteroid::TAsteroid*>(static_cast<pas::Object*>(World->IdToAsteroid(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Target)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aMissile.cpp",
+      "line": 335,
+      "function": "TMissile::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Target = pas::checked_cast<TMissile*>(static_cast<pas::Object*>(World->IdToMissile(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Target)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aMissile.cpp",
+      "line": 338,
+      "function": "TMissile::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "PreviousTarget = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(World->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(PreviousTarget)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aMissile.cpp",
+      "line": 340,
+      "function": "TMissile::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "PreviousTarget = pas::checked_cast<aItem::TItem*>(static_cast<pas::Object*>(World->IdToItem(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(PreviousTarget)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aMissile.cpp",
+      "line": 342,
+      "function": "TMissile::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "PreviousTarget = pas::checked_cast<aAsteroid::TAsteroid*>(static_cast<pas::Object*>(World->IdToAsteroid(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(PreviousTarget)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aMissile.cpp",
+      "line": 344,
+      "function": "TMissile::ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "PreviousTarget = pas::checked_cast<TMissile*>(static_cast<pas::Object*>(World->IdToMissile(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(PreviousTarget)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aNormalShip.cpp",
+      "line": 318,
+      "function": "TNormalShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->PendingLiberationCeremonyPlanet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->PendingLiberationCeremonyPlanet)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aNormalShip.cpp",
+      "line": 319,
+      "function": "TNormalShip_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->LastDockedPlanet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->LastDockedPlanet)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aPlanet.cpp",
+      "line": 4813,
+      "function": "TPlanet::RelationToRanger",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "Result = static_cast<aGalaxyStruct::TPercent>(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(RangerRelations, RangerIndex))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aRanger.cpp",
+      "line": 531,
+      "function": "TRanger_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Quest->Planet = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Quest->Planet)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aRanger.cpp",
+      "line": 534,
+      "function": "TRanger_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Quest->ObjectiveTarget = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Quest->ObjectiveTarget)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aRanger.cpp",
+      "line": 538,
+      "function": "TRanger_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Quest->ObjectiveTarget = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Quest->ObjectiveTarget)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aRanger.cpp",
+      "line": 542,
+      "function": "TRanger_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Quest->ObjectiveTarget = pas::checked_cast<aPlanet::TPlanet*>(static_cast<pas::Object*>(Galaxy->IdToPlanet(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Quest->ObjectiveTarget)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aRanger.cpp",
+      "line": 546,
+      "function": "TRanger_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Quest->ObjectiveTarget = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(Galaxy->IdToStar(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Quest->ObjectiveTarget)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aRanger.cpp",
+      "line": 550,
+      "function": "TRanger_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Quest->ObjectiveTarget = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Quest->ObjectiveTarget)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aRanger.cpp",
+      "line": 555,
+      "function": "TRanger_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->LastDockedNonPlanetLocation = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->LastDockedNonPlanetLocation)), false)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aRuins.cpp",
+      "line": 548,
+      "function": "TRuins_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->FlyToStar = pas::checked_cast<aGalaxy::TStar*>(static_cast<pas::Object*>(Galaxy->IdToStar(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->FlyToStar)))));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/aTranclucator.cpp",
+      "line": 274,
+      "function": "TTranclucator_ResolveLoadedReferences",
+      "classification": "SERIALIZED_ID",
+      "reason": "Read/rebind path temporarily stores a 32-bit on-disk ID in a pointer slot; the value is resolved before object use.",
+      "source": "Self->OwnerShip = pas::checked_cast<aShip::TShip*>(static_cast<pas::Object*>(Galaxy->IdToShip(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Self->OwnerShip)), true)));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/CheatCode.cpp",
+      "line": 1604,
+      "function": "CheatEvents",
+      "classification": "NUMERIC_PAYLOAD",
+      "reason": "The list or event slot stores numeric values, not dereferenceable object addresses.",
+      "source": "GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({\"  \", SysUtils::IntToStr(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(pas::list_get(Event->Data, I))))}));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/EC_Expression.cpp",
+      "line": 1031,
+      "function": "EF_LibraryFunction",
+      "classification": "UNSUPPORTED_WIN32_DLL_ABI",
+      "reason": "The dynamic library adapter explicitly rejects non-Win32-x86 calls; these words are not native game-object storage.",
+      "source": "av[0]->LibraryFunData[1] = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Proc));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/EC_Expression.cpp",
+      "line": 4734,
+      "function": "TExpressionEC_Evaluate",
+      "classification": "UNSUPPORTED_WIN32_DLL_ABI",
+      "reason": "The dynamic library adapter explicitly rejects non-Win32-x86 calls; these words are not native game-object storage.",
+      "source": "LibraryWord = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(IndexValue->StringValue.pchar()));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/EC_Expression.cpp",
+      "line": 4739,
+      "function": "TExpressionEC_Evaluate",
+      "classification": "UNSUPPORTED_WIN32_DLL_ABI",
+      "reason": "The dynamic library adapter explicitly rejects non-Win32-x86 calls; these words are not native game-object storage.",
+      "source": "LibraryWord = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Argument));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/EC_Expression.cpp",
+      "line": 4743,
+      "function": "TExpressionEC_Evaluate",
+      "classification": "UNSUPPORTED_WIN32_DLL_ABI",
+      "reason": "The dynamic library adapter explicitly rejects non-Win32-x86 calls; these words are not native game-object storage.",
+      "source": "LibraryWord = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Code));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/GI_RotateImage5.cpp",
+      "line": 56,
+      "function": "TRotateImage5GI_Create",
+      "classification": "DIAGNOSTIC_ADDRESS_ONLY",
+      "reason": "Only diagnostic text loses bits; no address is recovered from this output.",
+      "source": "GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({\"self=\", SysUtils::Int64ToStr(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self)))}));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/GI_RotateImage5.cpp",
+      "line": 57,
+      "function": "TRotateImage5GI_Create",
+      "classification": "DIAGNOSTIC_ADDRESS_ONLY",
+      "reason": "Only diagnostic text loses bits; no address is recovered from this output.",
+      "source": "GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({\"FGBC=\", SysUtils::Int64ToStr(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->ImageCache)))}));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/GI_RotateImage5.cpp",
+      "line": 58,
+      "function": "TRotateImage5GI_Create",
+      "classification": "DIAGNOSTIC_ADDRESS_ONLY",
+      "reason": "Only diagnostic text loses bits; no address is recovered from this output.",
+      "source": "GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({\"FRBC=\", SysUtils::Int64ToStr(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->RotationCache)))}));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/GI_RotateImage5.cpp",
+      "line": 59,
+      "function": "TRotateImage5GI_Create",
+      "classification": "DIAGNOSTIC_ADDRESS_ONLY",
+      "reason": "Only diagnostic text loses bits; no address is recovered from this output.",
+      "source": "GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({\"FIR=\", SysUtils::Int64ToStr(static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Self->RotatedImage)))}));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/GR_GraphBufPal.cpp",
+      "line": 61,
+      "function": "TGraphBufPalGR::AllocateBuffer",
+      "classification": "ALIGNMENT_LOW_BITS",
+      "reason": "Only the low alignment bits are inspected.",
+      "source": "if ((PitchBytes & 3) != 0 || (static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Pixels)) & 3) != 0) {"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/SE_Missile.cpp",
+      "line": 70,
+      "function": "TMissileSE::AttachToSpace",
+      "classification": "DIAGNOSTIC_ADDRESS_ONLY",
+      "reason": "Only diagnostic text loses bits; no address is recovered from this output.",
+      "source": "GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u\"self=\", EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(this)))})));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/SE_Missile.cpp",
+      "line": 71,
+      "function": "TMissileSE::AttachToSpace",
+      "classification": "DIAGNOSTIC_ADDRESS_ONLY",
+      "reason": "Only diagnostic text loses bits; no address is recovered from this output.",
+      "source": "GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u\"sp=\", EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(ASpace)))})));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/SE_Missile.cpp",
+      "line": 72,
+      "function": "TMissileSE::AttachToSpace",
+      "classification": "DIAGNOSTIC_ADDRESS_ONLY",
+      "reason": "Only diagnostic text loses bits; no address is recovered from this output.",
+      "source": "GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u\"FSpace=\", EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Space)))})));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/SE_Missile.cpp",
+      "line": 73,
+      "function": "TMissileSE::AttachToSpace",
+      "classification": "DIAGNOSTIC_ADDRESS_ONLY",
+      "reason": "Only diagnostic text loses bits; no address is recovered from this output.",
+      "source": "GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u\"FImage=\", EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Image)))})));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/SE_Missile.cpp",
+      "line": 75,
+      "function": "TMissileSE::AttachToSpace",
+      "classification": "DIAGNOSTIC_ADDRESS_ONLY",
+      "reason": "Only diagnostic text loses bits; no address is recovered from this output.",
+      "source": "GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u\"PGI=\", EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Space->MapPanel)))})));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/SE_Ship2.cpp",
+      "line": 296,
+      "function": "TShip2SE::AttachToSpace",
+      "classification": "DIAGNOSTIC_ADDRESS_ONLY",
+      "reason": "Only diagnostic text loses bits; no address is recovered from this output.",
+      "source": "GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u\"self=\", EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(this)))})));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/SE_Ship2.cpp",
+      "line": 297,
+      "function": "TShip2SE::AttachToSpace",
+      "classification": "DIAGNOSTIC_ADDRESS_ONLY",
+      "reason": "Only diagnostic text loses bits; no address is recovered from this output.",
+      "source": "GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u\"sp=\", EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(ASpace)))})));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/SE_Ship2.cpp",
+      "line": 298,
+      "function": "TShip2SE::AttachToSpace",
+      "classification": "DIAGNOSTIC_ADDRESS_ONLY",
+      "reason": "Only diagnostic text loses bits; no address is recovered from this output.",
+      "source": "GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u\"FSpace=\", EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Space)))})));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/SE_Ship2.cpp",
+      "line": 299,
+      "function": "TShip2SE::AttachToSpace",
+      "classification": "DIAGNOSTIC_ADDRESS_ONLY",
+      "reason": "Only diagnostic text loses bits; no address is recovered from this output.",
+      "source": "GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u\"FImage=\", EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Image)))})));"
+    },
+    {
+      "file": "port/switch/build/e2e-game-combined-experiment/source-overlay/SE_Ship2.cpp",
+      "line": 301,
+      "function": "TShip2SE::AttachToSpace",
+      "classification": "DIAGNOSTIC_ADDRESS_ONLY",
+      "reason": "Only diagnostic text loses bits; no address is recovered from this output.",
+      "source": "GR_Main::AppendLogLineThreadSafe(static_cast<pas::AnsiString>(pas::concat_wide({u\"PGI=\", EC_Str::IntToWideString(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(Space->MapPanel)))})));"
+    }
+  ]
+}

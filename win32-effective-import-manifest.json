@@ -1,7 +1,7 @@
 {
   "source": "effective-e2e",
   "upstream_pin": "57fa689c630193a66fdea6ca4c79a188814991cd",
-  "source_file_count": 1404,
+  "source_file_count": 1408,
   "imports": [
     {
       "dll": "advapi32.dll",
@@ -3612,8 +3612,8 @@
       "dll": "error in matrix.dll",
       "callsites": [
         "port/switch/build/e2e-game/generated/aScript.cpp:246",
-        "upstream/cpp/src/fGov.cpp:414",
-        "upstream/cpp/src/fStarMap.cpp:451"
+        "port/switch/build/e2e-game/generated/fGov.cpp:414",
+        "port/switch/build/e2e-game/generated/fStarMap.cpp:451"
       ]
     },
     {
@@ -3889,7 +3889,7 @@
       "callsites": [
         "port/switch/platform/win32_compat_clipboard.cpp:76",
         "port/switch/platform/win32_compat_gdi.cpp:174",
-        "port/switch/platform/win32_compat_messages.cpp:396",
+        "port/switch/platform/win32_compat_messages.cpp:400",
         "port/switch/platform/win32_compat_modules.cpp:54",
         "port/switch/platform/win32_compat_text.cpp:124",
         "port/switch/platform/win32_compat_window.cpp:283",

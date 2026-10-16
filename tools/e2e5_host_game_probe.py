@@ -225,7 +225,11 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                 quicksave_rejected = True
             if load_save is not None and "Exception E2E5 script object ID has no loaded object" in read_log(game_log):
                 load_rejected = True
-            if ((seen_frame and not continue_after_frame and
+            turns_target = max(0, int(os.environ.get("E2E59_HOST_END_TURNS", "0")))
+            turns_complete = current.count("turn operation=end-turn-ui")
+            if auto_takeoff:
+                turns_complete = max(0, current.count("HOST map orders ready") - 1)
+            if ((turns_target and turns_complete >= turns_target) or (not turns_target and ((seen_frame and not continue_after_frame and
                  not auto_new_game and not auto_start_game and not auto_select_dialog and
                  not auto_advance_dialog and
                  not auto_quicksave and not mouse_new_game and not capture_audio and
@@ -262,7 +266,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                      time.monotonic() - turn_complete_at >= 5.0) or
                     (auto_quicksave and quicksave_at is not None and
                      not (quicksave_path.parent / "save.tmp").exists() and
-                     time.monotonic() - quicksave_at >= 2.0)):
+                     time.monotonic() - quicksave_at >= 2.0)))):
                 stopped_by_probe = True
                 process.terminate()
                 break
@@ -400,6 +404,13 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "auto_advance_dialog_input": auto_advance_dialog or auto_takeoff,
         "auto_quicksave_input": auto_quicksave,
         "auto_takeoff_input": auto_takeoff,
+        "requested_end_turns": int(os.environ.get("E2E59_HOST_END_TURNS", "0")),
+        "native_map_swipe_order_preserved": "HOST native map swipe moved=1 ship_order_preserved=1" in full_e2e_log,
+        "observed_end_turns": (max(0, full_e2e_log.count("HOST map orders ready") - 1)
+                               if auto_takeoff else full_e2e_log.count("turn operation=end-turn-ui")),
+        "turn_timings": [{"operation": op, "screen": int(screen), "elapsed_us": int(us)}
+                         for op, screen, us in re.findall(
+                             r"turn operation=([a-z-]+) screen=(\d+) elapsed_us=(\d+)", full_e2e_log)],
         "takeoff_loading_dispatched": "screen dispatch id=22 postload=16" in full_e2e_log,
         "post_takeoff_screen_60_frames": 60 in frame_milestones.get(16, set()),
         "auto_options_input": auto_options,

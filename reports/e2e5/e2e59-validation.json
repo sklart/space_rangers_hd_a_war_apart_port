@@ -1,0 +1,400 @@
+{
+  "schema": 1,
+  "date": "2026-10-16",
+  "base_commit": "2fcc8ef8abaaff2783c78d6887c7f50560d40584",
+  "hardware": "PENDING",
+  "hardware_pack_sha256": "90c7b38024f9aa8cca8edb9a7992cb22020613131a47de8cf32c00988e66ca93",
+  "oom_root_cause": "UNCONFIRMED; no allocator-policy change",
+  "tests": {
+    "film-history-final": {
+      "log_sha256": "cec8cd469351f423c10838da5363aa2702670e3c063dc96247703c5963ca1aba",
+      "tail": [
+        "serialization bytes=570842 checksum=791cf0803c0142b6 repeat=20 us=77074",
+        "64-bit film references, original serializer failure, cross-thread lock recovery, history transaction PASS"
+      ]
+    },
+    "film-history-oracle": {
+      "log_sha256": "5ef1976901b475fb28688dad21e9b88dc5b7ac1b8363bdeaf6097d98edd04c08",
+      "tail": [
+        "serialization bytes=570842 checksum=791cf0803c0142b6 repeat=20 us=182045",
+        "64-bit film references, original serializer failure, cross-thread lock recovery, history transaction PASS"
+      ]
+    },
+    "native-width": {
+      "log_sha256": "02efc3a049f8d90680eb9da60fc44487653121d4f358af4ad7f8a0379cce02f3",
+      "tail": [
+        "native callbacks, arcade metadata, inline markup, script purchase pointer and signed numeric events PASS"
+      ]
+    },
+    "input-index": {
+      "log_sha256": "ba9d436739a7ff1a9fa74cf7975d6091d3598aca1071ded0f8ddefd18f84c1fb",
+      "tail": [
+        "host: gestures, touch provenance, exact ordinals, uncached exceptions PASS",
+        "arm64: gestures, touch provenance, exact ordinals, uncached exceptions PASS"
+      ]
+    },
+    "projection": {
+      "log_sha256": "e401f099941eb3b68166b2701d40792d0fc6eeafb57aae57afa49b5363d587a1",
+      "tail": [
+        "original Extended projection: 4800000 bitwise comparisons, calls=1193496, 4 rounding modes PASS",
+        "projection microbenchmark cached=0 us=304832 checksum=223264.44501725357",
+        "projection microbenchmark cached=1 us=72311 checksum=223264.44501725357"
+      ]
+    },
+    "win32-tests": {
+      "log_sha256": "34d9ca6770a25597e5dce8652e81658acc7446bf41df5e2f521d77337e7594f0",
+      "tail": [
+        "  559 |                 default: Result = pas::concat_ansi({Result, Starter}); break;",
+        "      |                                                             ^~~~~~~",
+        "original-wrappers: PASS"
+      ]
+    },
+    "tool-tests-final": {
+      "log_sha256": "d5f6e0ef7f6971fce4370f81870f477cebc63ed56f63cb42eff79af0b715eac6",
+      "tail": [
+        "Ran 25 tests in 0.830s",
+        "",
+        "OK"
+      ]
+    }
+  },
+  "scenarios": {
+    "planet-turns": {
+      "status": "FIRST_SOFTWARE_FRAME_OBSERVED",
+      "binary_sha256": "456e9c6824be9a6227bbd74126037b45db0107d3b56a3cdb0e89f092a33f2142",
+      "crashed": false,
+      "timed_out": false,
+      "stopped_by_probe": true,
+      "requested_end_turns": 5,
+      "observed_end_turns": 5,
+      "native_map_swipe_order_preserved": null,
+      "elapsed_seconds": 69.64,
+      "stage": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/switch/build/e2e5-host-game/runs/5b96e5df1b254589a379bbd63a52427c",
+      "turn_timings": [
+        {
+          "operation": "player-star-wait",
+          "screen": 4,
+          "elapsed_us": 3968
+        },
+        {
+          "operation": "galaxy-wait",
+          "screen": 4,
+          "elapsed_us": 32444
+        },
+        {
+          "operation": "end-turn-ui",
+          "screen": 4,
+          "elapsed_us": 45650
+        },
+        {
+          "operation": "player-star-wait",
+          "screen": 4,
+          "elapsed_us": 3626
+        },
+        {
+          "operation": "galaxy-wait",
+          "screen": 4,
+          "elapsed_us": 24162
+        },
+        {
+          "operation": "end-turn-ui",
+          "screen": 4,
+          "elapsed_us": 30996
+        },
+        {
+          "operation": "player-star-wait",
+          "screen": 4,
+          "elapsed_us": 2642
+        },
+        {
+          "operation": "galaxy-wait",
+          "screen": 4,
+          "elapsed_us": 24566
+        },
+        {
+          "operation": "end-turn-ui",
+          "screen": 4,
+          "elapsed_us": 28406
+        },
+        {
+          "operation": "player-star-wait",
+          "screen": 4,
+          "elapsed_us": 2715
+        },
+        {
+          "operation": "galaxy-wait",
+          "screen": 4,
+          "elapsed_us": 27292
+        },
+        {
+          "operation": "end-turn-ui",
+          "screen": 4,
+          "elapsed_us": 33068
+        },
+        {
+          "operation": "player-star-wait",
+          "screen": 4,
+          "elapsed_us": 1765
+        },
+        {
+          "operation": "galaxy-wait",
+          "screen": 4,
+          "elapsed_us": 27695
+        },
+        {
+          "operation": "end-turn-ui",
+          "screen": 4,
+          "elapsed_us": 30572
+        }
+      ],
+      "report_sha256": "05089f7a189a913b340db24c57b76b18601d10cdf2252447c0a173c742fa5add"
+    },
+    "space-turns-verified": {
+      "status": "FIRST_SOFTWARE_FRAME_OBSERVED",
+      "binary_sha256": "29d294a60513bef662987a2574bd6443ee97512124f58cd3e7abe49201afc725",
+      "crashed": false,
+      "timed_out": false,
+      "stopped_by_probe": true,
+      "requested_end_turns": 5,
+      "observed_end_turns": 5,
+      "native_map_swipe_order_preserved": null,
+      "elapsed_seconds": 60.52,
+      "stage": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/switch/build/e2e5-host-game/runs/e1cc3b71afc049d2929f443980ed43c6",
+      "turn_timings": [
+        {
+          "operation": "history-serialize",
+          "screen": 4,
+          "elapsed_us": 155
+        },
+        {
+          "operation": "player-star-calc",
+          "screen": 4,
+          "elapsed_us": 3245
+        },
+        {
+          "operation": "player-star-wait",
+          "screen": 4,
+          "elapsed_us": 3677
+        },
+        {
+          "operation": "galaxy-calc",
+          "screen": 4,
+          "elapsed_us": 27977
+        },
+        {
+          "operation": "galaxy-wait",
+          "screen": 4,
+          "elapsed_us": 28484
+        },
+        {
+          "operation": "history-serialize",
+          "screen": 16,
+          "elapsed_us": 157
+        },
+        {
+          "operation": "player-star-calc",
+          "screen": 16,
+          "elapsed_us": 3368
+        },
+        {
+          "operation": "galaxy-calc",
+          "screen": 16,
+          "elapsed_us": 28625
+        },
+        {
+          "operation": "history-serialize",
+          "screen": 16,
+          "elapsed_us": 182
+        },
+        {
+          "operation": "player-star-calc",
+          "screen": 16,
+          "elapsed_us": 1744
+        },
+        {
+          "operation": "galaxy-calc",
+          "screen": 16,
+          "elapsed_us": 26454
+        },
+        {
+          "operation": "history-serialize",
+          "screen": 16,
+          "elapsed_us": 168
+        },
+        {
+          "operation": "player-star-calc",
+          "screen": 16,
+          "elapsed_us": 2003
+        },
+        {
+          "operation": "galaxy-calc",
+          "screen": 16,
+          "elapsed_us": 26698
+        },
+        {
+          "operation": "history-serialize",
+          "screen": 16,
+          "elapsed_us": 261
+        },
+        {
+          "operation": "player-star-calc",
+          "screen": 16,
+          "elapsed_us": 1963
+        },
+        {
+          "operation": "galaxy-calc",
+          "screen": 16,
+          "elapsed_us": 30041
+        },
+        {
+          "operation": "history-serialize",
+          "screen": 16,
+          "elapsed_us": 182
+        },
+        {
+          "operation": "player-star-calc",
+          "screen": 16,
+          "elapsed_us": 2009
+        },
+        {
+          "operation": "galaxy-calc",
+          "screen": 16,
+          "elapsed_us": 27528
+        }
+      ],
+      "report_sha256": "91bd3809f55773d8d9a185ce7fa2b825ccdcdff0b0f1dd2eadbed799e764d1b7"
+    },
+    "swipe-space-turns": {
+      "status": "FIRST_SOFTWARE_FRAME_OBSERVED",
+      "binary_sha256": "830f67a18752364dfe049571eadac2e6e4ffc7b4600cd6e7fcac4843fb3acd35",
+      "crashed": false,
+      "timed_out": false,
+      "stopped_by_probe": true,
+      "requested_end_turns": 5,
+      "observed_end_turns": 5,
+      "native_map_swipe_order_preserved": true,
+      "elapsed_seconds": 61.52,
+      "stage": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/switch/build/e2e5-host-game/runs/7013709b94e24075b5a3929acab3c1d5",
+      "turn_timings": [
+        {
+          "operation": "history-serialize",
+          "screen": 4,
+          "elapsed_us": 136
+        },
+        {
+          "operation": "player-star-calc",
+          "screen": 4,
+          "elapsed_us": 2862
+        },
+        {
+          "operation": "player-star-wait",
+          "screen": 4,
+          "elapsed_us": 3422
+        },
+        {
+          "operation": "galaxy-calc",
+          "screen": 4,
+          "elapsed_us": 27435
+        },
+        {
+          "operation": "galaxy-wait",
+          "screen": 4,
+          "elapsed_us": 28101
+        },
+        {
+          "operation": "history-serialize",
+          "screen": 16,
+          "elapsed_us": 106
+        },
+        {
+          "operation": "player-star-calc",
+          "screen": 16,
+          "elapsed_us": 2794
+        },
+        {
+          "operation": "galaxy-calc",
+          "screen": 16,
+          "elapsed_us": 28870
+        },
+        {
+          "operation": "history-serialize",
+          "screen": 16,
+          "elapsed_us": 184
+        },
+        {
+          "operation": "player-star-calc",
+          "screen": 16,
+          "elapsed_us": 1754
+        },
+        {
+          "operation": "galaxy-calc",
+          "screen": 16,
+          "elapsed_us": 31042
+        },
+        {
+          "operation": "history-serialize",
+          "screen": 16,
+          "elapsed_us": 117
+        },
+        {
+          "operation": "player-star-calc",
+          "screen": 16,
+          "elapsed_us": 1311
+        },
+        {
+          "operation": "galaxy-calc",
+          "screen": 16,
+          "elapsed_us": 27554
+        },
+        {
+          "operation": "history-serialize",
+          "screen": 16,
+          "elapsed_us": 114
+        },
+        {
+          "operation": "player-star-calc",
+          "screen": 16,
+          "elapsed_us": 1332
+        },
+        {
+          "operation": "galaxy-calc",
+          "screen": 16,
+          "elapsed_us": 27017
+        },
+        {
+          "operation": "history-serialize",
+          "screen": 16,
+          "elapsed_us": 124
+        },
+        {
+          "operation": "player-star-calc",
+          "screen": 16,
+          "elapsed_us": 1889
+        },
+        {
+          "operation": "galaxy-calc",
+          "screen": 16,
+          "elapsed_us": 27866
+        }
+      ],
+      "report_sha256": "3e22a1ecb3cb73ee45863e4806763349867e09203ceda69e6f2ad84d6c3de32d"
+    },
+    "arcade": {
+      "binary_sha256": "830f67a18752364dfe049571eadac2e6e4ffc7b4600cd6e7fcac4843fb3acd35",
+      "crashed": false,
+      "timed_out": false,
+      "menu_probe_completed": true,
+      "arcade_60_frames": true,
+      "elapsed_seconds": 26.71,
+      "report_sha256": "46498bcc52e462f12c23f05e362505188887f45b87853031cab08c54b1707379"
+    }
+  },
+  "serializer_reference": {
+    "bytes": 570842,
+    "fnv1a64": "791cf0803c0142b6",
+    "repeat": 20,
+    "reference_us": 182045,
+    "cached_us": 77074,
+    "scope": "host ASan/UBSan fixture; not Switch FPS"
+  }
+}

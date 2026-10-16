@@ -51,12 +51,14 @@ struct QueuedMessage {
   Windows::TMsg message{};
   std::uint64_t press_id{};
   std::uint64_t hid_sequence{};
+  bool touch{};
 };
 std::mutex g_mutex;
 std::deque<QueuedMessage> g_queue;
 std::uint64_t g_next_press_id{};
 std::uint64_t g_active_press_id{};
 thread_local std::uint64_t g_dispatched_press_id{};
+thread_local bool g_dispatched_touch{};
 std::unordered_map<std::string, std::uint32_t> g_registered;
 std::uint32_t g_next_registered = 0xc000u;
 std::vector<std::shared_ptr<Timer>> g_timers;
@@ -81,7 +83,7 @@ std::int32_t MouseLParam(std::int32_t x, std::int32_t y) {
 void Enqueue(std::uint32_t window, std::uint32_t message,
              std::uint32_t wparam = 0, std::int32_t lparam = 0,
              std::int32_t x = 0, std::int32_t y = 0,
-             std::uint64_t hid_sequence = 0) {
+             std::uint64_t hid_sequence = 0, bool touch = false) {
   Windows::TMsg item{};
   item.hwnd = window;
   item.message = message;
@@ -97,7 +99,7 @@ void Enqueue(std::uint32_t window, std::uint32_t message,
     press_id = g_active_press_id;
     g_active_press_id = 0;
   }
-  g_queue.push_back({item, press_id, hid_sequence});
+  g_queue.push_back({item, press_id, hid_sequence, touch});
 }
 
 void Pump() {
@@ -168,13 +170,13 @@ void Pump() {
         sample.left_up || sample.right_down || sample.right_up;
     if (pointer_target && (sample.x != g_last_x || sample.y != g_last_y)) {
       Enqueue(window, kWmMouseMove, 0, lparam, sample.x, sample.y,
-              sample.hid_sequence);
+              sample.hid_sequence, sample.touch_message);
       g_last_x = sample.x; g_last_y = sample.y;
     }
     if (sample.left_down) Enqueue(window, kWmLeftDown, 1, lparam, sample.x, sample.y,
-                                  sample.hid_sequence);
+                                  sample.hid_sequence, sample.touch_message);
     if (sample.left_up) Enqueue(window, kWmLeftUp, 0, lparam, sample.x, sample.y,
-                                sample.hid_sequence);
+                                sample.hid_sequence, sample.touch_message);
     if (sample.right_down) Enqueue(window, kWmRightDown, 2, lparam, sample.x, sample.y);
     if (sample.right_up) Enqueue(window, kWmRightUp, 0, lparam, sample.x, sample.y);
     auto key = [&](std::uint32_t vk, bool down, bool up, bool held) {
@@ -234,6 +236,7 @@ std::int32_t PeekMessage(Windows::TMsg* output, std::uint32_t window,
   const auto hid_sequence = found->hid_sequence;
   if (remove & 1u) {
     g_dispatched_press_id = found->press_id;
+    g_dispatched_touch = found->touch;
     if (output->message == kWmLeftDown) g_keys[kVkLeftMouse] = true;
     if (output->message == kWmLeftUp) g_keys[kVkLeftMouse] = false;
     if (output->message == kWmRightDown) g_keys[kVkRightMouse] = true;
@@ -373,6 +376,7 @@ void WarpInputCursor(std::int32_t x, std::int32_t y) {
 }
 void PostPaint(std::uint32_t window) { PostMessage(window, kWmPaint, 0, 0); }
 std::uint64_t CurrentPressId() { return g_dispatched_press_id; }
+bool CurrentMessageIsTouch() { return g_dispatched_touch; }
 #if defined(E2E5_HOST_SDL_WINDOW)
 bool PostHostKey(std::uint32_t window, std::uint32_t virtual_key) {
   if (!window) return false;

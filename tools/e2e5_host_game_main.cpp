@@ -8,9 +8,11 @@
 #include "win32_compat_window.hpp"
 
 #include <atomic>
+#include <algorithm>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
@@ -173,6 +175,12 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
   bool introduction_sent = false;
   std::size_t last_choice = 0;
   unsigned choices_sent = 0;
+  const auto turns_requested = std::getenv("E2E59_HOST_END_TURNS") ?
+      std::max(0, std::atoi(std::getenv("E2E59_HOST_END_TURNS"))) : 0;
+  unsigned turns_sent = 0;
+  bool takeoff_sent = false;
+  bool first_map_orders_seen = false;
+  bool swipe_sent = false;
   while (running.load()) {
     std::string lines;
     try {
@@ -223,15 +231,62 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
         }
       }
       if (select_dialog && introduction_sent) {
+        if (turns_requested) {
+          const auto dispatch = lines.rfind("screen dispatch id=");
+          const auto target = takeoff ? "screen dispatch id=16 " : "screen dispatch id=4 ";
+          unsigned completed = 0;
+          for (auto offset = lines.find("turn operation=end-turn-ui"); offset != std::string::npos;
+               offset = lines.find("turn operation=end-turn-ui", offset + 1)) ++completed;
+          if (takeoff) {
+            completed = 0;
+            for (auto offset = lines.find("HOST map orders ready"); offset != std::string::npos;
+                 offset = lines.find("HOST map orders ready", offset + 1)) ++completed;
+            if (completed && !first_map_orders_seen) {
+              first_map_orders_seen = true;
+              turns_sent = 0; // A Space during the takeoff film only requests a break.
+            }
+            if (completed) --completed; // First order-mode entry is the initial map, not a completed day.
+          }
+          if (dispatch != std::string::npos && lines.compare(dispatch, std::strlen(target), target) == 0 &&
+              lines.find("frames=60", dispatch) != std::string::npos) {
+            if (takeoff && first_map_orders_seen && std::getenv("E2E59_HOST_MAP_SWIPE")) {
+              if (!swipe_sent) {
+                srhd_awa::platform::input_platform::RawInput touch{};
+                touch.touch = true; touch.touch_x = 500; touch.touch_y = 350;
+                srhd_awa::platform::win32_compat::InjectHostInput(touch);
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                touch.touch_x = 620; touch.touch_y = 420;
+                srhd_awa::platform::win32_compat::InjectHostInput(touch);
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                srhd_awa::platform::win32_compat::InjectHostInput({});
+                swipe_sent = true;
+                continue;
+              }
+              if (lines.find("HOST native map swipe moved=1 ship_order_preserved=1") == std::string::npos) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                continue;
+              }
+            }
+            if (completed >= static_cast<unsigned>(turns_requested)) return;
+            if (completed >= turns_sent) {
+              const auto window = srhd_awa::platform::win32_compat::MainWindow();
+              if (window && srhd_awa::platform::win32_compat::PostHostKey(window, 0x20)) ++turns_sent;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(150));
+            continue;
+          }
+        }
         if (takeoff) {
           const auto hangar = lines.find("screen dispatch id=4 postload=");
-          if (hangar != std::string::npos &&
+          if (!takeoff_sent && hangar != std::string::npos &&
               lines.find("screen Run frames=60", hangar) != std::string::npos) {
             const auto window = srhd_awa::platform::win32_compat::MainWindow();
             // Position taken from the supplied 1280x720 hardware input trace.
             if (window && srhd_awa::platform::win32_compat::PostHostLeftClick(
-                              window, 664, 597))
-              return;
+                              window, 664, 597)) {
+              if (!turns_requested) return;
+              takeoff_sent = true;
+            }
           }
         }
         if (quicksave) {
