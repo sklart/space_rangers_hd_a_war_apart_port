@@ -1,0 +1,121 @@
+{
+  "build_git": "1e473351a973ee0933fdeec0f53ac9d2f10d2c89",
+  "build_dirty": false,
+  "artifacts": {
+    "nro": {
+      "path": "port/switch/build/e2e-game-combined-experiment/SpaceRangersHDAWarApartE2E4Combined-1e47335.nro",
+      "working_path": "port/switch/build/e2e-game-combined-experiment/SpaceRangersHDAWarApartE2E4Combined.nro",
+      "bytes": 16435504,
+      "sha256": "4315D141E1B1E77374CDA11282E14FBA828F89DE4BE2D96099E528D030EA4527",
+      "status": "SOFTWARE AUDIT PASS; hardware not tested"
+    },
+    "elf": {
+      "path": "port/switch/build/e2e-game-combined-experiment/SpaceRangersHDAWarApartE2E4Combined-1e47335.elf",
+      "bytes": 56367808,
+      "sha256": "F89D0B8DF6717B7315FF37964F5433BE334D46DA7502EE99D2F0B0AC39C28BE7"
+    }
+  },
+  "elf_build_id": "f22bb7db118da4b0d06710699ea40d0afe6afc65",
+  "nro_module_build_id": "f22bb7db118da4b0d06710699ea40d0afe6afc65000000000000000000000000",
+  "disk_save_disabled": true,
+  "arm64_link": "PASS",
+  "undefined_symbols": 0,
+  "compile_flags": {
+    "compiler": "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-g++.exe",
+    "compiler_version": "aarch64-none-elf-g++.exe (devkitA64) 16.1.0",
+    "flags": [
+      "-std=gnu++20",
+      "-D__SWITCH__",
+      "-march=armv8-a+crc+crypto",
+      "-mtune=cortex-a57",
+      "-mtp=soft",
+      "-fPIE",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-g1",
+      "-O2",
+      "-fno-strict-aliasing",
+      "-DE2E_DIAGNOSTICS=0",
+      "-DE2E3_TRACE=1",
+      "-DE2E4_QUICKSAVE_EXPERIMENT=1",
+      "-DE2E5_DISABLE_DISK_SAVE=1",
+      "-DE2E4_AUDIO_ON=1",
+      "-IC:\\devkitPro\\libnx\\include",
+      "-IC:\\devkitPro\\portlibs\\switch\\include",
+      "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\runtime-overlay",
+      "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\platform",
+      "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\source-overlay",
+      "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\upstream\\cpp\\src",
+      "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\upstream\\cpp\\runtime",
+      "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\upstream\\okgf\\include"
+    ]
+  },
+  "effective_source_map_entries": 298,
+  "effective_source_proof": {
+    "EC_File": {
+      "path": "port/switch/build/e2e-game-combined-experiment/generated/EC_File.cpp",
+      "sha256": "86441021da94045613815123859757cddb212e720392d9abe9b1ad45aa779a86"
+    },
+    "EC_Data": {
+      "path": "port/switch/build/e2e-game-combined-experiment/generated/EC_Data.cpp",
+      "sha256": "272ce90b34f0d485c3c8777a097814453062019748a1c29adc9ac1d00e63c8fd"
+    },
+    "EC_Thread": {
+      "path": "port/switch/build/e2e-game-combined-experiment/generated/EC_Thread.cpp",
+      "sha256": "e2e8619c11e74750021aa95366265e37e29d70c8818979096b74849e9b6b6572"
+    },
+    "EC_FileStream": {
+      "path": "port/switch/build/e2e-game-combined-experiment/generated/EC_FileStream.cpp",
+      "sha256": "bdc4a7ef7b57146a95272aecd298c39c8e94ece9dce95df0c2170f464db09300"
+    },
+    "aGalaxy": {
+      "path": "port/switch/build/e2e-game-combined-experiment/generated/aGalaxy.cpp",
+      "sha256": "71c32b306689bfe1cbe2c95cdb2c76521dbef5efe113b0e9df7b5d834a68d96a"
+    },
+    "aShip": {
+      "path": "port/switch/build/e2e-game-combined-experiment/generated/aShip.cpp",
+      "sha256": "6beb2a076ea8cbede1834a13cd27b9efe52b464e52af1a34a2fd862bcbf1a058"
+    },
+    "ab_WorldLine": {
+      "path": "port/switch/build/e2e-game-combined-experiment/generated/ab_WorldLine.cpp",
+      "sha256": "aed3d37becce13a860aacbe8f0d3808ee43f72782b6d936bccb4b2d5f8bd7df0"
+    },
+    "fIntroduction": {
+      "path": "port/switch/build/e2e-game-combined-experiment/generated/fIntroduction.cpp",
+      "sha256": "f90d2cc945e4d8296f0e8bd970f6ef1d3702fb3946fe75ae3f51feceb74cb201"
+    },
+    "fLoad": {
+      "path": "port/switch/build/e2e-game-combined-experiment/generated/fLoad.cpp",
+      "sha256": "d433bd6c2225d090be0029ac18726c5b10441bc2e32e4647055d7609911c9af3"
+    },
+    "EC_Cache": {
+      "path": "port/switch/build/e2e-game-combined-experiment/generated/EC_Cache.cpp",
+      "sha256": "48a3c5114244762a89e121db3f2547511beba76720d4e8d44ebb9497885a018c"
+    },
+    "GR_Music": {
+      "path": "port/switch/build/e2e-game-combined-experiment/generated/GR_Music.cpp",
+      "sha256": "dc4a87f062d03358d28f92b3799d04205ca20f6a1c7ab86edd0555612cb59780"
+    }
+  },
+  "old_versioned_artifacts_verified_unchanged": {
+    "SpaceRangersHDAWarApartE2E4Combined-0fdf602.elf": "22c592b44a184856763230ef8adf520bcd204178b67711e3b212de4cac1016f9",
+    "SpaceRangersHDAWarApartE2E4Combined-0fdf602.nro": "51dee8d47247be5af1dd1e382f61bc0d070618ac278a64bade0b42fb33ed78df",
+    "SpaceRangersHDAWarApartE2E4Combined-300f0e3.elf": "4a25cd6d0dfd8aba6f0d60cce5968b276e778176b168b41b352665c4d9d1c912",
+    "SpaceRangersHDAWarApartE2E4Combined-300f0e3.nro": "1794a0819ccdd5efedad86b6be7011806432b0c8b65db0305e0d922a8fe6d497",
+    "SpaceRangersHDAWarApartE2E4Combined-660725a.elf": "e3640a2f994abeb2e6f3b8e2c497703824ebfcd7369607c10e628cd19fe1c2a2",
+    "SpaceRangersHDAWarApartE2E4Combined-660725a.nro": "33844e61f430a54065b90200bfe7b34fc85e6edc82828e031924c7450d46abbf",
+    "SpaceRangersHDAWarApartE2E4Combined-9b691cb.elf": "190c073a428d7bb9658ed20761627de7a8c04e545094994b996815d600413110",
+    "SpaceRangersHDAWarApartE2E4Combined-9b691cb.nro": "989d2c7a2275a770c0956394b69ea578997ba330bb3c6f299bafbe16116ccfd9",
+    "SpaceRangersHDAWarApartE2E4Combined-b6a7922.elf": "fe7a55a1db31b07eb8258a6d1a3fba5ea4932e58fc44e8491fdbc642a1171963",
+    "SpaceRangersHDAWarApartE2E4Combined-b6a7922.nro": "41b21961fc38bc16cdf2d42b330455e5c94cd4ae5ea32728bab2c4cf53eaead4"
+  },
+  "upstream_pins": {
+    "cpp": "57fa689c630193a66fdea6ca4c79a188814991cd",
+    "okgf": "c01aa7a168a6f1772541501074b7bba1b96550ef",
+    "matrixgame": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1"
+  },
+  "hardware": "HARDWARE PENDING",
+  "oom_root_cause": "ROOT CAUSE UNCONFIRMED",
+  "matrixgame": "MATRIXGAME INTEGRATION PENDING",
+  "ci": "NOT RUN at artifact verification"
+}

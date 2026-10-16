@@ -130,10 +130,24 @@ conversion/event/derived-AI профиль пока не выделен. Цел�
 
 ## Артефакт, CI и аппаратный gate
 
-На момент фиксации интеграционного кода: локальные проверки выше завершены,
-одна incremental combined NRO должна быть собрана из чистого коммита.
-Паспорт, SHA NRO/ELF, Build ID и итог CI будут добавлены отдельной записью
-после сборки, без пересборки ради изменения документации.
+Одна incremental combined ARM64 сборка выполнена из чистого коммита
+`1e473351a973ee0933fdeec0f53ac9d2f10d2c89`; перекомпилировано 9 объектов,
+остальные переиспользованы. ELF64 AArch64 PIE, undefined symbols=0,
+build_dirty=false, E2E5_DISABLE_DISK_SAVE=1, -O2 -fno-strict-aliasing.
+
+- NRO: `port/switch/build/e2e-game-combined-experiment/SpaceRangersHDAWarApartE2E4Combined-1e47335.nro`, 16435504 байт;
+  SHA-256 `4315D141E1B1E77374CDA11282E14FBA828F89DE4BE2D96099E528D030EA4527`.
+- Matching ELF: `SpaceRangersHDAWarApartE2E4Combined-1e47335.elf` в том же каталоге,
+  56367808 байт; SHA-256 `F89D0B8DF6717B7315FF37964F5433BE334D46DA7502EE99D2F0B0AC39C28BE7`.
+- Build ID `f22bb7db118da4b0d06710699ea40d0afe6afc65` совпадает с NRO module ID.
+- [Паспорт сборки](e2e58-artifact-provenance.json) также лежит рядом с NRO;
+  отдельные versioned .sha256 созданы. Все 10 прежних versioned NRO/ELF
+  сверены и не изменены. Полная карта содержит 298 уникальных effective sources.
+
+Статус CI в паспорте относится к моменту упаковки: **CI NOT RUN at artifact
+verification**. Следующий push документации и исходников запускает существующий
+package-host workflow; его текущий результат проверяется на GitHub для точного
+SHA отправленного коммита. Локальная ARM64-сборка не является CI PASS.
 
 Следующий аппаратный запуск: A) меню → аркада, stick directions/диагонали/180°,
 right stick/сенсор/ZR/ZL, Options/имя; B) одна новая игра с зафиксированными
