@@ -147,10 +147,15 @@ build_dirty=false, E2E5_DISABLE_DISK_SAVE=1, -O2 -fno-strict-aliasing.
   отдельные versioned .sha256 созданы. Все 10 прежних versioned NRO/ELF
   сверены и не изменены. Полная карта содержит 298 уникальных effective sources.
 
-Статус CI в паспорте относится к моменту упаковки: **CI NOT RUN at artifact
-verification**. Следующий push документации и исходников запускает существующий
-package-host workflow; его текущий результат проверяется на GitHub для точного
-SHA отправленного коммита. Локальная ARM64-сборка не является CI PASS.
+Исторический статус CI в паспорте относится к моменту упаковки: **CI NOT RUN at
+artifact verification**. Итоговый статус сохранён отдельно в ci_final:
+[CI 38868842465 — PASS](https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38868842465)
+на `3269fa899afb5fc0106b2a22e575b5780f3d7727`. Все пять job-групп успешны:
+e2e5-fast, e2e4-sanitizers, e2e5-arm64-host, host-regression,
+e2e-full-arm64-link. В последней прошли обе полные ARM64-сборки, оба effective
+gate и проверка чистоты pinned upstream. [Метаданные CI](e2e58-ci.json).
+CI покрывает сборку и asset-free/source gates; ресурсные gameplay-прогоны выше
+выполнялись отдельно на локальном host. Аппаратный результат пока отсутствует.
 
 Первый CI [38868245685](https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38868245685)
 для `5bb56e4` прошёл e2e5-fast, e2e4-sanitizers и e2e5-arm64-host, но упал в
@@ -160,8 +165,10 @@ package, а новые sibling imports E2E-5.7/5.8 поддерживали то
 Ровно отказавшая make-команда локально прошла; повторный combined preflight
 PASS, все 11 сохранённых SHA effective gameplay/file/thread sources совпали
 с паспортом NRO. Игровой C++ и готовый артефакт не менялись; повторная NRO
-не собиралась. Исправление и дополнительные результаты отправляются новым
-коммитом для повторного полного CI.
+не собиралась. Исправление и дополнительные результаты отправлены коммитом
+`3269fa8`, повторный полный CI прошёл. Последующий коммит только отчёта с
+`[skip ci]` не изменяет инструментарий, игровой код или артефакты и не запускает
+ещё две ненужные полные CI-сборки.
 
 Следующий аппаратный запуск: A) меню → аркада, stick directions/диагонали/180°,
 right stick/сенсор/ZR/ZL, Options/имя; B) одна новая игра с зафиксированными

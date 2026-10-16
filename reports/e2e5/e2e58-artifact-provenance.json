@@ -117,5 +117,13 @@
   "hardware": "HARDWARE PENDING",
   "oom_root_cause": "ROOT CAUSE UNCONFIRMED",
   "matrixgame": "MATRIXGAME INTEGRATION PENDING",
-  "ci": "NOT RUN at artifact verification"
+  "ci": "NOT RUN at artifact verification",
+  "ci_final": {
+    "run_id": 38868842465,
+    "head_sha": "3269fa899afb5fc0106b2a22e575b5780f3d7727",
+    "url": "https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38868842465",
+    "result": "PASS",
+    "verified_via": "GitHub connector fetch_workflow_run_jobs",
+    "relationship_to_build_git": "CI-tested commit changes Python package imports and reports after the NRO build; effective game source hashes verified unchanged"
+  }
 }

@@ -1,0 +1,445 @@
+{
+  "run_id": 38868842465,
+  "head_sha": "3269fa899afb5fc0106b2a22e575b5780f3d7727",
+  "url": "https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38868842465",
+  "result": "PASS",
+  "verified_via": "GitHub connector fetch_workflow_run_jobs",
+  "jobs": [
+    {
+      "id": 116867878210,
+      "name": "host-regression",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run sudo apt-get update && sudo apt-get install -y zlib1g-dev libpng-dev libjpeg-dev libvorbis-dev cmake",
+          "conclusion": "success"
+        },
+        {
+          "name": "Original GI and buffer decode, rescale, repack with ASan/UBSan",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate Switch NRO icon",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate E2E game clock and Sleep",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate E2E synchronization events",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate E2E worker threads",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate E2E private heaps",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate E2E startup calendar",
+          "conclusion": "success"
+        },
+        {
+          "name": "E2E Win32 Compatibility Surface host gate",
+          "conclusion": "success"
+        },
+        {
+          "name": "E2E-3 original New Game preflight",
+          "conclusion": "success"
+        },
+        {
+          "name": "E2E-4 RIFF/WAVE PCM parser",
+          "conclusion": "success"
+        },
+        {
+          "name": "E2E-4 bounded Vorbis PCM reads",
+          "conclusion": "success"
+        },
+        {
+          "name": "E2E-4 native Vorbis stream",
+          "conclusion": "success"
+        },
+        {
+          "name": "E2E-4 protected-state pointer ranges",
+          "conclusion": "success"
+        },
+        {
+          "name": "E2E-4 save replacement failure paths",
+          "conclusion": "success"
+        },
+        {
+          "name": "E2E-4 recoverable quicksave transaction",
+          "conclusion": "success"
+        },
+        {
+          "name": "E2E-4 PCM mixer",
+          "conclusion": "success"
+        },
+        {
+          "name": "E2E-4 streaming PCM ring",
+          "conclusion": "success"
+        },
+        {
+          "name": "E2E-4 script UI cache key",
+          "conclusion": "success"
+        },
+        {
+          "name": "E2E-5 GAI bounds and pointer slots",
+          "conclusion": "success"
+        },
+        {
+          "name": "E2E-4 log analyzer contract",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate E2E startup command line",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate E2E install language search",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build and run asset-free corrupt package regression",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run M12 runtime loop regression",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run M13 bitmap cache regression",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run M14P GI Format-0 CPU regression",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run M15 GAI CPU regression",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run M16 GI Format-2 CPU regression",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run M17 GAI sequence parser regression",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run M17 GAI playback timing regression",
+          "conclusion": "success"
+        },
+        {
+          "name": "Audit M17 CPU symbols",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run M18 software compositor regression",
+          "conclusion": "success"
+        },
+        {
+          "name": "Audit M18 CPU symbols",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run M19 scene compositor regression",
+          "conclusion": "success"
+        },
+        {
+          "name": "Audit M19 CPU symbols",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run M20 GI object regression",
+          "conclusion": "success"
+        },
+        {
+          "name": "Audit M20 CPU symbols",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run M21 Portable UI Image Foundation regression",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run M22 Portable UI Object/Layout Foundation regression",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run M22 UI tree structural oracle",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check M22 release-backed probe syntax",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run M23 Portable AFT / Text / Label regression",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check M23 release probes and occurrence inventory",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run independent M23 synthetic UI text oracle",
+          "conclusion": "success"
+        },
+        {
+          "name": "Audit M23 portable production symbols",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run M24 Portable GraphButton / Window / Zone regression",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check M24 probes and independent controls oracle",
+          "conclusion": "success"
+        },
+        {
+          "name": "Audit M24 portable production symbols",
+          "conclusion": "success"
+        },
+        {
+          "name": "M25 Portable GI/GAI UI and real release subtree source gates",
+          "conclusion": "success"
+        },
+        {
+          "name": "M26 Portable GraphBuf ScrollBar PanelScrollBar Edit and real UI",
+          "conclusion": "success"
+        },
+        {
+          "name": "M27 Portable Input / Focus / Event Dispatch",
+          "conclusion": "success"
+        },
+        {
+          "name": "Audit M27 portable production symbols",
+          "conclusion": "success"
+        },
+        {
+          "name": "Audit M26 portable production symbols",
+          "conclusion": "success"
+        },
+        {
+          "name": "Audit M25 portable production symbols",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run M21 mixed presentation-scene oracle",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check M21 release-scene oracle syntax",
+          "conclusion": "success"
+        },
+        {
+          "name": "Audit M21 CPU symbols",
+          "conclusion": "success"
+        },
+        {
+          "name": "Audit M16 GI Format-2 CPU symbols",
+          "conclusion": "success"
+        },
+        {
+          "name": "Audit M14P CPU binary symbols",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 116867878443,
+      "name": "e2e5-fast",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Guard new pointer-width sites",
+          "conclusion": "success"
+        },
+        {
+          "name": "E2E-5 tool regressions",
+          "conclusion": "success"
+        },
+        {
+          "name": "Report unavailable private assets honestly",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 116867878468,
+      "name": "e2e4-sanitizers",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run sudo apt-get update && sudo apt-get install -y libvorbis-dev libsdl2-dev",
+          "conclusion": "success"
+        },
+        {
+          "name": "Asset-free audio and protected-state ASan/UBSan",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 116867878529,
+      "name": "e2e5-arm64-host",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install ARM64 Linux emulator and cross compiler",
+          "conclusion": "success"
+        },
+        {
+          "name": "Effective Switch GI rescale on Linux ARM64 under QEMU",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 116873901425,
+      "name": "e2e-full-arm64-link",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Initialize containers",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Trust checkout paths inside build container",
+          "conclusion": "success"
+        },
+        {
+          "name": "E2E Win32 Compatibility Surface inventory",
+          "conclusion": "success"
+        },
+        {
+          "name": "Python generator syntax and import smoke",
+          "conclusion": "success"
+        },
+        {
+          "name": "Preflight ordinary effective sources and manifest",
+          "conclusion": "success"
+        },
+        {
+          "name": "Compile full original game and audit Switch dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Preflight combined effective sources and manifest",
+          "conclusion": "success"
+        },
+        {
+          "name": "Compile one combined E2E-4 experiment",
+          "conclusion": "success"
+        },
+        {
+          "name": "E2E Win32 Compatibility Surface effective gate",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify pinned upstream remains clean",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v5",
+          "conclusion": "success"
+        },
+        {
+          "name": "Stop containers",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}
