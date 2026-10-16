@@ -5,6 +5,7 @@
 #include "e2e_threads.hpp"
 #include "win32_handles.hpp"
 #include "win32_compat_files.hpp"
+#include "runtime.hpp"
 
 #include <cstdint>
 #include <memory>
@@ -17,11 +18,17 @@ constexpr std::uint32_t kCurrentThreadPseudoHandle = 0xfffffffeu;
 
 std::uint32_t CreateEventThunk(void*, std::int32_t manual_reset,
                                std::int32_t initial_state, std::uint8_t*) {
-  const auto backend = e2e_events::Create(manual_reset != 0, initial_state != 0);
-  if (!backend) return 0;
-  const auto token = Handles().Allocate(HandleType::Event,
-                                         std::make_shared<std::uint32_t>(backend));
-  if (!token) e2e_events::Close(backend);
+  // Allocate frontend ownership before creating a backend which must be closed.
+  const auto payload = std::make_shared<std::uint32_t>(0);
+  const auto token = Handles().Allocate(HandleType::Event, payload);
+  if (!token) return 0;
+  bool published = false;
+  pas::ScopeExit rollback = [&]() noexcept {
+    if (!published) Handles().Close(token, HandleType::Event);
+  };
+  *payload = e2e_events::Create(manual_reset != 0, initial_state != 0);
+  if (!*payload) return 0;
+  published = true;
   return token;
 }
 
@@ -29,12 +36,16 @@ std::uint32_t CreateThreadThunk(void*, std::uint32_t,
                                 e2e_threads::Entry entry, void* parameter,
                                 std::uint32_t flags, std::uint32_t* thread_id) {
   if (!thread_id) { SetLastError(kErrorInvalidParameter); return 0; }
-  const auto backend = e2e_threads::Create(entry, parameter, (flags & 4u) != 0,
-                                            thread_id);
-  if (!backend) return 0;
-  const auto token = Handles().Allocate(HandleType::Thread,
-                                         std::make_shared<std::uint32_t>(backend));
-  if (!token) e2e_threads::Close(backend);
+  const auto payload = std::make_shared<std::uint32_t>(0);
+  const auto token = Handles().Allocate(HandleType::Thread, payload);
+  if (!token) return 0;
+  bool published = false;
+  pas::ScopeExit rollback = [&]() noexcept {
+    if (!published) Handles().Close(token, HandleType::Thread);
+  };
+  *payload = e2e_threads::Create(entry, parameter, (flags & 4u) != 0, thread_id);
+  if (!*payload) return 0;
+  published = true;
   return token;
 }
 

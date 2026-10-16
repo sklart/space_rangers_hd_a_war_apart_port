@@ -201,7 +201,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                 seen_frame = FRAME.search(read_log(e2e_log))
             if (auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game or
                     auto_advance_dialog or auto_quicksave or auto_takeoff or load_save is not None or
-                    auto_options) and e2e_log.is_file():
+                    auto_options or os.environ.get("E2E5_HOST_MENU_PROBE")) and e2e_log.is_file():
                 current = read_log(e2e_log)
                 frames = screen_frames(current)
                 seen_new_game_frame = 33 in frames
@@ -373,6 +373,9 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
             if (game_root / "CFG/CacheData.dat").is_file() else None,
         },
         "status": state,
+        "menu_probe_completed": "HOST menu probe completed" in full_e2e_log,
+        "arcade_60_frames": "screen RunContinuous frames=60" in full_e2e_log[
+            full_e2e_log.find("screen dispatch id=21 "):] if "screen dispatch id=21 " in full_e2e_log else False,
         "binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
         "elapsed_seconds": elapsed,
         "returncode": process.returncode,

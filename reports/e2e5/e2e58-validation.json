@@ -1,0 +1,249 @@
+{
+  "schema": 1,
+  "date": "2026-10-16",
+  "hardware": "HARDWARE PENDING",
+  "oom_root_cause": "ROOT CAUSE UNCONFIRMED",
+  "matrixgame": "MATRIXGAME INTEGRATION PENDING",
+  "tests": {
+    "stream-test": {
+      "log_sha256": "26be1eed33dbb1cff9e138ebf6fb736d8a4579c990e684abc5ff51d6a213b0a5",
+      "tail": [
+        "real TFileStreamEC: open/payload/block OOM, late decode/read failure, contending reader, IdleEvent, join, fd cleanup, replacement PASS"
+      ]
+    },
+    "cache-test": {
+      "log_sha256": "46b35a320590dcb67b6f5685047485ed73748045e01cea9b7574f21a6a040476",
+      "tail": [
+        "cache actual bodies: read/decode bad_alloc, concurrent waiter retry, lock/buffer/event cleanup PASS"
+      ]
+    },
+    "loader-test": {
+      "log_sha256": "d9466d7fd70fb0bb106737cb31e5071414ebb72a37ab4f37698bfdf73dc52d45",
+      "tail": [
+        "loading worker actual body: successful / first / middle failed allocation / cancellation cleanup PASS"
+      ]
+    },
+    "music-ui-test": {
+      "log_sha256": "62969642d625200eedf5f6d04d433640bee673bb1ecfa88656a08fff3059e7a5",
+      "tail": [
+        "actual generated getter/control exception unlock, transactional switch/retry, name focus/drag/duplicate-release gate PASS"
+      ]
+    },
+    "projection-test": {
+      "log_sha256": "d9c7b70be9561566fb9e6e0fb95d7c90c3dd1604f2abb89435853b26865340b3",
+      "tail": [
+        "original Extended projection: 4800000 bitwise comparisons, calls=2193441, 4 rounding modes PASS",
+        "projection microbenchmark cached=0 us=1884 checksum=223264.44501725357",
+        "projection microbenchmark cached=1 us=1405 checksum=223264.44501725357",
+        "original Extended projection: 4800000 bitwise comparisons, calls=2192550, 4 rounding modes PASS",
+        "projection microbenchmark cached=0 us=308815 checksum=223264.44501725357",
+        "projection microbenchmark cached=1 us=147204 checksum=223264.44501725357"
+      ],
+      "status": "PASS"
+    },
+    "tools-tests": {
+      "log_sha256": "6abf6f2b2b1d2254506e93c9ade3b4deda6a3a7ae89e1c0964b9b49f8d84b4ef",
+      "tail": [
+        "Ran 25 tests in 2.792s",
+        "",
+        "OK"
+      ]
+    },
+    "static-audit": {
+      "log_sha256": "d0421fac67156e1f7ce4d4143c63a0f053a45f36c74391de8a63b6ab2ec4159b",
+      "tail": [
+        "  \"ui_payload_sites\": 417,",
+        "  \"new_unclassified_count\": 0",
+        "}"
+      ]
+    },
+    "sync-regression": {
+      "log_sha256": "b00dff702c73a6b2b597cb030544ae824824d81762d6ee93819bd61c9fa5a517",
+      "tail": [
+        "      |                                                            ^~~~~~~~~~~~~",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/upstream/cpp/src/SysUtilsImports.cpp:559:61: warning: narrowing conversion of РІР‚пїЅStarterРІР‚в„ў from РІР‚пїЅuint8_tРІР‚в„ў {aka РІР‚пїЅunsigned charРІР‚в„ў} to РІР‚пїЅcharРІР‚в„ў [-Wnarrowing]",
+        "  559 |                 default: Result = pas::concat_ansi({Result, Starter}); break;",
+        "      |                                                             ^~~~~~~",
+        "original-wrappers: PASS",
+        "make: Leaving directory '/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/switch'"
+      ],
+      "status": "PASS"
+    },
+    "preflight-base": {
+      "log_sha256": "59799b2803d863ca0c750edeb03e67ea9d418baf6db7b3fee7e3597809293fb8",
+      "tail": [
+        "E2E preflight PASS: win32-effective-import-manifest.json"
+      ]
+    },
+    "preflight-combined": {
+      "log_sha256": "b6f42bcf36a1e79282407e5a8c2152a6ac92c2a75d97978e75f9b91846ed66e6",
+      "tail": [
+        "E2E preflight PASS: win32-effective-combined-import-manifest.json"
+      ]
+    }
+  },
+  "host_runs": {
+    "host-takeoff-final": {
+      "binary_sha256": "c8457175d1c7f815ad42e52d44e00de022a26baa3803bdeed35abbd0c47e0d8a",
+      "elapsed_seconds": 68.84,
+      "crashed": false,
+      "timed_out": false,
+      "generation_complete": true,
+      "introduction_continue_enabled": true,
+      "post_takeoff_screen_60_frames": true,
+      "menu_probe_completed": false,
+      "arcade_60_frames": false,
+      "options_open_count": 0,
+      "run_id": "b48763881b0c41119817baa7351dc239",
+      "log_sha256": "fce02f83379c0e0efaf110e879f8e5b672a4c7d8a348580cc23cadc56df0a66a",
+      "resource_configuration": {
+        "cfg_input_sha256": null,
+        "main_dat_sha256": "2544c91df96508a0e94b383b980d2344d792534f8d2c502ada30d6a99a44281a",
+        "cache_data_dat_sha256": "85a7ed400188bad9e6b22aef28adc456fad78a85d3cb343ecd7e1e6a1c463c32"
+      },
+      "first_presented_starmap": [
+        "[E2E] screen first presented id=16 presentations=1285 width=1280 height=720 rgb565_hash=dfce1a09a2c0161a"
+      ],
+      "generation_stages": [
+        "[E2E3] generation stage=1 status=running previous_stage=0 previous_ms=69 total_ms=69",
+        "[E2E3] generation stage=2 status=running previous_stage=1 previous_ms=510 total_ms=580",
+        "[E2E3] generation stage=3 status=running previous_stage=2 previous_ms=34 total_ms=614",
+        "[E2E3] generation stage=4 status=running previous_stage=3 previous_ms=1061 total_ms=1676",
+        "[E2E3] generation stage=5 status=running previous_stage=4 previous_ms=48 total_ms=1724",
+        "[E2E3] generation stage=6 status=running previous_stage=5 previous_ms=94 total_ms=1819",
+        "[E2E3] generation stage=8 status=complete previous_stage=6 previous_ms=8264 total_ms=10083"
+      ],
+      "generation_function_samples": [
+        "[E2E] generation function=star-day calls=21899 sampled=343 sampled_inclusive_us=118517 stride=64",
+        "[E2E] generation function=star-prepare calls=0 sampled=0 sampled_inclusive_us=0 stride=64",
+        "[E2E] generation function=ship-day calls=246184 sampled=3847 sampled_inclusive_us=32286 stride=64",
+        "[E2E] generation function=ship-logic calls=0 sampled=0 sampled_inclusive_us=0 stride=64",
+        "[E2E] generation function=equipment calls=675942 sampled=10562 sampled_inclusive_us=1800 stride=64",
+        "[E2E] generation function=bonus calls=26034607 sampled=406791 sampled_inclusive_us=28149 stride=64"
+      ],
+      "projection_cache_windows": []
+    },
+    "host-arcade-final": {
+      "binary_sha256": "2c8aff7bde6309c10716f324e8791cba1eeac8a216a545c8d46b5a6eec0d405d",
+      "elapsed_seconds": 37.48,
+      "crashed": false,
+      "timed_out": false,
+      "generation_complete": false,
+      "introduction_continue_enabled": false,
+      "post_takeoff_screen_60_frames": false,
+      "menu_probe_completed": true,
+      "arcade_60_frames": true,
+      "options_open_count": 0,
+      "run_id": "2c2812c79aad471fa7022cac45e27dae",
+      "log_sha256": "160c4bea409979407d947f0e958fb2c268c0e19ed2d4c49ff1764aae9ec7265f",
+      "resource_configuration": {
+        "cfg_input_sha256": null,
+        "main_dat_sha256": "2544c91df96508a0e94b383b980d2344d792534f8d2c502ada30d6a99a44281a",
+        "cache_data_dat_sha256": "85a7ed400188bad9e6b22aef28adc456fad78a85d3cb343ecd7e1e6a1c463c32"
+      },
+      "first_presented_starmap": [],
+      "generation_stages": [],
+      "generation_function_samples": [],
+      "projection_cache_windows": [
+        "[E2E] arcade projection hits=2681 misses=3609",
+        "[E2E] arcade projection hits=621992 misses=837288"
+      ],
+      "phase4_single_window_avg_us": 415
+    },
+    "host-options": {
+      "binary_sha256": "c8457175d1c7f815ad42e52d44e00de022a26baa3803bdeed35abbd0c47e0d8a",
+      "elapsed_seconds": 39.2,
+      "crashed": false,
+      "timed_out": false,
+      "generation_complete": false,
+      "introduction_continue_enabled": false,
+      "post_takeoff_screen_60_frames": false,
+      "menu_probe_completed": false,
+      "arcade_60_frames": false,
+      "options_open_count": 2,
+      "run_id": "31c4614214fd40cdbbcd698ce333ff9a",
+      "log_sha256": "6c90be586778b279733d52233308514cc2852330cc4849b3555cdd7563ed90a4",
+      "resource_configuration": {
+        "cfg_input_sha256": null,
+        "main_dat_sha256": "2544c91df96508a0e94b383b980d2344d792534f8d2c502ada30d6a99a44281a",
+        "cache_data_dat_sha256": "85a7ed400188bad9e6b22aef28adc456fad78a85d3cb343ecd7e1e6a1c463c32"
+      },
+      "first_presented_starmap": [],
+      "generation_stages": [],
+      "generation_function_samples": [],
+      "projection_cache_windows": []
+    },
+    "takeoff-oom": {
+      "binary_sha256": "c8457175d1c7f815ad42e52d44e00de022a26baa3803bdeed35abbd0c47e0d8a",
+      "elapsed_seconds": 71.25,
+      "crashed": false,
+      "timed_out": false,
+      "generation_complete": true,
+      "introduction_continue_enabled": true,
+      "post_takeoff_screen_60_frames": true,
+      "menu_probe_completed": false,
+      "arcade_60_frames": false,
+      "options_open_count": 0,
+      "injected_allocation_failures": 4,
+      "run_id": "ae563047ce18497aaf050e7a536ef2b9",
+      "log_sha256": "a0b0d254b5930cea16561b7fa583d48e9e3191ba167e303ddbcca88199149ee1",
+      "resource_configuration": {
+        "cfg_input_sha256": null,
+        "main_dat_sha256": "2544c91df96508a0e94b383b980d2344d792534f8d2c502ada30d6a99a44281a",
+        "cache_data_dat_sha256": "85a7ed400188bad9e6b22aef28adc456fad78a85d3cb343ecd7e1e6a1c463c32"
+      },
+      "first_presented_starmap": [
+        "[E2E] screen first presented id=16 presentations=1326 width=1280 height=720 rgb565_hash=5d3d94063eb0c9c2"
+      ],
+      "generation_stages": [
+        "[E2E3] generation stage=1 status=running previous_stage=0 previous_ms=82 total_ms=82",
+        "[E2E3] generation stage=2 status=running previous_stage=1 previous_ms=294 total_ms=377",
+        "[E2E3] generation stage=3 status=running previous_stage=2 previous_ms=32 total_ms=409",
+        "[E2E3] generation stage=4 status=running previous_stage=3 previous_ms=1386 total_ms=1796",
+        "[E2E3] generation stage=5 status=running previous_stage=4 previous_ms=46 total_ms=1842",
+        "[E2E3] generation stage=6 status=running previous_stage=5 previous_ms=150 total_ms=1992",
+        "[E2E3] generation stage=8 status=complete previous_stage=6 previous_ms=8139 total_ms=10132"
+      ],
+      "generation_function_samples": [
+        "[E2E] generation function=star-day calls=21899 sampled=343 sampled_inclusive_us=114297 stride=64",
+        "[E2E] generation function=star-prepare calls=0 sampled=0 sampled_inclusive_us=0 stride=64",
+        "[E2E] generation function=ship-day calls=242342 sampled=3787 sampled_inclusive_us=29934 stride=64",
+        "[E2E] generation function=ship-logic calls=0 sampled=0 sampled_inclusive_us=0 stride=64",
+        "[E2E] generation function=equipment calls=661287 sampled=10333 sampled_inclusive_us=1689 stride=64",
+        "[E2E] generation function=bonus calls=21965871 sampled=343217 sampled_inclusive_us=24449 stride=64"
+      ],
+      "projection_cache_windows": [],
+      "fault_evidence": [
+        "[E2E] allocation failure operation=AllocEC bytes=1982908",
+        "[E2E] allocation failure operation=ReAllocREC bytes=12402677",
+        "[E2E] allocation recovery operation=resource-read bytes=12402421 cache_before=121784400 cache_after=0",
+        "[E2E] screen first presented id=16 presentations=1326 width=1280 height=720 rgb565_hash=5d3d94063eb0c9c2"
+      ]
+    }
+  },
+  "arm64_syntax": {
+    "modules": [
+      "EC_File",
+      "EC_FileStream",
+      "EC_Thread",
+      "EC_Data",
+      "aGalaxy",
+      "aShip",
+      "ab_WorldLine",
+      "package",
+      "win32_compat_sync"
+    ],
+    "result": "PASS"
+  },
+  "matrixgame_x86_abi": "MSVC 19.44 Win32 pinned public header static_assert PASS",
+  "host_arcade_baseline": {
+    "binary_sha256": "ea3874aeadb88772c434a2a306cba5346c59e5ecc2a198ab085c3d783f60de12",
+    "elapsed_seconds": 26.68,
+    "crashed": false,
+    "timed_out": false,
+    "menu_probe_completed": true,
+    "arcade_60_frames": true,
+    "phase4_single_window_avg_us": 408,
+    "comparison_limit": "different process states, one window; not A/B"
+  }
+}

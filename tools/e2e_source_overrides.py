@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 from e2e56_cache_overrides import apply as apply_cache_safety
 from e2e56_geometry_overrides import apply as apply_geometry_reuse
+from e2e58_file_overrides import apply_file, apply_data
 
 
 def _replace_exact(text: str, old: str, new: str, count: int, source_name: str) -> str:
@@ -397,7 +398,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ('ab_Global.cpp', 'EC_Cache.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ('ab_WorldLine.cpp', 'EC_File.cpp', 'ab_Global.cpp', 'EC_Cache.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "EC_Cache.cpp":
@@ -537,6 +538,19 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
             body = _replace_exact(body, '\n        pas::critical_leave(SessionLogLock);', '', 1, source.name)
             text = text[:start] + body + text[end:]
     if source.name == "EC_Thread.cpp":
+        # The owner joins and closes the OS thread for every exception class.
+        # Self-closing skipped bad_alloc and raced the owner's ThreadHandle read.
+        self_close = '''        if (static_cast<TThreadEC*>(Thread)->ThreadHandle != 0) {
+            WindowsImports::CloseHandle(static_cast<TThreadEC*>(Thread)->ThreadHandle);
+            static_cast<TThreadEC*>(Thread)->ThreadHandle = 0u;
+        }'''
+        text = _replace_exact(text, self_close, '', 1, source.name)
+        marker = '            WindowsSdk::WaitForSingleObject(Self->ThreadHandle, WindowsSdk::INFINITE);'
+        text = _replace_exact(text, marker, marker + '''
+            if (Self->ThreadHandle != 0) {
+                WindowsImports::CloseHandle(Self->ThreadHandle);
+                Self->ThreadHandle = 0;
+            }''', 1, source.name)
         start = text.index('    void TThreadEC::ProcessRequests() {')
         end = text.index('    void TThreadEC_Execute(', start)
         body = text[start:end]
@@ -2801,6 +2815,55 @@ void CloseVorbisStream(TOggWorker* worker) {
     if e2e5_profile and source.name in ("aGalaxy.cpp", "aShip.cpp", "aMyFunction.cpp", "ab_MainForm.cpp"):
         text = '#include "e2e5_round.hpp"\n' + text.replace('System::Round(',
             'srhd_awa::platform::e2e5_round::Round(')
+    if e2e5_profile and source.name in ('aGalaxy.cpp', 'aShip.cpp'):
+        profiles = {
+            'aGalaxy.cpp': [('    void TStar::NextDay(std::uint8_t RecordFilm) {', 0),
+                            ('    void TStar::PrepareNextDay() {', 1)],
+            'aShip.cpp': [('    void TShip_NextDay(TShip* Self) {', 2),
+                          ('    void TShip_NextDayLogic(TShip* Self) {', 3),
+                          ('    void TShip::RebuildEquipmentCache() {', 4),
+                          ('    std::int32_t TShip::GetTotalStatBonus(aConst::TEquipmentBonusKind BonusKind) {', 5)],
+        }
+        for signature, identifier in profiles[source.name]:
+            assert text.count(signature) == 1
+            text = text.replace(signature, signature + f'\n        srhd_awa::platform::e2e58_generation_profile::Scope e2e_function_profile({identifier});')
+        if source.name == 'aGalaxy.cpp':
+            marker = '                    e2e_star_sum_us = e2e_turn_sum_us = 0;'
+            assert text.count(marker) == 1
+            text = text.replace(marker, '                    srhd_awa::platform::e2e58_generation_profile::Flush();\n' + marker)
+        text = '#include "e2e58_generation_profile.hpp"\n' + text
+    if source.name == "ab_WorldLine.cpp":
+        marker = '    void ab_WorldLine_Update() {'
+        assert text.count(marker) == 1
+        text = text.replace(marker, marker + '''
+        const auto e2e_matrix = ab_Global::SphereProjectionMatrix;
+        auto e2e_project = srhd_awa::platform::MakeProjectionCache<EC_Struct::TVector3D>(
+            [&](const EC_Struct::TVector3D& point) {
+                return ab_Global::ProjectPointByMatrix(e2e_matrix,
+                    pas::ConstRef<EC_Struct::TVector3D>(&point));
+            });''')
+        for endpoint in ('First', 'Last'):
+            old = f'ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix, pas::ConstRef<EC_Struct::TVector3D>(&Line->{endpoint}))'
+            assert text.count(old) == 1
+            text = text.replace(old, f'e2e_project.Project(pas::load_unaligned<EC_Struct::TVector3D>(&Line->{endpoint}))')
+        start = text.index(marker)
+        end = text.index('\n    }', start)
+        text = text[:end] + '''
+        static std::uint64_t e2e_hits = 0, e2e_misses = 0, e2e_last_report = 0;
+        e2e_hits += e2e_project.Hits(); e2e_misses += e2e_project.Misses();
+        const auto e2e_now = srhd_awa::platform::e2e_clock::Microseconds();
+        if (e2e_now - e2e_last_report >= 5000000) {
+            char detail[160]{};
+            std::snprintf(detail, sizeof(detail), "arcade projection hits=%llu misses=%llu",
+                static_cast<unsigned long long>(e2e_hits), static_cast<unsigned long long>(e2e_misses));
+            srhd_awa::platform::e2e5_failure_diagnostics::Write(detail);
+            e2e_last_report = e2e_now; e2e_hits = e2e_misses = 0;
+        }''' + text[end:]
+        text = '#include "e2e58_projection_cache.hpp"\n#include "e2e_clock.hpp"\n#include "e2e5_failure_diagnostics.hpp"\n' + text
+    if source.name == "EC_File.cpp":
+        text = apply_file(text)
+    if source.name == "EC_Data.cpp":
+        text = apply_data(text)
     destination.parent.mkdir(parents=True, exist_ok=True)
     if not destination.exists() or destination.read_text(encoding="utf-8") != text:
         destination.write_text(text, encoding="utf-8")

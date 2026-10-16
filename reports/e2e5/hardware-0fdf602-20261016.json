@@ -1,0 +1,41 @@
+{
+  "archive": "G:/pack.zip",
+  "archive_sha256": "5cb257e597186137e61ca4e86ca90b22c37daf459ec887ff5e0922d10ce23862",
+  "runtime_build_git": "0fdf602",
+  "entries": [
+    {
+      "name": "config/########.log",
+      "bytes": 24343,
+      "sha256": "31709c0cfec1ce5e8b51a25433cf96791212459db2cc2b724e96c20974806eb2"
+    },
+    {
+      "name": "config/CFG.TXT",
+      "bytes": 1512,
+      "sha256": "8db94560331461eadffbcafa8367d20469fdc622214eed17d763fdc9e5c0a784"
+    },
+    {
+      "name": "config/Lang.txt",
+      "bytes": 14,
+      "sha256": "0cb1184a60c49a67277e84777360ae72a89d7bba493cbd1e5e482938eb7969f9"
+    },
+    {
+      "name": "config/newgame.txt",
+      "bytes": 948,
+      "sha256": "122df3470f1604fc3af536fa0624d80aac24c8d9e589adbcf6f24ec119060a39"
+    },
+    {
+      "name": "logs/e2e.log",
+      "bytes": 830184,
+      "sha256": "925150582e7ca2fd0386b0b4e0c4e8c547200eb4bed73b69782494d03b85ee1a"
+    }
+  ],
+  "generation": {
+    "warmup_turns": 300,
+    "total_ms": 444320,
+    "continue_enabled": true
+  },
+  "failed_worker": "EC_FileStream::TFileStreamEC",
+  "oom_root_cause": "ROOT CAUSE UNCONFIRMED",
+  "hardware_status": "FAIL: user reported frozen Introduction after generation; archive has no thread dump",
+  "source_nro_sha256": "51DEE8D47247BE5AF1DD1E382F61BC0D070618AC278A64BADE0B42FB33ED78DF"
+}
