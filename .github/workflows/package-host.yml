@@ -228,7 +228,7 @@ jobs:
           test -z "$(git -C upstream/okgf status --short)"
       - name: Stage exact Save OFF and Save ON pairs
         run: |
-          set -euo pipefail
+          set -eu
           python3 tools/ci_stage_switch_artifacts.py \
             --report e2e4-combined-build-report.json \
             --out build/ci-stage/save-off \
