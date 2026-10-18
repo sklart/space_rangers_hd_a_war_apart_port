@@ -101,6 +101,14 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y qemu-user g++-aarch64-linux-gnu cmake libpng-dev libjpeg-dev
       - name: Effective Switch GI rescale on Linux ARM64 under QEMU
         run: bash tools/e2e5_original_graphbuf_arm64_host.sh --synthetic
+      - name: Native MatrixGame callback ownership on ARM64
+        run: |
+          mkdir -p build/mg-bridge-arm64
+          aarch64-linux-gnu-g++ -std=c++20 -O1 -g \
+            -Iport/matrixgame/native -Iupstream/cpp/src -Iupstream/cpp/runtime \
+            port/matrixgame/native/rangers_bridge.cpp tests/test_matrixgame_rangers_bridge.cpp \
+            -pthread -o build/mg-bridge-arm64/contract
+          qemu-aarch64 -L /usr/aarch64-linux-gnu build/mg-bridge-arm64/contract
       - name: Gesture and bounded film ordinal checks on host and ARM64
         run: python3 tests/probe_e2e59_input_index.py
       - name: Native heap reserve and generation counters on host and ARM64
@@ -177,6 +185,15 @@ jobs:
         run: bash tools/e2e5_original_graphbuf_host.sh --synthetic
       - name: Bounded package streaming with ASan/UBSan
         run: python3 tests/probe_package_streaming.py
+      - name: Native MatrixGame callbacks with ASan/UBSan and ThreadSanitizer
+        run: |
+          for sanitizer in address thread; do
+            cmake -S port/matrixgame/native -B "build/mg-bridge-$sanitizer" \
+              -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBRIDGE_SANITIZER="$sanitizer"
+            cmake --build "build/mg-bridge-$sanitizer" --parallel 2
+            ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 TSAN_OPTIONS=halt_on_error=1 \
+              ctest --test-dir "build/mg-bridge-$sanitizer" --output-on-failure
+          done
       - name: Build complete Linux host for native asset-free regressions
         run: python3 tools/e2e5_host_game_build.py --profile optimized --jobs 2
       - name: Native cache failure, raw budget and recovery lifecycle with ASan/UBSan
