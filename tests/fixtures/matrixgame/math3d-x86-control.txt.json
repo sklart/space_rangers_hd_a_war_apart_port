@@ -1,0 +1,11 @@
+{
+  "producer": "pinned original Math3D.cpp/Math3D.hpp + Microsoft D3DX9 x86",
+  "scope": "controlled inputs only; no game assets",
+  "binary_sha256": "68a3093812e8fd3e21590de1e781e88f3a8eaec87427f6485e1c2523a3923944",
+  "test_source_sha256": "0338193148394d758c5950ee65f81b70f82c7f1ea475595c279d4ee8326e747f",
+  "test_source_hash_format": "SHA256 LF-normalized UTF-8 source",
+  "trace_sha256": "681b07790b445fe8078df971feb8294cb0455b6c2a865ff3d8b251d34effc5a3",
+  "backend": "D3DX9-x86",
+  "float_values": 48281,
+  "integer_values": 2824
+}

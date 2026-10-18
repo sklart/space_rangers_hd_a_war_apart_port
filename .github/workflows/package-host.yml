@@ -142,6 +142,8 @@ jobs:
         run: bash tools/matrixgame_file_arm64.sh --storage
       - name: Original MatrixLib BlockPar configuration on ARM64
         run: bash tools/matrixgame_file_arm64.sh --blockpar
+      - name: Original MatrixLib Math3D with NEON on ARM64
+        run: bash tools/matrixgame_file_arm64.sh --math
       - name: Gesture and bounded film ordinal checks on host and ARM64
         run: python3 tests/probe_e2e59_input_index.py
       - name: Native heap reserve and generation counters on host and ARM64
