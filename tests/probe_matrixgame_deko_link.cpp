@@ -6,6 +6,7 @@
 #include "CBitmap.hpp"
 #include "CFile.hpp"
 #include "texture_request.hpp"
+#include "matrixgame_raster_gpu_probe.hpp"
 #include "mesh_shaders.hpp"
 #include "config_unicode.hpp"
 #include <array>
@@ -15,6 +16,9 @@ using namespace srhd_awa::matrixgame;
 int main(int argc,char** argv) {
   try {
     DekoMeshRenderer renderer(64,64,std::as_bytes(std::span(vertex_dksh)),std::as_bytes(std::span(fragment_dksh)));
+    if(argc==2 && std::string_view(argv[1])=="--raster-state") {
+      ProbeRasterGpu(renderer);std::printf("GPU raster state reference PASS controls=8; battle_executed=false\n");return 0;
+    }
     if(argc==3 && std::string_view(argv[1])=="--texture-request") {
       const auto request=TextureRequest::Resolve(::matrixgame::native::ConfigWide(argv[2]));
       const auto asset=request.Load();renderer.SetTextureAsset(1,asset);

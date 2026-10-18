@@ -12,7 +12,7 @@
 
 namespace srhd_awa::matrixgame {
 namespace {
-constexpr std::uint32_t command_bytes=65536;
+constexpr std::uint32_t command_bytes=128*1024;
 constexpr std::uint32_t max_submissions=256;
 constexpr std::uint32_t uniform_stride=DK_UNIFORM_BUF_ALIGNMENT;
 constexpr std::uint32_t max_textures=64, sampler_count=8;
@@ -37,6 +37,12 @@ struct alignas(16) Uniforms {
   std::array<float,4> diffuse, light;
 };
 static_assert(sizeof(Uniforms)==160 && sizeof(Uniforms)<=uniform_stride);
+static_assert(unsigned(RasterCompare::Never)==DkCompareOp_Never && unsigned(RasterCompare::Always)==DkCompareOp_Always);
+static_assert(unsigned(RasterCompare::GreaterEqual)==DkCompareOp_Gequal && unsigned(RasterCompare::LessEqual)==DkCompareOp_Lequal);
+static_assert(unsigned(RasterBlendFactor::Zero)==DkBlendFactor_Zero && unsigned(RasterBlendFactor::One)==DkBlendFactor_One);
+static_assert(unsigned(RasterBlendFactor::SourceAlpha)==DkBlendFactor_SrcAlpha && unsigned(RasterBlendFactor::InverseSourceAlpha)==DkBlendFactor_InvSrcAlpha);
+static_assert(unsigned(RasterBlendFactor::SourceAlphaSaturate)==DkBlendFactor_SrcAlphaSaturate);
+static_assert(unsigned(RasterBlendOperation::Add)==DkBlendOp_Add && unsigned(RasterBlendOperation::Maximum)==DkBlendOp_Max);
 constexpr std::array attributes{
   DkVtxAttribState{0,0,offsetof(MeshVertex,position),DkVtxAttribSize_3x32,DkVtxAttribType_Float,0},
   DkVtxAttribState{0,0,offsetof(MeshVertex,normal),DkVtxAttribSize_3x32,DkVtxAttribType_Float,0},
@@ -216,6 +222,7 @@ void DekoMeshRenderer::DrawFrame(std::span<const MeshSubmission> submissions,std
   if(output.size()<std::uint64_t(v.width)*v.height*4) throw std::length_error("deko RGBA output");
   // Validate the whole batch before replacing commands or publishing uniforms.
   for(const auto& submission:submissions) {
+    submission.raster.Validate();
     ValidateMeshRange(submission.range,v.index_shadow,v.vertex_bytes/sizeof(MeshVertex));
     if(submission.texture_slot>=max_textures || !v.textures[submission.texture_slot].memory ||
         static_cast<std::uint32_t>(submission.sampling)>=sampler_count)
@@ -257,6 +264,23 @@ void DekoMeshRenderer::DrawFrame(std::span<const MeshSubmission> submissions,std
     const auto& range=submissions[i].range;
     if(!range.index_count) continue;
     const auto& submission=submissions[i];
+    const auto& state=submission.raster;
+    // Every draw rebinds complete supported state; additive/mask passes cannot
+    // leak blend/depth/color-write settings into the next opaque draw.
+    color_state.setBlendEnable(0,state.blend_enable).setAlphaCompareOp(state.alpha_test?
+      static_cast<DkCompareOp>(state.alpha_compare):DkCompareOp_Always);
+    color_write.setMask(0,state.color_write);
+    depth_state.setDepthTestEnable(state.depth_test).setDepthWriteEnable(state.depth_write)
+      .setDepthCompareOp(static_cast<DkCompareOp>(state.depth_compare));
+    dk::BlendState blend;
+    const auto source=static_cast<DkBlendFactor>(state.source),destination=static_cast<DkBlendFactor>(state.destination);
+    // D3D9 separate-alpha blending is disabled for this boundary: RGB factors
+    // and operation also apply to the alpha component (not deko defaults).
+    blend.setFactors(source,destination,source,destination).setOps(
+      static_cast<DkBlendOp>(state.operation),static_cast<DkBlendOp>(state.operation));
+    v.commands.bindColorState(color_state);v.commands.bindColorWriteState(color_write);
+    v.commands.bindDepthStencilState(depth_state);v.commands.bindBlendStates(0,{blend});
+    v.commands.setAlphaRef(float(state.alpha_reference)/255.f);
     const DkResHandle texture=dkMakeTextureHandle(submission.texture_slot,static_cast<std::uint32_t>(submission.sampling));
     v.commands.bindTextures(DkStage_Fragment,0,texture);
     v.commands.bindUniformBuffer(DkStage_Vertex,0,v.uniforms_mem.getGpuAddr()+i*uniform_stride,sizeof(Uniforms));

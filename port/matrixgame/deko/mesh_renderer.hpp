@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 #include "mesh_submission.hpp"
+#include "raster_state.hpp"
 #include "../native-core/texture_asset.hpp"
 #include <array>
 #include <cstddef>
@@ -29,6 +30,7 @@ struct MeshSubmission {
   MeshRange range; MeshDraw draw;
   std::uint32_t texture_slot{};
   TextureSampling sampling{TextureSampling::NearestRepeat};
+  MeshRasterState raster{};
 };
 // First offscreen GPU geometry pass only. No swapchain or full material/sampler parity,
 // battle entry, software fallback, or campaign result is implemented by this class.
