@@ -106,3 +106,9 @@ TSAN_OPTIONS=halt_on_error=1 ctest --test-dir build/mg-bridge-tsan --output-on-f
 Он проверяет ownership/forwarding, 800 конкурентных sound cycles, stale/foreign IDs,
 Unicode, частичный RenderText failure и поля settings/statistics. Это не реальный бой,
 не работа main-game audio/text renderer и не проверка GPU/физической Switch.
+
+## MG-3: GPU geometry prototype
+
+Первый deko3d pass описан в [deko/README.md](deko/README.md).
+Offline shaders и ARM64 ELF link/audit проверены; GPU main не выполнялся,
+NRO не выпускалась. Это не полный renderer или планетарный бой.

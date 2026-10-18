@@ -40,7 +40,7 @@ P0.3: статический аудит не закрывает полный liv
 | MG-0, лицензирование/архитектура | PARTIAL: GPL headers/NOTICE и запрет закрытых ресурсов соблюдены; итоговая совместимость всех компонентов выбранного backend ещё не проверена. |
 | MG-1, Windows x86 эталон | PARTIAL: настоящий бой/проигрыш/статистика и head fix проверены; UI-конструктор, победа и полный возврат остаются открыты. |
 | MG-2, native ARM64 bridge | PARTIAL: реализован native callback/ownership adapter, все 16 callbacks и settings/statistics; host ASan/UBSan/TSan, ARM64/QEMU и devkitA64 object compile PASS. Engine entry/Run и реальный audio/text handoff ещё не подключены; см. matrixgame-native-bridge-20261018.md. |
-| MG-3, Switch GPU/platform backend | OPEN: нет работающей GPU 3D-сцены на Switch. |
+| MG-3, Switch GPU/platform backend | PARTIAL: первый deko3d geometry pass + offline shaders + ARM64 ELF link/audit и x86 native vertex layout PASS; физического GPU кадра, полной scene/material parity и handoff нет. См. matrixgame-deko-20261018.md. |
 | MG-4, все игровые функции/оптимизация | OPEN: Windows functional proof не подтверждает Switch путь и оптимизацию. |
 | MG-5, campaign integration | OPEN: нет запуска из кампании, win/loss возврата и двух последовательных аппаратных боёв без утечек. |
 

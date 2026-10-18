@@ -17,6 +17,7 @@ struct Summary { uint32_t folders{}, files{}, entries{}, max_depth{}; uint64_t t
 class Package {
  public:
   bool Open(const std::string& path, std::string* error);
+  bool OpenUtf8(const std::string& path, std::string* error);
   const Entry* Resolve(const std::string& path) const;
   uint32_t OpenEntryByPath(const std::string& path, std::string* error);
   bool SeekEntry(uint32_t handle, uint64_t position, std::string* error);
@@ -28,6 +29,7 @@ class Package {
   bool ReadPayload(const Entry& entry, std::vector<uint8_t>* out, std::string* error);
   Summary Summarize() const;
  private:
+  bool OpenPath(const std::string& path, bool utf8, std::string* error);
   struct FileCloser { void operator()(FILE* file) const noexcept { if (file) std::fclose(file); } };
   struct OpenEntry {
     const Entry* entry{};
@@ -48,6 +50,6 @@ class Package {
   size_t ReadAt(OpenEntry& open, uint64_t offset, void* destination, size_t bytes);
   bool LoadReadBlock(OpenEntry& open, uint32_t index, std::string* error);
   bool LoadFolder(uint32_t offset, Folder* folder, uint32_t depth, std::vector<uint32_t>& active_offsets, std::string* error);
-  std::unique_ptr<Folder> root_; std::string path_; uint64_t size_{}; std::vector<OpenEntry> open_entries_;
+  std::unique_ptr<Folder> root_; std::string path_; bool utf8_path_{}; uint64_t size_{}; std::vector<OpenEntry> open_entries_;
 };
 }  // namespace srhd_awa::package

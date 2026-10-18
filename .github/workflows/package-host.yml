@@ -109,6 +109,35 @@ jobs:
             port/matrixgame/native/rangers_bridge.cpp tests/test_matrixgame_rangers_bridge.cpp \
             -pthread -o build/mg-bridge-arm64/contract
           qemu-aarch64 -L /usr/aarch64-linux-gnu build/mg-bridge-arm64/contract
+      - name: VectorObject submesh ranges on ARM64
+        run: |
+          mkdir -p build/mg-submesh-arm64
+          aarch64-linux-gnu-g++ -std=c++20 -O1 -g tests/test_matrixgame_mesh_submission.cpp \
+            -o build/mg-submesh-arm64/contract
+          qemu-aarch64 -L /usr/aarch64-linux-gnu build/mg-submesh-arm64/contract
+      - name: RGBA8 texture upload layout on ARM64
+        run: |
+          mkdir -p build/mg-texture-arm64
+          aarch64-linux-gnu-g++ -std=c++20 -O1 -g tests/test_matrixgame_texture_upload.cpp \
+            -o build/mg-texture-arm64/contract
+          qemu-aarch64 -L /usr/aarch64-linux-gnu build/mg-texture-arm64/contract
+      - name: Original MatrixLib CRC with Win32 dword width on ARM64
+        run: |
+          python3 tools/matrixgame_core_prepare.py --output build/mg-core-arm64/source
+          aarch64-linux-gnu-g++ -std=c++20 -O2 -g -Ibuild/mg-core-arm64/source \
+            tests/test_matrixgame_native_crc.cpp build/mg-core-arm64/source/CRC32.cpp \
+            -o build/mg-core-arm64/contract
+          qemu-aarch64 -L /usr/aarch64-linux-gnu build/mg-core-arm64/contract
+      - name: Original MatrixLib CBuf UTF-16LE on ARM64
+        run: |
+          aarch64-linux-gnu-g++ -std=c++20 -O2 -g \
+            -Ibuild/mg-core-arm64/source -Iport/matrixgame/native-core \
+            tests/test_matrixgame_native_buffer.cpp build/mg-core-arm64/source/CBuf.cpp \
+            port/matrixgame/native-core/cbuf_utf16.cpp port/matrixgame/native-core/exception_native.cpp \
+            -o build/mg-core-arm64/buffer-contract
+          qemu-aarch64 -L /usr/aarch64-linux-gnu build/mg-core-arm64/buffer-contract
+      - name: Native MatrixLib CFile and bounded package IO on ARM64
+        run: bash tools/matrixgame_file_arm64.sh
       - name: Gesture and bounded film ordinal checks on host and ARM64
         run: python3 tests/probe_e2e59_input_index.py
       - name: Native heap reserve and generation counters on host and ARM64
@@ -154,9 +183,20 @@ jobs:
           python3 tools/audit_win32_surface.py --effective --build-root port/switch/build/e2e-game --check
           python3 tools/audit_win32_surface.py --effective --build-root port/switch/build/e2e-game-combined-experiment --manifest win32-effective-combined-import-manifest.json --check
           python3 tools/generate_win32_portable_cases.py --check
+      - name: Compile and link native deko3d mesh pass without packaging NRO
+        run: python3 tools/matrixgame_deko_build.py
+      - name: Build original MatrixLib native CPU library with devkitA64
+        run: |
+          cmake -S port/matrixgame/native-core -B build/mg-core-switch \
+            -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/port/matrixgame/native-core/switch-toolchain.cmake" \
+            -DBUILD_TESTING=OFF -DCORE_BUILD_LINK_PROBE=ON -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/mg-core-switch --parallel 2
       - name: Verify pinned upstream remains clean
         if: always()
-        run: test -z "$(git -C upstream/cpp status --short)"
+        run: |
+          test -z "$(git -C upstream/cpp status --short)"
+          test -z "$(git -C upstream/matrixgame status --short)"
+          test -z "$(git -C upstream/okgf status --short)"
 
       - name: Stage and verify Switch artifacts
         if: success() && github.event_name == 'push' && github.ref == 'refs/heads/master'
@@ -194,6 +234,19 @@ jobs:
             ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 TSAN_OPTIONS=halt_on_error=1 \
               ctest --test-dir "build/mg-bridge-$sanitizer" --output-on-failure
           done
+      - name: Original MatrixLib CRC and CBuf with ASan and UBSan
+        run: |
+          cmake -S port/matrixgame/native-core -B build/mg-core-asan \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCORE_SANITIZERS=ON
+          cmake --build build/mg-core-asan --parallel 2
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 \
+            ctest --test-dir build/mg-core-asan --output-on-failure
+      - name: Native MatrixLib CFile registry with ThreadSanitizer
+        run: |
+          cmake -S port/matrixgame/native-core -B build/mg-core-tsan \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCORE_THREAD_SANITIZER=ON
+          cmake --build build/mg-core-tsan --parallel 2
+          TSAN_OPTIONS=halt_on_error=1 ctest --test-dir build/mg-core-tsan -R file-contract --output-on-failure
       - name: Build complete Linux host for native asset-free regressions
         run: python3 tools/e2e5_host_game_build.py --profile optimized --jobs 2
       - name: Native cache failure, raw budget and recovery lifecycle with ASan/UBSan
