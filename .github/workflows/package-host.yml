@@ -287,7 +287,7 @@ jobs:
           TSAN_OPTIONS=halt_on_error=1 ctest --test-dir build/mg-core-tsan -R 'file-contract|random-contract' --output-on-failure
       - name: Build complete Linux host for native asset-free regressions
         run: python3 tools/e2e5_host_game_build.py --profile optimized --jobs 2
-      - name: Native ShipDestination pointer/int contract with ASan/UBSan
+      - name: Native script pointers, numeric conversions and VM with ASan/UBSan
         run: python3 tests/probe_e2e59_film_history.py --ship-destination
       - name: Native cache failure, raw budget and recovery lifecycle with ASan/UBSan
         run: python3 tests/probe_e2e56_native_cache.py
@@ -353,6 +353,8 @@ jobs:
         run: make -C port/switch host-e2e4-ui-cache-test
       - name: E2E-5 GAI bounds and pointer slots
         run: make -C port/switch host-e2e5-gai-bounds-test host-e2e5-gai-slots-test
+      - name: E2E-5 UI progress visibility across threads
+        run: make -C port/switch host-e2e5-ui-progress-test
       - name: E2E-4 log analyzer contract
         run: python3 tools/e2e4_log_analyzer.py --self-test
       - name: Validate E2E startup command line

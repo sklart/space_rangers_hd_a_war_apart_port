@@ -179,7 +179,8 @@ AUDIO_ON_FUNCTIONS = {
                         " callback_count=", SysUtils::Int64ToStr(static_cast<std::int64_t>(stats.callback_count)),
                         " callback_max_us=", SysUtils::Int64ToStr(static_cast<std::int64_t>(stats.callback_max_us)),
                         " callback_gap_max_us=", SysUtils::Int64ToStr(static_cast<std::int64_t>(stats.callback_gap_max_us)),
-                        " ready_chunks=", SysUtils::Int64ToStr(static_cast<std::int64_t>(stats.ready_chunks))}));
+                        " ready_chunks=", SysUtils::Int64ToStr(static_cast<std::int64_t>(stats.ready_chunks)),
+                        srhd_awa::platform::e2e_stage::UiProgressText().c_str()}));
             }
             if (event >= 0) return event;
             // Zero is a real completion event (chunk 2 became writable).

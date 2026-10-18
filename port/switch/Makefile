@@ -101,7 +101,7 @@ host-e2e4-ui-cache-test:
 	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e4_ui_cache_key.cpp -o build/e2e4/test_ui_cache_key
 	build/e2e4/test_ui_cache_key
 
-.PHONY: host-e2e5-gai-bounds-test host-e2e5-gai-slots-test
+.PHONY: host-e2e5-gai-bounds-test host-e2e5-gai-slots-test host-e2e5-ui-progress-test
 host-e2e5-gai-bounds-test:
 	@mkdir -p build/e2e5
 	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e5_gai_bounds.cpp -o build/e2e5/test_gai_bounds
@@ -111,6 +111,11 @@ host-e2e5-gai-slots-test:
 	@mkdir -p build/e2e5
 	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Iplatform ../../tests/test_e2e5_gai_slots.cpp -o build/e2e5/test_gai_slots
 	build/e2e5/test_gai_slots
+
+host-e2e5-ui-progress-test:
+	@mkdir -p build/e2e5
+	g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -pthread -Iplatform ../../tests/test_e2e5_ui_progress.cpp -o build/e2e5/test_ui_progress
+	build/e2e5/test_ui_progress
 
 .PHONY: host-e2e4-script-value-test
 host-e2e4-script-value-test:

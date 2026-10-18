@@ -329,6 +329,28 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   g_last_presentation_hash = HashRgb565(pixels, pitch, width, height);
 #endif
 #if defined(E2E5_HOST_SDL_WINDOW)
+  static std::array<unsigned, 64> ui_capture_frames{};
+  const auto capture_screen = static_cast<unsigned>(GlobalsV::CurrentScreenId);
+  if (std::getenv("E2E5_HOST_CAPTURE_UI") && capture_screen < ui_capture_frames.size() &&
+      ++ui_capture_frames[capture_screen] == 60) {
+    char name[80]{};
+    std::snprintf(name, sizeof(name), "ui-screen-%u.ppm", capture_screen);
+    if (FILE* output = std::fopen(name, "wb")) {
+      std::fprintf(output, "P6\n%d %d\n255\n", width, height);
+      std::array<unsigned char, 16384 * 3> row{};
+      for (int y = 0; y < height; ++y) {
+        auto* source = reinterpret_cast<const std::uint16_t*>(
+            static_cast<const unsigned char*>(pixels) + y * pitch);
+        for (int x = 0; x < width; ++x) {
+          row[x * 3] = ((source[x] >> 11) & 31) * 255 / 31;
+          row[x * 3 + 1] = ((source[x] >> 5) & 63) * 255 / 63;
+          row[x * 3 + 2] = (source[x] & 31) * 255 / 31;
+        }
+        std::fwrite(row.data(), 3, width, output);
+      }
+      std::fclose(output);
+    }
+  }
   static bool intro_captured = false;
   if (!intro_captured && GlobalsV::CurrentScreenId == 3 &&
       std::getenv("E2E511_HOST_CAPTURE_INTRO") &&

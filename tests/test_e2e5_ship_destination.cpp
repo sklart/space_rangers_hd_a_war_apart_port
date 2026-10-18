@@ -1,3 +1,4 @@
+#include "e2e5_script_vm_contract.hpp"
 #include "units/aScriptFun.hpp"
 #include "units/aRuins.hpp"
 #include "units/aGalaxy.hpp"
@@ -121,5 +122,6 @@ int main() {
   }
   word_ref->SetDword(address);
   assert(word->Kind==vkDword && word_ref->GetDword()==address && word->GetDword()==address);
+  srhd_awa::test::script_vm::Check();
   std::puts("real ShipDestination: int tag, high target addresses, setter, copy/reference/assignment, signed-32 conversions, DWORD/ref numeric writes, save/load and pointer save rejection PASS");
 }

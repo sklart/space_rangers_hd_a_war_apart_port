@@ -1584,6 +1584,27 @@ void CloseVorbisStream(TOggWorker* worker) {
         draw = draw.replace(advance, "", 1)
         text = text[:draw_start] + draw + text[draw_end:]
         text = ('#include "e2e5_stage_profiler.hpp"\n' if e2e5_profile else '') + '#include "renderer_platform.hpp"\n#include "e2e_stage.hpp"\n#include <cstdio>\n#include <vector>\n' + text
+        # Publish the actual nested loop identity, not just the outer dispatch ID.
+        # Operations: 1=Run, 2=RunContinuous, 3=input, 4=callback timers.
+        for signature, operation in (
+            ("    std::int32_t TMessageLoopGI::Run() {", 1),
+            ("    std::int32_t TMessageLoopGI::RunContinuous() {", 2),
+            ("    void TMessageLoopGI::ProcessWindowMessage(std::uint32_t Message, std::uint32_t WParam, std::int32_t LParam) {", 3),
+            ("    void TMessageLoopGI::ProcessCallbackTimers() {", 4),
+        ):
+            begin = text.index(signature)
+            end = text.index("\n    }", begin) + len("\n    }")
+            body = text[begin:end]
+            body = body.replace(signature, signature +
+                "\n        srhd_awa::platform::e2e_stage::UiProgressScope e2e_progress(GlobalsV::FormToId(this), " + str(operation) + ");", 1)
+            body = re.sub(r"(?m)^([ \t]*)Stage = (\d+);$",
+                lambda m: m.group(0) + "\n" + m.group(1) + "e2e_progress.Mark(" + m.group(2) + ");", body)
+            if operation == 3:
+                body = body.replace("        try {", "        e2e_progress.Mark(Message);\n        try {", 1)
+            if operation == 4:
+                body = body.replace("            Timer->Callback(Timer, Timer->UserData);",
+                    "            e2e_progress.Mark(static_cast<std::uint32_t>(Timer->RepeatMs));\n            Timer->Callback(Timer, Timer->UserData);")
+            text = text[:begin] + body + text[end:]
     if source.name == "GI_GraphButton.cpp":
         timer_gate = "pas::assigned(UpCallback) && MessageLoop->ConsumeTimerTickChange()"
         if text.count(timer_gate) != 1:

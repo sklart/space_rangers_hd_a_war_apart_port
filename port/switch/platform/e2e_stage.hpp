@@ -17,6 +17,43 @@ inline std::string g_current_stage = "entry";
 inline std::string g_first_failure;
 inline bool g_boot_ready = false;
 
+// One UI writer, independent music-thread reader. Keep progress observable even
+// when the UI is blocked before its buffered diagnostic stream is flushed.
+inline std::atomic<std::uint64_t> g_ui_progress{}, g_ui_progress_ms{};
+inline std::uint64_t ProgressMillis() {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(
+      std::chrono::steady_clock::now().time_since_epoch()).count();
+}
+class UiProgressScope {
+ public:
+  UiProgressScope(std::uint16_t screen, std::uint16_t operation)
+      : previous_(g_ui_progress.load(std::memory_order_relaxed)),
+        identity_((std::uint64_t(screen) << 48) | (std::uint64_t(operation) << 32)) {
+    Mark(0);
+  }
+  ~UiProgressScope() { Publish(previous_); }
+  void Mark(std::uint32_t stage) { Publish(identity_ | stage); }
+ private:
+  static void Publish(std::uint64_t value) {
+    g_ui_progress_ms.store(ProgressMillis(), std::memory_order_relaxed);
+    g_ui_progress.store(value, std::memory_order_release);
+  }
+  std::uint64_t previous_, identity_;
+};
+
+inline std::string UiProgressText() {
+  const auto value = g_ui_progress.load(std::memory_order_acquire);
+  const auto tick = g_ui_progress_ms.load(std::memory_order_relaxed);
+  const auto now = ProgressMillis();
+  char text[160]{};
+  std::snprintf(text, sizeof(text),
+      " ui_screen=%u ui_operation=%u ui_stage=%u ui_age_ms=%llu",
+      static_cast<unsigned>(value >> 48), static_cast<unsigned>((value >> 32) & 0xffffu),
+      static_cast<unsigned>(value & 0xffffffffu),
+      static_cast<unsigned long long>(tick && now >= tick ? now - tick : 0));
+  return text;
+}
+
 // All access is protected by g_stage_mutex. Keep the stream open and buffered:
 // opening/closing it for every diagnostic line forces SD I/O inside UI draws.
 struct BufferedLog {

@@ -183,6 +183,8 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
   bool swipe_sent = false;
   bool flight_menu_sent = false, flight_menu_closed = false, flight_menu_resumed = false;
   unsigned cancel_stage = 0, cancel_turn = 0, cancel_taps = 0, cancel_releases = 0;
+  unsigned menu_cycles = 0;
+  std::size_t menu_click_at = 0, menu_close_at = 0;
   while (running.load()) {
     std::string lines;
     try {
@@ -290,6 +292,28 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
         }
       }
       if (select_dialog && introduction_sent) {
+        if (takeoff && std::getenv("E2E5_HOST_MAP_MENU_CYCLES")) {
+          const auto dispatch = lines.rfind("screen dispatch id=");
+          const auto window = srhd_awa::platform::win32_compat::MainWindow();
+          if (dispatch != std::string::npos && window) {
+            if (lines.compare(dispatch, 22, "screen dispatch id=25 p") == 0 &&
+                lines.find("screen Run frames=10", dispatch) != std::string::npos &&
+                menu_close_at < dispatch &&
+                srhd_awa::platform::win32_compat::PostHostKey(window, 0x1b)) {
+              menu_close_at = dispatch;
+            } else if (lines.compare(dispatch, 22, "screen dispatch id=16 p") == 0 &&
+                       lines.find("screen RunContinuous frames=60", dispatch) != std::string::npos &&
+                       menu_click_at < dispatch) {
+              if (menu_click_at) ++menu_cycles;
+              if (menu_cycles == 5) {
+                srhd_awa::platform::e2e_stage::Log("HOST map menu cycles PASS count=5");
+                return;
+              }
+              if (srhd_awa::platform::win32_compat::PostHostLeftClick(window, 47, 680))
+                menu_click_at = dispatch;
+            }
+          }
+        }
         if (flight_menu_sent && !flight_menu_closed) {
           const auto opened = lines.rfind("screen dispatch id=25 ");
           if (opened != std::string::npos && lines.find("frames=60", opened) != std::string::npos) {
@@ -406,7 +430,7 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
             // Position taken from the supplied 1280x720 hardware input trace.
             if (window && srhd_awa::platform::win32_compat::PostHostLeftClick(
                               window, 664, 597)) {
-              if (!turns_requested) return;
+              if (!turns_requested && !std::getenv("E2E5_HOST_MAP_MENU_CYCLES")) return;
               takeoff_sent = true;
             }
           }

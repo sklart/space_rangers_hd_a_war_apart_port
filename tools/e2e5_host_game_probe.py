@@ -261,7 +261,9 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                      any(60 in milestones.get(screen, set())
                          for screen in POST_DIALOG_SCREENS)) or
                     (auto_takeoff and 16 in frames and
-                     60 in milestones.get(16, set())) or
+                     60 in milestones.get(16, set()) and
+                     (not os.environ.get("E2E5_HOST_MAP_MENU_CYCLES") or
+                      "HOST map menu cycles PASS count=5" in current)) or
                     (auto_options and current.count("screen dispatch id=26 postload=") >= 2 and
                      current.count("options groups constructed") >= 2 and
                      ((os.environ.get("E2E5_HOST_OPTIONS_SAVE") and
