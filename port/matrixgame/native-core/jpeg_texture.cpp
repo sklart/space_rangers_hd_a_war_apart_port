@@ -91,6 +91,6 @@ TextureAsset DecodeJpegTexture(std::span<const std::byte> bytes,std::size_t budg
   }
   if(!jpeg_finish_decompress(&c->jpeg)||c->jpeg.src->bytes_in_buffer)throw std::invalid_argument("JPEG end/trailing bytes");
   jpeg_destroy_decompress(&c->jpeg);
-  TextureAsset result;result.levels.push_back({width,height,std::uint32_t(pitch),std::move(c->rgba)});return result;
+  TextureAsset result;result.clear_pixel={0,0,0,255};result.levels.push_back({width,height,std::uint32_t(pitch),std::move(c->rgba)});return result;
 }
 }

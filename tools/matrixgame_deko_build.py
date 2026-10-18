@@ -27,6 +27,8 @@ def main() -> int:
     inputs = [p for p in source_dir.iterdir() if p.is_file()]
     inputs += [p for p in (root/'port/matrixgame/native-core').iterdir() if p.is_file()]
     inputs += list((root/'tools').glob('matrixgame_*overrides.py')) + [root/'tools/matrixgame_core_prepare.py']
+    inputs += [root/'tools/matrixgame_bc_prepare.py']
+    inputs += [p for p in (root/'port/matrixgame/third_party').rglob('*') if p.is_file()]
     inputs += [root / 'tests/probe_matrixgame_deko_link.cpp', Path(__file__).resolve()]
     inputs += [root / 'tests/matrixgame_raster_gpu_probe.hpp']
     log = []
@@ -87,6 +89,7 @@ def main() -> int:
         required += ['TextureRequest7Resolve', 'ParseOriginalTextureFlags']
         required += ['dkCmdBufBindBlendStates', 'dkCmdBufSetAlphaRef']
         required += ['DecodeJpegTexture','jpeg_read_header','jpeg_start_decompress','jpeg_read_scanlines','jpeg_destroy_decompress']
+        required += ['PrepareMips','D3DXEncodeBC1','D3DXEncodeBC2','D3DXEncodeBC3']
         require(all(name in symbols for name in required), 'GPU draw/readback implementation missing from ELF')
         undefined = [line for line in symbols.splitlines() if ' UND ' in line and ' WEAK ' not in line and len(line.split()) > 7]
         require(not undefined, 'unresolved strong symbols: ' + str(undefined))

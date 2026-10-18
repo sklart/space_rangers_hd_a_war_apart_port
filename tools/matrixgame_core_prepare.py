@@ -12,6 +12,7 @@ from matrixgame_vector_overrides import INPUTS as VECTOR_INPUTS, SUBDIRS as VECT
 from matrixgame_reminder_overrides import INPUTS as REMINDER_INPUTS, patch_reminder
 from matrixgame_bitmap_overrides import INPUTS as BITMAP_INPUTS, SUBDIRS as BITMAP_SUBDIRS, patch_bitmap
 from matrixgame_texture_request_overrides import INPUTS as TEXTURE_INPUTS, SUBDIRS as TEXTURE_SUBDIRS, patch_texture_requests
+from matrixgame_bc_prepare import prepare_bc
 
 INPUTS = {
     'CFile.cpp': '09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49',
@@ -156,6 +157,7 @@ inline constexpr int FileBegin = 0, FileCurrent = 1, FileEnd = 2;
     patch_reminder(files, replace_body)
     patch_bitmap(files, root, replace_body)
     patch_texture_requests(files)
+    bc_provenance=prepare_bc(root,files)
     output.mkdir(parents=True, exist_ok=True)
     for name, data in files.items():
         destination = output / name
@@ -169,6 +171,7 @@ inline constexpr int FileBegin = 0, FileCurrent = 1, FileEnd = 2;
         "file_io": "Original CBuf_file.cpp connected to native CFile with existing bounded Package reader",
         "input_hash_format": "SHA256 of LF-normalized UTF-8 source",
         "inputs_sha256": INPUTS,
+        "bc_codec": bc_provenance,
         "outputs_sha256": {name: hashlib.sha256(data).hexdigest() for name, data in files.items()},
     }
     provenance = output / "source-provenance.json"

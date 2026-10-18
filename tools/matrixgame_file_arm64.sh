@@ -13,6 +13,7 @@ case "${1:-}" in
   --reminder) profile=reminder; shift ;;
   --bitmap) profile=bitmap; shift ;;
   --texture) profile=texture; shift ;;
+  --mips) profile=mips; shift ;;
   --texture-request) profile=texture_request; shift ;;
 esac
 out="$project_root/build/mg-core-arm64"
@@ -42,7 +43,8 @@ sources=(
 )
 extra_includes=()
 extra_libraries=()
-if [[ "$profile" == bitmap || "$profile" == texture || "$profile" == texture_request ]]; then
+extra_compile_options=()
+if [[ "$profile" == bitmap || "$profile" == texture || "$profile" == texture_request || "$profile" == mips ]]; then
   png_source="$project_root/build/matrixgame/libpng-1.6.37-source"
   expected_png=a40189cf881e9f0db80511c382292a5604c3c3d1
   if [[ ! -d "$png_source/.git" ]]; then
@@ -60,13 +62,13 @@ if [[ "$profile" == bitmap || "$profile" == texture || "$profile" == texture_req
   extra_includes=(-I"$out/libpng" -I"$png_source")
   extra_libraries=("$out/libpng/libpng16.a")
   sources+=("$out/source/CBitmap.cpp" "$out/source/FilePNG.cpp")
-  if [[ "$profile" == texture ]]; then sources+=(port/matrixgame/native-core/texture_asset.cpp); fi
+  if [[ "$profile" == texture || "$profile" == mips ]]; then sources+=(port/matrixgame/native-core/texture_asset.cpp); fi
   if [[ "$profile" == texture_request ]]; then
     sources+=(port/matrixgame/native-core/texture_asset.cpp port/matrixgame/native-core/texture_request.cpp
       "$out/source/TextureFlags.cpp" "$out/source/CBlockPar.cpp")
   fi
 fi
-if [[ "$profile" == texture || "$profile" == texture_request ]]; then
+if [[ "$profile" == texture || "$profile" == texture_request || "$profile" == mips ]]; then
   jpeg_source="$project_root/build/matrixgame/libjpeg-turbo-2.1.2-source"
   expected_jpeg=ecf021bc0d6f435daacff7c35ccaeef0145df1b9
   if [[ ! -d "$jpeg_source/.git" ]]; then
@@ -82,6 +84,10 @@ if [[ "$profile" == texture || "$profile" == texture_request ]]; then
   extra_includes+=(-I"$out/jpeg" -I"$jpeg_source")
   extra_libraries+=("$out/jpeg/libjpeg.a")
   sources+=(port/matrixgame/native-core/jpeg_texture.cpp)
+fi
+if [[ "$profile" == mips || "$profile" == texture_request ]]; then
+  extra_compile_options=(-frounding-math -fno-tree-sink)
+  sources+=(port/matrixgame/native-core/texture_mips.cpp "$out/source/BC.cpp")
 fi
 if [[ "$profile" != file ]]; then
   sources+=("$out/source/CStorage.cpp" "$out/source/CRC32.cpp" port/matrixgame/native-core/heap_native.cpp)
@@ -101,7 +107,7 @@ fi
 if [[ "$profile" == math ]]; then
   sources+=("$out/source/Math3D.cpp")
 fi
-aarch64-linux-gnu-g++ -std=c++20 -O2 -g -pthread -ffp-contract=off \
+aarch64-linux-gnu-g++ -std=c++20 -O2 -g -pthread -ffp-contract=off "${extra_compile_options[@]}" \
   -I"$out/source" -Iport/matrixgame/native-core -Iport/switch/platform \
   -Iport/matrixgame/third_party/directxmath/Inc -Iport/matrixgame/third_party/sal \
   -I"$out/zlib" -I"$zlib_source" \
@@ -112,5 +118,5 @@ python3 "tests/probe_matrixgame_native_$profile.py" --binary /usr/bin/qemu-aarch
   --runner-binary "$out/$profile-contract" --qemu-sysroot /usr/aarch64-linux-gnu \
   --output "$out/$profile-fixtures" "$@"
 [[ -z "$(zgit status --porcelain --untracked-files=normal)" ]] || { echo "zlib build changed source" >&2; exit 2; }
-if [[ "$profile" == bitmap || "$profile" == texture || "$profile" == texture_request ]]; then [[ -z "$(pgit status --porcelain)" ]] || { echo "libpng source changed" >&2; exit 2; }; fi
-if [[ "$profile" == texture || "$profile" == texture_request ]]; then [[ -z "$(jgit status --porcelain)" ]] || { echo "JPEG source changed" >&2; exit 2; }; fi
+if [[ "$profile" == bitmap || "$profile" == texture || "$profile" == texture_request || "$profile" == mips ]]; then [[ -z "$(pgit status --porcelain)" ]] || { echo "libpng source changed" >&2; exit 2; }; fi
+if [[ "$profile" == texture || "$profile" == texture_request || "$profile" == mips ]]; then [[ -z "$(jgit status --porcelain)" ]] || { echo "JPEG source changed" >&2; exit 2; }; fi
