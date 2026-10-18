@@ -1,0 +1,11 @@
+{
+  "producer": "Pinned original CReminder.cpp/CReminder.hpp, MSVC 19.44 x86 Release",
+  "upstream_pin": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
+  "operations": 5000,
+  "cleanup_callbacks": 1419,
+  "trace_bytes": 792840,
+  "trace_sha256": "8b5358278c1c8ed9b694ee077624e9507b95f97436decfe93a812104ebc82d46",
+  "original_unlink_self_exit": 3,
+  "original_self_delete_false_exit": 3,
+  "game_assets": false
+}

@@ -10,6 +10,7 @@ case "${1:-}" in
   --math) profile=math; shift ;;
   --random) profile=random; shift ;;
   --vector) profile=vector; shift ;;
+  --reminder) profile=reminder; shift ;;
 esac
 out="$project_root/build/mg-core-arm64"
 zlib_source="$project_root/build/matrixgame/zlib-1.3.2-source"
@@ -47,6 +48,9 @@ if [[ "$profile" == random ]]; then
 fi
 if [[ "$profile" == vector ]]; then
   sources+=(port/matrixgame/native-core/vector_geometry.cpp)
+fi
+if [[ "$profile" == reminder ]]; then
+  sources+=(port/matrixgame/native-core/vector_geometry.cpp "$out/source/CReminder.cpp")
 fi
 if [[ "$profile" == math ]]; then
   sources+=("$out/source/Math3D.cpp")

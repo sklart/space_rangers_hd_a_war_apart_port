@@ -25,6 +25,9 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${PORT_ROOT}/tools/matrixgame_random_overrides.py"
     "${PORT_ROOT}/tools/matrixgame_engine_api_overrides.py"
     "${PORT_ROOT}/tools/matrixgame_vector_overrides.py"
+    "${PORT_ROOT}/tools/matrixgame_reminder_overrides.py"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CReminder.hpp"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CReminder.cpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/VectorObject.hpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/VectorObject.cpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixGame/src/MatrixGameDll.hpp"
@@ -43,7 +46,7 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/utils.hpp")
 file(GLOB_RECURSE CORE_MATH_VENDOR_FILES "${PORT_ROOT}/port/matrixgame/third_party/*")
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CORE_MATH_VENDOR_FILES})
-add_library(matrixgame-native-core STATIC vector_geometry.cpp "${CORE_SOURCE}/CRC32.cpp"
+add_library(matrixgame-native-core STATIC vector_geometry.cpp "${CORE_SOURCE}/CReminder.cpp" "${CORE_SOURCE}/CRC32.cpp"
     "${CORE_SOURCE}/CBuf.cpp" "${CORE_SOURCE}/CBuf_file.cpp"
     "${CORE_SOURCE}/random.cpp" "${CORE_SOURCE}/Math3D.cpp" "${CORE_SOURCE}/CStorage.cpp" "${CORE_SOURCE}/CStorage_blockpar.cpp" "${CORE_SOURCE}/CBlockPar.cpp" heap_native.cpp cbuf_utf16.cpp exception_native.cpp file_native.cpp "${PORT_ROOT}/port/switch/platform/package.cpp")
 target_include_directories(matrixgame-native-core PUBLIC "${CORE_SOURCE}" "${CMAKE_CURRENT_LIST_DIR}")
@@ -79,6 +82,11 @@ if(CORE_THREAD_SANITIZER)
 endif()
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(matrixgame-native-reminder-test "${PORT_ROOT}/tests/test_matrixgame_native_reminder.cpp")
+    target_link_libraries(matrixgame-native-reminder-test PRIVATE matrixgame-native-core)
+    add_test(NAME matrixgame-native-reminder-contract COMMAND "${Python3_EXECUTABLE}"
+        "${PORT_ROOT}/tests/probe_matrixgame_native_reminder.py"
+        --binary "$<TARGET_FILE:matrixgame-native-reminder-test>" --output "${CMAKE_CURRENT_BINARY_DIR}/reminder-fixtures")
     add_executable(matrixgame-native-vector-test "${PORT_ROOT}/tests/test_matrixgame_native_vector.cpp")
     target_link_libraries(matrixgame-native-vector-test PRIVATE matrixgame-native-core)
     add_test(NAME matrixgame-native-vector-contract COMMAND "${Python3_EXECUTABLE}"
@@ -142,6 +150,12 @@ if(CORE_BUILD_LINK_PROBE)
     if(NOT CMAKE_CROSSCOMPILING OR NOT MATRIXGAME_DEVKITPRO)
         message(FATAL_ERROR "CORE_BUILD_LINK_PROBE requires the Switch toolchain")
     endif()
+    add_executable(matrixgame-native-reminder-link-probe "${PORT_ROOT}/tests/test_matrixgame_native_reminder.cpp")
+    target_link_libraries(matrixgame-native-reminder-link-probe PRIVATE matrixgame-native-core nx)
+    target_link_directories(matrixgame-native-reminder-link-probe PRIVATE "${MATRIXGAME_DEVKITPRO}/libnx/lib")
+    target_link_options(matrixgame-native-reminder-link-probe PRIVATE
+        "-specs=${MATRIXGAME_DEVKITPRO}/libnx/switch.specs" -fPIE -Wl,--gc-sections -Wl,--build-id=sha1)
+    set_target_properties(matrixgame-native-reminder-link-probe PROPERTIES SUFFIX ".elf")
     add_executable(matrixgame-native-vector-link-probe "${PORT_ROOT}/tests/test_matrixgame_native_vector.cpp")
     target_link_libraries(matrixgame-native-vector-link-probe PRIVATE matrixgame-native-core nx)
     target_link_directories(matrixgame-native-vector-link-probe PRIVATE "${MATRIXGAME_DEVKITPRO}/libnx/lib")
