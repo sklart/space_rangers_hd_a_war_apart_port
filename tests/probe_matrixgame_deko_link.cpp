@@ -4,6 +4,7 @@
 #include "vector_submission.hpp"
 #include "png_texture.hpp"
 #include "CBitmap.hpp"
+#include "CFile.hpp"
 #include "mesh_shaders.hpp"
 #include "config_unicode.hpp"
 #include <array>
@@ -13,6 +14,21 @@ using namespace srhd_awa::matrixgame;
 int main(int argc,char** argv) {
   try {
     DekoMeshRenderer renderer(64,64,std::as_bytes(std::span(vertex_dksh)),std::as_bytes(std::span(fragment_dksh)));
+    if(argc==4 && std::string_view(argv[1])=="--texture") {
+      const auto asset=TextureAsset::Load(::matrixgame::native::ConfigWide(argv[2]));renderer.SetTextureAsset(1,asset);
+      Base::CFile file{::matrixgame::native::ConfigWide(argv[3])};file.OpenRead();
+      if(file.Size()!=64*64*4)throw std::invalid_argument("expected 64x64 RGBA texture reference");
+      std::vector<std::byte> expected(64*64*4),rgba(expected.size());file.Read(expected.data(),expected.size());
+      const std::array quad{
+        MeshVertex{{-1,1,.5f},{0,0,1},{0,0}},MeshVertex{{1,1,.5f},{0,0,1},{1,0}},
+        MeshVertex{{-1,-1,.5f},{0,0,1},{0,1}},MeshVertex{{1,-1,.5f},{0,0,1},{1,1}}};
+      const std::array<std::uint16_t,6> indices{0,1,2,2,1,3};renderer.SetMesh(quad,indices);
+      MeshSubmission submission{};submission.range={0,0,0,6,0,4};submission.texture_slot=1;submission.sampling=TextureSampling::NearestClamp;
+      for(int i=0;i<4;++i)submission.draw.clip_from_model[i*5]=submission.draw.normal_from_model[i*5]=1;
+      submission.draw.light[3]=1;renderer.DrawFrame(std::span(&submission,1),rgba);
+      if(rgba!=expected)throw std::runtime_error("texture GPU base-level readback mismatch");
+      std::printf("Texture GPU base-level reference PASS supplied_mips=%zu; battle_executed=false\n",asset.levels.size());return 0;
+    }
     if(argc==3 && std::string_view(argv[1])=="--png") {
       const auto path=::matrixgame::native::ConfigWide(argv[2]);
       const auto size=UploadPngTexture(renderer,1,path);
@@ -62,7 +78,7 @@ int main(int argc,char** argv) {
           model.Vertices().size(),submissions.size(),covered);
       return 0;
     }
-    if(argc!=1)throw std::invalid_argument("expected --png <PNG>, --geometry-only <VO>, or no arguments");
+    if(argc!=1)throw std::invalid_argument("expected --texture <source> <64x64.rgba>, --png <PNG>, --geometry-only <VO>, or no arguments");
     const std::array mesh{
       MeshVertex{{0,0,0},{0,0,1},{0,0}}, // Unreferenced prefix; base vertex must be respected.
       MeshVertex{{-.9f,-.7f,.5f},{0,0,1},{0,0}},

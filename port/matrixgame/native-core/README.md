@@ -235,3 +235,14 @@ WinBitmap/GDI, JPEG/DDS decode и texture/material cache ещё не перен�
 Все 617 PNG оригинального robots.pkg проверены отдельно на host/ARM64; CI
 использует controlled fixtures. Подробности и границы:
 [отчёт CBitmap](../../../reports/matrixgame-native-bitmap-20261018.md).
+
+## DDS/STRG texture assets
+
+`texture_asset.hpp` загружает exact CFile/PKG path и декодирует PNG, legacy DDS или
+STRG 0/0 byte payload. DDS BC1/2/3 сохраняют исходные blocks и все supplied mips;
+alpha/luminance/RGB masks преобразуются в RGBA8. Loader не подменяет неизвестные
+форматы. Это ещё не original CBaseTexture/CCache/material semantics.
+
+`bash tools/matrixgame_file_arm64.sh --texture` проверяет mip payload и staging
+oracle. Реальные 813 DDS/STRG проверяются отдельно от CI. См.
+[отчёт texture assets](../../../reports/matrixgame-native-texture-20261018.md).
