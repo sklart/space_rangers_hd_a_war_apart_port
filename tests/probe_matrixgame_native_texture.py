@@ -77,7 +77,7 @@ def oracle(b):
                         shift=(mask&-mask).bit_length()-1
                         values.append(((value&mask)>>shift)*255/(mask>>shift) if mask else None)
                     r,g,blue,a=values
-                    if pf&2:r=g=blue=255
+                    if pf&2:r=g=blue=0
                     if pf&0x20000:g=blue=r
                     if not pf&(1|2) or a is None:a=255
                     pixels+=bytes(int(v+0.5) for v in (r,g,blue,a))

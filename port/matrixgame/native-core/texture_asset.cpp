@@ -72,10 +72,10 @@ TextureAsset Dds(std::span<const std::byte> b) {
       if(block)std::memcpy(target,source,packed);
       else for(std::uint32_t x=0;x<w;++x) {
         std::uint32_t pixel=0;std::memcpy(&pixel,source+x*(bits/8),bits/8);
-        const auto r=Channel(pixel,masks[0],(pf&2)?255:0);
+        const auto r=Channel(pixel,masks[0]);
         target[x*4]=std::byte(r);
-        target[x*4+1]=std::byte((pf&0x20000)?r:Channel(pixel,masks[1],(pf&2)?255:0));
-        target[x*4+2]=std::byte((pf&0x20000)?r:Channel(pixel,masks[2],(pf&2)?255:0));
+        target[x*4+1]=std::byte((pf&0x20000)?r:Channel(pixel,masks[1]));
+        target[x*4+2]=std::byte((pf&0x20000)?r:Channel(pixel,masks[2]));
         target[x*4+3]=std::byte(Channel(pixel,masks[3],255));
       }
     }

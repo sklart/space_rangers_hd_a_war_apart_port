@@ -134,3 +134,25 @@ Windows игрой. Сохранить SHA EXE/DLL, карту, входные �
 экран основной игры. Проверить победу, поражение, отмену, повторный вход и ошибку
 ресурса. Финальный gate — реальный планетарный бой на Switch с управлением
 роботами и корректным результатом в Space Rangers HD.
+
+## A8 DDS: соответствие настоящему D3D9 sampler
+
+Исправлено разворачивание alpha-only DDS в native RGBA8: RGB равен нулю,
+alpha сохраняется. Это подтверждено настоящим D3D9 draw/readback в Windows:
+HAL на адаптере vendor 0x10de и отдельный программный REF. Для всех 256 alpha
+отрисованы 1024 пикселя A8 и 1024 пикселя эквивалентной RGBA8-текстуры в каждом
+режиме: different_pixels=0, unexpected_a8_pixels=0, unexpected_rgba_pixels=0.
+
+Опциональный эталон собирается целью `matrixgame-a8-d3d9-reference` в
+`port/matrixgame/native-probe`, затем запускается отдельно:
+
+```text
+matrixgame-a8-d3d9-reference.exe --hal
+matrixgame-a8-d3d9-reference.exe --ref
+```
+
+Это реальный Windows D3D9 draw/readback. HAL и REF явно разделены; NULLREF
+не используется. Проверка не подтверждает исполнение deko3d или работу Switch.
+Независимый DDS oracle обновлён по измеренной семантике A8. Игровые ресурсы
+сохраняются без изменений; исправление не устанавливает причину зависания
+основной игры после «Готово».
