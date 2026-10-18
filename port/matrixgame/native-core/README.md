@@ -1,8 +1,8 @@
 # Оригинальная CPU-часть MatrixLib
 
 Текущая библиотека содержит оригинальные CRC32.cpp, память/позицию и файловые
-методы CBuf, native UTF-16 методы, исключения и CFile с настоящим файловым backend. Это ещё не полный
-MatrixLib/MatrixGame. Подготовка проверяет SHA256 девяти закреплённых upstream
+методы CBuf, native UTF-16 методы, исключения, CFile, CStorage и BlockPar с настоящим
+файловым backend. Это ещё не полный MatrixLib/MatrixGame. Подготовка проверяет SHA256 пятнадцати закреплённых upstream
 файлов после CRLF→LF и создаёт копии в build directory; upstream не изменяется.
 
 Обе декларации dword используют uint32_t. Исходный нестандартный алгоритм CRC
@@ -48,7 +48,7 @@ Run, rendering, campaign handoff и физические MG gates остаютс
 ## Нативный файловый backend
 
 CFile и оригинальные LoadFromFile/SaveInFile CBuf теперь подключены к stdio и
-существующему bounded PKG reader. Четырнадцать pinned inputs проверяются перед
+существующему bounded PKG reader. Пятнадцать pinned inputs проверяются перед
 подготовкой. Внутренний pimpl не включает Win32/D3D; shareMode на portable backend
 advisory. FileExist сохраняет исходное написание разделителей. Package::OpenUtf8
 нужен для явной Unicode границы; прежний Package::Open не меняет narrow-path режим.
@@ -99,6 +99,34 @@ bash tools/matrixgame_file_arm64.sh --storage \
 ```
 
 Доказательства и оставшиеся границы: reports/matrixgame-native-storage-20261018.md.
-CStorage_blockpar.cpp сохраняет исходные StoreBlockPar/RestoreBlockPar, но пока не
-компилируется: реализация CBlockPar/ParamParser ещё не перенесена. Ни настоящий
+CStorage_blockpar.cpp с исходными StoreBlockPar/RestoreBlockPar теперь компилируется
+вместе с CBlockPar.cpp; подробности следующего этапа ниже. Ни настоящий
 engine Run, ни GPU execution, ни MG0–MG5/возврат в кампанию этим контрактом не доказаны.
+
+
+## BlockPar и конфигурация движка
+
+Оригинальный CBlockPar.cpp подключён с explicit UTF-16LE/UTF-8 boundary и без Win32
+Tracer/DTRACE instrumentation. Грамматика, комментарии, повторы имён, пути, include
+и правила числового разбора сохранены. GetInt/GetDword/GetHexUnsigned используют
+исходные UTF-16 units и 16/32-bit wrap, без signed-overflow UB и зависимости от
+знаковости wchar_t. Проверка всех 65536 units + составных значений совпадает с
+исходным MSVC x86: transcript fbe5b145ba008067.
+
+LoadFromTextFile различает UTF-16 BOM и прежний UTF-8 путь, ограничивает размер
+перед чтением и сохраняет поведение пустых/BOM-only файлов. SaveInTextFile выдаёт
+тот же UTF-16LE/UTF-8, что оригинал. Рекурсивный разбор/Store/Restore ограничен
+128 активными уровнями; Restore проверяет наличие и парность колонок. Это защита
+от stack overflow, а не полная валидация грамматики или глобальный memory budget.
+
+Настоящие CFG/Rus/robots.dat и CFG/Eng/robots.dat восстановлены в деревья da/if.
+Независимый Python traversal исходного STRG и оригинальный x86 parser подтвердили
+все имена, значения, порядок и счётчики на host ASan/UBSan, MSVC x64 и ARM64/QEMU.
+Полный engine CGame::Init/Run на ARM64 и рендер этим не подтверждены.
+
+```sh
+bash tools/matrixgame_file_arm64.sh --blockpar
+bash tools/matrixgame_file_arm64.sh --blockpar --config /path/to/game/CFG/Rus/robots.dat
+```
+
+Подробные digests и незакрытые границы: reports/matrixgame-native-blockpar-20261018.md.
