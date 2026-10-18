@@ -3,6 +3,12 @@
 #include "e2e_stage.hpp"
 #include "e2e5_stage_profiler.hpp"
 #include "e2e_threads.hpp"
+#if defined(E2E5_HOST_SDL_WINDOW)
+#include "e2e3_generation_state.hpp"
+#include "units/GI_MessageLoop.hpp"
+#include <array>
+#include <cstdlib>
+#endif
 
 #include "units/GR_DX.hpp"
 #include "units/GR_GraphBuf.hpp"
@@ -20,6 +26,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <cstdlib>
 #include <limits>
 
 namespace srhd_awa::platform::renderer_platform {
@@ -279,6 +286,38 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   if (!g_initialized) return PresentationFailure("renderer not initialized");
   if (!pixels) return PresentationFailure("pixels missing");
   if (!ValidDimensions(width, height, pitch)) return PresentationFailure("invalid dimensions");
+#if defined(E2E5_HOST_SDL_WINDOW)
+  // Explicit opt-in diagnostic capture, always from the game/UI thread.
+  if (const auto* directory = std::getenv("E2E511_HOST_FRAMES")) {
+    static unsigned frame_counts[256]{};
+    auto screen = static_cast<unsigned>(GlobalsV::CurrentScreenId);
+    if (GI_MessageLoop::MessageLoopStack && pas::list_count(GI_MessageLoop::MessageLoopStack)) {
+      const auto top = pas::list_get(GI_MessageLoop::MessageLoopStack,
+                                    pas::list_count(GI_MessageLoop::MessageLoopStack) - 1);
+      for (unsigned id = 1; id < 42; ++id)
+        if (GlobalsV::RegisteredScreens[id] == top) { screen = id; break; }
+    }
+    const auto frame = ++frame_counts[screen];
+    if (frame == 1 || frame == 60) {
+      char path[1024]{};
+      std::snprintf(path, sizeof(path), "%s/screen-%u-%u.ppm", directory, screen, frame);
+      if (FILE* file = std::fopen(path, "wb")) {
+        std::fprintf(file, "P6\n%d %d\n255\n", width, height);
+        for (int y = 0; y < height; ++y) {
+          const auto* row = reinterpret_cast<const std::uint16_t*>(
+              static_cast<const unsigned char*>(pixels) + y * pitch);
+          for (int x = 0; x < width; ++x) {
+            const unsigned char rgb[]{static_cast<unsigned char>(((row[x] >> 11) & 31) * 255 / 31),
+              static_cast<unsigned char>(((row[x] >> 5) & 63) * 255 / 63),
+              static_cast<unsigned char>((row[x] & 31) * 255 / 31)};
+            std::fwrite(rgb, 1, 3, file);
+          }
+        }
+        std::fclose(file);
+      }
+    }
+  }
+#endif
 #if defined(__SWITCH__) && defined(E2E_DIAGNOSTICS) && !E2E_DIAGNOSTICS
   const auto hash_tick = e2e_clock::Milliseconds();
   if (!g_presentation_count || last_screen != GlobalsV::CurrentScreenId ||
@@ -288,6 +327,34 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   }
 #else
   g_last_presentation_hash = HashRgb565(pixels, pitch, width, height);
+#endif
+#if defined(E2E5_HOST_SDL_WINDOW)
+  static bool intro_captured = false;
+  if (!intro_captured && GlobalsV::CurrentScreenId == 3 &&
+      std::getenv("E2E511_HOST_CAPTURE_INTRO") &&
+      e2e3_generation_state::g_host_continue_ready.load()) {
+    // Capture the actual original UI framebuffer in this isolated host run.
+    // No resource files are altered and no image is included in CI artifacts.
+    if (FILE* output = std::fopen("intro-ready.ppm", "wb")) {
+      std::fprintf(output, "P6\n%d %d\n255\n", width, height);
+      std::array<unsigned char, 16384 * 3> row{};
+      for (int y = 0; y < height; ++y) {
+        auto* source = reinterpret_cast<const std::uint16_t*>(
+            static_cast<const unsigned char*>(pixels) + y * pitch);
+        for (int x = 0; x < width; ++x) {
+          row[x * 3] = ((source[x] >> 11) & 31) * 255 / 31;
+          row[x * 3 + 1] = ((source[x] >> 5) & 63) * 255 / 63;
+          row[x * 3 + 2] = (source[x] & 31) * 255 / 31;
+        }
+        std::fwrite(row.data(), 3, width, output);
+      }
+      const bool ok = !std::ferror(output);
+      std::fclose(output);
+      intro_captured = ok;
+      e2e_stage::Log(ok ? "HOST introduction framebuffer captured intro-ready.ppm" :
+                         "HOST introduction framebuffer capture FAILED");
+    }
+  }
 #endif
   presentation_profile.Measure(40, e2e_clock::Microseconds() - present_start_us);
   g_presentation_diagnostics = {};
@@ -393,13 +460,14 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
     const auto elapsed = static_cast<std::uint32_t>(now - g_rate_start_tick);
     const auto frames = g_presentation_count - g_rate_start_count;
     const auto fps_x100 = frames * UINT64_C(100000) / elapsed;
-    char detail[192]{};
+    char detail[256]{};
     std::snprintf(detail, sizeof(detail),
-                  "presentation rate frames=%llu elapsed_ms=%u fps_x100=%llu present_avg_us=%llu present_max_us=%llu",
+                  "presentation rate frames=%llu elapsed_ms=%u fps_x100=%llu present_avg_us=%llu present_max_us=%llu screen=%d rgb565_hash=%016llx",
                   static_cast<unsigned long long>(frames), elapsed,
                   static_cast<unsigned long long>(fps_x100),
                   static_cast<unsigned long long>(frames ? g_present_us_sum / frames : 0),
-                  static_cast<unsigned long long>(g_present_us_max));
+                  static_cast<unsigned long long>(g_present_us_max), GlobalsV::CurrentScreenId,
+                  static_cast<unsigned long long>(g_last_presentation_hash));
     e2e_stage::Log(detail);
     g_rate_start_tick = now;
     g_rate_start_count = g_presentation_count;

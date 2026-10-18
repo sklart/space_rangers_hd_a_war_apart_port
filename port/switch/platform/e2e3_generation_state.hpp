@@ -14,6 +14,9 @@ namespace srhd_awa::platform::e2e3_generation_state {
 // The original worker and Introduction UI run on different threads. Keep the
 // original 0..8 progress semantics while publishing them without a data race.
 inline std::atomic<std::int32_t> g_stage{0};
+#if defined(E2E5_HOST_SDL_WINDOW)
+inline std::atomic<bool> g_host_continue_ready{false};
+#endif
 inline std::atomic<std::int32_t> g_failure_stage{-1};
 inline std::atomic<std::int64_t> g_stage_start_us{0};
 inline std::atomic<std::int64_t> g_generation_start_us{0};
@@ -39,6 +42,9 @@ inline std::int64_t ClockUs() {
 }
 
 inline void Reset() {
+#if defined(E2E5_HOST_SDL_WINDOW)
+  g_host_continue_ready.store(false);
+#endif
   const auto now = ClockUs();
   g_generation_start_us.store(now, std::memory_order_release);
   g_stage_start_us.store(now, std::memory_order_release);

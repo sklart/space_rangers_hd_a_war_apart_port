@@ -1,4 +1,5 @@
 #include "e2e4_quicksave_transaction.hpp"
+#include "e2e4_save_replace.hpp"
 
 #include <algorithm>
 #include <array>
@@ -553,6 +554,24 @@ bool CanCreateGameTemp(const char16_t* source) {
     const auto path = GamePath(source);
     return path.filename() == "save.tmp" && SafeDirectory(path.parent_path()) &&
            FileKind(path) == Kind::missing;
+}
+
+Result ReplaceGameSavePath(const char16_t* source, const char16_t* target) {
+    const auto temp = GamePath(source);
+    const auto destination = GamePath(target);
+    if (temp.filename() != "save.tmp" || destination.parent_path() != temp.parent_path() ||
+        destination.extension() != ".sav" || destination.filename() == "QuickSave.sav" ||
+        !SafeDirectory(temp.parent_path()) || FileKind(temp) != Kind::regular ||
+        (FileKind(destination) != Kind::missing && FileKind(destination) != Kind::regular))
+        return {false, false, {}, "manual save path or existing target is unsafe"};
+    std::string detail;
+    if (!ValidateSave(temp, detail))
+        return {false, false, {}, "manual save rejected: " + detail};
+    const auto result = e2e4_save_replace::ReplaceWithBackup(temp, destination);
+    if (result != e2e4_save_replace::Status::success)
+        return {false, false, destination.string() + ".bak",
+                std::string("manual save replace failed: ") + e2e4_save_replace::StatusText(result)};
+    return {true, false, {}, "manual save installed; previous generation retained in backup"};
 }
 
 Result RotateGamePaths(const char16_t* source, const char16_t* quick_slot_one,

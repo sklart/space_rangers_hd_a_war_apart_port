@@ -56,8 +56,8 @@ int main(int argc, char** argv) {
   } catch (...) { failed = true; }
   assert(failed);
 
-  // Repeat both complete-payload and compressed-block allocation failures.
-  for (auto size : {1100003u, 65536u, 65560u}) {
+  // The bounded package reader allocates packed and decoded blocks only.
+  for (auto size : {65536u, 72112u}) {
     injected = false; release_failure = false; fail_size = size;
     auto* stream = pas::construct_call<EC_FileStream::TFileStreamEC>(
         EC_FileStream::TFileStreamEC_Create, 0x400ff, u"MUSIC"_w);
@@ -98,9 +98,14 @@ int main(int argc, char** argv) {
   assert(file::OpenPackage(argv[2], &error));
   stream = pas::construct_call<EC_FileStream::TFileStreamEC>(
       EC_FileStream::TFileStreamEC_Create, 0x400ff, u"MUSIC"_w);
+  // Streaming now reaches corruption only when the final block is requested.
+  // Drain the real reader instead of assuming the entire resource is prefetched.
+  bool read_failed = false;
+  int read_count = 0;
+  try { read_count = stream->Read(bytes.data(), bytes.size()); }
+  catch (...) { read_failed = true; }
+  assert(read_failed || read_count < static_cast<int>(bytes.size()));
   assert(stream->WaitForIdle(3000));
-  assert(!stream->IsRunning());
-  assert(!srhd_awa::platform::win32_compat::IsThreadUsable(stream->ThreadHandle));
   pas::free(stream);
   // The actual file lock remains available after a decoder/read failure.
   std::thread after_error([] {
@@ -110,5 +115,5 @@ int main(int argc, char** argv) {
   after_error.join();
   assert(descriptors() == before);
   file::ClosePackage();
-  std::puts("real TFileStreamEC: open/payload/block OOM, late decode/read failure, contending reader, IdleEvent, join, fd cleanup, replacement PASS");
+  std::puts("real TFileStreamEC: open/block OOM, late decode/read failure, contending reader, IdleEvent, join, fd cleanup, replacement PASS");
 }

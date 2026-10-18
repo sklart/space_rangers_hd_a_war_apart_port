@@ -18,13 +18,14 @@ struct RawInput {
   bool dpad_left{}, dpad_right{}, dpad_up{}, dpad_down{};
   bool a{}, b{}, x{}, y{}, plus{};
   bool zl{}, zr{}, minus{};
+  bool l{}, r{};
   bool touch{};
   std::int32_t touch_x{}, touch_y{}; // HID coordinates in the 1280x720 panel.
   std::int32_t right_stick_x{}, right_stick_y{};
 };
 struct Snapshot {
   bool touch_held{}, touch_message{}; // Provenance travels with the queued mouse event.
-  std::uint8_t flight_keys{}; // up/down/left/right/primary/secondary, arcade only
+  std::uint16_t flight_keys{}; // movement/fire, main/secondary weapon cycle, autopilot, arcade only
   std::int32_t x{}, y{};
   std::uint64_t hid_sequence{};
   bool left_down{}, left_up{}, left_held{};

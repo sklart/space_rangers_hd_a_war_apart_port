@@ -19,6 +19,8 @@ jobs:
         run: python3 tools/e2e5_static_audit.py --check --output reports/e2e5/pointer-width-audit.json
       - name: E2E-5 tool regressions
         run: python3 -m unittest discover -s tests -p 'test_e2e5_tools.py' -v
+      - name: Switch artifact safety regression
+        run: python3 -m unittest discover -s tests -p 'test_ci_stage_switch_artifacts.py' -v
       - name: Report unavailable private assets honestly
         run: python3 tools/e2e5_resource_validator.py --output reports/e2e5/resource-validation.json
       - uses: actions/upload-artifact@v4
@@ -136,11 +138,41 @@ jobs:
         run: python3 tools/e2e59_pointer_audit.py --check --output build/e2e59/pointer-width-audit.json
       - name: Compile one combined E2E-4 experiment
         run: python3 tools/e2e_arm64_build.py --experimental-e2e4-combined
+      - name: Preflight experimental Save ON sources and manifest
+        run: python3 tools/e2e_arm64_build.py --experimental-e2e4-combined --enable-experimental-saves --preflight-only
+      - name: Compile experimental Save ON candidate
+        run: python3 tools/e2e_arm64_build.py --experimental-e2e4-combined --enable-experimental-saves
       - name: E2E Win32 Compatibility Surface effective gate
         run: |
           python3 tools/audit_win32_surface.py --effective --build-root port/switch/build/e2e-game --check
           python3 tools/audit_win32_surface.py --effective --build-root port/switch/build/e2e-game-combined-experiment --manifest win32-effective-combined-import-manifest.json --check
+          python3 tools/audit_win32_surface.py --effective --build-root port/switch/build/e2e-game-save-test --manifest win32-effective-save-test-import-manifest.json --check
           python3 tools/generate_win32_portable_cases.py --check
+      - name: Stage exact Save OFF and Save ON pairs
+        run: |
+          set -euo pipefail
+          python3 tools/ci_stage_switch_artifacts.py \
+            --report e2e4-combined-build-report.json \
+            --out build/ci-stage/save-off \
+            --expected-git "$GITHUB_SHA" --save-mode disabled
+          python3 tools/ci_stage_switch_artifacts.py \
+            --report e2e4-save-test-build-report.json \
+            --out build/ci-stage/save-on \
+            --expected-git "$GITHUB_SHA" --save-mode experimental
+      - name: Publish verified Save OFF diagnostic pair
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v4
+        with:
+          name: switch-e2e512-save-off-${{ github.sha }}
+          path: build/ci-stage/save-off/
+          if-no-files-found: error
+      - name: Publish verified Save ON test pair
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v4
+        with:
+          name: switch-e2e512-save-test-v168-${{ github.sha }}
+          path: build/ci-stage/save-on/
+          if-no-files-found: error
       - name: Verify pinned upstream remains clean
         if: always()
         run: test -z "$(git -C upstream/cpp status --short)"
@@ -162,6 +194,14 @@ jobs:
         run: make -C port/switch host-e2e-events-test
       - name: Validate E2E worker threads
         run: make -C port/switch host-e2e-threads-test
+      - name: Validate E2E-5.11 arcade input and weapon groups
+        run: |
+          mkdir -p build/e2e511
+          g++ -std=c++20 -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer \
+            -Iport/switch/platform tests/test_e2e511_arcade_commands.cpp \
+            port/switch/platform/input_platform.cpp \
+            -o build/e2e511/test_arcade_commands
+          build/e2e511/test_arcade_commands
       - name: Validate E2E private heaps
         run: python3 tools/e2e_heap_test.py
       - name: Validate E2E startup calendar

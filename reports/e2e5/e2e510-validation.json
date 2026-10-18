@@ -150,7 +150,14 @@
       "report_sha256": "227bc339593062b86ca74970b5d850dbae6a93e3ca9081b7ae3b9cbbbd599b07"
     }
   },
-  "local_switch_build": "PENDING",
+  "local_switch_build": {
+    "build_git": "0f91c1ab48328f187e10f58682d318b2487176bd",
+    "build_dirty": false,
+    "arm64_link": "PASS",
+    "undefined_symbols": 0,
+    "elf_build_id": "66fe12e24ac4d5aca97d337380a63356eaeca7cf",
+    "nro_sha256": "E5FC738048C4D8798FE536992EA64224BEC14AF5C1C13A8725CC8A6C0C09889A"
+  },
   "ci": "PENDING",
   "new_hardware": "PENDING",
   "static_analysis": {
@@ -166,5 +173,61 @@
     "translation_units": 380,
     "fixed_site_regression_failures": [],
     "new_unclassified_narrowing": 0
+  },
+  "hardware_baseline_timings": {
+    "player-star-calc": {
+      "count": 16,
+      "min_us": 41695,
+      "median_us": 103793.0,
+      "max_us": 214921
+    },
+    "galaxy-calc": {
+      "count": 16,
+      "min_us": 1078188,
+      "median_us": 1158445.0,
+      "max_us": 1273727
+    },
+    "history-serialize": {
+      "count": 13,
+      "min_us": 1851,
+      "median_us": 2255,
+      "max_us": 3125
+    },
+    "end-turn-ui": {
+      "count": 3,
+      "min_us": 1158564,
+      "median_us": 1160461,
+      "max_us": 1172450
+    },
+    "arcade-phase-1": {
+      "count": 432,
+      "weighted_mean_us_approx": 4093,
+      "maximum_us": 40408
+    },
+    "arcade-phase-2": {
+      "count": 433,
+      "weighted_mean_us_approx": 28403,
+      "maximum_us": 73692
+    },
+    "arcade-phase-3": {
+      "count": 439,
+      "weighted_mean_us_approx": 216,
+      "maximum_us": 32987
+    },
+    "arcade-phase-4": {
+      "count": 439,
+      "weighted_mean_us_approx": 14158,
+      "maximum_us": 112119
+    },
+    "arcade-phase-5": {
+      "count": 439,
+      "weighted_mean_us_approx": 1780,
+      "maximum_us": 7668
+    },
+    "arcade-phase-6": {
+      "count": 439,
+      "weighted_mean_us_approx": 272,
+      "maximum_us": 555
+    }
   }
 }

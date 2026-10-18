@@ -269,4 +269,32 @@ int main(int argc, char** argv) {
         assert(Read(transaction.backup_directory / "slot1.interrupted.1") ==
                "partial-restore-write");
     }
+    {
+        const auto dir = root / "manual-save";
+        fs::create_directory(dir);
+        const auto source = dir / "save.tmp";
+        const auto target = dir / "Manual1.sav";
+        const auto temp_name = source.u16string();
+        const auto target_name = target.u16string();
+        Write(target, ValidSave("RSG64", "v168"));
+        const auto previous = Read(target);
+        Write(source, "damaged");
+        assert(!ReplaceGameSavePath(temp_name.c_str(), target_name.c_str()).ok);
+        assert(Read(target) == previous && Read(source) == "damaged");
+        Write(source, ValidSave("RSG64", "v168"));
+        assert(ReplaceGameSavePath(temp_name.c_str(), target_name.c_str()).ok);
+        assert(Read(target) == previous && Read(target.string() + ".bak") == previous);
+        assert(!fs::exists(source));
+        Write(source, ValidSave("RSG64", "v168"));
+        assert(ReplaceGameSavePath(temp_name.c_str(), target_name.c_str()).ok);
+        assert(fs::exists(target.string() + ".bak.1"));
+        std::error_code error;
+        fs::remove(target, error);
+        fs::create_symlink(target.string() + ".bak", target, error);
+        if (!error) {
+            Write(source, ValidSave("RSG64", "v168"));
+            assert(!ReplaceGameSavePath(temp_name.c_str(), target_name.c_str()).ok);
+            assert(fs::exists(source));
+        }
+    }
 }

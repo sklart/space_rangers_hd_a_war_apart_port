@@ -51,8 +51,12 @@ Status ReplaceWithBackup(const std::filesystem::path& source,
     if (!fs::is_regular_file(source, error) || error ||
         fs::file_size(source, error) == 0 || error)
         return Status::missing_or_empty_temp;
+    if (fs::is_symlink(fs::symlink_status(source, error)) || error)
+        return Status::invalid_path;
     const bool old_exists = fs::exists(target, error);
     if (error || (old_exists && !fs::is_regular_file(target, error)) || error)
+        return Status::target_check_failed;
+    if (old_exists && (fs::is_symlink(fs::symlink_status(target, error)) || error))
         return Status::target_check_failed;
     fs::path backup;
     if (old_exists) {
@@ -62,8 +66,13 @@ Status ReplaceWithBackup(const std::filesystem::path& source,
             backup = target;
             backup += slot == 0 ? ".bak" : ".bak." + std::to_string(slot);
             error.clear();
-            if (!fs::exists(backup, error) && !error && source != backup)
+            const auto backup_status = fs::symlink_status(backup, error);
+            if ((error == std::errc::no_such_file_or_directory ||
+                 (!error && backup_status.type() == fs::file_type::not_found)) &&
+                source != backup) {
+                error.clear();
                 break;
+            }
             if (error || slot == 1023) return Status::backup_slot_unavailable;
         }
         if (!rename(target, backup, error) || error)

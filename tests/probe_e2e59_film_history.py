@@ -1,4 +1,4 @@
-"""Link the real effective history and film modules with ASan/UBSan."""
+"""Link real effective history or script modules with ASan/UBSan."""
 import json
 from pathlib import Path
 import shutil
@@ -14,8 +14,14 @@ report = json.loads((build / 'report.json').read_text())
 flags = [f for f in report['compile_flags'] if not f.startswith(('-O', '-g'))]
 flags += ['-O1', '-g', '-fsanitize=address,undefined', '-fno-omit-frame-pointer']
 width_case = '--width' in sys.argv
+ship_case = '--ship-destination' in sys.argv
 oracle = '--oracle' in sys.argv
 replace = {'e2e5_host_game_main'} if width_case else {'aEFilm', 'fFilmFile', 'e2e5_host_game_main'}
+if ship_case:
+    replace = {'aScriptFun','EC_Expression','e2e5_host_game_main'}
+    if width_case or oracle:
+        raise SystemExit('--ship-destination is a separate native runtime scenario')
+    flags += ['-g1'] # Keep sanitizer line tables without huge script-TU variable tracking.
 with tempfile.TemporaryDirectory(prefix='e2e59-history-') as temp:
     staging = Path(temp)
     objects = []
@@ -38,6 +44,9 @@ with tempfile.TemporaryDirectory(prefix='e2e59-history-') as temp:
     lib = build / 'okgf/libokgf.so'
     binary = out / ('native-width' if width_case else 'oracle' if oracle else 'probe')
     source = 'tests/test_e2e59_native_width.cpp' if width_case else 'tests/test_e2e59_film_history.cpp'
+    if ship_case:
+        binary = out / 'ship-destination'
+        source = 'tests/test_e2e5_ship_destination.cpp'
     subprocess.run(['g++', *flags, source, '@' + str(rsp),
                     str(lib), '-Wl,--gc-sections', '-Wl,-rpath,' + str(lib.parent),
                     '-lz', '-lpng', '-ljpeg', '-lvorbisfile', '-lvorbis', '-logg',

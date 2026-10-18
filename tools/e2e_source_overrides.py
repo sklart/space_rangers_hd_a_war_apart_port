@@ -10,12 +10,14 @@ if __package__:
     from .e2e58_file_overrides import apply_file, apply_data
     from .e2e59_overrides import film_history, film_index, star_map, turn_profile
     from .e2e510_overrides import apply as apply_followup
+    from .e2e511_overrides import apply as apply_input_followup
 else:
     from e2e56_cache_overrides import apply as apply_cache_safety
     from e2e56_geometry_overrides import apply as apply_geometry_reuse
     from e2e58_file_overrides import apply_file, apply_data
     from e2e59_overrides import film_history, film_index, star_map, turn_profile
     from e2e510_overrides import apply as apply_followup
+    from e2e511_overrides import apply as apply_input_followup
 
 
 def _replace_exact(text: str, old: str, new: str, count: int, source_name: str) -> str:
@@ -414,11 +416,18 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ('ab_WorldLine.cpp', 'ThreadCalc.cpp', 'aEFilm.cpp', 'aCalc.cpp', 'fPanelMain.cpp', 'fFilmFile.cpp', 'fGov.cpp', 'fStarMap.cpp', 'EC_File.cpp', 'ab_Global.cpp', 'EC_Cache.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ('ab_WorldLine.cpp', 'ThreadCalc.cpp', 'aEFilm.cpp', 'aCalc.cpp', 'fPanelMain.cpp', 'fFilmFile.cpp', 'fGov.cpp', 'fStarMap.cpp', 'EC_File.cpp', 'ab_Global.cpp', 'EC_Cache.cpp', 'EC_CacheBuf.cpp', 'fGalaxy2.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "EC_Cache.cpp":
         text = apply_cache_safety(text)
+    if source.name == "EC_CacheBuf.cpp":
+        text = _replace_exact(text,
+            "        Buffer->AddBytes(SourceBuffer->Data, SourceBuffer->DataSize);",
+            "        Buffer->AddBytes(SourceBuffer->Data, SourceBuffer->DataSize);\n"
+            "        ResidentBytes = Buffer->Capacity;", 1, source.name)
+        text = text.replace("// Ignores LoadOption; ResidentBytes is not updated.",
+                            "// Ignores LoadOption; accounts the owned buffer allocation capacity.", 1)
     if source.name == "ab_Global.cpp":
         text = apply_geometry_reuse(text)
     if source.name == "fLoad.cpp":
@@ -545,6 +554,48 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
                 marker = marker.replace("std::int32_t UserData", "std::intptr_t UserData")
             text = _replace_exact(text, marker, marker +
                 f'\n        srhd_awa::platform::e2e5_stage_profiler::Scope e2e_ab_scope(srhd_awa::platform::e2e5_stage_profiler::detail_window, {stage});', 1, source.name)
+    if source.name == "GI_MessageLoop.cpp":
+        text = '#include "win32_compat_messages.hpp"\n#include "e2e5_failure_diagnostics.hpp"\n#include "e2e3_generation_state.hpp"\n' + text
+        marker = "    void TMessageLoopGI::ProcessWindowMessage(std::uint32_t Message, std::uint32_t WParam, std::int32_t LParam) {"
+        text = _replace_exact(text, marker, marker + '''
+        static std::int32_t input_screen = -1;
+        static unsigned input_moves = 0, input_buttons = 0;
+        static int input_generation = -1;
+        const auto generation = srhd_awa::platform::e2e3_generation_state::Stage();
+        if (input_screen != GlobalsV::CurrentScreenId || input_generation != generation) {
+            input_screen = GlobalsV::CurrentScreenId;
+            input_generation = generation;
+            input_moves = input_buttons = 0;
+        }
+        const bool input_move = Message == MessagesSdk::WM_MOUSEMOVE;
+        const bool input_button = Message == MessagesSdk::WM_LBUTTONDOWN ||
+            Message == MessagesSdk::WM_LBUTTONUP || Message == MessagesSdk::WM_KEYDOWN;
+        const bool trace_input = GlobalsV::CurrentScreenId == 3 &&
+            ((input_move && input_moves++ < 8) || (input_button && input_buttons++ < 32));
+        if (trace_input) {
+            char detail[256]{};
+            std::snprintf(detail, sizeof(detail),
+                "introduction input phase=enter message=%u press_id=%llu touch=%u raw=%d,%d snapshot=%u exit_code=%d root_active=%u cursor_active=%u ignore_warp=%u",
+                Message, static_cast<unsigned long long>(srhd_awa::platform::win32_compat::CurrentPressId()),
+                static_cast<unsigned>(srhd_awa::platform::win32_compat::CurrentMessageIsTouch()),
+                static_cast<std::int16_t>(LParam), static_cast<std::int16_t>(LParam >> 16),
+                static_cast<unsigned>(GlobalsV::MemorySnapshotActive), ExitCode,
+                static_cast<unsigned>(RootUiObject && RootUiObject->Active),
+                static_cast<unsigned>(CursorControl && CursorControl->Active),
+                static_cast<unsigned>(IgnoreWarpMouseMove));
+            srhd_awa::platform::e2e_stage::Log(detail);
+        }
+        pas::ScopeExit input_finished = [&]() noexcept {
+            if (!trace_input) return;
+            char detail[192]{};
+            std::snprintf(detail, sizeof(detail),
+                "introduction input phase=return message=%u press_id=%llu cursor=%d,%d exit_code=%d",
+                Message, static_cast<unsigned long long>(srhd_awa::platform::win32_compat::CurrentPressId()),
+                CursorControl ? CursorControl->LocalPosition.X : -1,
+                CursorControl ? CursorControl->LocalPosition.Y : -1, ExitCode);
+            srhd_awa::platform::e2e5_failure_diagnostics::Write(detail);
+        };
+''', 1, source.name)
     if source.name == "GR_Main.cpp":
         for name in ['AppendLogLineThreadSafe', 'AppendLogTextThreadSafe', 'AppendDebugLogLine']:
             start = text.index(f'    void {name}(const pas::AnsiString& Text) {{')
@@ -680,6 +731,21 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
             ViewportPanel->ClientSize.Y - static_cast<std::int32_t>(next)));''',
             1, source.name)
     if source.name == "EC_FileStream.cpp" and audio_on:
+        text = '#include "e2e3_generation_state.hpp"\n#include <atomic>\n#include <cstdlib>\n#include <new>\n' + text
+        marker = '    void TFileStreamEC_Execute(TFileStreamEC* Self) {'
+        text = _replace_exact(text, marker, marker + '''
+#if defined(E2E5_HOST_SDL_WINDOW)
+        // Fault only the real optional music reader, after generation completes.
+        // This path is absent from the Switch binary and inactive by default.
+        static std::atomic<bool> fault_fired{false};
+        if (std::getenv("E2E511_HOST_MUSIC_OOM") &&
+            srhd_awa::platform::e2e3_generation_state::Stage() == 8 &&
+            pas::view(Self->SourceFile->FileName).starts_with(u"music") &&
+            !fault_fired.exchange(true)) {
+            srhd_awa::platform::e2e_stage::Log("HOST music file worker injected bad_alloc generation_stage=8");
+            throw std::bad_alloc();
+        }
+#endif''', 1, source.name)
         text = _replace_exact(text,
             "        Self->BlockSize = 4096;",
             "        // Music is the only current user of this buffer size. Larger\n"
@@ -1538,10 +1604,11 @@ void CloseVorbisStream(TOggWorker* worker) {
                 raise RuntimeError(f"graph-button {event} diagnostic boundary changed")
             detail = f'''
 #if defined(E2E3_TRACE) && E2E3_TRACE
-        if (pas::view(ControlName) == u"New"sv) {{
+        if (pas::view(ControlName) == u"New"sv || pas::view(ControlName) == u"Ok"sv) {{
             char detail[224]{{}};
             std::snprintf(detail, sizeof(detail),
-                "button=New press_id=%llu event={event} x=%d y=%d hit=%u hovered=%u focused=%u occluded=%u disabled=%u down=%u kind=%u callback=%u",
+                "button=%s press_id=%llu event={event} x=%d y=%d hit=%u hovered=%u focused=%u occluded=%u disabled=%u down=%u kind=%u callback=%u",
+                pas::view(ControlName) == u"New"sv ? "New" : "Ok",
                 static_cast<unsigned long long>(srhd_awa::platform::win32_compat::CurrentPressId()),
                 Point.X, Point.Y, static_cast<unsigned>(HitTest(Point)),
                 static_cast<unsigned>(MessageLoop->HoveredControl == this),
@@ -1614,6 +1681,17 @@ void CloseVorbisStream(TOggWorker* worker) {
         if text.count(directory) != 2:
             raise RuntimeError("original SaveManager directory boundary changed")
         text = text.replace(directory, 'GR_Main::GetGameUserDirectory(), u"save"')
+        unsafe_replace = '''            if (!IsSlotEmpty(SelectedSlot)) {
+                SysUtilsImports::DeleteFile(static_cast<pas::AnsiString>(pas::list_at<TSMSlot>(Slots, SelectedSlot)->FileName));
+                pas::list_at<TSMSlot>(Slots, SelectedSlot)->FileName = pas::WideString();
+            }'''
+        if text.count(unsafe_replace) != 1:
+            raise RuntimeError("manual save early-delete boundary changed")
+        text = text.replace(unsafe_replace, '''            // The writer is asynchronous. Keep the previous slot intact until
+            // a new, validated file has been committed under a unique name.
+            // BuildUniqueSavePath below will choose a fresh suffix if needed.
+            srhd_awa::platform::e2e_stage::LogE2E3(
+                "manual save prior slot retained; writing unique generation");''', 1)
         scan_call = '        ScanSaveFiles();'
         if text.count(scan_call) != 1:
             raise RuntimeError("original SaveManager slot scan boundary changed")
@@ -2186,7 +2264,23 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = text.replace(saved, saved +
             '\n                srhd_awa::platform::e2e_stage::LogE2E3("game_settings action=apply settings=saved");', 1)
         text = '#include "e2e3_generation_state.hpp"\n' + text
+    if source.name == "aGalaxy.cpp":
+        randomize = "        SystemImports::Randomize();"
+        text = _replace_exact(text, randomize, '''#if defined(E2E5_HOST_SDL_WINDOW)
+        if (!srhd_awa::platform::e2e_generation_probe_host::SetSystemInput()) {
+            SystemImports::Randomize();
+        }
+#else
+        SystemImports::Randomize();
+#endif''', 1, source.name)
+        text = '#include "e2e_generation_probe_host.hpp"\n' + text
     if source.name == "fGameSettings.cpp":
+        seed_end = "            GR_Main::NewGameSeedText = pas::WideString();"
+        text = _replace_exact(text, seed_end, seed_end + '''
+#if defined(E2E5_HOST_SDL_WINDOW)
+            srhd_awa::platform::e2e_generation_probe_host::SetGalaxyInput(aGalaxy::Galaxy);
+#endif''', 1, source.name)
+        text = '#include "e2e_generation_probe_host.hpp"\n' + text
         stage_pattern = r"fIntroduction::NewGameGenerationStage = ([0-8]);"
         stages = re.findall(stage_pattern, text)
         if stages != ["0", "1", "2", "3", "4", "5", "6", "8"]:
@@ -2230,7 +2324,10 @@ void CloseVorbisStream(TOggWorker* worker) {
             Stage = 17;
             srhd_awa::platform::e2e_stage::Log("generation warmup initial-galaxy-turn begin");
             aCalc::CalculateGalaxyTurnAndWait();
-            srhd_awa::platform::e2e_stage::Log("generation warmup initial-galaxy-turn done");''', 1)
+            srhd_awa::platform::e2e_stage::Log("generation warmup initial-galaxy-turn done");
+#if defined(E2E5_HOST_SDL_WINDOW)
+            srhd_awa::platform::e2e_generation_probe_host::Checkpoint(aGalaxy::Galaxy, 0);
+#endif''', 1)
         text = text.replace(warmup_loop, '''            std::uint64_t e2e_player_turn_us = 0;
             std::uint64_t e2e_galaxy_turn_us = 0;
             for (I = 1; I <= aGalaxyStruct::GalaxyWarmupTurns; ++I) {
@@ -2254,6 +2351,9 @@ void CloseVorbisStream(TOggWorker* worker) {
                 if (GR_Main::ExitScreenLoop) {
                     return;
                 }
+#if defined(E2E5_HOST_SDL_WINDOW)
+                srhd_awa::platform::e2e_generation_probe_host::Checkpoint(aGalaxy::Galaxy, I);
+#endif
                 if (I == 1 || I % 25 == 0) {
                     char detail[96]{};
                     std::snprintf(detail, sizeof(detail), "generation warmup turn=%d/%d done",
@@ -2271,6 +2371,11 @@ void CloseVorbisStream(TOggWorker* worker) {
                 }
             }
             Stage = 18;''', 1)
+        final_stage = "            srhd_awa::platform::e2e3_generation_state::SetStage(8);"
+        text = _replace_exact(text, final_stage, final_stage + '''
+#if defined(E2E5_HOST_SDL_WINDOW)
+            srhd_awa::platform::e2e_generation_probe_host::Final(aGalaxy::Galaxy);
+#endif''', 1, source.name)
         text = '#include "e2e_stage.hpp"\n#include <chrono>\n#include <cstdio>\n#include <cstdint>\n#include "e2e3_generation_state.hpp"\n' + text
     if source.name == "fIntroduction.cpp":
         text = '#include "units/MMSystem.hpp"\n' + text
@@ -2311,7 +2416,60 @@ void CloseVorbisStream(TOggWorker* worker) {
         if text.count(ready) != 1:
             raise RuntimeError("Introduction continue-ready boundary changed")
         text = text.replace(ready, ready +
-            '\n                srhd_awa::platform::e2e_stage::LogE2E3("introduction status=continue-enabled");', 1)
+            '''
+#if defined(E2E5_HOST_SDL_WINDOW)
+                srhd_awa::platform::e2e3_generation_state::g_host_continue_ready.store(true);
+                if (std::getenv("E2E511_HOST_MUSIC_OOM")) {
+                    srhd_awa::platform::e2e_stage::Log("HOST post-generation optional music request");
+                    GR_Main::MusicManager->PlayFile(u"music/logo.dat"_w);
+                }
+#endif
+                char detail[240]{};
+                std::snprintf(detail, sizeof(detail),
+                    "introduction status=continue-enabled left=%d top=%d right=%d bottom=%d active=%u disabled=%u hit_kind=%u generation_stage=%d worker_running=%u",
+                    Ok->HitTestBounds.Left, Ok->HitTestBounds.Top,
+                    Ok->HitTestBounds.Right, Ok->HitTestBounds.Bottom,
+                    static_cast<unsigned>(Ok->Active), static_cast<unsigned>(Ok->Disabled),
+                    static_cast<unsigned>(Ok->HitKind),
+                    srhd_awa::platform::e2e3_generation_state::Stage(),
+                    static_cast<unsigned>(Globals::NewGameGenerationThread && Globals::NewGameGenerationThread->IsRunning()));
+                srhd_awa::platform::e2e_stage::LogE2E3(detail);''', 1)
+        worker_release = "                pas::free(Globals::NewGameGenerationThread);"
+        text = _replace_exact(text, worker_release,
+            '                srhd_awa::platform::e2e_stage::LogE2E3("introduction worker_release=begin post_generation_pending=1");\n' +
+            worker_release +
+            '\n                srhd_awa::platform::e2e_stage::LogE2E3("introduction worker_release=end");',
+            1, source.name)
+        blink_schedule = "            ContinueBlinkTimer = ScheduleCallbackTimer(200, 200, pas::bind_method<&TfIntroduction::BlinkContinueButton>(this), 0);"
+        text = _replace_exact(text, blink_schedule, blink_schedule +
+            '\n            srhd_awa::platform::e2e_stage::LogE2E3("introduction post_generation_pending=0 ready=1");',
+            1, source.name)
+        blink = "    void TfIntroduction::BlinkContinueButton(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {"
+        if script_width:
+            blink = blink.replace("std::int32_t UserData", "std::intptr_t UserData")
+        text = _replace_exact(text, blink, blink + '''
+        static std::uint32_t last_snapshot = 0;
+        const auto tick = MMSystem::timeGetTime();
+        if (!last_snapshot || static_cast<std::uint32_t>(tick - last_snapshot) >= 5000u) {
+            last_snapshot = tick;
+            const auto* ok = pas::checked_cast<GI_GraphButton::TGraphButtonGI*>(GetByName(u"Ok"sv));
+            char detail[320]{};
+            std::snprintf(detail, sizeof(detail),
+                "introduction ui_snapshot stage=%d worker_present=%u memory_snapshot=%u exit_code=%d root_active=%u cursor_active=%u cursor=%d,%d ok_active=%u ok_disabled=%u presentations=%llu rgb565_hash=%016llx",
+                srhd_awa::platform::e2e3_generation_state::Stage(),
+                static_cast<unsigned>(Globals::NewGameGenerationThread != nullptr),
+                static_cast<unsigned>(GlobalsV::MemorySnapshotActive), ExitCode,
+                static_cast<unsigned>(RootUiObject && RootUiObject->Active),
+                static_cast<unsigned>(CursorControl && CursorControl->Active),
+                CursorControl ? CursorControl->LocalPosition.X : -1,
+                CursorControl ? CursorControl->LocalPosition.Y : -1,
+                static_cast<unsigned>(ok->Active), static_cast<unsigned>(ok->Disabled),
+                static_cast<unsigned long long>(srhd_awa::platform::renderer_platform::PresentationCount()),
+                static_cast<unsigned long long>(srhd_awa::platform::renderer_platform::LastPresentationHash()));
+            srhd_awa::platform::e2e_stage::LogE2E3(detail);
+        }
+''', 1, source.name)
+        text = '#include "renderer_platform.hpp"\n' + text
         open_method = "    void TfIntroduction::OnOpen() {"
         continue_request = "        RequestClose(1);"
         if text.count(open_method) != 1:
@@ -2321,6 +2479,10 @@ void CloseVorbisStream(TOggWorker* worker) {
         continue_start = text.index("    void TfIntroduction::ContinueClicked(")
         continue_end = text.index("    void TfIntroduction::MainPanelKeyDown(", continue_start)
         continuation = text[continue_start:continue_end]
+        continuation = continuation.replace(
+            '        GR_DX::ReleaseAllTextureSurfaces();',
+            '        srhd_awa::platform::e2e_stage::LogE2E3("introduction continue_callback_invoked=1");\n'
+            '        GR_DX::ReleaseAllTextureSurfaces();', 1)
         if continuation.count(continue_request) != 1:
             raise RuntimeError("Introduction continue boundary changed")
         continuation = continuation.replace(continue_request,
@@ -2436,6 +2598,13 @@ void CloseVorbisStream(TOggWorker* worker) {
         GR_Main::AppendLogLineThreadSafe("E2E5 disk save refused pending save/load validation"_a);
         return false;
 #endif''', 1)
+        text = text.replace(save_entry, save_entry + '''
+#if defined(E2E5_HOST_SDL_WINDOW)
+        if (std::getenv("E2E512_HOST_DISABLE_DISK_SAVE")) {
+            GR_Main::AppendLogLineThreadSafe("E2E5 host disk save refused by explicit test mode"_a);
+            return false;
+        }
+#endif''', 1)
         replacements = {
             "std::uint32_t MemorySnapshotGalaxyToken{};":
                 "std::uint32_t MemorySnapshotGalaxyToken{};\n"
@@ -2476,19 +2645,11 @@ void CloseVorbisStream(TOggWorker* worker) {
         if saver.count(temp_delete) != 1:
             raise RuntimeError("quicksave temporary-file boundary changed")
         saver = saver.replace(temp_delete, '''#if defined(E2E4_QUICKSAVE_EXPERIMENT)
-            if (Self->FileName == QuickName) {
-                if (!srhd_awa::platform::e2e4_quicksave::CanCreateGameTemp(TempName.pchar())) {
-                    pas::raise(pas::make_exception<pas::Abort>("E2E4 quicksave: save.tmp exists or path is unsafe"_a));
-                }
-            } else {
+            if (!srhd_awa::platform::e2e4_quicksave::CanCreateGameTemp(TempName.pchar())) {
+                pas::raise(pas::make_exception<pas::Abort>("E2E4 save: occupied temp or unsafe directory"_a));
+            }
 #else
-            if (Self->FileName == QuickName) {
-                pas::raise(pas::make_exception<pas::Abort>("E2E4 quicksave disabled in standard Switch build"_a));
-            }
-#endif
 ''' + temp_delete + '''
-#if defined(E2E4_QUICKSAVE_EXPERIMENT)
-            }
 #endif''', 1)
         rotate_begin = saver.index("            SourceName = TempName;")
         rotate_end = saver.index("        } catch (...) {", rotate_begin)
@@ -2503,18 +2664,24 @@ void CloseVorbisStream(TOggWorker* worker) {
                 if (!transaction.ok) {
                     pas::raise(pas::make_exception<pas::Abort>("E2E4 quicksave rotation failed; inspect retained backup directory"_a));
                 }
-                e2e_quicksave_committed = true;
+                e2e_save_committed = true;
             } else {
-#endif
-''' + original_rotation + '''#if defined(E2E4_QUICKSAVE_EXPERIMENT)
+                const auto replacement = srhd_awa::platform::e2e4_quicksave::ReplaceGameSavePath(
+                    TempName.pchar(), Self->FileName.pchar());
+                const auto replacement_log = std::string("E2E4 manual save: ") + replacement.detail;
+                GR_Main::AppendLogLineThreadSafe(pas::AnsiString(replacement_log.c_str()));
+                if (!replacement.ok)
+                    pas::raise(pas::make_exception<pas::Abort>("E2E4 manual save failed; inspect retained temp and backup"_a));
+                e2e_save_committed = true;
             }
-#endif
+#else
+''' + original_rotation + '''#endif
 ''' + saver[rotate_end:]
         marker = "        EC_File::TFileEC* F = nullptr;"
         if saver.count(marker) != 1:
-            raise RuntimeError("quicksave worker state boundary changed")
+            raise RuntimeError("save worker state boundary changed")
         saver = saver.replace(marker, '''#if defined(E2E4_QUICKSAVE_EXPERIMENT)
-        bool e2e_quicksave_committed = false;
+        bool e2e_save_committed = false;
 #endif
 ''' + marker, 1)
         cleanup = '''        if (SysUtilsImports::FileExists(static_cast<pas::AnsiString>(TempName))) {
@@ -2523,16 +2690,16 @@ void CloseVorbisStream(TOggWorker* worker) {
         if saver.count(cleanup) != 1:
             raise RuntimeError("quicksave post-failure temp cleanup boundary changed")
         saver = saver.replace(cleanup, '''#if defined(E2E4_QUICKSAVE_EXPERIMENT)
-        if (Self->FileName != QuickName || e2e_quicksave_committed) {
-#else
-        if (Self->FileName != QuickName) {
-#endif
+        if (e2e_save_committed) {
 ''' + cleanup + '''
-        }''', 1)
+        }
+#else
+''' + cleanup + '''
+#endif''', 1)
         text = text[:saver_start] + saver + text[saver_end:]
-        text = '#include "e2e4_quicksave_transaction.hpp"\n' + text
+        text = '#include <cstdlib>\n#include "e2e4_quicksave_transaction.hpp"\n' + text
     if source.name == "GR_Main.cpp":
-        text = '#include "e2e5_cfg_bootstrap.hpp"\n' + text
+        text = '#include "e2e5_cfg_bootstrap.hpp"\n#include "e2e3_generation_state.hpp"\n' + text
         finalize_buffers = "        GR_Main::FreeScreenRenderBuffers();\n        WideCaseTable = nullptr;"
         if text.count(finalize_buffers) != 1:
             raise RuntimeError("portable renderer restart cleanup boundary changed")
@@ -2548,6 +2715,14 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = text.replace(callback_gate, '''                    const bool e2e_callback_active = Forms::Application->GetActive();
                     static std::uint32_t e2e_move_dispatch_logs = 0;
                     static std::uint32_t e2e_button_dispatch_logs = 0;
+                    static std::int32_t e2e_dispatch_screen = -1;
+                    static int e2e_dispatch_generation = -1;
+                    const auto e2e_generation = srhd_awa::platform::e2e3_generation_state::Stage();
+                    if (e2e_dispatch_screen != GlobalsV::CurrentScreenId || e2e_dispatch_generation != e2e_generation) {
+                        e2e_dispatch_screen = GlobalsV::CurrentScreenId;
+                        e2e_dispatch_generation = e2e_generation;
+                        e2e_move_dispatch_logs = e2e_button_dispatch_logs = 0;
+                    }
                     const bool e2e_is_move = Msg.message == MessagesSdk::WM_MOUSEMOVE;
                     const bool e2e_is_button =
                         Msg.message == MessagesSdk::WM_LBUTTONDOWN ||
@@ -2894,6 +3069,7 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = turn_profile(source.name, text)
     if script_width:
         text = apply_followup(source.name, text)
+        text = apply_input_followup(source.name, text)
     destination.parent.mkdir(parents=True, exist_ok=True)
     if not destination.exists() or destination.read_text(encoding="utf-8") != text:
         destination.write_text(text, encoding="utf-8")

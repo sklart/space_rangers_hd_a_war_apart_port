@@ -141,6 +141,7 @@ def source_map() -> tuple[list[tuple[Path, Path]], dict[str, str]]:
     cache_path = BUILD / "effective-source-cache.json"
     generators = (ROOT / "tools/e2e_source_overrides.py",
                   ROOT / "tools/e2e510_overrides.py",
+                  ROOT / "tools/e2e511_overrides.py",
                   ROOT / "tools/e2e58_file_overrides.py",
                   ROOT / "tools/e2e59_overrides.py",
                   ROOT / "tools/e2e56_cache_overrides.py",
@@ -322,6 +323,7 @@ def main() -> int:
     report = {
         "schema": 1, "level": "COMPLETE EFFECTIVE ORIGINAL-GAME HOST LINK",
         "profile": args.profile, "compile_flags": flags,
+        "save_mode": "experimental", "save_format": "RSG64/v168",
         "okgf_build_type": "Release" if args.profile == "optimized" else "Debug",
         "okgf_library_sha256": hashlib.sha256(library.read_bytes()).hexdigest(),
         "git_head": build_git, "git_dirty": dirty,

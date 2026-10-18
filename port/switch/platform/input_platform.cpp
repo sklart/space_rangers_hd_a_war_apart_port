@@ -18,7 +18,7 @@ std::atomic<std::uint64_t> flight_stick{};
 bool Suppressed(const RawInput& raw) {
   if (!suppress_applet_input.load()) return false;
   if (!raw.touch && !raw.a && !raw.b && !raw.x && !raw.y && !raw.plus &&
-      !raw.zl && !raw.zr && !raw.minus && !raw.dpad_left && !raw.dpad_right &&
+      !raw.zl && !raw.zr && !raw.minus && !raw.l && !raw.r && !raw.dpad_left && !raw.dpad_right &&
       !raw.dpad_up && !raw.dpad_down)
     suppress_applet_input.store(false);
   return true; // Discard the release sample and old applet history as well.
@@ -57,11 +57,11 @@ RawInput FromButtons(std::uint64_t held, HidAnalogStickState stick, HidAnalogSti
   raw.x = (held & HidNpadButton_X) != 0;
   raw.y = (held & HidNpadButton_Y) != 0;
   raw.plus = (held & HidNpadButton_Plus) != 0;
-#if defined(E2E4_QUICKSAVE_EXPERIMENT) && E2E4_QUICKSAVE_EXPERIMENT
   raw.zl = (held & HidNpadButton_ZL) != 0;
   raw.zr = (held & HidNpadButton_ZR) != 0;
   raw.minus = (held & HidNpadButton_Minus) != 0;
-#endif
+  raw.l = (held & HidNpadButton_L) != 0;
+  raw.r = (held & HidNpadButton_R) != 0;
   return raw;
 }
 
@@ -126,7 +126,7 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
   state->last_update_us = now_us;
   state->time_initialized = true;
   const auto& config = state->config;
-  std::uint8_t flight = 0;
+  std::uint16_t flight = 0;
   if (arcade_controls.load()) {
     const auto sx = std::clamp(raw.stick_x, -32767, 32767);
     const auto sy = std::clamp(raw.stick_y, -32767, 32767);
@@ -138,7 +138,8 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
     raw.stick_x = raw.right_stick_x;
     raw.stick_y = raw.right_stick_y;
     flight = raw.dpad_up | (raw.dpad_down << 1) | (raw.dpad_left << 2) |
-        (raw.dpad_right << 3) | (raw.zr << 4) | (raw.zl << 5);
+        (raw.dpad_right << 3) | (raw.zr << 4) | (raw.zl << 5) |
+        (raw.l << 6) | (raw.r << 7) | (raw.minus << 8);
     if (raw.zl && raw.zr && raw.minus) flight &= 15; // Preserve quicksave chord.
     raw.dpad_left = raw.dpad_right = raw.dpad_up = raw.dpad_down = false;
   }

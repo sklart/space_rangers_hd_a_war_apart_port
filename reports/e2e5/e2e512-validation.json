@@ -1,0 +1,100 @@
+{
+  "schema": 1,
+  "date_local": "2026-10-19",
+  "head": "0f91c1ab48328f187e10f58682d318b2487176bd",
+  "origin_master": "0f91c1ab48328f187e10f58682d318b2487176bd",
+  "working_tree_dirty": true,
+  "host": {
+    "status": "PARTIAL",
+    "save_mode": "experimental",
+    "save_format": "RSG64/v168",
+    "binary_sha256": "f88049c363d0f188d18cd144f3cbfe9c28dff8ad6695843f2f8abbeb83b16ec1",
+    "quicksave_roundtrip": {
+      "status": "PASS",
+      "save_file_sha256": "f8ef409240c2a99f8cbbde0c6d9445379053b42b165ab7158968ec7dcd505be4",
+      "save_file_size": 763437,
+      "matched_fields": ["turn", "money", "player_ship_id", "star_id", "planet_id", "script_count"],
+      "post_load_next_turn": 302,
+      "evidence": "build/e2e512-evidence/roundtrip-final.json"
+    },
+    "galaxy_preview": {
+      "status": "HOST IMAGE DECODED; SWITCH VISUAL PENDING",
+      "dimensions": [300, 225],
+      "bytes": 51514,
+      "sha256": "0178bf0a7206a0efa8d07443e3e057cdf16dba7db6e961d17673044ef02ada74",
+      "unique_sampled_colors": 228,
+      "evidence": ["build/e2e512-evidence/preview-final-current.json", "build/e2e512-evidence/galaxy-preview.png"]
+    },
+    "flight_menu_save_on": "PASS ONE ROUTE",
+    "flight_menu_save_off": "PASS ONE ROUTE; HOST RUNTIME GATE",
+    "quicksave_disabled": "F5 REFUSED; NO FILE; NO CRASH OR TIMEOUT",
+    "manual_ui_slot": "OPEN",
+    "corrupt_typed_reference": {
+      "status": "LOAD_REJECTED",
+      "fixture_sha256": "c78afd74d7f10b92e8a1ee99f31f2a8c40f3576adae44fd337068e23c996dfa6",
+      "crashed": false,
+      "loaded_state_count": 0,
+      "evidence": "build/e2e512-evidence/typed-fault-current-load.json"
+    }
+  },
+  "arm64": {
+    "combined_save_off": {
+      "status": "BUILD PASS; DIRTY; HARDWARE PENDING",
+      "save_mode": "disabled",
+      "build_id": "472d0323fafa713b62b34f1c730ef184883c09ac",
+      "nro_sha256": "AC553965235DDDBA15013C666C88E770269221C6B63BEF61D89D26CDFE19741A",
+      "elf_sha256": "49D490DA43E131A96CD9D79EC39625C8EF76D01C4A29AC1CD183AEEFAEAD4A69",
+      "report": "e2e4-combined-build-report.json"
+    },
+    "combined_save_on": {
+      "status": "BUILD PASS; DIRTY; HARDWARE PENDING",
+      "save_mode": "experimental",
+      "save_format": "RSG64/v168",
+      "hardware_save_writes": true,
+      "build_id": "ce2efe47392678c15cfd2975fd837cd7534b9aba",
+      "nro_sha256": "234408004977169A2A277F2390FDD9AD5B00C6C526D70D63729D83BE1885BFAA",
+      "elf_sha256": "8A6D26B0F666D7185108685D2D0F2117508236EF066DC516BC181327D4C44373",
+      "report": "e2e4-save-test-build-report.json"
+    },
+    "evidence": ["build/e2e512-evidence/arm64-save-off-final.log", "build/e2e512-evidence/arm64-save-on-final.log"]
+  },
+  "ci": {
+    "status": "WORKFLOW CONFIGURED; RUN PENDING",
+    "reason": null,
+    "run_url": null,
+    "downloadable_artifact_url": null
+  },
+  "switch": {
+    "status": "HARDWARE PENDING",
+    "nro_sha256": null,
+    "elf_sha256": null,
+    "fps_p50_p95_p99": null,
+    "save_roundtrip": "PENDING"
+  },
+  "requirements": {
+    "R-01": "HOST PREFLIGHT PASS; CI PENDING",
+    "R-02": "PARTIAL",
+    "R-03": "HOST PARTIAL; SWITCH PENDING",
+    "R-04": "OPEN",
+    "R-05": "HOST PARTIAL; SWITCH PENDING",
+    "R-06": "HOST PASS ONE ROUTE; SWITCH PENDING",
+    "R-07": "HOST PARTIAL; SWITCH PENDING",
+    "R-08": "HOST PARTIAL",
+    "R-09": "PARTIAL",
+    "R-10": "PARTIAL",
+    "R-11": "OPEN",
+    "R-12": "OPEN",
+    "R-13": "PARTIAL",
+    "R-14": "OPEN",
+    "R-15": "OPEN",
+    "R-16": "LOCAL STAGING TEST PASS; CI RUN PENDING",
+    "R-17": "HARDWARE PENDING"
+  },
+  "historical_baseline": {
+    "build": "0c90081",
+    "galaxy_calc_median_us": 758660,
+    "sample_count": 17,
+    "evidence": "build/e2e512-evidence/hardware-summary.json"
+  },
+  "matrixgame": "OPEN; pinned source present, no complete playable planet battle"
+}

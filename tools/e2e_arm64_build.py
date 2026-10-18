@@ -162,15 +162,21 @@ def build_okgf(fast_rescale: bool = False, profile: str = "release") -> tuple[Pa
         stamp.write_text(expected, encoding="utf-8")
     # Recheck archive freshness on every build so a changed disposable source
     # override cannot silently reuse an earlier OKGF library.
-    # MSYS CMake 4.4 writes Windows drive paths as make targets in this
-    # generated dependency cache. The next incremental make cannot parse it.
-    # Source dependencies remain in build.make; regenerate just these
-    # disposable compiler-dependency fragments as empty makefiles.
-    if os.name == "nt":
+    # Native GCC emits drive paths in .d files; MSYS CMake treats them as
+    # relative paths and writes invalid make rules containing an unescaped ':'.
+    # Normalize the original depfiles and regenerate the derived cache, keeping
+    # header dependency tracking intact on incremental builds.
+    if MSYS or os.name == "nt":
+        for depfile in build.rglob("*.obj.d"):
+            original = depfile.read_text(encoding="utf-8")
+            normalized = re.sub(r"(?<!\S)([A-Za-z]):/",
+                                lambda m: "/" + m[1].lower() + "/", original)
+            if normalized != original:
+                depfile.write_text(normalized, encoding="utf-8")
         for generated_make in build.glob("**/CMakeFiles/*.dir/build.make"):
             (generated_make.parent / "compiler_depend.make").write_text(
-                "# MSYS CMake Windows-path dependency cache removed.\n",
-                encoding="utf-8")
+                "# Regenerate from normalized GCC depfiles.\n", encoding="utf-8")
+            (generated_make.parent / "compiler_depend.internal").unlink(missing_ok=True)
     code, output = run(["cmake", "--build", cmake_path(build), "--parallel", "2"])
     if code:
         raise RuntimeError("OKGF ARM64 build failed: " + output)
@@ -194,12 +200,21 @@ def main() -> int:
                           help="build isolated E2E-4 SDL2 game-audio experiment")
     variants.add_argument("--experimental-e2e4-combined", action="store_true",
                           help="build one isolated quicksave, Audio ON, and script-width experiment")
+    parser.add_argument("--enable-experimental-saves", action="store_true",
+                        help="explicit combined save-test profile (RSG64/v168; hardware pending)")
     parser.add_argument("--preflight-only", action="store_true",
                         help="generate effective sources and check manifests before compilation")
+    parser.add_argument("--link-only", action="store_true",
+                        help="compile, link and audit ELF without packaging a runnable NRO")
     args = parser.parse_args()
+    if args.enable_experimental_saves and not args.experimental_e2e4_combined:
+        parser.error("--enable-experimental-saves requires --experimental-e2e4-combined")
     if args.experimental_e2e4_combined:
         BUILD = SWITCH / "build/e2e-game-combined-experiment"
         REPORT = ROOT / "e2e4-combined-build-report.json"
+        if args.enable_experimental_saves:
+            BUILD = SWITCH / "build/e2e-game-save-test"
+            REPORT = ROOT / "e2e4-save-test-build-report.json"
     elif args.experimental_quicksave:
         BUILD = SWITCH / "build/e2e-game-quicksave-experiment"
         REPORT = ROOT / "e2e4-quicksave-build-report.json"
@@ -222,6 +237,10 @@ def main() -> int:
         "experimental_audio_on": args.experimental_audio_on,
         "experimental_script_width": script_width_enabled,
         "experimental_e2e4_combined": args.experimental_e2e4_combined,
+        "save_mode": "experimental" if args.enable_experimental_saves else
+                     "disabled" if args.experimental_e2e4_combined else "legacy",
+        "save_format": "RSG64/v168" if script_width_enabled else "RSG/v167",
+        "hardware_save_gate": "HARDWARE PENDING",
         "upstream_pin": "57fa689c630193a66fdea6ca4c79a188814991cd",
         "upstream_source_files_total": len(sources),
         "compiled": 0,
@@ -272,7 +291,7 @@ def main() -> int:
     build_id = build_git[:7] + ("-dirty" if dirty_sources else "")
     report["source_overrides"] = sorted([*FUNCTIONS, "Rangers.cpp", "Globals.cpp",
                                           "GI_MessageLoop.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp",
-                                          "aSaveLoad.cpp", "aScript.cpp", "fAbout.cpp", "EC_Buf.cpp", "EC_Mem.cpp", "EC_File.cpp", "ab_WorldLine.cpp", "fIntroduction.cpp", "program.cpp"])
+                                          "aSaveLoad.cpp", "aScript.cpp", "fAbout.cpp", "EC_Buf.cpp", "EC_CacheBuf.cpp", "EC_Mem.cpp", "EC_File.cpp", "ab_WorldLine.cpp", "fIntroduction.cpp", "program.cpp"])
     if args.experimental_audio_on:
         report["source_overrides"] = sorted(set(report["source_overrides"]) |
                                             set(AUDIO_ON_FUNCTIONS))
@@ -327,7 +346,9 @@ def main() -> int:
         report["first_failure"] = {"phase": "Win32 source inventory", "exact_error": output}
         save(report)
         return 1
-    manifest_path = ROOT / ("win32-effective-combined-import-manifest.json"
+    manifest_path = ROOT / ("win32-effective-save-test-import-manifest.json"
+                            if args.enable_experimental_saves else
+                            "win32-effective-combined-import-manifest.json"
                             if args.experimental_e2e4_combined
                             else "win32-effective-import-manifest.json")
     if not manifest_path.is_file():
@@ -425,7 +446,7 @@ def main() -> int:
     flags += ["-DE2E3_TRACE=" + str(int(args.e2e3_trace))]
     if args.experimental_quicksave:
         flags += ["-DE2E4_QUICKSAVE_EXPERIMENT=1"]
-    if args.experimental_e2e4_combined:
+    if args.experimental_e2e4_combined and not args.enable_experimental_saves:
         flags += ["-DE2E5_DISABLE_DISK_SAVE=1"]
     if args.experimental_audio_on:
         flags += ["-DE2E4_AUDIO_ON=1"]
@@ -453,6 +474,40 @@ def main() -> int:
     rendered_flags = json.dumps(fingerprints, sort_keys=True, indent=2) + "\n"
     if not flags_stamp.exists() or flags_stamp.read_text(encoding="utf-8") != rendered_flags:
         flags_stamp.write_text(rendered_flags, encoding="utf-8")
+    report["hardware_save_writes"] = "-DE2E5_DISABLE_DISK_SAVE=1" not in flags
+    def package_version(name):
+        # devkitPro distributes component versions through its package database;
+        # installations normally have no libnx/VERSION or devkitA64/VERSION.
+        pacman = shutil.which("dkp-pacman") or shutil.which("pacman")
+        if not pacman and os.name == "nt":
+            candidate = DEVKITPRO / "msys2/usr/bin/pacman.exe"
+            if candidate.is_file():
+                pacman = str(candidate)
+        if pacman:
+            version_code, version = run([pacman, "-Q", name])
+            if not version_code:
+                return version.strip()
+        return "UNKNOWN"
+    report["toolchain"] = {
+        "compiler": compiler_version.splitlines()[0],
+        "devkitA64": package_version("devkitA64"),
+        "libnx": package_version("libnx"),
+        "flags": [flag for flag in flags if not flag.startswith("-I")],
+    }
+    report["pinned_submodules"] = {}
+    for name in ("cpp", "okgf", "matrixgame"):
+        code, revision = run([git, "-C", str(ROOT / "upstream" / name), "rev-parse", "HEAD"])
+        if code or len(revision) != 40:
+            report["first_failure"] = {"phase": "submodule provenance", "exact_error": name}
+            save(report)
+            return 1
+        pin_code, pin = run([git, "rev-parse", "HEAD:upstream/" + name])
+        status_code, state = run([git, "-C", str(ROOT / "upstream" / name), "status", "--porcelain"])
+        if pin_code or status_code or revision != pin or state:
+            report["first_failure"] = {"phase": "submodule provenance", "exact_error": "dirty or unpinned " + name}
+            save(report)
+            return 1
+        report["pinned_submodules"][name] = revision
     report["game_compile_optimization"] = ("-O2 -fno-strict-aliasing" if args.profile == "release" else "-O0")
     report["compile_fingerprint_sha256"] = hashlib.sha256(rendered_flags.encode()).hexdigest().upper()
     objects: list[Path] = []
@@ -511,7 +566,8 @@ def main() -> int:
     report["portable_implementations_used"].append("okgf_no_tls")
     report["okgf_configuration"] = json.loads(
         (okgf_library.parent / "e2e-configuration.json").read_text(encoding="utf-8"))
-    artifact_stem = ("SpaceRangersHDAWarApartE2E4Combined" if args.experimental_e2e4_combined
+    artifact_stem = ("SpaceRangersHDAWarApart-save-test-v168" if args.enable_experimental_saves
+                     else "SpaceRangersHDAWarApartE2E4Combined" if args.experimental_e2e4_combined
                      else "SpaceRangersHDAWarApartE2EAudioON" if args.experimental_audio_on
                      else "SpaceRangersHDAWarApartE2E")
     elf = BUILD / f"{artifact_stem}.elf"
@@ -581,12 +637,21 @@ def main() -> int:
             save(report)
             print(f"E2E {gate} gate: {gate_output}", file=sys.stderr)
             return 1
+    if args.link_only:
+        report["packaging"] = "SKIPPED (--link-only)"
+        report["linked_elf"] = {"path": elf.relative_to(ROOT).as_posix(),
+                                "bytes": elf.stat().st_size,
+                                "sha256": hashlib.sha256(elf.read_bytes()).hexdigest().upper()}
+        save(report)
+        print(f"Switch ARM64 ELF link and audit PASS (NRO not packaged): {elf}")
+        return 0
     tools_bin = DEVKITPRO / "tools/bin"
     suffix = ".exe" if os.name == "nt" else ""
     nacp = BUILD / f"{artifact_stem}.nacp"
     nro = BUILD / f"{artifact_stem}.nro"
     code, output = run([str(tools_bin / ("nacptool" + suffix)), "--create",
-                        "Space Rangers HD: A War Apart E2E-4 Combined" if args.experimental_e2e4_combined
+                        "Space Rangers HD: A War Apart save-test v168" if args.enable_experimental_saves
+                        else "Space Rangers HD: A War Apart E2E-4 Combined" if args.experimental_e2e4_combined
                         else "Space Rangers HD: A War Apart E2E Audio ON" if args.experimental_audio_on
                         else "Space Rangers HD: A War Apart E2E", "sklart", "0.0.1", native_path(nacp)])
     if not code:
@@ -641,6 +706,13 @@ def main() -> int:
                      "bytes": len(nro_bytes),
                      "sha256": hashlib.sha256(nro_bytes).hexdigest().upper(),
                      "status": "SOFTWARE AUDIT PASS; hardware not tested"}
+    from ci_stage_switch_artifacts import matching_build_id
+    try:
+        report["build_id"] = matching_build_id(nro_bytes, elf_bytes)
+    except ValueError as error:
+        report["first_failure"] = {"phase": "Build ID", "exact_error": str(error)}
+        save(report)
+        return 1
     save(report)
     print(f"E2E ARM64 ELF: {elf}")
     return 0

@@ -16,13 +16,22 @@ namespace srhd_awa::platform::e2e5_memory_recovery {
 // entry currently being loaded is retained and cannot be evicted here.
 inline bool Reclaim(const char* operation, std::int32_t requested) noexcept {
   static thread_local bool active = false;
-  if (active || !GR_Main::GlobalCache) return false;
+  auto* cache = GR_Main::GlobalCache;
+  if (active || !cache) return false;
   active = true;
   bool reclaimed = false;
   try {
-    const auto before = GR_Main::GlobalCache->ResidentBytes;
-    GR_Main::GlobalCache->TrimToBudget(0);
-    const auto after = GR_Main::GlobalCache->ResidentBytes;
+    std::int32_t before = 0, after = 0;
+    {
+      // The cache lock is recursive. Keep both snapshots and trimming in the
+      // same transaction as concurrent loader publication/eviction.
+      pas::critical_enter(cache->CacheLock);
+      pas::ScopeExit unlock = [&]() noexcept { pas::critical_leave(cache->CacheLock); };
+      before = cache->ResidentBytes;
+      cache->TrimToBudget(0);
+      after = cache->ResidentBytes;
+    }
+    // Diagnostic I/O must not extend the cache critical section.
     reclaimed = after < before;
     char detail[320]{};
 #if defined(__SWITCH__)

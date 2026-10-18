@@ -21,6 +21,21 @@ class Arena {
   };
   Block* first_{};
   std::byte* end_{};
+  static void SplitTail(Block* block, std::size_t bytes) {
+    if (block->size - bytes < sizeof(Block) + alignof(Block)) return;
+    auto* tail = new(reinterpret_cast<std::byte*>(block + 1) + bytes)
+        Block{block->size - bytes - sizeof(Block), block, block->next, true};
+    // Shrinking a used block may create a tail beside an already free block.
+    // Merge them immediately so adjacent free capacity stays contiguous.
+    if (tail->next && tail->next->free) {
+      auto* next = tail->next;
+      tail->size += sizeof(Block) + next->size;
+      tail->next = next->next;
+    }
+    if (tail->next) tail->next->previous = tail;
+    block->next = tail;
+    block->size = bytes;
+  }
 public:
   void Attach(void* memory, std::size_t bytes) {
     if (first_ || !memory || bytes < sizeof(Block) * 2) return;
@@ -38,17 +53,27 @@ public:
     bytes = (std::max<std::size_t>(bytes, 1) + alignment - 1) & ~(alignment - 1);
     for (auto* block = first_; block; block = block->next) {
       if (!block->free || block->size < bytes) continue;
-      if (block->size - bytes >= sizeof(Block) + alignment) {
-        auto* tail = new(reinterpret_cast<std::byte*>(block + 1) + bytes)
-            Block{block->size - bytes - sizeof(Block), block, block->next, true};
-        if (tail->next) tail->next->previous = tail;
-        block->next = tail;
-        block->size = bytes;
-      }
+      SplitTail(block, bytes);
       block->free = false;
       return block + 1;
     }
     return nullptr;
+  }
+  bool Resize(void* memory, std::size_t bytes) {
+    constexpr auto alignment = alignof(Block);
+    if (bytes > std::numeric_limits<std::size_t>::max() - alignment) return false;
+    bytes = (std::max<std::size_t>(bytes, 1) + alignment - 1) & ~(alignment - 1);
+    auto* block = static_cast<Block*>(memory) - 1;
+    if (bytes > block->size) {
+      auto* next = block->next;
+      if (!next || !next->free || block->size + sizeof(Block) + next->size < bytes)
+        return false; // No mutation: moving fallback must still own the old block.
+      block->size += sizeof(Block) + next->size;
+      block->next = next->next;
+      if (block->next) block->next->previous = block;
+    }
+    SplitTail(block, bytes);
+    return true;
   }
   void Free(void* memory) {
     if (!memory) return;
@@ -104,6 +129,8 @@ inline void Free(void* memory) {
 inline void* Reallocate(void* old, std::size_t bytes, std::size_t old_size) {
   if (!arena.Owns(old)) {
     if (void* memory = std::realloc(old, bytes)) return memory;
+  } else if (arena.Resize(old, bytes)) {
+    return old;
   }
   void* memory = Allocate(bytes);
   if (!memory) return nullptr; // The original allocation remains owned and valid.
