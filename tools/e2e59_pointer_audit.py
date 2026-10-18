@@ -82,6 +82,11 @@ def audit(build):
             not in script):
         failures.append('ShipDestination Date must retain the native address with its original int result tag')
     expression = (ROOT / mapping['upstream/cpp/src/EC_Expression.cpp']).read_text()
+    if expression.count('srhd_awa::platform::e2e4_script_value::NumericIntFromStorage(') != 7:
+        failures.append('Int numeric getters/conversions must retain the original signed-32 view')
+    int_setter = expression.split('void TVarEC::SetInt(std::int32_t Value) {', 1)[-1].split('void TVarEC::SetDword(', 1)[0]
+    if 'DwordValue = static_cast<std::uint32_t>(Value);' not in int_setter:
+        failures.append('SetInt must zero-extend the original DWORD bits in a Dword cell')
     if ('pas::is_one_of<vkInt, vkDword>(TVarEC_RealVType(Source))' not in expression):
         failures.append('Integer assignment must retain native pointer storage')
     return dict(schema=1, level='EFFECTIVE SOURCE INVENTORY; NOT HARDWARE COVERAGE',

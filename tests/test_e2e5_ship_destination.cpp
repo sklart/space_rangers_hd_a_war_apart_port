@@ -28,6 +28,17 @@ int main() {
   aScriptFun::SF_ShipDestination({args.data(),3},nullptr);
   assert(result->Kind==vkInt && result->GetDword()==address);
   assert(result->GetInt()==std::bit_cast<std::int32_t>(std::uint32_t(address)));
+  const auto pointer_numeric=std::bit_cast<std::int32_t>(std::uint32_t(address));
+  assert(result->GetFloat()==double(pointer_numeric) && result->GetDword()==address);
+  assert(result->GetString()==pas::wide_int_to_str(pointer_numeric) && result->GetDword()==address);
+  for(const auto kind:{vkFloat,vkString}) {
+    auto numeric=MakeCell();numeric->AssignFrom(result.get(),false);numeric->ConvertToKind(kind);
+    if(kind==vkFloat)assert(numeric->GetFloat()==double(pointer_numeric));
+    else assert(numeric->GetString()==pas::wide_int_to_str(pointer_numeric));
+    auto assigned=MakeCell(kind);assigned->Assume(result.get(),false);
+    if(kind==vkFloat)assert(assigned->GetFloat()==double(pointer_numeric));
+    else assert(assigned->GetString()==pas::wide_int_to_str(pointer_numeric));
+  }
   assert(station.FlyDate==1234);
   aScriptFun::SF_ShipDestination({args.data(),4},nullptr);
   assert(result->Kind==vkInt && result->GetDword()==address && station.FlyDate==-123);
@@ -37,6 +48,7 @@ int main() {
   copy->ResetKind(vkEmpty);copy->Assume(result.get(),false);
   assert(copy->Kind==vkInt && copy->GetDword()==address);
   auto reference=MakeCell(vkRef);reference->SetRef(copy.get());
+  assert(reference->GetFloat()==double(pointer_numeric) && reference->GetString()==pas::wide_int_to_str(pointer_numeric));
   args[0]=reference.get();aScriptFun::SF_ShipDestination({args.data(),3},nullptr);
   assert(reference->Kind==vkRef && copy->Kind==vkInt && reference->GetDword()==address);
   auto name=MakeCell();
@@ -87,5 +99,27 @@ int main() {
   assert(rejected && result->Kind==vkInt && result->GetDword()==address);
   buffer->Clear();result->SetInt(42);result->SaveToBuffer(buffer.get());buffer->SetPosition(0);
   copy->LoadFromBuffer(buffer.get());assert(copy->GetInt()==42);
-  std::puts("real ShipDestination: int tag, high target addresses, setter, copy/reference/assignment, numeric save/load and pointer save rejection PASS");
+  for(const auto whole:std::array<std::int64_t,8>{INT32_MIN,INT32_MAX,2147483648LL,4294967295LL,4294967296LL,8589934591LL,-2147483649LL,-4294967297LL}) {
+    const auto expected=std::bit_cast<std::int32_t>(std::uint32_t(whole));
+    for(bool convert:{false,true}) {
+      result->ResetKind(convert?vkFloat:vkInt);result->SetFloat(double(whole));
+      if(convert)result->ConvertToKind(vkInt);
+      assert(result->Kind==vkInt && result->IntValue==expected && result->GetInt()==expected);
+      assert(result->GetFloat()==double(expected) && result->GetString()==pas::wide_int_to_str(expected));
+      assert(result->GetDword()==std::uint32_t(expected));
+      buffer->Clear();result->SaveToBuffer(buffer.get());buffer->SetPosition(0);copy->LoadFromBuffer(buffer.get());
+      assert(copy->Kind==vkInt && copy->GetInt()==expected && copy->GetFloat()==double(expected));
+    }
+  }
+  auto word=MakeCell(vkDword),word_ref=MakeCell(vkRef);word_ref->SetRef(word.get());
+  for(const auto bits:{0u,0x7fffffffu,0x80000000u,0xffffffffu}) {
+    word->SetInt(std::bit_cast<std::int32_t>(bits));
+    assert(word->Kind==vkDword && word->GetDword()==bits);
+    assert(word->GetFloat()==double(bits) && word->GetString()==pas::wide_int64_to_str(std::int64_t(bits)));
+    word_ref->SetDword(bits);
+    assert(word->Kind==vkDword && word_ref->GetDword()==bits && word->GetDword()==bits);
+  }
+  word_ref->SetDword(address);
+  assert(word->Kind==vkDword && word_ref->GetDword()==address && word->GetDword()==address);
+  std::puts("real ShipDestination: int tag, high target addresses, setter, copy/reference/assignment, signed-32 conversions, DWORD/ref numeric writes, save/load and pointer save rejection PASS");
 }
