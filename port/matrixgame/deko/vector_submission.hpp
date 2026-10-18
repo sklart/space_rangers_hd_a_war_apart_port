@@ -2,7 +2,7 @@
 #pragma once
 #include "../native-core/vector_geometry.hpp"
 namespace srhd_awa::matrixgame {
-struct VectorMaterial { MeshDraw draw; std::uint32_t texture_slot; TextureSampling sampling; MeshRasterState raster{}; };
+struct VectorMaterial { MeshDraw draw; std::uint32_t texture_slot; MeshSamplerState sampling; MeshRasterState raster{}; };
 // Explicit single-pass skin input. Missing materials/textures do not silently
 // become white. Additional original skin passes must be submitted by the engine.
 inline std::vector<MeshSubmission> PlanVectorFrame(const VectorGeometry& model,std::uint32_t frame,
@@ -12,6 +12,7 @@ inline std::vector<MeshSubmission> PlanVectorFrame(const VectorGeometry& model,s
   for(const auto& range:ranges) {
     const auto& material=materials[range.surface];
     material.raster.Validate();
+    material.sampling.Validate();
     out.push_back({range,material.draw,material.texture_slot,material.sampling,material.raster});
   }
   return out;

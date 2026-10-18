@@ -7,6 +7,7 @@
 #include "CFile.hpp"
 #include "texture_request.hpp"
 #include "matrixgame_raster_gpu_probe.hpp"
+#include "matrixgame_sampler_gpu_probe.hpp"
 #include "mesh_shaders.hpp"
 #include "config_unicode.hpp"
 #include <array>
@@ -16,6 +17,9 @@ using namespace srhd_awa::matrixgame;
 int main(int argc,char** argv) {
   try {
     DekoMeshRenderer renderer(64,64,std::as_bytes(std::span(vertex_dksh)),std::as_bytes(std::span(fragment_dksh)));
+    if(argc==2 && std::string_view(argv[1])=="--sampler-state") {
+      ProbeSamplerGpu(renderer);std::printf("GPU sampler reference PASS controls=14; battle_executed=false\n");return 0;
+    }
     if(argc==2 && std::string_view(argv[1])=="--raster-state") {
       ProbeRasterGpu(renderer);std::printf("GPU raster state reference PASS controls=8; battle_executed=false\n");return 0;
     }
@@ -88,7 +92,7 @@ int main(int argc,char** argv) {
           model.Vertices().size(),submissions.size(),covered);
       return 0;
     }
-    if(argc!=1)throw std::invalid_argument("expected --texture-request <name>, --texture <source> <64x64.rgba>, --png <PNG>, --geometry-only <VO>, or no arguments");
+    if(argc!=1)throw std::invalid_argument("expected --sampler-state, --raster-state, --texture-request <name>, --texture <source> <64x64.rgba>, --png <PNG>, --geometry-only <VO>, or no arguments");
     const std::array mesh{
       MeshVertex{{0,0,0},{0,0,1},{0,0}}, // Unreferenced prefix; base vertex must be respected.
       MeshVertex{{-.9f,-.7f,.5f},{0,0,1},{0,0}},

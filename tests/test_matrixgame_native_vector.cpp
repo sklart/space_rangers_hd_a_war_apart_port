@@ -39,6 +39,8 @@ void Dump(const VectorGeometry& v,const fs::path& path) {
   std::vector<VectorMaterial> materials(v.Surfaces().size());
   for(std::size_t i=0;i<materials.size();++i){
     materials[i].texture_slot=std::uint32_t(i+1);materials[i].sampling=TextureSampling::LinearClamp;
+    materials[i].sampling.min=TextureFilter::Point;materials[i].sampling.mip=TextureMipFilter::Linear;
+    materials[i].sampling.v=TextureAddress::Repeat;materials[i].sampling.lod_bias=-1;
     materials[i].raster.alpha_test=(i&1)!=0;materials[i].raster.blend_enable=(i&2)!=0;
     materials[i].raster.depth_write=(i&2)==0;materials[i].raster.alpha_reference=(i&1)?192:8;
   }
@@ -48,7 +50,7 @@ void Dump(const VectorGeometry& v,const fs::path& path) {
     for(const auto& s:submissions) {
       w.u32(static_cast<std::uint32_t>(s.range.surface));w.u32(static_cast<std::uint32_t>(s.range.base_vertex));
       w.u32(s.range.first_index);w.u32(s.range.index_count);w.u32(s.range.minimum_vertex);w.u32(s.range.vertex_count);
-      if(s.texture_slot!=std::uint32_t(s.range.surface+1)||s.sampling!=TextureSampling::LinearClamp)
+      if(s.texture_slot!=std::uint32_t(s.range.surface+1)||s.sampling.Words()!=materials[s.range.surface].sampling.Words())
         throw std::runtime_error("VO material forwarding");
       if(s.raster.Words()!=materials[s.range.surface].raster.Words())throw std::runtime_error("VO raster state forwarding");
     }
@@ -57,6 +59,11 @@ void Dump(const VectorGeometry& v,const fs::path& path) {
   if(!rejected)throw std::runtime_error("VO frame bounds not checked");
   rejected=false;try{PlanVectorFrame(v,0,{});}catch(const std::invalid_argument&){rejected=true;}
   if(!materials.empty()&&!rejected)throw std::runtime_error("VO missing material accepted");
+  if(!materials.empty()) {
+    materials[0].sampling.min=static_cast<TextureFilter>(0);
+    rejected=false;try{PlanVectorFrame(v,0,materials);}catch(const std::invalid_argument&){rejected=true;}
+    if(!rejected)throw std::runtime_error("VO invalid sampler accepted");
+  }
   if(!w.stream)throw std::runtime_error("VO dump write");
 }
 int main(int argc,char** argv) {

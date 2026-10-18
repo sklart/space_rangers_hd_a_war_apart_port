@@ -2,6 +2,7 @@
 #pragma once
 #include "mesh_submission.hpp"
 #include "raster_state.hpp"
+#include "sampler_state.hpp"
 #include "../native-core/texture_asset.hpp"
 #include <array>
 #include <cstddef>
@@ -22,14 +23,10 @@ struct MeshDraw {
   // xyz = unit direction toward light, w = ambient contribution (0..1).
   std::array<float,4> light{0,0,1,.2f};
 };
-enum class TextureSampling : std::uint32_t {
-  NearestRepeat, LinearRepeat, NearestClamp, LinearClamp,
-  NearestMipRepeat, LinearMipRepeat, NearestMipClamp, LinearMipClamp
-};
 struct MeshSubmission {
   MeshRange range; MeshDraw draw;
   std::uint32_t texture_slot{};
-  TextureSampling sampling{TextureSampling::NearestRepeat};
+  MeshSamplerState sampling{};
   MeshRasterState raster{};
 };
 // First offscreen GPU geometry pass only. No swapchain or full material/sampler parity,
