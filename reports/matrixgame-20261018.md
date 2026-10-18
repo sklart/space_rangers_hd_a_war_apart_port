@@ -155,3 +155,12 @@ README теперь использует короткий build/mg-native. По�
 Именно tracked CMake wrapper + tracked probe скомпилированы и запущены: 159 шаблонов,
 10 с головой, invalid_types/prices/totals=0/0/0, exit=0.
 Отчёт build/matrixgame/native-probe-wrapper-run.jsonl, SHA в native-head-provenance.json.
+
+
+## Продолжение MG-2
+
+Первый native callback/ownership adapter реализован и проверен отдельно от NRO
+3772031: все 16 callbacks, settings/statistics, host sanitizers, ARM64/QEMU и
+devkitA64 compile-only. Это заменяет раннюю отметку о полном отсутствии native
+bridge, но не закрывает MG-2. Engine Run, реальный audio/text handoff и GPU ещё
+не подключены. Подробности: matrixgame-native-bridge-20261018.md.

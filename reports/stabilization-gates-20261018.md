@@ -14,9 +14,9 @@
 | A5, arcade 60 frames + geometry/state | PARTIAL | Текущий host SHA 11a5e0c9…3fb66e: build/host-reclaim-lock-arcade.json, 40.76 с, screen 21, 60+ кадров, crash=false/timeout=false; 3 млн geometry pairs, pixel/stored coordinate/rounding controls PASS. Эквивалентность всей боевой state sequence и новая Switch производительность не доказаны. |
 | A6, generation world hash/RNG/3 timings | CURRENT HOST EQUIVALENCE PASS / PERFORMANCE OPEN | После Reclaim fix SHA 11a5e0c9…3fb66e: три полных мира, payload +14 world/RNG checkpoints/native save transitions совпали с тройкой до fix. Времена 9.535782 / 9.487811 / 9.379595 с; эпохи хронологические, speedup не заявлен. Предыдущий A/B профиль и ограничения сохранены. Нет Switch performance proof. |
 | A7, original text/bounding boxes | PARTIAL | Russian/English original framebuffer и 35 допустимых случаев 0/1/99/100 + #attempt fits=1. Прочие локализации, монотонность/reset во всех маршрутах и аппаратный screenshot ещё не закрыты. |
-| A8, ordinary/combined ARM64/effective audit | ORDINARY + COMBINED LOCAL LINK PASS | После Reclaim fix: build/ordinary-reclaim-lock-link.log, build/combined-reclaim-lock-link.log и matching reports. undefined=0, required stubs=[], first_failure=null. Локальная проверка ELF; NRO не упаковывалась. |
+| A8, ordinary/combined ARM64/effective audit | ORDINARY + COMBINED LOCAL LINK PASS | Clean commit 37720314b27fd9dcc31119eaad4548dc60f956ca: ordinary link-only и combined NRO/ELF PASS. build/ordinary-clean-3772031-report.json и e2e4-combined-build-report.json; undefined=0, required stubs=[], first_failure=null; Build ID matching PASS. Физической проверки нет. |
 | A9, MatrixGame x86/ABI/head fix | PARTIAL, substantial native proof | Настоящая карта, движение/бой/гибель, проигрыш/статистика; x86 ABI/export PASS; реальный native head pricing before FAIL/fixed PASS на 159 шаблонах. Выбор модулей через UI, победа и полный return contract ещё не проверены. Tracked CMake wrapper со свежим source snapshot build/run PASS. |
-| B, one clean combined artifact | OPEN | Scoped commit, clean NRO + matching ELF + Build ID/SHA/provenance, GitHub run/download verification не выполнены. Dirty ELF не выдаётся как hardware release. |
+| B, one clean combined artifact | PARTIAL | LOCAL CLEAN ARTIFACT PASS: commit 3772031 опубликован, draft PR #2; NRO f28d4470…3fecdab, ELF 4316f9f8…8e6d2e6, Build ID 9d9a6d4544d40c4f19490e39aa31ec52e1179833. Strict staging и ZIP content verification PASS; build/SpaceRangersHD-Switch-3772031-local.zip. GitHub workflow 39102934007 ещё выполняется; master artifact/download gate OPEN. |
 | C, physical Switch scenarios | OPEN | Требуется один согласованный аппаратный прогон кандидата: короткие сцены, затем один New Game и заданные переходы. Не заставлять повторять генерацию до разбора первого критического отказа. |
 | D, handheld battery/CPU/GPU/frame times | OPEN | Сопоставимые физические сессии не выполнялись; host/QEMU и фрейм-счётчик не заменяют их. |
 
@@ -39,7 +39,7 @@ P0.3: статический аудит не закрывает полный liv
 |---|---|
 | MG-0, лицензирование/архитектура | PARTIAL: GPL headers/NOTICE и запрет закрытых ресурсов соблюдены; итоговая совместимость всех компонентов выбранного backend ещё не проверена. |
 | MG-1, Windows x86 эталон | PARTIAL: настоящий бой/проигрыш/статистика и head fix проверены; UI-конструктор, победа и полный возврат остаются открыты. |
-| MG-2, native ARM64 bridge | OPEN: x86 layout/ABI и различия ownership описаны; реальный адаптер ещё не реализован. |
+| MG-2, native ARM64 bridge | PARTIAL: реализован native callback/ownership adapter, все 16 callbacks и settings/statistics; host ASan/UBSan/TSan, ARM64/QEMU и devkitA64 object compile PASS. Engine entry/Run и реальный audio/text handoff ещё не подключены; см. matrixgame-native-bridge-20261018.md. |
 | MG-3, Switch GPU/platform backend | OPEN: нет работающей GPU 3D-сцены на Switch. |
 | MG-4, все игровые функции/оптимизация | OPEN: Windows functional proof не подтверждает Switch путь и оптимизацию. |
 | MG-5, campaign integration | OPEN: нет запуска из кампании, win/loss возврата и двух последовательных аппаратных боёв без утечек. |

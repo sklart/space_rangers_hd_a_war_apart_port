@@ -73,3 +73,36 @@ GUI-сценарий настоящего боя и ограничения: `rep
 
 CFG, robots.pkg, SDK, DLL/EXE и screenshots остаются в ignored build. Они не входят
 в публичные артефакты. Исходные GPL headers/NOTICE сохраняются.
+
+## MG-2: нативный callback adapter
+
+`native/rangers_bridge.hpp` не включает Win32/D3D9/MatrixGameDll.hpp. Реализация
+вызывает все 16 родных `Robot::TRobotCallbacks` через их реальные типы. В sound/image ID
+хранятся отдельные порядковые номера, а указатели остаются у владельца. ID не повторяются
+между экземплярами или после Reset; неизвестный/освобождённый ID отвергается.
+UTF-16 views копируются в изменяемые NUL-terminated временные строки; embedded NUL
+отвергается. Pixels заимствованы до FreeText/Reset/destructor. Game services и код
+callbacks должны пережить bridge. Release callbacks должны завершаться без исключений,
+как подразумевает исходный lifecycle. Этот адаптер не диспетчеризует callbacks на UI thread:
+будущий backend обязан соблюдать threading contract основной игры.
+
+Настройки переносятся по полям, включая borrowed legacy graphics pointers без усечения;
+это не Direct3D backend Switch. Шесть полей статистики сохраняют signed time. Адаптер
+не создаёт результат win/loss, не загружает DLL и пока не подключён к engine Run/кампании.
+MG-2 остаётся PARTIAL; MG-3…MG-5 открыты. NRO стабилизации 3772031 этот код не содержит.
+
+Локальная воспроизводимая проверка без закрытых ресурсов (Linux):
+
+```sh
+cmake -S port/matrixgame/native -B build/mg-bridge-asan -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBRIDGE_SANITIZER=address
+cmake --build build/mg-bridge-asan --parallel 2
+ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 ctest --test-dir build/mg-bridge-asan --output-on-failure
+cmake -S port/matrixgame/native -B build/mg-bridge-tsan -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBRIDGE_SANITIZER=thread
+cmake --build build/mg-bridge-tsan --parallel 2
+TSAN_OPTIONS=halt_on_error=1 ctest --test-dir build/mg-bridge-tsan --output-on-failure
+```
+
+Тест использует настоящие объявления game callbacks с контролируемыми producers.
+Он проверяет ownership/forwarding, 800 конкурентных sound cycles, stale/foreign IDs,
+Unicode, частичный RenderText failure и поля settings/statistics. Это не реальный бой,
+не работа main-game audio/text renderer и не проверка GPU/физической Switch.
