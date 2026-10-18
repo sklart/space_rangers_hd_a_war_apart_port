@@ -79,7 +79,7 @@ def main() -> int:
         machine = run([readelf, '-h', elf])
         require('AArch64' in machine and 'ELF64' in machine, 'non-ARM64 ELF')
         symbols = run([readelf, '-sW', elf])
-        required = ['dkDeviceCreate', 'dkQueueCreate', 'dkCmdBufDrawIndexed', 'dkCmdBufCopyImageToBuffer', 'dkCmdBufCopyBufferToImage', 'dkCmdBufBindTextures', 'VectorGeometry4Load', 'VectorGeometry11FrameRanges']
+        required = ['dkDeviceCreate', 'dkQueueCreate', 'dkCmdBufDrawIndexed', 'dkCmdBufCopyImageToBuffer', 'dkCmdBufCopyBufferToImage', 'dkCmdBufBindTextures', 'VectorGeometry4Load', 'VectorGeometry11FrameRanges', 'UploadPngTexture', 'ReadStart_RGBA']
         require(all(name in symbols for name in required), 'GPU draw/readback implementation missing from ELF')
         undefined = [line for line in symbols.splitlines() if ' UND ' in line and ' WEAK ' not in line and len(line.split()) > 7]
         require(not undefined, 'unresolved strong symbols: ' + str(undefined))

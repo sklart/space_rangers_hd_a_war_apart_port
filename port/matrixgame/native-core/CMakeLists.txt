@@ -26,6 +26,14 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${PORT_ROOT}/tools/matrixgame_engine_api_overrides.py"
     "${PORT_ROOT}/tools/matrixgame_vector_overrides.py"
     "${PORT_ROOT}/tools/matrixgame_reminder_overrides.py"
+    "${PORT_ROOT}/tools/matrixgame_bitmap_overrides.py"
+    "${CMAKE_CURRENT_LIST_DIR}/bitmap_limits.hpp"
+    "${CMAKE_CURRENT_LIST_DIR}/bitmap_native.inc"
+    "${CMAKE_CURRENT_LIST_DIR}/png_native.cpp"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Bitmap/CBitmap.hpp"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Bitmap/CBitmap.cpp"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Bitmap/FilePNG.hpp"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Bitmap/FilePNG.cpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CReminder.hpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CReminder.cpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/VectorObject.hpp"
@@ -46,7 +54,7 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/utils.hpp")
 file(GLOB_RECURSE CORE_MATH_VENDOR_FILES "${PORT_ROOT}/port/matrixgame/third_party/*")
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CORE_MATH_VENDOR_FILES})
-add_library(matrixgame-native-core STATIC vector_geometry.cpp "${CORE_SOURCE}/CReminder.cpp" "${CORE_SOURCE}/CRC32.cpp"
+add_library(matrixgame-native-core STATIC vector_geometry.cpp "${CORE_SOURCE}/CBitmap.cpp" "${CORE_SOURCE}/FilePNG.cpp" "${CORE_SOURCE}/CReminder.cpp" "${CORE_SOURCE}/CRC32.cpp"
     "${CORE_SOURCE}/CBuf.cpp" "${CORE_SOURCE}/CBuf_file.cpp"
     "${CORE_SOURCE}/random.cpp" "${CORE_SOURCE}/Math3D.cpp" "${CORE_SOURCE}/CStorage.cpp" "${CORE_SOURCE}/CStorage_blockpar.cpp" "${CORE_SOURCE}/CBlockPar.cpp" heap_native.cpp cbuf_utf16.cpp exception_native.cpp file_native.cpp "${PORT_ROOT}/port/switch/platform/package.cpp")
 target_include_directories(matrixgame-native-core PUBLIC "${CORE_SOURCE}" "${CMAKE_CURRENT_LIST_DIR}")
@@ -61,7 +69,8 @@ else()
 endif()
 
 find_package(ZLIB REQUIRED)
-target_link_libraries(matrixgame-native-core PUBLIC ZLIB::ZLIB)
+find_package(PNG REQUIRED)
+target_link_libraries(matrixgame-native-core PUBLIC ZLIB::ZLIB PNG::PNG)
 target_include_directories(matrixgame-native-core PRIVATE "${PORT_ROOT}/port/switch/platform")
 if(NOT CMAKE_CROSSCOMPILING)
     find_package(Threads REQUIRED)
@@ -82,6 +91,20 @@ if(CORE_THREAD_SANITIZER)
 endif()
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(matrixgame-native-bitmap-test "${PORT_ROOT}/tests/test_matrixgame_native_bitmap.cpp")
+    target_link_libraries(matrixgame-native-bitmap-test PRIVATE matrixgame-native-core)
+    add_test(NAME matrixgame-native-bitmap-contract COMMAND "${Python3_EXECUTABLE}"
+        "${PORT_ROOT}/tests/probe_matrixgame_native_bitmap.py"
+        --binary "$<TARGET_FILE:matrixgame-native-bitmap-test>" --output "${CMAKE_CURRENT_BINARY_DIR}/bitmap-fixtures")
+    if(UNIX AND NOT CMAKE_CROSSCOMPILING AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        add_executable(matrixgame-native-bitmap-fault-test "${PORT_ROOT}/tests/test_matrixgame_native_bitmap.cpp")
+        target_compile_definitions(matrixgame-native-bitmap-fault-test PRIVATE MATRIXGAME_BITMAP_FAULT_INJECTION)
+        target_link_libraries(matrixgame-native-bitmap-fault-test PRIVATE matrixgame-native-core)
+        target_link_options(matrixgame-native-bitmap-fault-test PRIVATE -Wl,--wrap=calloc -Wl,--wrap=realloc)
+        add_test(NAME matrixgame-native-bitmap-allocation-fault COMMAND "${Python3_EXECUTABLE}"
+            "${PORT_ROOT}/tests/probe_matrixgame_native_bitmap.py"
+            --binary "$<TARGET_FILE:matrixgame-native-bitmap-fault-test>" --output "${CMAKE_CURRENT_BINARY_DIR}/bitmap-fault-fixtures")
+    endif()
     add_executable(matrixgame-native-reminder-test "${PORT_ROOT}/tests/test_matrixgame_native_reminder.cpp")
     target_link_libraries(matrixgame-native-reminder-test PRIVATE matrixgame-native-core)
     add_test(NAME matrixgame-native-reminder-contract COMMAND "${Python3_EXECUTABLE}"
@@ -150,6 +173,12 @@ if(CORE_BUILD_LINK_PROBE)
     if(NOT CMAKE_CROSSCOMPILING OR NOT MATRIXGAME_DEVKITPRO)
         message(FATAL_ERROR "CORE_BUILD_LINK_PROBE requires the Switch toolchain")
     endif()
+    add_executable(matrixgame-native-bitmap-link-probe "${PORT_ROOT}/tests/test_matrixgame_native_bitmap.cpp")
+    target_link_libraries(matrixgame-native-bitmap-link-probe PRIVATE matrixgame-native-core nx)
+    target_link_directories(matrixgame-native-bitmap-link-probe PRIVATE "${MATRIXGAME_DEVKITPRO}/libnx/lib")
+    target_link_options(matrixgame-native-bitmap-link-probe PRIVATE
+        "-specs=${MATRIXGAME_DEVKITPRO}/libnx/switch.specs" -fPIE -Wl,--gc-sections -Wl,--build-id=sha1)
+    set_target_properties(matrixgame-native-bitmap-link-probe PROPERTIES SUFFIX ".elf")
     add_executable(matrixgame-native-reminder-link-probe "${PORT_ROOT}/tests/test_matrixgame_native_reminder.cpp")
     target_link_libraries(matrixgame-native-reminder-link-probe PRIVATE matrixgame-native-core nx)
     target_link_directories(matrixgame-native-reminder-link-probe PRIVATE "${MATRIXGAME_DEVKITPRO}/libnx/lib")

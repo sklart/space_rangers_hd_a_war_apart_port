@@ -114,3 +114,12 @@ Probe имеет необязательный `--geometry-only <standalone-VO>` 
 контролируемый texture probe остаётся default режимом. Новая NRO не выпускается.
 Проверка всех 431 оригинальных VO выполнялась отдельно на CPU/MSVC/ARM64, не на GPU.
 См. [отчёт](../../../reports/matrixgame-native-vector-20261018.md).
+
+## PNG из CFile/PKG
+
+`png_texture.hpp` предоставляет UploadPngTexture: настоящий CBitmap/FilePNG
+декодирует PNG в straight RGBA8, renderer копирует staging до возврата.
+Probe `--png <path>` содержит nearest readback comparison для будущего запуска
+на Switch. Сейчас подтверждены только SDK compile/link; GPU execution отсутствует.
+Это не material/skin pipeline и не полный texture cache. См.
+[отчёт PNG](../../../reports/matrixgame-native-bitmap-20261018.md).

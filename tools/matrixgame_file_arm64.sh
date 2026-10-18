@@ -11,6 +11,7 @@ case "${1:-}" in
   --random) profile=random; shift ;;
   --vector) profile=vector; shift ;;
   --reminder) profile=reminder; shift ;;
+  --bitmap) profile=bitmap; shift ;;
 esac
 out="$project_root/build/mg-core-arm64"
 zlib_source="$project_root/build/matrixgame/zlib-1.3.2-source"
@@ -37,6 +38,27 @@ sources=(
   port/matrixgame/native-core/cbuf_utf16.cpp port/matrixgame/native-core/exception_native.cpp
   port/matrixgame/native-core/file_native.cpp port/switch/platform/package.cpp
 )
+extra_includes=()
+extra_libraries=()
+if [[ "$profile" == bitmap ]]; then
+  png_source="$project_root/build/matrixgame/libpng-1.6.37-source"
+  expected_png=a40189cf881e9f0db80511c382292a5604c3c3d1
+  if [[ ! -d "$png_source/.git" ]]; then
+    [[ ! -e "$png_source" ]] || { echo "Refusing unmanaged libpng source" >&2; exit 2; }
+    git clone --depth 1 --branch v1.6.37 https://github.com/glennrp/libpng.git "$png_source"
+  fi
+  pgit() { git -c core.autocrlf=true -c safe.directory="$png_source" -C "$png_source" "$@"; }
+  [[ "$(pgit rev-parse HEAD)" == "$expected_png" && -z "$(pgit status --porcelain)" ]] || { echo "libpng pin/clean check failed" >&2; exit 2; }
+  cmake -S "$png_source" -B "$out/libpng" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+    -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_PROCESSOR=aarch64 -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
+    -DCMAKE_BUILD_TYPE=Release -DPNG_SHARED=OFF -DPNG_STATIC=ON -DPNG_TESTS=OFF \
+    -DM_LIBRARY="$(aarch64-linux-gnu-gcc -print-file-name=libm.a)" \
+    -DZLIB_INCLUDE_DIR="$zlib_source" -DZLIB_LIBRARY="$out/zlib/libz.a"
+  cmake --build "$out/libpng" --target png_static --parallel 2
+  extra_includes=(-I"$out/libpng" -I"$png_source")
+  extra_libraries=("$out/libpng/libpng16.a")
+  sources+=("$out/source/CBitmap.cpp" "$out/source/FilePNG.cpp")
+fi
 if [[ "$profile" != file ]]; then
   sources+=("$out/source/CStorage.cpp" "$out/source/CRC32.cpp" port/matrixgame/native-core/heap_native.cpp)
 fi
@@ -59,9 +81,11 @@ aarch64-linux-gnu-g++ -std=c++20 -O2 -g -pthread -ffp-contract=off \
   -I"$out/source" -Iport/matrixgame/native-core -Iport/switch/platform \
   -Iport/matrixgame/third_party/directxmath/Inc -Iport/matrixgame/third_party/sal \
   -I"$out/zlib" -I"$zlib_source" \
+  "${extra_includes[@]}" \
   "tests/test_matrixgame_native_$profile.cpp" "${sources[@]}" \
-  "$out/zlib/libz.a" -o "$out/$profile-contract"
+  "${extra_libraries[@]}" "$out/zlib/libz.a" -o "$out/$profile-contract"
 python3 "tests/probe_matrixgame_native_$profile.py" --binary /usr/bin/qemu-aarch64 \
   --runner-binary "$out/$profile-contract" --qemu-sysroot /usr/aarch64-linux-gnu \
   --output "$out/$profile-fixtures" "$@"
 [[ -z "$(zgit status --porcelain --untracked-files=normal)" ]] || { echo "zlib build changed source" >&2; exit 2; }
+if [[ "$profile" == bitmap ]]; then [[ -z "$(pgit status --porcelain)" ]] || { echo "libpng source changed" >&2; exit 2; }; fi

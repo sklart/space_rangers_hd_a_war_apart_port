@@ -1,0 +1,12 @@
+{
+  "producer": "Original CBitmap/FilePNG in MSVC x86 MatrixLib, pinned MatrixGame source",
+  "upstream_pin": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
+  "classic_cases": 90,
+  "classic_trace_sha256": "3d2c8cc613a76eb594872172cf41b3d66c299538f3962461e40e621c48bb179a",
+  "native_cases": 98,
+  "native_variants": 168,
+  "native_pixel_bytes": 29880,
+  "native_trace_sha256": "a6cf15ad4f733b61a19c2c26fb6f6c2f8289b3f15b78dbed34d5d1ba74c07ca3",
+  "original_file_false_success": true,
+  "game_assets": false
+}

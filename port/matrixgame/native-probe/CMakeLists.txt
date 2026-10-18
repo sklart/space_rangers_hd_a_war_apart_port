@@ -82,3 +82,8 @@ target_compile_features(matrixgame-random-x86-reference PRIVATE cxx_std_20)
 target_compile_definitions(matrixgame-random-x86-reference PRIVATE MATRIXGAME_ORIGINAL_RANDOM_REFERENCE)
 target_compile_options(matrixgame-random-x86-reference PRIVATE /UNDEBUG)
 target_link_options(matrixgame-random-x86-reference PRIVATE /ENTRY:mainCRTStartup)
+
+add_executable(matrixgame-bitmap-x86-reference "${CMAKE_CURRENT_LIST_DIR}/../../../tests/probe_matrixgame_bitmap_x86.cpp")
+target_link_libraries(matrixgame-bitmap-x86-reference PRIVATE MatrixGameInternal)
+target_compile_features(matrixgame-bitmap-x86-reference PRIVATE cxx_std_20)
+target_link_options(matrixgame-bitmap-x86-reference PRIVATE /ENTRY:mainCRTStartup)
