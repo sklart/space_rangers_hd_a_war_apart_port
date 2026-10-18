@@ -59,3 +59,12 @@ target_compile_features(matrixgame-storage-x86-reference PRIVATE cxx_std_20)
 target_compile_definitions(matrixgame-storage-x86-reference PRIVATE MATRIXGAME_ORIGINAL_STORAGE_REFERENCE)
 target_compile_options(matrixgame-storage-x86-reference PRIVATE /UNDEBUG)
 target_link_options(matrixgame-storage-x86-reference PRIVATE /ENTRY:mainCRTStartup)
+
+add_executable(matrixgame-blockpar-x86-reference
+    "${CMAKE_CURRENT_LIST_DIR}/../../../tests/test_matrixgame_native_blockpar.cpp")
+target_include_directories(matrixgame-blockpar-x86-reference PRIVATE "${CMAKE_CURRENT_LIST_DIR}/../native-core")
+target_link_libraries(matrixgame-blockpar-x86-reference PRIVATE MatrixGameInternal)
+target_compile_features(matrixgame-blockpar-x86-reference PRIVATE cxx_std_20)
+target_compile_definitions(matrixgame-blockpar-x86-reference PRIVATE MATRIXGAME_ORIGINAL_BLOCKPAR_REFERENCE)
+target_compile_options(matrixgame-blockpar-x86-reference PRIVATE /UNDEBUG)
+target_link_options(matrixgame-blockpar-x86-reference PRIVATE /ENTRY:mainCRTStartup)

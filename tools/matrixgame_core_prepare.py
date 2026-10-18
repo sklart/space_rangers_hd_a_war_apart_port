@@ -4,6 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 from matrixgame_storage_overrides import INPUTS as STORAGE_INPUTS, patch_storage
+from matrixgame_blockpar_overrides import INPUTS as BLOCKPAR_INPUTS, patch_blockpar
 
 INPUTS = {
     'CFile.cpp': '09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49',
@@ -18,6 +19,7 @@ INPUTS = {
 }
 
 INPUTS.update(STORAGE_INPUTS)
+INPUTS.update(BLOCKPAR_INPUTS)
 
 def replace_body(text, signature, replacement):
     if text.count(signature) != 1:
@@ -131,6 +133,7 @@ inline constexpr int FileBegin = 0, FileCurrent = 1, FileEnd = 2;
     file_header = replace_body(file_header, "bool IsOpen(void)", "bool IsOpen(void);")
     files["CFile.hpp"] = file_header.encode("utf-8")
     patch_storage(files, root, replace_body)
+    patch_blockpar(files, replace_body)
     output.mkdir(parents=True, exist_ok=True)
     for name, data in files.items():
         (output / name).write_bytes(data)

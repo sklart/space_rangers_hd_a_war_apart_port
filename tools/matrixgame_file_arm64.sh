@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
-# Actual Linux ARM64 CFile/PKG execution under QEMU; not Horizon/game execution.
+# Actual Linux ARM64 CPU resource/configuration contracts; not Horizon/game execution.
 set -euo pipefail
 project_root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$project_root"
 profile=file
-if [[ "${1:-}" == --storage ]]; then profile=storage; shift; fi
+case "${1:-}" in
+  --storage) profile=storage; shift ;;
+  --blockpar) profile=blockpar; shift ;;
+esac
 out="$project_root/build/mg-core-arm64"
 zlib_source="$project_root/build/matrixgame/zlib-1.3.2-source"
 expected_zlib=da607da739fa6047df13e66a2af6b8bec7c2a498
@@ -30,8 +33,11 @@ sources=(
   port/matrixgame/native-core/cbuf_utf16.cpp port/matrixgame/native-core/exception_native.cpp
   port/matrixgame/native-core/file_native.cpp port/switch/platform/package.cpp
 )
-if [[ "$profile" == storage ]]; then
+if [[ "$profile" != file ]]; then
   sources+=("$out/source/CStorage.cpp" "$out/source/CRC32.cpp" port/matrixgame/native-core/heap_native.cpp)
+fi
+if [[ "$profile" == blockpar ]]; then
+  sources+=("$out/source/CBlockPar.cpp" "$out/source/CStorage_blockpar.cpp")
 fi
 aarch64-linux-gnu-g++ -std=c++20 -O2 -g -pthread \
   -I"$out/source" -Iport/matrixgame/native-core -Iport/switch/platform \
