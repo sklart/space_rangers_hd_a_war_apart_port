@@ -1,3 +1,8 @@
 *.patch whitespace=-blank-at-eol
 tools/e2e5_original_graphbuf_host.sh text eol=lf
 tools/matrixgame_file_arm64.sh text eol=lf
+
+# Preserve vendored math dependency hashes across Windows/Linux checkouts.
+port/matrixgame/third_party/** text eol=lf whitespace=-blank-at-eol
+
+tests/fixtures/matrixgame/math3d-x86-control.txt.zlib -text

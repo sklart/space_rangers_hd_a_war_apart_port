@@ -60,7 +60,7 @@ def native_crc(state, data):
         state = ((state << 8) ^ CRC_TABLE[byte ^ (state & 255)]) & 0xffffffff
     return state
 
-def parse_storage(data):
+def parse_storage(data, *, include_payloads=False):
     if len(data) < 12 or data[:4] != b"STRG":
         raise ValueError("bad STRG header")
     version = struct.unpack_from("<I", data, 4)[0]
@@ -125,6 +125,7 @@ def parse_storage(data):
             columns.append({"name": column.decode("utf-16-le", "surrogatepass"),
                 "type": kind, "lengths": lengths,
                 "arrays_sha256": [hashlib.sha256(array).hexdigest() for array in payloads]})
+            if include_payloads: columns[-1]["arrays"] = payloads
         records.append({"name": table.decode("utf-16-le", "surrogatepass"), "columns": columns})
     if at != len(body):
         raise ValueError("trailing STRG bytes")

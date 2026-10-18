@@ -2,7 +2,8 @@
 
 Текущая библиотека содержит оригинальные CRC32.cpp, память/позицию и файловые
 методы CBuf, native UTF-16 методы, исключения, CFile, CStorage и BlockPar с настоящим
-файловым backend. Это ещё не полный MatrixLib/MatrixGame. Подготовка проверяет SHA256 пятнадцати закреплённых upstream
+файловым backend, а также оригинальный Math3D.cpp с настоящими DirectXMath CPU operations.
+Это ещё не полный MatrixLib/MatrixGame. Подготовка проверяет SHA256 семнадцати закреплённых upstream
 файлов после CRLF→LF и создаёт копии в build directory; upstream не изменяется.
 
 Обе декларации dword используют uint32_t. Исходный нестандартный алгоритм CRC
@@ -48,7 +49,7 @@ Run, rendering, campaign handoff и физические MG gates остаютс
 ## Нативный файловый backend
 
 CFile и оригинальные LoadFromFile/SaveInFile CBuf теперь подключены к stdio и
-существующему bounded PKG reader. Пятнадцать pinned inputs проверяются перед
+существующему bounded PKG reader. Семнадцать pinned inputs проверяются перед
 подготовкой. Внутренний pimpl не включает Win32/D3D; shareMode на portable backend
 advisory. FileExist сохраняет исходное написание разделителей. Package::OpenUtf8
 нужен для явной Unicode границы; прежний Package::Open не меняет narrow-path режим.
@@ -130,3 +131,35 @@ bash tools/matrixgame_file_arm64.sh --blockpar --config /path/to/game/CFG/Rus/ro
 ```
 
 Подробные digests и незакрытые границы: reports/matrixgame-native-blockpar-20261018.md.
+
+
+## Math3D: CPU-математика вместо D3DX9
+
+Оригинальный Math3D.cpp теперь компилируется на host/ARM64/SDK с математическими
+D3DXVECTOR2/3, D3DXMATRIX и D3DXPLANE types, сохраняющими фиксированную раскладку.
+Операции dot/cross/normalize/inverse/plane реализованы через официальный DirectXMath;
+никаких D3D device/resource заглушек этот backend не предоставляет. SIMD selection
+проверен как SSE на host и NEON при реальном Linux ARM64 execution под QEMU.
+DirectXMath/SAL headers, MIT licenses и exact commits/hashes находятся в third_party.
+
+Убраны LP64/strict-aliasing нарушения битовых float helpers. Синхронизированы
+раздельные plane fields, исправлены инициализация heap, кэш повторного Init и
+перекрывающийся copy/cut траекторий. Native-only инварианты этих исправлений не
+выдаются за совпадение с ошибочным legacy behavior. Viewport globals остаются
+внешним состоянием настоящего движка, а не реализованным здесь окном.
+
+```sh
+bash tools/matrixgame_file_arm64.sh --math
+bash tools/matrixgame_file_arm64.sh --math \
+  --package /path/to/game/DATA/robots.pkg --entry Matrix/Building/ruins/b0.vo
+```
+
+Asset-free fixture содержит original x86/D3DX9 numeric trace и metadata; игровых
+ресурсов в нём нет. CI сравнивает 48281 float + 2824 integer values с этим эталоном.
+Float comparison сохраняет исходные алгоритмы с ограниченной численной погрешностью,
+а не требует побитного совпадения разных реализаций D3DX/DirectXMath. Чувствительные
+real-geometry ray cases проверяются отдельно аналитически и с original trace.
+
+Подробности и границы: reports/matrixgame-native-math3d-20261018.md.
+Math3D не включает native RNG, cache/VO loader, CGame::Init/Run, rendering или
+campaign handoff. Scalar/SIMD-настройки не являются измеренным FPS/battery gain.

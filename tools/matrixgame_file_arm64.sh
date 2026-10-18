@@ -7,6 +7,7 @@ profile=file
 case "${1:-}" in
   --storage) profile=storage; shift ;;
   --blockpar) profile=blockpar; shift ;;
+  --math) profile=math; shift ;;
 esac
 out="$project_root/build/mg-core-arm64"
 zlib_source="$project_root/build/matrixgame/zlib-1.3.2-source"
@@ -39,8 +40,12 @@ fi
 if [[ "$profile" == blockpar ]]; then
   sources+=("$out/source/CBlockPar.cpp" "$out/source/CStorage_blockpar.cpp")
 fi
-aarch64-linux-gnu-g++ -std=c++20 -O2 -g -pthread \
+if [[ "$profile" == math ]]; then
+  sources+=("$out/source/Math3D.cpp")
+fi
+aarch64-linux-gnu-g++ -std=c++20 -O2 -g -pthread -ffp-contract=off \
   -I"$out/source" -Iport/matrixgame/native-core -Iport/switch/platform \
+  -Iport/matrixgame/third_party/directxmath/Inc -Iport/matrixgame/third_party/sal \
   -I"$out/zlib" -I"$zlib_source" \
   "tests/test_matrixgame_native_$profile.cpp" "${sources[@]}" \
   "$out/zlib/libz.a" -o "$out/$profile-contract"
