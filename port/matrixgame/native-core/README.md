@@ -193,3 +193,20 @@ FSRND/IRND float-to-int conversion отвергается. Это определ
 на границах, где original source не задаёт безопасного результата. Эквивалентность
 произвольных external libc interleavings или всего игрового состояния не заявляется.
 Подробности: reports/matrixgame-native-random-20261018.md.
+
+## VectorObject: нативные данные и draw ranges
+
+`vector_geometry.hpp` владеет данными реального VO: vertices/indices, frames/groups,
+edges, animation metadata, matrices, surfaces, properties и simple geometry.
+Payload layouts извлекаются из pinned VectorObject.hpp. Загрузка использует настоящий
+CStorage/CFile, проверяет связанные диапазоны и бюджетирует owned data до выделения.
+Строки сохраняются как length-delimited UTF-16LE.
+
+FrameRanges сохраняет surface-first порядок оригинального Draw, включая повторные
+group IDs. `deko/vector_submission.hpp` подключает данные к GPU API с явно заданными
+материалами одного pass. Старый CVectorObject, cache, texture/skin state, проигрыватель
+анимаций и полный движок ещё требуют интеграции. Оригинальные 431 VO проверяются
+локально; CI использует только контролируемые неигровые fixtures.
+
+`bash tools/matrixgame_file_arm64.sh --vector` выполняет ARM64/QEMU contract.
+Отчёт: [native VectorObject](../../../reports/matrixgame-native-vector-20261018.md).

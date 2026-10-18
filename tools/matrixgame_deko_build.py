@@ -3,6 +3,7 @@ from pathlib import Path
 import hashlib
 import json
 import os
+import shutil
 import struct
 import subprocess
 import sys
@@ -23,7 +24,9 @@ def main() -> int:
     uam = sdk / ('tools/bin/uam' + suffix)
     readelf = sdk / ('devkitA64/bin/aarch64-none-elf-readelf' + suffix)
     source_dir = root / 'port/matrixgame/deko'
-    inputs = [source_dir / name for name in ['mesh_renderer.hpp', 'mesh_submission.hpp', 'texture_upload.hpp', 'mesh_renderer.cpp', 'mesh.vert.glsl', 'mesh.frag.glsl']]
+    inputs = [p for p in source_dir.iterdir() if p.is_file()]
+    inputs += [p for p in (root/'port/matrixgame/native-core').iterdir() if p.is_file()]
+    inputs += list((root/'tools').glob('matrixgame_*overrides.py')) + [root/'tools/matrixgame_core_prepare.py']
     inputs += [root / 'tests/probe_matrixgame_deko_link.cpp', Path(__file__).resolve()]
     log = []
     def run(command):
@@ -56,21 +59,27 @@ def main() -> int:
         for name, data in zip(['vertex_dksh', 'fragment_dksh'], shaders):
             header += 'inline constexpr std::array<std::uint8_t,' + str(len(data)) + '> ' + name + '{' + ','.join(map(str, data)) + '};\n'
         (out / 'mesh_shaders.hpp').write_text(header)
-        flags = ['-std=gnu++20', '-O2', '-g1', '-D__SWITCH__', '-march=armv8-a+crc+crypto',
-                 '-mtune=cortex-a57', '-mtp=soft', '-fPIE', '-ffunction-sections', '-fdata-sections',
-                 '-I' + str(sdk / 'libnx/include'), '-I' + str(source_dir), '-I' + str(out)]
-        objects = []
-        for source in [source_dir / 'mesh_renderer.cpp', root / 'tests/probe_matrixgame_deko_link.cpp']:
-            obj = out / (source.stem + '.o')
-            run([cxx, *flags, '-c', source, '-o', obj]); objects.append(obj)
+        cmake = shutil.which('cmake')
+        configure = []
+        if os.name == 'nt':
+            bundled = Path('C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE/CommonExtensions/Microsoft/CMake')
+            if (bundled/'CMake/bin/cmake.exe').is_file(): cmake = str(bundled/'CMake/bin/cmake.exe')
+            ninja = bundled/'Ninja/ninja.exe'
+            if ninja.is_file(): configure = ['-G','Ninja','-DCMAKE_MAKE_PROGRAM='+str(ninja)]
+        require(cmake, 'CMake not found')
+        build = out/'cmake'
+        run([cmake,'-S',source_dir,'-B',build,*configure,
+             '-DCMAKE_TOOLCHAIN_FILE='+str(root/'port/matrixgame/native-core/switch-toolchain.cmake'),
+             '-DMATRIXGAME_DEVKITPRO='+sdk.as_posix(),'-DMATRIXGAME_SHADER_DIR='+str(out),
+             '-DBUILD_TESTING=OFF','-DCMAKE_BUILD_TYPE=Release'])
+        run([cmake,'--build',build,'--target','matrixgame-deko-mesh-probe','--parallel','2'])
         elf = out / 'matrixgame-deko-mesh-probe.elf'
-        run([cxx, '-specs=' + str(sdk / 'libnx/switch.specs'), '-march=armv8-a+crc+crypto', '-mtp=soft', '-fPIE',
-             '-Wl,--gc-sections', '-Wl,--build-id=sha1', '-L' + str(sdk / 'libnx/lib'),
-             *objects, '-ldeko3d', '-lnx', '-o', elf])
+        shutil.copyfile(build/elf.name,elf)
+        report['native_core_provenance'] = json.loads((build/'core/source/source-provenance.json').read_text())
         machine = run([readelf, '-h', elf])
         require('AArch64' in machine and 'ELF64' in machine, 'non-ARM64 ELF')
         symbols = run([readelf, '-sW', elf])
-        required = ['dkDeviceCreate', 'dkQueueCreate', 'dkCmdBufDrawIndexed', 'dkCmdBufCopyImageToBuffer', 'dkCmdBufCopyBufferToImage', 'dkCmdBufBindTextures']
+        required = ['dkDeviceCreate', 'dkQueueCreate', 'dkCmdBufDrawIndexed', 'dkCmdBufCopyImageToBuffer', 'dkCmdBufCopyBufferToImage', 'dkCmdBufBindTextures', 'VectorGeometry4Load', 'VectorGeometry11FrameRanges']
         require(all(name in symbols for name in required), 'GPU draw/readback implementation missing from ELF')
         undefined = [line for line in symbols.splitlines() if ' UND ' in line and ' WEAK ' not in line and len(line.split()) > 7]
         require(not undefined, 'unresolved strong symbols: ' + str(undefined))
