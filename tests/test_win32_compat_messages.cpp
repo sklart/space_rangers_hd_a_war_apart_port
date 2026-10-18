@@ -1,6 +1,7 @@
 #include "win32_compat_messages.hpp"
 #include "win32_compat_window.hpp"
 
+#include <atomic>
 #include <cassert>
 #include <chrono>
 #include <cstdint>
@@ -115,6 +116,33 @@ int main() {
   input.a = false;
   InjectHostInput(input);
   assert(peek(&message, 0, 0x0202, 0x0202, 1) && !CurrentMessageIsTouch());
+  // Real host drivers publish snapshots concurrently with the message pump.
+  // A torn snapshot can mix coordinates/buttons from two input samples.
+  while (peek(&message, 0, 0, 0, 1)) {}
+  std::atomic<bool> publishing{true};
+  std::thread publisher([&] {
+    for (unsigned i = 0; i < 10000; ++i) {
+      srhd_awa::platform::input_platform::RawInput sample{};
+      sample.touch = true;
+      sample.touch_x = (i & 1) ? 111 : 333;
+      sample.touch_y = (i & 1) ? 222 : 444;
+      InjectHostInput(sample);
+      if ((i & 31) == 0) std::this_thread::yield();
+    }
+    publishing.store(false);
+  });
+  do {
+    if (peek(&message, 0, 0, 0, 1) &&
+        (message.message == 0x0200 || message.message == 0x0201)) {
+      const auto x = message.lParam & 0xffff;
+      const auto y = (message.lParam >> 16) & 0xffff;
+      assert((x == 111 && y == 222) || (x == 333 && y == 444));
+    }
+  } while (publishing.load());
+  publisher.join();
+  input = {};
+  InjectHostInput(input);
+  while (peek(&message, 0, 0, 0, 1)) {}
   input.plus = true;
   InjectHostInput(input);
   assert(peek(&message, 0, 0x0012, 0x0012, 1) && message.message == 0x0012);

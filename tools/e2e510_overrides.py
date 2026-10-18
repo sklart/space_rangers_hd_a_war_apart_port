@@ -69,20 +69,70 @@ def apply(path, text):
     if path == 'fIntroduction.cpp':
         # Place storage after includes, where pas::WideString is defined.
         marker_namespace = 'namespace fIntroduction {'
-        text = once(text, marker_namespace, marker_namespace + '\n    static std::array<pas::WideString, 8> e2e_progress_labels;\n    static std::array<int, 8> e2e_progress_states;')
-        text = '#include <array>\n' + text
+        text = once(text, marker_namespace, marker_namespace + '''
+    static std::array<pas::WideString, 8> e2e_progress_labels;
+    static std::array<int, 8> e2e_progress_states;
+    static std::array<WindowsSdk::TPoint, 8> e2e_progress_sizes;
+    static pas::WideString ProgressSuffix(int state) {
+        // A language-neutral ordinal keeps the localized caption intact.
+        if (state < 0)
+            return u" #"_w + static_cast<pas::WideString>(SysUtils::IntToStr(-state));
+        return static_cast<pas::WideString>(pas::concat_ansi({" ", SysUtils::IntToStr(state - 1), "%"}));
+    }
+    static void SetProgressText(TfIntroduction* form, GI_Label::TLabelGI* label,
+                                const pas::WideString& caption, int state) {
+        label->SetText(caption + ProgressSuffix(state));
+        const auto content = label->MeasureContentSize(nullptr);
+        if (content.X + 4 <= label->ClientSize.X) return;
+        // Use the existing gap up to the next column's icon/text. Keep the
+        // localized caption and font, without covering a neighbouring stage.
+        int available = form->GetByName(u"MainPanel"sv)->ClientSize.X - label->LocalPosition.X - 16;
+        for (int i = 1; i <= 8; ++i) {
+            for (const auto& prefix : {"ICW"_a, "MCW"_a}) {
+                auto* peer = form->GetByName(pas::view(static_cast<pas::WideString>(
+                    pas::concat_ansi({prefix, SysUtils::IntToStr(i)}))));
+                if (peer->LocalPosition.X > label->LocalPosition.X)
+                    available = std::min(available, peer->LocalPosition.X - label->LocalPosition.X - 8);
+            }
+        }
+        const auto width = std::max(label->ClientSize.X, std::min(content.X + 4, available));
+        if (width != label->ClientSize.X)
+            label->SetSize(ClassesImports::Point(width, label->ClientSize.Y));
+    }''')
+        text = '#include <array>\n#include <cstdlib>\n' + text
         text = once(text, '    void TfIntroduction::OnOpen() {', '''    void TfIntroduction::OnOpen() {
         for (int i = 0; i < 8; ++i) {
             auto* label = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(
                 static_cast<pas::WideString>(pas::concat_ansi({"MCW", SysUtils::IntToStr(i + 1)})))));
             e2e_progress_labels[i] = label->GetText();
+            e2e_progress_sizes[i] = label->ClientSize;
             e2e_progress_states[i] = 0;
+#if defined(E2E5_HOST_SDL_WINDOW)
+            if (std::getenv("E2E511_HOST_LABEL_BOUNDS")) {
+                for (int state : {1, 2, 100, 101, -1, -9999, -2147483647}) {
+                    // Only Progress(1), the star-layout search, publishes attempts.
+                    if (state < 0 && i != 1) continue;
+                    label->SetSize(e2e_progress_sizes[i]);
+                    SetProgressText(this, label, e2e_progress_labels[i], state);
+                    const auto size = label->MeasureContentSize(nullptr);
+                    char detail[192]{};
+                    std::snprintf(detail, sizeof(detail),
+                        "HOST label-bounds stage=%d state=%d width=%d height=%d control_width=%d control_height=%d fits=%u",
+                        i + 1, state, size.X, size.Y, label->ClientSize.X, label->ClientSize.Y,
+                        static_cast<unsigned>(size.X + 4 <= label->ClientSize.X && size.Y <= label->ClientSize.Y));
+                    srhd_awa::platform::e2e_stage::Log(detail);
+                }
+                label->SetText(e2e_progress_labels[i]);
+                label->SetSize(e2e_progress_sizes[i]);
+            }
+#endif
         }''')
         text = once(text, '    void TfIntroduction::OnClose() {', '''    void TfIntroduction::OnClose() {
         for (int i = 0; i < 8; ++i) {
             auto* label = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(
                 static_cast<pas::WideString>(pas::concat_ansi({"MCW", SysUtils::IntToStr(i + 1)})))));
             label->SetText(e2e_progress_labels[i]);
+            label->SetSize(e2e_progress_sizes[i]);
         }''')
         marker = '        ProgressPulsePhase = ProgressPulsePhase + 0.05L;'
         text = once(text, marker, '''        for (int work_stage = 0; work_stage < 8; ++work_stage) {
@@ -91,13 +141,7 @@ def apply(path, text):
             auto* label = pas::checked_cast<GI_Label::TLabelGI*>(GetByName(pas::view(
                 static_cast<pas::WideString>(pas::concat_ansi({"MCW", SysUtils::IntToStr(work_stage + 1)})))));
             const auto& caption = e2e_progress_labels[work_stage];
-            pas::WideString suffix;
-            if (state < 0)
-                suffix = u" (попытка "_w + static_cast<pas::WideString>(SysUtils::IntToStr(-state)) + u")"_w;
-            else
-                suffix = static_cast<pas::WideString>(pas::concat_ansi({" (", SysUtils::IntToStr(state - 1), "%)"}));
-            auto updated = caption + suffix;
-            label->SetText(updated);
+            SetProgressText(this, label, caption, state);
             e2e_progress_states[work_stage] = state;
 #if defined(E2E5_HOST_SDL_WINDOW)
             const auto content = label->MeasureContentSize(nullptr);

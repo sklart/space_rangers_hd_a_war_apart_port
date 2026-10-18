@@ -10,3 +10,5 @@
 *.log
 e2e4-*-build-report.json
 __pycache__/
+
+/dist/switch/

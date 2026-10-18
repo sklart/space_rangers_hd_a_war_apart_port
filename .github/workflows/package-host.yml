@@ -17,8 +17,12 @@ jobs:
           submodules: recursive
       - name: Guard new pointer-width sites
         run: python3 tools/e2e5_static_audit.py --check --output reports/e2e5/pointer-width-audit.json
+      - name: Switch artifact staging rejection tests
+        run: python3 -m unittest discover -s tests -p test_ci_stage_switch_artifacts.py -v
       - name: E2E-5 tool regressions
         run: python3 -m unittest discover -s tests -p 'test_e2e5_tools.py' -v
+      - name: Generation comparison evidence gates
+        run: python3 -m unittest discover -s tests -p 'test_e2e5_generation_compare.py' -v
       - name: Report unavailable private assets honestly
         run: python3 tools/e2e5_resource_validator.py --output reports/e2e5/resource-validation.json
       - uses: actions/upload-artifact@v4
@@ -117,6 +121,7 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config --global --add safe.directory "$GITHUB_WORKSPACE/upstream/cpp"
           git config --global --add safe.directory "$GITHUB_WORKSPACE/upstream/okgf"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE/upstream/matrixgame"
       - name: E2E Win32 Compatibility Surface inventory
         run: |
           test -z "$(git -C upstream/cpp status --porcelain)"
@@ -145,15 +150,41 @@ jobs:
         if: always()
         run: test -z "$(git -C upstream/cpp status --short)"
 
+      - name: Stage and verify Switch artifacts
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          python3 tools/ci_stage_switch_artifacts.py \
+            --report e2e4-combined-build-report.json \
+            --out dist/switch \
+            --expected-git "${GITHUB_SHA}"
+      - name: Upload NRO, matching ELF and provenance
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: actions/upload-artifact@v4
+        with:
+          name: switch-nro-${{ github.sha }}
+          path: dist/switch/
+          if-no-files-found: error
+          retention-days: 30
+
   host-regression:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
         with:
           submodules: recursive
-      - run: sudo apt-get update && sudo apt-get install -y zlib1g-dev libpng-dev libjpeg-dev libvorbis-dev cmake
+      - run: sudo apt-get update && sudo apt-get install -y zlib1g-dev libpng-dev libjpeg-dev libvorbis-dev cmake libsdl2-dev
       - name: Original GI and buffer decode, rescale, repack with ASan/UBSan
         run: bash tools/e2e5_original_graphbuf_host.sh --synthetic
+      - name: Bounded package streaming with ASan/UBSan
+        run: python3 tests/probe_package_streaming.py
+      - name: Build complete Linux host for native asset-free regressions
+        run: python3 tools/e2e5_host_game_build.py --profile optimized --jobs 2
+      - name: Native cache failure, raw budget and recovery lifecycle with ASan/UBSan
+        run: python3 tests/probe_e2e56_native_cache.py
+      - name: Native cache concurrent reclaim with ThreadSanitizer
+        run: python3 tests/probe_e2e56_native_cache.py --thread-sanitizer
+      - name: Native file-stream OOM and concurrent reader lifecycle with ASan/UBSan
+        run: python3 tests/probe_e2e58_file_stream.py
       - name: Validate Switch NRO icon
         run: python3 tools/validate-switch-icon.py port/switch/assets/icon.jpg
       - name: Validate E2E game clock and Sleep
@@ -168,6 +199,20 @@ jobs:
         run: make -C port/switch host-e2e-calendar-test
       - name: E2E Win32 Compatibility Surface host gate
         run: make -C port/switch host-e2e-win32-compat-test
+      - name: Concurrent host input publication under ThreadSanitizer
+        run: |
+          mkdir -p build/input-tsan
+          g++ -std=gnu++20 -O1 -g -fsanitize=thread -fno-omit-frame-pointer \
+            -include unistd.h -ffunction-sections -fdata-sections -DE2E_HOST_OKGF_STUB \
+            -Itests -Iport/switch/platform -Iport/switch/build/e2e-game/runtime-overlay \
+            -Iupstream/cpp/src -Iupstream/cpp/runtime \
+            tests/test_win32_compat_messages.cpp \
+            port/switch/platform/win32_compat_messages.cpp \
+            port/switch/platform/win32_compat_window.cpp \
+            port/switch/platform/win32_handles.cpp \
+            port/switch/platform/e2e_events.cpp port/switch/platform/input_platform.cpp \
+            -Wl,--gc-sections -pthread -o build/input-tsan/messages
+          TSAN_OPTIONS=halt_on_error=1 build/input-tsan/messages
       - name: E2E-3 original New Game preflight
         run: make -C port/switch host-e2e3-new-game-preflight-test
       - name: E2E-4 RIFF/WAVE PCM parser

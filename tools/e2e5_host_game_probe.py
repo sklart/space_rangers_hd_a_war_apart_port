@@ -111,7 +111,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         auto_quicksave: bool = False,
         load_save: Path | None = None,
         auto_options: bool = False, cfg_file: Path | None = None,
-        lang_file: Path | None = None, auto_takeoff: bool = False) -> dict:
+        lang_file: Path | None = None, auto_takeoff: bool = False,
+        new_game_file: Path | None = None) -> dict:
     binary = binary.resolve(strict=True)
     game_root = game_root.resolve(strict=True)
     library_dir = library_dir.resolve(strict=True)
@@ -132,6 +133,13 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         lang_target = stage / "user/config/Lang.txt"
         lang_target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(lang_source, lang_target)
+    new_game_input_sha256 = None
+    if new_game_file is not None:
+        new_game_source = new_game_file.resolve(strict=True)
+        new_game_target = stage / "user/config/newgame.txt"
+        new_game_target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(new_game_source, new_game_target)
+        new_game_input_sha256 = hash_file(new_game_target)
     game_log = stage / "user/config/########.log"
     e2e_log = stage / "sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log"
     stderr_path = stage / "stderr.txt"
@@ -371,6 +379,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "resource_configuration": {
             "game_root": str(game_root),
             "cfg_input_sha256": cfg_input_sha256,
+            "new_game_input_sha256": new_game_input_sha256,
             "main_dat_sha256": hash_file(game_root / "CFG/Main.dat")
             if (game_root / "CFG/Main.dat").is_file() else None,
             "cache_data_dat_sha256": hash_file(game_root / "CFG/CacheData.dat")
@@ -529,6 +538,8 @@ def main() -> None:
     parser.add_argument("--auto-takeoff", action="store_true")
     parser.add_argument("--cfg-file", type=Path,
                         help="copy this CFG.TXT into the isolated user directory")
+    parser.add_argument("--new-game-file", type=Path,
+                        help="copy native newgame.txt settings into the isolated user directory")
     parser.add_argument("--lang-file", type=Path,
                         help="copy this Lang.txt into the isolated user directory")
     args = parser.parse_args()
@@ -543,7 +554,7 @@ def main() -> None:
                          args.mouse_new_game, args.capture_audio,
                          args.auto_advance_dialog, args.auto_quicksave,
                          args.load_save, args.auto_options, args.cfg_file,
-                         args.lang_file, args.auto_takeoff), indent=2))
+                         args.lang_file, args.auto_takeoff, args.new_game_file), indent=2))
 
 
 if __name__ == "__main__":

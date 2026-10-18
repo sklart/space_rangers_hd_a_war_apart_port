@@ -203,7 +203,16 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
               lines.find("screen Run frames=60", settings) != std::string::npos
             : !introduction_sent &&
               lines.find("introduction status=continue-enabled") != std::string::npos;
-      if (ready_to_send) {
+      const bool awaiting_music_fault = start_game_sent && !introduction_sent &&
+          std::getenv("E2E511_HOST_MUSIC_OOM") &&
+          (lines.find("HOST music file worker injected bad_alloc generation_stage=8") == std::string::npos ||
+           lines.find("worker exception class=N13EC_FileStream13TFileStreamECE") == std::string::npos);
+      const auto ui_snapshot = lines.find("introduction ui_snapshot ");
+      const bool awaiting_ui_snapshots = start_game_sent && !introduction_sent &&
+          std::getenv("E2E511_HOST_WAIT_UI_SNAPSHOTS") &&
+          (ui_snapshot == std::string::npos ||
+           lines.find("introduction ui_snapshot ", ui_snapshot + 1) == std::string::npos);
+      if (ready_to_send && !awaiting_music_fault && !awaiting_ui_snapshots) {
         const auto window = srhd_awa::platform::win32_compat::MainWindow();
         if (window) {
           if (!new_game_sent && mouse_new_game) {
@@ -217,6 +226,54 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
                 !srhd_awa::platform::win32_compat::PostHostLeftClick(
                     window, (left + right) / 2, (top + bottom) / 2))
               continue;
+          } else if (start_game_sent && std::getenv("E2E511_HOST_TOUCH_CONTINUE")) {
+            const auto bounds = lines.find("introduction status=continue-enabled left=");
+            int left{}, top{}, right{}, bottom{};
+            if (bounds == std::string::npos ||
+                std::sscanf(lines.c_str() + bounds,
+                    "introduction status=continue-enabled left=%d top=%d right=%d bottom=%d",
+                    &left, &top, &right, &bottom) != 4 ||
+                left >= right || top >= bottom) continue;
+            // Exercise the same normalization, touch provenance and message
+            // queue used on Switch, before the real GI hit test and callback.
+            srhd_awa::platform::input_platform::RawInput touch{};
+            touch.touch = true;
+            touch.touch_x = (left + right) / 2;
+            touch.touch_y = (top + bottom) / 2;
+            srhd_awa::platform::e2e_stage::Log("HOST introduction raw touch begin");
+            srhd_awa::platform::win32_compat::InjectHostInput(touch);
+            // A latest-state host source has no physical HID history. Do not
+            // release a pulse before a busy UI has sampled its down edge.
+            bool down_observed = false;
+            const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+            while (running.load() && std::chrono::steady_clock::now() < deadline) {
+              std::ifstream observed(log);
+              const std::string snapshot{std::istreambuf_iterator<char>(observed),
+                                         std::istreambuf_iterator<char>()};
+              const auto begin = snapshot.rfind("HOST introduction raw touch begin");
+              if (begin != std::string::npos && snapshot.find(
+                    "introduction input phase=return message=513", begin) != std::string::npos) {
+                down_observed = true;
+                break;
+              }
+              std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+            srhd_awa::platform::win32_compat::InjectHostInput({});
+            srhd_awa::platform::e2e_stage::Log("HOST introduction raw touch release");
+            if (!down_observed) {
+              srhd_awa::platform::e2e_stage::Log("FAIL HOST introduction raw touch down not observed");
+              return;
+            }
+          } else if (start_game_sent && std::getenv("E2E511_HOST_MOUSE_CONTINUE")) {
+            const auto bounds = lines.find("introduction status=continue-enabled left=");
+            int left{}, top{}, right{}, bottom{};
+            if (bounds == std::string::npos ||
+                std::sscanf(lines.c_str() + bounds,
+                    "introduction status=continue-enabled left=%d top=%d right=%d bottom=%d",
+                    &left, &top, &right, &bottom) != 4 ||
+                left >= right || top >= bottom ||
+                !srhd_awa::platform::win32_compat::PostHostLeftClick(
+                    window, (left + right) / 2, (top + bottom) / 2)) continue;
           } else {
             srhd_awa::platform::win32_compat::PostHostReturnKey(window);
           }

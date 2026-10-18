@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.24)
+project(SRHDMatrixGameNativeProbe LANGUAGES C CXX)
+if(NOT MSVC OR NOT WIN32 OR NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
+    message(FATAL_ERROR "The native probe requires MSVC Windows x86 (-A Win32)")
+endif()
+set(MATRIXGAME_SOURCE_DIR "" CACHE PATH "Disposable pinned MatrixGame snapshot with the selected patch")
+if(NOT EXISTS "${MATRIXGAME_SOURCE_DIR}/MatrixGame/src/MatrixGameDll.cpp")
+    message(FATAL_ERROR "Pass an explicit MATRIXGAME_SOURCE_DIR; never edit the pinned submodule")
+endif()
+set(MATRIXGAME_BUILD_DLL OFF CACHE BOOL "Native EXE initialization creates its own D3D device" FORCE)
+set(MATRIXGAME_CHEATS OFF CACHE BOOL "Do not enable gameplay cheats" FORCE)
+set(MATRIXGAME_PKG_BRING_FROM_GAME OFF CACHE BOOL "Resources are staged separately" FORCE)
+add_subdirectory("${MATRIXGAME_SOURCE_DIR}" "${CMAKE_BINARY_DIR}/engine")
+add_executable(matrixgame-ai-template-probe
+    "${CMAKE_CURRENT_LIST_DIR}/../../../tests/probe_matrixgame_ai_templates_x86.cpp"
+    "${MATRIXGAME_SOURCE_DIR}/MatrixGame/src/MatrixGameDll.cpp")
+target_link_libraries(matrixgame-ai-template-probe PRIVATE MatrixGameInternal)
+target_compile_features(matrixgame-ai-template-probe PRIVATE cxx_std_20)
+# MatrixGameInternal inherits the legacy WINDOWS subsystem link flag. This
+# integration probe uses main(), redirects its report, and sends no UI input.
+target_link_options(matrixgame-ai-template-probe PRIVATE /ENTRY:mainCRTStartup)

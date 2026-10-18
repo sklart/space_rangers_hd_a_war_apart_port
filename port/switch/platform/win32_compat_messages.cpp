@@ -63,6 +63,12 @@ std::unordered_map<std::string, std::uint32_t> g_registered;
 std::uint32_t g_next_registered = 0xc000u;
 std::vector<std::shared_ptr<Timer>> g_timers;
 input_platform::State g_input;
+#if !defined(__SWITCH__)
+// The host driver runs on another thread. Publish only raw snapshots here;
+// the UI thread alone owns the normalizer and its cursor/edge state.
+std::mutex g_host_input_mutex;
+input_platform::RawInput g_host_input;
+#endif
 std::array<bool, 256> g_keys{};
 std::int32_t g_last_x = -1, g_last_y = -1;
 #if defined(__SWITCH__)
@@ -115,6 +121,12 @@ void Pump() {
 #endif
   std::int32_t width = 1280, height = 720;
   MainWindowSize(&width, &height);
+#if !defined(__SWITCH__)
+  {
+    std::lock_guard lock(g_host_input_mutex);
+    input_platform::InjectHostRaw(&g_input, g_host_input);
+  }
+#endif
   const auto batch = input_platform::PollHistory(&g_input, width, height);
   if (!batch.count) return;
   const auto& input = batch.snapshots[batch.count - 1];
@@ -366,7 +378,12 @@ template <class F> ImportAddress Address(F function) {
 }  // namespace
 
 void InjectHostInput(input_platform::RawInput input) {
-  input_platform::InjectHostRaw(&g_input, input);
+#if !defined(__SWITCH__)
+  std::lock_guard lock(g_host_input_mutex);
+  g_host_input = input;
+#else
+  static_cast<void>(input); // Physical input is sampled by the UI thread.
+#endif
 }
 void WarpInputCursor(std::int32_t x, std::int32_t y) {
   std::int32_t width = 1280, height = 720;
