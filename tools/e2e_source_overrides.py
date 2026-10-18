@@ -920,6 +920,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
         text = '#include "e2e_clock.hpp"\n' + text
     if audio_on and source.name == "GR_Sound.cpp":
         text = '''#include "e2e4_game_audio_bridge.hpp"
+#include "e2e_stage.hpp"
 #include "units/SysUtilsImports.hpp"
 #include <atomic>
 #include <algorithm>
