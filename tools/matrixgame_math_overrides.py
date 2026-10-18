@@ -19,7 +19,7 @@ def patch_math(files, root, body):
             raise ValueError('Pinned math dependency mismatch: '+name)
     h=files['Math3D.hpp'].decode()
     h=h.replace('#include "d3d9.h"\n#include "d3dx9tex.h"','#include "math_types.hpp"')
-    h=h.replace('#include <random.hpp>', '#include <bit>\n#include <cstdint>\n#include <limits>')
+    h=h.replace('#include <random.hpp>', '#include "random.hpp"\n#include <bit>\n#include <cstdint>\n#include <limits>')
     h=re.sub(r'\bDWORD\b','std::uint32_t',h);h=re.sub(r'\bBYTE\b','std::uint8_t',h)
     h=h.replace('#define M_PI        3.14159265358979323846','#ifndef M_PI\n#define M_PI        3.14159265358979323846\n#endif')
     start=h.index('#define FP_INV(');end=h.index('inline unsigned char FP_NORM_TO_BYTE2',start)

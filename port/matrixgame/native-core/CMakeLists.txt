@@ -22,6 +22,9 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${PORT_ROOT}/tools/matrixgame_storage_overrides.py"
     "${PORT_ROOT}/tools/matrixgame_blockpar_overrides.py"
     "${PORT_ROOT}/tools/matrixgame_math_overrides.py"
+    "${PORT_ROOT}/tools/matrixgame_random_overrides.py"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/random.hpp"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/random.cpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/Math3D.hpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/Math3D.cpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CBlockPar.cpp"
@@ -36,7 +39,7 @@ file(GLOB_RECURSE CORE_MATH_VENDOR_FILES "${PORT_ROOT}/port/matrixgame/third_par
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CORE_MATH_VENDOR_FILES})
 add_library(matrixgame-native-core STATIC "${CORE_SOURCE}/CRC32.cpp"
     "${CORE_SOURCE}/CBuf.cpp" "${CORE_SOURCE}/CBuf_file.cpp"
-    "${CORE_SOURCE}/Math3D.cpp" "${CORE_SOURCE}/CStorage.cpp" "${CORE_SOURCE}/CStorage_blockpar.cpp" "${CORE_SOURCE}/CBlockPar.cpp" heap_native.cpp cbuf_utf16.cpp exception_native.cpp file_native.cpp "${PORT_ROOT}/port/switch/platform/package.cpp")
+    "${CORE_SOURCE}/random.cpp" "${CORE_SOURCE}/Math3D.cpp" "${CORE_SOURCE}/CStorage.cpp" "${CORE_SOURCE}/CStorage_blockpar.cpp" "${CORE_SOURCE}/CBlockPar.cpp" heap_native.cpp cbuf_utf16.cpp exception_native.cpp file_native.cpp "${PORT_ROOT}/port/switch/platform/package.cpp")
 target_include_directories(matrixgame-native-core PUBLIC "${CORE_SOURCE}" "${CMAKE_CURRENT_LIST_DIR}")
 target_compile_features(matrixgame-native-core PUBLIC cxx_std_20)
 target_include_directories(matrixgame-native-core PUBLIC "${PORT_ROOT}/port/matrixgame/third_party/directxmath/Inc")
@@ -95,6 +98,11 @@ if(BUILD_TESTING)
     add_test(NAME matrixgame-native-file-contract COMMAND "${Python3_EXECUTABLE}"
         "${PORT_ROOT}/tests/probe_matrixgame_native_file.py"
         --binary "$<TARGET_FILE:matrixgame-native-file-test>" --output "${CMAKE_CURRENT_BINARY_DIR}/file-fixtures")
+    add_executable(matrixgame-native-random-test "${PORT_ROOT}/tests/test_matrixgame_native_random.cpp")
+    target_link_libraries(matrixgame-native-random-test PRIVATE matrixgame-native-core)
+    add_test(NAME matrixgame-native-random-contract COMMAND "${Python3_EXECUTABLE}"
+        "${PORT_ROOT}/tests/probe_matrixgame_native_random.py"
+        --binary "$<TARGET_FILE:matrixgame-native-random-test>" --output "${CMAKE_CURRENT_BINARY_DIR}/random-fixtures")
     add_executable(matrixgame-native-math-test "${PORT_ROOT}/tests/test_matrixgame_native_math.cpp")
     target_link_libraries(matrixgame-native-math-test PRIVATE matrixgame-native-core)
     add_test(NAME matrixgame-native-math-contract COMMAND "${Python3_EXECUTABLE}"
@@ -142,6 +150,13 @@ if(CORE_BUILD_LINK_PROBE)
     target_link_options(matrixgame-native-blockpar-link-probe PRIVATE
         "-specs=${MATRIXGAME_DEVKITPRO}/libnx/switch.specs" -fPIE -Wl,--gc-sections -Wl,--build-id=sha1)
     set_target_properties(matrixgame-native-blockpar-link-probe PROPERTIES SUFFIX ".elf")
+    add_executable(matrixgame-native-random-link-probe "${PORT_ROOT}/tests/test_matrixgame_native_random.cpp")
+    target_compile_definitions(matrixgame-native-random-link-probe PRIVATE MATRIXGAME_RANDOM_NO_THREADS)
+    target_link_libraries(matrixgame-native-random-link-probe PRIVATE matrixgame-native-core nx)
+    target_link_directories(matrixgame-native-random-link-probe PRIVATE "${MATRIXGAME_DEVKITPRO}/libnx/lib")
+    target_link_options(matrixgame-native-random-link-probe PRIVATE
+        "-specs=${MATRIXGAME_DEVKITPRO}/libnx/switch.specs" -fPIE -Wl,--gc-sections -Wl,--build-id=sha1)
+    set_target_properties(matrixgame-native-random-link-probe PROPERTIES SUFFIX ".elf")
     add_executable(matrixgame-native-math-link-probe "${PORT_ROOT}/tests/test_matrixgame_native_math.cpp")
     target_link_libraries(matrixgame-native-math-link-probe PRIVATE matrixgame-native-core nx)
     target_link_directories(matrixgame-native-math-link-probe PRIVATE "${MATRIXGAME_DEVKITPRO}/libnx/lib")
