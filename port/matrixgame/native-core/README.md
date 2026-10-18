@@ -210,3 +210,15 @@ group IDs. `deko/vector_submission.hpp` подключает данные к GPU
 
 `bash tools/matrixgame_file_arm64.sh --vector` выполняет ARM64/QEMU contract.
 Отчёт: [native VectorObject](../../../reports/matrixgame-native-vector-20261018.md).
+
+## Ресурсный SRemindCore
+
+Оригинальные CReminder.hpp/CReminder.cpp включены в native core. Порядок проверок,
+Use/Down и idle clock совпадают с x86 на 5000 операциях. Внутренние часы используют
+int64. Callback owner отслеживается отдельно от global current: собственный Down
+или delete не снимает следующий core. Исключения не маскируются; reentry/live reset
+отвергаются. Scheduler предназначен для одного engine/render thread.
+
+`bash tools/matrixgame_file_arm64.sh --reminder` проверяет ARM64/QEMU contract.
+Границы и original negative controls описаны в
+[отчёте](../../../reports/matrixgame-native-reminder-20261018.md).

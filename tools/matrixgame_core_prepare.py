@@ -9,6 +9,7 @@ from matrixgame_math_overrides import INPUTS as MATH_INPUTS, SUBDIRS as MATH_SUB
 from matrixgame_random_overrides import INPUTS as RANDOM_INPUTS, patch_random
 from matrixgame_engine_api_overrides import INPUTS as ENGINE_INPUTS, SUBDIRS as ENGINE_SUBDIRS, patch_engine_api
 from matrixgame_vector_overrides import INPUTS as VECTOR_INPUTS, SUBDIRS as VECTOR_SUBDIRS, patch_vector
+from matrixgame_reminder_overrides import INPUTS as REMINDER_INPUTS, patch_reminder
 
 INPUTS = {
     'CFile.cpp': '09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49',
@@ -28,6 +29,7 @@ INPUTS.update(MATH_INPUTS)
 INPUTS.update(RANDOM_INPUTS)
 INPUTS.update(ENGINE_INPUTS)
 INPUTS.update(VECTOR_INPUTS)
+INPUTS.update(REMINDER_INPUTS)
 SOURCE_SUBDIRS={**MATH_SUBDIRS, **ENGINE_SUBDIRS, **VECTOR_SUBDIRS}
 
 def replace_body(text, signature, replacement):
@@ -147,9 +149,12 @@ inline constexpr int FileBegin = 0, FileCurrent = 1, FileEnd = 2;
     patch_random(files, replace_body)
     patch_engine_api(files)
     patch_vector(files)
+    patch_reminder(files, replace_body)
     output.mkdir(parents=True, exist_ok=True)
     for name, data in files.items():
-        (output / name).write_bytes(data)
+        destination = output / name
+        if not destination.is_file() or destination.read_bytes() != data:
+            destination.write_bytes(data)
     report = {
         "scope": "Original MatrixLib CRC/CBuf core and native CFile API; not a full engine build",
         "upstream_pin": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
@@ -160,7 +165,10 @@ inline constexpr int FileBegin = 0, FileCurrent = 1, FileEnd = 2;
         "inputs_sha256": INPUTS,
         "outputs_sha256": {name: hashlib.sha256(data).hexdigest() for name, data in files.items()},
     }
-    (output / "source-provenance.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    provenance = output / "source-provenance.json"
+    serialized = (json.dumps(report, indent=2) + "\n").encode("utf-8")
+    if not provenance.is_file() or provenance.read_bytes() != serialized:
+        provenance.write_bytes(serialized)
     return report
 
 if __name__ == "__main__":
