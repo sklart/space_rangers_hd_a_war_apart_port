@@ -246,3 +246,14 @@ alpha/luminance/RGB masks преобразуются в RGBA8. Loader не по�
 `bash tools/matrixgame_file_arm64.sh --texture` проверяет mip payload и staging
 oracle. Реальные 813 DDS/STRG проверяются отдельно от CI. См.
 [отчёт texture assets](../../../reports/matrixgame-native-texture-20261018.md).
+
+## Original texture requests
+
+TextureRequest разрешает имя через CFile, выполняет извлечённый original
+CBaseTexture::ParseFlags (query + sidecar CBlockPar) и действительно загружает
+TextureAsset. Compressed semantics проверяются до STRG decode. Original x86 и
+native сверяются на реальных filename/extensionless requests; JPEG остаётся
+неподдерживаемым. Это ещё не CCache factory и skin shader state.
+
+`bash tools/matrixgame_file_arm64.sh --texture-request` выполняет controlled
+contract. См. [отчёт](../../../reports/matrixgame-native-texture-request-20261018.md).

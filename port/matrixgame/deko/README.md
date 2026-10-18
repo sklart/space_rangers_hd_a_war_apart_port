@@ -132,3 +132,9 @@ mips, включая оригинальные BC1/2/3 blocks. Явные mip sam
 Future probe `--texture <source> <64x64.rgba>` сравнивает base-level GPU readback
 с внешним oracle; hardware run пока отсутствует. Подробности и ограничения:
 [отчёт DDS/STRG](../../../reports/matrixgame-native-texture-20261018.md).
+
+`--texture-request <name>` в future probe связывает original query/sidecar flags,
+CFile resolution, native Load и SetTextureAsset. Вывод scope: upload completion,
+draw_executed=false, battle_executed=false; физический запуск отсутствует.
+Alpha-test/blend skin passes ещё требуют интеграции. См.
+[texture requests](../../../reports/matrixgame-native-texture-request-20261018.md).
