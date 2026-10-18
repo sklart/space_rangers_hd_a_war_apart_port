@@ -25,3 +25,11 @@ add_executable(matrixgame-mesh-layout-probe
 target_link_libraries(matrixgame-mesh-layout-probe PRIVATE MatrixGameInternal)
 target_compile_features(matrixgame-mesh-layout-probe PRIVATE cxx_std_20)
 target_link_options(matrixgame-mesh-layout-probe PRIVATE /ENTRY:mainCRTStartup)
+
+# Original unmodified MatrixLib CRC is the Win32 arithmetic reference.
+add_executable(matrixgame-crc-x86-reference
+    "${CMAKE_CURRENT_LIST_DIR}/../../../tests/test_matrixgame_native_crc.cpp"
+    "${MATRIXGAME_SOURCE_DIR}/MatrixLib/Base/CRC32.cpp")
+target_include_directories(matrixgame-crc-x86-reference PRIVATE "${MATRIXGAME_SOURCE_DIR}/MatrixLib/Base")
+target_compile_features(matrixgame-crc-x86-reference PRIVATE cxx_std_20)
+target_compile_options(matrixgame-crc-x86-reference PRIVATE /UNDEBUG)

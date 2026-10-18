@@ -121,6 +121,13 @@ jobs:
           aarch64-linux-gnu-g++ -std=c++20 -O1 -g tests/test_matrixgame_texture_upload.cpp \
             -o build/mg-texture-arm64/contract
           qemu-aarch64 -L /usr/aarch64-linux-gnu build/mg-texture-arm64/contract
+      - name: Original MatrixLib CRC with Win32 dword width on ARM64
+        run: |
+          python3 tools/matrixgame_core_prepare.py --output build/mg-core-arm64/source
+          aarch64-linux-gnu-g++ -std=c++20 -O2 -g -Ibuild/mg-core-arm64/source \
+            tests/test_matrixgame_native_crc.cpp build/mg-core-arm64/source/CRC32.cpp \
+            -o build/mg-core-arm64/contract
+          qemu-aarch64 -L /usr/aarch64-linux-gnu build/mg-core-arm64/contract
       - name: Gesture and bounded film ordinal checks on host and ARM64
         run: python3 tests/probe_e2e59_input_index.py
       - name: Native heap reserve and generation counters on host and ARM64
@@ -208,6 +215,13 @@ jobs:
             ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 TSAN_OPTIONS=halt_on_error=1 \
               ctest --test-dir "build/mg-bridge-$sanitizer" --output-on-failure
           done
+      - name: Original MatrixLib CRC with ASan and UBSan
+        run: |
+          cmake -S port/matrixgame/native-core -B build/mg-core-asan \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCORE_SANITIZERS=ON
+          cmake --build build/mg-core-asan --parallel 2
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 \
+            ctest --test-dir build/mg-core-asan --output-on-failure
       - name: Build complete Linux host for native asset-free regressions
         run: python3 tools/e2e5_host_game_build.py --profile optimized --jobs 2
       - name: Native cache failure, raw budget and recovery lifecycle with ASan/UBSan
