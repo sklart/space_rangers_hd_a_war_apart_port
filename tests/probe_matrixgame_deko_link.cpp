@@ -2,6 +2,8 @@
 // Linkable future physical probe. Building it is NOT evidence of a GPU frame.
 #include "mesh_renderer.hpp"
 #include "vector_submission.hpp"
+#include "png_texture.hpp"
+#include "CBitmap.hpp"
 #include "mesh_shaders.hpp"
 #include "config_unicode.hpp"
 #include <array>
@@ -11,6 +13,26 @@ using namespace srhd_awa::matrixgame;
 int main(int argc,char** argv) {
   try {
     DekoMeshRenderer renderer(64,64,std::as_bytes(std::span(vertex_dksh)),std::as_bytes(std::span(fragment_dksh)));
+    if(argc==3 && std::string_view(argv[1])=="--png") {
+      const auto path=::matrixgame::native::ConfigWide(argv[2]);
+      const auto size=UploadPngTexture(renderer,1,path);
+      CBitmap reference;if(!reference.LoadRGBAFromPNG(path))throw std::runtime_error("PNG reference decode");
+      const std::array quad{
+        MeshVertex{{-1,1,.5f},{0,0,1},{0,0}},MeshVertex{{1,1,.5f},{0,0,1},{1,0}},
+        MeshVertex{{-1,-1,.5f},{0,0,1},{0,1}},MeshVertex{{1,-1,.5f},{0,0,1},{1,1}}};
+      const std::array<std::uint16_t,6> indices{0,1,2,2,1,3};renderer.SetMesh(quad,indices);
+      MeshSubmission submission{};submission.range={0,0,0,6,0,4};submission.texture_slot=1;submission.sampling=TextureSampling::NearestClamp;
+      for(int i=0;i<4;++i)submission.draw.clip_from_model[i*5]=submission.draw.normal_from_model[i*5]=1;
+      submission.draw.light[3]=1;
+      std::vector<std::byte> rgba(64*64*4);renderer.DrawFrame(std::span(&submission,1),rgba);
+      for(std::size_t y=0;y<64;++y)for(std::size_t x=0;x<64;++x) {
+        const auto sx=std::min<std::size_t>((2*x+1)*size.width/128,size.width-1);
+        const auto sy=std::min<std::size_t>((2*y+1)*size.height/128,size.height-1);
+        if(std::memcmp(rgba.data()+(y*64+x)*4,reference.Data()+sy*reference.Pitch()+sx*4,4))
+          throw std::runtime_error("PNG GPU nearest readback mismatch");
+      }
+      std::printf("PNG GPU nearest readback PASS source=%ux%u output=64x64; battle_executed=false\n",size.width,size.height);return 0;
+    }
     if(argc==3 && std::string_view(argv[1])=="--geometry-only") {
       const auto path=::matrixgame::native::ConfigWide(argv[2]);
       const auto model=VectorGeometry::Load(path.c_str());
@@ -40,7 +62,7 @@ int main(int argc,char** argv) {
           model.Vertices().size(),submissions.size(),covered);
       return 0;
     }
-    if(argc!=1)throw std::invalid_argument("expected --geometry-only <standalone VO> or no arguments");
+    if(argc!=1)throw std::invalid_argument("expected --png <PNG>, --geometry-only <VO>, or no arguments");
     const std::array mesh{
       MeshVertex{{0,0,0},{0,0,1},{0,0}}, // Unreferenced prefix; base vertex must be respected.
       MeshVertex{{-.9f,-.7f,.5f},{0,0,1},{0,0}},

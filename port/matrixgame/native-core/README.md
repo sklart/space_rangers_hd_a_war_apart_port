@@ -222,3 +222,16 @@ int64. Callback owner отслеживается отдельно от global cu
 `bash tools/matrixgame_file_arm64.sh --reminder` проверяет ARM64/QEMU contract.
 Границы и original negative controls описаны в
 [отчёте](../../../reports/matrixgame-native-reminder-20261018.md).
+
+## CBitmap и PNG
+
+Native core компилирует оригинальный CPU CBitmap и FilePNG API через libpng.
+LoadRGBAFromPNG создаёт straight RGBA8 для native GPU upload, сохраняя classic
+LoadFromPNG formats. Handles имеют uintptr_t; cleanup выполняется при decode
+и allocation errors. Проверяются размеры, pitch и per-buffer memory budgets.
+WinBitmap/GDI, JPEG/DDS decode и texture/material cache ещё не перенесены.
+
+`bash tools/matrixgame_file_arm64.sh --bitmap` проверяет independent pixel oracle.
+Все 617 PNG оригинального robots.pkg проверены отдельно на host/ARM64; CI
+использует controlled fixtures. Подробности и границы:
+[отчёт CBitmap](../../../reports/matrixgame-native-bitmap-20261018.md).
