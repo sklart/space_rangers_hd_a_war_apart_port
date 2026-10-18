@@ -43,3 +43,11 @@ target_compile_features(matrixgame-buffer-x86-reference PRIVATE cxx_std_20)
 target_compile_definitions(matrixgame-buffer-x86-reference PRIVATE MATRIXGAME_ORIGINAL_BUFFER_REFERENCE)
 target_compile_options(matrixgame-buffer-x86-reference PRIVATE /UNDEBUG)
 target_link_options(matrixgame-buffer-x86-reference PRIVATE /ENTRY:mainCRTStartup)
+
+add_executable(matrixgame-file-x86-reference
+    "${CMAKE_CURRENT_LIST_DIR}/../../../tests/test_matrixgame_native_file.cpp")
+target_link_libraries(matrixgame-file-x86-reference PRIVATE MatrixGameInternal)
+target_compile_features(matrixgame-file-x86-reference PRIVATE cxx_std_20)
+target_compile_definitions(matrixgame-file-x86-reference PRIVATE MATRIXGAME_ORIGINAL_FILE_REFERENCE)
+target_compile_options(matrixgame-file-x86-reference PRIVATE /UNDEBUG)
+target_link_options(matrixgame-file-x86-reference PRIVATE /ENTRY:mainCRTStartup)

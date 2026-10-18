@@ -1,8 +1,8 @@
 # Оригинальная CPU-часть MatrixLib
 
-Текущая библиотека содержит оригинальные CRC32.cpp, память/позицию CBuf и
-нативную реализацию UTF-16 методов CBuf и исключений. Это ещё не полный
-MatrixLib/MatrixGame. Подготовка проверяет SHA256 шести закреплённых upstream
+Текущая библиотека содержит оригинальные CRC32.cpp, память/позицию и файловые
+методы CBuf, native UTF-16 методы, исключения и CFile с настоящим файловым backend. Это ещё не полный
+MatrixLib/MatrixGame. Подготовка проверяет SHA256 девяти закреплённых upstream
 файлов после CRLF→LF и создаёт копии в build directory; upstream не изменяется.
 
 Обе декларации dword используют uint32_t. Исходный нестандартный алгоритм CRC
@@ -39,8 +39,32 @@ Switch target создаёт статическую библиотеку, без
 - matrixgame-buffer-x86-reference: 514 наборов, включая все 65536 UTF-16 units,
   байтовый transcript 89542cb4. Валидные bytes/позиции совпали с native port.
 
-LoadFromFile/SaveInFile сохранены неизменёнными в generated CBuf_file.cpp, который
-пока не включён в CPU library: CFile/pack backend ещё нужно перенести. Подставной
-файловой реализации нет. CStorage::CalcUniqID всё ещё требует явного UTF-16
+LoadFromFile/SaveInFile сохранены неизменёнными в generated CBuf_file.cpp и
+подключены к native CFile backend (см. ниже). Подставной файловой реализации нет. CStorage::CalcUniqID всё ещё требует явного UTF-16
 хеширования; прочие потребители wchar_t, heap/trace, D3D, настоящие assets, engine
 Run, rendering, campaign handoff и физические MG gates остаются незавершёнными.
+
+
+## Нативный файловый backend
+
+CFile и оригинальные LoadFromFile/SaveInFile CBuf теперь подключены к stdio и
+существующему bounded PKG reader. Девять pinned inputs проверяются перед
+подготовкой. Внутренний pimpl не включает Win32/D3D; shareMode на portable backend
+advisory. FileExist сохраняет исходное написание разделителей. Package::OpenUtf8
+нужен для явной Unicode границы; прежний Package::Open не меняет narrow-path режим.
+
+```sh
+bash tools/matrixgame_file_arm64.sh
+# Тот же контракт с настоящим установленным ресурсом:
+bash tools/matrixgame_file_arm64.sh \
+  --package "/path/to/game/DATA/robots.pkg" --entry Matrix/Building/ruins/b0.vo
+```
+
+Runner использует закреплённый официальный zlib 1.3.2 commit, не меняя системные
+пакеты. Проверки включают disk/Unicode/large-offset IO, corrupted stream recovery,
+16-entry limit и четыре reader threads. Build option CORE_BUILD_LINK_PROBE=ON
+добавляет только dependency-proof ELF к Switch static library; ELF не запускается
+и дополнительная NRO не создаётся.
+
+Подробности и незакрытые границы: reports/matrixgame-native-file-20261018.md.
+CStorage, остальные MatrixLib/engine units и реальный бой ещё не подключены.

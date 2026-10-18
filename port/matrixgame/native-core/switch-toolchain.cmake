@@ -16,7 +16,7 @@ set(CMAKE_CXX_COMPILER "${MATRIXGAME_DEVKITPRO}/devkitA64/bin/aarch64-none-elf-g
 set(CMAKE_AR "${MATRIXGAME_DEVKITPRO}/devkitA64/bin/aarch64-none-elf-ar${SDK_EXE}")
 set(CMAKE_RANLIB "${MATRIXGAME_DEVKITPRO}/devkitA64/bin/aarch64-none-elf-ranlib${SDK_EXE}")
 set(CMAKE_CXX_FLAGS_INIT "-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE -D__SWITCH__ -ffunction-sections -fdata-sections")
-set(CMAKE_FIND_ROOT_PATH "${MATRIXGAME_DEVKITPRO}/devkitA64/aarch64-none-elf")
+set(CMAKE_FIND_ROOT_PATH "${MATRIXGAME_DEVKITPRO}/devkitA64/aarch64-none-elf" "${MATRIXGAME_DEVKITPRO}/portlibs/switch")
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)

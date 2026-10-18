@@ -136,6 +136,8 @@ jobs:
             port/matrixgame/native-core/cbuf_utf16.cpp port/matrixgame/native-core/exception_native.cpp \
             -o build/mg-core-arm64/buffer-contract
           qemu-aarch64 -L /usr/aarch64-linux-gnu build/mg-core-arm64/buffer-contract
+      - name: Native MatrixLib CFile and bounded package IO on ARM64
+        run: bash tools/matrixgame_file_arm64.sh
       - name: Gesture and bounded film ordinal checks on host and ARM64
         run: python3 tests/probe_e2e59_input_index.py
       - name: Native heap reserve and generation counters on host and ARM64
@@ -187,7 +189,7 @@ jobs:
         run: |
           cmake -S port/matrixgame/native-core -B build/mg-core-switch \
             -DCMAKE_TOOLCHAIN_FILE="$GITHUB_WORKSPACE/port/matrixgame/native-core/switch-toolchain.cmake" \
-            -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
+            -DBUILD_TESTING=OFF -DCORE_BUILD_LINK_PROBE=ON -DCMAKE_BUILD_TYPE=Release
           cmake --build build/mg-core-switch --parallel 2
       - name: Verify pinned upstream remains clean
         if: always()
@@ -239,6 +241,12 @@ jobs:
           cmake --build build/mg-core-asan --parallel 2
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 \
             ctest --test-dir build/mg-core-asan --output-on-failure
+      - name: Native MatrixLib CFile registry with ThreadSanitizer
+        run: |
+          cmake -S port/matrixgame/native-core -B build/mg-core-tsan \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCORE_THREAD_SANITIZER=ON
+          cmake --build build/mg-core-tsan --parallel 2
+          TSAN_OPTIONS=halt_on_error=1 ctest --test-dir build/mg-core-tsan -R file-contract --output-on-failure
       - name: Build complete Linux host for native asset-free regressions
         run: python3 tools/e2e5_host_game_build.py --profile optimized --jobs 2
       - name: Native cache failure, raw budget and recovery lifecycle with ASan/UBSan

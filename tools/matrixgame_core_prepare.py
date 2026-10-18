@@ -5,6 +5,9 @@ import json
 from pathlib import Path
 
 INPUTS = {
+    'CFile.cpp': '09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49',
+    'CFile.hpp': '20ff28cc056a6754ea8866a250f0dd866b4d823e90af18938699a736147d0abc',
+    'CMain.hpp': 'fa22e13fe14e0484598320601203ed5289176d8a4926a2bb3fbbd51f86805d1b',
     'CException.hpp': 'b07668359bd5c9e383d5dbd652a727389faecfddc500d3d92584c32052d08303',
     'CBuf.cpp': '7a404ddcd08c96f985c07e67ed44915dae83c768e9b39617361df24891670eac',
     'CBuf.hpp': '37beddebc23e07e50a35171782a581c5901a8b27a292c5bc864f293466d9b1a0',
@@ -94,15 +97,33 @@ def prepare(output: Path):
     for include in ['#include "Mem.hpp"\n', '#include "CFile.hpp"\n']:
         implementation = implementation.replace(include, "")
     files["CBuf.cpp"] = implementation.encode("utf-8")
+    file_header = files["CFile.hpp"].decode("utf-8")
+    file_header = file_header.replace('#include <windows.h>', '#include <cstdint>\n#include <memory>')
+    file_header = file_header.replace("DWORD", "dword").replace("__int64", "std::int64_t")
+    file_header = file_header.replace("shareMode = FILE_SHARE_READ", "shareMode = FileShareRead")
+    file_header = file_header.replace("from = FILE_BEGIN", "from = FileBegin")
+    file_header = file_header.replace("namespace Base {", """namespace Base {
+inline constexpr dword FileShareRead = 1u;
+inline constexpr int FileBegin = 0, FileCurrent = 1, FileEnd = 2;
+""", 1)
+    start = file_header.index("class BASE_API CFile")
+    public = file_header.index("public:", start)
+    file_header = (file_header[:start] + "class BASE_API CFile : public CMain {\n"
+        "    struct Impl;\n    std::unique_ptr<Impl> impl_;\n\n" + file_header[public:])
+    file_header = replace_body(file_header, "static void StaticInit(void)", "static void StaticInit(void);")
+    file_header = replace_body(file_header, "void Init(const wchar *filename)", "void Init(const wchar *filename);")
+    file_header = replace_body(file_header, "void Init(const std::wstring &filename)", "void Init(const std::wstring &filename);")
+    file_header = replace_body(file_header, "bool IsOpen(void)", "bool IsOpen(void);")
+    files["CFile.hpp"] = file_header.encode("utf-8")
     output.mkdir(parents=True, exist_ok=True)
     for name, data in files.items():
         (output / name).write_bytes(data)
     report = {
-        "scope": "Original MatrixLib CRC and CBuf memory core; not a full engine build",
+        "scope": "Original MatrixLib CRC/CBuf core and native CFile API; not a full engine build",
         "upstream_pin": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
         "patch": "Fixed-width dword, explicit CBuf UTF-16LE, aligned scalar copies, checked sizes; CRC unchanged",
         "utf16_port": "CBuf explicit UTF-16LE; CStorage name hashing remains OPEN",
-        "file_io": "Original CBuf_file.cpp retained separately; CFile not yet ported",
+        "file_io": "Original CBuf_file.cpp connected to native CFile with existing bounded Package reader",
         "input_hash_format": "SHA256 of LF-normalized UTF-8 source",
         "inputs_sha256": INPUTS,
         "outputs_sha256": {name: hashlib.sha256(data).hexdigest() for name, data in files.items()},
