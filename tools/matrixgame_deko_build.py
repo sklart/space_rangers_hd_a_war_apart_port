@@ -46,6 +46,8 @@ def main() -> int:
         report['uam'] = run([uam, '--version'])
         report['deko3d_header_sha256'] = hashlib.sha256((sdk / 'libnx/include/deko3d.h').read_bytes()).hexdigest()
         report['deko3d_library_sha256'] = hashlib.sha256((sdk / 'libnx/lib/libdeko3d.a').read_bytes()).hexdigest()
+        report['jpeg_header_sha256'] = hashlib.sha256((sdk/'portlibs/switch/include/jpeglib.h').read_bytes()).hexdigest()
+        report['jpeg_library_sha256'] = hashlib.sha256((sdk/'portlibs/switch/lib/libjpeg.a').read_bytes()).hexdigest()
         shaders = []
         for stage, filename in [('vert', 'mesh.vert.glsl'), ('frag', 'mesh.frag.glsl')]:
             target = out / (stage + '.dksh')
@@ -84,6 +86,7 @@ def main() -> int:
         required += ['SetTextureAsset', 'TextureAsset6Decode']
         required += ['TextureRequest7Resolve', 'ParseOriginalTextureFlags']
         required += ['dkCmdBufBindBlendStates', 'dkCmdBufSetAlphaRef']
+        required += ['DecodeJpegTexture','jpeg_read_header','jpeg_start_decompress','jpeg_read_scanlines','jpeg_destroy_decompress']
         require(all(name in symbols for name in required), 'GPU draw/readback implementation missing from ELF')
         undefined = [line for line in symbols.splitlines() if ' UND ' in line and ' WEAK ' not in line and len(line.split()) > 7]
         require(not undefined, 'unresolved strong symbols: ' + str(undefined))

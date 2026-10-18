@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "texture_asset.hpp"
+#include "jpeg_texture.hpp"
 #include "../port/matrixgame/deko/texture_asset_upload.hpp"
 #include "CFile.hpp"
 #include "config_unicode.hpp"
@@ -7,6 +8,7 @@
 #include <cstdio>
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 #include <string>
 #ifdef _WIN32
 #include <fcntl.h>
@@ -35,6 +37,12 @@ int main(int argc,char** argv) {
   _setmode(_fileno(stdout),_O_BINARY);
 #endif
   try {
+    if(argc==3&&std::string(argv[1])=="--jpeg-codec-limit") {
+      std::ifstream file(std::filesystem::u8path(argv[2]),std::ios::binary);CHECK(bool(file));
+      const std::vector<char> source{std::istreambuf_iterator<char>{file},std::istreambuf_iterator<char>{}};
+      bool bounded=false;try{DecodeJpegTexture(std::as_bytes(std::span(source)));}catch(const std::length_error&){bounded=true;}
+      CHECK(bounded);return 0;
+    }
     if(argc!=2&&argc!=3)return 2;Controls();Base::CFile::StaticInit();
     if(argc==3){Base::CFile::AddPackFile(::matrixgame::native::ConfigWide(argv[2]).c_str());Base::CFile::OpenPackFiles();}
     std::ifstream manifest(std::filesystem::u8path(argv[1]));CHECK(bool(manifest));std::string name;
@@ -46,6 +54,10 @@ int main(int argc,char** argv) {
       Base::CFile source{::matrixgame::native::ConfigWide(name)};source.OpenRead();
       std::vector<std::byte> input(std::size_t(source.Size()));source.Read(input.data(),input.size());const auto preserved=input;
       const auto memory=TextureAsset::Decode(input);CHECK(input==preserved&&memory.format==asset.format&&memory.levels.size()==asset.levels.size());
+      if(input.size()>2&&input[0]==std::byte{255}&&input[1]==std::byte{216}) {
+        bool bounded=false;try{DecodeJpegTexture(input,8);}catch(const std::length_error&){bounded=true;}
+        CHECK(bounded&&input==preserved);
+      }
       const auto plan=PlanTextureAssetUpload(asset);std::vector<std::byte> packed(plan.bytes+16,std::byte{0xcd});PackTextureAsset(asset,packed);
       for(std::size_t i=plan.bytes;i<packed.size();++i)CHECK(packed[i]==std::byte{0xcd});
       Words(1,asset.format,asset.levels.size());
