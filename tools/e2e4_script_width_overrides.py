@@ -285,6 +285,16 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                     "            return static_cast<std::uint32_t>(RefValue->GetInt());",
                     1, relative.as_posix())
                 text = text[:get_start] + get_body + text[get_end:]
+                # Integer cells can already carry a native address. Ordinary
+                # assignment must retain it; numeric coercions still use GetInt.
+                text = _replace_exact(text,
+                    "                Dest->SetInt(Source->GetInt());",
+                    "                if (pas::is_one_of<vkInt, vkDword>(TVarEC_RealVType(Source))) {\n"
+                    "                    Dest->SetDword(Source->GetDword());\n"
+                    "                } else {\n"
+                    "                    Dest->SetInt(Source->GetInt());\n"
+                    "                }",
+                    1, relative.as_posix())
                 text = _replace_exact(text, "void TVarEC::SetDword(std::uint32_t Value) {",
                     "void TVarEC::SetDword(std::uintptr_t Value) {", 1, relative.as_posix())
                 set_start = text.index("void TVarEC::SetDword(std::uintptr_t Value) {")
@@ -353,6 +363,13 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                     1, relative.as_posix())
                 text = text[:load_start] + load_body + text[load_end:]
             else:
+                text = _replace_exact(text, '#include "types/BreakMessageGIException.hpp"',
+                    '#include "e2e5_script_pointer_int.hpp"\n#include "types/BreakMessageGIException.hpp"',
+                    1, relative.as_posix())
+                text = _replace_exact(text,
+                    "av[0]->SetInt(static_cast<std::int32_t>(reinterpret_cast<std::uintptr_t>(ruins->FlyToStar)));",
+                    "srhd_awa::platform::e2e5_script_pointer_int::Set(av[0], reinterpret_cast<std::uintptr_t>(ruins->FlyToStar));",
+                    1, relative.as_posix())
                 text = _replace_exact(text,
                     "static_cast<std::uint32_t>(Place->TargetValue)",
                     "Place->TargetValue", 1, relative.as_posix())
