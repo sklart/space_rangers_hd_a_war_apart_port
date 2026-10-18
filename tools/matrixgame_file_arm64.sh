@@ -3,6 +3,8 @@
 set -euo pipefail
 project_root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$project_root"
+profile=file
+if [[ "${1:-}" == --storage ]]; then profile=storage; shift; fi
 out="$project_root/build/mg-core-arm64"
 zlib_source="$project_root/build/matrixgame/zlib-1.3.2-source"
 expected_zlib=da607da739fa6047df13e66a2af6b8bec7c2a498
@@ -23,14 +25,20 @@ cmake -S "$zlib_source" -B "$out/zlib" \
   -DZLIB_BUILD_SHARED=OFF -DZLIB_BUILD_STATIC=ON -DZLIB_BUILD_TESTING=OFF -DZLIB_INSTALL=OFF
 cmake --build "$out/zlib" --target zlibstatic --parallel 2
 python3 tools/matrixgame_core_prepare.py --output "$out/source" > "$out/source-provenance.json"
+sources=(
+  "$out/source/CBuf.cpp" "$out/source/CBuf_file.cpp"
+  port/matrixgame/native-core/cbuf_utf16.cpp port/matrixgame/native-core/exception_native.cpp
+  port/matrixgame/native-core/file_native.cpp port/switch/platform/package.cpp
+)
+if [[ "$profile" == storage ]]; then
+  sources+=("$out/source/CStorage.cpp" "$out/source/CRC32.cpp" port/matrixgame/native-core/heap_native.cpp)
+fi
 aarch64-linux-gnu-g++ -std=c++20 -O2 -g -pthread \
   -I"$out/source" -Iport/matrixgame/native-core -Iport/switch/platform \
   -I"$out/zlib" -I"$zlib_source" \
-  tests/test_matrixgame_native_file.cpp "$out/source/CBuf.cpp" "$out/source/CBuf_file.cpp" \
-  port/matrixgame/native-core/cbuf_utf16.cpp port/matrixgame/native-core/exception_native.cpp \
-  port/matrixgame/native-core/file_native.cpp port/switch/platform/package.cpp \
-  "$out/zlib/libz.a" -o "$out/file-contract"
-python3 tests/probe_matrixgame_native_file.py --binary /usr/bin/qemu-aarch64 \
-  --runner-binary "$out/file-contract" --qemu-sysroot /usr/aarch64-linux-gnu \
-  --output "$out/file-fixtures" "$@"
+  "tests/test_matrixgame_native_$profile.cpp" "${sources[@]}" \
+  "$out/zlib/libz.a" -o "$out/$profile-contract"
+python3 "tests/probe_matrixgame_native_$profile.py" --binary /usr/bin/qemu-aarch64 \
+  --runner-binary "$out/$profile-contract" --qemu-sysroot /usr/aarch64-linux-gnu \
+  --output "$out/$profile-fixtures" "$@"
 [[ -z "$(zgit status --porcelain --untracked-files=normal)" ]] || { echo "zlib build changed source" >&2; exit 2; }

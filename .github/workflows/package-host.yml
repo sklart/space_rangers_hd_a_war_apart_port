@@ -138,6 +138,8 @@ jobs:
           qemu-aarch64 -L /usr/aarch64-linux-gnu build/mg-core-arm64/buffer-contract
       - name: Native MatrixLib CFile and bounded package IO on ARM64
         run: bash tools/matrixgame_file_arm64.sh
+      - name: Original MatrixLib STRG storage on ARM64
+        run: bash tools/matrixgame_file_arm64.sh --storage
       - name: Gesture and bounded film ordinal checks on host and ARM64
         run: python3 tests/probe_e2e59_input_index.py
       - name: Native heap reserve and generation counters on host and ARM64
@@ -234,7 +236,7 @@ jobs:
             ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 TSAN_OPTIONS=halt_on_error=1 \
               ctest --test-dir "build/mg-bridge-$sanitizer" --output-on-failure
           done
-      - name: Original MatrixLib CRC and CBuf with ASan and UBSan
+      - name: Original MatrixLib CRC, CBuf, CFile and CStorage with ASan and UBSan
         run: |
           cmake -S port/matrixgame/native-core -B build/mg-core-asan \
             -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCORE_SANITIZERS=ON

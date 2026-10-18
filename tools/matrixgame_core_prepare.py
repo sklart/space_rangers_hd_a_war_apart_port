@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+from matrixgame_storage_overrides import INPUTS as STORAGE_INPUTS, patch_storage
 
 INPUTS = {
     'CFile.cpp': '09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49',
@@ -16,6 +17,7 @@ INPUTS = {
     "CRC32.cpp": "f6bf4e86be9ae18dc836e0e5dc87536e36af09c7bf33705064e4a493fafe3c76",
 }
 
+INPUTS.update(STORAGE_INPUTS)
 
 def replace_body(text, signature, replacement):
     if text.count(signature) != 1:
@@ -59,7 +61,20 @@ def prepare(output: Path):
         "void WStrText(const std::wstring& str)",
     ]:
         header = replace_body(header, signature, signature + ";")
-    header = header.replace("#include <vector>", "#include <vector>\n#include <type_traits>")
+    header = header.replace("    size_t Len(void) const { return m_Buf.size(); }",
+        "    size_t Len(void) const { return m_Buf.size(); }\n    size_t Capacity(void) const { return m_Buf.capacity(); }")
+    header = header.replace("#include <vector>", "#include <vector>\n#include <type_traits>\n#include <utility>")
+    header = header.replace("    ~CBuf() = default;", """    ~CBuf() = default;
+    CBuf(const CBuf&) = default;
+    CBuf& operator=(const CBuf&) = default;
+    CBuf(CBuf&& other) noexcept
+      : m_Pointer(std::exchange(other.m_Pointer, 0)), m_Buf(std::move(other.m_Buf)) {}
+    CBuf& operator=(CBuf&& other) noexcept {
+        if (this != &other) {
+            m_Pointer = std::exchange(other.m_Pointer, 0); m_Buf = std::move(other.m_Buf);
+        }
+        return *this;
+    }""")
     header = header.replace("return *(D *)(m_Buf.data() + m_Pointer - sizeof(D));",
         "static_assert(std::is_trivially_copyable_v<D>);\n        D value;\n        memcpy(&value, m_Buf.data() + m_Pointer - sizeof(D), sizeof(D));\n        return value;")
     header = header.replace("*(D*)(m_Buf.data() + m_Pointer) = zn;",
@@ -115,6 +130,7 @@ inline constexpr int FileBegin = 0, FileCurrent = 1, FileEnd = 2;
     file_header = replace_body(file_header, "void Init(const std::wstring &filename)", "void Init(const std::wstring &filename);")
     file_header = replace_body(file_header, "bool IsOpen(void)", "bool IsOpen(void);")
     files["CFile.hpp"] = file_header.encode("utf-8")
+    patch_storage(files, root, replace_body)
     output.mkdir(parents=True, exist_ok=True)
     for name, data in files.items():
         (output / name).write_bytes(data)
