@@ -40,15 +40,15 @@ Switch target создаёт статическую библиотеку, без
   байтовый transcript 89542cb4. Валидные bytes/позиции совпали с native port.
 
 LoadFromFile/SaveInFile сохранены неизменёнными в generated CBuf_file.cpp и
-подключены к native CFile backend (см. ниже). Подставной файловой реализации нет. CStorage::CalcUniqID всё ещё требует явного UTF-16
-хеширования; прочие потребители wchar_t, heap/trace, D3D, настоящие assets, engine
+подключены к native CFile backend (см. ниже). Подставной файловой реализации нет. CStorage::CalcUniqID теперь явно хеширует UTF-16LE; прочие потребители wchar_t,
+Win32 trace, D3D, engine
 Run, rendering, campaign handoff и физические MG gates остаются незавершёнными.
 
 
 ## Нативный файловый backend
 
 CFile и оригинальные LoadFromFile/SaveInFile CBuf теперь подключены к stdio и
-существующему bounded PKG reader. Девять pinned inputs проверяются перед
+существующему bounded PKG reader. Четырнадцать pinned inputs проверяются перед
 подготовкой. Внутренний pimpl не включает Win32/D3D; shareMode на portable backend
 advisory. FileExist сохраняет исходное написание разделителей. Package::OpenUtf8
 нужен для явной Unicode границы; прежний Package::Open не меняет narrow-path режим.
@@ -67,4 +67,38 @@ Runner использует закреплённый официальный zlib
 и дополнительная NRO не создаётся.
 
 Подробности и незакрытые границы: reports/matrixgame-native-file-20261018.md.
-CStorage, остальные MatrixLib/engine units и реальный бой ещё не подключены.
+CStorage подключён к CPU-библиотеке; остальные MatrixLib/engine units и реальный бой ещё не подключены.
+
+
+## CStorage: настоящий формат STRG и ZL03
+
+Подготавливается оригинальный CStorage.cpp с проверкой SHA исходников. Изменения
+касаются переносимости, владения памятью и проверки границ; заглушек загрузчика нет.
+Дисковая структура остаётся little-endian с 12-байтными packed-заголовками;
+ST_INT32/ST_DWORD/ST_FLOAT/ST_DOUBLE/ST_BYTE/ST_WCHAR и CalcUniqID сохраняются.
+WCHAR-данные и имена кодируются явно в UTF-16LE при обычном ABI wchar_t платформы.
+
+Перемещение записей заменяет realloc/memcpy объектов со std::wstring. Неудачная
+загрузка не заменяет прежние записи. Проверяются счётчики, смещения, типы, массивы,
+полнота deflate-блоков и отсутствие хвостовых байтов. Исправлены очистка compressed
+флага колонки и продвижение входного курсора. ZL03 encoder использует compressBound
+для короткого последнего блока. Decoder выделяет выход один раз, избегая удвоения
+capacity при последовательном расширении vector. Размер файла проверяется до чтения.
+
+Лимит 256 MiB ограничивает вход, распаковку и оценку новых структур загрузки;
+учитывается Capacity входного/распакованного CBuf. Это не общий лимит RSS: существующее
+состояние CStorage при транзакционной замене, allocator overhead и память вызывающей
+стороны в этот бюджет не входят. Оценка строк консервативна, но не заменяет глобальный
+учёт allocator. В typed-pointer API требуется выравнивание; GetValue/SetValue используют
+memcpy и поддерживают double по исходному смещению 12. Сериализованный формат не меняется.
+
+```sh
+bash tools/matrixgame_file_arm64.sh --storage
+bash tools/matrixgame_file_arm64.sh --storage \
+  --package "/path/to/game/DATA/robots.pkg" --entry Matrix/Building/ruins/b0.vo
+```
+
+Доказательства и оставшиеся границы: reports/matrixgame-native-storage-20261018.md.
+CStorage_blockpar.cpp сохраняет исходные StoreBlockPar/RestoreBlockPar, но пока не
+компилируется: реализация CBlockPar/ParamParser ещё не перенесена. Ни настоящий
+engine Run, ни GPU execution, ни MG0–MG5/возврат в кампанию этим контрактом не доказаны.
