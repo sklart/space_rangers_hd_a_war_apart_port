@@ -16,6 +16,7 @@ struct TextRequest {
   std::uint32_t color{};
   std::int32_t width{}, height{}, align_x{}, align_y{}, wrap{}, offset_x{}, offset_y{};
   Rect clip;
+  bool has_clip{true};
 };
 // Pixels remain borrowed until FreeText/Reset/destruction. The owner is never
 // encoded into a DWORD. The native game supplies its existing ARGB raster.

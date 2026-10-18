@@ -7,6 +7,7 @@ from matrixgame_storage_overrides import INPUTS as STORAGE_INPUTS, patch_storage
 from matrixgame_blockpar_overrides import INPUTS as BLOCKPAR_INPUTS, patch_blockpar
 from matrixgame_math_overrides import INPUTS as MATH_INPUTS, SUBDIRS as MATH_SUBDIRS, patch_math
 from matrixgame_random_overrides import INPUTS as RANDOM_INPUTS, patch_random
+from matrixgame_engine_api_overrides import INPUTS as ENGINE_INPUTS, SUBDIRS as ENGINE_SUBDIRS, patch_engine_api
 
 INPUTS = {
     'CFile.cpp': '09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49',
@@ -24,6 +25,8 @@ INPUTS.update(STORAGE_INPUTS)
 INPUTS.update(BLOCKPAR_INPUTS)
 INPUTS.update(MATH_INPUTS)
 INPUTS.update(RANDOM_INPUTS)
+INPUTS.update(ENGINE_INPUTS)
+SOURCE_SUBDIRS={**MATH_SUBDIRS, **ENGINE_SUBDIRS}
 
 def replace_body(text, signature, replacement):
     if text.count(signature) != 1:
@@ -43,7 +46,7 @@ def prepare(output: Path):
     if output.resolve().is_relative_to((root / "upstream").resolve()):
         raise ValueError("Refusing to write into pinned upstream sources")
     source = root / "upstream/matrixgame/MatrixLib/Base"
-    files = {name: (source / MATH_SUBDIRS.get(name, "") / name).read_bytes().replace(b"\r\n", b"\n") for name in INPUTS}
+    files = {name: (source / SOURCE_SUBDIRS.get(name, "") / name).read_bytes().replace(b"\r\n", b"\n") for name in INPUTS}
     # Validate every input before producing any source from a different revision.
     for name, data in files.items():
         if hashlib.sha256(data).hexdigest() != INPUTS[name]:
@@ -140,6 +143,7 @@ inline constexpr int FileBegin = 0, FileCurrent = 1, FileEnd = 2;
     patch_blockpar(files, replace_body)
     patch_math(files, root, replace_body)
     patch_random(files, replace_body)
+    patch_engine_api(files)
     output.mkdir(parents=True, exist_ok=True)
     for name, data in files.items():
         (output / name).write_bytes(data)

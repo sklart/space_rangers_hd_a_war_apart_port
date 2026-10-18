@@ -112,3 +112,20 @@ Unicode, частичный RenderText failure и поля settings/statistics. 
 Первый deko3d pass описан в [deko/README.md](deko/README.md).
 Offline shaders и ARM64 ELF link/audit проверены; GPU main не выполнялся,
 NRO не выпускалась. Это не полный renderer или планетарный бой.
+
+## Нативный engine API и полная компиляция
+
+`native/engine_callbacks.hpp` соединяет настоящую таблицу `SMGDRangersInterface`
+с `RangersBridge`. Все 16 slots сохраняют исходные типы; sound/image IDs остаются
+32-битными порядковыми номерами, pixels и borrowed handles сохраняют указатели.
+Контекст удерживается до возврата каждого вызова. Подключать таблицу следует при
+остановленном engine; game services должны пережить выполняющиеся callbacks.
+UI thread dispatch здесь не выполняется. ARM64 contract:
+`bash tools/matrixgame_engine_api_arm64.sh`.
+
+`native-engine/CMakeLists.txt` подготавливает копию полного pinned source tree.
+Для проверки оставшихся зависимостей явно собирайте target `matrixgame-native-engine`.
+По состоянию на 18.10.2026 этот target **не компилируется**: `VectorObject.hpp`
+всё ещё требует `d3d9.h`. Успех default CPU targets не подтверждает сборку движка.
+Подробности, SDK ELF provenance и границы проверок:
+[отчёт engine API](../../reports/matrixgame-native-engine-api-20261018.md).

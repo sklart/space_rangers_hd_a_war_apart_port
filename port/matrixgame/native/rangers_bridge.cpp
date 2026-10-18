@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "rangers_bridge.hpp"
+// Load the runtime from this translation unit before entering types/. MSVC's
+// nested quoted-include search would otherwise select types/classes.hpp.
+#include "runtime_support.hpp"
 #include "types/Robot.hpp"
 #include <atomic>
 #include <limits>
@@ -87,7 +90,7 @@ TextImage RangersBridge::RenderText(const TextRequest& request) {
   Robot::TRobotTextImage native{};
   try {
     impl_->callbacks.RenderText(text.data(), font.data(), request.color, request.width, request.height,
-        request.align_x, request.align_y, request.wrap, request.offset_x, request.offset_y, &clip, &native);
+        request.align_x, request.align_y, request.wrap, request.offset_x, request.offset_y, request.has_clip ? &clip : nullptr, &native);
     impl_->images.emplace(id, native);
   } catch (...) { impl_->callbacks.FreeText(&native); throw; }
   return {{id}, native.Pixels, native.Pitch, native.Width, native.Height};

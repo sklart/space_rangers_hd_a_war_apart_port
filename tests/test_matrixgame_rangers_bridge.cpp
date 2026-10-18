@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Callback/ownership contract only. No renderer or battle is simulated here.
 #include "rangers_bridge.hpp"
+#include "engine_callbacks.hpp"
+#include "MatrixGame.h"
+#include "runtime_support.hpp"
+#include <condition_variable>
+#include <mutex>
 #include "types/Robot.hpp"
 #include <array>
 #include <cassert>
@@ -19,10 +24,14 @@ namespace {
 struct Sound { float volume{1}, pan{}; bool playing{}; };
 struct Image { std::array<unsigned char, 24> pixels{}; };
 int sounds{}, images{}, calls[16]{}, render_failure{};
+bool null_clip{};
+std::mutex play_gate;
+std::condition_variable play_condition;
+bool hold_play{},play_entered{},release_play{};
 float music{.6f};
 std::u16string observed_path;
 Sound* Native(GR_Sound::TSoundBufferControl* p) { return reinterpret_cast<Sound*>(p); }
-void PAS_STDCALL Play(char16_t* p) { ++calls[0]; observed_path=p; if (*p) *p=u'!'; }
+void PAS_STDCALL Play(char16_t* p) { ++calls[0]; observed_path=p; if (*p) *p=u'!'; std::unique_lock lock(play_gate); if(hold_play){play_entered=true;play_condition.notify_all();play_condition.wait(lock,[]{return release_play;});} }
 GR_Sound::TSoundBufferControl* PAS_STDCALL Create(char16_t* p, std::int32_t group, std::int32_t loop) {
   ++calls[1]; observed_path=p; assert(group==7 && loop==1);
   ++sounds; return reinterpret_cast<GR_Sound::TSoundBufferControl*>(new Sound);
@@ -40,12 +49,13 @@ void PAS_STDCALL Text(char16_t* text,char16_t* font,std::uint32_t color,std::int
   ++calls[9]; assert(std::u16string_view(text)==u"Текст \U0001F680");
   assert(std::u16string_view(font)==u"Шрифт"); assert(color==0xA1B2C3D4u);
   assert(w==3 && h==2 && ax==1 && ay==2 && wrap==1 && ox==-3 && oy==4);
-  assert(clip->Left==-1 && clip->Top==2 && clip->Right==3 && clip->Bottom==4);
-  text[0]=u'!'; font[0]=u'!'; clip->Left=123;
+  if(null_clip) assert(!clip);
+  else assert(clip && clip->Left==-1 && clip->Top==2 && clip->Right==3 && clip->Bottom==4);
+  text[0]=u'!'; font[0]=u'!'; if(clip)clip->Left=123;
   if(render_failure==1) throw std::bad_alloc();
   auto* image=new Image; ++images;
   out->Buffer=reinterpret_cast<GR_GraphBuf::TGraphBufGR*>(image);
-  out->Pixels=image->pixels.data(); out->Pitch=12; out->Width=3; out->Height=2;
+  out->Pixels=image->pixels.data(); out->Pitch=render_failure==3 ? -12 : 12; out->Width=3; out->Height=2;
   if(render_failure==2) throw std::bad_alloc();
 }
 void PAS_STDCALL FreeText(Robot::PRobotTextImage p) {
@@ -106,6 +116,7 @@ int main() {
     bridge.RenderText(request); bridge.Reset(); assert(sounds==0 && images==0);
     auto fresh=bridge.CreateSound(path,7,true); assert(fresh.value!=stale.value);
     Reject<std::out_of_range>([&]{bridge.StartSound(stale);});
+#ifndef MATRIXGAME_BRIDGE_NO_THREADS
     // Four callers exercise table/creation/release serialization.
     std::vector<std::thread> workers;
     for(int i=0;i<4;++i) workers.emplace_back([&]{for(int j=0;j<200;++j) {
@@ -113,12 +124,54 @@ int main() {
       bridge.SetSoundVolume(id,.3f); assert(bridge.GetSoundVolume(id)==.3f); bridge.FreeSound(id);
     }});
     for(auto& worker:workers) worker.join();
+#endif
     bridge.RenderText(request); // Destructor owns both this image and 'fresh'.
   }
   assert(sounds==0 && images==0);
   for(auto count:calls) assert(count>0);
+  auto* api=EngineCallbacks::Table();
+  Reject<std::logic_error>([&]{api->m_ProgressBar(.25f);});
+  std::uint32_t old_engine_sound{};
+  {
+    EngineCallbacks binding(callbacks);
+    Reject<std::logic_error>([&]{EngineCallbacks duplicate(callbacks);});
+    wchar_t path[]=L"sound/\U0001f680";
+    api->m_Sound(path);assert(path[0]==L's' && observed_path==u"sound/\U0001f680");
+    auto id=api->m_SoundCreate(path,7,1);old_engine_sound=id;
+    api->m_SoundPlay(id);assert(api->m_SoundIsPlay(id)==1);
+    api->m_SoundVolume(id,.3f);api->m_SoundPan(id,-.7f);
+    assert(api->m_SoundGetVolume(id)==.3f && api->m_SoundGetPan(id)==-.7f);
+    api->m_SoundDestroy(id);assert(sounds==0);
+    wchar_t caption[]=L"\u0422\u0435\u043a\u0441\u0442 \U0001f680",font[]=L"\u0428\u0440\u0438\u0444\u0442";
+    Base::CRect clip(-1,2,3,4);SMGDRangersInterfaceText it{};
+    auto render=[&](Base::CRect* rect){api->m_RangersText(caption,font,0xA1B2C3D4u,3,2,1,2,1,-3,4,rect,&it);};
+    render(&clip);assert(it.m_Image && it.m_Buf && it.m_Pitch==12 && it.m_SizeX==3 && it.m_SizeY==2);
+    assert(caption[0]==wchar_t(0x422) && clip.left==-1);api->m_RangersTextClear(&it);assert(!it.m_Image&&!it.m_Buf&&images==0);
+    null_clip=true;render(nullptr);api->m_RangersTextClear(&it);null_clip=false;
+    for(int failure:{1,2}){render_failure=failure;Reject<std::bad_alloc>([&]{render(&clip);});assert(!it.m_Image&&!it.m_Buf&&images==0);}
+    render_failure=3;Reject<std::range_error>([&]{render(&clip);});assert(!it.m_Image&&images==0);render_failure=0;
+    api->m_ProgressBar(.25f);api->m_Takt();api->m_Begin();api->m_MusicVolumeSet(.4f);assert(api->m_MusicVolumeGet()==.4f);
+    api->m_SoundCreate(path,7,1);render(&clip); // Context owns unreleased resources.
+  }
+  assert(sounds==0&&images==0);Reject<std::logic_error>([&]{api->m_Takt();});
+  {EngineCallbacks again(callbacks);Reject<std::out_of_range>([&]{api->m_SoundPlay(old_engine_sound);});}
+#ifndef MATRIXGAME_BRIDGE_NO_THREADS
+  {
+    auto binding=std::make_unique<EngineCallbacks>(callbacks);
+    wchar_t path[]=L"pinned";api->m_SoundCreate(path,7,1);
+    {std::lock_guard lock(play_gate);hold_play=true;play_entered=false;release_play=false;}
+    std::thread worker([&]{api->m_Sound(path);});
+    {std::unique_lock lock(play_gate);play_condition.wait(lock,[]{return play_entered;});}
+    binding.reset();assert(sounds==1);Reject<std::logic_error>([&]{api->m_Takt();});
+    {std::lock_guard lock(play_gate);release_play=true;}play_condition.notify_all();worker.join();
+    {std::lock_guard lock(play_gate);hold_play=false;}
+    assert(sounds==0);
+  }
+#endif
+  auto defaults=SRobotsSettings::generate_default_settings();
+  assert(!defaults.FDirect3D&&!defaults.FD3DDevice&&!defaults.m_ResolutionX&&!defaults.m_ResolutionY);
   Robot::TRobotDisplaySettingsPrefix settings{};
-  int api{},device{}; settings.Direct3D=&api; settings.Device=&device;
+  int settings_api{},device{}; settings.Direct3D=&settings_api; settings.Device=&device;
   settings.ShowStencilShadows=1; settings.ShowProjShadows=2; settings.SelectEx=3;
   settings.LandTexturesGloss=4; settings.ObjTexturesGloss=5; settings.SoftwareCursor=6;
   settings.Sky=2; settings.RobotShadow=1; settings.ColorDepth=32;
@@ -126,13 +179,22 @@ int main() {
   settings.Brightness=.1f; settings.Contrast=.2f; settings.FSAASamples=4;
   settings.Anisotropy=8; settings.MaxDistance=.9f; settings.VSync=1;
   auto native=ReadSettings(settings);
-  assert(native.direct3d==&api && native.device==&device && native.stencil_shadows && native.projected_shadows &&
+  assert(native.direct3d==&settings_api && native.device==&device && native.stencil_shadows && native.projected_shadows &&
     native.selection_ex && native.terrain_gloss && native.object_gloss && native.software_cursor && native.sky==2 &&
     native.robot_shadow==1 && native.color_depth==32 && native.width==1280 && native.height==720 && native.refresh_rate==60 &&
     native.brightness==.1f && native.contrast==.2f && native.fsaa_samples==4 && native.anisotropy==8 && native.max_distance==.9f && native.vsync);
   aGalaxyStruct::TPlanetBattleStatistics input{std::numeric_limits<std::int32_t>::min(),2,3,4,5,6},output{};
+  auto engine_settings=ToEngineSettings(native);
+  assert(engine_settings.FDirect3D==&settings_api && engine_settings.FD3DDevice==&device && engine_settings.m_ResolutionX==1280 && engine_settings.m_ResolutionY==720 && engine_settings.m_VSync);
+  SRobotGameState engine_stats{std::numeric_limits<int>::min(),2,3,4,5,6};
+  auto decoded_stats=ReadEngineStatistics(engine_stats);assert(decoded_stats.signed_time_ms==std::numeric_limits<int>::min()&&decoded_stats.buildings_destroyed==6);
   auto statistics=ReadStatistics(input); WriteStatistics(statistics,output);
   assert(output.SignedTimeMs==input.SignedTimeMs && output.RobotsBuilt==2 && output.RobotsDestroyed==3 &&
     output.TurretsBuilt==4 && output.TurretsDestroyed==5 && output.BuildingsDestroyed==6);
-  std::printf("native Rangers bridge PASS callbacks=16 concurrent_sound_cycles=800 resources_remaining=0 pointer_bytes=%zu battle_executed=false\n",sizeof(void*));
+#ifdef MATRIXGAME_BRIDGE_NO_THREADS
+  constexpr unsigned cycles=0;
+#else
+  constexpr unsigned cycles=800;
+#endif
+  std::printf("native Rangers bridge PASS callbacks=16 engine_table_slots=16 concurrent_sound_cycles=%u resources_remaining=0 pointer_bytes=%zu battle_executed=false\n",cycles,sizeof(void*));
 }
