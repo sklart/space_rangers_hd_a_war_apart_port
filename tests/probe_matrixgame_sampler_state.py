@@ -14,7 +14,7 @@ SOURCES = {
     'MatrixGame/src/MatrixSampleStateManager.cpp': '6d2562c1ba84c166023efbdff1b16b92a7e0904bd5a22474d17037f8702b9b1e',
 }
 REGS = {'ADDRESSU': 1, 'ADDRESSV': 2, 'ADDRESSW': 3, 'MAGFILTER': 5,
-        'MINFILTER': 6, 'MIPFILTER': 7, 'MIPMAPLODBIAS': 8}
+        'MINFILTER': 6, 'MIPFILTER': 7, 'MIPMAPLODBIAS': 8, 'MAXANISOTROPY': 10}
 CONSTANTS = {'D3DTADDRESS_WRAP': 1, 'D3DTADDRESS_CLAMP': 3,
              'D3DTEXF_NONE': 0, 'D3DTEXF_POINT': 1, 'D3DTEXF_LINEAR': 2}
 
@@ -42,8 +42,8 @@ def main():
     # Explicit mixed filter controls retain linear mip through point min/mag.
     bits = lambda f: struct.unpack('<I', struct.pack('<f', f))[0]
     operations += [(7, 2), (8, bits(-1.0)), (5, 1), (6, 1), (1, 3), (2, 1)]
-    choices = {1: (1, 3), 2: (1, 3), 3: (1, 3), 5: (1, 2), 6: (1, 2), 7: (0, 1, 2),
-               8: tuple(bits(f) for f in (-15., -3.25, -1., -0., 0., .5, 1., 3.75, 15.))}
+    choices = {1: (1, 3), 2: (1, 3), 3: (1, 3), 5: (1, 2), 6: (1, 2, 3), 7: (0, 1, 2),
+               8: tuple(bits(f) for f in (-15., -3.25, -1., -0., 0., .5, 1., 3.75, 15.)), 10: tuple(range(1, 17))}
     for reg, values in choices.items():
         operations.extend((reg, value) for value in values)
     seed = 0x71643891; keys = list(choices)
@@ -51,11 +51,11 @@ def main():
         seed = (seed*1664525+1013904223) & 0xffffffff; reg = keys[seed % len(keys)]
         seed = (seed*1664525+1013904223) & 0xffffffff
         operations.append((reg, choices[reg][seed % len(choices[reg])]))
-    order = list(REGS.values()); current = [1, 1, 1, 1, 1, 0, 0]
-    expected = bytearray(struct.pack('<7I', *current))
+    order = list(REGS.values()); current = [1, 1, 1, 1, 1, 0, 0, 1]
+    expected = bytearray(struct.pack('<8I', *current))
     for reg, value in operations:
         current[order.index(reg)] = value
-        expected += struct.pack('<7I', *current)
+        expected += struct.pack('<8I', *current)
     manifest = out/'registers.txt'
     manifest.write_text(''.join(f'{r} {v}\n' for r, v in operations))
     command = [str(a.binary.resolve())]
@@ -73,7 +73,7 @@ def main():
     result = dict(scope='Sampler registers only; no draw, GPU image or battle',
         operations=len(operations), source_constants=inventory, transcript_bytes=len(expected),
         sha256=hashlib.sha256(expected).hexdigest(), d3d9_nullref_match=bool(a.reference_binary),
-        unsupported='anisotropic manager path, mirror/border, sRGB, max mip, displacement')
+        unsupported='anisotropic mag/mip and original manager integration, mirror/border, sRGB, max mip, displacement')
     (out/'oracle.json').write_text(json.dumps(result, indent=2)+'\n')
     print(json.dumps(result))
 

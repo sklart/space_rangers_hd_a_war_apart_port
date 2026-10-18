@@ -18,7 +18,7 @@ int main(int argc,char** argv) {
   try {
     DekoMeshRenderer renderer(64,64,std::as_bytes(std::span(vertex_dksh)),std::as_bytes(std::span(fragment_dksh)));
     if(argc==2 && std::string_view(argv[1])=="--sampler-state") {
-      ProbeSamplerGpu(renderer);std::printf("GPU sampler reference PASS controls=14; battle_executed=false\n");return 0;
+      ProbeSamplerGpu(renderer);std::printf("GPU sampler reference PASS controls=15; battle_executed=false\n");return 0;
     }
     if(argc==2 && std::string_view(argv[1])=="--raster-state") {
       ProbeRasterGpu(renderer);std::printf("GPU raster state reference PASS controls=8; battle_executed=false\n");return 0;

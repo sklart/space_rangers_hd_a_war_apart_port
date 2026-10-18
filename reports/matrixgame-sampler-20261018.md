@@ -1,5 +1,8 @@
 # MatrixGame: независимые sampler-состояния
 
+Срез реализации PR №20 (`8766c51`). Последующее расширение MIN-анизотропии:
+[отдельный отчёт](matrixgame-anisotropy-20261018.md).
+
 Статус: CPU/register/reference PASS; Horizon compile/link PASS;
 **Switch GPU NOT TESTED; full MatrixGame/battle parity OPEN**.
 

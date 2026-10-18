@@ -7,12 +7,12 @@
 #include <stdexcept>
 namespace srhd_awa::matrixgame {
 // Original numeric state IDs, not a D3D compatibility API. Unsupported states
-// fail explicitly; anisotropy, border/sRGB and displacement are not implemented.
+// fail explicitly; anisotropic mag/mip, border/sRGB and displacement are not implemented.
 enum class SamplerRegister : std::uint32_t {
-  AddressU=1,AddressV=2,AddressW=3,MagFilter=5,MinFilter=6,MipFilter=7,LodBias=8
+  AddressU=1,AddressV=2,AddressW=3,MagFilter=5,MinFilter=6,MipFilter=7,LodBias=8,MaxAnisotropy=10
 };
 enum class TextureAddress : std::uint32_t { Repeat=1,Clamp=3 };
-enum class TextureFilter : std::uint32_t { Point=1,Linear=2 };
+enum class TextureFilter : std::uint32_t { Point=1,Linear=2,Anisotropic=3 };
 enum class TextureMipFilter : std::uint32_t { None=0,Point=1,Linear=2 };
 // Retained explicit presets for existing diagnostic callers.
 enum class TextureSampling : std::uint32_t {
@@ -24,6 +24,7 @@ struct MeshSamplerState {
   TextureFilter mag{TextureFilter::Point},min{TextureFilter::Point};
   TextureMipFilter mip{TextureMipFilter::None};
   float lod_bias{};
+  std::uint32_t max_anisotropy{1};
   MeshSamplerState()=default;
   MeshSamplerState(TextureSampling preset) {
     const auto bits=static_cast<std::uint32_t>(preset);
@@ -35,8 +36,8 @@ struct MeshSamplerState {
   void Validate() const {
     const auto address=[](TextureAddress a){return a==TextureAddress::Repeat||a==TextureAddress::Clamp;};
     const auto filter=[](TextureFilter f){return f==TextureFilter::Point||f==TextureFilter::Linear;};
-    if(!address(u)||!address(v)||!address(w)||!filter(min)||!filter(mag)||
-       static_cast<std::uint32_t>(mip)>2||!std::isfinite(lod_bias))
+    if(!address(u)||!address(v)||!address(w)||!(filter(min)||min==TextureFilter::Anisotropic)||!filter(mag)||
+       static_cast<std::uint32_t>(mip)>2||!std::isfinite(lod_bias)||max_anisotropy<1||max_anisotropy>16)
       throw std::invalid_argument("unsupported sampler state value");
   }
   void Apply(SamplerRegister reg,std::uint32_t value) {
@@ -48,18 +49,19 @@ struct MeshSamplerState {
       case SamplerRegister::MagFilter:next.mag=static_cast<TextureFilter>(value);break;
       case SamplerRegister::MinFilter:next.min=static_cast<TextureFilter>(value);break;
       case SamplerRegister::MipFilter:next.mip=static_cast<TextureMipFilter>(value);break;
+      case SamplerRegister::MaxAnisotropy:next.max_anisotropy=value;break;
       case SamplerRegister::LodBias:next.lod_bias=std::bit_cast<float>(value);break;
       default:throw std::invalid_argument("unsupported sampler register");
     }
     next.Validate();*this=next;
   }
-  std::array<std::uint32_t,7> Words() const noexcept {
+  std::array<std::uint32_t,8> Words() const noexcept {
     return {static_cast<unsigned>(u),static_cast<unsigned>(v),static_cast<unsigned>(w),
-      static_cast<unsigned>(mag),static_cast<unsigned>(min),static_cast<unsigned>(mip),std::bit_cast<std::uint32_t>(lod_bias)};
+      static_cast<unsigned>(mag),static_cast<unsigned>(min),static_cast<unsigned>(mip),std::bit_cast<std::uint32_t>(lod_bias),max_anisotropy};
   }
   bool operator==(const MeshSamplerState&) const=default;
 };
-inline constexpr std::array<SamplerRegister,7> SamplerRegisters{
+inline constexpr std::array<SamplerRegister,8> SamplerRegisters{
   SamplerRegister::AddressU,SamplerRegister::AddressV,SamplerRegister::AddressW,
-  SamplerRegister::MagFilter,SamplerRegister::MinFilter,SamplerRegister::MipFilter,SamplerRegister::LodBias};
+  SamplerRegister::MagFilter,SamplerRegister::MinFilter,SamplerRegister::MipFilter,SamplerRegister::LodBias,SamplerRegister::MaxAnisotropy};
 }

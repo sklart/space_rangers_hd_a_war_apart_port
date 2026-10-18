@@ -238,3 +238,14 @@ D3D9 HAL/REF draw/readback. Horizon compile/link PASS; GPU Switch ещё
 Анизотропный путь оригинального менеджера настроек и полная интеграция
 материалов/боя остаются открыты. Подробности, команды и границы доказательств:
 [отчёт](../reports/matrixgame-sampler-20261018.md).
+
+## Анизотропия: корректный MIN-путь и аудит оригинального менеджера
+
+Native sampler теперь поддерживает min-анизотропию и независимый
+MAXANISOTROPY 1–16. Возврат к point/linear отключает AF в GPU-дескрипторе.
+Настоящий исходный manager проверен на D3D9 HAL/REF: MIN валиден на обоих,
+MAG только на REF данного адаптера, MIP не проходит ValidateDevice на обоих.
+MAG/MIP-анизотропия в native-коде явно отклоняется; менеджер настроек ещё
+не интегрирован. CPU/register/reference и Horizon compile/link PASS,
+Switch GPU NOT TESTED. Новый будущий sampler probe содержит 15 контролей.
+[Подробности и доказательства](../reports/matrixgame-anisotropy-20261018.md).

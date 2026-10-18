@@ -110,3 +110,8 @@ target_compile_features(matrixgame-sampler-d3d9-reference PRIVATE cxx_std_20)
 add_executable(matrixgame-sampler-pixels-d3d9-reference "${CMAKE_CURRENT_LIST_DIR}/../../../tests/probe_matrixgame_sampler_pixels_d3d9.cpp")
 target_link_libraries(matrixgame-sampler-pixels-d3d9-reference PRIVATE d3d9 user32)
 target_compile_features(matrixgame-sampler-pixels-d3d9-reference PRIVATE cxx_std_20)
+
+add_executable(matrixgame-anisotropy-d3d9-reference "${CMAKE_CURRENT_LIST_DIR}/../../../tests/probe_matrixgame_anisotropy_d3d9.cpp")
+target_link_libraries(matrixgame-anisotropy-d3d9-reference PRIVATE MatrixGameInternal)
+target_compile_features(matrixgame-anisotropy-d3d9-reference PRIVATE cxx_std_20)
+target_link_options(matrixgame-anisotropy-d3d9-reference PRIVATE /ENTRY:mainCRTStartup)
