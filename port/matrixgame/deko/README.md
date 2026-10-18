@@ -138,3 +138,15 @@ CFile resolution, native Load и SetTextureAsset. Вывод scope: upload compl
 draw_executed=false, battle_executed=false; физический запуск отсутствует.
 Alpha-test/blend skin passes ещё требуют интеграции. См.
 [texture requests](../../../reports/matrixgame-native-texture-request-20261018.md).
+
+## Per-draw raster state
+
+MeshSubmission/VectorMaterial теперь несут MeshRasterState: alpha compare/reference,
+blend factors/op, depth test/write и color mask. Поддерживаемые legacy register IDs
+проверяются атомарно; unsupported states отвергаются. Каждый draw переустанавливает
+полное поддерживаемое состояние в настоящем deko3d. Shader ABI не меняется.
+
+MSVC/native/ARM64 snapshots сверены с actual Windows D3D9 NULLREF Set/Get. Это не
+image proof. Future `--raster-state` содержит восемь GPU readback controls; он не
+запускался. Original skin selection/combiners ещё не подключены. См.
+[отчёт raster state](../../../reports/matrixgame-native-raster-state-20261018.md).

@@ -92,3 +92,6 @@ target_link_libraries(matrixgame-texture-request-x86-reference PRIVATE MatrixGam
 target_compile_definitions(matrixgame-texture-request-x86-reference PRIVATE MATRIXGAME_ORIGINAL_TEXTURE_REFERENCE)
 target_compile_features(matrixgame-texture-request-x86-reference PRIVATE cxx_std_20)
 target_link_options(matrixgame-texture-request-x86-reference PRIVATE /ENTRY:mainCRTStartup)
+add_executable(matrixgame-raster-d3d9-reference "${CMAKE_CURRENT_LIST_DIR}/../../../tests/probe_matrixgame_raster_d3d9.cpp")
+target_link_libraries(matrixgame-raster-d3d9-reference PRIVATE d3d9 user32)
+target_compile_features(matrixgame-raster-d3d9-reference PRIVATE cxx_std_20)

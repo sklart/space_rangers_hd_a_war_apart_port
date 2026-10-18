@@ -8,3 +8,4 @@ port/matrixgame/third_party/** text eol=lf whitespace=-blank-at-eol
 tests/fixtures/matrixgame/math3d-x86-control.txt.zlib -text
 
 tools/matrixgame_engine_api_arm64.sh text eol=lf
+tools/matrixgame_raster_arm64.sh text eol=lf

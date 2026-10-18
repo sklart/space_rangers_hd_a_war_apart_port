@@ -97,6 +97,11 @@ if(CORE_THREAD_SANITIZER)
 endif()
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(matrixgame-raster-state-test "${PORT_ROOT}/tests/test_matrixgame_raster_state.cpp")
+    target_link_libraries(matrixgame-raster-state-test PRIVATE matrixgame-native-core)
+    add_test(NAME matrixgame-raster-state-contract COMMAND "${Python3_EXECUTABLE}"
+        "${PORT_ROOT}/tests/probe_matrixgame_raster_state.py"
+        --binary "$<TARGET_FILE:matrixgame-raster-state-test>" --output "${CMAKE_CURRENT_BINARY_DIR}/raster-state-fixtures")
     add_executable(matrixgame-native-texture-request-test "${PORT_ROOT}/tests/test_matrixgame_native_texture_request.cpp")
     target_link_libraries(matrixgame-native-texture-request-test PRIVATE matrixgame-native-core)
     add_test(NAME matrixgame-native-texture-request-contract COMMAND "${Python3_EXECUTABLE}"

@@ -37,7 +37,11 @@ void Dump(const VectorGeometry& v,const fs::path& path) {
   }
   // Explicit material fixtures test forwarding and original surface-first order.
   std::vector<VectorMaterial> materials(v.Surfaces().size());
-  for(std::size_t i=0;i<materials.size();++i){materials[i].texture_slot=std::uint32_t(i+1);materials[i].sampling=TextureSampling::LinearClamp;}
+  for(std::size_t i=0;i<materials.size();++i){
+    materials[i].texture_slot=std::uint32_t(i+1);materials[i].sampling=TextureSampling::LinearClamp;
+    materials[i].raster.alpha_test=(i&1)!=0;materials[i].raster.blend_enable=(i&2)!=0;
+    materials[i].raster.depth_write=(i&2)==0;materials[i].raster.alpha_reference=(i&1)?192:8;
+  }
   w.u32(static_cast<std::uint32_t>(v.Frames().size()));
   for(std::uint32_t i=0;i<v.Frames().size();++i) {
     const auto submissions=PlanVectorFrame(v,i,materials);w.u32(static_cast<std::uint32_t>(submissions.size()));
@@ -46,6 +50,7 @@ void Dump(const VectorGeometry& v,const fs::path& path) {
       w.u32(s.range.first_index);w.u32(s.range.index_count);w.u32(s.range.minimum_vertex);w.u32(s.range.vertex_count);
       if(s.texture_slot!=std::uint32_t(s.range.surface+1)||s.sampling!=TextureSampling::LinearClamp)
         throw std::runtime_error("VO material forwarding");
+      if(s.raster.Words()!=materials[s.range.surface].raster.Words())throw std::runtime_error("VO raster state forwarding");
     }
   }
   bool rejected=false;try{v.FrameRanges(static_cast<std::uint32_t>(v.Frames().size()));}catch(const std::out_of_range&){rejected=true;}
