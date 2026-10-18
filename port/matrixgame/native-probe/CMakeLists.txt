@@ -19,3 +19,9 @@ target_compile_features(matrixgame-ai-template-probe PRIVATE cxx_std_20)
 # MatrixGameInternal inherits the legacy WINDOWS subsystem link flag. This
 # integration probe uses main(), redirects its report, and sends no UI input.
 target_link_options(matrixgame-ai-template-probe PRIVATE /ENTRY:mainCRTStartup)
+
+add_executable(matrixgame-mesh-layout-probe
+    "${CMAKE_CURRENT_LIST_DIR}/../../../tests/probe_matrixgame_mesh_layout_x86.cpp")
+target_link_libraries(matrixgame-mesh-layout-probe PRIVATE MatrixGameInternal)
+target_compile_features(matrixgame-mesh-layout-probe PRIVATE cxx_std_20)
+target_link_options(matrixgame-mesh-layout-probe PRIVATE /ENTRY:mainCRTStartup)

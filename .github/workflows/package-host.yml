@@ -154,6 +154,8 @@ jobs:
           python3 tools/audit_win32_surface.py --effective --build-root port/switch/build/e2e-game --check
           python3 tools/audit_win32_surface.py --effective --build-root port/switch/build/e2e-game-combined-experiment --manifest win32-effective-combined-import-manifest.json --check
           python3 tools/generate_win32_portable_cases.py --check
+      - name: Compile and link native deko3d mesh pass without packaging NRO
+        run: python3 tools/matrixgame_deko_build.py
       - name: Verify pinned upstream remains clean
         if: always()
         run: test -z "$(git -C upstream/cpp status --short)"
