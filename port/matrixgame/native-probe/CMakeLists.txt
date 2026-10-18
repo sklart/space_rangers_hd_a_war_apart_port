@@ -87,3 +87,8 @@ add_executable(matrixgame-bitmap-x86-reference "${CMAKE_CURRENT_LIST_DIR}/../../
 target_link_libraries(matrixgame-bitmap-x86-reference PRIVATE MatrixGameInternal)
 target_compile_features(matrixgame-bitmap-x86-reference PRIVATE cxx_std_20)
 target_link_options(matrixgame-bitmap-x86-reference PRIVATE /ENTRY:mainCRTStartup)
+add_executable(matrixgame-texture-request-x86-reference "${CMAKE_CURRENT_LIST_DIR}/../../../tests/test_matrixgame_native_texture_request.cpp")
+target_link_libraries(matrixgame-texture-request-x86-reference PRIVATE MatrixGameInternal)
+target_compile_definitions(matrixgame-texture-request-x86-reference PRIVATE MATRIXGAME_ORIGINAL_TEXTURE_REFERENCE)
+target_compile_features(matrixgame-texture-request-x86-reference PRIVATE cxx_std_20)
+target_link_options(matrixgame-texture-request-x86-reference PRIVATE /ENTRY:mainCRTStartup)

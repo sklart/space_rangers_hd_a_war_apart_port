@@ -81,6 +81,7 @@ def main() -> int:
         symbols = run([readelf, '-sW', elf])
         required = ['dkDeviceCreate', 'dkQueueCreate', 'dkCmdBufDrawIndexed', 'dkCmdBufCopyImageToBuffer', 'dkCmdBufCopyBufferToImage', 'dkCmdBufBindTextures', 'VectorGeometry4Load', 'VectorGeometry11FrameRanges', 'UploadPngTexture', 'ReadStart_RGBA']
         required += ['SetTextureAsset', 'TextureAsset6Decode']
+        required += ['TextureRequest7Resolve', 'ParseOriginalTextureFlags']
         require(all(name in symbols for name in required), 'GPU draw/readback implementation missing from ELF')
         undefined = [line for line in symbols.splitlines() if ' UND ' in line and ' WEAK ' not in line and len(line.split()) > 7]
         require(not undefined, 'unresolved strong symbols: ' + str(undefined))

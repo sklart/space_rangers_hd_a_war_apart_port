@@ -13,6 +13,7 @@ case "${1:-}" in
   --reminder) profile=reminder; shift ;;
   --bitmap) profile=bitmap; shift ;;
   --texture) profile=texture; shift ;;
+  --texture-request) profile=texture_request; shift ;;
 esac
 out="$project_root/build/mg-core-arm64"
 zlib_source="$project_root/build/matrixgame/zlib-1.3.2-source"
@@ -41,7 +42,7 @@ sources=(
 )
 extra_includes=()
 extra_libraries=()
-if [[ "$profile" == bitmap || "$profile" == texture ]]; then
+if [[ "$profile" == bitmap || "$profile" == texture || "$profile" == texture_request ]]; then
   png_source="$project_root/build/matrixgame/libpng-1.6.37-source"
   expected_png=a40189cf881e9f0db80511c382292a5604c3c3d1
   if [[ ! -d "$png_source/.git" ]]; then
@@ -60,6 +61,10 @@ if [[ "$profile" == bitmap || "$profile" == texture ]]; then
   extra_libraries=("$out/libpng/libpng16.a")
   sources+=("$out/source/CBitmap.cpp" "$out/source/FilePNG.cpp")
   if [[ "$profile" == texture ]]; then sources+=(port/matrixgame/native-core/texture_asset.cpp); fi
+  if [[ "$profile" == texture_request ]]; then
+    sources+=(port/matrixgame/native-core/texture_asset.cpp port/matrixgame/native-core/texture_request.cpp
+      "$out/source/TextureFlags.cpp" "$out/source/CBlockPar.cpp")
+  fi
 fi
 if [[ "$profile" != file ]]; then
   sources+=("$out/source/CStorage.cpp" "$out/source/CRC32.cpp" port/matrixgame/native-core/heap_native.cpp)
@@ -90,4 +95,4 @@ python3 "tests/probe_matrixgame_native_$profile.py" --binary /usr/bin/qemu-aarch
   --runner-binary "$out/$profile-contract" --qemu-sysroot /usr/aarch64-linux-gnu \
   --output "$out/$profile-fixtures" "$@"
 [[ -z "$(zgit status --porcelain --untracked-files=normal)" ]] || { echo "zlib build changed source" >&2; exit 2; }
-if [[ "$profile" == bitmap || "$profile" == texture ]]; then [[ -z "$(pgit status --porcelain)" ]] || { echo "libpng source changed" >&2; exit 2; }; fi
+if [[ "$profile" == bitmap || "$profile" == texture || "$profile" == texture_request ]]; then [[ -z "$(pgit status --porcelain)" ]] || { echo "libpng source changed" >&2; exit 2; }; fi

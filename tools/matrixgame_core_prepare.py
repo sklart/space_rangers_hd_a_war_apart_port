@@ -11,6 +11,7 @@ from matrixgame_engine_api_overrides import INPUTS as ENGINE_INPUTS, SUBDIRS as 
 from matrixgame_vector_overrides import INPUTS as VECTOR_INPUTS, SUBDIRS as VECTOR_SUBDIRS, patch_vector
 from matrixgame_reminder_overrides import INPUTS as REMINDER_INPUTS, patch_reminder
 from matrixgame_bitmap_overrides import INPUTS as BITMAP_INPUTS, SUBDIRS as BITMAP_SUBDIRS, patch_bitmap
+from matrixgame_texture_request_overrides import INPUTS as TEXTURE_INPUTS, SUBDIRS as TEXTURE_SUBDIRS, patch_texture_requests
 
 INPUTS = {
     'CFile.cpp': '09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49',
@@ -32,7 +33,8 @@ INPUTS.update(ENGINE_INPUTS)
 INPUTS.update(VECTOR_INPUTS)
 INPUTS.update(REMINDER_INPUTS)
 INPUTS.update(BITMAP_INPUTS)
-SOURCE_SUBDIRS={**MATH_SUBDIRS, **ENGINE_SUBDIRS, **VECTOR_SUBDIRS, **BITMAP_SUBDIRS}
+INPUTS.update(TEXTURE_INPUTS)
+SOURCE_SUBDIRS={**MATH_SUBDIRS, **ENGINE_SUBDIRS, **VECTOR_SUBDIRS, **BITMAP_SUBDIRS, **TEXTURE_SUBDIRS}
 
 def replace_body(text, signature, replacement):
     if text.count(signature) != 1:
@@ -153,6 +155,7 @@ inline constexpr int FileBegin = 0, FileCurrent = 1, FileEnd = 2;
     patch_vector(files)
     patch_reminder(files, replace_body)
     patch_bitmap(files, root, replace_body)
+    patch_texture_requests(files)
     output.mkdir(parents=True, exist_ok=True)
     for name, data in files.items():
         destination = output / name
