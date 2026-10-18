@@ -6,6 +6,7 @@ from pathlib import Path
 from matrixgame_storage_overrides import INPUTS as STORAGE_INPUTS, patch_storage
 from matrixgame_blockpar_overrides import INPUTS as BLOCKPAR_INPUTS, patch_blockpar
 from matrixgame_math_overrides import INPUTS as MATH_INPUTS, SUBDIRS as MATH_SUBDIRS, patch_math
+from matrixgame_random_overrides import INPUTS as RANDOM_INPUTS, patch_random
 
 INPUTS = {
     'CFile.cpp': '09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49',
@@ -22,6 +23,7 @@ INPUTS = {
 INPUTS.update(STORAGE_INPUTS)
 INPUTS.update(BLOCKPAR_INPUTS)
 INPUTS.update(MATH_INPUTS)
+INPUTS.update(RANDOM_INPUTS)
 
 def replace_body(text, signature, replacement):
     if text.count(signature) != 1:
@@ -137,6 +139,7 @@ inline constexpr int FileBegin = 0, FileCurrent = 1, FileEnd = 2;
     patch_storage(files, root, replace_body)
     patch_blockpar(files, replace_body)
     patch_math(files, root, replace_body)
+    patch_random(files, replace_body)
     output.mkdir(parents=True, exist_ok=True)
     for name, data in files.items():
         (output / name).write_bytes(data)

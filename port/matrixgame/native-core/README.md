@@ -3,7 +3,8 @@
 Текущая библиотека содержит оригинальные CRC32.cpp, память/позицию и файловые
 методы CBuf, native UTF-16 методы, исключения, CFile, CStorage и BlockPar с настоящим
 файловым backend, а также оригинальный Math3D.cpp с настоящими DirectXMath CPU operations.
-Это ещё не полный MatrixLib/MatrixGame. Подготовка проверяет SHA256 семнадцати закреплённых upstream
+Подключён original RNG с Windows-compatible потоком. Это ещё не полный MatrixLib/MatrixGame.
+Подготовка проверяет SHA256 девятнадцати закреплённых upstream
 файлов после CRLF→LF и создаёт копии в build directory; upstream не изменяется.
 
 Обе декларации dword используют uint32_t. Исходный нестандартный алгоритм CRC
@@ -49,7 +50,7 @@ Run, rendering, campaign handoff и физические MG gates остаютс
 ## Нативный файловый backend
 
 CFile и оригинальные LoadFromFile/SaveInFile CBuf теперь подключены к stdio и
-существующему bounded PKG reader. Семнадцать pinned inputs проверяются перед
+существующему bounded PKG reader. Девятнадцать pinned inputs проверяются перед
 подготовкой. Внутренний pimpl не включает Win32/D3D; shareMode на portable backend
 advisory. FileExist сохраняет исходное написание разделителей. Package::OpenUtf8
 нужен для явной Unicode границы; прежний Package::Open не меняет narrow-path режим.
@@ -161,5 +162,34 @@ Float comparison сохраняет исходные алгоритмы с ог�
 real-geometry ray cases проверяются отдельно аналитически и с original trace.
 
 Подробности и границы: reports/matrixgame-native-math3d-20261018.md.
-Math3D не включает native RNG, cache/VO loader, CGame::Init/Run, rendering или
-campaign handoff. Scalar/SIMD-настройки не являются измеренным FPS/battery gain.
+Native RNG подключён следующим этапом (см. ниже); cache/VO loader, CGame::Init/Run,
+rendering и campaign handoff ещё не подключены. Scalar/SIMD-настройки не являются измеренным FPS/battery gain.
+
+
+## RNG: последовательность оригинального Windows CRT
+
+Подключены закреплённые random.cpp/random.hpp. Native namespace matrixgame_random
+избегает конфликта с POSIX ::random(); global RND/FRND/FSRND/IRND сохраняют имена.
+Для будущих prepared engine units вызовы random:: требуют явного переименования.
+
+Seed/state/result воспроизводят UCRT per-thread stream: uint32 modulo arithmetic,
+15-bit raw output и начальное состояние 1 на каждом потоке. Нативный stream
+изолирован от srand/rand libc вызывающего процесса. В pinned engine прямые вызовы
+rand/srand находятся только внутри original random.cpp. Подмена формул качества
+или распределения не выполняется: сохранены маленький RndFloat и неявное integer
+усечение аргумента IRND, включая consumption при equal/reversed ranges.
+
+Оригинальный x86, native ASan/UBSan host, MSVC x64 и ARM64/QEMU выдали один
+побайтный transcript для 260 seed, 603173 значений и четырёх потоков:
+2005e75f84d8a3ed429f34ceb38da48b4be9ae47250b009bd4690cf6bedef1e5.
+Independent Python oracle проверяет каждый byte, а SHA original trace закреплён в CI.
+
+```sh
+bash tools/matrixgame_file_arm64.sh --random
+```
+
+Большие integer intervals вычисляются без signed-overflow/modulo-zero; undefined
+FSRND/IRND float-to-int conversion отвергается. Это определённое native поведение
+на границах, где original source не задаёт безопасного результата. Эквивалентность
+произвольных external libc interleavings или всего игрового состояния не заявляется.
+Подробности: reports/matrixgame-native-random-20261018.md.

@@ -8,6 +8,7 @@ case "${1:-}" in
   --storage) profile=storage; shift ;;
   --blockpar) profile=blockpar; shift ;;
   --math) profile=math; shift ;;
+  --random) profile=random; shift ;;
 esac
 out="$project_root/build/mg-core-arm64"
 zlib_source="$project_root/build/matrixgame/zlib-1.3.2-source"
@@ -39,6 +40,9 @@ if [[ "$profile" != file ]]; then
 fi
 if [[ "$profile" == blockpar ]]; then
   sources+=("$out/source/CBlockPar.cpp" "$out/source/CStorage_blockpar.cpp")
+fi
+if [[ "$profile" == random ]]; then
+  sources+=("$out/source/random.cpp")
 fi
 if [[ "$profile" == math ]]; then
   sources+=("$out/source/Math3D.cpp")
