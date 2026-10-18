@@ -66,6 +66,23 @@ if [[ "$profile" == bitmap || "$profile" == texture || "$profile" == texture_req
       "$out/source/TextureFlags.cpp" "$out/source/CBlockPar.cpp")
   fi
 fi
+if [[ "$profile" == texture || "$profile" == texture_request ]]; then
+  jpeg_source="$project_root/build/matrixgame/libjpeg-turbo-2.1.2-source"
+  expected_jpeg=ecf021bc0d6f435daacff7c35ccaeef0145df1b9
+  if [[ ! -d "$jpeg_source/.git" ]]; then
+    [[ ! -e "$jpeg_source" ]] || { echo "Refusing unmanaged JPEG source" >&2; exit 2; }
+    git clone --depth 1 --branch 2.1.2 https://github.com/libjpeg-turbo/libjpeg-turbo.git "$jpeg_source"
+  fi
+  jgit() { git -c core.autocrlf=true -c safe.directory="$jpeg_source" -C "$jpeg_source" "$@"; }
+  [[ "$(jgit rev-parse HEAD)" == "$expected_jpeg" && -z "$(jgit status --porcelain)" ]] || { echo "JPEG pin/clean check failed" >&2; exit 2; }
+  cmake -S "$jpeg_source" -B "$out/jpeg" -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+    -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_SYSTEM_PROCESSOR=aarch64 -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
+    -DCMAKE_BUILD_TYPE=Release -DENABLE_SHARED=OFF -DENABLE_STATIC=ON -DWITH_SIMD=OFF -DWITH_TURBOJPEG=OFF
+  cmake --build "$out/jpeg" --target jpeg-static --parallel 2
+  extra_includes+=(-I"$out/jpeg" -I"$jpeg_source")
+  extra_libraries+=("$out/jpeg/libjpeg.a")
+  sources+=(port/matrixgame/native-core/jpeg_texture.cpp)
+fi
 if [[ "$profile" != file ]]; then
   sources+=("$out/source/CStorage.cpp" "$out/source/CRC32.cpp" port/matrixgame/native-core/heap_native.cpp)
 fi
@@ -96,3 +113,4 @@ python3 "tests/probe_matrixgame_native_$profile.py" --binary /usr/bin/qemu-aarch
   --output "$out/$profile-fixtures" "$@"
 [[ -z "$(zgit status --porcelain --untracked-files=normal)" ]] || { echo "zlib build changed source" >&2; exit 2; }
 if [[ "$profile" == bitmap || "$profile" == texture || "$profile" == texture_request ]]; then [[ -z "$(pgit status --porcelain)" ]] || { echo "libpng source changed" >&2; exit 2; }; fi
+if [[ "$profile" == texture || "$profile" == texture_request ]]; then [[ -z "$(jgit status --porcelain)" ]] || { echo "JPEG source changed" >&2; exit 2; }; fi

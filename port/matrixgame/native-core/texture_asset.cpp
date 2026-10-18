@@ -5,6 +5,7 @@
 #include "CFile.hpp"
 #include "CStorage.hpp"
 #include "bitmap_limits.hpp"
+#include "jpeg_texture.hpp"
 #include <algorithm>
 #include <array>
 #include <bit>
@@ -85,6 +86,7 @@ TextureAsset Dds(std::span<const std::byte> b) {
   return result;
 }
 TextureAsset Image(std::span<const std::byte> b) {
+  if(b.size()>=2&&b[0]==std::byte{255}&&b[1]==std::byte{216})return DecodeJpegTexture(b);
   if(Magic(b,"DDS "))return Dds(b);
   if(Magic(b,"\x89PNG\r\n\x1a\n",8)) {
     CBitmap bitmap;

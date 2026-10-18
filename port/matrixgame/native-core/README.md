@@ -257,3 +257,15 @@ native сверяются на реальных filename/extensionless requests;
 
 `bash tools/matrixgame_file_arm64.sh --texture-request` выполняет controlled
 contract. См. [отчёт](../../../reports/matrixgame-native-texture-request-20261018.md).
+
+## JPEG textures
+
+TextureAsset декодирует реальные JPEG через bounded libjpeg в RGBA8; TextureRequest
+теперь загружает JPEG после original filename/sidecar resolution. Baseline/progressive
+RGB/gray поддерживаются, CMYK/12-bit/ошибочные входы отвергаются. Codec/RGBA/input
+budgets локальны и не означают общий RSS cap. Progressive virtual arrays учитываются
+до realization. Controlled JPEG fixtures проверяются без Pillow в CI.
+
+Все 77 игровых JPEG и 24 controls сверены с actual D3DX decode. Общий real asset
+replay теперь охватывает все 1507 PNG/JPEG/DDS/STRG. См.
+[отчёт JPEG](../../../reports/matrixgame-native-jpeg-20261018.md).

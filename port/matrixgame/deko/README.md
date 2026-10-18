@@ -150,3 +150,8 @@ MSVC/native/ARM64 snapshots сверены с actual Windows D3D9 NULLREF Set/Ge
 image proof. Future `--raster-state` содержит восемь GPU readback controls; он не
 запускался. Original skin selection/combiners ещё не подключены. См.
 [отчёт raster state](../../../reports/matrixgame-native-raster-state-20261018.md).
+
+TextureAsset/TextureRequest в deko ELF теперь включают actual JPEG decoder.
+Build report фиксирует SDK JPEG header/library hashes и проверяет libjpeg symbols.
+Все 1507 CPU texture assets проверены отдельно; Horizon/GPU JPEG sampling не
+исполнялся. См. [JPEG report](../../../reports/matrixgame-native-jpeg-20261018.md).

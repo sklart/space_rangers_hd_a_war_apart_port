@@ -37,6 +37,7 @@ def expected(name,files):
             record=parse_storage(b,include_payloads=True)['records'][0];b=record['columns'][0]['arrays'][0]
         if b[:4]==b'DDS ':loaded=max(1,struct.unpack_from('<I',b,28)[0])
         elif b[:8]==b'\x89PNG\r\n\x1a\n':loaded=1
+        elif b[:2]==b'\xff\xd8':loaded=1
     return (1,flags,path,loaded)
 
 

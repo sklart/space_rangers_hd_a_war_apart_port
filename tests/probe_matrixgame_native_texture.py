@@ -1,5 +1,6 @@
 """Independent DDS/STRG mip-payload and byte-pitch oracle; no GPU color proof."""
 import argparse
+import base64
 import hashlib
 import json
 import mmap
@@ -10,6 +11,16 @@ import zlib
 from probe_matrixgame_native_bitmap import decode as png_decode, make_png
 from probe_matrixgame_native_storage import parse_storage
 from probe_ui_images_release import entries, payload
+JPEG_ORACLE={}
+
+
+def jpeg_controls():
+    document=json.loads((Path(__file__).parent/'fixtures/matrixgame/jpeg-control.json').read_text())
+    rows=[]
+    for case in document['cases']:
+        b=base64.b64decode(case['jpeg']);rows.append((b,case['valid']))
+        if case['valid']:JPEG_ORACLE[hashlib.sha256(b).hexdigest()]=(case['width'],case['height'],base64.b64decode(case['rgba']))
+    return rows
 
 
 def storage(b, compressed=False):
@@ -45,6 +56,8 @@ def oracle(b):
     if b[:4]==b'STRG':
         records=parse_storage(b,include_payloads=True)['records']
         b=next(c['arrays'][0] for r in records if r['name']=='0' for c in r['columns'] if c['name']=='0' and c['type']==2)
+    if b[:2]==b'\xff\xd8':
+        w,h,rgba=JPEG_ORACLE[hashlib.sha256(b).hexdigest()];return 0,[(w,h,w*4,rgba)]
     if b[:8]==b'\x89PNG\r\n\x1a\n':
         w,h,_,_,rgba=png_decode(b);return 0,[(w,h,w*4,rgba)]
     header=struct.unpack_from('<32I',b);_,_,flags,h,w,base_pitch,_,count=header[:8]
@@ -88,17 +101,29 @@ def controlled():
         bad=bytearray(good);struct.pack_into('<I',bad,at,value);rows.append((bytes(bad),False))
     for at,value in ((92,0xff00),(100,0x101),(88,15),(104,0)):
         bad=bytearray(dds('rgba',7,5));struct.pack_into('<I',bad,at,value);rows.append((bytes(bad),False))
+    rows.extend(jpeg_controls())
     return rows
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--binary',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
-    p.add_argument('--package',type=Path);p.add_argument('--runner-binary',type=Path);p.add_argument('--qemu-sysroot',type=Path);a=p.parse_args()
+    p.add_argument('--package',type=Path);p.add_argument('--runner-binary',type=Path);p.add_argument('--qemu-sysroot',type=Path)
+    p.add_argument('--jpeg-oracle-map',type=Path);a=p.parse_args()
     out=a.output.resolve();out.mkdir(parents=True,exist_ok=True);cases=controlled();paths=[]
+    if a.jpeg_oracle_map:
+        for case in json.loads(a.jpeg_oracle_map.read_text())['cases']:
+            rgba=(a.jpeg_oracle_map.parent/case['rgba']).read_bytes()
+            assert hashlib.sha256(rgba).hexdigest()==case['rgba_sha256']
+            JPEG_ORACLE[case['jpeg_sha256']]=(case['width'],case['height'],rgba)
     for i,(b,_) in enumerate(cases):
         file=out/f'{i}.texture';file.write_bytes(b);paths.append(str(file))
     command=[str(a.binary.resolve())]
     if a.runner_binary:command+=['-L',str(a.qemu_sysroot.resolve()),str(a.runner_binary.resolve())]
+    budget_file=out/'jpeg-coefficient-budget.jpg'
+    fixture=json.loads((Path(__file__).parent/'fixtures/matrixgame/jpeg-control.json').read_text())
+    budget_file.write_bytes(base64.b64decode(fixture['codec_budget_case']))
+    budget_result=subprocess.run(command+['--jpeg-codec-limit',str(budget_file)],capture_output=True,timeout=60)
+    assert budget_result.returncode==0,('JPEG coefficient budget',budget_result.returncode,budget_result.stderr[-1000:])
     def run(names,source,package=None):
         manifest=out/'manifest.txt';manifest.write_text(''.join(n+'\n' for n in names),encoding='utf-8')
         digest=hashlib.sha256();mips=0;data_bytes=0;formats={}
@@ -134,9 +159,9 @@ def main():
     controls=run(paths,lambda i:cases[i]);real=None
     if a.package:
         with a.package.open('rb') as f,mmap.mmap(f.fileno(),0,access=mmap.ACCESS_READ) as m:
-            selected=[e for e in entries(m) if e[0].lower().endswith(('.dds','.strg'))]
+            selected=[e for e in entries(m) if e[0].lower().endswith(('.dds','.strg','.png','.jpg'))]
             real=run([e[0] for e in selected],lambda i:(payload(m,selected[i]),True),a.package)
-    result=dict(scope='DDS/STRG mip payload and GPU staging bytes; no GPU execution',controlled=controls,real=real)
+    result=dict(scope='PNG/JPEG/DDS/STRG mip payload and GPU staging bytes; no GPU execution',controlled=controls,real=real)
     (out/'oracle.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result))
 
 
