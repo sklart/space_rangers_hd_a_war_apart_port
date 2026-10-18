@@ -26,8 +26,8 @@ upstream header. Proof/log: build/matrixgame/deko/x86-layout-{proof.json,build.l
 Physical link probe main НЕ выполнялся. Он содержит geometry fixture для будущей
 проверки readback; не настоящий MatrixGame mesh/map, не победа и не бой.
 GPU первый кадр, winding/matrix/material parity, runtime lifetime и frame times
-остаются непроверенными. Позднейшая интеграция обязана сохранять native submesh
-ranges/base vertex/material dispatch; текущий проход рисует один triangle-list mesh.
+остаются непроверенными. Native submesh range/base vertex translator и batch submission теперь реализованы
+отдельным блоком ниже. Подключение к engine/material dispatch ещё отсутствует.
 
 Полные textures/samplers, stencil shadows, blend/fog/multitexture, animation,
 render targets, particles/UI, swapchain и handoff основной игре ещё не реализованы.
@@ -40,3 +40,27 @@ backend для прототипа; выбор не объявлен подтве
 и [UAM](https://github.com/devkitPro/uam); SDK/examples и закрытые assets в Git не копировались.
 В существующий full ARM64 CI добавлен только compile/link step, без дополнительной NRO.
 Remote результат новой ветки пока отсутствует.
+
+## Submesh submission — продолжение
+
+Реализован typed VectorObjectRange для настоящих SVOUnion fields: обе ветки
+VectorObject.cpp (m_IBase<0 / обычный m_TriStart*3), shared VB/IB offsets, surface ID,
+MinVertexIndex/NumVertices и signed base vertex. Промежуточные расчёты int64,
+сужение только после проверки. Исходные indices не rebased/переставляются.
+
+DrawFrame отправляет группы в исходном порядке с одним clear/readback на batch
+и отдельным uniform slot для каждого draw. Шадеры/матрицы не перезаписываются
+последней группой. До изменения GPU commands проверяются все ranges/uniforms.
+Пока есть CPU index shadow и per-batch range validation; performance не измерена.
+Ограничение 256 groups явное, при превышении ошибка вместо обрезания сцены.
+
+PASS: portable CMake/CTest ASan/UBSan, ARM64/QEMU (2048 comparisons), native MSVC x86
+с настоящим SVOUnion (обе ветки + прежний layout). Проверены negative base vertex,
+padding вне draw range, bounds и переполнения, включая отрицание INT32_MIN через int64.
+Final deko ARM64 ELF link/audit PASS. Proof: build/matrixgame/deko/submesh-proof.json;
+логи submesh-cmake-asan.log, submesh-arm64.log, x86-submesh.log.
+
+GPU link probe теперь содержит две fixture groups с различными base vertex и red/blue
+uniforms, но main по-прежнему НЕ выполнялся. Новый GPU runtime/frame/lifetime PASS не
+объявляется, закрытые meshes/textures не публикуются, дополнительной NRO нет.
+Engine entry/Run, material/texture parity, swapchain и campaign остаются OPEN.

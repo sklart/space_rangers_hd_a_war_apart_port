@@ -6,10 +6,13 @@
 #include <cstring>
 #include <limits>
 #include <stdexcept>
+#include <vector>
 
 namespace srhd_awa::matrixgame {
 namespace {
 constexpr std::uint32_t command_bytes=65536;
+constexpr std::uint32_t max_submissions=256;
+constexpr std::uint32_t uniform_stride=DK_UNIFORM_BUF_ALIGNMENT;
 constexpr auto data_flags=DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached;
 std::uint32_t Align(std::uint64_t value, std::uint32_t alignment=DK_MEMBLOCK_ALIGNMENT) {
   const auto size=(value+alignment-1)&~std::uint64_t(alignment-1);
@@ -29,7 +32,7 @@ struct alignas(16) Uniforms {
   std::array<float,16> clip, normal;
   std::array<float,4> diffuse, light;
 };
-static_assert(sizeof(Uniforms)==160);
+static_assert(sizeof(Uniforms)==160 && sizeof(Uniforms)<=uniform_stride);
 constexpr std::array attributes{
   DkVtxAttribState{0,0,offsetof(MeshVertex,position),DkVtxAttribSize_3x32,DkVtxAttribType_Float,0},
   DkVtxAttribState{0,0,offsetof(MeshVertex,normal),DkVtxAttribSize_3x32,DkVtxAttribType_Float,0},
@@ -45,6 +48,7 @@ struct DekoMeshRenderer::Impl {
   dk::Shader vertex_shader, fragment_shader;
   dk::Image color, depth;
   std::uint32_t width{},height{},row_bytes{},vertex_bytes{},index_count{};
+  std::vector<std::uint16_t> index_shadow;
   dk::MemBlock Allocate(std::uint64_t size,std::uint32_t flags) {
     auto memory=dk::MemBlockMaker{device,Align(size)}.setFlags(flags).create();
     if (!memory) throw std::bad_alloc();
@@ -68,7 +72,7 @@ struct DekoMeshRenderer::Impl {
     if (!commands) throw std::runtime_error("deko command buffer creation failed");
     command_mem=Allocate(command_bytes,data_flags);
     LoadShader(vs,vertex_code,vertex_shader); LoadShader(fs,fragment_code,fragment_shader);
-    uniforms_mem=Allocate(sizeof(Uniforms),data_flags);
+    uniforms_mem=Allocate(max_submissions*uniform_stride,data_flags);
     dk::ImageLayout color_layout,depth_layout;
     dk::ImageLayoutMaker{device}.setFlags(DkImageFlags_UsageRender)
       .setFormat(DkImageFormat_RGBA8_Unorm).setDimensions(w,h).initialize(color_layout);
@@ -93,9 +97,9 @@ DekoMeshRenderer::DekoMeshRenderer(std::uint32_t w,std::uint32_t h,
     :impl_(std::make_unique<Impl>(w,h,vs,fs)) {}
 DekoMeshRenderer::~DekoMeshRenderer()=default;
 void DekoMeshRenderer::SetMesh(std::span<const MeshVertex> vertices,std::span<const std::uint16_t> indices) {
-  if(vertices.empty() || vertices.size()>65536 || indices.empty() || indices.size()>1048576 || indices.size()%3)
+  if(vertices.empty() || vertices.size()>65536 || indices.empty() || indices.size()>1048576)
     throw std::invalid_argument("deko triangle mesh extent");
-  for(auto index:indices) if(index>=vertices.size()) throw std::out_of_range("deko mesh index");
+  std::vector<std::uint16_t> new_shadow(indices.begin(),indices.end());
   for(const auto& vertex:vertices) {
     for(float value:vertex.position) if(!std::isfinite(value)) throw std::invalid_argument("nonfinite vertex");
     for(float value:vertex.normal) if(!std::isfinite(value)) throw std::invalid_argument("nonfinite normal");
@@ -108,16 +112,30 @@ void DekoMeshRenderer::SetMesh(std::span<const MeshVertex> vertices,std::span<co
   impl_->queue.waitIdle(); impl_->commands.clear();
   impl_->vertices_mem=std::move(new_vertices); impl_->indices_mem=std::move(new_indices);
   impl_->vertex_bytes=vertices.size_bytes(); impl_->index_count=indices.size();
+  impl_->index_shadow=std::move(new_shadow);
 }
 void DekoMeshRenderer::Draw(const MeshDraw& draw,std::span<std::byte> output) {
+  if(!impl_->index_count) throw std::logic_error("deko mesh not uploaded");
+  const MeshSubmission submission{{0,0,0,impl_->index_count,0,static_cast<std::uint32_t>(impl_->vertex_bytes/sizeof(MeshVertex))},draw};
+  DrawFrame(std::span(&submission,1),output);
+}
+void DekoMeshRenderer::DrawFrame(std::span<const MeshSubmission> submissions,std::span<std::byte> output) {
   auto& v=*impl_;
-  if(!v.index_count) throw std::logic_error("deko mesh not uploaded");
+  if(submissions.size()>max_submissions) throw std::length_error("deko batch draw count");
   if(output.size()<std::uint64_t(v.width)*v.height*4) throw std::length_error("deko RGBA output");
-  Uniforms uniforms{draw.clip_from_model,draw.normal_from_model,draw.diffuse,draw.light};
-  for(const auto& values:{std::span<const float>(uniforms.clip),std::span<const float>(uniforms.normal),
-       std::span<const float>(uniforms.diffuse),std::span<const float>(uniforms.light)})
-    for(float value:values) if(!std::isfinite(value)) throw std::invalid_argument("nonfinite draw uniforms");
-  std::memcpy(v.uniforms_mem.getCpuAddr(),&uniforms,sizeof(uniforms));
+  // Validate the whole batch before replacing commands or publishing uniforms.
+  for(const auto& submission:submissions) {
+    ValidateMeshRange(submission.range,v.index_shadow,v.vertex_bytes/sizeof(MeshVertex));
+    const auto& draw=submission.draw;
+    for(const auto& values:{std::span<const float>(draw.clip_from_model),std::span<const float>(draw.normal_from_model),
+         std::span<const float>(draw.diffuse),std::span<const float>(draw.light)})
+      for(float value:values) if(!std::isfinite(value)) throw std::invalid_argument("nonfinite draw uniforms");
+  }
+  for(std::size_t i=0;i<submissions.size();++i) {
+    const auto& draw=submissions[i].draw;
+    const Uniforms uniforms{draw.clip_from_model,draw.normal_from_model,draw.diffuse,draw.light};
+    std::memcpy(static_cast<std::byte*>(v.uniforms_mem.getCpuAddr())+i*uniform_stride,&uniforms,sizeof(uniforms));
+  }
   v.commands.clear(); v.commands.addMemory(v.command_mem,0,command_bytes);
   dk::ImageView color_target{v.color},depth_target{v.depth};
   v.commands.bindRenderTargets(&color_target,&depth_target);
@@ -132,12 +150,18 @@ void DekoMeshRenderer::Draw(const MeshDraw& draw,std::span<std::byte> output) {
   v.commands.bindRasterizerState(rasterizer); v.commands.bindColorState(color_state);
   v.commands.bindColorWriteState(color_write); v.commands.bindDepthStencilState(depth_state);
   v.commands.bindShaders(DkStageFlag_GraphicsMask,{&v.vertex_shader,&v.fragment_shader});
-  v.commands.bindUniformBuffer(DkStage_Vertex,0,v.uniforms_mem.getGpuAddr(),sizeof(uniforms));
-  v.commands.barrier(DkBarrier_None,DkInvalidateFlags_Shader);
-  v.commands.bindVtxAttribState(attributes); v.commands.bindVtxBufferState(buffers);
-  v.commands.bindVtxBuffer(0,v.vertices_mem.getGpuAddr(),v.vertex_bytes);
-  v.commands.bindIdxBuffer(DkIdxFormat_Uint16,v.indices_mem.getGpuAddr());
-  v.commands.drawIndexed(DkPrimitive_Triangles,v.index_count,1,0,0,0);
+  v.commands.barrier(DkBarrier_None,DkInvalidateFlags_Shader|DkInvalidateFlags_L2Cache);
+  if(v.index_count) {
+    v.commands.bindVtxAttribState(attributes); v.commands.bindVtxBufferState(buffers);
+    v.commands.bindVtxBuffer(0,v.vertices_mem.getGpuAddr(),v.vertex_bytes);
+    v.commands.bindIdxBuffer(DkIdxFormat_Uint16,v.indices_mem.getGpuAddr());
+  }
+  for(std::size_t i=0;i<submissions.size();++i) {
+    const auto& range=submissions[i].range;
+    if(!range.index_count) continue;
+    v.commands.bindUniformBuffer(DkStage_Vertex,0,v.uniforms_mem.getGpuAddr()+i*uniform_stride,sizeof(Uniforms));
+    v.commands.drawIndexed(DkPrimitive_Triangles,range.index_count,1,range.first_index,range.base_vertex,0);
+  }
   v.commands.barrier(DkBarrier_Full,DkInvalidateFlags_L2Cache);
   v.commands.copyImageToBuffer(color_target,{0,0,0,v.width,v.height,1},
       {v.readback_mem.getGpuAddr(),v.row_bytes/4,v.height});
