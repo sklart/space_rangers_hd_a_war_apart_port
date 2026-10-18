@@ -1,5 +1,8 @@
 # A4: native ShipDestination Date contract, 18.10.2026
 
+Последующее исправление signed-32 conversions и DWORD/ref writes:
+[script-numeric-width-20261018.md](script-numeric-width-20261018.md).
+
 Статус: **PARTIAL**. Подтверждён исходный PC-контракт, исправлена потеря адреса
 в native producer/assignment, пройдены host ASan/UBSan и полный ARM64 compile/link.
 Физическая Switch и полный runtime ownership всех сценариев остаются OPEN.

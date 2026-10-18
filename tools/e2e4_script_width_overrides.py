@@ -285,6 +285,25 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                     "            return static_cast<std::uint32_t>(RefValue->GetInt());",
                     1, relative.as_posix())
                 text = text[:get_start] + get_body + text[get_end:]
+                # Widening Int storage must not widen numeric conversions. The
+                # native PC getter uses signed DWORD -> float; only GetDword
+                # exposes a full address. Float -> Int must also canonicalize
+                # the original signed-32 value before storage/save guards.
+                numeric = "srhd_awa::platform::e2e4_script_value::NumericIntFromStorage"
+                for old, new, count in (
+                    ("return IntValue;", f"return {numeric}(IntValue);", 2),
+                    ("FloatValue = IntValue;", f"FloatValue = {numeric}(IntValue);", 1),
+                    ("pas::wide_int_to_str(IntValue)", f"pas::wide_int_to_str({numeric}(IntValue))", 2),
+                    ("IntValue = System::Trunc(FloatValue);", f"IntValue = {numeric}(System::Trunc(FloatValue));", 1),
+                    ("IntValue = System::Trunc(Value);", f"IntValue = {numeric}(System::Trunc(Value));", 1),
+                ):
+                    text = _replace_exact(text, old, new, count, relative.as_posix())
+                int_start = text.index("void TVarEC::SetInt(std::int32_t Value) {")
+                int_end = text.index("void TVarEC::SetDword(", int_start)
+                int_body = _replace_exact(text[int_start:int_end],
+                    "DwordValue = Value;", "DwordValue = static_cast<std::uint32_t>(Value);",
+                    1, relative.as_posix())
+                text = text[:int_start] + int_body + text[int_end:]
                 # Integer cells can already carry a native address. Ordinary
                 # assignment must retain it; numeric coercions still use GetInt.
                 text = _replace_exact(text,
