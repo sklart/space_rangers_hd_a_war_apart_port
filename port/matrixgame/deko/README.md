@@ -101,3 +101,16 @@ source immutability, zero staging padding, tail guards, short rows, overflow и 
 rejection. GPU shaders и ELF связаны с настоящими copyBufferToImage/bindTextures.
 Future physical probe содержит две textures с alpha 128/255 и разные sampler/group
 bindings. Main не выполнялся: sampling, alpha output и descriptor lifetime НЕ PASS.
+
+## Данные настоящих VO
+
+`vector_submission.hpp` соединяет нативный `VectorGeometry` с SetMesh/DrawFrame.
+Передаются все исходные вершины/индексы и surface-first frame ranges; material state
+задаёт вызывающий код. Это один явный pass, без подстановки недостающих материалов.
+Build script использует CMake и линкует настоящий STRG/VO loader в GPU ELF.
+
+Probe имеет необязательный `--geometry-only <standalone-VO>` для будущей физической
+проверки первого кадра без текстур. Его readback ещё не выполнялся. Существующий
+контролируемый texture probe остаётся default режимом. Новая NRO не выпускается.
+Проверка всех 431 оригинальных VO выполнялась отдельно на CPU/MSVC/ARM64, не на GPU.
+См. [отчёт](../../../reports/matrixgame-native-vector-20261018.md).

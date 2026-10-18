@@ -9,6 +9,7 @@ case "${1:-}" in
   --blockpar) profile=blockpar; shift ;;
   --math) profile=math; shift ;;
   --random) profile=random; shift ;;
+  --vector) profile=vector; shift ;;
 esac
 out="$project_root/build/mg-core-arm64"
 zlib_source="$project_root/build/matrixgame/zlib-1.3.2-source"
@@ -43,6 +44,9 @@ if [[ "$profile" == blockpar ]]; then
 fi
 if [[ "$profile" == random ]]; then
   sources+=("$out/source/random.cpp")
+fi
+if [[ "$profile" == vector ]]; then
+  sources+=(port/matrixgame/native-core/vector_geometry.cpp)
 fi
 if [[ "$profile" == math ]]; then
   sources+=("$out/source/Math3D.cpp")
