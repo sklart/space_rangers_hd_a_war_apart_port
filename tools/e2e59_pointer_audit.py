@@ -77,6 +77,13 @@ def audit(build):
         source = ROOT / mapping['upstream/cpp/src/' + original]
         if CAST.search(source.read_text()):
             failures.append(f'live-pointer narrowing returned in {original}')
+    script = (ROOT / mapping['upstream/cpp/src/aScriptFun.cpp']).read_text()
+    if ('e2e5_script_pointer_int::Set(av[0], reinterpret_cast<std::uintptr_t>(ruins->FlyToStar))'
+            not in script):
+        failures.append('ShipDestination Date must retain the native address with its original int result tag')
+    expression = (ROOT / mapping['upstream/cpp/src/EC_Expression.cpp']).read_text()
+    if ('pas::is_one_of<vkInt, vkDword>(TVarEC_RealVType(Source))' not in expression):
+        failures.append('Integer assignment must retain native pointer storage')
     return dict(schema=1, level='EFFECTIVE SOURCE INVENTORY; NOT HARDWARE COVERAGE',
                 original_translation_units=len(mapping), platform_translation_units=len(platform),
                 translation_units=len(mapping) + len(platform), scanned_files=len(paths),
