@@ -33,3 +33,13 @@ add_executable(matrixgame-crc-x86-reference
 target_include_directories(matrixgame-crc-x86-reference PRIVATE "${MATRIXGAME_SOURCE_DIR}/MatrixLib/Base")
 target_compile_features(matrixgame-crc-x86-reference PRIVATE cxx_std_20)
 target_compile_options(matrixgame-crc-x86-reference PRIVATE /UNDEBUG)
+
+# Byte-for-byte baseline for original UTF-16 resource buffer semantics.
+add_executable(matrixgame-buffer-x86-reference
+    "${CMAKE_CURRENT_LIST_DIR}/../../../tests/test_matrixgame_native_buffer.cpp")
+target_include_directories(matrixgame-buffer-x86-reference PRIVATE "${CMAKE_CURRENT_LIST_DIR}/../native-core")
+target_link_libraries(matrixgame-buffer-x86-reference PRIVATE MatrixGameInternal)
+target_compile_features(matrixgame-buffer-x86-reference PRIVATE cxx_std_20)
+target_compile_definitions(matrixgame-buffer-x86-reference PRIVATE MATRIXGAME_ORIGINAL_BUFFER_REFERENCE)
+target_compile_options(matrixgame-buffer-x86-reference PRIVATE /UNDEBUG)
+target_link_options(matrixgame-buffer-x86-reference PRIVATE /ENTRY:mainCRTStartup)

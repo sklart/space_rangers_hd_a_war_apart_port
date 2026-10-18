@@ -5,10 +5,27 @@ import json
 from pathlib import Path
 
 INPUTS = {
+    'CException.hpp': 'b07668359bd5c9e383d5dbd652a727389faecfddc500d3d92584c32052d08303',
+    'CBuf.cpp': '7a404ddcd08c96f985c07e67ed44915dae83c768e9b39617361df24891670eac',
+    'CBuf.hpp': '37beddebc23e07e50a35171782a581c5901a8b27a292c5bc864f293466d9b1a0',
     "BaseDef.hpp": "087fec96990f3e14a9988e8f1dec9c9a22ab14f2e1cc38fa68f5b3970d00f1e6",
     "CRC32.hpp": "287fb8f9b67853c487beb3b6ce96c45aa0bcdf617b348407c8bc0caed4ce69fe",
     "CRC32.cpp": "f6bf4e86be9ae18dc836e0e5dc87536e36af09c7bf33705064e4a493fafe3c76",
 }
+
+
+def replace_body(text, signature, replacement):
+    if text.count(signature) != 1:
+        raise ValueError("Unexpected MatrixLib function: " + signature)
+    start = text.index(signature)
+    opening = text.index("{", start)
+    depth = 1
+    end = opening + 1
+    while depth:
+        if text[end] == "{": depth += 1
+        if text[end] == "}": depth -= 1
+        end += 1
+    return text[:start] + replacement + text[end:]
 
 def prepare(output: Path):
     root = Path(__file__).resolve().parents[1]
@@ -29,16 +46,63 @@ def prepare(output: Path):
             raise ValueError("Unexpected dword declaration")
         text = text.replace(old, new)
     text = text.replace("#pragma once", "#pragma once\n#include <cstdint>", 1)
-    # Keep wchar_t untouched: the UTF-16 engine boundary needs a separate port.
+    # Keep standard wchar_t ABI; CBuf uses an explicit UTF-16LE boundary.
+    text = text.replace('asm volatile("int $0x03");', "__builtin_trap();")
     files["BaseDef.hpp"] = text.encode("utf-8")
+    header = files["CBuf.hpp"].decode("utf-8")
+    for signature in [
+        "std::wstring WStr(void)", "void WStr(const std::wstring &str)",
+        "void WStrNZ(const std::wstring &str)", "std::wstring WStrText(void)",
+        "void WStrText(const std::wstring& str)",
+    ]:
+        header = replace_body(header, signature, signature + ";")
+    header = header.replace("#include <vector>", "#include <vector>\n#include <type_traits>")
+    header = header.replace("return *(D *)(m_Buf.data() + m_Pointer - sizeof(D));",
+        "static_assert(std::is_trivially_copyable_v<D>);\n        D value;\n        memcpy(&value, m_Buf.data() + m_Pointer - sizeof(D), sizeof(D));\n        return value;")
+    header = header.replace("*(D*)(m_Buf.data() + m_Pointer) = zn;",
+        "static_assert(std::is_trivially_copyable_v<D>);\n        memcpy(m_Buf.data() + m_Pointer, &zn, sizeof(D));")
+    header = replace_body(header, "void Expand(size_t sz)", """void Expand(size_t sz) {
+        if (sz > m_Buf.max_size() - m_Buf.size()) { ERROR_E; }
+        m_Buf.resize(m_Buf.size() + sz);
+    }""")
+    header = replace_body(header, "inline void TestGet(size_t len)", """inline void TestGet(size_t len) {
+        if (m_Pointer > m_Buf.size() || len > m_Buf.size() - m_Pointer) { ERROR_E; }
+    }""")
+    header = replace_body(header, "void TestAdd(size_t len)", """void TestAdd(size_t len) {
+        if (m_Pointer > m_Buf.size() || len > m_Buf.max_size() - m_Pointer) { ERROR_E; }
+        if (len > m_Buf.size() - m_Pointer) {
+            if (len > m_Buf.max_size() - m_Buf.size()) { ERROR_E; }
+            m_Buf.resize(m_Buf.size() + len); // Preserve original growth semantics.
+        }
+    }""")
+    header = replace_body(header, "void WordLoop(uint16_t zn, size_t cnt)", """void WordLoop(uint16_t zn, size_t cnt) {
+        if (cnt == 0) return;
+        if (cnt > m_Buf.max_size() / 2) { ERROR_E; }
+        TestAdd(cnt * 2);
+        for (size_t i = 0; i < cnt; ++i, m_Pointer += 2)
+            memcpy(m_Buf.data() + m_Pointer, &zn, sizeof(zn));
+    }""")
+    files["CBuf.hpp"] = header.encode("utf-8")
+    implementation = files["CBuf.cpp"].decode("utf-8")
+    file_start = implementation.index("void CBuf::LoadFromFile")
+    file_end = implementation.index("}  // namespace Base", file_start)
+    files["CBuf_file.cpp"] = (implementation[:implementation.index('#include "CBuf.hpp"')] + "#include \"CBuf.hpp\"\n#include \"CFile.hpp\"\nnamespace Base {\n" +
+        implementation[file_start:file_end] + "} // namespace Base\n").encode("utf-8")
+    implementation = implementation[:file_start] + implementation[file_end:]
+    for signature in ["size_t CBuf::WStrLen(void)", "size_t CBuf::WStrTextLen(void)"]:
+        implementation = replace_body(implementation, signature, "")
+    for include in ['#include "Mem.hpp"\n', '#include "CFile.hpp"\n']:
+        implementation = implementation.replace(include, "")
+    files["CBuf.cpp"] = implementation.encode("utf-8")
     output.mkdir(parents=True, exist_ok=True)
     for name, data in files.items():
         (output / name).write_bytes(data)
     report = {
-        "scope": "Original MatrixLib CRC CPU unit only; not a full engine build",
+        "scope": "Original MatrixLib CRC and CBuf memory core; not a full engine build",
         "upstream_pin": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
-        "patch": "Both dword aliases use uint32_t; CRC algorithm unchanged",
-        "utf16_port": "OPEN; wchar_t is not changed",
+        "patch": "Fixed-width dword, explicit CBuf UTF-16LE, aligned scalar copies, checked sizes; CRC unchanged",
+        "utf16_port": "CBuf explicit UTF-16LE; CStorage name hashing remains OPEN",
+        "file_io": "Original CBuf_file.cpp retained separately; CFile not yet ported",
         "input_hash_format": "SHA256 of LF-normalized UTF-8 source",
         "inputs_sha256": INPUTS,
         "outputs_sha256": {name: hashlib.sha256(data).hexdigest() for name, data in files.items()},

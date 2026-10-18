@@ -38,3 +38,34 @@ CStorage::CalcUniqID считает bytes через sizeof(wchar). Без яв�
 MatrixLib/MatrixGame units, asset/material submission, engine Run, GPU execution,
 кампания и аппаратные MG gates. Причина замершего экрана после «Готово» этим
 изменением не установлена; физический прогон кандидатa 3772031 пользователь отложил.
+
+
+## Продолжение: настоящий CBuf и UTF-16LE
+
+CPU library расширена оригинальным CBuf.cpp (память, размер, позиция, narrow text),
+нативными UTF-16 методами того же класса и реализацией исходного exception API.
+Шесть входных файлов проверяются по LF-нормализованным SHA256. dword остаётся
+32-битным, wchar_t ABI не меняется; disk boundary теперь явно UTF-16LE.
+
+PASS: 514 byte-exact наборов против оригинального MSVC x86 CBuf. Наборы включают
+ASCII/кириллицу/CJK/emoji, все 65536 UTF-16 units, surrogate-пары и одиночные
+surrogates, адреса без выравнивания, NUL/CR/LF и исходное продвижение позиции.
+Transcript 89542cb4 совпадает на x86 original, host ASan/UBSan, ARM64 QEMU и MSVC x64
+native. Повреждённые строки, чтение за границей и size overflow отвергаются без
+изменения cursor/output. Scalar Get/Add/WordLoop переведены на memcpy;
+TestGet/TestAdd/Expand/WordLoop проверяют переполнения без изменения обычного роста.
+
+CMake с новым Switch toolchain собрал статическую devkitA64 library из настоящих
+CRC/CBuf и native UTF-16/exception units. Тест также скомпилирован devkitA64 в object.
+Это compile/archive proof, не аппаратное выполнение и не полная сборка движка.
+CI дополнен ARM64 buffer contract и devkitA64 library build; новый commit ещё не
+завершил удалённый CI.
+
+LoadFromFile/SaveInFile вынесены без изменения в generated CBuf_file.cpp и ещё
+не подключены к CPU library: неготовый CFile не заменялся фиктивной реализацией.
+Native exceptions выводят file/line/message; Win32/x86 stack Tracer не портирован.
+CStorage name hashing и другие UTF-16 потребители остаются OPEN. Стабилизационная
+NRO 3772031 не менялась; freeze после «Готово» не объявляется исправленным.
+
+Доказательства: build/matrixgame/native-core/buffer-{x86,asan,arm64}-result.json,
+buffer-asan.log, buffer-msvc.log, buffer-devkit-cmake.log и buffer-proof.json.

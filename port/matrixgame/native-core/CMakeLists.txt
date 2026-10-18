@@ -12,9 +12,13 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${PORT_ROOT}/tools/matrixgame_core_prepare.py"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/BaseDef.hpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CRC32.hpp"
-    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CRC32.cpp")
-add_library(matrixgame-native-core STATIC "${CORE_SOURCE}/CRC32.cpp")
-target_include_directories(matrixgame-native-core PUBLIC "${CORE_SOURCE}")
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CRC32.cpp"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CBuf.hpp"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CBuf.cpp"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CException.hpp")
+add_library(matrixgame-native-core STATIC "${CORE_SOURCE}/CRC32.cpp"
+    "${CORE_SOURCE}/CBuf.cpp" cbuf_utf16.cpp exception_native.cpp)
+target_include_directories(matrixgame-native-core PUBLIC "${CORE_SOURCE}" "${CMAKE_CURRENT_LIST_DIR}")
 target_compile_features(matrixgame-native-core PUBLIC cxx_std_20)
 option(CORE_SANITIZERS "Enable ASan and UBSan on host" OFF)
 if(CORE_SANITIZERS)
@@ -31,4 +35,12 @@ if(BUILD_TESTING)
         target_compile_options(matrixgame-native-crc-test PRIVATE -UNDEBUG)
     endif()
     add_test(NAME matrixgame-native-crc-contract COMMAND matrixgame-native-crc-test)
+    add_executable(matrixgame-native-buffer-test "${PORT_ROOT}/tests/test_matrixgame_native_buffer.cpp")
+    target_link_libraries(matrixgame-native-buffer-test PRIVATE matrixgame-native-core)
+    if(MSVC)
+        target_compile_options(matrixgame-native-buffer-test PRIVATE /UNDEBUG)
+    else()
+        target_compile_options(matrixgame-native-buffer-test PRIVATE -UNDEBUG)
+    endif()
+    add_test(NAME matrixgame-native-buffer-contract COMMAND matrixgame-native-buffer-test)
 endif()

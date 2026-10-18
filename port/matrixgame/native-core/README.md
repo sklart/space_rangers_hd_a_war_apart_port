@@ -1,15 +1,21 @@
 # Оригинальная CPU-часть MatrixLib
 
-Это начало переноса настоящего MatrixLib, а не замена движка. Пока библиотека
-содержит только оригинальный `Base/CRC32.cpp`; его алгоритм не изменён. Подготовка
-проверяет SHA256 трёх входных файлов закреплённого MatrixGame (после CRLF→LF),
-затем создаёт копии в build directory. В копии BaseDef.hpp обе декларации dword
-заменяются на std::uint32_t. В pinned submodule ничего не записывается.
+Текущая библиотека содержит оригинальные CRC32.cpp, память/позицию CBuf и
+нативную реализацию UTF-16 методов CBuf и исключений. Это ещё не полный
+MatrixLib/MatrixGame. Подготовка проверяет SHA256 шести закреплённых upstream
+файлов после CRLF→LF и создаёт копии в build directory; upstream не изменяется.
 
-На Win32 unsigned long имеет 32 бита, на LP64 ARM64 — 64. Фиксированная ширина
-нужна для исходной арифметики CRC и бинарных полей. Нестандартное сочетание
-таблицы CRC и сдвига влево намеренно сохранено: подмена стандартным zlib CRC
-нарушила бы совместимость.
+Обе декларации dword используют uint32_t. Исходный нестандартный алгоритм CRC
+сохранён. wchar_t и стандартная библиотека сохраняют платформенный ABI: строки
+на диске преобразуются через явный UTF-16LE codec. Корректные surrogate-пары и
+отдельные surrogate code units проходят байтовый round-trip без замены символов.
+CBuf::WStr/WStrNZ/WStrText и методы длины подключены к этому codec. Отсутствующий
+терминатор и неполная кодовая единица отвергаются до продвижения позиции.
+
+Скалярные Get/Add/WordLoop используют memcpy для адресов без выравнивания.
+TestGet/TestAdd/Expand/WordLoop проверяют размеры без переполнения; исходный
+алгоритм роста буфера сохранён. Нативные CException/CExceptionStr сохраняют тип
+и сообщение/file/line. Win32/x86 Tracer не подключён: stack trace здесь не обещан.
 
 ```sh
 cmake -S port/matrixgame/native-core -B build/mg-core-asan \
@@ -17,16 +23,24 @@ cmake -S port/matrixgame/native-core -B build/mg-core-asan \
 cmake --build build/mg-core-asan --parallel 2
 ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 \
   ctest --test-dir build/mg-core-asan --output-on-failure
+
+cmake -S port/matrixgame/native-core -B build/mg-core-switch \
+  -DCMAKE_TOOLCHAIN_FILE="$PWD/port/matrixgame/native-core/switch-toolchain.cmake" \
+  -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=Release
+cmake --build build/mg-core-switch --parallel 2
 ```
 
-Эталон x86: target matrixgame-crc-x86-reference проекта native-probe собирает тот
-же тест с неизменённым оригинальным CRC32.cpp/BaseDef.hpp. Для 4097 длин и 16388
-split checks FNV32 последовательности CRC равен 7a4520ff. ARM64/QEMU и host
-ASan/UBSan совпали; devkitA64 собирает исходный CRC в объект для Switch.
+Для SDK в нестандартном месте передайте -DMATRIXGAME_DEVKITPRO=/path/to/devkitpro.
+Switch target создаёт статическую библиотеку, без дополнительной NRO. Тесты
+исполнялись на host ASan/UBSan, MSVC x64 и ARM64/QEMU; Switch archive только собран.
 
-Это не сборка всего MatrixLib или MatrixGame, не engine Run, не GPU/аппаратный
-тест. wchar_t не меняется: UTF-16 сериализация CBuf/CStorage требует отдельного
-переноса. Например, CBuf::WStrLen шагает по два байта, но читает wchar; на LP64
-это четыре байта. CStorage::CalcUniqID хеширует имена с sizeof(wchar), поэтому
-исправление только typedef без проверки строкового и дискового ABI недостаточно.
-Также остаются Win32 file/heap/trace dependencies и Direct3D.
+Оригинальные MSVC x86 reference targets в native-probe:
+- matrixgame-crc-x86-reference: 4097 длин, 16388 split checks, transcript 7a4520ff;
+- matrixgame-buffer-x86-reference: 514 наборов, включая все 65536 UTF-16 units,
+  байтовый transcript 89542cb4. Валидные bytes/позиции совпали с native port.
+
+LoadFromFile/SaveInFile сохранены неизменёнными в generated CBuf_file.cpp, который
+пока не включён в CPU library: CFile/pack backend ещё нужно перенести. Подставной
+файловой реализации нет. CStorage::CalcUniqID всё ещё требует явного UTF-16
+хеширования; прочие потребители wchar_t, heap/trace, D3D, настоящие assets, engine
+Run, rendering, campaign handoff и физические MG gates остаются незавершёнными.
