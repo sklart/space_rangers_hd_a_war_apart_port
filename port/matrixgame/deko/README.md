@@ -20,8 +20,7 @@ SVOIndices16=6. Target matrixgame-mesh-layout-probe в соседнем native-p
 
 `MeshDraw` принимает column-major clip/normal matrices. D3DX row-vector conversion
 остаётся задачей интеграции. Depth zero-to-one, origin upper-left; culling в первом
-проходе выключен. Освещение пока базовое diffuse + ambient, UV ещё не используется
-для sampling. Полная эквивалентность D3D9 lighting/materials **не заявляется**.
+проходе выключен. Освещение пока базовое diffuse + ambient, UV передаётся в fragment shader и используется для RGBA8 sampling. Полная эквивалентность D3D9 lighting/materials **не заявляется**.
 
 ## Build
 
@@ -44,7 +43,8 @@ Probe содержит две контролируемые triangle groups с р
 
 ## Следующая интеграция
 
-Нужны textures/samplers, подключение mesh/material submission к engine MatrixLib, реальные
+Нужны native texture formats/mipmaps и полный sampler state, подключение mesh/material
+submission к engine MatrixLib, реальные
 matrix/winding checks, stencil shadows, blend/fog/multi-texture stages, animation,
 render targets, particles/UI, swapchain/передача экрана основной игре, profiling и
 физический первый кадр. MG-2 engine Run, MG-4 gameplay и MG-5 campaign остаются
@@ -75,3 +75,29 @@ negative base vertex, padding, out-of-range metadata и integer overflow control
 Настоящий MSVC x86 probe дополнительно вызывает translator с native SVOUnion.
 CMake/CTest target matrixgame-mesh-submission-test добавлен в native project.
 Эти проверки не подтверждают GPU command execution или материал/порядок реальной сцены.
+
+## RGBA8 textures и samplers
+
+SetTextureRGBA8 принимает явный source pitch и slots 1..63. Upload сохраняет RGBA
+байты/alpha и порядок строк, выравнивая отдельный staging pitch до 32 байт. Последняя
+строка не обязана содержать trailing padding. Невалидные планы/размеры и перекрытие
+source/staging отвергаются до записи. DDS/DXT, native BGRA conversion и mipmaps этим
+не декодируются: boundary принимает уже RGBA8 pixels.
+
+Реализованы owned deko images/descriptors, buffer-to-image transfer, sampler bindings
+и diffuse×texture shader. Каждая group выбирает image slot и один из четырёх samplers:
+nearest/linear × repeat/clamp. Slot 0 — внутренний белый identity для явно untextured
+pass. Missing/cleared slot и неизвестный sampler дают ошибку; отсутствующие native
+assets не подменяются этим identity. Полный D3D9 texture-stage/anisotropy/mip state ещё
+не перенесён.
+
+Upload budget 64 MiB учитывает retained old textures + new image + staging одновременно.
+При нехватке места старый slot сохраняется. ClearTexture и замена ждут queue idle;
+перед следующими draws инвалидируются image/descriptor caches. Это implemented
+lifecycle; native GPU leaks/OOM/replacement ещё требуют физической проверки.
+
+Portable ASan/UBSan и ARM64/QEMU проверили 156 row layouts, byte/alpha preservation,
+source immutability, zero staging padding, tail guards, short rows, overflow и alias
+rejection. GPU shaders и ELF связаны с настоящими copyBufferToImage/bindTextures.
+Future physical probe содержит две textures с alpha 128/255 и разные sampler/group
+bindings. Main не выполнялся: sampling, alpha output и descriptor lifetime НЕ PASS.

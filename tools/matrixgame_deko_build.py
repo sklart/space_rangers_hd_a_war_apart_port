@@ -23,7 +23,7 @@ def main() -> int:
     uam = sdk / ('tools/bin/uam' + suffix)
     readelf = sdk / ('devkitA64/bin/aarch64-none-elf-readelf' + suffix)
     source_dir = root / 'port/matrixgame/deko'
-    inputs = [source_dir / name for name in ['mesh_renderer.hpp', 'mesh_submission.hpp', 'mesh_renderer.cpp', 'mesh.vert.glsl', 'mesh.frag.glsl']]
+    inputs = [source_dir / name for name in ['mesh_renderer.hpp', 'mesh_submission.hpp', 'texture_upload.hpp', 'mesh_renderer.cpp', 'mesh.vert.glsl', 'mesh.frag.glsl']]
     inputs += [root / 'tests/probe_matrixgame_deko_link.cpp', Path(__file__).resolve()]
     log = []
     def run(command):
@@ -70,7 +70,7 @@ def main() -> int:
         machine = run([readelf, '-h', elf])
         require('AArch64' in machine and 'ELF64' in machine, 'non-ARM64 ELF')
         symbols = run([readelf, '-sW', elf])
-        required = ['dkDeviceCreate', 'dkQueueCreate', 'dkCmdBufDrawIndexed', 'dkCmdBufCopyImageToBuffer']
+        required = ['dkDeviceCreate', 'dkQueueCreate', 'dkCmdBufDrawIndexed', 'dkCmdBufCopyImageToBuffer', 'dkCmdBufCopyBufferToImage', 'dkCmdBufBindTextures']
         require(all(name in symbols for name in required), 'GPU draw/readback implementation missing from ELF')
         undefined = [line for line in symbols.splitlines() if ' UND ' in line and ' WEAK ' not in line and len(line.split()) > 7]
         require(not undefined, 'unresolved strong symbols: ' + str(undefined))

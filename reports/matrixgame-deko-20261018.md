@@ -29,7 +29,7 @@ GPU первый кадр, winding/matrix/material parity, runtime lifetime и f
 остаются непроверенными. Native submesh range/base vertex translator и batch submission теперь реализованы
 отдельным блоком ниже. Подключение к engine/material dispatch ещё отсутствует.
 
-Полные textures/samplers, stencil shadows, blend/fog/multitexture, animation,
+Полные native texture formats/mipmaps/sampler state, stencil shadows, blend/fog/multitexture, animation,
 render targets, particles/UI, swapchain и handoff основной игре ещё не реализованы.
 Базовый diffuse/ambient shader не выдаётся за эквивалент всего D3D9 fixed-function.
 MG-2 engine entry/Run, MG-4 gameplay и MG-5 campaign остаются открыты.
@@ -64,3 +64,28 @@ GPU link probe теперь содержит две fixture groups с разли
 uniforms, но main по-прежнему НЕ выполнялся. Новый GPU runtime/frame/lifetime PASS не
 объявляется, закрытые meshes/textures не публикуются, дополнительной NRO нет.
 Engine entry/Run, material/texture parity, swapchain и campaign остаются OPEN.
+
+## RGBA8 texture path — продолжение
+
+Реализованы validated pitched RGBA8 upload, owned GPU image slots/descriptors,
+nearest/linear × repeat/clamp samplers и per-submesh bindings. Vertex shader передаёт
+UV, fragment shader выполняет diffuse×texture sampling. Internal slot 0 только для
+explicit untextured pass; missing/cleared user slot отвергается. Исходные assets не
+добавляются и не подменяются. Native BGRA/DDS/DXT/mip decoding ещё отсутствует.
+
+Upload code проверяет 64 MiB peak budget (retained old + new + staging) до новых GPU
+allocations, сохраняет старый slot при отказе, ожидает idle перед заменой/clear и
+инвалидирует texture/descriptor caches перед draw. Физическая GPU lifecycle/fragmentation
+проверка не выполнена.
+
+PASS: 156 byte-exact row layouts на host ASan/UBSan и настоящем ARM64/QEMU,
+alpha/channel/row preservation, source immutability, zero padding, bounds/overflow,
+поддельный staging plan и overlap rejection. CMake/CTest target и ARM64 CI step
+добавлены. GPU UAM shaders + ELF link/audit с реальными texture upload/sampling APIs PASS.
+Proof/logs: build/matrixgame/deko/texture-proof.json, texture-cmake-asan.log,
+texture-arm64.log и build-report.json. Future probe теперь проверяет две alpha textures
+128/255, разные slots/samplers/base vertices, но main всё ещё не выполнялся.
+
+Sampler/image output, actual native material parity, GPU timing и cleanup на Switch
+остаются HARDWARE PENDING. Engine entry/Run, real scene submission, swapchain и
+возврат кампании всё ещё OPEN. Стабилизационная NRO 3772031 не менялась.

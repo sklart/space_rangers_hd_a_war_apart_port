@@ -115,6 +115,12 @@ jobs:
           aarch64-linux-gnu-g++ -std=c++20 -O1 -g tests/test_matrixgame_mesh_submission.cpp \
             -o build/mg-submesh-arm64/contract
           qemu-aarch64 -L /usr/aarch64-linux-gnu build/mg-submesh-arm64/contract
+      - name: RGBA8 texture upload layout on ARM64
+        run: |
+          mkdir -p build/mg-texture-arm64
+          aarch64-linux-gnu-g++ -std=c++20 -O1 -g tests/test_matrixgame_texture_upload.cpp \
+            -o build/mg-texture-arm64/contract
+          qemu-aarch64 -L /usr/aarch64-linux-gnu build/mg-texture-arm64/contract
       - name: Gesture and bounded film ordinal checks on host and ARM64
         run: python3 tests/probe_e2e59_input_index.py
       - name: Native heap reserve and generation counters on host and ARM64

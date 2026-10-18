@@ -20,8 +20,13 @@ struct MeshDraw {
   // xyz = unit direction toward light, w = ambient contribution (0..1).
   std::array<float,4> light{0,0,1,.2f};
 };
-struct MeshSubmission { MeshRange range; MeshDraw draw; };
-// First offscreen GPU geometry pass only. No swapchain, texture/material parity,
+enum class TextureSampling : std::uint32_t { NearestRepeat, LinearRepeat, NearestClamp, LinearClamp };
+struct MeshSubmission {
+  MeshRange range; MeshDraw draw;
+  std::uint32_t texture_slot{};
+  TextureSampling sampling{TextureSampling::NearestRepeat};
+};
+// First offscreen GPU geometry pass only. No swapchain or full material/sampler parity,
 // battle entry, software fallback, or campaign result is implemented by this class.
 // One owning render thread; all work completes before readback or resource reuse.
 class DekoMeshRenderer {
@@ -32,6 +37,11 @@ class DekoMeshRenderer {
   DekoMeshRenderer(const DekoMeshRenderer&)=delete;
   DekoMeshRenderer& operator=(const DekoMeshRenderer&)=delete;
   void SetMesh(std::span<const MeshVertex>, std::span<const std::uint16_t> index_buffer);
+  // Slots 1..63 are explicit owned RGBA8 textures. Slot 0 is the internal white
+  // identity for an untextured pass; unknown slots never fall back silently.
+  void SetTextureRGBA8(std::uint32_t slot,std::uint32_t width,std::uint32_t height,
+      std::uint32_t pitch_bytes,std::span<const std::byte> rgba);
+  void ClearTexture(std::uint32_t slot);
   // Writes tightly packed RGBA8 rows after GPU queue completion. This is GPU
   // readback for a later physical probe, never an emulated host framebuffer.
   void Draw(const MeshDraw&, std::span<std::byte> rgba_output);
