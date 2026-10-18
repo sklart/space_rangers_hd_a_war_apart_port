@@ -23,6 +23,9 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${PORT_ROOT}/tools/matrixgame_blockpar_overrides.py"
     "${PORT_ROOT}/tools/matrixgame_math_overrides.py"
     "${PORT_ROOT}/tools/matrixgame_random_overrides.py"
+    "${PORT_ROOT}/tools/matrixgame_engine_api_overrides.py"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixGame/src/MatrixGameDll.hpp"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixGame/src/MatrixGame.h"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/random.hpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/random.cpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/Math3D.hpp"
@@ -47,6 +50,7 @@ if(MSVC)
     target_compile_options(matrixgame-native-core PUBLIC /fp:precise)
 else()
     target_include_directories(matrixgame-native-core PUBLIC "${PORT_ROOT}/port/matrixgame/third_party/sal")
+    target_compile_definitions(matrixgame-native-core PUBLIC _POSIX_C_SOURCE=200809L)
     target_compile_options(matrixgame-native-core PUBLIC -ffp-contract=off)
 endif()
 

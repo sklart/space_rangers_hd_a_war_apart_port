@@ -107,3 +107,20 @@ Native RNG, cache, полный VO/map loader, CGame::Init/Run, GPU execution/sw
 проверка или глобальный RSS budget. MG0–MG5, физическая Switch, freeze после «Готово»
 и FPS/battery требования этим этапом не закрыты. Наличие NEON не считается замером
 ускорения или расхода батареи.
+
+## Исправление SSE memory boundary после CI
+
+В CI 39120158677 / 39120139464 (PR #9) math contract под GCC 13 + TSan
+разошёлся с original trace на значении 77 — первая компонента направления CalcPick.
+На отдельно распакованном GCC 13.4.0 отказ воспроизведён: после 77 записанных
+значений следующая компонента nonfinite. GCC 15 локально этот дефект не проявлял.
+
+Packed SSE XMLoad/StoreFloat2/3 обращаются к двум float через double*. Native
+wrappers теперь читают именованные float-поля через XMVectorSet и записывают через
+XMVectorGetX/Y/Z. SIMD-арифметика, эталон и допуски не менялись; vendor не правился,
+глобальное отключение strict aliasing не используется. Aliasing out==in сохранён.
+
+После исправления GCC 13 + TSan проходит все 51105 контрольных значений,
+maximum_scaled_error=2.8610000000206526e-6 при неизменном пределе 2e-5.
+Логи before/after и контрольный trace находятся в ignored build/matrixgame/native-core.
+Повторный remote CI оценивается отдельно от локального воспроизведения.
