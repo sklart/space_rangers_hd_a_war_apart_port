@@ -65,14 +65,26 @@ add_library(matrixgame-native-core STATIC texture_asset.cpp vector_geometry.cpp 
 target_include_directories(matrixgame-native-core PUBLIC "${CORE_SOURCE}" "${CMAKE_CURRENT_LIST_DIR}")
 target_sources(matrixgame-native-core PRIVATE texture_request.cpp "${CORE_SOURCE}/TextureFlags.cpp")
 target_sources(matrixgame-native-core PRIVATE jpeg_texture.cpp)
+target_sources(matrixgame-native-core PRIVATE texture_mips.cpp "${CORE_SOURCE}/BC.cpp")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    "${PORT_ROOT}/tools/matrixgame_bc_prepare.py" "${CMAKE_CURRENT_LIST_DIR}/bc_native_prelude.hpp")
 target_compile_features(matrixgame-native-core PUBLIC cxx_std_20)
 target_include_directories(matrixgame-native-core PUBLIC "${PORT_ROOT}/port/matrixgame/third_party/directxmath/Inc")
 if(MSVC)
     target_compile_options(matrixgame-native-core PUBLIC /fp:precise)
+    set_source_files_properties("${CORE_SOURCE}/BC.cpp" PROPERTIES COMPILE_OPTIONS /fp:strict)
 else()
     target_include_directories(matrixgame-native-core PUBLIC "${PORT_ROOT}/port/matrixgame/third_party/sal")
     target_compile_definitions(matrixgame-native-core PUBLIC _POSIX_C_SOURCE=200809L)
     target_compile_options(matrixgame-native-core PUBLIC -ffp-contract=off)
+    set_source_files_properties("${CORE_SOURCE}/BC.cpp" PROPERTIES COMPILE_OPTIONS -frounding-math)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        # GCC can sink the quantization arithmetic past the FPU guard's
+        # destructor even with -frounding-math. Keep it inside the scope.
+        set_property(SOURCE "${CORE_SOURCE}/BC.cpp" APPEND PROPERTY COMPILE_OPTIONS -fno-tree-sink)
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        set_property(SOURCE "${CORE_SOURCE}/BC.cpp" APPEND PROPERTY COMPILE_OPTIONS -ffp-model=strict)
+    endif()
 endif()
 
 find_package(ZLIB REQUIRED)
@@ -99,6 +111,11 @@ if(CORE_THREAD_SANITIZER)
 endif()
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(matrixgame-native-mips-test "${PORT_ROOT}/tests/test_matrixgame_native_mips.cpp")
+    target_link_libraries(matrixgame-native-mips-test PRIVATE matrixgame-native-core)
+    add_test(NAME matrixgame-native-mips-contract COMMAND "${Python3_EXECUTABLE}"
+        "${PORT_ROOT}/tests/probe_matrixgame_native_mips.py"
+        --binary "$<TARGET_FILE:matrixgame-native-mips-test>" --output "${CMAKE_CURRENT_BINARY_DIR}/mip-contract-fixtures")
     add_executable(matrixgame-raster-state-test "${PORT_ROOT}/tests/test_matrixgame_raster_state.cpp")
     target_link_libraries(matrixgame-raster-state-test PRIVATE matrixgame-native-core)
     add_test(NAME matrixgame-raster-state-contract COMMAND "${Python3_EXECUTABLE}"

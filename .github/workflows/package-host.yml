@@ -150,6 +150,8 @@ jobs:
         run: bash tools/matrixgame_file_arm64.sh --texture
       - name: Original texture sidecar flags and resolved requests on ARM64
         run: bash tools/matrixgame_file_arm64.sh --texture-request
+      - name: Exact D3DX PNG gamma and BOX mip controls on ARM64
+        run: bash tools/matrixgame_file_arm64.sh --mips
       - name: Native raster state register contract on ARM64
         run: bash tools/matrixgame_raster_arm64.sh
       - name: Gesture and bounded film ordinal checks on host and ARM64

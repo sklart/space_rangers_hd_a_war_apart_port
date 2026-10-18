@@ -9,7 +9,9 @@
     "directxmath/Inc/DirectXMathConvert.inl": "8ee0fa911b4fe9cfdff5f3d3106d8bc4d7b32e7766d66f952fb4d40ebffb73af",
     "directxmath/Inc/DirectXMathMatrix.inl": "9d8006443661647c5cbd2fd64aa665084896782d4ad559ce7d62e0711e013143",
     "directxmath/Inc/DirectXMathMisc.inl": "17a69c40487f5b8511c0e588240cd291acdfb600c8f9d8205ef0726590442794",
-    "directxmath/Inc/DirectXMathVector.inl": "e27b96e876a5ac7655263dcf1a2f56b679517c1e04c1cd3617d5667a59c2cbc6"
+    "directxmath/Inc/DirectXMathVector.inl": "e27b96e876a5ac7655263dcf1a2f56b679517c1e04c1cd3617d5667a59c2cbc6",
+    "directxmath/Inc/DirectXPackedVector.h": "6e3c393bd3f015c85ce26adf86dc0d40bb2c524622c08bea963730855c2c147f",
+    "directxmath/Inc/DirectXPackedVector.inl": "8436232d3da1b3ca036d3bca452214c187d1f041738e5582dd9f1dafcc379402"
   },
   "hash_format": "SHA256 of LF-normalized upstream text"
 }

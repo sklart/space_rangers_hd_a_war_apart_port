@@ -32,6 +32,8 @@ TextureAsset TextureRequest::Load() const {
   std::vector<std::byte> bytes(std::size_t(size),std::byte{});file.Read(bytes.data(),bytes.size());
   const bool storage=bytes.size()>=4&&!std::memcmp(bytes.data(),"STRG",4);
   if(storage!=bool(flags&TF_COMPRESSED))throw std::invalid_argument("texture Compressed flag/payload mismatch");
-  return TextureAsset::Decode(bytes);
+  auto image=TextureAsset::Decode(bytes);
+  image.PrepareMips((flags&TF_NOMIPMAP)?TextureMipPolicy::OneLevel:TextureMipPolicy::CompleteBox);
+  return image;
 }
 }

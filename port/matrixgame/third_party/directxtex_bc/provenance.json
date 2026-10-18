@@ -1,0 +1,10 @@
+{
+  "repository": "https://github.com/microsoft/DirectXTex",
+  "commit": "4234f77df9c6c8bb2880607b82d5d597b54d1fa9",
+  "scope": "Original BC1/2/3 CPU codec only; no DirectX device shim",
+  "sha256": {
+    "BC.cpp": "7554b64224f39e68ff99f9b070394dfddee811593a1b3d7c8004c5c2f94a47b0",
+    "BC.h": "498e86defa9e46f207a54aff2fbda814467c2d6d608e9d678ffff5e1cd142a49",
+    "LICENSE": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+  }
+}

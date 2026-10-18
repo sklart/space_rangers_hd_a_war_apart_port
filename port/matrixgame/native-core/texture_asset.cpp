@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <array>
 #include <bit>
+#include <cmath>
 #include <cstring>
 #include <stdexcept>
 namespace srhd_awa::matrixgame {
@@ -42,6 +43,7 @@ TextureAsset Dds(std::span<const std::byte> b) {
     else if(fourcc==0x35545844){result.format=TextureFormat::BC3;block=16;}
     else throw std::invalid_argument("unsupported DDS FourCC");
   }else {
+    if(!(pf&(1|2)))result.clear_pixel={0,0,0,255};
     if((bits!=8&&bits!=16&&bits!=24&&bits!=32)||!(pf&(0x40|0x20000|2)))
       throw std::invalid_argument("unsupported DDS pixel format");
     if((pf&0x40)&&(pf&0x20000))throw std::invalid_argument("ambiguous DDS color format");
@@ -91,7 +93,26 @@ TextureAsset Image(std::span<const std::byte> b) {
   if(Magic(b,"\x89PNG\r\n\x1a\n",8)) {
     CBitmap bitmap;
     if(!bitmap.LoadRGBAFromPNG(const_cast<std::byte*>(b.data()),int(b.size())))throw std::invalid_argument("texture PNG decode");
-    TextureAsset result;TextureLevel level{std::uint32_t(bitmap.SizeX()),std::uint32_t(bitmap.SizeY()),std::uint32_t(bitmap.Pitch()),{}};
+    TextureAsset result;
+    bool alpha=(std::to_integer<unsigned>(b[25])&4)!=0;
+    for(std::size_t at=8;at+12<=b.size();) {
+      const auto n=(std::uint32_t(std::to_integer<unsigned>(b[at]))<<24)|(std::uint32_t(std::to_integer<unsigned>(b[at+1]))<<16)|
+        (std::uint32_t(std::to_integer<unsigned>(b[at+2]))<<8)|std::to_integer<unsigned>(b[at+3]);
+      if(n>b.size()-at-12)throw std::invalid_argument("PNG chunk extent");
+      if(!std::memcmp(b.data()+at+4,"IDAT",4)||!std::memcmp(b.data()+at+4,"IEND",4))break;
+      if(!std::memcmp(b.data()+at+4,"tRNS",4))alpha=true;
+      if(!std::memcmp(b.data()+at+4,"gAMA",4)&&n==4) {
+        result.png_gamma=(std::uint32_t(std::to_integer<unsigned>(b[at+8]))<<24)|
+          (std::uint32_t(std::to_integer<unsigned>(b[at+9]))<<16)|
+          (std::uint32_t(std::to_integer<unsigned>(b[at+10]))<<8)|std::to_integer<unsigned>(b[at+11]);
+      }
+      at+=12+std::size_t(n);
+    }
+    if(!alpha)result.clear_pixel={0,0,0,255};
+    // Measured original RGB PNG path uses libpng's 0.05 gamma threshold;
+    // its alpha path applies the correction even close to display gamma.
+    if(!alpha&&std::abs(2.2*result.png_gamma/100000.0-1.0)<=.05)result.png_gamma=0;
+    TextureLevel level{std::uint32_t(bitmap.SizeX()),std::uint32_t(bitmap.SizeY()),std::uint32_t(bitmap.Pitch()),{}};
     const auto* pixels=reinterpret_cast<const std::byte*>(bitmap.Data());
     level.bytes.assign(pixels,pixels+std::size_t(level.pitch)*level.height);result.levels.push_back(std::move(level));return result;
   }

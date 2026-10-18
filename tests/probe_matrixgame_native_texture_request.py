@@ -35,9 +35,25 @@ def expected(name,files):
         if wrapped:
             from probe_matrixgame_native_storage import parse_storage
             record=parse_storage(b,include_payloads=True)['records'][0];b=record['columns'][0]['arrays'][0]
-        if b[:4]==b'DDS ':loaded=max(1,struct.unpack_from('<I',b,28)[0])
-        elif b[:8]==b'\x89PNG\r\n\x1a\n':loaded=1
-        elif b[:2]==b'\xff\xd8':loaded=1
+        dimensions=None
+        if b[:4]==b'DDS ':
+            h,w=struct.unpack_from('<II',b,12)
+            if struct.unpack_from('<I',b,80)[0]&4:w,h=max(4,w),max(4,h)
+            dimensions=w,h
+        elif b[:8]==b'\x89PNG\r\n\x1a\n':dimensions=struct.unpack_from('>II',b,16)
+        elif b[:2]==b'\xff\xd8':
+            at=2
+            while at<len(b):
+                assert b[at]==255
+                while b[at]==255:at+=1
+                marker=b[at];at+=1
+                if marker in (0xd8,0xd9) or 0xd0<=marker<=0xd7:continue
+                size=struct.unpack_from('>H',b,at)[0]
+                if marker in (0xc0,0xc1,0xc2):
+                    h,w=struct.unpack_from('>HH',b,at+3);dimensions=w,h;break
+                at+=size
+        if dimensions:
+            loaded=1 if flags&8 else (max(dimensions)-1).bit_length()+1
     return (1,flags,path,loaded)
 
 
