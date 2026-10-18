@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "mesh_renderer.hpp"
 #include "texture_upload.hpp"
+#include "texture_asset_upload.hpp"
 #include <deko3d.hpp>
 #include <algorithm>
 #include <cmath>
@@ -14,7 +15,7 @@ namespace {
 constexpr std::uint32_t command_bytes=65536;
 constexpr std::uint32_t max_submissions=256;
 constexpr std::uint32_t uniform_stride=DK_UNIFORM_BUF_ALIGNMENT;
-constexpr std::uint32_t max_textures=64, sampler_count=4;
+constexpr std::uint32_t max_textures=64, sampler_count=8;
 constexpr std::uint32_t texture_budget=64*1024*1024;
 constexpr auto data_flags=DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached;
 std::uint32_t Align(std::uint64_t value, std::uint32_t alignment=DK_MEMBLOCK_ALIGNMENT) {
@@ -83,7 +84,8 @@ struct DekoMeshRenderer::Impl {
     dk::Image image; image.initialize(layout,storage,0);
     dk::ImageView view{image}; dk::ImageDescriptor descriptor; descriptor.initialize(view);
     queue.waitIdle(); commands.clear(); commands.addMemory(command_mem,0,command_bytes);
-    commands.copyBufferToImage({staging.getGpuAddr(),plan.staging_pitch/4,h},view,{0,0,0,w,h,1});
+    // DkCopyBuf rowLength is a byte pitch, imageHeight is a byte layer stride.
+    commands.copyBufferToImage({staging.getGpuAddr(),plan.staging_pitch,0},view,{0,0,0,w,h,1});
     commands.barrier(DkBarrier_Full,DkInvalidateFlags_Image|DkInvalidateFlags_L2Cache);
     queue.submitCommands(commands.finishList()); queue.flush(); queue.waitIdle(); commands.clear();
     std::memcpy(static_cast<std::byte*>(image_descriptors.getCpuAddr())+slot*sizeof(DkImageDescriptor),
@@ -91,6 +93,33 @@ struct DekoMeshRenderer::Impl {
     auto& target=textures[slot];
     texture_bytes=texture_bytes-target.bytes+image_bytes;
     target.memory=std::move(storage); target.image=image; target.bytes=image_bytes;
+  }
+  void UploadTextureAsset(std::uint32_t slot,const TextureAsset& asset) {
+    const auto plan=PlanTextureAssetUpload(asset);
+    constexpr DkImageFormat formats[]{DkImageFormat_RGBA8_Unorm,DkImageFormat_RGBA_BC1,
+      DkImageFormat_RGBA_BC2,DkImageFormat_RGBA_BC3};
+    dk::ImageLayout layout;
+    dk::ImageLayoutMaker{device}.setFlags(0).setFormat(formats[static_cast<unsigned>(asset.format)])
+      .setDimensions(plan.levels[0].width,plan.levels[0].height).setMipLevels(plan.levels.size()).initialize(layout);
+    if(layout.getAlignment()>DK_MEMBLOCK_ALIGNMENT)throw std::runtime_error("deko texture alignment");
+    const auto image_bytes=Align(layout.getSize()),staging_bytes=Align(plan.bytes);
+    if(std::uint64_t(texture_bytes)+image_bytes+staging_bytes>texture_budget)
+      throw std::length_error("deko texture upload budget");
+    dk::UniqueMemBlock storage{Allocate(image_bytes,DkMemBlockFlags_GpuCached|DkMemBlockFlags_Image)};
+    dk::UniqueMemBlock staging{Allocate(staging_bytes,data_flags)};
+    PackTextureAsset(asset,{static_cast<std::byte*>(staging.getCpuAddr()),plan.bytes});
+    dk::Image image;image.initialize(layout,storage,0);
+    dk::ImageView full{image};dk::ImageDescriptor descriptor;descriptor.initialize(full);
+    queue.waitIdle();commands.clear();commands.addMemory(command_mem,0,command_bytes);
+    for(std::size_t i=0;i<plan.levels.size();++i) {
+      const auto& p=plan.levels[i];dk::ImageView mip{image};mip.setMipLevels(i,1);
+      commands.copyBufferToImage({staging.getGpuAddr()+p.offset,p.pitch,0},mip,{0,0,0,p.width,p.height,1});
+    }
+    commands.barrier(DkBarrier_Full,DkInvalidateFlags_Image|DkInvalidateFlags_L2Cache);
+    queue.submitCommands(commands.finishList());queue.flush();queue.waitIdle();commands.clear();
+    std::memcpy(static_cast<std::byte*>(image_descriptors.getCpuAddr())+slot*sizeof(DkImageDescriptor),&descriptor,sizeof(descriptor));
+    auto& target=textures[slot];texture_bytes=texture_bytes-target.bytes+image_bytes;
+    target.memory=std::move(storage);target.image=image;target.bytes=image_bytes;
   }
   Impl(std::uint32_t w,std::uint32_t h,std::span<const std::byte> vs,std::span<const std::byte> fs)
       :width(w),height(h) {
@@ -112,7 +141,8 @@ struct DekoMeshRenderer::Impl {
       dk::Sampler sampler;
       const auto filter=(i&1) ? DkFilter_Linear : DkFilter_Nearest;
       const auto wrap=(i&2) ? DkWrapMode_ClampToEdge : DkWrapMode_Repeat;
-      sampler.setFilter(filter,filter).setWrapMode(wrap,wrap,wrap);
+      const auto mip=(i&4)?((i&1)?DkMipFilter_Linear:DkMipFilter_Nearest):DkMipFilter_None;
+      sampler.setFilter(filter,filter,mip).setWrapMode(wrap,wrap,wrap);
       dk::SamplerDescriptor descriptor; descriptor.initialize(sampler);
       std::memcpy(static_cast<std::byte*>(sampler_descriptors.getCpuAddr())+i*sizeof(descriptor),&descriptor,sizeof(descriptor));
     }
@@ -170,6 +200,10 @@ void DekoMeshRenderer::ClearTexture(std::uint32_t slot) {
   auto& target=v.textures[slot]; v.texture_bytes-=target.bytes;
   target.memory=nullptr; target.bytes=0;
   std::memset(static_cast<std::byte*>(v.image_descriptors.getCpuAddr())+slot*sizeof(DkImageDescriptor),0,sizeof(DkImageDescriptor));
+}
+void DekoMeshRenderer::SetTextureAsset(std::uint32_t slot,const TextureAsset& asset) {
+  if(!slot||slot>=max_textures)throw std::out_of_range("deko user texture slot");
+  impl_->UploadTextureAsset(slot,asset);
 }
 void DekoMeshRenderer::Draw(const MeshDraw& draw,std::span<std::byte> output) {
   if(!impl_->index_count) throw std::logic_error("deko mesh not uploaded");
@@ -230,7 +264,7 @@ void DekoMeshRenderer::DrawFrame(std::span<const MeshSubmission> submissions,std
   }
   v.commands.barrier(DkBarrier_Full,DkInvalidateFlags_L2Cache);
   v.commands.copyImageToBuffer(color_target,{0,0,0,v.width,v.height,1},
-      {v.readback_mem.getGpuAddr(),v.row_bytes/4,v.height});
+      {v.readback_mem.getGpuAddr(),v.row_bytes,0});
   v.queue.submitCommands(v.commands.finishList()); v.queue.flush(); v.queue.waitIdle();
   auto* pixels=static_cast<const std::byte*>(v.readback_mem.getCpuAddr());
   for(std::uint32_t y=0;y<v.height;++y)

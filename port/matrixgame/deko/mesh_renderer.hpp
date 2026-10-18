@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 #include "mesh_submission.hpp"
+#include "../native-core/texture_asset.hpp"
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -20,7 +21,10 @@ struct MeshDraw {
   // xyz = unit direction toward light, w = ambient contribution (0..1).
   std::array<float,4> light{0,0,1,.2f};
 };
-enum class TextureSampling : std::uint32_t { NearestRepeat, LinearRepeat, NearestClamp, LinearClamp };
+enum class TextureSampling : std::uint32_t {
+  NearestRepeat, LinearRepeat, NearestClamp, LinearClamp,
+  NearestMipRepeat, LinearMipRepeat, NearestMipClamp, LinearMipClamp
+};
 struct MeshSubmission {
   MeshRange range; MeshDraw draw;
   std::uint32_t texture_slot{};
@@ -41,6 +45,8 @@ class DekoMeshRenderer {
   // identity for an untextured pass; unknown slots never fall back silently.
   void SetTextureRGBA8(std::uint32_t slot,std::uint32_t width,std::uint32_t height,
       std::uint32_t pitch_bytes,std::span<const std::byte> rgba);
+  // Preserves all supplied mip levels and BC1/BC2/BC3 compression on the GPU.
+  void SetTextureAsset(std::uint32_t slot,const TextureAsset&);
   void ClearTexture(std::uint32_t slot);
   // Writes tightly packed RGBA8 rows after GPU queue completion. This is GPU
   // readback for a later physical probe, never an emulated host framebuffer.

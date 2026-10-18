@@ -146,6 +146,8 @@ jobs:
         run: bash tools/matrixgame_file_arm64.sh --reminder
       - name: Native CBitmap PNG pixels and allocation lifetime on ARM64
         run: bash tools/matrixgame_file_arm64.sh --bitmap
+      - name: Real DDS and STRG mip formats and GPU staging on ARM64
+        run: bash tools/matrixgame_file_arm64.sh --texture
       - name: Gesture and bounded film ordinal checks on host and ARM64
         run: python3 tests/probe_e2e59_input_index.py
       - name: Native heap reserve and generation counters on host and ARM64

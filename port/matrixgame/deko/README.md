@@ -123,3 +123,12 @@ Probe `--png <path>` содержит nearest readback comparison для буд�
 на Switch. Сейчас подтверждены только SDK compile/link; GPU execution отсутствует.
 Это не material/skin pipeline и не полный texture cache. См.
 [отчёт PNG](../../../reports/matrixgame-native-bitmap-20261018.md).
+
+## DDS mip chains
+
+SetTextureAsset принимает bounded native TextureAsset и загружает все supplied
+mips, включая оригинальные BC1/2/3 blocks. Явные mip samplers добавлены рядом с
+прежними no-mip вариантами. Copy upload/readback использует byte pitch DkCopyBuf.
+Future probe `--texture <source> <64x64.rgba>` сравнивает base-level GPU readback
+с внешним oracle; hardware run пока отсутствует. Подробности и ограничения:
+[отчёт DDS/STRG](../../../reports/matrixgame-native-texture-20261018.md).
