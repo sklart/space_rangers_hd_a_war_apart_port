@@ -15,7 +15,7 @@ namespace {
 constexpr std::uint32_t command_bytes=128*1024;
 constexpr std::uint32_t max_submissions=256;
 constexpr std::uint32_t uniform_stride=DK_UNIFORM_BUF_ALIGNMENT;
-constexpr std::uint32_t max_textures=64, sampler_count=8;
+constexpr std::uint32_t max_textures=64, sampler_count=max_submissions;
 constexpr std::uint32_t texture_budget=64*1024*1024;
 constexpr auto data_flags=DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached;
 std::uint32_t Align(std::uint64_t value, std::uint32_t alignment=DK_MEMBLOCK_ALIGNMENT) {
@@ -143,15 +143,6 @@ struct DekoMeshRenderer::Impl {
     image_descriptors=Allocate(max_textures*sizeof(DkImageDescriptor),data_flags);
     sampler_descriptors=Allocate(sampler_count*sizeof(DkSamplerDescriptor),data_flags);
     std::memset(image_descriptors.getCpuAddr(),0,max_textures*sizeof(DkImageDescriptor));
-    for(std::uint32_t i=0;i<sampler_count;++i) {
-      dk::Sampler sampler;
-      const auto filter=(i&1) ? DkFilter_Linear : DkFilter_Nearest;
-      const auto wrap=(i&2) ? DkWrapMode_ClampToEdge : DkWrapMode_Repeat;
-      const auto mip=(i&4)?((i&1)?DkMipFilter_Linear:DkMipFilter_Nearest):DkMipFilter_None;
-      sampler.setFilter(filter,filter,mip).setWrapMode(wrap,wrap,wrap);
-      dk::SamplerDescriptor descriptor; descriptor.initialize(sampler);
-      std::memcpy(static_cast<std::byte*>(sampler_descriptors.getCpuAddr())+i*sizeof(descriptor),&descriptor,sizeof(descriptor));
-    }
     dk::ImageLayout color_layout,depth_layout;
     dk::ImageLayoutMaker{device}.setFlags(DkImageFlags_UsageRender)
       .setFormat(DkImageFormat_RGBA8_Unorm).setDimensions(w,h).initialize(color_layout);
@@ -223,16 +214,27 @@ void DekoMeshRenderer::DrawFrame(std::span<const MeshSubmission> submissions,std
   // Validate the whole batch before replacing commands or publishing uniforms.
   for(const auto& submission:submissions) {
     submission.raster.Validate();
+    submission.sampling.Validate();
     ValidateMeshRange(submission.range,v.index_shadow,v.vertex_bytes/sizeof(MeshVertex));
-    if(submission.texture_slot>=max_textures || !v.textures[submission.texture_slot].memory ||
-        static_cast<std::uint32_t>(submission.sampling)>=sampler_count)
-      throw std::out_of_range("deko texture/sampler not available");
+    if(submission.texture_slot>=max_textures || !v.textures[submission.texture_slot].memory)
+      throw std::out_of_range("deko texture not available");
     const auto& draw=submission.draw;
     for(const auto& values:{std::span<const float>(draw.clip_from_model),std::span<const float>(draw.normal_from_model),
          std::span<const float>(draw.diffuse),std::span<const float>(draw.light)})
       for(float value:values) if(!std::isfinite(value)) throw std::invalid_argument("nonfinite draw uniforms");
   }
   for(std::size_t i=0;i<submissions.size();++i) {
+    const auto& state=submissions[i].sampling;
+    const auto filter=[](TextureFilter f){return f==TextureFilter::Linear?DkFilter_Linear:DkFilter_Nearest;};
+    const auto wrap=[](TextureAddress a){return a==TextureAddress::Clamp?DkWrapMode_ClampToEdge:DkWrapMode_Repeat;};
+    const auto mip=state.mip==TextureMipFilter::None?DkMipFilter_None:
+      (state.mip==TextureMipFilter::Point?DkMipFilter_Nearest:DkMipFilter_Linear);
+    dk::Sampler sampler;
+    sampler.setFilter(filter(state.min),filter(state.mag),mip)
+      .setWrapMode(wrap(state.u),wrap(state.v),wrap(state.w)).setLodBias(state.lod_bias);
+    dk::SamplerDescriptor descriptor;descriptor.initialize(sampler);
+    // One immutable descriptor per draw until the synchronous queue completes.
+    std::memcpy(static_cast<std::byte*>(v.sampler_descriptors.getCpuAddr())+i*sizeof(descriptor),&descriptor,sizeof(descriptor));
     const auto& draw=submissions[i].draw;
     const Uniforms uniforms{draw.clip_from_model,draw.normal_from_model,draw.diffuse,draw.light};
     std::memcpy(static_cast<std::byte*>(v.uniforms_mem.getCpuAddr())+i*uniform_stride,&uniforms,sizeof(uniforms));
@@ -281,7 +283,7 @@ void DekoMeshRenderer::DrawFrame(std::span<const MeshSubmission> submissions,std
     v.commands.bindColorState(color_state);v.commands.bindColorWriteState(color_write);
     v.commands.bindDepthStencilState(depth_state);v.commands.bindBlendStates(0,{blend});
     v.commands.setAlphaRef(float(state.alpha_reference)/255.f);
-    const DkResHandle texture=dkMakeTextureHandle(submission.texture_slot,static_cast<std::uint32_t>(submission.sampling));
+    const DkResHandle texture=dkMakeTextureHandle(submission.texture_slot,static_cast<std::uint32_t>(i));
     v.commands.bindTextures(DkStage_Fragment,0,texture);
     v.commands.bindUniformBuffer(DkStage_Vertex,0,v.uniforms_mem.getGpuAddr()+i*uniform_stride,sizeof(Uniforms));
     v.commands.drawIndexed(DkPrimitive_Triangles,range.index_count,1,range.first_index,range.base_vertex,0);

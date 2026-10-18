@@ -30,7 +30,7 @@ def main() -> int:
     inputs += [root/'tools/matrixgame_bc_prepare.py']
     inputs += [p for p in (root/'port/matrixgame/third_party').rglob('*') if p.is_file()]
     inputs += [root / 'tests/probe_matrixgame_deko_link.cpp', Path(__file__).resolve()]
-    inputs += [root / 'tests/matrixgame_raster_gpu_probe.hpp']
+    inputs += [root / 'tests/matrixgame_raster_gpu_probe.hpp', root / 'tests/matrixgame_sampler_gpu_probe.hpp']
     log = []
     def run(command):
         result = subprocess.run(list(map(str, command)), cwd=root, capture_output=True, text=True,

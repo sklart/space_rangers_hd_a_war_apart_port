@@ -116,6 +116,11 @@ if(BUILD_TESTING)
     add_test(NAME matrixgame-native-mips-contract COMMAND "${Python3_EXECUTABLE}"
         "${PORT_ROOT}/tests/probe_matrixgame_native_mips.py"
         --binary "$<TARGET_FILE:matrixgame-native-mips-test>" --output "${CMAKE_CURRENT_BINARY_DIR}/mip-contract-fixtures")
+    add_executable(matrixgame-sampler-state-test "${PORT_ROOT}/tests/test_matrixgame_sampler_state.cpp")
+    target_link_libraries(matrixgame-sampler-state-test PRIVATE matrixgame-native-core)
+    add_test(NAME matrixgame-sampler-state-contract COMMAND "${Python3_EXECUTABLE}"
+        "${PORT_ROOT}/tests/probe_matrixgame_sampler_state.py"
+        --binary "$<TARGET_FILE:matrixgame-sampler-state-test>" --output "${CMAKE_CURRENT_BINARY_DIR}/sampler-state-fixtures")
     add_executable(matrixgame-raster-state-test "${PORT_ROOT}/tests/test_matrixgame_raster_state.cpp")
     target_link_libraries(matrixgame-raster-state-test PRIVATE matrixgame-native-core)
     add_test(NAME matrixgame-raster-state-contract COMMAND "${Python3_EXECUTABLE}"
