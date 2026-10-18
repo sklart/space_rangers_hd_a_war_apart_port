@@ -16,7 +16,7 @@ int main(int argc,char** argv) {
 #endif
   if(argc!=2)return 2;
   MeshSamplerState state;
-  for(const auto& pair:{std::pair{1u,2u},{2u,0u},{3u,4u},{5u,0u},{6u,3u},{7u,3u},{8u,0x7f800000u},{8u,0x7fc00000u},{8u,0xff800000u},{9u,1u},{4u,0u}}) {
+  for(const auto& pair:{std::pair{1u,2u},{2u,0u},{3u,4u},{5u,0u},{5u,3u},{6u,4u},{7u,3u},{8u,0x7f800000u},{8u,0x7fc00000u},{8u,0xff800000u},{9u,1u},{10u,0u},{10u,17u},{4u,0u}}) {
     const auto before=state.Words();bool rejected=false;
     try{state.Apply(static_cast<SamplerRegister>(pair.first),pair.second);}catch(const std::invalid_argument&){rejected=true;}
     CHECK(rejected&&state.Words()==before);

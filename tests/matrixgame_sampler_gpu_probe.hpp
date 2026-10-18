@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <vector>
 namespace srhd_awa::matrixgame {
-// Controlled GPU readback, never a software rendering substitute. Same 13
+// Controlled GPU readback, never a software rendering substitute. Same 14
 // interior color controls as the real Windows D3D9 HAL/REF reference, plus a
 // two-draw descriptor-isolation check. Requires a 64x64 renderer.
 inline void ProbeSamplerGpu(DekoMeshRenderer& renderer) {
@@ -58,10 +58,13 @@ inline void ProbeSamplerGpu(DekoMeshRenderer& renderer) {
   state.mag=TextureFilter::Point;state.min=TextureFilter::Linear;check(2,state,0,.5f,.5f,208);
   state=MeshSamplerState{};state.mag=TextureFilter::Linear;check(2,state,128,0,0,16);
   state.mag=TextureFilter::Point;state.min=TextureFilter::Linear;check(2,state,128,0,0,112,1);
+  state=MeshSamplerState{};state.min=state.mag=TextureFilter::Linear;
+  state.mip=TextureMipFilter::Linear;state.lod_bias=.25f;state.max_anisotropy=16;
+  check(1,state,2,0,0,72,1);
   // Two samplers for the same texture within one command list. Reusing or
   // overwriting a single descriptor would turn both halves the same color.
   renderer.SetMesh(quad(0,1.25f,-.25f),indices);
-  submission.sampling=MeshSamplerState{};submission.draw.clip_from_model[0]=.5f;submission.draw.clip_from_model[12]=-.5f;
+  submission.texture_slot=2;submission.sampling=MeshSamplerState{};submission.draw.clip_from_model[0]=.5f;submission.draw.clip_from_model[12]=-.5f;
   auto right=submission;right.draw.clip_from_model[12]=.5f;
   right.sampling.u=right.sampling.v=TextureAddress::Clamp;
   const std::array pair{submission,right};renderer.DrawFrame(pair,pixels);

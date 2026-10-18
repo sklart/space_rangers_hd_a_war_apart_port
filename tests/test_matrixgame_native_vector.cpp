@@ -39,7 +39,8 @@ void Dump(const VectorGeometry& v,const fs::path& path) {
   std::vector<VectorMaterial> materials(v.Surfaces().size());
   for(std::size_t i=0;i<materials.size();++i){
     materials[i].texture_slot=std::uint32_t(i+1);materials[i].sampling=TextureSampling::LinearClamp;
-    materials[i].sampling.min=TextureFilter::Point;materials[i].sampling.mip=TextureMipFilter::Linear;
+    materials[i].sampling.min=(i&1)?TextureFilter::Anisotropic:TextureFilter::Point;
+    materials[i].sampling.max_anisotropy=8;materials[i].sampling.mip=TextureMipFilter::Linear;
     materials[i].sampling.v=TextureAddress::Repeat;materials[i].sampling.lod_bias=-1;
     materials[i].raster.alpha_test=(i&1)!=0;materials[i].raster.blend_enable=(i&2)!=0;
     materials[i].raster.depth_write=(i&2)==0;materials[i].raster.alpha_reference=(i&1)?192:8;
