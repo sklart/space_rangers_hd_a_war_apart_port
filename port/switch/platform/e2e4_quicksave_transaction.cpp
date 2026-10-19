@@ -556,6 +556,12 @@ bool CanCreateGameTemp(const char16_t* source) {
            FileKind(path) == Kind::missing;
 }
 
+bool GameSavePathExists(const char16_t* path) {
+    const auto file = GamePath(path);
+    return file.extension() == ".sav" && SafeDirectory(file.parent_path()) &&
+           FileKind(file) == Kind::regular;
+}
+
 Result ReplaceGameSavePath(const char16_t* source, const char16_t* target) {
     const auto temp = GamePath(source);
     const auto destination = GamePath(target);
@@ -571,6 +577,8 @@ Result ReplaceGameSavePath(const char16_t* source, const char16_t* target) {
     if (result != e2e4_save_replace::Status::success)
         return {false, false, destination.string() + ".bak",
                 std::string("manual save replace failed: ") + e2e4_save_replace::StatusText(result)};
+    if (!GameSavePathExists(target))
+        return {false, false, {}, "manual save destination missing after replace"};
     return {true, false, {}, "manual save installed; previous generation retained in backup"};
 }
 

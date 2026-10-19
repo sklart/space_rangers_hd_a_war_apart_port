@@ -283,6 +283,7 @@ int main(int argc, char** argv) {
         assert(Read(target) == previous && Read(source) == "damaged");
         Write(source, ValidSave("RSG64", "v168"));
         assert(ReplaceGameSavePath(temp_name.c_str(), target_name.c_str()).ok);
+        assert(GameSavePathExists(target_name.c_str()));
         assert(Read(target) == previous && Read(target.string() + ".bak") == previous);
         assert(!fs::exists(source));
         Write(source, ValidSave("RSG64", "v168"));
@@ -296,5 +297,11 @@ int main(int argc, char** argv) {
             assert(!ReplaceGameSavePath(temp_name.c_str(), target_name.c_str()).ok);
             assert(fs::exists(source));
         }
+        const auto unicode_target = dir / fs::path(u"Ручной.sav");
+        const auto unicode_name = unicode_target.u16string();
+        Write(source, ValidSave("RSG64", "v168"));
+        assert(ReplaceGameSavePath(temp_name.c_str(), unicode_name.c_str()).ok);
+        assert(GameSavePathExists(unicode_name.c_str()));
+        assert(!GameSavePathExists(u"Несуществующий.sav"));
     }
 }

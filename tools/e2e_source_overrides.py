@@ -1478,6 +1478,21 @@ void CloseVorbisStream(TOggWorker* worker) {
                        "            if (ExitCode == 0) {\n                DrawFrame();\n            }"):
             if continuous.count(anchor) != 1:
                 raise RuntimeError("continuous screen checkpoint boundary changed")
+        catchup = """                    Stage = 20;
+                    if (GR_Main::RecordingFrames) {"""
+        if continuous.count(catchup) != 1:
+            raise RuntimeError("continuous arcade catch-up boundary changed")
+        continuous = continuous.replace(catchup, """#if defined(__SWITCH__)
+                    if (GlobalsV::RegisteredScreens[GlobalsV::screenArcadeBattle] == this) {
+                        // TimerTakt advances the entire arcade simulation every 20 ms.
+                        // Replaying a long delayed frame can queue many costly ticks
+                        // before input or rendering runs again. Bound catch-up to two.
+                        if (FrameTime > 40u) FrameTime = 40u;
+                        CarryTicks = 0u;
+                    }
+#endif
+                    Stage = 20;
+                    if (GR_Main::RecordingFrames) {""", 1)
         continuous = continuous.replace("            Stage = 1;",
             '            srhd_awa::platform::e2e_stage::Log("screen RunContinuous begin");\n            Stage = 1;', 1)
         continuous = continuous.replace("        std::int32_t Stage = 0;",
@@ -1737,6 +1752,26 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
         text = text.replace(keyboard,
             '            srhd_awa::platform::e2e_stage::LogE2E3("menu_action=New source=keyboard key=Enter");\n' + keyboard, 1)
         text = '#include "e2e_stage.hpp"\n#include "win32_compat_messages.hpp"\n#include <cstdio>\n' + text
+    if source.name == "fGameMenu.cpp":
+        help_body = '''    void TfGameMenu::HelpClicked(GI_MessageLoop::TObjectGI* Sender) {
+        pas::AnsiString cpp_text{};
+        WindowsSdk::ShowWindow(GR_Main::MainWindowHandle, WindowsSdk::SW_MINIMIZE);
+        // Native and are the empty and 'open' PAnsiChar literals.
+        ShellAPI::ShellExecuteA(0u, pas::literal_pointer("open"), (cpp_text = static_cast<pas::AnsiString>(aConst::LocalizedText(u"FormGameMenu.HelpFile"_wref.get())), cpp_text.pchar()), pas::literal_pointer(""), pas::literal_pointer(""), WindowsSdk::SW_SHOWNORMAL);
+    }'''
+        text = _replace_exact(text, help_body, '''    void TfGameMenu::HelpClicked(GI_MessageLoop::TObjectGI* Sender) {
+#if defined(__SWITCH__)
+        GI_MessageBox::ShowMessageBoxGI(this,
+            u"Справка Nintendo Switch\\nСенсорный экран: выбор и карта.\\n"
+            u"В аркаде: стики — полёт, ZR/ZL — огонь, L/R — смена оружия.\\n"
+            u"Вернуться в игру: кнопка «Продолжить» в этом меню."_w,
+            GI_MessageBox::mbgOK, 0, 0, 0);
+#else
+        pas::AnsiString cpp_text{};
+        WindowsSdk::ShowWindow(GR_Main::MainWindowHandle, WindowsSdk::SW_MINIMIZE);
+        ShellAPI::ShellExecuteA(0u, pas::literal_pointer("open"), (cpp_text = static_cast<pas::AnsiString>(aConst::LocalizedText(u"FormGameMenu.HelpFile"_wref.get())), cpp_text.pchar()), pas::literal_pointer(""), pas::literal_pointer(""), WindowsSdk::SW_SHOWNORMAL);
+#endif
+    }''', 1, source.name)
     if source.name == "fSaveManager.cpp":
         text = '#include "e2e5_text_input.hpp"\n' + text
         text = _replace_exact(text, 'namespace fSaveManager {', '''namespace fSaveManager {
@@ -2502,6 +2537,14 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
 #endif''', 1, source.name)
         text = '#include "e2e_stage.hpp"\n#include <chrono>\n#include <cstdio>\n#include <cstdint>\n#include "e2e3_generation_state.hpp"\n' + text
     if source.name == "fIntroduction.cpp":
+        intro_close = '''    void TfIntroduction::OnClose() {'''
+        text = _replace_exact(text, intro_close, intro_close + '''
+#if defined(SRHD_PORTABLE_RENDERER)
+        // The intro is a generation scene, never a backdrop for later game
+        // screens. Its captured pixels otherwise survive in AuxRenderBuffer.
+        if (GR_Main::AuxRenderBuffer != nullptr)
+            GR_Main::AuxRenderBuffer->Clear();
+#endif''', 1, source.name)
         text = '#include "units/MMSystem.hpp"\n' + text
         text = _replace_exact(text,
             'ScheduleCallbackTimer(40, 40, pas::bind_method<&TfIntroduction::ScrollBackground>(this), 0)',
@@ -2753,7 +2796,7 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
                 // successful queueing. Autosaves stay asynchronous.
                 if (FileName != AutoName && FileName != TurnName && FileName != QuickName) {
                     SaveWriter->WaitForIdle(WindowsSdk::INFINITE);
-                    if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(FileName)))
+                    if (!srhd_awa::platform::e2e4_quicksave::GameSavePathExists(FileName.pchar()))
                         pas::raise(pas::make_exception<pas::Exception>("E2E5 manual save file was not committed"_a));
                     GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"E2E5 manual save committed path=",
                         static_cast<pas::AnsiString>(FileName)}));

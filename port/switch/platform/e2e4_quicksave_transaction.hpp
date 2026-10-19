@@ -31,6 +31,7 @@ Result RotateGamePaths(const char16_t* source, const char16_t* quick_slot_one,
                        std::int32_t extra_slots);
 Result RecoverGamePaths(const char16_t* quick_slot_one);
 bool CanCreateGameTemp(const char16_t* source);
+bool GameSavePathExists(const char16_t* path);
 Result ReplaceGameSavePath(const char16_t* source, const char16_t* target);
 
 } // namespace srhd_awa::platform::e2e4_quicksave
