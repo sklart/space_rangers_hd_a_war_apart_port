@@ -231,9 +231,11 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                 text = _replace_exact(text,
                     '            GlobalsV::LoadedSaveVersion = EC_Str::ExtractDigitsToIntW(pas::view(F->ReadWideString()));',
                     '            GlobalsV::LoadedSaveVersion = EC_Str::ExtractDigitsToIntW(pas::view(F->ReadWideString()));\n'
-                    '            if (e2e_signature == u"RSG64" && GlobalsV::LoadedSaveVersion != 168)\n'
-                    '                pas::raise(pas::make_exception<pas::Abort>("E2E5 unsupported typed save version"_a));\n'
-                    '            srhd_awa::platform::e2e5_save_refs::SetLoadFormat(e2e_signature == u"RSG64");',
+                    '            if (e2e_signature != u"RSG64" || GlobalsV::LoadedSaveVersion != 168) {\n'
+                    '                GR_Main::AppendLogLineThreadSafe("E2E5 LOAD_REJECTED unsupported save format; expected RSG64/v168"_a);\n'
+                    '                pas::raise(pas::make_exception<pas::Abort>("E2E5 unsupported save format"_a));\n'
+                    '            }\n'
+                    '            srhd_awa::platform::e2e5_save_refs::SetLoadFormat(true);',
                     1, relative.as_posix())
                 text = _replace_exact(text,
                     '        GlobalsV::LoadedSaveVersion = aConst::CurrentSaveVersion;',
