@@ -1,0 +1,73 @@
+{
+  "schema": 1,
+  "candidate_git": "c4dd5fb0c23b8ecac55a0024e4f19460f1944746",
+  "historical_baseline_git": ["0f91c1a", "0c90081"],
+  "save_format": "RSG64/v168",
+  "host": {
+    "status": "PARTIAL",
+    "save_mode": "experimental",
+    "manual_slot": "PASS ONE UI ROUTE",
+    "five_turn_resave_reload": "PASS MATCHED FIELDS; FULL WORLD HASH PENDING",
+    "five_turn_quicksave_sha256": "8e60e835dac66a077b054d8ffbb4d6ea52d69cdf25ab478d5294d808f2497719",
+    "five_turn_quicksave_bytes": 783016,
+    "legacy_windows_rsg_v167": "REJECTED BEFORE DESERIALIZATION",
+    "game_and_galaxy_preview": "300x225 DECODED; SWITCH VISUAL PENDING"
+  },
+  "arm64": {
+    "status": "BUILD PASS; HARDWARE PENDING",
+    "save_off": {
+      "save_mode": "disabled",
+      "nro_sha256": "86fb47373fad11b18473c3faaf10942d4682511e22cbb0c4aea16f8795c6d8e4",
+      "elf_sha256": "ce4e8f40b3b45c57669dec3d0462f7e9be28b5499b1d92c2a76aee05a99a69ec",
+      "build_id": "df8cc026dca5f61e1500e1e587cf14830d44aeea",
+      "artifact_id": 12163741834
+    },
+    "save_on": {
+      "save_mode": "experimental",
+      "save_format": "RSG64/v168",
+      "nro_sha256": "f5004d9c3384e609ccc8c01a190d4a63ed7b0519a95524182e7f481b2f43b723",
+      "elf_sha256": "1c2388dc8f0de0be534635dadb85f94a7e815459e2f4214fd5c55e6e999fc273",
+      "build_id": "1bc4e00f2900b37b86facf3752d9201873be224c",
+      "artifact_id": 12163886291
+    }
+  },
+  "ci": {
+    "run_id": 39195287458,
+    "run_url": "https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/39195287458",
+    "fast": "PASS",
+    "sanitizers": "PASS",
+    "arm64_host": "PASS",
+    "host_regression": "PASS",
+    "full_arm64_link": "PASS",
+    "artifact_verification": "PASS DOWNLOADED FILES, SHA256, BUILD ID, FLAGS AND EXACT FILE SET"
+  },
+  "switch": {
+    "candidate_status": "HARDWARE PENDING",
+    "candidate_nro_sha256": null,
+    "fps_p50_p95_p99": null,
+    "battery": null,
+    "baseline_archive_git": ["0f91c1a", "0c90081"],
+    "baseline_logs_zip_sha256": "47a616a89aae807a9a36346d069ba6d1b67729968846e9caf8160adf84e79f1b",
+    "baseline_screens_zip_sha256": "b7db74b95826b7e7fb7bdc1d7cd1907041baf9d56f14b2916d0d6a88eb58a66e"
+  },
+  "requirements": {
+    "R-01": "HOST PREFLIGHT PASS; FULL CI PASS",
+    "R-02": "HOST PARTIAL; SANITIZER AND ARM64 HOST CI PASS; SWITCH PENDING",
+    "R-03": "HOST PARTIAL; SWITCH PENDING",
+    "R-04": "BASELINE SWITCH FAIL; CANDIDATE SWITCH PENDING",
+    "R-05": "HOST ONE ROUTE PASS; BASELINE SWITCH FAIL; CANDIDATE SWITCH PENDING",
+    "R-06": "HOST ONE ROUTE PASS; SWITCH PENDING",
+    "R-07": "HOST MATCHED FIELDS PARTIAL; SWITCH PENDING",
+    "R-08": "HOST MANUAL UI PASS; NEGATIVE CASES PARTIAL; SWITCH PENDING",
+    "R-09": "PARTIAL; SWITCH PENDING",
+    "R-10": "PARTIAL; SWITCH PENDING",
+    "R-11": "PARTIAL; SWITCH PENDING",
+    "R-12": "PARTIAL; SWITCH PENDING",
+    "R-13": "PARTIAL; SWITCH PENDING",
+    "R-14": "SWITCH PENDING",
+    "R-15": "MATRIXGAME OPEN",
+    "R-16": "LOCAL STAGING GATE PASS; BOTH CI ARTIFACTS VERIFIED",
+    "R-17": "SWITCH PENDING"
+  },
+  "release_ready": false
+}
