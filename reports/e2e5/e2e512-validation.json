@@ -1,5 +1,12 @@
 {
   "schema": 1,
+  "historical_snapshot": true,
+  "superseded_by": [
+    "reports/e2e5/e2e512-save06-corrupt-host.md",
+    "reports/e2e5/e2e512-save07-08-transaction-host.md",
+    "reports/e2e5/e2e512-save09-five-turn-host.md",
+    "reports/e2e5/e2e512-save10-windows-format-host.md"
+  ],
   "date_local": "2026-10-19",
   "head": "0f91c1ab48328f187e10f58682d318b2487176bd",
   "origin_master": "0f91c1ab48328f187e10f58682d318b2487176bd",
