@@ -114,7 +114,9 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         lang_file: Path | None = None, auto_takeoff: bool = False,
         new_game_file: Path | None = None,
         manual_save: bool = False,
-        load_manual_save: Path | None = None) -> dict:
+        load_manual_save: Path | None = None,
+        expect_load_rejection: bool = False,
+        preserve_save: Path | None = None) -> dict:
     binary = binary.resolve(strict=True)
     game_root = game_root.resolve(strict=True)
     library_dir = library_dir.resolve(strict=True)
@@ -150,22 +152,38 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     manual_save_path = stage / "user/config/save/E2E512MANUAL.sav"
     if load_save is not None and load_manual_save is not None:
         raise ValueError("choose only one save to load")
+    if expect_load_rejection and load_save is None and load_manual_save is None:
+        raise ValueError("--expect-load-rejection requires a save to load")
     manual_load = load_manual_save is not None
     if manual_load:
         load_save = load_manual_save
     load_source_sha256 = None
+    load_target = None
+    preserve_target = None
+    preserve_sha256 = None
     if load_save is not None:
         source = load_save.resolve(strict=True)
         expected_name = "E2E512MANUAL.sav" if manual_load else "QuickSave.sav"
         if (load_save.is_symlink() or source.name != expected_name or
                 not source.is_file() or RUNS.resolve() not in source.parents):
             raise ValueError(f"save must be an isolated probe {expected_name}")
-        target = manual_save_path if manual_load else quicksave_path
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(source, target)
+        load_target = manual_save_path if manual_load else quicksave_path
+        load_target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, load_target)
         load_source_sha256 = hash_file(source)
-        if hash_file(target) != load_source_sha256:
+        if hash_file(load_target) != load_source_sha256:
             raise RuntimeError("isolated save copy hash mismatch")
+    if preserve_save is not None:
+        source = preserve_save.resolve(strict=True)
+        if (preserve_save.is_symlink() or source.name != "E2E512MANUAL.sav" or
+                not source.is_file() or RUNS.resolve() not in source.parents):
+            raise ValueError("--preserve-save must be an isolated probe manual save")
+        preserve_target = stage / "user/config/save/E2E512PRESERVED.sav"
+        preserve_target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, preserve_target)
+        preserve_sha256 = hash_file(source)
+        if hash_file(preserve_target) != preserve_sha256:
+            raise RuntimeError("isolated preserved save copy hash mismatch")
     env = os.environ.copy()
     env.update(E2E5_GAME_ROOT=str(game_root), SDL_VIDEODRIVER="dummy",
                SDL_AUDIODRIVER="dummy", LD_LIBRARY_PATH=str(library_dir))
@@ -193,6 +211,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         env["E2E5_HOST_AUTO_TAKEOFF"] = "1"
     if load_save is not None:
         env["E2E5_HOST_LOAD_SAVE"] = "1"
+    if expect_load_rejection:
+        env["E2E5_HOST_EXPECT_LOAD_REJECTION"] = "1"
     if auto_options:
         env["E2E5_HOST_AUTO_OPTIONS"] = "1"
     if crash_trace:
@@ -209,6 +229,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     manual_save_size = 0
     quicksave_rejected = False
     load_rejected = False
+    scan_rejected_at: float | None = None
     turn_complete_at: float | None = None
     frames: set[int] = set()
     milestones: dict[int, set[int]] = {}
@@ -236,6 +257,10 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                 if (load_save is not None and turn_complete_at is None and
                         "hangar_end_turn_done turn=" in current):
                     turn_complete_at = time.monotonic()
+                if (expect_load_rejection and scan_rejected_at is None and
+                        "screen dispatch id=23 postload=" in current and
+                        "save_scan slot_rejected" in current):
+                    scan_rejected_at = time.monotonic()
             if auto_quicksave and quicksave_path.is_file():
                 size = quicksave_path.stat().st_size
                 if size > 0 and size != quicksave_size:
@@ -252,6 +277,13 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                                    "E2E4 quicksave rotation failed" in read_log(game_log)):
                 quicksave_rejected = True
             if load_save is not None and "Exception E2E5 script object ID has no loaded object" in read_log(game_log):
+                load_rejected = True
+            if (expect_load_rejection and
+                    "HOST load rejection returned to menu" in current):
+                load_rejected = True
+            if (expect_load_rejection and scan_rejected_at is not None and
+                    time.monotonic() - scan_rejected_at >= 2.0 and
+                    "screen dispatch id=24 postload=" not in current):
                 load_rejected = True
             turns_target = max(0, int(os.environ.get("E2E59_HOST_END_TURNS", "0")))
             turns_complete = current.count("turn operation=end-turn-ui")
@@ -463,7 +495,18 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "options_choice_selected": "options choice selected VSync=" in full_e2e_log,
         "load_save_input": load_save is not None,
         "load_manual_save_input": manual_load,
+        "expect_load_rejection": expect_load_rejection,
         "load_source_sha256": load_source_sha256,
+        "load_file_unchanged": (hash_file(load_target) == load_source_sha256
+                                if load_target is not None and load_target.is_file()
+                                else None),
+        "preserved_save_sha256": preserve_sha256,
+        "preserved_save_unchanged": (hash_file(preserve_target) == preserve_sha256
+                                     if preserve_target is not None and preserve_target.is_file()
+                                     else None),
+        "save_scan_slot_rejected": "save_scan slot_rejected" in full_e2e_log,
+        "load_worker_rejected": "E2E5 LOAD_REJECTED worker failure" in full_game_log,
+        "load_rejection_ui_recovered": "HOST load rejection returned to menu" in full_e2e_log,
         "game_states": game_states,
         "load_screen_dispatched": 24 in dispatches,
         "loaded_hangar_60_frames": 24 in dispatches and 60 in frame_milestones.get(4, set()),
@@ -571,6 +614,10 @@ def main() -> None:
                         help="QuickSave.sav from an earlier isolated probe stage")
     parser.add_argument("--load-manual-save", type=Path,
                         help="E2E512MANUAL.sav from an earlier isolated probe stage")
+    parser.add_argument("--expect-load-rejection", action="store_true",
+                        help="stop after the original SaveManager rejects a malformed slot")
+    parser.add_argument("--preserve-save", type=Path,
+                        help="valid isolated manual save kept alongside a malformed slot")
     parser.add_argument("--mouse-new-game", action="store_true")
     parser.add_argument("--capture-audio", action="store_true")
     parser.add_argument("--auto-options", action="store_true")
@@ -594,7 +641,8 @@ def main() -> None:
                          args.auto_advance_dialog, args.auto_quicksave,
                          args.load_save, args.auto_options, args.cfg_file,
                          args.lang_file, args.auto_takeoff, args.new_game_file,
-                         args.manual_save, args.load_manual_save), indent=2))
+                         args.manual_save, args.load_manual_save,
+                         args.expect_load_rejection, args.preserve_save), indent=2))
 
 
 if __name__ == "__main__":

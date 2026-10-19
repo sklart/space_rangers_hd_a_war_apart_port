@@ -416,7 +416,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ('ab_WorldLine.cpp', 'ThreadCalc.cpp', 'aEFilm.cpp', 'aCalc.cpp', 'fPanelMain.cpp', 'fFilmFile.cpp', 'fGov.cpp', 'fStarMap.cpp', 'EC_File.cpp', 'ab_Global.cpp', 'EC_Cache.cpp', 'EC_CacheBuf.cpp', 'fGalaxy2.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ('ab_WorldLine.cpp', 'ThreadCalc.cpp', 'aEFilm.cpp', 'aCalc.cpp', 'fPanelMain.cpp', 'fFilmFile.cpp', 'fGov.cpp', 'fStarMap.cpp', 'EC_File.cpp', 'ab_Global.cpp', 'EC_Cache.cpp', 'EC_CacheBuf.cpp', 'fGalaxy2.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameLoad.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "EC_Cache.cpp":
@@ -1586,6 +1586,20 @@ void CloseVorbisStream(TOggWorker* worker) {
         text = text[:draw_start] + draw + text[draw_end:]
         text = ('#include "e2e5_stage_profiler.hpp"\n' if e2e5_profile else '') + '#include "renderer_platform.hpp"\n#include "e2e_stage.hpp"\n#include <cstdio>\n#include <vector>\n' + text
         # Publish the actual nested loop identity, not just the outer dispatch ID.
+        gi_namespace = "namespace GI_MessageLoop {"
+        if text.count(gi_namespace) != 1:
+            raise RuntimeError("GI message-loop namespace boundary changed")
+        text = text.replace(gi_namespace, '''namespace {
+std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
+    for (int id = 0; id < 42; ++id) {
+        if (GlobalsV::RegisteredScreens[static_cast<GlobalsV::TGameScreenId>(id)] == screen)
+            return static_cast<std::uint16_t>(id);
+    }
+    return static_cast<std::uint16_t>(GlobalsV::screenNone);
+}
+}
+
+''' + gi_namespace, 1)
         # Operations: 1=Run, 2=RunContinuous, 3=input, 4=callback timers.
         for signature, operation in (
             ("    std::int32_t TMessageLoopGI::Run() {", 1),
@@ -1597,7 +1611,7 @@ void CloseVorbisStream(TOggWorker* worker) {
             end = text.index("\n    }", begin) + len("\n    }")
             body = text[begin:end]
             body = body.replace(signature, signature +
-                "\n        srhd_awa::platform::e2e_stage::UiProgressScope e2e_progress(GlobalsV::FormToId(this), " + str(operation) + ");", 1)
+                "\n        srhd_awa::platform::e2e_stage::UiProgressScope e2e_progress(E2E5ScreenIdOrNone(this), " + str(operation) + ");", 1)
             body = re.sub(r"(?m)^([ \t]*)Stage = (\d+);$",
                 lambda m: m.group(0) + "\n" + m.group(1) + "e2e_progress.Mark(" + m.group(2) + ");", body)
             if operation == 3:
@@ -2634,6 +2648,17 @@ void CloseVorbisStream(TOggWorker* worker) {
         Self->UseTexture = AUseTexture;
 #endif''', 1)
     if source.name == "aSaveLoad.cpp":
+        compressed_read_failure = '''                } catch (...) {
+                    GI_MessageBox::ShowMessageBoxGI(nullptr, u"Compressed galaxy read fail"_wref.get(), GI_MessageBox::mbgOK, 0, 0, 0);
+                }'''
+        if text.count(compressed_read_failure) != 1:
+            raise RuntimeError("compressed galaxy read failure boundary changed")
+        text = text.replace(compressed_read_failure, '''                } catch (...) {
+                    // Loading runs on a worker: a null-parent modal dialog would crash.
+                    // Let the outer load guard clean up and report failure on the UI thread.
+                    GR_Main::AppendLogLineThreadSafe("E2E5 compressed galaxy read failed"_a);
+                    throw;
+                }''', 1)
         save_entry = "    std::uint8_t SaveGameToFile(pas::WideString FileName, pas::WideString Description) {"
         if text.count(save_entry) != 1:
             raise RuntimeError("disk save entry boundary changed")
@@ -2744,6 +2769,18 @@ void CloseVorbisStream(TOggWorker* worker) {
 #endif''', 1)
         text = text[:saver_start] + saver + text[saver_end:]
         text = '#include <cstdlib>\n#include "e2e4_quicksave_transaction.hpp"\n' + text
+    if source.name == "fGameLoad.cpp":
+        load_failure = "            if (!LoadThread->Succeeded) {"
+        if text.count(load_failure) != 1:
+            raise RuntimeError("game load failure UI boundary changed")
+        text = text.replace(load_failure, '''            if (!LoadThread->Succeeded) {
+                GR_Main::AppendLogLineThreadSafe("E2E5 LOAD_REJECTED worker failure"_a);''', 1)
+        load_close_check = "        aGalaxy::Galaxy->CheckIntegrityChecksumAndSetStatus(555);"
+        if text.count(load_close_check) != 1:
+            raise RuntimeError("game load close integrity boundary changed")
+        text = text.replace(load_close_check, '''        if (aGalaxy::Galaxy != nullptr) {
+            aGalaxy::Galaxy->CheckIntegrityChecksumAndSetStatus(555);
+        }''', 1)
     if source.name == "GR_Main.cpp":
         text = '#include "e2e5_cfg_bootstrap.hpp"\n#include "e2e3_generation_state.hpp"\n' + text
         finalize_buffers = "        GR_Main::FreeScreenRenderBuffers();\n        WideCaseTable = nullptr;"

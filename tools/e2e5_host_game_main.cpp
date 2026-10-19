@@ -539,13 +539,17 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
 }
 
 void DriveOriginalGameLoad(const std::filesystem::path& stage,
-                           const std::atomic<bool>& running) {
+                           const std::atomic<bool>& running,
+                           bool expect_rejection) {
   const auto log = stage / "sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log";
+  const auto game_log = stage / "user/config/########.log";
   bool menu_clicked = false;
   bool save_clicked = false;
   bool ship_open_requested = false;
   bool ship_close_requested = false;
   auto ship_closed_at = std::chrono::steady_clock::time_point{};
+  auto rejection_at = std::chrono::steady_clock::time_point{};
+  bool rejection_acknowledged = false;
   while (running.load()) {
     std::string lines;
     try {
@@ -558,6 +562,31 @@ void DriveOriginalGameLoad(const std::filesystem::path& stage,
       continue;
     }
     if (save_clicked) {
+      if (expect_rejection) {
+        std::ifstream stream(game_log);
+        const std::string game_lines{std::istreambuf_iterator<char>(stream),
+                                     std::istreambuf_iterator<char>()};
+        if (game_lines.find("E2E5 LOAD_REJECTED worker failure") != std::string::npos &&
+            rejection_at == std::chrono::steady_clock::time_point{})
+          rejection_at = std::chrono::steady_clock::now();
+        if (rejection_at != std::chrono::steady_clock::time_point{} &&
+            !rejection_acknowledged &&
+            std::chrono::steady_clock::now() - rejection_at >= std::chrono::seconds(1)) {
+          const auto window = srhd_awa::platform::win32_compat::MainWindow();
+          if (window && srhd_awa::platform::win32_compat::PostHostReturnKey(window)) {
+            rejection_acknowledged = true;
+            srhd_awa::platform::e2e_stage::Log("HOST load rejection dialog acknowledged");
+          }
+        }
+        const auto load = lines.find("screen dispatch id=24 postload=");
+        if (rejection_acknowledged && load != std::string::npos &&
+            lines.find("screen dispatch id=1 postload=", load) != std::string::npos) {
+          srhd_awa::platform::e2e_stage::Log("HOST load rejection returned to menu");
+          return;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        continue;
+      }
       if (ship_open_requested) {
         const auto open = lines.find("ship_equipment_open");
         if (!ship_close_requested && open != std::string::npos &&
@@ -654,12 +683,14 @@ int main() {
   const char* takeoff = std::getenv("E2E5_HOST_AUTO_TAKEOFF");
   const char* mouse_new = std::getenv("E2E5_HOST_MOUSE_NEW_GAME");
   const char* load_save = std::getenv("E2E5_HOST_LOAD_SAVE");
+  const char* expect_rejection = std::getenv("E2E5_HOST_EXPECT_LOAD_REJECTION");
   const char* options = std::getenv("E2E5_HOST_AUTO_OPTIONS");
   const char* menu_probe = std::getenv("E2E5_HOST_MENU_PROBE");
   if (menu_probe && (*menu_probe == 'M' || *menu_probe == 'A'))
     new_game_driver = std::thread(DriveMenuProbe, stage, std::cref(running), *menu_probe);
   else if (load_save && *load_save == '1')
-    new_game_driver = std::thread(DriveOriginalGameLoad, stage, std::cref(running));
+    new_game_driver = std::thread(DriveOriginalGameLoad, stage, std::cref(running),
+                                  expect_rejection && *expect_rejection == '1');
   else if (options && *options == '1')
     new_game_driver = std::thread(DriveOriginalOptions, stage, std::cref(running));
   else if ((drive && *drive == '1') || (start && *start == '1') ||
