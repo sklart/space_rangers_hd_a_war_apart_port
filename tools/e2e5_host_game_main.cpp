@@ -166,7 +166,7 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
                            const std::atomic<bool>& running,
                            bool start_game, bool select_dialog,
                            bool mouse_new_game, bool advance_dialog,
-                           bool quicksave, bool takeoff) {
+                           bool quicksave, bool takeoff, bool manual_save) {
   const auto log = stage / "sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log";
   constexpr auto kMenu = "screen dispatch id=1 postload=";
   constexpr auto kReady = "screen Run OnOpen ready";
@@ -185,6 +185,9 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
   unsigned cancel_stage = 0, cancel_turn = 0, cancel_taps = 0, cancel_releases = 0;
   unsigned menu_cycles = 0;
   std::size_t menu_click_at = 0, menu_close_at = 0;
+  bool manual_open_requested = false;
+  bool manual_name_sent = false;
+  auto manual_name_at = std::chrono::steady_clock::time_point{};
   while (running.load()) {
     std::string lines;
     try {
@@ -197,6 +200,51 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
       continue;
     }
     if (!lines.empty()) {
+      if (manual_open_requested) {
+        const auto dispatch = lines.rfind("screen dispatch id=23 postload=");
+        const auto window = srhd_awa::platform::win32_compat::MainWindow();
+        const auto click_bounds = [&](const char* marker) {
+          const auto at = dispatch == std::string::npos ? std::string::npos :
+              lines.find(marker, dispatch);
+          int left{}, top{}, right{}, bottom{};
+          return at != std::string::npos &&
+              std::sscanf(lines.c_str() + at + std::strlen(marker),
+                          "%d top=%d right=%d bottom=%d",
+                          &left, &top, &right, &bottom) == 4 &&
+              right > left && bottom > top && window &&
+              srhd_awa::platform::win32_compat::PostHostLeftClick(
+                  window, (left + right) / 2, (top + bottom) / 2);
+        };
+        if (dispatch != std::string::npos &&
+            lines.find("screen Run first frame attempted", dispatch) != std::string::npos) {
+          if (!manual_name_sent && click_bounds("save_slot0_edit_bounds left=")) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            bool sent = srhd_awa::platform::win32_compat::PostHostKey(window, 0x23);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            for (unsigned i = 0; i < 55; ++i) {
+              sent &= srhd_awa::platform::win32_compat::PostHostKey(window, 0x08);
+              std::this_thread::sleep_for(std::chrono::milliseconds(15));
+            }
+            for (const char key : std::string("E2E512MANUAL")) {
+              sent &= srhd_awa::platform::win32_compat::PostHostKey(window, key);
+              std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            }
+            if (sent) {
+              manual_name_sent = true;
+              manual_name_at = std::chrono::steady_clock::now();
+              srhd_awa::platform::e2e_stage::Log("HOST manual slot name sent");
+            }
+          } else if (manual_name_sent &&
+                     std::chrono::steady_clock::now() - manual_name_at >=
+                         std::chrono::seconds(1) &&
+                     click_bounds("save_save_bounds left=")) {
+            srhd_awa::platform::e2e_stage::Log("HOST manual save button clicked");
+            return;
+          }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        continue;
+      }
       const auto menu = lines.find(kMenu);
       const auto settings = lines.find("screen dispatch id=33 postload=");
       const bool ready_to_send = !new_game_sent
@@ -444,6 +492,17 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
               return;  // VK_F5, original TfPanelMain::QuickSave shortcut.
           }
         }
+        if (manual_save) {
+          const auto hangar = lines.find("screen dispatch id=4 postload=");
+          if (hangar != std::string::npos &&
+              lines.find("screen Run frames=60", hangar) != std::string::npos) {
+            const auto window = srhd_awa::platform::win32_compat::MainWindow();
+            if (window && srhd_awa::platform::win32_compat::PostHostKey(window, 0x71)) {
+              manual_open_requested = true;  // VK_F2 in original TfPanelMain.
+              srhd_awa::platform::e2e_stage::Log("HOST manual save F2 requested");
+            }
+          }
+        }
         if (advance_dialog && lines.find("screen returned id=20") != std::string::npos) {
           std::this_thread::sleep_for(std::chrono::milliseconds(100));
           continue;
@@ -591,6 +650,7 @@ int main() {
   const char* select = std::getenv("E2E5_HOST_AUTO_SELECT_DIALOG");
   const char* advance = std::getenv("E2E5_HOST_AUTO_ADVANCE_DIALOG");
   const char* quicksave = std::getenv("E2E5_HOST_AUTO_QUICKSAVE");
+  const char* manual_save = std::getenv("E2E5_HOST_MANUAL_SAVE");
   const char* takeoff = std::getenv("E2E5_HOST_AUTO_TAKEOFF");
   const char* mouse_new = std::getenv("E2E5_HOST_MOUSE_NEW_GAME");
   const char* load_save = std::getenv("E2E5_HOST_LOAD_SAVE");
@@ -605,19 +665,21 @@ int main() {
   else if ((drive && *drive == '1') || (start && *start == '1') ||
       (select && *select == '1') || (mouse_new && *mouse_new == '1') ||
       (advance && *advance == '1') || (quicksave && *quicksave == '1') ||
-      (takeoff && *takeoff == '1'))
+      (takeoff && *takeoff == '1') || (manual_save && *manual_save == '1'))
     new_game_driver = std::thread(DriveOriginalGameKeys, stage,
                                   std::cref(running),
                                   (start && *start == '1') || (select && *select == '1') ||
                                       (advance && *advance == '1') || (quicksave && *quicksave == '1') ||
-                                      (takeoff && *takeoff == '1'),
+                                      (takeoff && *takeoff == '1') || (manual_save && *manual_save == '1'),
                                   (select && *select == '1') || (advance && *advance == '1') ||
-                                      (quicksave && *quicksave == '1') || (takeoff && *takeoff == '1'),
+                                      (quicksave && *quicksave == '1') || (takeoff && *takeoff == '1') ||
+                                      (manual_save && *manual_save == '1'),
                                   mouse_new && *mouse_new == '1',
                                   (advance && *advance == '1') || (quicksave && *quicksave == '1') ||
-                                      (takeoff && *takeoff == '1'),
+                                      (takeoff && *takeoff == '1') || (manual_save && *manual_save == '1'),
                                   quicksave && *quicksave == '1',
-                                  takeoff && *takeoff == '1');
+                                  takeoff && *takeoff == '1',
+                                  manual_save && *manual_save == '1');
   Rangers::ProgramMain();
   running = false;
   if (new_game_driver.joinable()) new_game_driver.join();

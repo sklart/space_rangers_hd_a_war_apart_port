@@ -1724,6 +1724,30 @@ void CloseVorbisStream(TOggWorker* worker) {
                           pas::list_count(Slots), FindNewestSlot());
             srhd_awa::platform::e2e_stage::LogE2E3(detail);
         }''', 1)
+        save_controls_ready = '''        RebuildSlotControls();
+        if (pas::list_count(Slots) <= 0) {'''
+        if text.count(save_controls_ready) != 1:
+            raise RuntimeError("original SaveManager controls boundary changed")
+        text = text.replace(save_controls_ready, '''        RebuildSlotControls();
+#if defined(E2E5_HOST_SDL_WINDOW)
+        if (Globals::SaveManagerMode == smmSave) {
+            auto* e2e_edit = GetByName(u"Slot0Edit"sv);
+            auto* e2e_save = GetByName(u"ButSave"sv);
+            char e2e_detail[180]{};
+            std::snprintf(e2e_detail, sizeof(e2e_detail),
+                "save_slot0_edit_bounds left=%d top=%d right=%d bottom=%d",
+                e2e_edit->HitTestBounds.Left, e2e_edit->HitTestBounds.Top,
+                e2e_edit->HitTestBounds.Right, e2e_edit->HitTestBounds.Bottom);
+            srhd_awa::platform::e2e_stage::LogE2E3(e2e_detail);
+            std::snprintf(e2e_detail, sizeof(e2e_detail),
+                "save_save_bounds left=%d top=%d right=%d bottom=%d active=%u",
+                e2e_save->HitTestBounds.Left, e2e_save->HitTestBounds.Top,
+                e2e_save->HitTestBounds.Right, e2e_save->HitTestBounds.Bottom,
+                static_cast<unsigned>(e2e_save->Active));
+            srhd_awa::platform::e2e_stage::LogE2E3(e2e_detail);
+        }
+#endif
+        if (pas::list_count(Slots) <= 0) {''', 1)
         load_callback = '    void TfSaveManager::LoadClicked(GI_MessageLoop::TObjectGI* Sender) {'
         if text.count(load_callback) != 1:
             raise RuntimeError("original SaveManager load callback boundary changed")

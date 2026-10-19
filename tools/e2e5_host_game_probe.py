@@ -112,7 +112,9 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         load_save: Path | None = None,
         auto_options: bool = False, cfg_file: Path | None = None,
         lang_file: Path | None = None, auto_takeoff: bool = False,
-        new_game_file: Path | None = None) -> dict:
+        new_game_file: Path | None = None,
+        manual_save: bool = False,
+        load_manual_save: Path | None = None) -> dict:
     binary = binary.resolve(strict=True)
     game_root = game_root.resolve(strict=True)
     library_dir = library_dir.resolve(strict=True)
@@ -145,16 +147,24 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     stderr_path = stage / "stderr.txt"
     audio_path = stage / "audio-output.raw"
     quicksave_path = stage / "user/config/save/QuickSave.sav"
+    manual_save_path = stage / "user/config/save/E2E512MANUAL.sav"
+    if load_save is not None and load_manual_save is not None:
+        raise ValueError("choose only one save to load")
+    manual_load = load_manual_save is not None
+    if manual_load:
+        load_save = load_manual_save
     load_source_sha256 = None
     if load_save is not None:
         source = load_save.resolve(strict=True)
-        if (load_save.is_symlink() or source.name != "QuickSave.sav" or
+        expected_name = "E2E512MANUAL.sav" if manual_load else "QuickSave.sav"
+        if (load_save.is_symlink() or source.name != expected_name or
                 not source.is_file() or RUNS.resolve() not in source.parents):
-            raise ValueError("--load-save must be an isolated probe QuickSave.sav")
-        quicksave_path.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(source, quicksave_path)
+            raise ValueError(f"save must be an isolated probe {expected_name}")
+        target = manual_save_path if manual_load else quicksave_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
         load_source_sha256 = hash_file(source)
-        if hash_file(quicksave_path) != load_source_sha256:
+        if hash_file(target) != load_source_sha256:
             raise RuntimeError("isolated save copy hash mismatch")
     env = os.environ.copy()
     env.update(E2E5_GAME_ROOT=str(game_root), SDL_VIDEODRIVER="dummy",
@@ -163,11 +173,11 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         env["SDL_AUDIODRIVER"] = "disk"
         env["SDL_DISKAUDIOFILE"] = str(audio_path)
         env["SDL_DISKAUDIODELAY"] = "11"
-    if auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game or auto_advance_dialog or auto_quicksave or auto_takeoff:
+    if auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game or auto_advance_dialog or auto_quicksave or auto_takeoff or manual_save:
         env["E2E5_HOST_AUTO_NEW_GAME"] = "1"
     if mouse_new_game:
         env["E2E5_HOST_MOUSE_NEW_GAME"] = "1"
-    if auto_start_game or auto_select_dialog or auto_advance_dialog or auto_quicksave or auto_takeoff:
+    if auto_start_game or auto_select_dialog or auto_advance_dialog or auto_quicksave or auto_takeoff or manual_save:
         env["E2E5_HOST_AUTO_START_GAME"] = "1"
     if auto_select_dialog:
         env["E2E5_HOST_AUTO_SELECT_DIALOG"] = "1"
@@ -175,6 +185,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         env["E2E5_HOST_AUTO_ADVANCE_DIALOG"] = "1"
     if auto_quicksave:
         env["E2E5_HOST_AUTO_QUICKSAVE"] = "1"
+    if manual_save:
+        env["E2E5_HOST_MANUAL_SAVE"] = "1"
     if auto_takeoff:
         env["E2E5_HOST_AUTO_SELECT_DIALOG"] = "1"
         env["E2E5_HOST_AUTO_ADVANCE_DIALOG"] = "1"
@@ -193,6 +205,8 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
     dialog_callback_at: float | None = None
     quicksave_at: float | None = None
     quicksave_size = 0
+    manual_save_at: float | None = None
+    manual_save_size = 0
     quicksave_rejected = False
     load_rejected = False
     turn_complete_at: float | None = None
@@ -208,7 +222,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
             if seen_frame is None and e2e_log.is_file():
                 seen_frame = FRAME.search(read_log(e2e_log))
             if (auto_new_game or auto_start_game or auto_select_dialog or mouse_new_game or
-                    auto_advance_dialog or auto_quicksave or auto_takeoff or load_save is not None or
+                    auto_advance_dialog or auto_quicksave or auto_takeoff or manual_save or load_save is not None or
                     auto_options or os.environ.get("E2E5_HOST_MENU_PROBE")) and e2e_log.is_file():
                 current = read_log(e2e_log)
                 frames = screen_frames(current)
@@ -227,6 +241,11 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                 if size > 0 and size != quicksave_size:
                     quicksave_size = size
                     quicksave_at = time.monotonic()
+            if manual_save and manual_save_path.is_file():
+                size = manual_save_path.stat().st_size
+                if size > 0 and size != manual_save_size:
+                    manual_save_size = size
+                    manual_save_at = time.monotonic()
             if auto_quicksave and ("E2E4 script pointer cannot be serialized" in read_log(game_log) or
                                    "E2E5 save inventory contains unknown" in read_log(game_log) or
                                    "E2E5 host disk save refused by explicit test mode" in read_log(game_log) or
@@ -242,21 +261,22 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                  not auto_new_game and not auto_start_game and not auto_select_dialog and
                  not auto_advance_dialog and
                  not auto_quicksave and not mouse_new_game and not capture_audio and
+                 not manual_save and
                  not auto_options and not auto_takeoff and
                  load_save is None) or
                     (os.environ.get("E2E5_HOST_MENU_PROBE") and
                      "HOST menu probe completed" in current) or
                     ((auto_new_game or mouse_new_game) and not auto_start_game and
-                     not auto_select_dialog and not auto_advance_dialog and not auto_quicksave
+                     not auto_select_dialog and not auto_advance_dialog and not auto_quicksave and not manual_save
                      and seen_new_game_frame) or
                     (auto_start_game and not auto_select_dialog and not auto_advance_dialog and
-                     not auto_quicksave and
+                     not auto_quicksave and not manual_save and
                      seen_gameplay_frame
                      and seen_gameplay_60_frames) or
                     (auto_select_dialog and dialog_callback_at is not None
-                     and not auto_advance_dialog and not auto_quicksave and
+                     and not auto_advance_dialog and not auto_quicksave and not manual_save and
                      time.monotonic() - dialog_callback_at >= 5.0) or
-                    (auto_advance_dialog and not auto_quicksave and not auto_takeoff and
+                    (auto_advance_dialog and not auto_quicksave and not auto_takeoff and not manual_save and
                      bool(frames & POST_DIALOG_SCREENS) and
                      any(60 in milestones.get(screen, set())
                          for screen in POST_DIALOG_SCREENS)) or
@@ -279,7 +299,11 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                      time.monotonic() - turn_complete_at >= 5.0) or
                     (auto_quicksave and quicksave_at is not None and
                      not (quicksave_path.parent / "save.tmp").exists() and
-                     time.monotonic() - quicksave_at >= 2.0)))):
+                     time.monotonic() - quicksave_at >= 2.0) or
+                    (manual_save and manual_save_at is not None and
+                     "HOST manual save button clicked" in current and
+                     not (manual_save_path.parent / "save.tmp").exists() and
+                     time.monotonic() - manual_save_at >= 2.0)))):
                 stopped_by_probe = True
                 process.terminate()
                 break
@@ -419,6 +443,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "auto_select_dialog_input": auto_select_dialog or auto_takeoff,
         "auto_advance_dialog_input": auto_advance_dialog or auto_takeoff,
         "auto_quicksave_input": auto_quicksave,
+        "manual_save_input": manual_save,
         "auto_takeoff_input": auto_takeoff,
         "requested_end_turns": int(os.environ.get("E2E59_HOST_END_TURNS", "0")),
         "native_map_swipe_order_preserved": "HOST native map swipe moved=1 ship_order_preserved=1" in full_e2e_log,
@@ -437,6 +462,7 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
             re.findall(r"options active group=(\d+)", full_e2e_log)],
         "options_choice_selected": "options choice selected VSync=" in full_e2e_log,
         "load_save_input": load_save is not None,
+        "load_manual_save_input": manual_load,
         "load_source_sha256": load_source_sha256,
         "game_states": game_states,
         "load_screen_dispatched": 24 in dispatches,
@@ -460,6 +486,9 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "quicksave": ({"path": str(quicksave_path), "size": quicksave_path.stat().st_size,
                        "sha256": hash_file(quicksave_path)}
                       if quicksave_path.is_file() else None),
+        "manual_save": ({"path": str(manual_save_path), "size": manual_save_path.stat().st_size,
+                         "sha256": hash_file(manual_save_path)}
+                        if manual_save_path.is_file() else None),
         "dialog_choice_callback_count": full_e2e_log.count("dialog choice callback complete"),
         "post_dialog_screen_ids": sorted(observed_frames & POST_DIALOG_SCREENS),
         "dialog_choice_ready": "dialog choice ready" in full_e2e_log,
@@ -537,8 +566,11 @@ def main() -> None:
     parser.add_argument("--auto-select-dialog", action="store_true")
     parser.add_argument("--auto-advance-dialog", action="store_true")
     parser.add_argument("--auto-quicksave", action="store_true")
+    parser.add_argument("--manual-save", action="store_true")
     parser.add_argument("--load-save", type=Path,
                         help="QuickSave.sav from an earlier isolated probe stage")
+    parser.add_argument("--load-manual-save", type=Path,
+                        help="E2E512MANUAL.sav from an earlier isolated probe stage")
     parser.add_argument("--mouse-new-game", action="store_true")
     parser.add_argument("--capture-audio", action="store_true")
     parser.add_argument("--auto-options", action="store_true")
@@ -561,7 +593,8 @@ def main() -> None:
                          args.mouse_new_game, args.capture_audio,
                          args.auto_advance_dialog, args.auto_quicksave,
                          args.load_save, args.auto_options, args.cfg_file,
-                         args.lang_file, args.auto_takeoff, args.new_game_file), indent=2))
+                         args.lang_file, args.auto_takeoff, args.new_game_file,
+                         args.manual_save, args.load_manual_save), indent=2))
 
 
 if __name__ == "__main__":
