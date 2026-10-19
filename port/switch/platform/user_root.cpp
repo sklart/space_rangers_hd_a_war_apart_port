@@ -1,4 +1,5 @@
 #include "user_root.hpp"
+#include "unicode_path.hpp"
 
 #include <filesystem>
 #include <string_view>
@@ -27,6 +28,15 @@ bool SameAsciiName(std::string_view a, std::string_view b) {
         fold(static_cast<unsigned char>(b[i]))) return false;
   }
   return true;
+}
+
+bool ContainsSave(const std::filesystem::path& directory, std::error_code& error) {
+  for (const auto& entry : std::filesystem::directory_iterator(directory, error)) {
+    if (error) break;
+    if (SameAsciiName(entry.path().extension().string(), ".sav") && entry.is_regular_file(error))
+      return true;
+  }
+  return false;
 }
 }  // namespace
 
@@ -65,21 +75,69 @@ std::string ResolveConfigPath(const std::string& path) {
       (input.is_absolute() || IsContained(input, config) ? input : config / input).lexically_normal();
   if (!IsContained(resolved, config)) return {};
   std::error_code error;
-  if (std::filesystem::exists(resolved, error)) return resolved.generic_string();
-  if (error) return {};
-  const auto parent = resolved.parent_path();
-  if (!std::filesystem::is_directory(parent, error))
-    return resolved.generic_string();
-  std::string matching_path;
-  for (const auto& entry : std::filesystem::directory_iterator(parent, error)) {
-    if (error) break;
-    if (!SameAsciiName(entry.path().filename().string(), resolved.filename().string()))
-      continue;
-    if (!matching_path.empty()) return {};  // Ambiguous spelling on case-sensitive hosts.
-    matching_path = entry.path().generic_string();
+  // Resolve each component, including the legacy Save directory. Resolving
+  // just the basename created a second, empty config/save on Linux and made
+  // the old AutoSave invisible. Never move files or use the root save folder.
+  auto cursor = config;
+  bool first_component = true;
+  for (const auto& part : resolved.lexically_relative(config)) {
+    if (part == ".") continue;
+    if (first_component && SameAsciiName(part.string(), "save")) {
+      const auto legacy = config / "Save", lower = config / "save";
+      if (std::filesystem::is_directory(legacy, error) &&
+          std::filesystem::is_directory(lower, error) &&
+          !std::filesystem::equivalent(legacy, lower, error)) {
+        if (error) return {};
+        const bool legacy_saves = ContainsSave(legacy, error);
+        if (error) return {};
+        const bool lower_saves = ContainsSave(lower, error);
+        if (error || (legacy_saves && lower_saves)) return {};
+        if (legacy_saves || lower_saves) {
+          cursor = legacy_saves ? legacy : lower;
+          first_component = false;
+          continue;
+        }
+      }
+      error.clear();
+    }
+    first_component = false;
+    auto next = cursor / part;
+    if (std::filesystem::exists(next, error)) { cursor = next; continue; }
+    if (error) return {};
+    if (std::filesystem::is_directory(cursor, error)) {
+      std::filesystem::path match;
+      for (const auto& entry : std::filesystem::directory_iterator(cursor, error)) {
+        if (error) break;
+        if (!SameAsciiName(entry.path().filename().string(), part.string())) continue;
+        if (!match.empty()) return {};
+        match = entry.path();
+      }
+      if (error) return {};
+      if (!match.empty()) next = match;
+    } else if (error && error != std::errc::no_such_file_or_directory) return {};
+    error.clear();
+    cursor = next;
   }
-  if (error) return {};
-  return matching_path.empty() ? resolved.generic_string() : matching_path;
+  return cursor.generic_string();
+}
+
+std::string ResolveConfigPath(const char16_t* path) {
+  return path ? ResolveConfigPath(PathUtf8(path)) : std::string{};
+}
+
+std::string ResolveAbsoluteConfigPath(const char16_t* path) {
+  if (!path || g_root.empty()) return {};
+  auto utf8 = PathUtf8(path);
+  for (char& c : utf8) if (c == '\\') c = '/';
+  if (!IsContained(std::filesystem::path(utf8), g_root / "config")) return {};
+  return ResolveConfigPath(utf8);
+}
+
+bool ConfigFileExists(const char16_t* path) {
+  const auto resolved = ResolveConfigPath(path);
+  if (resolved.empty()) return false;
+  std::error_code error;
+  return std::filesystem::is_regular_file(std::filesystem::u8path(resolved), error) && !error;
 }
 
 }  // namespace srhd_awa::platform::user_root

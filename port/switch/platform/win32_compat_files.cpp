@@ -4,6 +4,7 @@
 #include "e2e_file_search.hpp"
 #include "e2e_stage.hpp"
 #include "user_root.hpp"
+#include "unicode_path.hpp"
 #include "win32_compat_filetime.hpp"
 #include "win32_handles.hpp"
 #include "types/Windows_group.hpp"
@@ -373,20 +374,7 @@ std::int32_t CopyFileAThunk(std::uint8_t* source, std::uint8_t* destination,
 }
 
 std::string NarrowPath(const char16_t* wide) {
-  if (!wide) return {};
-  std::string result;
-  for (; *wide; ++wide) {
-    if (*wide < 0x80) result.push_back(static_cast<char>(*wide));
-    else if (*wide < 0x800) {
-      result.push_back(static_cast<char>(0xc0 | (*wide >> 6)));
-      result.push_back(static_cast<char>(0x80 | (*wide & 0x3f)));
-    } else {
-      result.push_back(static_cast<char>(0xe0 | (*wide >> 12)));
-      result.push_back(static_cast<char>(0x80 | ((*wide >> 6) & 0x3f)));
-      result.push_back(static_cast<char>(0x80 | (*wide & 0x3f)));
-    }
-  }
-  return result;
+  return wide ? PathUtf8(wide) : std::string{};
 }
 
 std::int32_t CopyFileWThunk(char16_t* source, char16_t* destination,

@@ -1,12 +1,20 @@
 #pragma once
 
 #include <cstdint>
+#include <atomic>
 #include <filesystem>
 #include <functional>
 #include <string>
 #include <vector>
 
 namespace srhd_awa::platform::e2e4_quicksave {
+
+// The game has one serialized TSaver queue. File existence alone cannot
+// distinguish a failed replacement from the occupied slot's previous save.
+inline std::atomic<bool> game_save_committed{false};
+inline void BeginGameSave() { game_save_committed.store(false, std::memory_order_release); }
+inline void CompleteGameSave() { game_save_committed.store(true, std::memory_order_release); }
+inline bool GameSaveCommitted() { return game_save_committed.load(std::memory_order_acquire); }
 
 namespace fs = std::filesystem;
 

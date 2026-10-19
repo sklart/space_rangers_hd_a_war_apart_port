@@ -1,5 +1,7 @@
 #include "e2e4_quicksave_transaction.hpp"
 #include "e2e4_save_replace.hpp"
+#include "unicode_path.hpp"
+#include "user_root.hpp"
 
 #include <algorithm>
 #include <array>
@@ -88,8 +90,7 @@ bool HashFile(const fs::path& path, Fingerprint& result) {
 
 bool SyncFile(const fs::path& path) {
 #ifdef _WIN32
-    const auto name = path.string();
-    FILE* file = std::fopen(name.c_str(), "rb+");
+    FILE* file = _wfopen(path.c_str(), L"rb+");
     if (!file) return false;
     const bool ok = _commit(_fileno(file)) == 0;
 #else
@@ -149,7 +150,11 @@ bool WriteMarker(const fs::path& path, const std::string& text,
         error = std::string(operation) + ": destination occupied or injected failure";
         return false;
     }
-    FILE* file = std::fopen(path.string().c_str(), "wb");
+#ifdef _WIN32
+    FILE* file = _wfopen(path.c_str(), L"wb");
+#else
+    FILE* file = std::fopen(path.c_str(), "wb");
+#endif
     if (!file) { error = std::string(operation) + ": open failed"; return false; }
     const bool written = std::fwrite(text.data(), 1, text.size(), file) == text.size() &&
                          std::fflush(file) == 0;
@@ -182,28 +187,12 @@ fs::path SlotPath(const fs::path& save_directory, std::size_t index) {
 
 fs::path GamePath(const char16_t* wide) {
     if (!wide) return {};
-    std::string utf8;
-    for (; *wide; ++wide) {
-        auto code = static_cast<std::uint32_t>(*wide);
-        if (code == '\\') code = '/';
-        if (code < 0x80) utf8.push_back(static_cast<char>(code));
-        else if (code < 0x800) {
-            utf8.push_back(static_cast<char>(0xc0 | (code >> 6)));
-            utf8.push_back(static_cast<char>(0x80 | (code & 0x3f)));
-        } else if (code >= 0xd800 && code <= 0xdbff && wide[1] >= 0xdc00 && wide[1] <= 0xdfff) {
-            code = 0x10000 + ((code - 0xd800) << 10) + (static_cast<std::uint32_t>(*++wide) - 0xdc00);
-            utf8.push_back(static_cast<char>(0xf0 | (code >> 18)));
-            utf8.push_back(static_cast<char>(0x80 | ((code >> 12) & 0x3f)));
-            utf8.push_back(static_cast<char>(0x80 | ((code >> 6) & 0x3f)));
-            utf8.push_back(static_cast<char>(0x80 | (code & 0x3f)));
-        } else if (code >= 0xd800 && code <= 0xdfff) return {};
-        else {
-            utf8.push_back(static_cast<char>(0xe0 | (code >> 12)));
-            utf8.push_back(static_cast<char>(0x80 | ((code >> 6) & 0x3f)));
-            utf8.push_back(static_cast<char>(0x80 | (code & 0x3f)));
-        }
-    }
-    return fs::path(utf8).lexically_normal();
+    auto utf8 = PathUtf8(wide);
+    for (char& c : utf8) if (c == '\\') c = '/';
+    const auto config = user_root::ConfigDirectory();
+    if (!config.empty() && utf8.starts_with(config))
+        utf8 = user_root::ResolveConfigPath(utf8);
+    return fs::u8path(utf8).lexically_normal();
 }
 
 bool LoadManifest(const fs::path& transaction, Manifest& manifest) {

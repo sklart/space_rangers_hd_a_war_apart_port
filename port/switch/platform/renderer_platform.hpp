@@ -3,7 +3,24 @@
 #include <cstdint>
 #include <string>
 
+namespace GR_GraphBuf { struct TGraphBufGR; }
+
 namespace srhd_awa::platform::renderer_platform {
+
+// A message loop owns its software canvas for its entire lifetime. Nested
+// windows borrow a copy of the parent image; closing them restores the parent
+// canvas instead of leaving their pixels in a shared framebuffer.
+class SceneCanvas {
+public:
+  explicit SceneCanvas(bool inherit_background);
+  ~SceneCanvas();
+  SceneCanvas(const SceneCanvas&) = delete;
+  SceneCanvas& operator=(const SceneCanvas&) = delete;
+private:
+  GR_GraphBuf::TGraphBufGR* parent_{};
+  GR_GraphBuf::TGraphBufGR* canvas_{};
+  bool nested_{};
+};
 
 struct RendererConfig {
   std::int32_t game_width{1280};

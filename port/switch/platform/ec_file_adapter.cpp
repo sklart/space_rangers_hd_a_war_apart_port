@@ -296,7 +296,7 @@ std::int32_t TPackCollectionEC::OpenEntryByPathAcrossPackages(
   return -1;
 }
 std::int32_t TPackCollectionEC::CreateLooseFile(pas::WideString path) {
-  const std::string resolved = srhd_awa::platform::user_root::ResolveConfigPath(static_cast<pas::AnsiString>(path).c_str());
+  const std::string resolved = srhd_awa::platform::user_root::ResolveConfigPath(path.pchar());
   if (resolved.empty()) return -1;
   for (auto* pack = FirstPack; pack; pack = pack->NextPack) {
     if (!pack->UseLooseFiles) continue;

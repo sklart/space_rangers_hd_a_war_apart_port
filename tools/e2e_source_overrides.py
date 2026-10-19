@@ -416,7 +416,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ('ab_WorldLine.cpp', 'ThreadCalc.cpp', 'aEFilm.cpp', 'aCalc.cpp', 'fPanelMain.cpp', 'fFilmFile.cpp', 'fGov.cpp', 'fStarMap.cpp', 'EC_File.cpp', 'ab_Global.cpp', 'EC_Cache.cpp', 'EC_CacheBuf.cpp', 'fGalaxy2.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameLoad.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ('fGameMenu.cpp', 'ab_WorldLine.cpp', 'ThreadCalc.cpp', 'aEFilm.cpp', 'aCalc.cpp', 'fPanelMain.cpp', 'fFilmFile.cpp', 'fGov.cpp', 'fStarMap.cpp', 'EC_File.cpp', 'ab_Global.cpp', 'EC_Cache.cpp', 'EC_CacheBuf.cpp', 'fGalaxy2.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameLoad.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "EC_Cache.cpp":
@@ -1386,17 +1386,6 @@ void CloseVorbisStream(TOggWorker* worker) {
         run = text[start:end]
         if run.count("            OnOpen();") != 1 or run.count("                    GR_Main::EndFramePresentation();") != 1:
             raise RuntimeError("screen Run open/presentation boundary changed")
-        run = run.replace("            OnOpen();", '''#if defined(SRHD_PORTABLE_RENDERER)
-            // A full-screen scene must start with its own canvas. Several game
-            // backgrounds contain transparent regions; retaining the prior
-            // framebuffer exposed the world-generation screen behind them.
-            if (ViewportRect.Left == 0 && ViewportRect.Top == 0 &&
-                ViewportRect.Right == GR_Main::GameScreenWidth &&
-                ViewportRect.Bottom == GR_Main::GameScreenHeight &&
-                GR_Main::ScreenRenderBuffer != nullptr)
-                GR_Main::ScreenRenderBuffer->FillPixels16(0);
-#endif
-            OnOpen();''', 1)
         run = run.replace("            OnOpen();", '''            srhd_awa::platform::e2e_stage::Log("screen Run OnOpen begin");
             OnOpen();
             srhd_awa::platform::e2e_stage::Log("screen Run OnOpen ready");''', 1)
@@ -1478,33 +1467,24 @@ void CloseVorbisStream(TOggWorker* worker) {
                        "            if (ExitCode == 0) {\n                DrawFrame();\n            }"):
             if continuous.count(anchor) != 1:
                 raise RuntimeError("continuous screen checkpoint boundary changed")
-        catchup = """                    Stage = 20;
-                    if (GR_Main::RecordingFrames) {"""
-        if continuous.count(catchup) != 1:
-            raise RuntimeError("continuous arcade catch-up boundary changed")
-        continuous = continuous.replace(catchup, """#if defined(__SWITCH__)
-                    if (GlobalsV::RegisteredScreens[GlobalsV::screenArcadeBattle] == this) {
-                        // TimerTakt advances the entire arcade simulation every 20 ms.
-                        // Replaying a long delayed frame can queue many costly ticks
-                        // before input or rendering runs again. Bound catch-up to two.
-                        if (FrameTime > 40u) FrameTime = 40u;
+        continuous = _replace_exact(continuous, '''                    if (FrameTime > 200) {
+                        FrameTime = 200u;
+                    }''', '', 1, source.name)
+        continuous = _replace_exact(continuous, '''                    if (CarryTicks > 200) {
                         CarryTicks = 0u;
-                    }
-#endif
-                    Stage = 20;
-                    if (GR_Main::RecordingFrames) {""", 1)
+                    }''', '', 1, source.name)
+        continuous = _replace_exact(continuous, 'FrameTime + CarryTicks - 1',
+            '''srhd_awa::platform::ContinuousTimerMillis(FrameTime, CarryTicks,
+                            GlobalsV::RegisteredScreens[GlobalsV::screenArcadeBattle] == this) - 1''',
+            1, source.name)
         continuous = continuous.replace("            Stage = 1;",
             '            srhd_awa::platform::e2e_stage::Log("screen RunContinuous begin");\n            Stage = 1;', 1)
         continuous = continuous.replace("        std::int32_t Stage = 0;",
             "        std::int32_t Stage = 0;\n        std::uint32_t e2e_continuous_frames = 0;", 1)
         continuous = continuous.replace("            Stage = 6;\n            OnOpen();", '''            Stage = 6;
             srhd_awa::platform::e2e_stage::Log("screen RunContinuous OnOpen begin");
-#if defined(SRHD_PORTABLE_RENDERER)
-            if (ViewportRect.Left == 0 && ViewportRect.Top == 0 &&
-                ViewportRect.Right == GR_Main::GameScreenWidth &&
-                ViewportRect.Bottom == GR_Main::GameScreenHeight &&
-                GR_Main::ScreenRenderBuffer != nullptr)
-                GR_Main::ScreenRenderBuffer->FillPixels16(0);
+#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
+            GR_Main::FullFrameRedrawRequested = true;
 #endif
             OnOpen();
             srhd_awa::platform::e2e_stage::Log("screen RunContinuous OnOpen ready");''', 1)
@@ -1536,6 +1516,20 @@ void CloseVorbisStream(TOggWorker* worker) {
                     }
                     SysUtilsImports::Sleep(1u);''', 1)
         text = text[:continuous_start] + continuous + text[continuous_end:]
+        # Own the framebuffer at the loop boundary, before OnOpen can capture
+        # a background. Viewport size alone does not identify an overlay: the
+        # game menu, shops and save manager can occupy the entire viewport.
+        for entry in ("    std::int32_t TMessageLoopGI::Run() {",
+                      "    std::int32_t TMessageLoopGI::RunContinuous() {"):
+            text = _replace_exact(text, entry, entry + '''
+#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
+        const bool e2e_inherit_canvas =
+            ViewportRect.Left != 0 || ViewportRect.Top != 0 ||
+            ViewportRect.Right != GR_Main::GameScreenWidth ||
+            ViewportRect.Bottom != GR_Main::GameScreenHeight ||
+            (ContentPanel && ContentPanel->FindByNameRecursive(u"BGBuf"sv) != nullptr);
+        srhd_awa::platform::renderer_platform::SceneCanvas e2e_canvas(e2e_inherit_canvas);
+#endif''', 1, source.name)
         if e2e5_profile:
             for entry in ("    std::int32_t TMessageLoopGI::Run() {",
                           "    std::int32_t TMessageLoopGI::RunContinuous() {"):
@@ -1627,7 +1621,7 @@ void CloseVorbisStream(TOggWorker* worker) {
         draw = draw.replace("RectNode->Bounds", "e2e_rect")
         draw = draw.replace(advance, "", 1)
         text = text[:draw_start] + draw + text[draw_end:]
-        text = ('#include "e2e5_stage_profiler.hpp"\n' if e2e5_profile else '') + '#include "renderer_platform.hpp"\n#include "e2e_stage.hpp"\n#include <cstdio>\n#include <vector>\n' + text
+        text = ('#include "e2e5_stage_profiler.hpp"\n' if e2e5_profile else '') + '#include "continuous_time.hpp"\n#include "renderer_platform.hpp"\n#include "e2e_stage.hpp"\n#include <cstdio>\n#include <vector>\n' + text
         # Publish the actual nested loop identity, not just the outer dispatch ID.
         gi_namespace = "namespace GI_MessageLoop {"
         if text.count(gi_namespace) != 1:
@@ -1752,6 +1746,15 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
         text = text.replace(keyboard,
             '            srhd_awa::platform::e2e_stage::LogE2E3("menu_action=New source=keyboard key=Enter");\n' + keyboard, 1)
         text = '#include "e2e_stage.hpp"\n#include "win32_compat_messages.hpp"\n#include <cstdio>\n' + text
+    if source.name == "fPanelMain.cpp":
+        menu_callback = '        MenuButton->UpCallback = pas::bind_method<&TfPanelMain::MenuClicked>(this);'
+        text = _replace_exact(text, menu_callback, menu_callback + '''
+#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
+        // These controls are pointer actions on Switch; Space/F2 shortcuts in
+        // resource tooltips do not have a corresponding handheld binding.
+        EndTurnButton->HelpText = u"Завершить ход: касание или A на кнопке."_w;
+        MenuButton->HelpText = u"Игровое меню и сохранение: касание или A на кнопке."_w;
+#endif''', 1, source.name)
     if source.name == "fGameMenu.cpp":
         help_body = '''    void TfGameMenu::HelpClicked(GI_MessageLoop::TObjectGI* Sender) {
         pas::AnsiString cpp_text{};
@@ -1760,20 +1763,41 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
         ShellAPI::ShellExecuteA(0u, pas::literal_pointer("open"), (cpp_text = static_cast<pas::AnsiString>(aConst::LocalizedText(u"FormGameMenu.HelpFile"_wref.get())), cpp_text.pchar()), pas::literal_pointer(""), pas::literal_pointer(""), WindowsSdk::SW_SHOWNORMAL);
     }'''
         text = _replace_exact(text, help_body, '''    void TfGameMenu::HelpClicked(GI_MessageLoop::TObjectGI* Sender) {
-#if defined(__SWITCH__)
-        GI_MessageBox::ShowMessageBoxGI(this,
-            u"Справка Nintendo Switch\\nСенсорный экран: выбор и карта.\\n"
-            u"В аркаде: стики — полёт, ZR/ZL — огонь, L/R — смена оружия.\\n"
+#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
+        srhd_awa::platform::e2e_stage::Log("game help opened");
+        GI_MessageBox::ShowMessageBoxGI(Globals::GameMenuScreen,
+            u"Справка Nintendo Switch\\nКасание / A: выбор. Y: назад.\\n"
+            u"Аркада: левый стик — полёт, правый — указатель.\\n"
+            u"ZR/ZL — огонь, L/R — смена оружия.\\n"
             u"Вернуться в игру: кнопка «Продолжить» в этом меню."_w,
             GI_MessageBox::mbgOK, 0, 0, 0);
+        srhd_awa::platform::e2e_stage::Log("game help closed");
 #else
         pas::AnsiString cpp_text{};
         WindowsSdk::ShowWindow(GR_Main::MainWindowHandle, WindowsSdk::SW_MINIMIZE);
         ShellAPI::ShellExecuteA(0u, pas::literal_pointer("open"), (cpp_text = static_cast<pas::AnsiString>(aConst::LocalizedText(u"FormGameMenu.HelpFile"_wref.get())), cpp_text.pchar()), pas::literal_pointer(""), pas::literal_pointer(""), WindowsSdk::SW_SHOWNORMAL);
 #endif
     }''', 1, source.name)
+        text = '#include "e2e_stage.hpp"\n' + text
     if source.name == "fSaveManager.cpp":
-        text = '#include "e2e5_text_input.hpp"\n' + text
+        text = '#include "e2e5_text_input.hpp"\n#include "user_root.hpp"\n#include "pending_game_load.hpp"\n' + text
+        pending_load = '                GlobalsV::PendingLoadFileName = static_cast<pas::AnsiString>(pas::list_at<TSMSlot>(Slots, SelectedSlot)->FileName);'
+        text = _replace_exact(text, pending_load, pending_load + '''
+                srhd_awa::platform::pending_game_load::Store(
+                    pas::list_at<TSMSlot>(Slots, SelectedSlot)->FileName.pchar(),
+                    GlobalsV::PendingLoadFileName.c_str());''', 1, source.name)
+        text = _replace_exact(text,
+            'TfSaveManager::GetSaveConfigPath(static_cast<pas::WideString>(GlobalsV::PendingLoadFileName))',
+            'TfSaveManager::GetSaveConfigPath(pas::list_at<TSMSlot>(Slots, SelectedSlot)->FileName)',
+            1, source.name)
+        for path in ('GR_Main::EditableSaveFileName',
+                     'TfSaveManager::GetAutoSavePath()',
+                     'TfSaveManager::GetQuickSavePath(SlotIndex)',
+                     'TfSaveManager::GetSaveConfigPath(pas::list_at<TSMSlot>(Slots, SelectedSlot)->FileName)'):
+            text = _replace_exact(text,
+                f'SysUtilsImports::FileExists(static_cast<pas::AnsiString>({path}))',
+                f'srhd_awa::platform::user_root::ConfigFileExists(({path}).pchar())',
+                1, source.name)
         text = _replace_exact(text, 'namespace fSaveManager {', '''namespace fSaveManager {
     void E2EArmSaveKeyboard(GI_MessageLoop::TObjectGI* sender,
                             std::uint32_t, WindowsSdk::TPoint point) {
@@ -1887,6 +1911,16 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
                 srhd_awa::platform::e2e_stage::LogE2E3(
                     Search == WindowsImports::INVALID_HANDLE_VALUE ?
                     "save_scan search_empty" : "save_scan search_found");''', 1)
+        # The generic WindowsSdk aliases are ANSI. Passing their UTF-8 byte
+        # filenames through array_text<WideString> corrupts Cyrillic names on
+        # the portable backend even though EC_File itself can now read them.
+        text = _replace_exact(text, '        WindowsSdk::TWin32FindData FindData{};',
+            '        WindowsSdk::TWin32FindDataW FindData{};', 1, source.name)
+        text = _replace_exact(text, scan_search,
+            '                Search = WindowsSdk::FindFirstFileW(pas::literal_pointer(u"*.sav"), FindData);',
+            1, source.name)
+        text = _replace_exact(text, 'WindowsSdk::FindNextFile(Search, FindData)',
+            'WindowsSdk::FindNextFileW(Search, FindData)', 1, source.name)
         load_binding = '            ButLoad->UpCallback = pas::bind_method<&TfSaveManager::LoadClicked>(this);'
         if text.count(load_binding) != 1:
             raise RuntimeError("original SaveManager Load button binding boundary changed")
@@ -2539,7 +2573,7 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
     if source.name == "fIntroduction.cpp":
         intro_close = '''    void TfIntroduction::OnClose() {'''
         text = _replace_exact(text, intro_close, intro_close + '''
-#if defined(SRHD_PORTABLE_RENDERER)
+#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
         // The intro is a generation scene, never a backdrop for later game
         // screens. Its captured pixels otherwise survive in AuxRenderBuffer.
         if (GR_Main::AuxRenderBuffer != nullptr)
@@ -2796,7 +2830,8 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
                 // successful queueing. Autosaves stay asynchronous.
                 if (FileName != AutoName && FileName != TurnName && FileName != QuickName) {
                     SaveWriter->WaitForIdle(WindowsSdk::INFINITE);
-                    if (!srhd_awa::platform::e2e4_quicksave::GameSavePathExists(FileName.pchar()))
+                    if (!srhd_awa::platform::e2e4_quicksave::GameSaveCommitted() ||
+                        !srhd_awa::platform::e2e4_quicksave::GameSavePathExists(FileName.pchar()))
                         pas::raise(pas::make_exception<pas::Exception>("E2E5 manual save file was not committed"_a));
                     GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"E2E5 manual save committed path=",
                         static_cast<pas::AnsiString>(FileName)}));
@@ -2862,6 +2897,7 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
                     pas::raise(pas::make_exception<pas::Abort>("E2E4 quicksave rotation failed; inspect retained backup directory"_a));
                 }
                 e2e_save_committed = true;
+                srhd_awa::platform::e2e4_quicksave::CompleteGameSave();
             } else {
                 const auto replacement = srhd_awa::platform::e2e4_quicksave::ReplaceGameSavePath(
                     TempName.pchar(), Self->FileName.pchar());
@@ -2870,6 +2906,7 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
                 if (!replacement.ok)
                     pas::raise(pas::make_exception<pas::Abort>("E2E4 manual save failed; inspect retained temp and backup"_a));
                 e2e_save_committed = true;
+                srhd_awa::platform::e2e4_quicksave::CompleteGameSave();
             }
 #else
 ''' + original_rotation + '''#endif
@@ -2894,8 +2931,20 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
 ''' + cleanup + '''
 #endif''', 1)
         text = text[:saver_start] + saver + text[saver_end:]
+        text = _replace_exact(text, '        FileName = std::move(AFileName);', '''#if defined(E2E4_QUICKSAVE_EXPERIMENT)
+        srhd_awa::platform::e2e4_quicksave::BeginGameSave();
+#endif
+        FileName = std::move(AFileName);''', 1, source.name)
         text = '#include <cstdlib>\n#include "e2e4_quicksave_transaction.hpp"\n' + text
     if source.name == "fGameLoad.cpp":
+        text = '#include "pending_game_load.hpp"\n' + text
+        text = _replace_exact(text,
+            '        Self->Succeeded = aSaveLoad::LoadGameFromFile(static_cast<pas::WideString>(GlobalsV::PendingLoadFileName));',
+            '''        const auto unicode_path = srhd_awa::platform::pending_game_load::Take(
+            GlobalsV::PendingLoadFileName.c_str());
+        Self->Succeeded = aSaveLoad::LoadGameFromFile(unicode_path.empty() ?
+            static_cast<pas::WideString>(GlobalsV::PendingLoadFileName) :
+            pas::WideString(unicode_path.c_str()));''', 1, source.name)
         load_failure = "            if (!LoadThread->Succeeded) {"
         if text.count(load_failure) != 1:
             raise RuntimeError("game load failure UI boundary changed")
@@ -3250,6 +3299,26 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
             old = f'ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix, pas::ConstRef<EC_Struct::TVector3D>(&Line->{endpoint}))'
             assert text.count(old) == 1
             text = text.replace(old, f'e2e_project.Project(pas::load_unaligned<EC_Struct::TVector3D>(&Line->{endpoint}))')
+        endpoints = '''                    Line->Segment->First.X = System::Round(First.X);
+                    Line->Segment->First.Y = System::Round(First.Y);
+                    Line->Segment->Last.X = System::Round(Last.X);
+                    Line->Segment->Last.Y = System::Round(Last.Y);
+                    Globals::ArcadeBattleScreen->WorldLines->UpdateSegmentLength(Line->Segment);'''
+        text = _replace_exact(text, endpoints, '''                    const auto first_x = System::Round(First.X);
+                    const auto first_y = System::Round(First.Y);
+                    const auto last_x = System::Round(Last.X);
+                    const auto last_y = System::Round(Last.Y);
+                    // PixelCount and capacity depend only on these integer
+                    // endpoints. Keep existing saved-pixel buffers and avoid
+                    // recomputing their square root while geometry is unchanged.
+                    if (Line->Segment->First.X != first_x || Line->Segment->First.Y != first_y ||
+                        Line->Segment->Last.X != last_x || Line->Segment->Last.Y != last_y) {
+                        Line->Segment->First.X = first_x;
+                        Line->Segment->First.Y = first_y;
+                        Line->Segment->Last.X = last_x;
+                        Line->Segment->Last.Y = last_y;
+                        Globals::ArcadeBattleScreen->WorldLines->UpdateSegmentLength(Line->Segment);
+                    }''', 1, source.name)
         start = text.index(marker)
         end = text.index('\n    }', start)
         text = text[:end] + '''
@@ -3272,6 +3341,16 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
         text = film_history(text)
     if source.name == "EC_File.cpp":
         text = apply_file(text)
+        # Keep UTF-16 user filenames intact up to the portable filesystem.
+        # Converting via AnsiString first loses Cyrillic/OSK names; package
+        # resource keys still use the original ANSI representation.
+        path_arg = 'static_cast<pas::AnsiString>(FileName)'
+        text = _replace_exact(text, path_arg, '''([&]() {
+                const auto user_path = srhd_awa::platform::user_root::ResolveAbsoluteConfigPath(FileName.pchar());
+                return user_path.empty() ? static_cast<pas::AnsiString>(FileName) :
+                    pas::AnsiString(user_path.c_str());
+            }())''', 3, source.name)
+        text = '#include "user_root.hpp"\n' + text
     if source.name == "EC_Data.cpp":
         text = apply_data(text)
     if e2e5_profile:

@@ -3,9 +3,9 @@
 #include "e2e_stage.hpp"
 #include "e2e5_stage_profiler.hpp"
 #include "e2e_threads.hpp"
+#include "units/GI_MessageLoop.hpp"
 #if defined(E2E5_HOST_SDL_WINDOW)
 #include "e2e3_generation_state.hpp"
-#include "units/GI_MessageLoop.hpp"
 #include <array>
 #include <cstdlib>
 #endif
@@ -136,6 +136,41 @@ void ClearSoftwareGlobals() {
 }  // namespace
 
 void SetNativeWindow(void* native_window) { g_native_window = native_window; }
+
+SceneCanvas::SceneCanvas(bool inherit_background) : parent_(GR_Main::ScreenRenderBuffer) {
+  if (!parent_) return;
+  nested_ = GI_MessageLoop::MessageLoopStack &&
+      pas::list_count(GI_MessageLoop::MessageLoopStack) != 0;
+  canvas_ = pas::construct_call<GR_GraphBuf::TGraphBufGR>(
+      GR_GraphBuf::TGraphBufGR_Create, false);
+  try {
+    canvas_->AllocateNativePitch(parent_->Width, parent_->Height, parent_->PitchBytes);
+    if (inherit_background) {
+      GR_Main::Ex_OKGR_Copy_XY_XY_WORD(canvas_->GetPixels(), canvas_->PitchBytes, 0, 0,
+          parent_->GetPixels(), parent_->PitchBytes, 0, 0, parent_->Width, parent_->Height);
+    } else {
+      canvas_->FillPixels16(0);
+    }
+  } catch (...) {
+    pas::free(canvas_);
+    throw;
+  }
+  GR_Main::ScreenRenderBuffer = canvas_;
+  GR_Main::FullFrameRedrawRequested = true;
+}
+
+SceneCanvas::~SceneCanvas() {
+  if (!canvas_) return;
+  // A sequential overlay may capture the last completed scene in OnOpen.
+  // Nested windows instead reveal their unchanged, still-running parent.
+  if (!nested_) {
+    GR_Main::Ex_OKGR_Copy_XY_XY_WORD(parent_->GetPixels(), parent_->PitchBytes, 0, 0,
+        canvas_->GetPixels(), canvas_->PitchBytes, 0, 0, canvas_->Width, canvas_->Height);
+  }
+  GR_Main::ScreenRenderBuffer = parent_;
+  GR_Main::FullFrameRedrawRequested = true;
+  pas::free(canvas_);
+}
 
 bool InitializeSoftwareRenderer(const RendererConfig& config, std::string* error) {
   if (g_initialized) {
