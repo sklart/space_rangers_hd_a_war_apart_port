@@ -135,7 +135,17 @@ inline bool inspect_scope(aGalaxy::TGalaxy* galaxy, aScript::TScript* script,
             cell->Kind != EC_Expression::vkDword) continue;
         const auto classification = classify(galaxy, prefix.empty() ? script : nullptr, cell);
         ++inspected;
-        if (classification.category[0] == 'U') ++unknown;
+        if (classification.category[0] == 'U') {
+            ++unknown;
+            char detail[256]{};
+            std::snprintf(detail, sizeof(detail),
+                         "E2E5 save unknown script=%.64s scope=%.16s variable=%.80s kind=%s value=%llx",
+                         script_name.c_str(), scope, name.c_str(),
+                         cell->Kind == EC_Expression::vkInt ? "int" : "dword",
+                         static_cast<unsigned long long>(cell->Kind == EC_Expression::vkInt
+                             ? static_cast<std::uintptr_t>(cell->IntValue) : cell->DwordValue));
+            GR_Main::AppendLogLineThreadSafe(pas::AnsiString(detail));
+        }
         std::fprintf(stderr, "E2E5_SAVE_INV|%s|%s|%s|%s|%s|%s|%u\n",
                      script_name.c_str(), scope, name.c_str(),
                      cell->Kind == EC_Expression::vkInt ? "vkInt" : "vkDword",

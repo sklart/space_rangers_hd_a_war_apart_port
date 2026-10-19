@@ -516,6 +516,16 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
                             srhd_awa::platform::e2e_stage::Log(detail);''', 1, source.name)
     if source.name == "ab_MainForm.cpp":
         text = '#include <atomic>\n#include "input_platform.hpp"\n#include "e2e56_arcade_steering.hpp"\n#include "e2e5_stage_profiler.hpp"\n' + text
+        exit_hint = '->SetText(aConst::LocalizedColorText(u"FormAB.TextExit"_wref.get()));'
+        if text.count(exit_hint) != 2:
+            raise RuntimeError("arcade victory/defeat hint boundary changed")
+        text = text.replace(exit_hint, '''->SetText(
+#if defined(__SWITCH__)
+            u"Нажмите Y, чтобы продолжить"_w
+#else
+            aConst::LocalizedColorText(u"FormAB.TextExit"_wref.get())
+#endif
+        );''')
         text = text.replace('CacheLoader->CompletedLoadCount,',
             'std::atomic_ref<std::int32_t>(CacheLoader->CompletedLoadCount).load(),')
         marker = '                    if (ForwardKeyDown) {'
@@ -1376,6 +1386,17 @@ void CloseVorbisStream(TOggWorker* worker) {
         run = text[start:end]
         if run.count("            OnOpen();") != 1 or run.count("                    GR_Main::EndFramePresentation();") != 1:
             raise RuntimeError("screen Run open/presentation boundary changed")
+        run = run.replace("            OnOpen();", '''#if defined(SRHD_PORTABLE_RENDERER)
+            // A full-screen scene must start with its own canvas. Several game
+            // backgrounds contain transparent regions; retaining the prior
+            // framebuffer exposed the world-generation screen behind them.
+            if (ViewportRect.Left == 0 && ViewportRect.Top == 0 &&
+                ViewportRect.Right == GR_Main::GameScreenWidth &&
+                ViewportRect.Bottom == GR_Main::GameScreenHeight &&
+                GR_Main::ScreenRenderBuffer != nullptr)
+                GR_Main::ScreenRenderBuffer->FillPixels16(0);
+#endif
+            OnOpen();''', 1)
         run = run.replace("            OnOpen();", '''            srhd_awa::platform::e2e_stage::Log("screen Run OnOpen begin");
             OnOpen();
             srhd_awa::platform::e2e_stage::Log("screen Run OnOpen ready");''', 1)
@@ -1463,6 +1484,13 @@ void CloseVorbisStream(TOggWorker* worker) {
             "        std::int32_t Stage = 0;\n        std::uint32_t e2e_continuous_frames = 0;", 1)
         continuous = continuous.replace("            Stage = 6;\n            OnOpen();", '''            Stage = 6;
             srhd_awa::platform::e2e_stage::Log("screen RunContinuous OnOpen begin");
+#if defined(SRHD_PORTABLE_RENDERER)
+            if (ViewportRect.Left == 0 && ViewportRect.Top == 0 &&
+                ViewportRect.Right == GR_Main::GameScreenWidth &&
+                ViewportRect.Bottom == GR_Main::GameScreenHeight &&
+                GR_Main::ScreenRenderBuffer != nullptr)
+                GR_Main::ScreenRenderBuffer->FillPixels16(0);
+#endif
             OnOpen();
             srhd_awa::platform::e2e_stage::Log("screen RunContinuous OnOpen ready");''', 1)
         continuous = continuous.replace("            if (ExitCode == 0) {\n                DrawFrame();\n            }", '''            if (ExitCode == 0) {
@@ -1710,6 +1738,31 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
             '            srhd_awa::platform::e2e_stage::LogE2E3("menu_action=New source=keyboard key=Enter");\n' + keyboard, 1)
         text = '#include "e2e_stage.hpp"\n#include "win32_compat_messages.hpp"\n#include <cstdio>\n' + text
     if source.name == "fSaveManager.cpp":
+        text = '#include "e2e5_text_input.hpp"\n' + text
+        text = _replace_exact(text, 'namespace fSaveManager {', '''namespace fSaveManager {
+    void E2EArmSaveKeyboard(GI_MessageLoop::TObjectGI* sender,
+                            std::uint32_t, WindowsSdk::TPoint point) {
+        sender->UserState = sender->ContainsPoint(point) ? 1 : 0;
+    }
+    void E2EOpenSaveKeyboard(GI_MessageLoop::TObjectGI* sender,
+                             std::uint32_t, WindowsSdk::TPoint point) {
+        const bool activate = sender->UserState == 1 && sender->ContainsPoint(point);
+        sender->UserState = 0;
+        if (!activate) return;
+        auto* edit = pas::checked_cast<GI_Edit::TEditGI*>(sender);
+        auto name = edit->Text;
+        if (!srhd_awa::platform::e2e5_text_input::EditSaveName(name)) return;
+        for (std::int32_t i = 0; i < name.length(); ++i)
+            if (!TfSaveManager::AcceptSaveNameCharacter(sender, name.c_str()[i])) return;
+        edit->SetText(name);
+    }
+''', 1, source.name)
+        text = _replace_exact(text,
+            '            cpp_with_5->AcceptCharCallback = pas::bind_static_method<&TfSaveManager::AcceptSaveNameCharacter>(this);',
+            '''            cpp_with_5->AcceptCharCallback = pas::bind_static_method<&TfSaveManager::AcceptSaveNameCharacter>(this);
+            cpp_with_5->LeftButtonDownCallback = pas::bind_static_method<&E2EArmSaveKeyboard>(this);
+            cpp_with_5->LeftButtonUpCallback = pas::bind_static_method<&E2EOpenSaveKeyboard>(this);''',
+            1, source.name)
         # The original uses both Save and save for one directory. The portable
         # host filesystem resolves those as different paths, while the slot
         # writer and user-root layout already use the lowercase spelling.
@@ -1728,6 +1781,17 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
             // BuildUniqueSavePath below will choose a fresh suffix if needed.
             srhd_awa::platform::e2e_stage::LogE2E3(
                 "manual save prior slot retained; writing unique generation");''', 1)
+        save_error_close = '''                if (!Saved) {
+                    const pas::WideString& paramByPathOrMarker = GR_Main::LanguageDataConfig->GetParamByPathOrMarker(u"FormSaveManager.SaveError"_wref.get());
+                    GI_MessageLoop::TMessageLoopGI* self_2 = this;
+                    GI_MessageBox::ShowMessageBoxGI(self_2, paramByPathOrMarker, GI_MessageBox::mbgOK | GI_MessageBox::mbgError, 0, 0, 0);
+                }
+                CloseClicked(Sender);'''
+        if text.count(save_error_close) != 1:
+            raise RuntimeError("manual save error dialog boundary changed")
+        text = text.replace(save_error_close, save_error_close.replace(
+            '                CloseClicked(Sender);',
+            '                if (Saved) CloseClicked(Sender);'), 1)
         scan_call = '        ScanSaveFiles();'
         if text.count(scan_call) != 1:
             raise RuntimeError("original SaveManager slot scan boundary changed")
@@ -2648,6 +2712,10 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
         Self->UseTexture = AUseTexture;
 #endif''', 1)
     if source.name == "aSaveLoad.cpp":
+        text = _replace_exact(text,
+            'SysUtilsImports::CreateDir(static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(), u"Save"})));',
+            'SysUtilsImports::CreateDir(static_cast<pas::AnsiString>(pas::concat_wide({GR_Main::GetGameUserDirectory(), u"save"})));',
+            1, source.name)
         compressed_read_failure = '''                } catch (...) {
                     GI_MessageBox::ShowMessageBoxGI(nullptr, u"Compressed galaxy read fail"_wref.get(), GI_MessageBox::mbgOK, 0, 0, 0);
                 }'''
@@ -2675,6 +2743,21 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
             GR_Main::AppendLogLineThreadSafe("E2E5 host disk save refused by explicit test mode"_a);
             return false;
         }
+#endif''', 1)
+        queue_anchor = "                SaveWriter->QueueSave(FileName, Header, Preview, SecondaryPreview, GameState, Films);"
+        if text.count(queue_anchor) != 1:
+            raise RuntimeError("manual save completion boundary changed")
+        text = text.replace(queue_anchor, queue_anchor + '''
+#if defined(E2E4_QUICKSAVE_EXPERIMENT)
+                // The save dialog must report the worker's result, not merely
+                // successful queueing. Autosaves stay asynchronous.
+                if (FileName != AutoName && FileName != TurnName && FileName != QuickName) {
+                    SaveWriter->WaitForIdle(WindowsSdk::INFINITE);
+                    if (!SysUtilsImports::FileExists(static_cast<pas::AnsiString>(FileName)))
+                        pas::raise(pas::make_exception<pas::Exception>("E2E5 manual save file was not committed"_a));
+                    GR_Main::AppendLogLineThreadSafe(pas::concat_ansi({"E2E5 manual save committed path=",
+                        static_cast<pas::AnsiString>(FileName)}));
+                }
 #endif''', 1)
         replacements = {
             "std::uint32_t MemorySnapshotGalaxyToken{};":

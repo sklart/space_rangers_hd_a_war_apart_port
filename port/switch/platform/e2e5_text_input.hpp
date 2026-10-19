@@ -8,6 +8,36 @@
 #endif
 
 namespace srhd_awa::platform::e2e5_text_input {
+inline bool EditSaveName(pas::WideString& name) {
+#if defined(__SWITCH__)
+  SwkbdConfig keyboard{};
+  if (R_FAILED(swkbdCreate(&keyboard, 0))) return false;
+  swkbdConfigMakePresetDefault(&keyboard);
+  swkbdConfigSetStringLenMin(&keyboard, 1);
+  swkbdConfigSetStringLenMax(&keyboard, 55);
+  swkbdConfigSetHeaderText(&keyboard, "Имя сохранения");
+  char initial[256]{};
+  const auto bytes = utf16_to_utf8(reinterpret_cast<std::uint8_t*>(initial),
+      reinterpret_cast<const std::uint16_t*>(name.c_str()), sizeof(initial) - 1);
+  if (bytes >= 0 && bytes < static_cast<ssize_t>(sizeof(initial)))
+    swkbdConfigSetInitialText(&keyboard, initial);
+  char output[256]{};
+  const Result result = swkbdShow(&keyboard, output, sizeof(output));
+  swkbdClose(&keyboard);
+  input_platform::SuppressUntilReleased();
+  if (R_FAILED(result)) return false;
+  std::uint16_t wide[56]{};
+  const auto count = utf8_to_utf16(wide,
+      reinterpret_cast<const std::uint8_t*>(output), 55);
+  if (count < 1 || count > 55) return false;
+  name.set_length(static_cast<std::int32_t>(count));
+  std::memcpy(name.pchar(), wide, static_cast<std::size_t>(count) * 2);
+  return true;
+#else
+  return false;
+#endif
+}
+
 inline bool EditPlayerName(pas::WideString& name) {
 #if defined(__SWITCH__)
   SwkbdConfig keyboard{};
