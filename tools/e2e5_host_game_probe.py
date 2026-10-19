@@ -116,7 +116,9 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         manual_save: bool = False,
         load_manual_save: Path | None = None,
         expect_load_rejection: bool = False,
-        preserve_save: Path | None = None) -> dict:
+        preserve_save: Path | None = None,
+        load_end_turns: int = 1,
+        resave_after_load: bool = False) -> dict:
     binary = binary.resolve(strict=True)
     game_root = game_root.resolve(strict=True)
     library_dir = library_dir.resolve(strict=True)
@@ -154,6 +156,10 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         raise ValueError("choose only one save to load")
     if expect_load_rejection and load_save is None and load_manual_save is None:
         raise ValueError("--expect-load-rejection requires a save to load")
+    if load_end_turns < 1 or load_end_turns > 10:
+        raise ValueError("--load-end-turns must be between 1 and 10")
+    if resave_after_load and (load_manual_save is None or expect_load_rejection):
+        raise ValueError("--resave-after-load requires a valid isolated manual save")
     manual_load = load_manual_save is not None
     if manual_load:
         load_save = load_manual_save
@@ -211,6 +217,9 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         env["E2E5_HOST_AUTO_TAKEOFF"] = "1"
     if load_save is not None:
         env["E2E5_HOST_LOAD_SAVE"] = "1"
+        env["E2E5_HOST_LOAD_END_TURNS"] = str(load_end_turns)
+    if resave_after_load:
+        env["E2E5_HOST_RESAVE_AFTER_LOAD"] = "1"
     if expect_load_rejection:
         env["E2E5_HOST_EXPECT_LOAD_REJECTION"] = "1"
     if auto_options:
@@ -255,13 +264,13 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                 if dialog_callback_at is None and "dialog choice callback complete" in current:
                     dialog_callback_at = time.monotonic()
                 if (load_save is not None and turn_complete_at is None and
-                        "hangar_end_turn_done turn=" in current):
+                        current.count("hangar_end_turn_done turn=") >= load_end_turns):
                     turn_complete_at = time.monotonic()
                 if (expect_load_rejection and scan_rejected_at is None and
                         "screen dispatch id=23 postload=" in current and
                         "save_scan slot_rejected" in current):
                     scan_rejected_at = time.monotonic()
-            if auto_quicksave and quicksave_path.is_file():
+            if (auto_quicksave or resave_after_load) and quicksave_path.is_file():
                 size = quicksave_path.stat().st_size
                 if size > 0 and size != quicksave_size:
                     quicksave_size = size
@@ -328,7 +337,12 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
                     (auto_quicksave and quicksave_rejected) or
                     (load_save is not None and load_rejected) or
                     (load_save is not None and turn_complete_at is not None and
-                     time.monotonic() - turn_complete_at >= 5.0) or
+                     time.monotonic() - turn_complete_at >= 5.0 and
+                     (not resave_after_load or
+                      (quicksave_at is not None and
+                       "HOST load post-turn quicksave requested" in current and
+                       not (quicksave_path.parent / "save.tmp").exists() and
+                       time.monotonic() - quicksave_at >= 2.0))) or
                     (auto_quicksave and quicksave_at is not None and
                      not (quicksave_path.parent / "save.tmp").exists() and
                      time.monotonic() - quicksave_at >= 2.0) or
@@ -495,6 +509,10 @@ def run(binary: Path, game_root: Path, library_dir: Path, timeout: int,
         "options_choice_selected": "options choice selected VSync=" in full_e2e_log,
         "load_save_input": load_save is not None,
         "load_manual_save_input": manual_load,
+        "load_end_turns_requested": load_end_turns if load_save is not None else None,
+        "load_end_turns_observed": len(end_turns) if load_save is not None else None,
+        "resave_after_load": resave_after_load,
+        "post_load_quicksave_requested": "HOST load post-turn quicksave requested" in full_e2e_log,
         "expect_load_rejection": expect_load_rejection,
         "load_source_sha256": load_source_sha256,
         "load_file_unchanged": (hash_file(load_target) == load_source_sha256
@@ -616,6 +634,10 @@ def main() -> None:
                         help="E2E512MANUAL.sav from an earlier isolated probe stage")
     parser.add_argument("--expect-load-rejection", action="store_true",
                         help="stop after the original SaveManager rejects a malformed slot")
+    parser.add_argument("--load-end-turns", type=int, default=1,
+                        help="number of real Hangar turns after loading (1..10)")
+    parser.add_argument("--resave-after-load", action="store_true",
+                        help="press original F5 after the requested loaded turns")
     parser.add_argument("--preserve-save", type=Path,
                         help="valid isolated manual save kept alongside a malformed slot")
     parser.add_argument("--mouse-new-game", action="store_true")
@@ -642,7 +664,8 @@ def main() -> None:
                          args.load_save, args.auto_options, args.cfg_file,
                          args.lang_file, args.auto_takeoff, args.new_game_file,
                          args.manual_save, args.load_manual_save,
-                         args.expect_load_rejection, args.preserve_save), indent=2))
+                         args.expect_load_rejection, args.preserve_save,
+                         args.load_end_turns, args.resave_after_load), indent=2))
 
 
 if __name__ == "__main__":

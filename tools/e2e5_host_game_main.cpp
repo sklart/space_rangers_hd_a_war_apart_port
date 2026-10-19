@@ -550,6 +550,12 @@ void DriveOriginalGameLoad(const std::filesystem::path& stage,
   auto ship_closed_at = std::chrono::steady_clock::time_point{};
   auto rejection_at = std::chrono::steady_clock::time_point{};
   bool rejection_acknowledged = false;
+  const auto* load_turns_env = std::getenv("E2E5_HOST_LOAD_END_TURNS");
+  const unsigned load_turns_target = load_turns_env ?
+      static_cast<unsigned>(std::clamp(std::atoi(load_turns_env), 1, 10)) : 1u;
+  const bool resave_after_load = std::getenv("E2E5_HOST_RESAVE_AFTER_LOAD") != nullptr;
+  unsigned load_turns_sent = 0;
+  auto last_turn_key_at = std::chrono::steady_clock::time_point{};
   while (running.load()) {
     std::string lines;
     try {
@@ -600,12 +606,30 @@ void DriveOriginalGameLoad(const std::filesystem::path& stage,
           if (closed != std::string::npos &&
               ship_closed_at == std::chrono::steady_clock::time_point{})
             ship_closed_at = std::chrono::steady_clock::now();
-          if (ship_closed_at != std::chrono::steady_clock::time_point{} &&
-              std::chrono::steady_clock::now() - ship_closed_at >=
-                  std::chrono::seconds(2)) {
-            const auto window = srhd_awa::platform::win32_compat::MainWindow();
-            if (window && srhd_awa::platform::win32_compat::PostHostKey(window, 0x20))
-              return;  // VK_SPACE in original Hangar runs a game turn.
+          if (ship_closed_at != std::chrono::steady_clock::time_point{}) {
+            const auto now = std::chrono::steady_clock::now();
+            unsigned completed = 0;
+            for (auto at = lines.find("hangar_end_turn_done turn=", open);
+                 at != std::string::npos;
+                 at = lines.find("hangar_end_turn_done turn=", at + 1)) ++completed;
+            if (completed >= load_turns_target &&
+                load_turns_sent == load_turns_target) {
+              if (!resave_after_load) return;
+              const auto window = srhd_awa::platform::win32_compat::MainWindow();
+              if (window && srhd_awa::platform::win32_compat::PostHostKey(window, 0x74)) {
+                srhd_awa::platform::e2e_stage::Log("HOST load post-turn quicksave requested");
+                return;  // VK_F5; probe verifies the committed file.
+              }
+            } else if (load_turns_sent < load_turns_target &&
+                       completed >= load_turns_sent &&
+                       now - (load_turns_sent ? last_turn_key_at : ship_closed_at) >=
+                           std::chrono::seconds(2)) {
+              const auto window = srhd_awa::platform::win32_compat::MainWindow();
+              if (window && srhd_awa::platform::win32_compat::PostHostKey(window, 0x20)) {
+                ++load_turns_sent;
+                last_turn_key_at = now;
+              }
+            }
           }
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
