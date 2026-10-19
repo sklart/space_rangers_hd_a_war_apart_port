@@ -162,6 +162,42 @@ void DriveOriginalOptions(const std::filesystem::path& stage,
   }
 }
 
+void DriveManualSlot(const std::filesystem::path& log, const std::atomic<bool>& running) {
+  while (running.load()) {
+    std::ifstream stream(log);
+    const std::string lines{std::istreambuf_iterator<char>(stream), {}};
+    const auto dispatch = lines.rfind("screen dispatch id=23 postload=");
+    const auto window = srhd_awa::platform::win32_compat::MainWindow();
+    const auto click = [&](const char* marker) {
+      const auto at = dispatch == std::string::npos ? dispatch : lines.find(marker, dispatch);
+      int l{}, t{}, r{}, b{};
+      return at != std::string::npos &&
+          std::sscanf(lines.c_str() + at + std::strlen(marker), "%d top=%d right=%d bottom=%d",
+                      &l, &t, &r, &b) == 4 && r > l && b > t &&
+          srhd_awa::platform::win32_compat::PostHostLeftClick(window, (l+r)/2, (t+b)/2);
+    };
+    if (dispatch != std::string::npos &&
+        lines.find("screen Run first frame attempted", dispatch) != std::string::npos &&
+        click("save_slot0_edit_bounds left=")) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      srhd_awa::platform::win32_compat::PostHostKey(window, 0x23);
+      for (unsigned i = 0; i < 55; ++i) {
+        srhd_awa::platform::win32_compat::PostHostKey(window, 0x08);
+        std::this_thread::sleep_for(std::chrono::milliseconds(15));
+      }
+      const auto* requested = std::getenv("E2E513_HOST_SAVE_NAME");
+      const auto name = std::filesystem::u8path(requested ? requested : "E2E512MANUAL").u16string();
+      if (!srhd_awa::platform::win32_compat::PostHostText(window, name)) return;
+      srhd_awa::platform::e2e_stage::Log("HOST manual slot name sent");
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      if (click("save_save_bounds left="))
+        srhd_awa::platform::e2e_stage::Log("HOST manual save button clicked");
+      return;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+}
+
 void DriveOriginalGameKeys(const std::filesystem::path& stage,
                            const std::atomic<bool>& running,
                            bool start_game, bool select_dialog,
@@ -184,10 +220,8 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
   bool flight_menu_sent = false, flight_menu_closed = false, flight_menu_resumed = false;
   unsigned cancel_stage = 0, cancel_turn = 0, cancel_taps = 0, cancel_releases = 0;
   unsigned menu_cycles = 0;
+  bool help_requested = false, help_acknowledged = false;
   std::size_t menu_click_at = 0, menu_close_at = 0;
-  bool manual_open_requested = false;
-  bool manual_name_sent = false;
-  auto manual_name_at = std::chrono::steady_clock::time_point{};
   while (running.load()) {
     std::string lines;
     try {
@@ -200,51 +234,6 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
       continue;
     }
     if (!lines.empty()) {
-      if (manual_open_requested) {
-        const auto dispatch = lines.rfind("screen dispatch id=23 postload=");
-        const auto window = srhd_awa::platform::win32_compat::MainWindow();
-        const auto click_bounds = [&](const char* marker) {
-          const auto at = dispatch == std::string::npos ? std::string::npos :
-              lines.find(marker, dispatch);
-          int left{}, top{}, right{}, bottom{};
-          return at != std::string::npos &&
-              std::sscanf(lines.c_str() + at + std::strlen(marker),
-                          "%d top=%d right=%d bottom=%d",
-                          &left, &top, &right, &bottom) == 4 &&
-              right > left && bottom > top && window &&
-              srhd_awa::platform::win32_compat::PostHostLeftClick(
-                  window, (left + right) / 2, (top + bottom) / 2);
-        };
-        if (dispatch != std::string::npos &&
-            lines.find("screen Run first frame attempted", dispatch) != std::string::npos) {
-          if (!manual_name_sent && click_bounds("save_slot0_edit_bounds left=")) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
-            bool sent = srhd_awa::platform::win32_compat::PostHostKey(window, 0x23);
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            for (unsigned i = 0; i < 55; ++i) {
-              sent &= srhd_awa::platform::win32_compat::PostHostKey(window, 0x08);
-              std::this_thread::sleep_for(std::chrono::milliseconds(15));
-            }
-            for (const char key : std::string("E2E512MANUAL")) {
-              sent &= srhd_awa::platform::win32_compat::PostHostKey(window, key);
-              std::this_thread::sleep_for(std::chrono::milliseconds(50));
-            }
-            if (sent) {
-              manual_name_sent = true;
-              manual_name_at = std::chrono::steady_clock::now();
-              srhd_awa::platform::e2e_stage::Log("HOST manual slot name sent");
-            }
-          } else if (manual_name_sent &&
-                     std::chrono::steady_clock::now() - manual_name_at >=
-                         std::chrono::seconds(1) &&
-                     click_bounds("save_save_bounds left=")) {
-            srhd_awa::platform::e2e_stage::Log("HOST manual save button clicked");
-            return;
-          }
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        continue;
-      }
       const auto menu = lines.find(kMenu);
       const auto settings = lines.find("screen dispatch id=33 postload=");
       const bool ready_to_send = !new_game_sent
@@ -344,20 +333,29 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
           const auto dispatch = lines.rfind("screen dispatch id=");
           const auto window = srhd_awa::platform::win32_compat::MainWindow();
           if (dispatch != std::string::npos && window) {
-            if (lines.compare(dispatch, 22, "screen dispatch id=25 p") == 0 &&
+            if (lines.compare(dispatch, std::strlen("screen dispatch id=25 "), "screen dispatch id=25 ") == 0 &&
                 lines.find("screen Run frames=10", dispatch) != std::string::npos &&
-                menu_close_at < dispatch &&
-                srhd_awa::platform::win32_compat::PostHostKey(window, 0x1b)) {
-              menu_close_at = dispatch;
-            } else if (lines.compare(dispatch, 22, "screen dispatch id=16 p") == 0 &&
-                       lines.find("screen RunContinuous frames=60", dispatch) != std::string::npos &&
+                menu_close_at < dispatch) {
+              if (std::getenv("E2E513_HOST_HELP") && !help_requested) {
+                help_requested = srhd_awa::platform::win32_compat::PostHostKey(window, 'H');
+              } else if (help_requested && lines.find("game help closed") == std::string::npos) {
+                const auto opened = lines.find("game help opened", dispatch);
+                if (!help_acknowledged && opened != std::string::npos &&
+                    lines.find("screen Run first frame attempted", opened) != std::string::npos)
+                  help_acknowledged = srhd_awa::platform::win32_compat::PostHostReturnKey(window);
+              } else if (srhd_awa::platform::win32_compat::PostHostKey(window, 0x1b)) {
+                menu_close_at = dispatch;
+              }
+            } else if (lines.compare(dispatch, std::strlen("screen dispatch id=16 "), "screen dispatch id=16 ") == 0 &&
+                       lines.find("frames=60", dispatch) != std::string::npos &&
+                       lines.find("HOST map orders ready", dispatch) != std::string::npos &&
                        menu_click_at < dispatch) {
               if (menu_click_at) ++menu_cycles;
               if (menu_cycles == 5) {
                 srhd_awa::platform::e2e_stage::Log("HOST map menu cycles PASS count=5");
                 return;
               }
-              if (srhd_awa::platform::win32_compat::PostHostLeftClick(window, 47, 680))
+              if (srhd_awa::platform::win32_compat::PostHostKey(window, 0x1b))
                 menu_click_at = dispatch;
             }
           }
@@ -498,8 +496,9 @@ void DriveOriginalGameKeys(const std::filesystem::path& stage,
               lines.find("screen Run frames=60", hangar) != std::string::npos) {
             const auto window = srhd_awa::platform::win32_compat::MainWindow();
             if (window && srhd_awa::platform::win32_compat::PostHostKey(window, 0x71)) {
-              manual_open_requested = true;  // VK_F2 in original TfPanelMain.
               srhd_awa::platform::e2e_stage::Log("HOST manual save F2 requested");
+              DriveManualSlot(log, running);
+              return;
             }
           }
         }
@@ -614,6 +613,14 @@ void DriveOriginalGameLoad(const std::filesystem::path& stage,
                  at = lines.find("hangar_end_turn_done turn=", at + 1)) ++completed;
             if (completed >= load_turns_target &&
                 load_turns_sent == load_turns_target) {
+              if (std::getenv("E2E513_HOST_MANUAL_AFTER_LOAD")) {
+                const auto window = srhd_awa::platform::win32_compat::MainWindow();
+                if (window && srhd_awa::platform::win32_compat::PostHostKey(window, 0x71)) {
+                  srhd_awa::platform::e2e_stage::Log("HOST loaded AutoSave post-turn manual requested");
+                  DriveManualSlot(log, running);
+                }
+                return;
+              }
               if (!resave_after_load) return;
               const auto window = srhd_awa::platform::win32_compat::MainWindow();
               if (window && srhd_awa::platform::win32_compat::PostHostKey(window, 0x74)) {

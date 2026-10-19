@@ -12,6 +12,7 @@ std::uint64_t CurrentPressId();
 bool CurrentMessageIsTouch();
 #if defined(E2E5_HOST_SDL_WINDOW)
 bool PostHostKey(std::uint32_t window, std::uint32_t virtual_key);
+bool PostHostText(std::uint32_t window, std::u16string_view text);
 bool PostHostReturnKey(std::uint32_t window);
 bool PostHostLeftClick(std::uint32_t window, std::int32_t x, std::int32_t y);
 #endif

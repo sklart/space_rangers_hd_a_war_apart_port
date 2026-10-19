@@ -403,6 +403,12 @@ bool PostHostKey(std::uint32_t window, std::uint32_t virtual_key) {
          PostMessage(window, kWmKeyUp, virtual_key, 0);
 }
 bool PostHostReturnKey(std::uint32_t window) { return PostHostKey(window, kVkReturn); }
+bool PostHostText(std::uint32_t window, std::u16string_view text) {
+  if (!window) return false;
+  for (const auto character : text)
+    if (!PostMessage(window, kWmChar, character, 0)) return false;
+  return true;
+}
 bool PostHostLeftClick(std::uint32_t window, std::int32_t x, std::int32_t y) {
   if (!window || !Handles().IsValid(window, HandleType::Window) ||
       x < 0 || y < 0 || x >= 65536 || y >= 65536) return false;
