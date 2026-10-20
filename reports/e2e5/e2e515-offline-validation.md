@@ -635,3 +635,16 @@ baseline spread 11.019%. Устойчивого ускорения нет: NOT A
 не менялся. Числа/CPU p50/p95/p99/total/hotspots/wall и hashes в
 e2e515-perf-comparison.md и e2e515-projection-prepared.csv/json. Новых NRO/CI нет.
 Эти результаты не закрывают обычные тормоза или аппаратный FPS. Большая цель active.
+
+## Пакет 16: полный CPU-модуль навигации MatrixGame
+
+Фактический compile audit 80 игровых единиц: до 1 PASS/79 FAIL, после 2 PASS/78 FAIL.
+Новая единица MatrixRoadNetwork.cpp целиком перенесена через проверяемый overlay;
+оригинальные алгоритмы сохранены. Host static library и executable LINK PASS.
+Десять циклов synthetic graph и ресурсная цепочка настоящей Boarding.cmap
+(149 зон, 35 дорог, 13 регионов, 33 path queries) HOST PASS. Нормализованная
+Save/Load/Save стабильна; raw equality с входной картой отсутствует, не заявляется.
+Initial test failures, причины, ограничения и все 80 строк в
+`reports/matrixgame-e2e515-status.md`, machine-readable compile metadata в соседнем
+`matrixgame-e2e515-compile.json`. Игровые ресурсы в Git не добавлены.
+Полный Init/Run/бой, GPU, кампания, новый navigation ASan/ARM64/SDK и final NRO OPEN.
