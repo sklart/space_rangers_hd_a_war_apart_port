@@ -2,6 +2,10 @@
 
 20.10.2026. **IN PROGRESS / PARTIAL. Цель не завершена.**
 
+Последнее обновление: пакет 5, native controller campaign/save/load. Разделы
+ранних пакетов сохраняют их исторические границы; сводная таблица в конце
+отражает текущий остаток требований.
+
 Исходное ТЗ сохранено только в ignored `build/e2e515/task-specification.txt`,
 SHA-256 `8837b62d493b6ae7b74bb22fd4e857cffe89553dfb15b0fd45c57856edbdfdbd`.
 Требования не сужены до уже пройденных проверок; остаток перечислен ниже.
@@ -200,6 +204,101 @@ Cursor, L3→native NewGame→B, R3→X→Confirm возвращает все de
 не принимается за доставленное действие. После checkpoints runner останавливает
 процесс; normal shutdown не доказан. Полный controller-only маршрут до карты OPEN.
 
+## Пакет 5: native controller route до карты
+
+Код и адресные тесты зафиксированы локально:
+`cc70493a18367d46b795059ec81223d6751118b4`. Push не выполнялся.
+
+Добавлен --campaign в tools/e2e515_controller_route.py. Этот режим отдельно
+проходит настоящий ProgramMain, главную кнопку New, поле PlayerName, Ok,
+генерацию мира, Continue, диалог персонажа, ангар и ButTakeOff. Путь между
+controls планируется по опубликованному UI graph, но каждый шаг D-pad и каждый
+actual selected ID проверяется по новому снимку. Прямых PostHostKey/мыши и
+установки выбранного элемента из driver нет. Короткие menu/settings regression
+cycles остаются отдельным режимом; повторять их для каждого кампанийного прогона
+не требуется.
+
+Host OSK backend установлен на UI thread до ProgramMain. Он подменяет только
+системный applet и выдаёт контрольное «Пилот Ёж»; настоящие HasGlyph,
+AcceptCharCallback, Changed callbacks и TEditGI остаются в цепочке. Повторный
+запрос обязан получить это имя как initial value, затем backend возвращает
+Cancel. Этот сценарий прошёл на реальном поле, не только на codec fixture.
+Native swkbd на Switch по-прежнему HARDWARE PENDING.
+
+По исходным fTalk/fRuinsTalk ChoiceMouseDown/Up добавлена адресная активация
+строк TalkPA: down меняет визуальное состояние, up выполняет исходный выбор.
+TfTalkA разрешается тем же owner-scoped token registry, что и в effective
+исходниках. Варианты без Callback/FallbackCallback исключены, остальные
+dual-edge controls не расширяются произвольно. Containers ContentPanel/Root
+больше не считаются нажимаемыми focus targets из-за общего mouse callback.
+
+Полный raw-pad маршрут до orders mode карты PASS: Unicode/reopen/Cancel,
+генерация, четыре настоящих диалоговых callbacks, ангар, взлёт, карта.
+Артефакт: build/e2e515/controller-campaign/result.json, host ELF SHA-256
+`d33ee71b3e33a1d2a9a4150500bf8e3433a0e7833316822fe86ab5303643679c`.
+Просмотрены шесть кадров этого прогона (menu/NewGame/generation/dialog/hangar/map);
+в этой выборке чужой фон генерации не наблюдался. Contact PNG и 12 PPM находятся
+в каталоге run 67292003c3db43308ca997826801470f. Это ограниченная визуальная
+выборка, не layer analyzer всех экранов и не hardware proof.
+
+Для SaveManager добавлены исходное выделение slot panel и FocusedControl перед
+OSK. Повторная активация того же слота не вызывает SelectSlot/RefreshSlot заново:
+ресурсный тест обнаружил, что это стирает черновик нового имени. Focused native
+test проверяет первичный выбор и сохранение «Draft Ёж» при повторной активации.
+Расширены те же четыре engine tests; SDK compile пяти units PASS. Ресурсный
+--campaign --save проверяет настоящее сохранение после взлёта и ожидает marker
+завершённой worker-записи, а не просто появление файла. Итог этого отдельного
+сценария хранится в build/e2e515/controller-save/result.json. Он прошёл:
+после взлёта создан физический «Проба Ёж.sav», 722160 байт, SHA-256
+`82548d5aba68b54da29c3cffd251f19d1ac7a2a186a911f9dcd07f0f7adfaa4b`.
+В игровом логе есть `manual save installed and readback verified` и финальный
+`E2E5 manual save committed path=`. Имена в ANSI-логе могут отображаться через
+вопросительные знаки; физическое имя и Unicode-путь проверены файловой системой.
+Записывающий host ELF:
+`e186037db4416f44d78cb398eb6adb26b5886ec034314f1c07259a79d51ecdf0`.
+
+Отдельный --load-save принимает только fixture из build, проверяет копию по SHA
+и создаёт новый user root/процесс. Native Load → Slot0 → ButLoad прошёл настоящий
+load screen 24 и вернулся в orders mode карты 16. Результат:
+build/e2e515/controller-reload/result.json, run 791c600ed9fa4d3ab03d26f4384d527e.
+Исходный fixture SHA не изменился. Сравнение всех world/RNG checkpoints в этом
+прогоне не выполнено; реальный 346-й ход, межзвёздный перелёт и fault injection
+из C2 остаются отдельными обязательными работами.
+
+При проверках устранены две ошибки test protocol: неполная append-log запись
+graph snapshot теперь заменена отдельным focus.txt с atomic publish; mailbox
+подтверждает raw snapshot только после PollHistory. Раньше neutral во время
+тяжёлого OnOpen мог смениться новым A до чтения UI, и anti-replay правильно
+блокировал его. Этот handshake host-only, физический HID Switch не изменяет.
+В native-focus проверено, что ack отсутствует до pump и появляется после poll.
+
+Финальные проверки данного пакета:
+
+- 4/4 actual engine tests PASS; добавлены paired dialog handlers, disabled choice,
+  исключение контейнера, первичный выбор save-slot и сохранение черновика при reopen.
+- 1/1 Win32 message/input queue ASan/UBSan PASS после host handshake.
+- SDK: 5/5 units COMPILE PASS, effective guards и headers hashes сохранены;
+  full NRO/link этого цикла не выпускался.
+- 3/3 standard / combined Save OFF / Save ON preflight PASS, UNKNOWN=0.
+- Повтор menu/settings raw route PASS: 5 cycles, apply/cancel/reset, Cursor recovery.
+- Fresh-process Unicode load PASS. Общий финальный host ELF этих двух прогонов:
+  `b06100de96006aa0186c5e67e38d5b0ca18868a66aab690259bf9c40071f8692`.
+  После записи сейва в нём изменился только host input acknowledgement/protocol;
+  версия/сериализация сейва не менялась.
+- Python runner AST и git diff --check PASS. Исходные 8 файлов/архивов и pins
+  проверены отдельно; пользовательские saves и старый provenance не включаются.
+
+Все runners останавливают процесс после checkpoints; normal shutdown в этих
+прогонах не доказан. Для аппаратной Switch, настоящей swkbd и SD эти результаты
+не являются PASS.
+
+Воспроизведение после сборки optimized host (пути к законным assets и копиям CFG):
+
+```sh
+python3 tools/e2e515_controller_route.py --campaign --save --game-root /path/to/game --config-root /path/to/copied/config
+python3 tools/e2e515_controller_route.py --load-save /path/inside/build/Проба\ Ёж.sav --game-root /path/to/game --config-root /path/to/copied/config
+```
+
 | Требование ТЗ | Состояние |
 |---|---|
 | A1 полная handler matrix | PARTIAL: первая часть в controls doc, остальные экраны/drag/hover/OSK OPEN |
@@ -207,8 +306,8 @@ Cursor, L3→native NewGame→B, R3→X→Confirm возвращает все de
 | A3 controllers | PARTIAL: классификация/сброс есть; UI unsupported, dock/resume и hardware OPEN |
 | B два настоящих профиля, focus, RTS, touch, accessibility | PARTIAL: Hybrid/Cursor, spatial focus, прямые UI callbacks, параметры и рамка реализованы; полная матрица экранов/RTS/scroll/gestures OPEN |
 | C1 все реальные screen transitions, фон | OPEN; десять canvas unit cycles не заменяют переходы между настоящими экранами |
-| C2 save fault injection / новый процесс / перелёт | OPEN в этом цикле; E2E-5.14 не объявляется новым тестом E2E-5.15 |
-| C3 generation → hangar → map controller route | Legacy real route PASS; raw pad menu/NewGame/settings route PASS; controller-only маршрут до карты OPEN |
+| C2 save fault injection / новый процесс / перелёт | PARTIAL: fresh campaign Unicode manual save после взлёта и raw-pad load новым процессом PASS; реальный 346-й ход/межзвёздный перелёт/checkpoint compare/fault injection OPEN |
+| C3 generation → hangar → map controller route | Legacy real route PASS; raw pad menu/NewGame/settings и Unicode→generation→4 choices→hangar→takeoff→map PASS; остальные экраны OPEN |
 | D смерть/взрыв, overload 20/40/70/150/250, parity 500/1000, три perf пары | OPEN; оптимизаций/FPS-победы этого цикла пока нет |
 | E MatrixGame before/after units, новый real block, entry/resource pipeline | OPEN; текущий d3d9.h blocker ещё не закрыт |
 | F1 CI input | Core sanitizer suite, реальные owner/canvas tests и message-input ASan/UBSan включены в host workflow; удалённый CI не запускался/не проверялся |
@@ -225,7 +324,7 @@ Cursor, L3→native NewGame→B, R3→X→Confirm возвращает все de
 1. Выполнить ресурсный fault-injection из Run/OnOpen и suspend/resume; собрать
    матрицу остальных handlers и проверить фактические OSK-поля на последующей Switch.
 2. Довести два UI-профиля до полной матрицы drag/tab/scroll и подсказок;
-   расширить raw-pad route до OSK, генерации, ангара и карты.
+   расширить raw-pad route на manual save/load, торговлю, инвентарь и остальные окна.
 3. Повторить save failure/new-process цепочки и реальные screen transitions по ТЗ,
    сохранить исходные SHA.
 4. Аркада: смерть/взрыв, все overload cases, parity 500/1000, три парных perf series.

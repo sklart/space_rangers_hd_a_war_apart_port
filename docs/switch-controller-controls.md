@@ -86,15 +86,15 @@ Host backend внедряемый; без него обычный host keyboard 
 |---|---|---|---|---|
 | Главное меню | Enter / Escape / нажатие кнопки | Confirm / Cancel | fMainForm.cpp: MainPanelKeyDown, QuitClicked | Native focus + прямые callbacks; пять ресурсных A/New/B циклов PASS; остальные пункты требуют route |
 | Игровое меню | Escape, S/F2, L/F3, C, E, H | BackToGame, SaveLoad, Options, Help | fGameMenu.cpp: MainPanelKeyDown | Fallback; direct actions OPEN |
-| Ангар | Space, F, A, B, S; right click | EndTurn, takeoff, repair, refuel, inspect, context | fHangar.cpp: MainKeyDown, MainRightButtonDown | Pointer/right-click fallback; shortcuts OPEN |
+| Ангар | Space, F, A, B, S; right click | EndTurn, takeoff, repair, refuel, inspect, context | fHangar.cpp: MainKeyDown, MainRightButtonDown, TakeOffClicked | ButTakeOff через native focus/UpCallback → карта PASS; остальные операции требуют route |
 | Планета | Space, Q, панель | EndTurn, quest, Confirm | fPlanet.cpp: MainPanelKeyDown | Pointer fallback; direct actions OPEN |
 | Карта | Keys, right click, wheel | IssueCommand, OpenContextAction, Zoom | fStarMap.cpp: MapKeyDown, MapRightButtonDown, ProcessMouseWheel | Pointer + прежние swipe; новые actions OPEN |
 | Оборудование/магазин | Keys, wheel | Inspect, Scroll, drag, tabs | fEquipmentShop.cpp: MainPanelKeyDown, ProcessMouseWheel | Pointer fallback; drag/tab/focus audit OPEN |
 | Торговля | Right click, keys | OpenContextAction, trade | fGoodsShop2.cpp: GoodsRightMouseDown, MainPanelKeyDown | Y/right-click fallback; операции покупки/drag OPEN |
-| Диалог | Click choice, wheel, keys | Confirm, Scroll, Cancel | fTalk.cpp: ChoiceMouseDown, ProcessMouseWheel, MainPanelKeyDown | Pointer fallback; focus OPEN |
-| Save/load | Click, double click, key, wheel | Confirm, Inspect, Scroll, TextEntry | fSaveManager.cpp: SlotMouseDown, SlotDoubleClick, SlotKeyDown, ProcessMouseWheel | Pointer fallback; полный OSK/списки OPEN |
+| Диалог | Click choice, wheel, keys | Confirm, Scroll, Cancel | fTalk.cpp / fRuinsTalk.cpp: ChoiceMouseDown, ChoiceMouseUp; ProcessMouseWheel | Native paired handlers для строк TalkPA; четыре настоящих выбора персонажа PASS; длинные списки/scroll OPEN |
+| Save/load | Click, double click, key, wheel | Confirm, Inspect, Scroll, TextEntry | fSaveManager.cpp: SlotMouseDown, SlotDoubleClick, SlotKeyDown, ProcessMouseWheel | Native slot/edit/ButSave/ButLoad: Unicode save после взлёта и новый процесс load→map PASS; fault injection/длинные списки OPEN |
 | Редактируемые поля | Click edit, key | OpenTextKeyboard, Confirm, Cancel | GI_Edit.cpp: TEditGI::ProcessLeftButtonDown; исходные Changed/AcceptChar callbacks | Общий hook с MaxLength; в том числе fSelectFace, fGameSettings2, SaveManager; native OSK hardware PENDING |
-| Настройки новой игры | Click name, key, wheel | TextEntry, Navigate, Scroll | fGameSettings2.cpp: PlayerNameMouseDown, MainPanelKeyDown, ProcessMouseWheel | Общий focus; вход A/выход B PASS, все поля и дальнейшая генерация контроллером OPEN |
+| Настройки новой игры | Click name, key, wheel | TextEntry, Navigate, Scroll | fGameSettings2.cpp: PlayerNameMouseDown, MainPanelKeyDown, ProcessMouseWheel | Native focus, Unicode имя/reopen/Cancel и Ok→генерация→диалог PASS; остальные поля требуют route |
 | Аркада | Control/Space/arrows/[ / ]/A/Pause/Escape | Fire, Move, Weapon, Autopilot, Pause, Cancel | ab_MainForm.cpp: BattleKeyDown, BattleKeyUp, RequestExit | Прежние команды + новая безопасная PLUS-пауза; unit/adapter PASS, hardware PENDING |
 | MatrixGame | Ввод настоящего движка | MatrixRTS / MatrixDirectControl | Robot.cpp, port/matrixgame/native | Исполнение не подключено; mapping contract не является боем |
 
@@ -116,6 +116,19 @@ TEditGI. Fixed toggle сохраняет исходное Down-состояни�
 hold callbacks пока исключены из графа и доступны указателем. Общий spatial
 focus не считается готовой специальной навигацией каждого списка/инвентаря.
 
+Контейнеры ContentPanel/RootUiObject не становятся самостоятельными focus targets
+из-за общего mouse-handler. Для строк TalkPA в настоящих TfTalk/TfRuinsTalk
+действует адресная привязка: оригинальный visual-down, затем transactional-up.
+Choice разрешается через owner-scoped e2e5_pointer_payload, как в effective
+исходниках диалогов; не через указатель, усечённый до UserValue. Строки без
+Callback/FallbackCallback не выбираются. Остальные dual-edge controls сохраняют
+cursor fallback. После up row больше не используется: callback может её удалить.
+
+Активация TEdit устанавливает исходный FocusedControl. В SaveManager при смене
+слота сначала вызывается штатный callback родительского slot panel, как при
+мыши, затем фокус поля и OSK. Уже выбранный слот не refresh-ится повторно:
+это сохраняет черновик имени при reopen/Cancel, SelectedSlot и доступность Save.
+
 Cursor использует левый стик для указателя. В обоих профилях L3 переключает
 режим, D-pad возвращает focus, правый стик/touch выбирает указатель. Старое
 удержание A/ZR при переключении отменяется без клика; новый физический press
@@ -126,7 +139,7 @@ R3 открывает штатный GI_MessageBox. D-pad вверх/вниз в
 меняет профиль, deadzone, скорость, инверсию X/Y, ускорение, перестановку A/B.
 X сбрасывает редактируемые значения к defaults; Confirm применяет и сохраняет,
 Cancel отменяет. Окно настроек всегда использует focus, чтобы X/reset и Confirm
-оставались доступны без мыши в Cursor-профиле. Действующие A/B отражены в
+оставались доступны без мыши в Cursor-профиле при нейтральных стиках. Действующие A/B отражены в
 подсказке. Ускорение интегрируется
 по времени; одинаковый интервал даёт одинаковое перемещение при 20/30/60 FPS.
 
@@ -143,7 +156,24 @@ effective ProcessWindowMessage, проверяет прямые callbacks, ис�
 hidden, framebuffer-рамку, отсутствие held/replay click, cursor fallback,
 восстановление родительского выбора и отказ записи настроек. Отдельный
 ресурсный runner: tools/e2e515_controller_route.py; область доказательства
-указывается в его result.json, полный маршрут кампании ещё OPEN.
+указывается в его result.json. --campaign прошёл путь main menu → NewGame →
+русское имя «Пилот Ёж» → повторная OSK/Cancel → генерация → четыре настоящих
+диалоговых выбора → ангар → взлёт → orders mode карты. Host backend подменяет
+только системную клавиатуру; обработчики, поля, генерация и кампания настоящие.
+Системная OSK и удобство управления на Switch остаются HARDWARE PENDING.
+
+--campaign --save дополнительно проходит PM_Logo → Save → slot/edit → OSK
+«Проба Ёж» → reopen/Cancel → ButSave после взлёта. Успех требует физический
+Unicode-файл и marker завершённой worker-записи/readback, а не наличие .sav
+во время копирования. --load-save принимает только собственную build fixture,
+копирует её в новый user root и новым процессом проходит Load → Slot0 → ButLoad
+→ загрузка → orders mode карты. Сравнение всех полей world/RNG checkpoints и
+реальный 346-й ход не закрываются этим маршрутом.
+
+Host mailbox подтверждает команду только после её нормализации в PollHistory,
+включая нейтральное отпускание. Иначе release во время тяжёлого OnOpen мог быть
+заменён следующим press до чтения UI, и штатный anti-replay корректно блокировал
+новый A. Атомарный focus.txt — opt-in host protocol; на Switch этот путь исключён.
 
 ## Контроллеры и доказательства
 
