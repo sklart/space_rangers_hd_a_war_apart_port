@@ -72,6 +72,9 @@ input_platform::RawInput g_host_input;
 #endif
 std::array<bool, 256> g_keys{};
 bool g_emitted_escape{}, g_emitted_pause{};
+thread_local InputContextScope* g_input_scope{};
+bool g_controller_connected{true};
+input_platform::ControllerStyle g_controller_style{input_platform::ControllerStyle::Host};
 std::int32_t g_last_x = -1, g_last_y = -1;
 #if defined(__SWITCH__)
 std::uint32_t g_last_input_diagnostic_tick{};
@@ -129,9 +132,27 @@ void Pump() {
     input_platform::InjectHostRaw(&g_input, g_host_input);
   }
 #endif
-  const auto batch = input_platform::PollHistory(&g_input, width, height);
+  auto batch = input_platform::PollHistory(&g_input, width, height);
   if (!batch.count) return;
   const auto& input = batch.snapshots[batch.count - 1];
+  const bool source_changed = g_controller_connected &&
+      (!input.connected || input.controller_style != g_controller_style);
+  if (source_changed && g_input_scope) g_input_scope->CancelHeldInput();
+  g_controller_connected = input.connected;
+  g_controller_style = input.controller_style;
+  if (source_changed || !input.connected) {
+    // Cancel on the old owner, never turn a disconnect into a UI click-up.
+    for (std::size_t i = 0; i < batch.count; ++i) {
+      auto& sample = batch.snapshots[i];
+      const auto x = sample.x, y = sample.y;
+      const auto style = sample.controller_style;
+      const auto connected = sample.connected;
+      const auto actions = sample.actions;
+      sample = {};
+      sample.x = x; sample.y = y; sample.controller_style = style;
+      sample.connected = connected; sample.actions = actions;
+    }
+  }
   SetInputCursor(input.x, input.y);
 #if defined(__SWITCH__)
   const auto poll_us = e2e_clock::Microseconds();
@@ -242,6 +263,36 @@ void Pump() {
       timer->due = now + timer->interval;
     }
   }
+}
+
+namespace {
+ReleasedInput ChangeInputOwner(controller_actions::Context context) {
+  std::lock_guard lock(g_mutex);
+  ReleasedInput result{g_keys};
+  for (const auto& queued : g_queue) {
+    if (queued.message.message == kWmKeyUp && queued.message.wParam < result.keys.size())
+      result.keys[queued.message.wParam] = true;
+    if (queued.message.message == kWmLeftUp) result.keys[kVkLeftMouse] = true;
+    if (queued.message.message == kWmRightUp) result.keys[kVkRightMouse] = true;
+  }
+  std::erase_if(g_queue, [](const auto& queued) {
+    const auto message = queued.message.message;
+    return (message >= 0x100 && message <= 0x109) || (message >= 0x200 && message <= 0x20e);
+  });
+  g_keys.fill(false);
+  g_emitted_escape = g_emitted_pause = false;
+  g_active_press_id = 0;
+  g_last_x = g_last_y = -1;
+  // Keep cursor/time and router's old holds, so its next Update blocks the
+  // still-held physical inputs and emits logical cancellations.
+  g_input.last.left_held = g_input.last.right_held = false;
+  g_input.last.enter_held = g_input.last.escape_held = false;
+  g_input.last.pause_held = g_input.last.quicksave_held = false;
+  g_input.plus_held = false;
+  g_input.last.flight_keys = 0;
+  input_platform::SetInputContext(context);
+  return result;
+}
 }
 
 std::int32_t PostMessage(std::uint32_t window, std::uint32_t message,
@@ -401,6 +452,23 @@ template <class F> ImportAddress Address(F function) {
   return reinterpret_cast<ImportAddress>(function);
 }
 }  // namespace
+
+InputContextScope::InputContextScope(controller_actions::Context context, void* owner,
+                                     ReleaseInputOwner release)
+    : previous_(g_input_scope), context_(context), owner_(owner), release_(release) {
+  const auto held = ChangeInputOwner(context_);
+  g_input_scope = this;
+  if (previous_ && previous_->release_) previous_->release_(previous_->owner_, held);
+}
+InputContextScope::~InputContextScope() {
+  const auto held = ChangeInputOwner(previous_ ? previous_->context_ : controller_actions::Context::MainMenu);
+  g_input_scope = previous_;
+  if (release_) release_(owner_, held);
+}
+void InputContextScope::CancelHeldInput() {
+  const auto held = ChangeInputOwner(context_);
+  if (release_) release_(owner_, held);
+}
 
 void InjectHostInput(input_platform::RawInput input) {
 #if !defined(__SWITCH__)

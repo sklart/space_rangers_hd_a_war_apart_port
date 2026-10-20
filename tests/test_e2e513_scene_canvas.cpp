@@ -10,6 +10,7 @@
 #include <chrono>
 
 int main() {
+  for (int cycle = 0; cycle < 10; ++cycle) {
     namespace renderer = srhd_awa::platform::renderer_platform;
     renderer::RendererConfig config;
     config.game_width = 64; config.game_height = 48; config.minimap_buffer_size = 8;
@@ -65,5 +66,6 @@ int main() {
     renderer::ShutdownSoftwareRenderer();
     pas::free(GI_MessageLoop::MessageLoopStack);
     GI_MessageLoop::MessageLoopStack = nullptr;
-    std::puts("PASS actual renderer canvas isolation, parent restore and exception unwind");
+  }
+  std::puts("PASS 10 cycles: actual renderer canvas isolation, parent restore and exception unwind");
 }

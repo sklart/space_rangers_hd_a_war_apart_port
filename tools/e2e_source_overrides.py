@@ -554,10 +554,8 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
             block = body[a:b]
             body = body[:a] + '            {\n                static srhd_awa::platform::e2e5_stage_profiler::Window e2e_ab_phases("arcade-phase");\n' + f'                srhd_awa::platform::e2e5_stage_profiler::Scope e2e_phase(e2e_ab_phases, {stage});\n' + block + '            }\n' + body[b:]
         text = text[:start] + body + text[end:]
-        for method, enabled in [('OnOpen', 'true'), ('OnClose', 'false')]:
-            marker = f'    void TfAB::{method}() {{'
-            text = _replace_exact(text, marker, marker +
-                f'\n        srhd_awa::platform::input_platform::SetArcadeControls({enabled});', 1, source.name)
+        # Input ownership is scoped around the actual message loop, including
+        # nested modals and exceptions; OnOpen/OnClose must not override it.
         for marker, stage in [('    void TfAB::DrawFrame() {', 46),
                               ('    void TfAB::TimerTakt(GI_MessageLoop::PCallbackTimerGI Timer, std::int32_t UserData) {', 47)]:
             if script_width:
@@ -565,7 +563,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
             text = _replace_exact(text, marker, marker +
                 f'\n        srhd_awa::platform::e2e5_stage_profiler::Scope e2e_ab_scope(srhd_awa::platform::e2e5_stage_profiler::detail_window, {stage});', 1, source.name)
     if source.name == "GI_MessageLoop.cpp":
-        text = '#include "win32_compat_messages.hpp"\n#include "e2e5_failure_diagnostics.hpp"\n#include "e2e3_generation_state.hpp"\n' + text
+        text = '#include "controller_screen_context.hpp"\n#include "win32_compat_messages.hpp"\n#include "e2e5_failure_diagnostics.hpp"\n#include "e2e3_generation_state.hpp"\n' + text
         marker = "    void TMessageLoopGI::ProcessWindowMessage(std::uint32_t Message, std::uint32_t WParam, std::int32_t LParam) {"
         text = _replace_exact(text, marker, marker + '''
         static std::int32_t input_screen = -1;
@@ -1564,6 +1562,9 @@ void CloseVorbisStream(TOggWorker* worker) {
                       "    std::int32_t TMessageLoopGI::RunContinuous() {"):
             text = _replace_exact(text, entry, entry + '''
 #if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
+        srhd_awa::platform::win32_compat::InputContextScope e2e_input_owner(
+            srhd_awa::platform::controller_screen_context::ForLoop(this), this,
+            &srhd_awa::platform::controller_screen_context::Release);
         const bool e2e_independent_scene =
             this == GlobalsV::RegisteredScreens[GlobalsV::screenMainMenu] ||
             this == GlobalsV::RegisteredScreens[GlobalsV::screenNewGame] ||
@@ -1590,6 +1591,10 @@ void CloseVorbisStream(TOggWorker* worker) {
             (ContentPanel && ContentPanel->FindByNameRecursive(u"BGBuf"sv) != nullptr)));
         srhd_awa::platform::renderer_platform::SceneCanvas e2e_canvas(e2e_inherit_canvas, this);
 #endif''', 1, source.name)
+        text = _replace_exact(text, '            OnClose();', '''#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
+            e2e_input_owner.CancelHeldInput();
+#endif
+            OnClose();''', 2, source.name)
         if e2e5_profile:
             for entry in ("    std::int32_t TMessageLoopGI::Run() {",
                           "    std::int32_t TMessageLoopGI::RunContinuous() {"):

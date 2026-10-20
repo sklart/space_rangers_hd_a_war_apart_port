@@ -288,6 +288,10 @@ jobs:
           TSAN_OPTIONS=halt_on_error=1 ctest --test-dir build/mg-core-tsan -R 'file-contract|random-contract' --output-on-failure
       - name: Build complete Linux host for native asset-free regressions
         run: python3 tools/e2e5_host_game_build.py --profile optimized --jobs 2
+      - name: Scoped controller ownership and canvas lifecycle in real host objects
+        run: python3 tools/e2e515_engine_tests.py
+      - name: Controller message queue ownership with ASan and UBSan
+        run: python3 tools/e2e_win32_host_test.py --only window-message-input --sanitize
       - name: Native script pointers, numeric conversions and VM with ASan/UBSan
         run: python3 tests/probe_e2e59_film_history.py --ship-destination
       - name: Native cache failure, raw budget and recovery lifecycle with ASan/UBSan

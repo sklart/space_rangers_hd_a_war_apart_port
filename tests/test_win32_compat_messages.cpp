@@ -12,6 +12,15 @@ using namespace srhd_awa::platform::win32_compat;
 namespace {
 std::int32_t g_calls = 0;
 bool g_main_active = false;
+struct Owner {
+  unsigned cancellations{};
+  bool mouse_cancelled{};
+};
+void ReleaseOwner(void* owner, const ReleasedInput& input) noexcept {
+  auto& state = *static_cast<Owner*>(owner);
+  ++state.cancellations;
+  state.mouse_cancelled |= input.keys[1];
+}
 std::int32_t WindowProc(std::uint32_t, std::uint32_t message,
                         std::uint32_t wparam, std::int32_t) {
   ++g_calls;
@@ -183,5 +192,54 @@ int main() {
   input = {};
   InjectHostInput(input);
   assert(peek(&message, 0, 0x0101, 0x0101, 1) && message.wParam == 0x13);
+  {
+    using namespace srhd_awa::platform;
+    Owner parent, child, nested;
+    InputContextScope parent_scope(controller_actions::Context::MainMenu, &parent, &ReleaseOwner);
+    InjectHostInput({});
+    while (peek(&message, 0, 0, 0, 1)) {}
+    input = {}; input.a = true;
+    InjectHostInput(input);
+    assert(peek(&message, 0, 0x0201, 0x0201, 0)); // Old owner's down left queued.
+    {
+      InputContextScope child_scope(controller_actions::Context::ModalDialog, &child, &ReleaseOwner);
+      assert(parent.cancellations == 1 && parent.mouse_cancelled);
+      assert(input_platform::GetInputContext() == controller_actions::Context::ModalDialog);
+      assert(!peek(&message, 0, 0x0201, 0x0202, 1)); // Neither replay nor synthetic click/up.
+      input.a = false;
+      InjectHostInput(input);
+      while (peek(&message, 0, 0, 0, 1)) {}
+      input.a = true;
+      InjectHostInput(input);
+      assert(peek(&message, 0, 0x0201, 0x0201, 1));
+      try {
+        InputContextScope nested_scope(controller_actions::Context::ModalDialog, &nested, &ReleaseOwner);
+        assert(!peek(&message, 0, 0x0201, 0x0202, 1));
+        throw 1;
+      } catch (int) {}
+      assert(child.cancellations == 1 && nested.cancellations == 1);
+      assert(input_platform::GetInputContext() == controller_actions::Context::ModalDialog);
+      assert(!peek(&message, 0, 0x0201, 0x0202, 1));
+    }
+    assert(child.cancellations == 2);
+    assert(input_platform::GetInputContext() == controller_actions::Context::MainMenu);
+    assert(!peek(&message, 0, 0x0201, 0x0202, 1));
+    InjectHostInput({});
+    while (peek(&message, 0, 0, 0, 1)) {}
+    input = {}; input.a = true;
+    InjectHostInput(input);
+    assert(peek(&message, 0, 0x0201, 0x0201, 1));
+    const auto cancelled = parent.cancellations;
+    input.connected = false;
+    InjectHostInput(input);
+    assert(!peek(&message, 0, 0x0201, 0x0202, 1));
+    assert(parent.cancellations == cancelled + 1);
+    input.connected = true;
+    InjectHostInput(input);
+    assert(!peek(&message, 0, 0x0201, 0x0202, 1));
+    input.a = false;
+    InjectHostInput(input);
+    while (peek(&message, 0, 0, 0, 1)) {}
+  }
   UnregisterMainWindow(main);
 }
