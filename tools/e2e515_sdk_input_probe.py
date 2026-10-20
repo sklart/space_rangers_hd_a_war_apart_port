@@ -30,6 +30,7 @@ def main():
     loop = ROOT / mapping['upstream/cpp/src/GI_MessageLoop.cpp']
     edit = ROOT / mapping['upstream/cpp/src/GI_Edit.cpp']
     arcade = ROOT / mapping['upstream/cpp/src/ab_MainForm.cpp']
+    galaxy = ROOT / mapping['upstream/cpp/src/aGalaxy.cpp']
     text = loop.read_text()
     if text.count('InputContextScope e2e_input_owner(') != 2 or text.count('e2e_input_owner.CancelHeldInput();') != 2:
         raise RuntimeError('Both real loops must enter and cancel scoped input')
@@ -40,9 +41,14 @@ def main():
             raise RuntimeError(f'Native focus hook missing or duplicated: {hook}')
     if 'controller_text_entry::Open(this);' not in edit.read_text():
         raise RuntimeError('Generic TEditGI keyboard is not in the effective source')
+    for hook in ('e2e515_save_checkpoint::Observe(this, "save");',
+                 'e2e515_save_checkpoint::Observe(Self, "load");'):
+        if galaxy.read_text().count(hook) != 1:
+            raise RuntimeError('Real save/load checkpoint missing from effective galaxy: ' + hook)
     results = []
     for source in (ROOT / 'port/switch/platform/input_platform.cpp',
-                   ROOT / 'port/switch/platform/win32_compat_messages.cpp', loop, edit, arcade):
+                   ROOT / 'port/switch/platform/win32_compat_messages.cpp', loop, edit, arcade, galaxy,
+                   ROOT / 'port/switch/platform/e2e4_quicksave_transaction.cpp'):
         obj = OUTPUT / (source.stem + '.o')
         command = [config['compiler'], *flags, '-c', str(source), '-o', str(obj)]
         result = subprocess.run(command, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -58,7 +64,7 @@ def main():
                 'input_platform.hpp', 'win32_compat_messages.hpp', 'e2e5_text_input.hpp',
                 'controller_text_input.hpp', 'controller_text_entry.hpp',
                 'controller_profiles.hpp', 'controller_focus.hpp',
-                'controller_messages.hpp', 'controller_ui.hpp')}
+                'controller_messages.hpp', 'controller_ui.hpp', 'e2e515_save_checkpoint.hpp')}
     report.write_text(json.dumps({'status': 'COMPILE PASS', 'linked': False, 'hardware_executed': False,
                                  'compiler': config['compiler'], 'flags': flags,
                                  'headers_sha256': headers, 'objects': results}, indent=2) + '\n')

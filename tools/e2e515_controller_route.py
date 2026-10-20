@@ -23,12 +23,28 @@ def main():
     parser.add_argument('--config-root', type=Path, required=True)
     parser.add_argument('--campaign', action='store_true', help='Continue via native focus, OSK and world generation')
     parser.add_argument('--save', action='store_true', help='After takeoff, save from the original UI using Unicode OSK')
+    parser.add_argument('--fail-save-once', action='store_true', help='Refuse the first UI save with a private occupied temp directory, then retry')
     parser.add_argument('--load-save', type=Path, help='Load a copied build fixture in a separate fresh process')
+    parser.add_argument('--advance-turns', type=int, default=0)
+    parser.add_argument('--resave-name', help='After loading, write a new slot using host OSK')
+    parser.add_argument('--expect-checkpoint', type=Path, help='Compare the loaded state to a prior route result')
+    parser.add_argument('--label', help='Separate result folder under build/e2e515')
     args = parser.parse_args()
     if args.save and not args.campaign:
         parser.error('--save requires --campaign')
+    if args.fail_save_once and not (args.save or args.resave_name):
+        parser.error('--fail-save-once requires a save route')
     if args.load_save and (args.campaign or args.save):
         parser.error('--load-save is a separate fresh-process route')
+    if (args.advance_turns or args.resave_name or args.expect_checkpoint) and not args.load_save:
+        parser.error('turns/resave/checkpoint require --load-save')
+    if not 0 <= args.advance_turns <= 10:
+        parser.error('--advance-turns must be between 0 and 10')
+    if args.resave_name and (any(c in args.resave_name for c in '<>"/\\:') or
+                            not 1 <= len(args.resave_name.encode('utf-16-le')) // 2 <= 55):
+        parser.error('invalid fixture save name')
+    if args.label and not re.fullmatch(r'[a-zA-Z0-9_-]{1,40}', args.label):
+        parser.error('invalid result folder label')
     global OUTPUT
     if args.campaign:
         OUTPUT = ROOT / 'build/e2e515/controller-campaign'
@@ -36,6 +52,8 @@ def main():
         OUTPUT = ROOT / 'build/e2e515/controller-save'
     if args.load_save:
         OUTPUT = ROOT / 'build/e2e515/controller-reload'
+    if args.label:
+        OUTPUT = ROOT / 'build/e2e515' / args.label
     stage = OUTPUT / 'runs' / uuid.uuid4().hex
     config = stage / 'user/config'
     config.mkdir(parents=True)
@@ -74,6 +92,10 @@ def main():
                E2E511_HOST_FRAMES=str(frames.resolve()))
     if args.campaign:
         env['E2E515_HOST_ROUTE_OSK'] = '1'
+    if args.resave_name:
+        env.update(E2E515_HOST_ROUTE_OSK='1', E2E515_HOST_SAVE_NAME=args.resave_name)
+    if args.save or args.load_save:
+        env['E2E515_SAVE_CHECKPOINTS'] = '1'
     log = stage / 'sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log'
     game_log = config / '########.log'
     sequence = 0
@@ -106,6 +128,24 @@ def main():
                 if error.errno != errno.ENODATA:
                     raise
                 return False
+
+        def checkpoints():
+            try:
+                text = (stage / 'stderr.log').read_text(errors='replace')
+            except OSError as error:
+                if error.errno != errno.ENODATA:
+                    raise
+                return []
+            return [json.loads(line.split('|', 1)[1]) for line in text.splitlines()
+                    if line.startswith('E2E515_CHECKPOINT|') and line.endswith('}')]
+
+        def restored_screen(text):
+            records = list(re.finditer(r'screen dispatch id=(\d+) postload=', text))
+            if not records or int(records[-1][1]) not in (4, 5, 6, 16):
+                return 0
+            tail = text[records[-1].end():]
+            ready = 'HOST map orders ready' if int(records[-1][1]) == 16 else 'screen Run first frame attempted'
+            return int(records[-1][1]) if ready in tail else 0
 
         def wait(predicate, description, timeout=40):
             deadline = time.monotonic() + timeout
@@ -204,6 +244,61 @@ def main():
             for key, reached in path:
                 pulse(key)
                 wait(lambda text: state()[:2] == (scope, reached), 'actual focus step to ' + name)
+
+        def save_world(name, accept, cancel):
+            select('PM_Logo')
+            at = len(lines()); pulse(1)
+            wait(lambda text: 'screen dispatch id=25 ' in text[at:] and
+                 'screen Run first frame attempted' in text[text.rfind('screen dispatch id=25 '):],
+                 'original in-game menu')
+            select('Save')
+            at = len(lines()); pulse(1)
+            wait(lambda text: 'screen dispatch id=23 ' in text[at:] and
+                 any(re.fullmatch(r'Slot\d+Edit', node[2]) for node in graph()[2]), 'original manual save UI')
+            editable = [node for node in graph()[2] if re.fullmatch(r'Slot\d+Edit', node[2])]
+            select(min(editable, key=lambda node: node[1][1])[2])
+            pulse(1); wait(lambda text: accept in text, 'Unicode save name')
+            pulse(1); wait(lambda text: cancel in text, 'save name retained on OSK cancel')
+            select('ButSave')
+            before = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in (config / 'save').glob('*.sav')}
+            if args.fail_save_once:
+                parent_scope = state()[0]
+                occupied_temp = config / 'save/save.tmp'
+                # This fresh run owns the empty directory. Never replace any file.
+                occupied_temp.mkdir()
+                pulse(1)
+                wait(lambda text: state()[0] != parent_scope and state()[2] > 0 and
+                     game_log.exists() and 'occupied temp is not a readable regular file' in
+                     game_log.read_text(errors='replace'), 'original save error dialog', 90)
+                if manual_committed():
+                    raise RuntimeError('Failed save was reported as committed')
+                failed_slots = {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
+                                for p in (config / 'save').glob('*.sav')}
+                if failed_slots != before:
+                    raise RuntimeError('Failed save changed existing slots')
+                occupied_temp.rmdir()
+                pulse(1)
+                wait(lambda text: state()[0] == parent_scope and
+                     any(node[2] == 'ButSave' for node in graph()[2]),
+                     'error dismissed back to active save UI')
+                select('ButSave')
+                report['save_failure_ui_retry'] = True
+            pulse(1)
+            expected_save = config / 'save' / (name + '.sav')
+            wait(lambda text: manual_committed() and expected_save.exists() and expected_save.stat().st_size > 64,
+                 'physical manual save committed', 90)
+            if expected_save.name in before:
+                raise RuntimeError('Fixture destination existed before unique-slot write')
+            after = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in (config / 'save').glob('*.sav')}
+            preserved = all(after.get(name) == digest for name, digest in before.items())
+            if not preserved:
+                raise RuntimeError('Manual save changed another existing slot')
+            saved = [row for row in checkpoints() if row['phase'] == 'save']
+            if not saved:
+                raise RuntimeError('Missing real serialized-world checkpoint')
+            return dict(manual_save_path=str(expected_save), manual_save_bytes=expected_save.stat().st_size,
+                        manual_save_sha256=hashlib.sha256(expected_save.read_bytes()).hexdigest(),
+                        original_slots_preserved=preserved, saved_checkpoint=saved[-1], new_process_reload_verified=False)
 
         try:
             wait(lambda text: 'screen first presented id=1 ' in text and state()[2] > 0,
@@ -334,38 +429,10 @@ def main():
                                   scope='raw pad campaign through Unicode OSK, generation, character choices, hangar and takeoff to map')
                     if args.save:
                         report['status'] = 'RUNNING'
-                        select('PM_Logo')
-                        at = len(lines())
-                        pulse(1)
-                        wait(lambda text: 'screen dispatch id=25 ' in text[at:] and
-                             'screen Run first frame attempted' in text[text.rfind('screen dispatch id=25 '):],
-                             'original in-game menu')
-                        select('Save')
-                        at = len(lines())
-                        pulse(1)
-                        wait(lambda text: 'screen dispatch id=23 ' in text[at:] and
-                             any(re.fullmatch(r'Slot\d+Edit', node[2]) for node in graph()[2]),
-                             'original manual save UI')
-                        editable = [node for node in graph()[2] if re.fullmatch(r'Slot\d+Edit', node[2])]
-                        select(min(editable, key=lambda node: node[1][1])[2])
-                        pulse(1)
-                        wait(lambda text: 'HOST OSK fixture call=3 result=Accept' in text, 'Unicode save name')
-                        pulse(1)
-                        wait(lambda text: 'HOST OSK fixture call=4 initial_matches=1 result=Cancel' in text,
-                             'save name retained on OSK cancel')
-                        select('ButSave')
-                        before = set((config / 'save').glob('*.sav'))
-                        pulse(1)
-                        expected_save = config / 'save/Проба Ёж.sav'
-                        wait(lambda text: manual_committed() and expected_save.exists() and expected_save.stat().st_size > 64,
-                             'physical Unicode save after takeoff', 90)
-                        if expected_save in before:
-                            raise RuntimeError('Fixture save unexpectedly existed before the write')
-                        report.update(status='PASS', manual_save_path=str(expected_save),
-                                      manual_save_bytes=expected_save.stat().st_size,
-                                      manual_save_sha256=hashlib.sha256(expected_save.read_bytes()).hexdigest(),
-                                      new_process_reload_verified=False,
-                                      scope='raw pad campaign and original Unicode manual save after takeoff; reload pending')
+                        report.update(save_world('Проба Ёж',
+                            'HOST OSK fixture call=3 result=Accept',
+                            'HOST OSK fixture call=4 initial_matches=1 result=Cancel'))
+                        report.update(status='PASS', scope='raw pad campaign and original Unicode manual save after takeoff; reload pending')
             else:
                 select('Load')
                 at = len(lines())
@@ -377,12 +444,42 @@ def main():
                 select('ButLoad')
                 at = len(lines())
                 pulse(1)
-                wait(lambda text: 'screen dispatch id=24 ' in text[at:] and
-                     'screen dispatch id=16 ' in text[at:] and
-                     'HOST map orders ready' in text[at:], 'fresh-process original load and map', 90)
+                wait(lambda text: 'screen dispatch id=24 ' in text[at:] and restored_screen(text),
+                     'fresh-process original load and gameplay', 90)
+                wait(lambda text: any(row['phase'] == 'load' for row in checkpoints()), 'loaded world checkpoint')
+                loaded = next(row for row in checkpoints() if row['phase'] == 'load')
                 report.update(status='PASS', new_process_reload_verified=True,
                               loaded_copied_file=source_save.name, checkpoint_comparison_verified=False,
-                              scope='raw pad original load UI, copied Unicode save, fresh process and map orders mode')
+                              loaded_checkpoint=loaded, restored_screen=restored_screen(lines()),
+                              scope='raw pad original load UI, copied save and fresh process')
+                if args.expect_checkpoint:
+                    expected = json.loads(args.expect_checkpoint.read_text())
+                    if expected['manual_save_sha256'] != source_digest:
+                        raise RuntimeError('Expected checkpoint belongs to a different save file')
+                    previous = expected['saved_checkpoint']
+                    diff = {key: [previous.get(key), value] for key, value in loaded.items()
+                            if key != 'phase' and previous.get(key) != value}
+                    report['checkpoint_diff'] = diff
+                    if diff:
+                        raise RuntimeError('Loaded world checkpoint differs from saved state')
+                    report['checkpoint_comparison_verified'] = True
+                if args.advance_turns:
+                    if report['restored_screen'] not in (4, 5, 6):
+                        raise RuntimeError('This turn scenario requires a recovered docked/planet state')
+                    for turn in range(loaded['turn'] + 1, loaded['turn'] + args.advance_turns + 1):
+                        callbacks = lines().count('turn operation=end-turn-ui')
+                        select('PM_EndTurn'); pulse(1)
+                        wait(lambda text: f'hangar_end_turn_done turn={turn}' in text or
+                             text.count('turn operation=end-turn-ui') > callbacks,
+                             f'original end-turn handler reaches {turn}', 90)
+                    report['turns_advanced'] = args.advance_turns
+                if args.resave_name:
+                    report.update(save_world(args.resave_name,
+                        'HOST OSK save fixture call=1 result=Accept',
+                        'HOST OSK save fixture call=2 initial_matches=1 result=Cancel'))
+                    if report['saved_checkpoint']['turn'] != loaded['turn'] + args.advance_turns:
+                        raise RuntimeError('Saved turn does not match the requested actual turn advance')
+                    report.update(status='PASS', scope='recovered real state, native end-turns and original manual resave UI')
         except Exception as error:
             report.update(status='FAIL', error=str(error))
         finally:

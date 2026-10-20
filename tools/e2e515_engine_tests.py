@@ -30,6 +30,11 @@ def main():
     effective_loop = ROOT / build_report['source_map']['upstream/cpp/src/GI_MessageLoop.cpp']
     effective_arcade = ROOT / build_report['source_map']['upstream/cpp/src/ab_MainForm.cpp']
     effective_edit = ROOT / build_report['source_map']['upstream/cpp/src/GI_Edit.cpp']
+    effective_galaxy = ROOT / build_report['source_map']['upstream/cpp/src/aGalaxy.cpp']
+    for hook in ('e2e515_save_checkpoint::Observe(this, "save");',
+                 'e2e515_save_checkpoint::Observe(Self, "load");'):
+        if effective_galaxy.read_text().count(hook) != 1:
+            raise RuntimeError('Real save/load checkpoint missing from effective galaxy: ' + hook)
     if effective_loop.read_text().count('InputContextScope e2e_input_owner(') != 2:
         raise RuntimeError('Scoped input owner missing from effective Run/RunContinuous')
     if effective_loop.read_text().count('e2e_input_owner.CancelHeldInput();') != 2:

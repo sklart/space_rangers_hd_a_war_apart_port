@@ -141,7 +141,7 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                 text = text[:load_state_start] + load_state + text[load_state_end:]
             elif relative.as_posix() == "aGalaxy.cpp":
                 text = _replace_exact(text, "namespace aGalaxy {",
-                    '#include "e2e5_save_inventory.hpp"\nnamespace aGalaxy {',
+                    '#include "e2e5_save_inventory.hpp"\n#include "e2e515_save_checkpoint.hpp"\nnamespace aGalaxy {',
                     1, relative.as_posix())
                 text = _replace_exact(text,
                     "    void TGalaxy::SaveToBuffer(EC_Buf::TBufEC* Buffer) {",
@@ -155,7 +155,13 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                     "            pas::raise(pas::make_exception<pas::Exception>(\"E2E5 save inventory contains unknown script values\"_a));\n"
                     "        }\n"
                     "        srhd_awa::platform::e2e5_save_inventory::log_game_state(this, \"save\");\n"
+                    "        srhd_awa::platform::e2e515_save_checkpoint::Observe(this, \"save\");\n"
                     "        Buffer->AddWideStringZ(GR_Main::SelectedMods);",
+                    1, relative.as_posix())
+                text = _replace_exact(text,
+                    '            Self->PrimeIntegrityChecksum(101);',
+                    '            Self->PrimeIntegrityChecksum(101);\n'
+                    '            srhd_awa::platform::e2e515_save_checkpoint::Observe(Self, "load");',
                     1, relative.as_posix())
                 text = _replace_exact(text,
                     "            Stage = 41;\n            Count = pas::list_count(Self->Scripts);",

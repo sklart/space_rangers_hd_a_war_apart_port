@@ -25,6 +25,18 @@ bool RouteKeyboard(const srhd_awa::platform::controller_text_input::Request& req
                    std::u16string& value, void*) {
   static unsigned calls{};
   ++calls;
+  if (const auto* requested = std::getenv("E2E515_HOST_SAVE_NAME")) {
+    const auto fixture = std::filesystem::u8path(requested).u16string();
+    if (calls == 1) {
+      value = fixture;
+      srhd_awa::platform::e2e_stage::Log("HOST OSK save fixture call=1 result=Accept");
+      return true;
+    }
+    srhd_awa::platform::e2e_stage::Log(request.initial == fixture
+        ? "HOST OSK save fixture call=2 initial_matches=1 result=Cancel"
+        : "FAIL HOST OSK save fixture call=2 initial_matches=0 result=Cancel");
+    return false;
+  }
   if (calls == 1) {
     value = u"Пилот Ёж";
     srhd_awa::platform::e2e_stage::Log("HOST OSK fixture call=1 result=Accept");

@@ -2,7 +2,7 @@
 
 20.10.2026. **IN PROGRESS / PARTIAL. Цель не завершена.**
 
-Последнее обновление: пакет 5, native controller campaign/save/load. Разделы
+Последнее обновление: пакет 6, real-state checkpoints и manual save recovery. Разделы
 ранних пакетов сохраняют их исторические границы; сводная таблица в конце
 отражает текущий остаток требований.
 
@@ -306,7 +306,7 @@ python3 tools/e2e515_controller_route.py --load-save /path/inside/build/Проб
 | A3 controllers | PARTIAL: классификация/сброс есть; UI unsupported, dock/resume и hardware OPEN |
 | B два настоящих профиля, focus, RTS, touch, accessibility | PARTIAL: Hybrid/Cursor, spatial focus, прямые UI callbacks, параметры и рамка реализованы; полная матрица экранов/RTS/scroll/gestures OPEN |
 | C1 все реальные screen transitions, фон | OPEN; десять canvas unit cycles не заменяют переходы между настоящими экранами |
-| C2 save fault injection / новый процесс / перелёт | PARTIAL: fresh campaign Unicode manual save после взлёта и raw-pad load новым процессом PASS; реальный 346-й ход/межзвёздный перелёт/checkpoint compare/fault injection OPEN |
+| C2 save fault injection / новый процесс / перелёт | PARTIAL: реальный 346-й ход → три хода → UI отказ/повтор → Unicode save → новый процесс/checkpoint compare PASS; manual transaction fault/process-stop/retry PASS (пакет 6). Новый межзвёздный перелёт, реальные no-space/permission и SD остаются непроверенными |
 | C3 generation → hangar → map controller route | Legacy real route PASS; raw pad menu/NewGame/settings и Unicode→generation→4 choices→hangar→takeoff→map PASS; остальные экраны OPEN |
 | D смерть/взрыв, overload 20/40/70/150/250, parity 500/1000, три perf пары | OPEN; оптимизаций/FPS-победы этого цикла пока нет |
 | E MatrixGame before/after units, новый real block, entry/resource pipeline | OPEN; текущий d3d9.h blocker ещё не закрыт |
@@ -331,3 +331,77 @@ python3 tools/e2e515_controller_route.py --load-save /path/inside/build/Проб
 5. MatrixGame: реальные unit/blocker counts и прирост native compile/resource pipeline.
 6. Финальная общая регрессия, один release Save ON NRO + matching ELF/SHA/provenance,
    отчёты perf/MG и 10–12 шагов аппаратной проверки. На этом этапе новых NRO нет.
+
+## Пакет 6: реальный сейв 346-го хода и восстановление ручной записи
+
+Исходная копия `build/e2e514/recovered/Recovered-turn-346.sav` имеет SHA-256
+`665b82366662e9a98fa85289a127621355e470035c8915b84a0379fb0aa955fb`.
+Архивы и пользовательские оригиналы не изменялись; baseline восьми файлов PASS.
+Настоящий loader восстановил экран планеты (5), ход 346, деньги 2044, корабль 3,
+звезду 41, планету 192 и 15 скриптов. Это архивное состояние после перелёта;
+новый межзвёздный перелёт этим маршрутом не доказан.
+
+Raw-pad маршрут выполнил три настоящих хода и записал `После перелёта Ёж 515.sav`:
+825032 байта, SHA-256
+`1118270c93935ba8dea673fc4c7563033582d738b1abecf9e3a97179418171b7`.
+Сведения: `build/e2e515/real346-resave/result.json` и
+`build/e2e515/real349-reload/result.json`. Новый процесс загрузил этот файл;
+`checkpoint_diff={}`. Помимо хода 349/денег/корабля/системы сравниваются
+generation seed, RNG мира/игрока и хеш всех RNG, сериализованные скрипты,
+глобальные переменные, инвентарь (9 элементов) и корабль.
+Observer использует исходные сериализаторы, проверяет неизменность RNG и включён
+только явной host-переменной `E2E515_SAVE_CHECKPOINTS=1`; на Switch это no-op.
+Load checkpoint расположен после восстановления ссылок и PrimeIntegrityChecksum.
+
+Обнаружен новый воспроизводимый P0: остановка процесса на `manual-publish`, после
+удаления старого имени, оставляла основной слот отсутствующим. `.bak` сохранялся,
+но Recover обслуживал только quicksave. До исправления:
+`build/e2e515/save-faults/result-before.json`, FAIL, `primary_exists=0`,
+`backup_exists=1`, `recovery=no transactions`.
+
+В `e2e4_quicksave_transaction.cpp` добавлен отдельный журнал ручной публикации:
+проверенные manifest/ready до изменения имени, fingerprint старой/новой генерации,
+восстановление из проверенного `.bak` при незавершённой записи, committed marker
+после readback. Прерванные данные сохраняются; повторное Recover идемпотентно.
+Готовый `save.tmp` повторно используется при rollback без дополнительной полной
+копии. Версия и содержимое игрового формата не меняются.
+
+Окончательный ASan/UBSan прогон:
+`build/e2e515/save-faults/runs/77acfcc897c94ebc912c1b52113463c2`, PASS:
+18 отказов API, 18 настоящих дочерних процессов с `_Exit(99)`, 36 повторных записей,
+латинские/кириллические занятые слоты, исходные SHA неизменны. Также прошёл прежний
+transaction suite, включая частичную публикацию, битый temp и его сохранение.
+Дополнительно три `_Exit` для нового незанятого Unicode-слота: до публикации,
+после копирования до flush, перед committed. В каждом Recover убрал неполную
+публикацию, сохранил temp, повторный Recover и новая запись прошли.
+Это process-stop на границах операций; физическое выключение, FAT/SD и реальное
+исчерпание носителя не проверялись. CI-команда исправлена: добавлен уже необходимый
+`user_root.cpp` для линковки transaction test.
+
+devkitA64 с настоящими Save ON flags скомпилировал семь модулей, включая aGalaxy
+и transaction.cpp; `build/e2e515/sdk-input/result.json`: COMPILE PASS,
+`linked=false`, `hardware_executed=false`. Финальная NRO ещё не выпускалась.
+
+На окончательном host ELF SHA-256
+`4c4083e0fa6024835f5fa138f866fd4430ac4f2f8102b58a01a3e441570e2e75`
+повторён полный маршрут с `--fail-save-once`. В отдельном user root harness
+создаёт собственный пустой каталог `save.tmp`, получает настоящий отказ worker,
+проверяет отсутствие committed и неизменность всех слотов. Затем удаляет только
+свой пустой каталог, контроллером закрывает GI_MessageBox, возвращается в тот же
+SaveManager и повторяет запись. Русское имя сохраняется без повторного OSK.
+`build/e2e515/real346-retry/result.json`: PASS, `save_failure_ui_retry=true`.
+Получен `Повтор Ёж 515.sav`, 825044 байта, SHA-256
+`7f818f3d31a0e6295c51f08e5897c56b00ef161a9118b19ac7442387ea2b63ab`.
+`build/e2e515/real349-retry-reload/result.json`: отдельный процесс PASS,
+`checkpoint_diff={}`, `new_process_reload_verified=true`. Оба процесса остановлены
+runner после checkpoint; нормальный shutdown этим не доказан.
+Четыре real-engine tests после rebuild PASS: runtime-loop, scene-canvas,
+screen-context, native-focus (`build/e2e515/engine-tests/result.json`).
+
+Воспроизведение на host (законные ресурсы и копия CFG отдельно):
+
+```sh
+python3 tools/e2e515_save_faults.py --old build/e2e514/recovered/Recovered-turn-346.sav --new '<полный путь нового сейва внутри build>'
+python3 tools/e2e515_controller_route.py --load-save build/e2e514/recovered/Recovered-turn-346.sav --advance-turns 3 --resave-name 'Повтор Ёж 515' --fail-save-once --label real346-retry --game-root '/path/to/game' --config-root '/path/to/copied/config'
+python3 tools/e2e515_controller_route.py --load-save '<manual_save_path из result.json>' --expect-checkpoint build/e2e515/real346-retry/result.json --label real349-retry-reload --game-root '/path/to/game' --config-root '/path/to/copied/config'
+```
