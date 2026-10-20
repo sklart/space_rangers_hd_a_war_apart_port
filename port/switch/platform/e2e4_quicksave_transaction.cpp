@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cstring>
 #include <fstream>
+#include <iomanip>
 #include <limits>
 #include <sstream>
 #include <stdio.h>
@@ -288,6 +289,130 @@ Result Rollback(const fs::path& save_directory, const fs::path& transaction,
     return {true, true, transaction, "original quicksave slots restored; backups retained"};
 }
 
+std::string Utf8Name(const fs::path& path) {
+    const auto text = path.u8string();
+    return {reinterpret_cast<const char*>(text.data()), text.size()};
+}
+struct ManualManifest { fs::path target, backup; Fingerprint previous, next; };
+bool SafeName(const fs::path& name) {
+    const auto text = Utf8Name(name);
+    return !text.empty() && text.size() <= 4096 && name == name.filename() &&
+        text != "." && text != ".." && text.find_first_of("/\\:") == std::string::npos;
+}
+std::string ManualText(const ManualManifest& value) {
+    std::ostringstream out;
+    out << "E2E4-MANUAL-1\n" << std::quoted(Utf8Name(value.target)) << '\n'
+        << std::quoted(Utf8Name(value.backup)) << '\n' << value.previous.size << ' '
+        << value.previous.crc << ' ' << value.next.size << ' ' << value.next.crc << '\n';
+    return out.str();
+}
+bool ReadManual(const fs::path& record, ManualManifest& value) {
+    Fingerprint manifest;
+    if (!HashFile(record / "manifest", manifest) || manifest.size > 16384) return false;
+    std::ifstream file(record / "manifest", std::ios::binary);
+    std::string version, target, backup, extra;
+    if (!(file >> version >> std::quoted(target) >> std::quoted(backup) >> value.previous.size
+          >> value.previous.crc >> value.next.size >> value.next.crc) ||
+        version != "E2E4-MANUAL-1" || (file >> extra)) return false;
+    value.target = fs::u8path(target); value.backup = fs::u8path(backup);
+    if (!SafeName(value.target) || value.target.extension() != ".sav" ||
+        value.target == "QuickSave.sav" || !value.next.size || value.next.size > kMaxSaveBytes ||
+        value.previous.size > kMaxSaveBytes) return false;
+    if (backup.empty()) return value.previous.size == 0 && value.previous.crc == 0;
+    const auto prefix = target + ".bak";
+    if (!SafeName(value.backup) || !backup.starts_with(prefix)) return false;
+    if (backup == prefix) return true;
+    const auto suffix = backup.substr(prefix.size());
+    return suffix.size() > 1 && suffix[0] == '.' &&
+        std::all_of(suffix.begin() + 1, suffix.end(), [](char c) { return c >= '0' && c <= '9'; });
+}
+// Remove only our small terminal metadata. Interrupted save bytes stay retained.
+bool CleanManual(const fs::path& record) {
+    std::error_code error;
+    for (const auto& entry : fs::directory_iterator(record, error)) {
+        const auto name = entry.path().filename().string();
+        if (name != "manifest" && name != "ready" && name != "committed" && name != "restored") return true;
+        if (FileKind(entry.path()) != Kind::regular) return false;
+    }
+    if (error) return false;
+    // Keep the terminal marker until the manifest is gone: a process may stop
+    // during cleanup, and recovery must never roll back a committed generation.
+    for (const auto* name : {"manifest", "ready", "committed", "restored"}) {
+        const auto path = record / name;
+        if (FileKind(path) == Kind::missing) continue;
+        Fingerprint fingerprint; std::string detail;
+        if (!HashFile(path, fingerprint) || !RemoveVerified(path, fingerprint, {}, "manual-clean-metadata", detail)) return false;
+    }
+    return fs::remove(record, error) && !error;
+}
+Result RecoverManual(const fs::path& directory, const Fault& fault = {}) {
+    const auto root = directory / ".e2e4-manual-transactions";
+    if (FileKind(root) == Kind::missing) return {true, false, {}, "no manual transactions"};
+    if (!SafeDirectory(root)) return {false, false, root, "unsafe manual recovery directory"};
+    bool recovered = false;
+    std::error_code error;
+    for (const auto& entry : fs::directory_iterator(root, error)) {
+        const auto record = entry.path();
+        if (!SafeDirectory(record) || !record.filename().string().starts_with("txn-"))
+            return {false, recovered, record, "unexpected manual recovery entry"};
+        if (MarkerIs(record / "committed", "complete\n") || MarkerIs(record / "restored", "restored\n")) {
+            CleanManual(record); continue;
+        }
+        // No target is mutated before both manifest and ready are durable.
+        if (!MarkerIs(record / "ready", "prepared\n")) {
+            // Unknown files in our namespace are retained, not treated as ours.
+            ManualManifest unprepared;
+            if (FileKind(record / "manifest") == Kind::missing || ReadManual(record, unprepared))
+                CleanManual(record);
+            continue;
+        }
+        ManualManifest manifest;
+        if (!ReadManual(record, manifest)) return {false, recovered, record, "invalid manual recovery manifest; files retained"};
+        const auto target = directory / manifest.target;
+        const bool occupied = !manifest.backup.empty();
+        Fingerprint actual;
+        if (occupied && (!HashFile(directory / manifest.backup, actual) || actual != manifest.previous))
+            return {false, recovered, record, "manual original backup unavailable; files retained"};
+        const auto kind = FileKind(target);
+        if (kind != Kind::regular && kind != Kind::missing)
+            return {false, recovered, record, "unsafe manual destination during recovery"};
+        bool original_present = false;
+        std::string detail;
+        if (kind == Kind::regular) {
+            if (!HashFile(target, actual)) return {false, recovered, record, "manual destination unreadable"};
+            original_present = occupied && actual == manifest.previous;
+            if (!original_present) {
+                fs::path retained;
+                Fingerprint temp_fingerprint;
+                const auto temp = directory / "save.tmp";
+                if (actual == manifest.next && HashFile(temp, temp_fingerprint) && temp_fingerprint == actual)
+                    retained = temp; // Already retained; rollback needs no additional save-sized allocation.
+                for (unsigned i = 0; retained.empty() && i < 1024; ++i) {
+                    const auto candidate = record / ("interrupted-" + std::to_string(i) + ".tmp");
+                    Fingerprint prior;
+                    if (HashFile(candidate, prior) && prior == actual) { retained = candidate; break; }
+                    if (FileKind(candidate) == Kind::missing) {
+                        if (!CopyVerified(target, candidate, actual, fault, "manual-quarantine", detail))
+                            return {false, recovered, record, detail};
+                        retained = candidate; break;
+                    }
+                }
+                if (retained.empty() || !RemoveVerified(target, actual, fault, "manual-remove-interrupted", detail))
+                    return {false, recovered, record, "manual interrupted bytes retained: " + detail};
+            }
+        }
+        if (occupied && !original_present && !CopyVerified(directory / manifest.backup, target, manifest.previous,
+                                                           fault, "manual-restore-old", detail))
+            return {false, recovered, record, detail + "; old backup retained"};
+        if (!WriteMarker(record / "restored", "restored\n", fault, "manual-restored-marker", detail))
+            return {false, recovered, record, detail};
+        recovered = true;
+        CleanManual(record);
+    }
+    if (error) return {false, recovered, root, "manual recovery enumeration failed"};
+    return {true, recovered, root, recovered ? "interrupted manual save restored" : "no pending manual save"};
+}
+
 bool ReadU16String(std::ifstream& stream, std::uint64_t& remaining,
                    const char* expected, std::string& error,
                    std::string* actual = nullptr) {
@@ -416,11 +541,13 @@ bool ValidateSave(const fs::path& source, std::string& detail) {
 
 Result Recover(const fs::path& save_directory, const Fault& fault) {
     if (!SafeDirectory(save_directory)) return {false, false, {}, "unsafe save directory"};
+    const auto manual = RecoverManual(save_directory, fault);
+    if (!manual.ok) return manual;
     const auto root = save_directory / ".e2e4-quicksave-backups";
-    if (FileKind(root) == Kind::missing) return {true, false, {}, "no transactions"};
+    if (FileKind(root) == Kind::missing) return manual;
     if (FileKind(root) != Kind::directory || !SafeDirectory(root))
         return {false, false, root, "unsafe backup root"};
-    bool recovered = false;
+    bool recovered = manual.recovered;
     std::error_code ec;
     for (const auto& item : fs::directory_iterator(root, ec)) {
         if (ec || FileKind(item.path()) != Kind::directory ||
@@ -584,6 +711,8 @@ Result ReplaceGameSavePath(const char16_t* source, const char16_t* target, const
         !SafeDirectory(temp.parent_path()) || FileKind(temp) != Kind::regular ||
         (FileKind(destination) != Kind::missing && FileKind(destination) != Kind::regular))
         return {false, false, {}, "manual save path or existing target is unsafe"};
+    const auto recovery = RecoverManual(temp.parent_path());
+    if (!recovery.ok) return recovery;
     std::string detail;
     if (!ValidateSave(temp, detail))
         return {false, false, {}, "manual save rejected: " + detail};
@@ -601,27 +730,56 @@ Result ReplaceGameSavePath(const char16_t* source, const char16_t* target, const
         }
         if (backup.empty() || !CopyVerified(destination, backup, previous, fault, "manual-backup", detail))
             return {false, false, backup, "manual backup failed; old save unchanged: " + detail};
-        if (!RemoveVerified(destination, previous, fault, "manual-remove-old", detail))
-            return {false, false, backup, "manual old generation retained: " + detail};
     }
+    const auto journal_root = temp.parent_path() / ".e2e4-manual-transactions";
+    if ((FileKind(journal_root) != Kind::missing && !SafeDirectory(journal_root)) ||
+        !Step(fault, "manual-journal-create"))
+        return {false, false, backup, "manual journal unavailable; old slot unchanged"};
+    std::error_code journal_error;
+    fs::create_directories(journal_root, journal_error);
+    if (journal_error || !SafeDirectory(journal_root))
+        return {false, false, backup, "manual journal directory failed; old slot unchanged"};
+    fs::path record;
+    for (unsigned i = 0; i < 4096; ++i) {
+        const auto candidate = journal_root / ("txn-" + std::to_string(i));
+        if (FileKind(candidate) == Kind::missing) { record = candidate; break; }
+    }
+    if (record.empty() || !fs::create_directory(record, journal_error) || journal_error)
+        return {false, false, backup, "manual journal capacity/create failed; old slot unchanged"};
+    const ManualManifest manifest{destination.filename(), occupied ? backup.filename() : fs::path{}, previous, next};
+    const auto manifest_text = ManualText(manifest);
+    if (!WriteMarker(record / "manifest", manifest_text, fault, "manual-manifest", detail) ||
+        !MarkerIs(record / "manifest", manifest_text.c_str()) ||
+        !WriteMarker(record / "ready", "prepared\n", fault, "manual-ready", detail) ||
+        !MarkerIs(record / "ready", "prepared\n")) {
+        CleanManual(record);
+        return {false, false, backup, "manual preparation failed; old slot unchanged: " + detail};
+    }
+    auto fail = [&](const std::string& reason) -> Result {
+        const auto rollback = RecoverManual(temp.parent_path());
+        return {false, rollback.ok && occupied, backup,
+                reason + "; " + rollback.detail + "; new generation retained in temp"};
+    };
+    if (occupied && !RemoveVerified(destination, previous, fault, "manual-remove-old", detail))
+        return fail(detail);
     // Use the same verified copy/flush/readback primitive as quicksave. SD
     // rename success is not sufficient: hardware reported missing destinations
     // even after a successful rename; failed installs then poisoned temp.
     if (!CopyVerified(temp, destination, next, fault, "manual-publish", detail)) {
-        std::string rollback;
-        if (FileKind(destination) == Kind::regular) {
-            Fingerprint partial;
-            if (!HashFile(destination, partial))
-                return {false, false, backup, detail + "; partial destination unreadable; temp and backup retained"};
-            // The original complete new generation remains in temp. Only
-            // remove our verified incomplete copy, never a changed old file.
-            if (!RemoveVerified(destination, partial, {}, "manual-remove-partial", rollback))
-                return {false, false, backup, detail + "; " + rollback};
-        }
-        if (occupied && !CopyVerified(backup, destination, previous, {}, "manual-restore-old", rollback))
-            return {false, false, backup, detail + "; restore failed: " + rollback + "; old snapshot retained"};
-        return {false, occupied, backup, detail + "; old slot restored, new generation retained in temp"};
+        return fail(detail);
     }
+    if (!WriteMarker(record / "committed", "complete\n", fault, "manual-commit", detail) ||
+        !MarkerIs(record / "committed", "complete\n")) {
+        // A failed marker write has not acknowledged the new generation.
+        if (FileKind(record / "committed") == Kind::regular) {
+            Fingerprint marker;
+            if (!HashFile(record / "committed", marker) ||
+                !RemoveVerified(record / "committed", marker, {}, "manual-clear-failed-commit", detail))
+                return {false, false, backup, "manual commit marker unsafe; temp and backup retained"};
+        }
+        return fail(detail);
+    }
+    CleanManual(record);
     if (!RemoveVerified(temp, next, {}, "manual-release-temp", detail))
         return {true, false, backup, "manual save verified; temp cleanup deferred: " + detail};
     return {true, false, backup, "manual save installed and readback verified; previous generation retained in backup"};

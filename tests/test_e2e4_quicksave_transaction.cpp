@@ -328,4 +328,24 @@ int main(int argc, char** argv) {
         Write(source, ValidSave("RSG64", "v168"));
         assert(ReplaceGameSavePath(temp_name.c_str(), unicode_name.c_str()).ok);
     }
+    {
+        const auto dir = root / "manual-process-interruption";
+        fs::create_directories(dir);
+        const auto source = dir / "save.tmp", target = dir / fs::path(u"Ручной Ёж.sav");
+        Write(target, ValidSave("RSG", "v167")); Write(source, ValidSave("RSG64", "v168"));
+        const auto old_bytes = Read(target), next = Read(source);
+        try {
+            ReplaceGameSavePath(source.u16string().c_str(), target.u16string().c_str(), [](const char* operation) {
+                if (std::string(operation) == "manual-publish") throw std::runtime_error("process stopped");
+                return true;
+            });
+            assert(false);
+        } catch (const std::runtime_error&) {}
+        assert(!fs::exists(target));
+        const auto recovered = Recover(dir);
+        assert(recovered.ok && recovered.recovered && Read(target) == old_bytes && Read(source) == next);
+        assert(Recover(dir).ok && Read(target) == old_bytes);
+        assert(ReplaceGameSavePath(source.u16string().c_str(), target.u16string().c_str()).ok);
+        assert(Read(target) == next && Read(target.string() + ".bak") == old_bytes);
+    }
 }
