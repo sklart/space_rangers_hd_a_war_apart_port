@@ -8,7 +8,7 @@ if(NOT EXISTS "${MATRIXGAME_SHADER_DIR}/mesh_shaders.hpp")
 endif()
 get_filename_component(PORT_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../native-core" "${CMAKE_CURRENT_BINARY_DIR}/core")
-add_library(matrixgame-native-deko STATIC mesh_renderer.cpp png_texture.cpp)
+add_library(matrixgame-native-deko STATIC mesh_renderer.cpp png_texture.cpp buffer_renderer.cpp)
 target_include_directories(matrixgame-native-deko PUBLIC "${CMAKE_CURRENT_LIST_DIR}"
   "${MATRIXGAME_DEVKITPRO}/libnx/include")
 target_link_directories(matrixgame-native-deko PUBLIC "${MATRIXGAME_DEVKITPRO}/libnx/lib")

@@ -50,6 +50,7 @@ constexpr std::array attributes{
 constexpr std::array buffers{DkVtxBufferState{sizeof(MeshVertex),0}};
 }
 struct DekoMeshRenderer::Impl {
+  std::uint64_t mesh_revision{};
   dk::UniqueDevice device;
   dk::UniqueQueue queue;
   dk::UniqueCmdBuf commands;
@@ -169,8 +170,9 @@ DekoMeshRenderer::DekoMeshRenderer(std::uint32_t w,std::uint32_t h,
     :impl_(std::make_unique<Impl>(w,h,vs,fs)) {}
 DekoMeshRenderer::~DekoMeshRenderer()=default;
 void DekoMeshRenderer::SetMesh(std::span<const MeshVertex> vertices,std::span<const std::uint16_t> indices) {
-  if(vertices.empty() || vertices.size()>65536 || indices.empty() || indices.size()>1048576)
+  if(vertices.empty() || vertices.size()>MaxMeshVertices || indices.empty() || indices.size()>MaxMeshIndices)
     throw std::invalid_argument("deko triangle mesh extent");
+  if(impl_->mesh_revision==std::numeric_limits<std::uint64_t>::max()) throw std::overflow_error("deko mesh revision");
   std::vector<std::uint16_t> new_shadow(indices.begin(),indices.end());
   for(const auto& vertex:vertices) {
     for(float value:vertex.position) if(!std::isfinite(value)) throw std::invalid_argument("nonfinite vertex");
@@ -185,7 +187,9 @@ void DekoMeshRenderer::SetMesh(std::span<const MeshVertex> vertices,std::span<co
   impl_->vertices_mem=std::move(new_vertices); impl_->indices_mem=std::move(new_indices);
   impl_->vertex_bytes=vertices.size_bytes(); impl_->index_count=indices.size();
   impl_->index_shadow=std::move(new_shadow);
+  ++impl_->mesh_revision;
 }
+std::uint64_t DekoMeshRenderer::MeshRevision() const noexcept { return impl_->mesh_revision; }
 void DekoMeshRenderer::SetTextureRGBA8(std::uint32_t slot,std::uint32_t w,std::uint32_t h,
     std::uint32_t pitch,std::span<const std::byte> rgba) {
   if(!slot || slot>=max_textures) throw std::out_of_range("deko user texture slot");

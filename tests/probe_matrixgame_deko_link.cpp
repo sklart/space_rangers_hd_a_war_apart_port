@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 // Linkable future physical probe. Building it is NOT evidence of a GPU frame.
 #include "mesh_renderer.hpp"
+#include "buffer_renderer.hpp"
+#include "packed_vector.hpp"
 #include "vector_submission.hpp"
 #include "png_texture.hpp"
 #include "CBitmap.hpp"
@@ -63,10 +65,13 @@ int main(int argc,char** argv) {
       }
       std::printf("PNG GPU nearest readback PASS source=%ux%u output=64x64; battle_executed=false\n",size.width,size.height);return 0;
     }
-    if(argc==3 && std::string_view(argv[1])=="--geometry-only") {
+    if(argc==3 && (std::string_view(argv[1])=="--geometry-only"||std::string_view(argv[1])=="--geometry-buffers")) {
       const auto path=::matrixgame::native::ConfigWide(argv[2]);
       const auto model=VectorGeometry::Load(path.c_str());
-      UploadVectorGeometry(renderer,model);
+      const bool buffered=std::string_view(argv[1])=="--geometry-buffers";
+      buffers::Context context;std::optional<PackedVectorBuffers> packed;
+      if(buffered) {packed.emplace(model);const auto offsets=packed->Select(context);if(offsets.first||offsets.second)throw std::logic_error("single model packing origin");}
+      else UploadVectorGeometry(renderer,model);
       // Explicit geometry diagnostic, not a material/texture/battle render.
       // Use the model's actual first-frame bounds, preserving every vertex.
       const auto& frame=model.Frames()[0];
@@ -83,16 +88,24 @@ int main(int argc,char** argv) {
         for(int i=0;i<4;++i)material.draw.normal_from_model[i*5]=1;
       }
       const auto submissions=PlanVectorFrame(model,0,materials);
-      std::vector<std::byte> rgba(64*64*4);renderer.DrawFrame(submissions,rgba);
+      std::vector<std::byte> rgba(64*64*4);
+      if(buffered) {
+        DekoBufferRenderer adapter(renderer);adapter.Draw(context,submissions,rgba);
+        const auto original=rgba;const auto revision=renderer.MeshRevision();
+        adapter.Draw(context,submissions,rgba);
+        if(renderer.MeshRevision()!=revision||rgba!=original)throw std::runtime_error("unchanged buffer upload/cache mismatch");
+        packed->ReleaseBuffers();packed->Select(context);adapter.Draw(context,submissions,rgba);
+        if(renderer.MeshRevision()==revision||rgba!=original)throw std::runtime_error("recreated buffer upload mismatch");
+      } else renderer.DrawFrame(submissions,rgba);
       std::size_t covered=0;
       for(std::size_t i=0;i<rgba.size();i+=4)
         if(rgba[i]!=std::byte{0}||rgba[i+1]!=std::byte{0}||rgba[i+2]!=std::byte{0})++covered;
       if(!covered)throw std::runtime_error("VO GPU readback empty");
-      std::printf("VO GPU geometry-only frame=0 vertices=%zu groups=%zu covered=%zu; textures=false battle_executed=false\n",
-          model.Vertices().size(),submissions.size(),covered);
+      std::printf("VO GPU geometry-only frame=0 vertices=%zu groups=%zu covered=%zu original_big_buffers=%d; textures=false battle_executed=false\n",
+          model.Vertices().size(),submissions.size(),covered,int(buffered));
       return 0;
     }
-    if(argc!=1)throw std::invalid_argument("expected --sampler-state, --raster-state, --texture-request <name>, --texture <source> <64x64.rgba>, --png <PNG>, --geometry-only <VO>, or no arguments");
+    if(argc!=1)throw std::invalid_argument("expected --sampler-state, --raster-state, --texture-request <name>, --texture <source> <64x64.rgba>, --png <PNG>, --geometry-only/--geometry-buffers <VO>, or no arguments");
     const std::array mesh{
       MeshVertex{{0,0,0},{0,0,1},{0,0}}, // Unreferenced prefix; base vertex must be respected.
       MeshVertex{{-.9f,-.7f,.5f},{0,0,1},{0,0}},

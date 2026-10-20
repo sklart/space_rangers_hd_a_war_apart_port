@@ -19,6 +19,28 @@ foreach(SOURCE_SPEC IN ITEMS "${ORIGINAL}|218115a72fa9c5d43269f4ca84a8596a0bcb82
         message(FATAL_ERROR "Pinned reference source is changed or unavailable: ${SOURCE_DIR}")
     endif()
 endforeach()
+
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+execute_process(COMMAND "${Python3_EXECUTABLE}" "${PORT_ROOT}/tools/matrixgame_big_buffer_reference_prepare.py"
+    --output "${CMAKE_CURRENT_BINARY_DIR}/big-buffer-source" RESULT_VARIABLE BIG_BUFFER_PREPARE)
+if(NOT BIG_BUFFER_PREPARE EQUAL 0)
+    message(FATAL_ERROR "Original BigVB/BigIB reference preparation failed")
+endif()
+add_executable(matrixgame-big-buffer-x86-reference "${PORT_ROOT}/tests/test_matrixgame_big_buffers.cpp"
+    "${ORIGINAL}/MatrixLib/Base/CHeap.cpp" "${ORIGINAL}/MatrixLib/Base/CException.cpp" "${ORIGINAL}/MatrixLib/Base/Tracer.cpp")
+target_include_directories(matrixgame-big-buffer-x86-reference PRIVATE
+    "${CMAKE_CURRENT_BINARY_DIR}/big-buffer-source" "${PORT_ROOT}/tests" "${ORIGINAL}/MatrixLib/Base" "${ORIGINAL}/MatrixLib/3G")
+target_compile_features(matrixgame-big-buffer-x86-reference PRIVATE cxx_std_20)
+target_compile_definitions(matrixgame-big-buffer-x86-reference PRIVATE
+    MATRIXGAME_ORIGINAL_BIG_BUFFER_REFERENCE MAXEXP_EXPORTS _RELDEBUG _CRT_SECURE_NO_WARNINGS NOMINMAX)
+target_compile_options(matrixgame-big-buffer-x86-reference PRIVATE /UNDEBUG /Gy /Gw /fp:precise)
+target_link_options(matrixgame-big-buffer-x86-reference PRIVATE /OPT:REF)
+target_link_libraries(matrixgame-big-buffer-x86-reference PRIVATE d3d9 user32)
+
+# Actual SDK D3D9 API, independent of the missing legacy D3DX SDK.
+add_executable(matrixgame-d3d9-buffers-x86 "${PORT_ROOT}/tests/probe_matrixgame_d3d9_buffers_x86.cpp")
+target_compile_features(matrixgame-d3d9-buffers-x86 PRIVATE cxx_std_20)
+target_link_libraries(matrixgame-d3d9-buffers-x86 PRIVATE d3d9 user32)
 set(ZLIB_BUILD_SHARED OFF CACHE BOOL "" FORCE)
 set(ZLIB_BUILD_STATIC ON CACHE BOOL "" FORCE)
 set(ZLIB_BUILD_TESTING OFF CACHE BOOL "" FORCE)

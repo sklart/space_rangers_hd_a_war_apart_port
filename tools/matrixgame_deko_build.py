@@ -90,6 +90,7 @@ def main() -> int:
         required += ['dkCmdBufBindBlendStates', 'dkCmdBufSetAlphaRef']
         required += ['DecodeJpegTexture','jpeg_read_header','jpeg_start_decompress','jpeg_read_scanlines','jpeg_destroy_decompress']
         required += ['PrepareMips','D3DXEncodeBC1','D3DXEncodeBC2','D3DXEncodeBC3']
+        required += ['DekoBufferRenderer4Draw','CaptureBoundVO','ValidateBoundVO','MeshRevision']
         require(all(name in symbols for name in required), 'GPU draw/readback implementation missing from ELF')
         undefined = [line for line in symbols.splitlines() if ' UND ' in line and ' WEAK ' not in line and len(line.split()) > 7]
         require(not undefined, 'unresolved strong symbols: ' + str(undefined))

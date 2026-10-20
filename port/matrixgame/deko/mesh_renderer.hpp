@@ -15,6 +15,8 @@ namespace srhd_awa::matrixgame {
 // This boundary keeps every original vertex component; it performs no remeshing.
 struct MeshVertex { float position[3], normal[3], uv[2]; };
 static_assert(sizeof(MeshVertex)==32 && offsetof(MeshVertex,normal)==12 && offsetof(MeshVertex,uv)==24);
+inline constexpr std::size_t MaxMeshVertices=(8u*1024u*1024u)/sizeof(MeshVertex); // Original BVB_MAX_SIZE
+inline constexpr std::size_t MaxMeshIndices=1048576;
 struct MeshDraw {
   // Column-major GPU matrices. The caller owns D3DX row-vector conversion;
   // the renderer does not change geometry, camera or game simulation.
@@ -40,6 +42,7 @@ class DekoMeshRenderer {
   DekoMeshRenderer(const DekoMeshRenderer&)=delete;
   DekoMeshRenderer& operator=(const DekoMeshRenderer&)=delete;
   void SetMesh(std::span<const MeshVertex>, std::span<const std::uint16_t> index_buffer);
+  std::uint64_t MeshRevision() const noexcept;
   // Slots 1..63 are explicit owned RGBA8 textures. Slot 0 is the internal white
   // identity for an untextured pass; unknown slots never fall back silently.
   void SetTextureRGBA8(std::uint32_t slot,std::uint32_t width,std::uint32_t height,

@@ -11,6 +11,9 @@ endif()
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${PORT_ROOT}/tools/matrixgame_core_prepare.py"
     "${PORT_ROOT}/tools/matrixgame_lifecycle_overrides.py"
+    "${PORT_ROOT}/tools/matrixgame_big_buffer_overrides.py"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/BigVB.hpp"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/BigIB.hpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CMain.cpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/Form.cpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/Form.hpp"
@@ -65,6 +68,7 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/Cache.cpp")
 add_library(matrixgame-native-core STATIC texture_asset.cpp vector_geometry.cpp "${CORE_SOURCE}/CBitmap.cpp" "${CORE_SOURCE}/FilePNG.cpp" "${CORE_SOURCE}/CReminder.cpp" "${CORE_SOURCE}/CRC32.cpp"
     "${CORE_SOURCE}/CMain.cpp" "${CORE_SOURCE}/Form.cpp"
+    buffer_resources.cpp buffer_geometry.cpp
     "${CORE_SOURCE}/CBuf.cpp" "${CORE_SOURCE}/CBuf_file.cpp"
     "${CORE_SOURCE}/random.cpp" "${CORE_SOURCE}/Math3D.cpp" "${CORE_SOURCE}/CStorage.cpp" "${CORE_SOURCE}/CStorage_blockpar.cpp" "${CORE_SOURCE}/CBlockPar.cpp" heap_native.cpp cbuf_utf16.cpp exception_native.cpp file_native.cpp "${PORT_ROOT}/port/switch/platform/package.cpp")
 target_include_directories(matrixgame-native-core PUBLIC "${CORE_SOURCE}" "${CMAKE_CURRENT_LIST_DIR}")
@@ -116,6 +120,17 @@ if(CORE_THREAD_SANITIZER)
 endif()
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(matrixgame-native-big-buffer-test "${PORT_ROOT}/tests/test_matrixgame_big_buffers.cpp")
+    target_link_libraries(matrixgame-native-big-buffer-test PRIVATE matrixgame-native-core)
+    target_compile_options(matrixgame-native-big-buffer-test PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
+    add_test(NAME matrixgame-native-big-buffer-contract COMMAND matrixgame-native-big-buffer-test)
+    if(UNIX AND NOT CMAKE_CROSSCOMPILING AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        add_executable(matrixgame-native-buffer-fault-test "${PORT_ROOT}/tests/test_matrixgame_buffer_faults.cpp")
+        target_link_libraries(matrixgame-native-buffer-fault-test PRIVATE matrixgame-native-core)
+        target_compile_options(matrixgame-native-buffer-fault-test PRIVATE -UNDEBUG)
+        target_link_options(matrixgame-native-buffer-fault-test PRIVATE -Wl,--wrap=calloc -Wl,--wrap=realloc)
+        add_test(NAME matrixgame-native-buffer-allocation-fault COMMAND matrixgame-native-buffer-fault-test)
+    endif()
     add_executable(matrixgame-native-lifecycle-test "${PORT_ROOT}/tests/test_matrixgame_native_lifecycle.cpp")
     target_link_libraries(matrixgame-native-lifecycle-test PRIVATE matrixgame-native-core)
     target_compile_options(matrixgame-native-lifecycle-test PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
