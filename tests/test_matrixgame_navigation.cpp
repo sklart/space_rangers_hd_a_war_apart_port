@@ -59,6 +59,7 @@ static void fixture(const char* output) {
 }
 int main(int argc,char** argv) {
     assert(argc<=3);
+    CMain::BaseInit();
     fixture(argc==3 ? argv[2] : nullptr);
     if(argc>=2) {
         std::filesystem::path file(argv[1]);
@@ -100,4 +101,5 @@ int main(int argc,char** argv) {
                     graph.m_ZoneCnt,graph.m_RoadCnt,graph.m_CrotchCnt,graph.m_RegionCnt,b.Len(),fingerprint(b),fingerprint(roundtrip),queries,reachable,cannons,int(raw_equal));
     }
     std::puts("PASS navigation CPU algorithms and version-27 resource roundtrip; battle_executed=false");
+    CMain::BaseDeInit();
 }

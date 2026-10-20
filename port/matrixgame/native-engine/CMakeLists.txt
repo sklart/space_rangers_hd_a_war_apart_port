@@ -46,3 +46,18 @@ target_include_directories(matrixgame-native-engine PRIVATE
     "${ENGINE_SOURCE}/MatrixGame" "${ENGINE_SOURCE}/MatrixGame/src"
     "${ENGINE_SOURCE}/MatrixLib/Base" "${ENGINE_SOURCE}/MatrixLib/3G" "${ENGINE_SOURCE}/MatrixLib/Bitmap")
 target_compile_features(matrixgame-native-engine PUBLIC cxx_std_20)
+
+# Full prepared MatrixLib units for per-file compatibility auditing. This is
+# intentionally separate from the selected CPU native-core implementation and
+# must not be linked together with it as a substitute for dependency closure.
+file(GLOB_RECURSE MATRIXLIB_AUDIT_UNITS CONFIGURE_DEPENDS "${ENGINE_SOURCE}/MatrixLib/*.cpp")
+add_library(matrixgame-native-matrixlib-audit STATIC EXCLUDE_FROM_ALL ${MATRIXLIB_AUDIT_UNITS})
+target_include_directories(matrixgame-native-matrixlib-audit PRIVATE
+    "${ENGINE_SOURCE}/MatrixLib/Base" "${ENGINE_SOURCE}/MatrixLib/3G" "${ENGINE_SOURCE}/MatrixLib/Bitmap"
+    "${CMAKE_CURRENT_LIST_DIR}/../native-core" "${PORT_ROOT}/port/switch/platform"
+    "${PORT_ROOT}/port/matrixgame/third_party/directxmath/Inc" "${PORT_ROOT}/port/matrixgame/third_party/sal")
+target_compile_features(matrixgame-native-matrixlib-audit PRIVATE cxx_std_20)
+if(NOT MSVC)
+    target_compile_definitions(matrixgame-native-matrixlib-audit PRIVATE _POSIX_C_SOURCE=200809L)
+    target_compile_options(matrixgame-native-matrixlib-audit PRIVATE -ffp-contract=off)
+endif()

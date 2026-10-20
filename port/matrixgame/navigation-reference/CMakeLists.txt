@@ -26,8 +26,7 @@ set(ZLIB_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory("${ZLIB_SOURCE}" "${CMAKE_CURRENT_BINARY_DIR}/zlib")
 # Compile original files without portable overlays. Original MAXEXP_EXPORTS
 # selects disk I/O without the optional package API.
-add_executable(matrixgame-navigation-x86-reference
-    "${PORT_ROOT}/tests/test_matrixgame_navigation.cpp"
+set(REFERENCE_SOURCES
     "${ORIGINAL}/MatrixGame/src/Logic/MatrixRoadNetwork.cpp"
     "${ORIGINAL}/MatrixLib/Base/CBuf.cpp"
     "${ORIGINAL}/MatrixLib/Base/CBlockPar.cpp"
@@ -35,14 +34,20 @@ add_executable(matrixgame-navigation-x86-reference
     "${ORIGINAL}/MatrixLib/Base/CRC32.cpp"
     "${ORIGINAL}/MatrixLib/Base/CFile.cpp"
     "${ORIGINAL}/MatrixLib/Base/CHeap.cpp"
+    "${ORIGINAL}/MatrixLib/Base/CMain.cpp"
+    "${ORIGINAL}/MatrixLib/3G/Form.cpp"
     "${ORIGINAL}/MatrixLib/Base/CException.cpp"
     "${ORIGINAL}/MatrixLib/Base/Tracer.cpp")
-target_include_directories(matrixgame-navigation-x86-reference PRIVATE
-    "${ORIGINAL}/MatrixLib/Base" "${ORIGINAL}/MatrixGame/src/Logic"
+add_executable(matrixgame-navigation-x86-reference "${PORT_ROOT}/tests/test_matrixgame_navigation.cpp" ${REFERENCE_SOURCES})
+add_executable(matrixgame-lifecycle-x86-reference "${PORT_ROOT}/tests/test_matrixgame_native_lifecycle.cpp" ${REFERENCE_SOURCES})
+foreach(REFERENCE_TARGET IN ITEMS matrixgame-navigation-x86-reference matrixgame-lifecycle-x86-reference)
+target_include_directories(${REFERENCE_TARGET} PRIVATE
+    "${ORIGINAL}/MatrixLib/Base" "${ORIGINAL}/MatrixLib/3G" "${ORIGINAL}/MatrixGame/src/Logic"
     "${ZLIB_SOURCE}" "${CMAKE_CURRENT_BINARY_DIR}/zlib")
-target_compile_features(matrixgame-navigation-x86-reference PRIVATE cxx_std_20)
-target_compile_definitions(matrixgame-navigation-x86-reference PRIVATE
+target_compile_features(${REFERENCE_TARGET} PRIVATE cxx_std_20)
+target_compile_definitions(${REFERENCE_TARGET} PRIVATE
     MAXEXP_EXPORTS _RELDEBUG _CRT_SECURE_NO_WARNINGS NOMINMAX)
-target_compile_options(matrixgame-navigation-x86-reference PRIVATE /UNDEBUG /Gy /Gw /fp:precise)
-target_link_options(matrixgame-navigation-x86-reference PRIVATE /OPT:REF)
-target_link_libraries(matrixgame-navigation-x86-reference PRIVATE zlibstatic)
+target_compile_options(${REFERENCE_TARGET} PRIVATE /UNDEBUG /Gy /Gw /fp:precise)
+target_link_options(${REFERENCE_TARGET} PRIVATE /OPT:REF)
+target_link_libraries(${REFERENCE_TARGET} PRIVATE zlibstatic)
+endforeach()

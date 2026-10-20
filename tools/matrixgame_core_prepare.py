@@ -13,6 +13,7 @@ from matrixgame_reminder_overrides import INPUTS as REMINDER_INPUTS, patch_remin
 from matrixgame_bitmap_overrides import INPUTS as BITMAP_INPUTS, SUBDIRS as BITMAP_SUBDIRS, patch_bitmap
 from matrixgame_texture_request_overrides import INPUTS as TEXTURE_INPUTS, SUBDIRS as TEXTURE_SUBDIRS, patch_texture_requests
 from matrixgame_bc_prepare import prepare_bc
+from matrixgame_lifecycle_overrides import INPUTS as LIFECYCLE_INPUTS, SUBDIRS as LIFECYCLE_SUBDIRS, patch_lifecycle
 
 INPUTS = {
     'CFile.cpp': '09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49',
@@ -35,7 +36,8 @@ INPUTS.update(VECTOR_INPUTS)
 INPUTS.update(REMINDER_INPUTS)
 INPUTS.update(BITMAP_INPUTS)
 INPUTS.update(TEXTURE_INPUTS)
-SOURCE_SUBDIRS={**MATH_SUBDIRS, **ENGINE_SUBDIRS, **VECTOR_SUBDIRS, **BITMAP_SUBDIRS, **TEXTURE_SUBDIRS}
+INPUTS.update(LIFECYCLE_INPUTS)
+SOURCE_SUBDIRS={**MATH_SUBDIRS, **ENGINE_SUBDIRS, **VECTOR_SUBDIRS, **BITMAP_SUBDIRS, **TEXTURE_SUBDIRS, **LIFECYCLE_SUBDIRS}
 
 def replace_body(text, signature, replacement):
     if text.count(signature) != 1:
@@ -60,6 +62,7 @@ def prepare(output: Path):
     for name, data in files.items():
         if hashlib.sha256(data).hexdigest() != INPUTS[name]:
             raise ValueError("Pinned MatrixLib input changed: " + name)
+    patch_lifecycle(files)
     text = files["BaseDef.hpp"].decode("utf-8")
     for old, new in [
         ("using dword = unsigned long;", "using dword = std::uint32_t;"),

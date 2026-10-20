@@ -15,6 +15,7 @@ def main():
     p.add_argument('--build-root', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--target', action='append')
+    p.add_argument('--source-view', type=Path, help='Compile the same recipe against a preserved prepared source view')
     p.add_argument('--jobs', type=int, default=2, choices=(1, 2, 3, 4))
     a = p.parse_args()
     build = a.build_root.resolve(strict=True); out = a.output.resolve()
@@ -28,14 +29,38 @@ def main():
     commands = [c for c in commands if any('/' + t + '.dir/' in c['command'] for t in targets)]
     if not commands: raise ValueError('No matching engine compilation commands')
     report = dict(status='RUNNING', scope='actual objects only; no full link/runtime claim', units=[], targets=targets)
+    source_view = None
+    original_view = (build/'source').as_posix()
+    if a.source_view:
+        source_view = a.source_view.resolve(strict=True)
+        if not source_view.is_relative_to(ROOT/'build'):
+            raise ValueError('Source view must be a preserved build artifact')
+        marker=json.loads((source_view/'native-engine-source.json').read_text())
+        if marker['source_commit']!='218115a72fa9c5d43269f4ca84a8596a0bcb82f1':
+            raise ValueError('Source view pin differs')
+        report['source_view']=source_view.relative_to(ROOT).as_posix()
+    checked_view=source_view or build/'source'
+    marker_path=checked_view/'native-engine-source.json'
+    marker=json.loads(marker_path.read_text())
+    if marker['source_commit']!='218115a72fa9c5d43269f4ca84a8596a0bcb82f1':
+        raise ValueError('Prepared engine source pin differs')
+    for name,digest in marker['files_sha256'].items():
+        source_path=(checked_view/name).resolve(strict=True)
+        if not source_path.is_relative_to(checked_view) or hashlib.sha256(source_path.read_bytes()).hexdigest()!=digest:
+            raise ValueError('Prepared source no longer matches provenance: '+name)
+    report['source_manifest_sha256']=hashlib.sha256(marker_path.read_bytes()).hexdigest()
     destination = out / 'result.json'
     def save(): destination.write_text(json.dumps(report, indent=2) + '\n')
     save()
     def compile_one(index, command):
         args = shlex.split(command['command'])
+        if source_view:
+            args=[arg.replace(original_view,source_view.as_posix()) for arg in args]
         obj = out / f'{index}.o'
         args[args.index('-o') + 1] = str(obj)
         source = Path(command['file'])
+        if source_view:
+            source=source_view/source.relative_to(build/'source')
         relative = source.as_posix().split('/source/', 1)[-1]
         run = subprocess.run(args, cwd=command['directory'], stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT, text=True, timeout=240)

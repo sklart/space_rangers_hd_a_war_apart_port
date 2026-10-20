@@ -10,6 +10,10 @@ if(NOT PREPARE_RESULT EQUAL 0)
 endif()
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${PORT_ROOT}/tools/matrixgame_core_prepare.py"
+    "${PORT_ROOT}/tools/matrixgame_lifecycle_overrides.py"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CMain.cpp"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/Form.cpp"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/Form.hpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/BaseDef.hpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CRC32.hpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CRC32.cpp"
@@ -60,6 +64,7 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/Texture.hpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/Cache.cpp")
 add_library(matrixgame-native-core STATIC texture_asset.cpp vector_geometry.cpp "${CORE_SOURCE}/CBitmap.cpp" "${CORE_SOURCE}/FilePNG.cpp" "${CORE_SOURCE}/CReminder.cpp" "${CORE_SOURCE}/CRC32.cpp"
+    "${CORE_SOURCE}/CMain.cpp" "${CORE_SOURCE}/Form.cpp"
     "${CORE_SOURCE}/CBuf.cpp" "${CORE_SOURCE}/CBuf_file.cpp"
     "${CORE_SOURCE}/random.cpp" "${CORE_SOURCE}/Math3D.cpp" "${CORE_SOURCE}/CStorage.cpp" "${CORE_SOURCE}/CStorage_blockpar.cpp" "${CORE_SOURCE}/CBlockPar.cpp" heap_native.cpp cbuf_utf16.cpp exception_native.cpp file_native.cpp "${PORT_ROOT}/port/switch/platform/package.cpp")
 target_include_directories(matrixgame-native-core PUBLIC "${CORE_SOURCE}" "${CMAKE_CURRENT_LIST_DIR}")
@@ -111,6 +116,10 @@ if(CORE_THREAD_SANITIZER)
 endif()
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(matrixgame-native-lifecycle-test "${PORT_ROOT}/tests/test_matrixgame_native_lifecycle.cpp")
+    target_link_libraries(matrixgame-native-lifecycle-test PRIVATE matrixgame-native-core)
+    target_compile_options(matrixgame-native-lifecycle-test PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
+    add_test(NAME matrixgame-native-lifecycle-contract COMMAND matrixgame-native-lifecycle-test)
     add_executable(matrixgame-native-mips-test "${PORT_ROOT}/tests/test_matrixgame_native_mips.cpp")
     target_link_libraries(matrixgame-native-mips-test PRIVATE matrixgame-native-core)
     add_test(NAME matrixgame-native-mips-contract COMMAND "${Python3_EXECUTABLE}"
