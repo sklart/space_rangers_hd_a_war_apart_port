@@ -59,7 +59,7 @@ def sysclk(path,offset=None):
 def percentile(values,fraction):
     return sorted(values)[math.ceil((len(values)-1)*fraction)] if values else None
 
-def analyze(game,clock=None,stage_log=None,clock_log=None,title_id='',max_align_ms=1500,utc_offset=None):
+def analyze(game,clock=None,stage_log=None,clock_log=None,title_id='',max_align_ms=1500,utc_offset=None,screens=None):
     raw=read_csv(game);rows=[];bad=0
     for r in raw:
         try:
@@ -85,7 +85,7 @@ def analyze(game,clock=None,stage_log=None,clock_log=None,title_id='',max_align_
     compatible=[r for r in clocks if wanted and r['app_tid']==wanted]
     times=[r['epoch_ms'] for r in compatible]
     if clock and not compatible:warnings.append('No sys-clk rows with the matching title ID')
-    battle_screens={r['screen'] for r in rows if r['stage']=='timer' and r['screen']>=0}
+    battle_screens=set(screens) if screens is not None else {r['screen'] for r in rows if r['stage']=='timer' and r['screen']>=0}
     frames=[r for r in rows if r['stage']=='frame' and (not battle_screens or r['screen'] in battle_screens)]
     aligned=[]
     for r in frames:
@@ -104,6 +104,7 @@ def analyze(game,clock=None,stage_log=None,clock_log=None,title_id='',max_align_
             **({k:v for k,v in match.items() if k not in {'raw','epoch_ms'}} if match else {})))
     stats={};grouped=defaultdict(list)
     for r in rows:
+        if screens is not None and r['screen'] not in battle_screens:continue
         if r['stage'] in {'anchor','session','logical_tick','memory','backlog','heartbeat','frame'}:continue
         grouped[r['stage']].append(r)
     for stage,samples in grouped.items():
@@ -120,11 +121,18 @@ def analyze(game,clock=None,stage_log=None,clock_log=None,title_id='',max_align_
     if not frames:warnings.append('No completed frame samples; hardware recording not established')
     gaps=[r['wall_us']/1000 for r in frames if r['wall_us']>0]
     health=[r for r in rows if r['stage']=='heartbeat']
+    tick_health=[r for r in health if r['screen'] in battle_screens]
+    tick_window=(tick_health[-1]['mono_us']-tick_health[0]['mono_us'])/1e6 if len(tick_health)>1 else 0
+    counter_ticks=tick_health[-1]['b']-tick_health[0]['b'] if tick_window else None
     summary=dict(status='ANALYZED DATA ONLY; hardware provenance supplied by caller',
         build_markers=sorted(set(re.findall(r'build_git=([^\s]+)',stage_text))),
         modes=sorted(set(r['a'] for r in rows if r['stage']=='session')),
         applet_types=sorted(set(int(s) for s in re.findall(r'applet_type=(-?\d+)',stage_text))),
         title_id=wanted or None,game_samples=len(rows),frame_samples=len(frames),battle_screens=sorted(battle_screens),
+        explicit_screen_filter=sorted(screens) if screens is not None else None,
+        tick_counter_window_s=tick_window or None,ticks_from_cumulative_heartbeat=counter_ticks,
+        actual_ticks_per_second=counter_ticks/tick_window if tick_window and counter_ticks>=0 else None,
+        tick_rate_scope='Completed ArcadeTickCount increments, heartbeat interval; includes paused/result periods, not a per-active-mode rate',
         fps_from_intervals=1000/(sum(gaps)/len(gaps)) if gaps else None,
         frame_p50_ms=percentile(gaps,.5),frame_p95_ms=percentile(gaps,.95),frame_max_ms=max(gaps) if gaps else None,
         max_observed_no_frame_ms=max((r['wall_us']/1000 for r in health),default=0),
@@ -182,16 +190,18 @@ def main(argv=None):
     p.add_argument('--sys-clk-csv',type=Path);p.add_argument('--sys-clk-log',type=Path)
     p.add_argument('--title-id',default='');p.add_argument('--max-align-ms',type=float,default=1500)
     p.add_argument('--csv-utc-offset-minutes',type=int);p.add_argument('--out',type=Path,required=True)
+    p.add_argument('--screen',type=int,action='append',help='Restrict frames/stage statistics to actual screen ID; repeat to select several')
     args=p.parse_args(argv)
     if args.max_align_ms<=0:p.error('max-align-ms must be positive')
-    summary,aligned,rows,clocks=analyze(args.game,args.sys_clk_csv,args.stage_log,args.sys_clk_log,args.title_id,args.max_align_ms,args.csv_utc_offset_minutes)
+    summary,aligned,rows,clocks=analyze(args.game,args.sys_clk_csv,args.stage_log,args.sys_clk_log,args.title_id,args.max_align_ms,args.csv_utc_offset_minutes,args.screen)
     args.out.mkdir(parents=True,exist_ok=False)
     fields=sorted(set().union(*(r.keys() for r in aligned))) if aligned else ['mono_us','frame_ms']
     with (args.out/'aligned.csv').open('w',encoding='utf-8',newline='') as f:
         w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(aligned)
     (args.out/'sysclk-normalized.json').write_text(json.dumps(clocks,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     plot_clocks=[r for r in clocks if r['app_tid']==summary['title_id']] if not summary['time_alignment'].startswith('DISABLED') else []
-    summary['plot_status']=plots(args.out,rows,plot_clocks)
+    plot_rows=[r for r in rows if r['screen'] in args.screen] if args.screen is not None else rows
+    summary['plot_status']=plots(args.out,plot_rows,plot_clocks) if plot_rows else 'No selected screen samples'
     (args.out/'summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     report=['# Performance analysis','',summary['status'],'',
         'Frame samples: '+str(summary['frame_samples'])+'; matched sys-clk frames: '+str(summary['matched_frames']),

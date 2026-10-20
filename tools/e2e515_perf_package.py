@@ -61,9 +61,14 @@ def main():
     (out/'analysis').mkdir()
     shutil.copyfile(ROOT/'tools/e2e515_perf_analyze.py',out/'analysis/e2e515_perf_analyze.py')
     shutil.copyfile(ROOT/'docs/e2e515-performance-diagnostics.md',out/'README-RU.md')
+    shutil.copyfile(ROOT/'docs/e2e515-hardware-followup-test.md',out/'README-test.md')
+    shutil.copyfile(ROOT/'tools/e2e515_scene_analyze.py',out/'analysis/e2e515_scene_analyze.py')
     for mode in ['basic','detail','off']:
         d=out/'mode-examples'/mode;d.mkdir(parents=True)
         (d/'perf-mode.txt').write_text(mode+'\n',encoding='ascii')
+    for mode in ['on','off']:
+        d=out/'mode-examples'/('scene-'+mode);d.mkdir(parents=True)
+        (d/'scene-mode.txt').write_text(mode+'\n',encoding='ascii')
     shutil.copyfile(build/'build-report.json',out/'build-report.json')
     shutil.copyfile(build/'effective-source-map.json',out/'effective-source-map.json')
     shutil.copyfile(build/'effective-import-manifest.json',out/'effective-import-manifest.json')

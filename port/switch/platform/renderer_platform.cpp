@@ -3,6 +3,7 @@
 #include "e2e_stage.hpp"
 #include "e2e5_stage_profiler.hpp"
 #include "e2e_threads.hpp"
+#include "e2e515_perf.hpp"
 #include "units/GI_MessageLoop.hpp"
 #if defined(E2E5_HOST_SDL_WINDOW)
 #include "e2e3_generation_state.hpp"
@@ -48,6 +49,59 @@ struct SceneBackdrop {
 // Keep their addresses stable until renderer shutdown, unlike frame canvases.
 std::vector<SceneBackdrop> g_scene_backdrops;
 SceneCanvas* g_active_canvas{};
+std::uint64_t g_canvas_generation{};
+bool SceneDiagnosticsEnabled() {
+#if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
+  return perf515::SceneEnabled();
+#else
+  return false;
+#endif
+}
+void SceneAsyncLog(const char* prefix,const char* text) {
+#if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
+  perf515::AsyncLog(prefix,text);
+#else
+  (void)prefix;(void)text;
+#endif
+}
+
+int SceneId(const void* scene) {
+  if(!scene)return -1;
+  for(int id=1;id<42;++id)if(GlobalsV::RegisteredScreens[id]==scene)return id;
+  return -1;
+}
+void SceneImage(const char* event,int id,std::uint64_t generation,const void* owner,
+                GR_GraphBuf::TGraphBufGR* buffer,std::int64_t turn=-1,
+                std::int64_t film=-1,std::int64_t order=-1,std::uint64_t frame=0) {
+  if(!SceneDiagnosticsEnabled() || !buffer)return;
+  int x=-1000,y=-1000;
+  if(GI_MessageLoop::MessageLoopStack && pas::list_count(GI_MessageLoop::MessageLoopStack)) {
+    auto* loop=pas::list_at<GI_MessageLoop::TMessageLoopGI>(GI_MessageLoop::MessageLoopStack,
+        pas::list_count(GI_MessageLoop::MessageLoopStack)-1);
+    if(loop->CursorControl){x=loop->CursorControl->LocalPosition.X;y=loop->CursorControl->LocalPosition.Y;}
+  }
+#if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
+  perf515::SceneImage(event,id,generation,owner,buffer,buffer->GetPixels(),buffer->PitchBytes,
+      buffer->Width,buffer->Height,x,y,turn,film,order,frame);
+#endif
+}
+void SceneLog(const char* event,const void* owner,std::uint64_t generation,
+              const void* buffer,const void* source,const void* parent,int id) {
+  if(!SceneDiagnosticsEnabled())return;
+  char stack[240]{};std::size_t offset{};
+  const int depth=GI_MessageLoop::MessageLoopStack?pas::list_count(GI_MessageLoop::MessageLoopStack):0;
+  for(int i=0;i<depth && i<8;++i) {
+    const auto* entry=pas::list_get(GI_MessageLoop::MessageLoopStack,i);
+    const int n=std::snprintf(stack+offset,sizeof(stack)-offset,"%s%d@%p",i?"/":"",SceneId(entry),entry);
+    if(n<0 || static_cast<std::size_t>(n)>=sizeof(stack)-offset)break;
+    offset+=static_cast<std::size_t>(n);
+  }
+  char line[600]{};
+  std::snprintf(line,sizeof(line),"event=%s screen=%d generation=%llu owner=%p buffer=%p source=%p parent=%p depth=%d stack=%s stack_truncated=%d",
+      event,id,static_cast<unsigned long long>(generation),owner,buffer,source,parent,
+      depth,depth?stack:"empty",int(depth>8));
+  SceneAsyncLog("[SCENE] ",line);
+}
 struct CapturedBackground {
   GR_GraphBuf::TGraphBufGR* buffer{};
   const GR_GraphBuf::TGraphBufGR* source{};
@@ -217,6 +271,10 @@ void PreserveCapturedBackground() {
   if (owner) owner->captured_source_hash_ = source_hash;
   else { captured.source = source; captured.source_hash = source_hash; }
   ready = true;
+  if(owner) {
+    SceneLog("background-capture",owner->scene_,owner->generation_,buffer,source,owner->parent_,owner->screen_id_);
+    SceneImage("background-capture",owner->screen_id_,owner->generation_,owner->scene_,prepared);
+  }
   char detail[224]{};
   std::snprintf(detail, sizeof(detail), "scene background captured id=%u width=%d height=%d source_hash=%016llx prepared_hash=%016llx",
       static_cast<unsigned>(GlobalsV::CurrentScreenId), prepared->Width, prepared->Height,
@@ -229,6 +287,7 @@ SceneCanvas::SceneCanvas(bool inherit_background, const void* scene)
     : parent_(GR_Main::ScreenRenderBuffer), parent_aux_(GR_Main::AuxRenderBuffer),
       parent_scope_(g_active_canvas), started_ms_(e2e_clock::Microseconds() / 1000) {
   if (!parent_) return;
+  scene_=scene;screen_id_=SceneId(scene);generation_=++g_canvas_generation;
   nested_ = GI_MessageLoop::MessageLoopStack &&
       pas::list_count(GI_MessageLoop::MessageLoopStack) != 0;
   auto* prepared = nested_ && parent_scope_ && parent_scope_->captured_ready_ ? parent_scope_->captured_ :
@@ -273,6 +332,9 @@ SceneCanvas::SceneCanvas(bool inherit_background, const void* scene)
   if (!nested_) g_captured_background.valid = false;
   GR_Main::ScreenRenderBuffer = canvas_;
   g_active_canvas = this;
+  SceneLog("scene-enter",scene_,generation_,canvas_,use_prepared?prepared:parent_,parent_scope_?parent_scope_->scene_:nullptr,screen_id_);
+  SceneImage("scene-enter",screen_id_,generation_,scene_,canvas_);
+  if(inherit_background)SceneImage("background-restore",screen_id_,generation_,scene_,aux);
   GR_Main::FullFrameRedrawRequested = true;
   char detail[160]{};
   std::snprintf(detail, sizeof(detail), "scene canvas id=%u inherit=%u nested=%u aux_width=%d aux_height=%d prepared=%u",
@@ -283,6 +345,7 @@ SceneCanvas::SceneCanvas(bool inherit_background, const void* scene)
 
 SceneCanvas::~SceneCanvas() {
   if (!canvas_) return;
+  SceneLog("scene-exit",scene_,generation_,canvas_,nullptr,parent_scope_?parent_scope_->scene_:nullptr,screen_id_);
   // A sequential overlay may capture the last completed scene in OnOpen.
   // Nested windows instead reveal their unchanged, still-running parent.
   if (!nested_) {
@@ -305,9 +368,62 @@ SceneCanvas::~SceneCanvas() {
   GR_Main::ScreenRenderBuffer = parent_;
   GR_Main::AuxRenderBuffer = parent_aux_;
   GR_Main::FullFrameRedrawRequested = true;
+  if(parent_scope_) {
+    parent_scope_->pending_samples_=1;
+    SceneLog("background-restore",parent_scope_->scene_,parent_scope_->generation_,parent_,parent_,scene_,parent_scope_->screen_id_);
+  }
   pas::free(canvas_);
   g_active_canvas = parent_scope_;
   if (parent_scope_) parent_scope_->nested_millis_ += e2e_clock::Microseconds() / 1000 - started_ms_;
+}
+
+void SceneFrameBegin(const void* scene,std::int64_t turn,std::int64_t film,std::int64_t order) {
+  if(!SceneDiagnosticsEnabled() || !g_active_canvas || g_active_canvas->scene_!=scene)return;
+  auto& c=*g_active_canvas;
+  // Battle diagnostics remain independent of this bounded scene experiment.
+  if(c.screen_id_==21 || c.screen_id_==40)return;
+  ++c.frames_;
+  const bool state_changed=c.screen_id_==16 && (c.turn_!=turn || c.order_!=order);
+  c.turn_=turn;c.film_=film;c.order_=order;
+  if(state_changed)SceneAction("map-state-observed",scene,turn,order);
+  c.sample_frame_=c.frames_==1 || c.frames_==60 || c.pending_samples_;
+  if(c.pending_samples_)--c.pending_samples_;
+  if(c.sample_frame_) {
+    const auto* loop=static_cast<const GI_MessageLoop::TMessageLoopGI*>(scene);
+    char line[320]{};
+    std::snprintf(line,sizeof(line),"event=frame-compose screen=%d generation=%llu frame=%llu owner=%p buffer=%p aux=%p saved_pixels=%d saved_lines=%d",
+        c.screen_id_,static_cast<unsigned long long>(c.generation_),static_cast<unsigned long long>(c.frames_),scene,
+        GR_Main::ScreenRenderBuffer,GR_Main::AuxRenderBuffer,loop->SavedPixelCount16,loop->SavedLineCount);
+    SceneAsyncLog("[SCENE] ",line);
+    SceneImage("compose-before",c.screen_id_,c.generation_,c.scene_,GR_Main::ScreenRenderBuffer,turn,film,order,c.frames_);
+  }
+}
+void SceneFrameEnd(const void* scene) {
+  if(!SceneDiagnosticsEnabled() || !g_active_canvas || g_active_canvas->scene_!=scene)return;
+  auto& c=*g_active_canvas;
+  if(c.sample_frame_)SceneImage("compose-after",c.screen_id_,c.generation_,c.scene_,GR_Main::ScreenRenderBuffer,c.turn_,c.film_,c.order_,c.frames_);
+}
+void SceneAction(const char* event,const void* scene,std::int64_t turn,std::int64_t value) {
+  if(!SceneDiagnosticsEnabled() || !g_active_canvas || g_active_canvas->scene_!=scene)return;
+  auto& c=*g_active_canvas;c.pending_samples_=2;
+  char line[320]{};
+  std::snprintf(line,sizeof(line),"event=%s screen=%d generation=%llu owner=%p turn=%lld value=%lld",
+      event,c.screen_id_,static_cast<unsigned long long>(c.generation_),scene,
+      static_cast<long long>(turn),static_cast<long long>(value));
+  SceneAsyncLog("[SCENE] ",line);
+}
+void SceneCache(const char* event,const void* scene,const void* control,
+                GR_GraphBuf::TGraphBufGR* buffer,bool alpha,bool borrowed) {
+  if(!SceneDiagnosticsEnabled() || !g_active_canvas || !buffer)return;
+  const auto& c=*g_active_canvas;
+  if(event[0]=='d' && !c.sample_frame_)return;
+  const void* source_owner=nullptr;int source_depth=-1;
+  for(const auto& entry:g_scene_backdrops)if(entry.buffer==buffer){source_owner=entry.scene;source_depth=entry.depth;break;}
+  char line[512]{};
+  std::snprintf(line,sizeof(line),"event=ui-cache-%s screen=%d generation=%llu frame=%llu owner=%p control=%p control_loop=%p buffer=%p source_owner=%p source_depth=%d width=%d height=%d pitch=%d bpp=%d alpha=%d borrowed=%d",
+      event,c.screen_id_,static_cast<unsigned long long>(c.generation_),static_cast<unsigned long long>(c.frames_),c.scene_,control,scene,
+      buffer,source_owner,source_depth,buffer->Width,buffer->Height,buffer->PitchBytes,buffer->BitsPerPixel,int(alpha),int(borrowed));
+  SceneAsyncLog("[SCENE] ",line);
 }
 
 std::uint64_t NestedLoopMillis() { return g_active_canvas ? g_active_canvas->NestedMillis() : 0; }
@@ -461,6 +577,15 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   if (!g_initialized) return PresentationFailure("renderer not initialized");
   if (!pixels) return PresentationFailure("pixels missing");
   if (!ValidDimensions(width, height, pitch)) return PresentationFailure("invalid dimensions");
+#if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
+  if(perf515::SceneEnabled() && g_active_canvas && g_active_canvas->sample_frame_) {
+    auto& c=*g_active_canvas;
+    // This is the exact CPU input of SDL_UpdateTexture below, not GPU readback.
+    perf515::SceneImage("present-input",c.screen_id_,c.generation_,c.scene_,GR_Main::ScreenRenderBuffer,
+        pixels,pitch,width,height,-1000,-1000,c.turn_,c.film_,c.order_,c.frames_);
+    c.sample_frame_=false;
+  }
+#endif
 #if defined(E2E5_HOST_SDL_WINDOW)
   // Explicit opt-in diagnostic capture, always from the game/UI thread.
   if (const auto* directory = std::getenv("E2E511_HOST_FRAMES")) {

@@ -19,6 +19,17 @@ public:
   std::uint64_t NestedMillis() const { return nested_millis_; }
 private:
   friend void PreserveCapturedBackground();
+  friend void SceneFrameBegin(const void*,std::int64_t,std::int64_t,std::int64_t);
+  friend void SceneFrameEnd(const void*);
+  friend void SceneAction(const char*,const void*,std::int64_t,std::int64_t);
+  friend void SceneCache(const char*,const void*,const void*,GR_GraphBuf::TGraphBufGR*,bool,bool);
+  friend bool PresentRgb565(const void*,std::int32_t,std::int32_t,std::int32_t);
+  const void* scene_{};
+  std::uint64_t generation_{}, frames_{};
+  int screen_id_{-1};
+  unsigned pending_samples_{};
+  bool sample_frame_{};
+  std::int64_t turn_{-1}, film_{-1}, order_{-1};
   GR_GraphBuf::TGraphBufGR* parent_{};
   GR_GraphBuf::TGraphBufGR* canvas_{};
   GR_GraphBuf::TGraphBufGR* parent_aux_{};
@@ -36,6 +47,13 @@ std::uint64_t NestedLoopMillis();
 // Own the result of CaptureScreenBackground across the caller's OnClose/Clear.
 // The next overlay may consume it only from that same scene owner.
 void PreserveCapturedBackground();
+// Observation only; disabled unless scene-mode.txt contains on.
+void SceneFrameBegin(const void* scene,std::int64_t turn=-1,
+                     std::int64_t film=-1,std::int64_t order=-1);
+void SceneFrameEnd(const void* scene);
+void SceneAction(const char* event,const void* scene,std::int64_t turn,std::int64_t value);
+void SceneCache(const char* event,const void* scene,const void* control,
+                GR_GraphBuf::TGraphBufGR* buffer,bool alpha,bool borrowed);
 
 struct RendererConfig {
   std::int32_t game_width{1280};

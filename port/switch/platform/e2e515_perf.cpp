@@ -18,6 +18,17 @@ std::array<Entry,Capacity> queue;
 std::size_t head{},tail{},count{};
 std::mutex mutex;
 std::atomic<int> mode{};
+std::atomic<bool> scene_enabled{};
+constexpr int ImageWidth=640,ImageHeight=360,ImageLimit=48;
+struct ImageEntry {
+ std::atomic<int> state{}; // 0 free, 1 filling, 2 ready, 3 writer owns
+ unsigned sequence{};
+ char metadata[640]{};
+ std::array<std::uint16_t,ImageWidth*ImageHeight> pixels{};
+};
+std::array<ImageEntry,4> images;
+std::atomic<unsigned> image_sequence{},image_dropped{};
+std::uint64_t image_run{};
 std::atomic<bool> running{};
 std::atomic<std::uint64_t> dropped{},truncated{},last_frame{},max_gap{},ticks{};
 std::atomic<int> screen{-1};
@@ -60,6 +71,31 @@ struct Sink {
  void Flush(){if(file&&std::fflush(file)!=0)failed=true;}
  ~Sink(){if(file)std::fclose(file);}
 };
+void WriteImage(const std::filesystem::path& root,Sink& log) {
+ for(auto& image:images) {
+  int expected=2;
+  if(!image.state.compare_exchange_strong(expected,3,std::memory_order_acquire))continue;
+  char name[64]{};
+  std::snprintf(name,sizeof(name),"scene-%llu-%03u.ppm",static_cast<unsigned long long>(image_run),image.sequence);
+  const auto path=root/"logs"/name;
+  // Unique run sequence plus exclusive creation: never overwrite a prior sample.
+  FILE* f=std::fopen(path.generic_string().c_str(),"wbx");
+  bool ok=f && std::fprintf(f,"P6\n%d %d\n255\n",ImageWidth,ImageHeight)>0;
+  std::array<unsigned char,ImageWidth*3> row{};
+  for(int y=0;y<ImageHeight && ok;++y) {
+   for(int x=0;x<ImageWidth;++x) {
+    const auto c=image.pixels[y*ImageWidth+x];
+    row[x*3]=((c>>11)&31)*255/31;row[x*3+1]=((c>>5)&63)*255/63;row[x*3+2]=(c&31)*255/31;
+   }
+   ok=std::fwrite(row.data(),1,row.size(),f)==row.size();
+  }
+  if(f && std::fclose(f))ok=false;
+  char line[768]{};
+  std::snprintf(line,sizeof(line),"%s file=%s image_ok=%d image_dropped=%u",image.metadata,name,int(ok),image_dropped.load());
+  log.Write(line);
+  image.state.store(0,std::memory_order_release);
+ }
+}
 void Writer(std::filesystem::path root) {
   std::error_code ec;std::filesystem::create_directories(root/"logs",ec);
   Sink perf(root/"logs/perf515.csv",PerfLimit),log(root/"logs/perf515-stage.log",LogLimit);
@@ -73,6 +109,7 @@ void Writer(std::filesystem::path root) {
       done=!running.load()&&count==0;
     }
     for(std::size_t i=0;i<size;++i)(batch[i].log?log:perf).Write(batch[i].text);
+    WriteImage(root,log);
     const auto now=Now();
     if((now>=next||done) && Mode()) {
       timespec real{};const int time_rc=clock_gettime(CLOCK_REALTIME,&real);
@@ -109,9 +146,44 @@ void Writer(std::filesystem::path root) {
 }
 } // namespace
 int Mode(){return mode.load(std::memory_order_relaxed);}
+bool SceneEnabled(){return scene_enabled.load(std::memory_order_relaxed) && Mode() && running.load(std::memory_order_relaxed);}
+void SceneImage(const char* event,int id,std::uint64_t generation,
+                const void* owner,const void* buffer,const void* pixels,
+                int pitch,int width,int height,int cursor_x,int cursor_y,
+                std::int64_t turn,std::int64_t film,std::int64_t order,std::uint64_t frame) {
+ if(!SceneEnabled() || !pixels || width<1 || height<1 || pitch<width*2 || width>16384 || height>16384)return;
+ if(image_sequence.load()>=ImageLimit)return;
+ ImageEntry* image=nullptr;
+ for(auto& candidate:images) {
+  int expected=0;
+  if(candidate.state.compare_exchange_strong(expected,1,std::memory_order_acquire)){image=&candidate;break;}
+ }
+ if(!image){++image_dropped;return;}
+ image->sequence=++image_sequence;
+ const auto began=Now();
+ std::uint64_t center=1469598103934665603ull,panel=center,cursor=center;
+ auto hash=[](std::uint64_t& h,std::uint16_t c){h^=c&255;h*=1099511628211ull;h^=c>>8;h*=1099511628211ull;};
+ for(int y=0;y<ImageHeight;++y) {
+  const int sy=y*height/ImageHeight;
+  const auto* row=reinterpret_cast<const std::uint16_t*>(static_cast<const unsigned char*>(pixels)+sy*pitch);
+  for(int x=0;x<ImageWidth;++x) {
+   const int sx=x*width/ImageWidth;const auto c=row[sx];
+   image->pixels[y*ImageWidth+x]=c;
+   if(x>=ImageWidth/4 && x<ImageWidth*3/4 && y>=ImageHeight/6 && y<ImageHeight*5/6)hash(center,c);
+   if(y>=ImageHeight*9/10)hash(panel,c);
+   if(sx>=cursor_x-24 && sx<cursor_x+24 && sy>=cursor_y-24 && sy<cursor_y+24)hash(cursor,c);
+  }
+ }
+ std::snprintf(image->metadata,sizeof(image->metadata),
+  "mono_us=%llu [SCENE] event=%s screen=%d generation=%llu frame=%llu owner=%p buffer=%p width=%d height=%d pitch=%d format=RGB565 cursor_x=%d cursor_y=%d turn=%lld film=%lld order=%lld center_hash=%016llx panel_hash=%016llx cursor_hash=%016llx copy_us=%llu",
+  static_cast<unsigned long long>(began),event,id,static_cast<unsigned long long>(generation),static_cast<unsigned long long>(frame),owner,buffer,width,height,pitch,cursor_x,cursor_y,
+  static_cast<long long>(turn),static_cast<long long>(film),static_cast<long long>(order),static_cast<unsigned long long>(center),static_cast<unsigned long long>(panel),static_cast<unsigned long long>(cursor),static_cast<unsigned long long>(Now()-began));
+ image->state.store(2,std::memory_order_release);
+}
 void Initialize(const char* root) {
 #if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
   if(running.load())return;
+  image_run=Now();image_sequence.store(0);image_dropped.store(0);
   int value=1;char setting[32]{};
   const auto config=std::filesystem::path(root)/"perf-mode.txt";
   if(FILE* f=std::fopen(config.generic_string().c_str(),"r")) {
@@ -119,6 +191,12 @@ void Initialize(const char* root) {
       if(std::strncmp(setting,"off",3)==0)value=0;
       else if(std::strncmp(setting,"detail",6)==0)value=2;
     }
+    std::fclose(f);
+  }
+  scene_enabled.store(false);
+  const auto scene_config=std::filesystem::path(root)/"scene-mode.txt";
+  if(FILE* f=std::fopen(scene_config.generic_string().c_str(),"r")) {
+    if(std::fgets(setting,sizeof(setting),f))scene_enabled.store(std::strncmp(setting,"on",2)==0);
     std::fclose(f);
   }
   mode.store(value);running.store(true);

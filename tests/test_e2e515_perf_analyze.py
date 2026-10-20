@@ -65,6 +65,19 @@ class Analysis(unittest.TestCase):
         with self.log.open('a') as f:f.write('dropped=19 perf_failed=1 capped=1/0\n')
         summary,_,_,_=analyze(self.game,self.clock,self.log)
         self.assertGreaterEqual(len(summary['warnings']),3)
+    def test_explicit_battle_screen_excludes_load_frame(self):
+        with self.game.open('a') as f:
+            f.write('timer,1000000,-1,900000,800000,40,0,0\nframe,1000000,-1,2000000,-1,40,0,0\n')
+        summary,frames,_,_=analyze(self.game,self.clock,self.log,screens=[11])
+        self.assertEqual(summary['battle_screens'],[11])
+        self.assertEqual(len(frames),2)
+        self.assertEqual(summary['stages']['timer']['count'],1)
+    def test_tick_rate_uses_cumulative_counter(self):
+        with self.game.open('a') as f:
+            f.write('heartbeat,1100000,-1,0,-1,11,0,50\nheartbeat,3100000,-1,0,-1,11,0,92\n')
+        summary,_,_,_=analyze(self.game,self.clock,self.log,screens=[11])
+        self.assertEqual(summary['ticks_from_cumulative_heartbeat'],42)
+        self.assertEqual(summary['actual_ticks_per_second'],21)
     @unittest.skipUnless(importlib.util.find_spec('matplotlib'),'matplotlib not installed')
     def test_cli_graphs_and_inputs_unchanged(self):
         before={p:p.read_bytes() for p in [self.game,self.clock,self.log]}

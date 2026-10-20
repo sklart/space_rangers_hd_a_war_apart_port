@@ -35,6 +35,51 @@ def apply(name: str, text: str) -> str:
     if name=='GI_MessageLoop.cpp':
         marker='                    if (e2e_arcade && MMSystem::timeGetTime() - e2e_debt_log_tick >= 5000u) {'
         once(marker,'                    if (e2e_arcade) srhd_awa::platform::perf515::TickBatch(e2e_timer_debt.Pending(), e2e_delivered_ms);\n'+marker)
+        start=text.index('    void TMessageLoopGI::DrawQueuedUpdateRects() {')
+        end=text.index('    void TMessageLoopGI::DrawQueuedControlRects()',start)
+        part=text[start:end]
+        part=part.replace('    void TMessageLoopGI::DrawQueuedUpdateRects() {',
+            '    void TMessageLoopGI::DrawQueuedUpdateRects() {\n        srhd_awa::platform::renderer_platform::SceneFrameBegin(this);',1)
+        at=part.rfind('    }')
+        part=part[:at]+'        srhd_awa::platform::renderer_platform::SceneFrameEnd(this);\n'+part[at:]
+        text=text[:start]+part+text[end:]
+    if name=='fStarMap.cpp':
+        text='#include "renderer_platform.hpp"\n#include "e2e_clock.hpp"\n#include "e2e515_perf.hpp"\n#include <cstdio>\n'+text
+        once('    void TfStarMap::DrawFrame() {',
+             '''    void TfStarMap::DrawFrame() {
+        srhd_awa::platform::renderer_platform::SceneFrameBegin(this, aGalaxy::Galaxy ? aGalaxy::Galaxy->CurrentTurn : -1, FilmStepIndex, aPlayer::GetPlayer() ? aPlayer::GetPlayer()->Order : -1);
+        if (srhd_awa::platform::perf515::SceneEnabled()) {
+            static std::uint64_t last_observed_us{};
+            const auto now=srhd_awa::platform::e2e_clock::Microseconds();
+            if (now-last_observed_us>=500000 && aGalaxy::Galaxy && aPlayer::GetPlayer()) {
+                const auto* p=aPlayer::GetPlayer();char detail[384]{};
+                std::snprintf(detail,sizeof(detail),"event=map-state screen=16 owner=%p turn=%d film=%d mode=%d order=%d x=%.6f y=%.6f star=%d",this,aGalaxy::Galaxy->CurrentTurn,FilmStepIndex,int(Mode),int(p->Order),double(p->Position.X),double(p->Position.Y),p->CurrentStar?int(p->CurrentStar->Id):-1);
+                srhd_awa::platform::perf515::AsyncLog("[SCENE] ",detail);
+                last_observed_us=now;
+            }
+        }''')
+        once('                CommitFrameDraw();','                CommitFrameDraw();\n                srhd_awa::platform::renderer_platform::SceneFrameEnd(this);')
+        once('                aPlayer::GetPlayer()->virtual_TShip_NextDay();',
+             '                aPlayer::GetPlayer()->virtual_TShip_NextDay();\n                srhd_awa::platform::renderer_platform::SceneAction("day-accepted",this,aGalaxy::Galaxy->CurrentTurn,FilmStepIndex);')
+        once('    void TfStarMap::StartTurnFilm() {',
+             '    void TfStarMap::StartTurnFilm() {\n        srhd_awa::platform::renderer_platform::SceneAction("turn-film-start",this,aGalaxy::Galaxy->CurrentTurn,FilmStepIndex);')
+        once('    void TfStarMap::StopTurnFilm(std::uint8_t StopTurnProcessing) {',
+             '    void TfStarMap::StopTurnFilm(std::uint8_t StopTurnProcessing) {\n        srhd_awa::platform::renderer_platform::SceneAction("turn-film-stop",this,aGalaxy::Galaxy->CurrentTurn,FilmStepIndex);')
+    if name=='GR_GraphBuf.cpp':
+        text='#include "e2e515_perf.hpp"\n'+text
+        start=text.index('    void TGraphBufGR::LoadFromScreen(')
+        end=text.index('\n    }',start)+len('\n    }')
+        part=text[start:end]
+        marker=r'^        \} catch \(\.\.\.\) \{'
+        if len(re.findall(marker,part,re.M))!=1:raise RuntimeError('LoadFromScreen catch boundary changed')
+        part=re.sub(marker,lambda m:m[0]+'\n            if(srhd_awa::platform::perf515::SceneEnabled()) srhd_awa::platform::perf515::AsyncLog("[SCENE] ","event=load-from-screen-failed");',part,flags=re.M)
+        text=text[:start]+part+text[end:]
+    if name=='GI_GraphBuf.cpp':
+        text='#include "renderer_platform.hpp"\n'+text
+        for marker,event,buffer,borrowed in [
+            ('    void TGraphBufGI::BindExternalGraphBuf(GR_GraphBuf::TGraphBufGR* Buffer) {','bind','Buffer','true'),
+            ('    void TGraphBufGI::Draw(WindowsSdk::TRect ClipRect) {','draw','GraphBuf','UsesExternalGraphBuf')]:
+            once(marker,marker+f'\n        srhd_awa::platform::renderer_platform::SceneCache("{event}",MessageLoop,this,{buffer},SourceHasPerPixelAlpha,{borrowed});')
     if name=='program.cpp':
         once('    namespace platform = srhd_awa::platform;',
              '    namespace platform = srhd_awa::platform;\n    platform::perf515::Session perf515_session(platform::e2e_stage::kRoot);')
