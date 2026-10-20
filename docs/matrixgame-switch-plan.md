@@ -23,6 +23,13 @@ Gitlink фиксирует точный commit, поэтому обычный `s
 
 ## Состояние переноса
 
+Обновление 20.10.2026, E2E-5.15: настоящий RoadNetwork и CMain/Form release lifecycle
+прошли host sanitizer, оригинальный Windows x86 reference, ARM64/QEMU и SDK link.
+На Boarding.cmap совпали полные буферы графа после BaseInit/Load/Save. Полный native
+CGame Init/Run, GPU-сцена боя и кампания по-прежнему OPEN; в production NRO движок
+не включён. Таблица 80 игровых и 27 MatrixLib units, актуальные hashes и конкретные
+блокеры: [MatrixGame E2E-5.15](../reports/matrixgame-e2e515-status.md).
+
 **SOURCES AVAILABLE / SWITCH INTEGRATION PENDING.** Отсутствие исходников больше не является препятствием. Добавление подмодуля пока не включает планетарные бои в NRO.
 
 Upstream использует C++20 и CMake, поддерживает Windows x86 с MSVC/MinGW и собирает DLL либо отдельный EXE. Его CMake требует DirectX 9; `ThirdParty/CMakeLists.txt` получает zlib и libpng. Эта конфигурация не подключена к текущей сборке Switch.

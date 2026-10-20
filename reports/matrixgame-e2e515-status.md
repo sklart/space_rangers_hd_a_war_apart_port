@@ -5,8 +5,8 @@
 Upstream MatrixGame: `218115a72fa9c5d43269f4ca84a8596a0bcb82f1`, подмодуль чистый.
 
 Полный движок, native CGame Init/Run, настоящий планетарный бой и интеграция в
-основной NRO пока отсутствуют. Новая подтверждённая часть — полный release CPU-модуль
-MatrixRoadNetwork, скомпилированный и скомпонованный с существующим native-core.
+основной NRO пока отсутствуют. Подтверждённые новые части — полный release CPU-модуль
+MatrixRoadNetwork и оригинальный lifecycle CMain/Form, связанные с native-core.
 Это не выполнение боя и не аппаратная проверка Switch.
 
 ## Новый модуль и граница переносимости
@@ -106,6 +106,7 @@ Root native-engine теперь включает CTest. Локально ком�
 | Полный engine COMPILE | FAIL: Windows/D3D9 зависимости остаются |
 | Полный engine LINK | BLOCKED компиляцией; проверенных LINK_FAIL нет |
 | Native CGame Init/Run | RUNTIME UNSUPPORTED, не вызывался |
+| CMain BaseInit/BaseDeInit и CForm lifecycle | CPU PASS; это часть static_init, не весь CGame |
 | Загрузка навигации настоящей карты | HOST PASS в описанной CPU-цепочке |
 | Navigation sanitizer / x86 reference / ARM64-QEMU / SDK link | PASS в ограниченном описанном CPU scope |
 | Полный ресурсный поток карты/моделей/материалов | OPEN |
@@ -246,3 +247,135 @@ Native-core собирает свой подготовленный CPU/resource 
 | MatrixGame/src/Text/Render.cpp | COMPILE_FAIL | COMPILE_FAIL | d3dx9core.h: No such file or directory |
 | MatrixGame/src/cheats.cpp | COMPILE_FAIL | COMPILE_FAIL | d3d9.h: No such file or directory |
 | MatrixGame/src/input.cpp | COMPILE_FAIL | COMPILE_FAIL | windows.h: No such file or directory |
+
+## Пакет 18: оригинальный base/form lifecycle и все MatrixLib cpp
+
+Код/тесты: `9438b18823893b9bc8f8b5643664e6dd082ef04f`.
+
+CMain.cpp (BaseInit:118, BaseDeInit:136) и Form.cpp включены в native-core целиком
+для release. SHA исходных CMain.cpp/Form.cpp/Form.hpp проверяется перед overlay.
+Изменены только Tracer include и пустые release DTRACE; debug/trace/memory-spy
+конфигурации явно отвергаются. Game AI, physics и порядок lifecycle не переписаны.
+Это функции, вызываемые настоящим CGame::static_init (MatrixGame.cpp:140,152).
+Полный static_init сейчас не выполняется: до CForm::StaticInit он доходит через
+CVectorObject::StaticInit, который ещё заблокирован графическими зависимостями.
+
+Десять fixture циклов и Boarding.cmap теперь начинаются с настоящего BaseInit,
+заканчиваются BaseDeInit после освобождения объектов. Raw/normalized граф и fixture
+побайтно совпадают между sanitizer host, ARM64/QEMU и original Windows x86.
+Результаты и SHA обновлённых executable: `matrixgame-e2e515-lifecycle.json`.
+
+Отдельно 100 quiescent lifecycle циклов на каждой из трёх платформ подтвердили
+оригинальный список форм и Enter/Leave ordering, включая повторный FormChange на
+ту же форму, возврат к nullptr и удаление форм. Виртуальные Takt/Draw/input методы
+принимает RecordingForm — тестовый получатель, **не CFormMatrixGame**. Это не
+проверка игрового update, 16 callbacks в настоящем бою, active-reset, exception
+unwinding или suspend/resume CGame. Windows reference использует original
+MAXEXP_EXPORTS disk-only path: SRemindCore reset там условно выключен оригинальным
+CMain.cpp; совпадение trace относится к Form, не ко всем platform side effects.
+
+Локальный CTest с ASan/UBSan/leak detection: 2/2 navigation/lifecycle PASS. Один
+первый combined build запрос не увидел новый target в старом Makefile до окончания
+автоматической регенерации; отдельный последующий target успешно собрался.
+Host CI теперь явно строит и запускает оба контракта с --no-tests=error; удалённый
+CI не запускался. SDK ELF отдельно LINK PASS, strong UND нет, runtime не выполнялся:
+
+| SDK contract | SHA-256 | Build ID |
+|---|---|---|
+| lifecycle | `286f94215a766c2ca27aceaf7dce7bc732e0f93303f770ebab2fe2d5edbee193` | `fd987289547fde072e42612e7bb098a92221e52a` |
+| navigation + BaseInit | `7b387b583ee34e762b63eeeae7673b4fb3bc6c7c0fbf092205854687a9686d6f` | `7aa20aa5774eb44a58e3909cc5b7006d27e7051d` |
+
+Дополнительные воспроизводимые команды:
+
+```
+cmake --build build/e2e515/mg-navigation-asan --target matrixgame-native-navigation-test matrixgame-native-lifecycle-test --parallel 2
+ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ctest --test-dir build/e2e515/mg-navigation-asan -R '^matrixgame-native-(navigation|lifecycle)-contract$' --output-on-failure --no-tests=error
+bash tools/matrixgame_navigation_arm64.sh --lifecycle
+py -3 tools/matrixgame_navigation_sdk.py --contract lifecycle --output build/e2e515/mg-lifecycle-sdk-fresh
+```
+
+Дальнейшая исходная цепочка остаётся незакрытой:
+
+```mermaid
+flowchart TD
+  init["CGame Init → static_init: OPEN"] --> base["CMain BaseInit: CPU PASS"]
+  base --> file["CFile backend / SRemindCore: CPU PASS"]
+  init --> vo["CVectorObject / shadow static init: BLOCKED"]
+  init --> forms["CForm StaticInit: CPU PASS отдельно"]
+  map["Полный MatrixMapPrepare: BLOCKED"] --> storage["CStorage: CPU PASS"]
+  storage --> roads["RoadNetwork: CPU PASS на карте"]
+  run["CGame RunGameLoop: OPEN"] --> change["FormChange: CPU PASS отдельно"]
+  change --> actual["CFormMatrixGame Enter / Takt / Draw: BLOCKED"]
+  actual --> gfx["BigVB / BigIB / D3DControl / device: OPEN"]
+  vo --> gfx
+```
+
+Точные границы: VectorObject.hpp:8 включает d3d9.h; CVectorObject::StaticInit
+объявлен в этом же полном классе на строке 338. BigVB.hpp:130 вызывает
+SetStreamSource, BigIB.hpp:97 SetIndices; D3DControl.hpp:109/170 создаёт index/vertex
+buffers и далее вызывает Lock/Unlock/Release. Следующий шаг — typed resource/device
+boundary с настоящим backend и сохранением ownership/dirty-range semantics.
+Далее CGame::Init использует L3GInitAsEXE/DLL (MatrixGame.cpp:293/297) и
+ApplyVideoParams (521): Reset, viewport, render state, material/light. CGame::RunGameLoop
+(778) вызывает FormChange(formgame) и L3GRun; CFormMatrixGame::Takt (333) вызывает
+настоящий g_MatrixMap->Takt, Draw (238) использует GPU. Никаких заменяющих CGame
+methods или подставных статусов боя в этом пакете не добавлено.
+
+### Полный MatrixLib audit
+
+Аудированы все 27 cpp по одинаковой Release CMake-рецептуре, before использует
+сохранённый source view пакета до navigation/lifecycle. Все 232 файла baseline view
+повторно сверены с его provenance. Итог MatrixLib: 9 PASS/18 FAIL → 11 PASS/16 FAIL;
+новые PASS — CMain.cpp и Form.cpp. С 80 игровыми единицами: 107 аудированных cpp,
+10 PASS/97 FAIL → 13 PASS/94 FAIL. Windows MatrixGameDll.cpp отдельно не выбирался.
+
+Это raw compile inventory, не число готовых runtime компонентов. CList.cpp
+исключён самим оригинальным MatrixLib CMake и аудирован как legacy source. Старые
+CFile/CHeap/CException/Pack реализации замещены настоящими native backends в
+выбранной CPU-библиотеке; их standalone compile failures не означают, что надо
+линковать их одновременно с backend. Tracer — неперенесённая Windows диагностика.
+Активные graphics/platform dependencies перечислены по первым ошибкам ниже.
+Новый audit target EXCLUDE_FROM_ALL не подключён вместо native-core и не участвует
+в production NRO. Полный MatrixLib archive/link не выполнен; полный engine по-прежнему
+не компилируется, CGame Init/Run RUNTIME UNSUPPORTED, GPU HARDWARE PENDING.
+
+Команда полного after audit:
+
+```
+python3 tools/matrixgame_engine_compile_audit.py --build-root build/e2e515/mg-engine-after --output build/e2e515/mg-matrixlib-fresh --target matrixgame-native-matrixlib-audit --jobs 2
+```
+
+Для before того же рецепта добавить --source-view build/e2e515/mg-engine-before/source.
+Исходные результаты: mg-matrixlib-before/result.json, mg-matrixlib-after/result.json
+(промежуточные 9/18), mg-matrixlib-lifecycle/result.json (11/16), все под build/e2e515.
+Публикуемая metadata: `matrixgame-e2e515-matrixlib.json`.
+
+| MatrixLib единица | До | После | Первый блокер после |
+|---|---|---|---|
+| `MatrixLib/3G/3g.cpp` | COMPILE_FAIL | COMPILE_FAIL | `MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory` |
+| `MatrixLib/3G/CBillboard.cpp` | COMPILE_FAIL | COMPILE_FAIL | `MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory` |
+| `MatrixLib/3G/Cache.cpp` | COMPILE_FAIL | COMPILE_FAIL | `MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory` |
+| `MatrixLib/3G/DeviceState.cpp` | COMPILE_FAIL | COMPILE_FAIL | `MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory` |
+| `MatrixLib/3G/Form.cpp` | COMPILE_FAIL | COMPILE_PASS | `` |
+| `MatrixLib/3G/Helper.cpp` | COMPILE_FAIL | COMPILE_FAIL | `MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory` |
+| `MatrixLib/3G/Math3D.cpp` | COMPILE_PASS | COMPILE_PASS | `` |
+| `MatrixLib/3G/ShadowProj.cpp` | COMPILE_FAIL | COMPILE_FAIL | `MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory` |
+| `MatrixLib/3G/ShadowStencil.cpp` | COMPILE_FAIL | COMPILE_FAIL | `MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory` |
+| `MatrixLib/3G/Texture.cpp` | COMPILE_FAIL | COMPILE_FAIL | `MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory` |
+| `MatrixLib/3G/VectorObject.cpp` | COMPILE_FAIL | COMPILE_FAIL | `MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory` |
+| `MatrixLib/Base/CBlockPar.cpp` | COMPILE_PASS | COMPILE_PASS | `` |
+| `MatrixLib/Base/CBuf.cpp` | COMPILE_PASS | COMPILE_PASS | `` |
+| `MatrixLib/Base/CException.cpp` | COMPILE_FAIL | COMPILE_FAIL | `MatrixLib/Base/Tracer.hpp:13:10: fatal error: windows.h: No such file or directory` |
+| `MatrixLib/Base/CFile.cpp` | COMPILE_FAIL | COMPILE_FAIL | `MatrixLib/Base/Pack.hpp:39:5: error: ‘DWORD’ does not name a type` |
+| `MatrixLib/Base/CHeap.cpp` | COMPILE_FAIL | COMPILE_FAIL | `MatrixLib/Base/CHeap.cpp:9:10: fatal error: windows.h: No such file or directory` |
+| `MatrixLib/Base/CList.cpp` | COMPILE_FAIL | COMPILE_FAIL | `MatrixLib/Base/CList.hpp:73:72: error: ‘class CListInterface<T>’ has no member named ‘sub’; did you mean ‘Sub’? [-Wtemplate-body]` |
+| `MatrixLib/Base/CMain.cpp` | COMPILE_FAIL | COMPILE_PASS | `` |
+| `MatrixLib/Base/CRC32.cpp` | COMPILE_PASS | COMPILE_PASS | `` |
+| `MatrixLib/Base/CReminder.cpp` | COMPILE_PASS | COMPILE_PASS | `` |
+| `MatrixLib/Base/CStorage.cpp` | COMPILE_PASS | COMPILE_PASS | `` |
+| `MatrixLib/Base/Pack.cpp` | COMPILE_FAIL | COMPILE_FAIL | `MatrixLib/Base/Pack.hpp:39:5: error: ‘DWORD’ does not name a type` |
+| `MatrixLib/Base/Registry.cpp` | COMPILE_FAIL | COMPILE_FAIL | `MatrixLib/Base/Registry.hpp:11:10: fatal error: windows.h: No such file or directory` |
+| `MatrixLib/Base/Tracer.cpp` | COMPILE_FAIL | COMPILE_FAIL | `MatrixLib/Base/Tracer.hpp:13:10: fatal error: windows.h: No such file or directory` |
+| `MatrixLib/Base/random.cpp` | COMPILE_PASS | COMPILE_PASS | `` |
+| `MatrixLib/Bitmap/CBitmap.cpp` | COMPILE_PASS | COMPILE_PASS | `` |
+| `MatrixLib/Bitmap/FilePNG.cpp` | COMPILE_PASS | COMPILE_PASS | `` |

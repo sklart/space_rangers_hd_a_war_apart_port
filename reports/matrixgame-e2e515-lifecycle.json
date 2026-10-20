@@ -1,0 +1,103 @@
+{
+  "status": "PASS",
+  "scope": "Actual CMain/Form CPU lifecycle and actual map navigation; not CGame Init/Run or battle",
+  "executions": 3,
+  "cross_platform_bytes_equal": true,
+  "normalization": {
+    "zones": 149,
+    "crotches": 27,
+    "roads": 35,
+    "places": 94,
+    "cannons": 10,
+    "changed_movement_offsets": [
+      15375,
+      15430,
+      15565,
+      15725,
+      15815,
+      15940,
+      16235,
+      16285,
+      16530
+    ]
+  },
+  "artifacts": {
+    ".fixture.bin": {
+      "bytes": 310,
+      "sha256": "a8806f497498b0a07d42bc34a4e6c0c6f68f6645e8e8a439660f5401d5f0275d"
+    },
+    ".roads.raw.bin": {
+      "bytes": 18894,
+      "sha256": "a50233480e7317e8dce9b4d067fafce2319f82d6c3eb5892b3117871fcb206a6"
+    },
+    ".roads.normalized.bin": {
+      "bytes": 18894,
+      "sha256": "79bffdee621f7af02af5c2ad1495b105b541d98c079b34dd634df05d9d323ea2"
+    }
+  },
+  "battle_executed": false,
+  "hardware_executed": false,
+  "lifecycle": {
+    "cycles_per_execution": 100,
+    "recording_form_is_test_fixture": true,
+    "traces_equal": true,
+    "trace": "a.enter a.tick a.draw a.move a.mouse a.key a.deactivate a.leave b.enter b.leave b.enter b.leave\nPASS actual base/form lifecycle cycles=100; battle_executed=false",
+    "executables": {
+      "host_asan": {
+        "path": "build/e2e515/mg-navigation-asan/core/matrixgame-native-lifecycle-test",
+        "sha256": "a7ec90d63d5de2bc46962e11a86178f1a95123dc0659d6399d6dcc3196de9cb0"
+      },
+      "linux_arm64_qemu": {
+        "path": "build/e2e515/mg-navigation-arm64/lifecycle-contract",
+        "sha256": "1ce79fb69622750def59625facb62a8fe754bc6629158d9d25507fd71434d1f6"
+      },
+      "original_windows_x86": {
+        "path": "build/e2e515/mg-navigation-x86/Release/matrixgame-lifecycle-x86-reference.exe",
+        "sha256": "ba0a2fd3779888100b268c031de303f2640b74055181057bdab44670101d21e1"
+      }
+    }
+  },
+  "navigation_baseinit_executables": {
+    "host_asan": {
+      "path": "build/e2e515/mg-navigation-asan/matrixgame-native-navigation-test",
+      "sha256": "68384c86fb037fb1c967384dbff48fc9e7262e9a55b2044bd4a13914a6b45120"
+    },
+    "linux_arm64_qemu": {
+      "path": "build/e2e515/mg-navigation-arm64/navigation-contract",
+      "sha256": "9f23cccca270eb26cc0100ff997ca37bc22b4cec06ffb5206575991675218eac"
+    },
+    "original_windows_x86": {
+      "path": "build/e2e515/mg-navigation-x86/Release/matrixgame-navigation-x86-reference.exe",
+      "sha256": "fc23d6e56d86207acf1923ef9c99919d20c0320671c91da4250d602d9dd0c164"
+    }
+  },
+  "sdk_compile_link": {
+    "lifecycle": {
+      "status": "PASS",
+      "sha256": "286f94215a766c2ca27aceaf7dce7bc732e0f93303f770ebab2fe2d5edbee193",
+      "bytes": 6653752,
+      "build_id": "Build ID: fd987289547fde072e42612e7bb098a92221e52a",
+      "undefined_strong": [],
+      "runtime_executed": false,
+      "hardware_executed": false
+    },
+    "navigation_baseinit": {
+      "status": "PASS",
+      "sha256": "7b387b583ee34e762b63eeeae7673b4fb3bc6c7c0fbf092205854687a9686d6f",
+      "bytes": 6958296,
+      "build_id": "Build ID: 7aa20aa5774eb44a58e3909cc5b7006d27e7051d",
+      "undefined_strong": [],
+      "runtime_executed": false,
+      "hardware_executed": false
+    }
+  },
+  "ctest": {
+    "status": "PASS",
+    "tests_run": 2,
+    "tests_failed": 0,
+    "sanitizers": "ASan+UBSan+leak detection",
+    "remote_ci_executed": false
+  },
+  "source_commit": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
+  "port_commit": "9438b18823893b9bc8f8b5643664e6dd082ef04f"
+}

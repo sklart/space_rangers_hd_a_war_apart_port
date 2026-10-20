@@ -1,0 +1,247 @@
+{
+  "source_commit": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
+  "port_commit": "9438b18823893b9bc8f8b5643664e6dd082ef04f",
+  "scope": "All 27 MatrixLib cpp compiled independently; no full archive/link/runtime claim",
+  "before_pass": 9,
+  "before_fail": 18,
+  "after_pass": 11,
+  "after_fail": 16,
+  "all_game_and_library_counts": {
+    "audited": 107,
+    "before_pass": 10,
+    "before_fail": 97,
+    "after_pass": 13,
+    "after_fail": 94,
+    "excluded_windows_launcher": 1
+  },
+  "after_source_manifest_sha256": "21ca4c1d7fa3481bd37230c4c7ca157a2991da18c536d9138ad3245826344cec",
+  "units": [
+    {
+      "source": "MatrixLib/3G/3g.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_FAIL",
+      "first_error": "MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+      "role": "Prepared engine dependency",
+      "source_sha256": "e02ae38d13e88a6b83d893f974cbfeebf936938e01c7f03097cd8be32a29605f"
+    },
+    {
+      "source": "MatrixLib/3G/CBillboard.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_FAIL",
+      "first_error": "MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+      "role": "Prepared engine dependency",
+      "source_sha256": "effd92688b81dff37bd2d86638c97a154fe26b530d9c902f15406633d3e37f95"
+    },
+    {
+      "source": "MatrixLib/3G/Cache.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_FAIL",
+      "first_error": "MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+      "role": "Prepared engine dependency",
+      "source_sha256": "568f108f4578e8fb53a5b08bf2561189d4d3426402275deabeccd17a1e82fa9a"
+    },
+    {
+      "source": "MatrixLib/3G/DeviceState.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_FAIL",
+      "first_error": "MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+      "role": "Prepared engine dependency",
+      "source_sha256": "f627dbaa15a1e2a75304469ccbb0cea13f0f10a13810bd30d13fbb3b915aefa3"
+    },
+    {
+      "source": "MatrixLib/3G/Form.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_PASS",
+      "first_error": "",
+      "role": "Prepared engine dependency",
+      "source_sha256": "574623bd04c5e7a56dd82a2d34a0b2717da839e19afd4ba038bd8e32d02cb660",
+      "object_sha256": "c2280853bdc74266c45e6351557f80c7013a2542452df126962efda41aac3872"
+    },
+    {
+      "source": "MatrixLib/3G/Helper.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_FAIL",
+      "first_error": "MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+      "role": "Prepared engine dependency",
+      "source_sha256": "2268389c6a6b4cf3ee9b424e350affc11fcc55ac7eec0d2c74994987ff6c96e7"
+    },
+    {
+      "source": "MatrixLib/3G/Math3D.cpp",
+      "before": "COMPILE_PASS",
+      "after": "COMPILE_PASS",
+      "first_error": "",
+      "role": "Prepared engine dependency",
+      "source_sha256": "40b7a76bbdab727693c047339cdcea94091e2c773a168c3c2434e9c4d3c0309a",
+      "object_sha256": "1545e531cc867c6b1a946a838e2a22788c9b77ea91f8248404780b898c67434c"
+    },
+    {
+      "source": "MatrixLib/3G/ShadowProj.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_FAIL",
+      "first_error": "MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+      "role": "Prepared engine dependency",
+      "source_sha256": "510bee9b58f66fdedd4b4f08e239d1c1289358508dbfef12b222745a4b55de56"
+    },
+    {
+      "source": "MatrixLib/3G/ShadowStencil.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_FAIL",
+      "first_error": "MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+      "role": "Prepared engine dependency",
+      "source_sha256": "580128fe26f8e7f94c3356d26d23062c8fcfcf6c74a8677ab5a4af2472016d20"
+    },
+    {
+      "source": "MatrixLib/3G/Texture.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_FAIL",
+      "first_error": "MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+      "role": "Prepared engine dependency",
+      "source_sha256": "11535b4750ea94de8b97831636b044a781e785be8ecb9bffbe16358df72b0901"
+    },
+    {
+      "source": "MatrixLib/3G/VectorObject.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_FAIL",
+      "first_error": "MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+      "role": "Prepared engine dependency",
+      "source_sha256": "11ffb4eb842b5cdf6041d0ddc3bf25a124b06bdd8ac36f090b4c2ac6d9586303"
+    },
+    {
+      "source": "MatrixLib/Base/CBlockPar.cpp",
+      "before": "COMPILE_PASS",
+      "after": "COMPILE_PASS",
+      "first_error": "",
+      "role": "Prepared engine dependency",
+      "source_sha256": "aaa2e9264cb2f9a602652b156a1c2fdf6a0d14e76c3a52c8c2d9adc6ad214ce8",
+      "object_sha256": "8c29580e2940cb2876be22005892a945a3afa1c327cf1d2ee7035a4bd0db8711"
+    },
+    {
+      "source": "MatrixLib/Base/CBuf.cpp",
+      "before": "COMPILE_PASS",
+      "after": "COMPILE_PASS",
+      "first_error": "",
+      "role": "Prepared engine dependency",
+      "source_sha256": "7ec4bdfc25188dae6ec0bba85f069baab663a181bd1e20774a9972254de0dc60",
+      "object_sha256": "4c0a3008f7edb2d061c802e0b2235cf5291fe0e1a642fe98bc7b488c4f17b027"
+    },
+    {
+      "source": "MatrixLib/Base/CException.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_FAIL",
+      "first_error": "MatrixLib/Base/Tracer.hpp:13:10: fatal error: windows.h: No such file or directory",
+      "role": "Original Windows implementation replaced by native backend in selected CPU target",
+      "source_sha256": "7cbcbd369ca8d279236dcc07de1f020e6e38acca83205f48424baabbda77c395"
+    },
+    {
+      "source": "MatrixLib/Base/CFile.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_FAIL",
+      "first_error": "MatrixLib/Base/Pack.hpp:39:5: error: \u2018DWORD\u2019 does not name a type",
+      "role": "Original Windows implementation replaced by native backend in selected CPU target",
+      "source_sha256": "09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49"
+    },
+    {
+      "source": "MatrixLib/Base/CHeap.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_FAIL",
+      "first_error": "MatrixLib/Base/CHeap.cpp:9:10: fatal error: windows.h: No such file or directory",
+      "role": "Original Windows implementation replaced by native backend in selected CPU target",
+      "source_sha256": "50d9f35455bf4c9c10f77bdbee02ffbc471e9cb2dc07ada47566e03214faa660"
+    },
+    {
+      "source": "MatrixLib/Base/CList.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_FAIL",
+      "first_error": "MatrixLib/Base/CList.hpp:73:72: error: \u2018class CListInterface<T>\u2019 has no member named \u2018sub\u2019; did you mean \u2018Sub\u2019? [-Wtemplate-body]",
+      "role": "Legacy unit omitted by original MatrixLib CMake",
+      "source_sha256": "4e6e9cc167e6f7f996b6d77d273900ca38dea10584f93214a29769f5d5d953dd"
+    },
+    {
+      "source": "MatrixLib/Base/CMain.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_PASS",
+      "first_error": "",
+      "role": "Prepared engine dependency",
+      "source_sha256": "a6880229e03d0c249ecbfcd6ba726d920f7115c510dc3c50b51eecc399f4f7ef",
+      "object_sha256": "4f9041c863769b2663fe37ca98098934b098176d22082346c5c8d91e1cf5610e"
+    },
+    {
+      "source": "MatrixLib/Base/CRC32.cpp",
+      "before": "COMPILE_PASS",
+      "after": "COMPILE_PASS",
+      "first_error": "",
+      "role": "Prepared engine dependency",
+      "source_sha256": "f6bf4e86be9ae18dc836e0e5dc87536e36af09c7bf33705064e4a493fafe3c76",
+      "object_sha256": "47ed7a28cb2c69c9bc9f294e037d3010c7ca46a2fe6b36363915d6c375b26f7e"
+    },
+    {
+      "source": "MatrixLib/Base/CReminder.cpp",
+      "before": "COMPILE_PASS",
+      "after": "COMPILE_PASS",
+      "first_error": "",
+      "role": "Prepared engine dependency",
+      "source_sha256": "6bff3d934168fb0635ddb06df703d05b9607ff53186b656a9b92817009a03a10",
+      "object_sha256": "7d7cec88210cc21d6ff4d542ab3ca50a20746516e070ef2efb524197d2e72c9c"
+    },
+    {
+      "source": "MatrixLib/Base/CStorage.cpp",
+      "before": "COMPILE_PASS",
+      "after": "COMPILE_PASS",
+      "first_error": "",
+      "role": "Prepared engine dependency",
+      "source_sha256": "63bb70f40a36a1780c2b6503b27f62f15e4e5d00e3ea6108bd261ad0c03c8545",
+      "object_sha256": "6d741cfa9d538f76026f31bf07465f14da39c3bd8e48d33b592e811750e9ff54"
+    },
+    {
+      "source": "MatrixLib/Base/Pack.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_FAIL",
+      "first_error": "MatrixLib/Base/Pack.hpp:39:5: error: \u2018DWORD\u2019 does not name a type",
+      "role": "Original Windows implementation replaced by native backend in selected CPU target",
+      "source_sha256": "268be27e628732d79ca32cee60f255370fcfa65a51e01a33bb57388cdea20341"
+    },
+    {
+      "source": "MatrixLib/Base/Registry.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_FAIL",
+      "first_error": "MatrixLib/Base/Registry.hpp:11:10: fatal error: windows.h: No such file or directory",
+      "role": "Prepared engine dependency",
+      "source_sha256": "65ff065bd3c2eacf96e54628d7bf13808c3f2a2f862a1754e859f86f081fd9e6"
+    },
+    {
+      "source": "MatrixLib/Base/Tracer.cpp",
+      "before": "COMPILE_FAIL",
+      "after": "COMPILE_FAIL",
+      "first_error": "MatrixLib/Base/Tracer.hpp:13:10: fatal error: windows.h: No such file or directory",
+      "role": "Windows diagnostic implementation not ported; release CPU excludes it",
+      "source_sha256": "9f9813468c45375649e9164b11b33210a4f431b57d6e8d03fb6afd3d821dcb44"
+    },
+    {
+      "source": "MatrixLib/Base/random.cpp",
+      "before": "COMPILE_PASS",
+      "after": "COMPILE_PASS",
+      "first_error": "",
+      "role": "Prepared engine dependency",
+      "source_sha256": "78e44218dfc7f9ad85ff783f6bb32c80f81d07097ffaa38fcf39b3f7752866c4",
+      "object_sha256": "7f246332196e39e3710c6e1cbb0c714d2f5e822063f844ecfaba0d76e595d243"
+    },
+    {
+      "source": "MatrixLib/Bitmap/CBitmap.cpp",
+      "before": "COMPILE_PASS",
+      "after": "COMPILE_PASS",
+      "first_error": "",
+      "role": "Prepared engine dependency",
+      "source_sha256": "c193188e5b2e7820fd3d0a0cda69d2b5656b0f1070bafd7d0cb3f49942e3d576",
+      "object_sha256": "107f1cbbd040b823d7abc8150279ba314a897206f723dae5ef2e7fded496125e"
+    },
+    {
+      "source": "MatrixLib/Bitmap/FilePNG.cpp",
+      "before": "COMPILE_PASS",
+      "after": "COMPILE_PASS",
+      "first_error": "",
+      "role": "Prepared engine dependency",
+      "source_sha256": "32096ab48a8816f122a27086e63d3d963f467fe011b7af5992ff3bac03d1e7ad",
+      "object_sha256": "a0f672364b2513540d189f194551d4f9d82fd446115b17a3cb67667680b55eb0"
+    }
+  ]
+}

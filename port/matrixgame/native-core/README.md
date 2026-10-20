@@ -4,8 +4,18 @@
 методы CBuf, native UTF-16 методы, исключения, CFile, CStorage и BlockPar с настоящим
 файловым backend, а также оригинальный Math3D.cpp с настоящими DirectXMath CPU operations.
 Подключён original RNG с Windows-compatible потоком. Это ещё не полный MatrixLib/MatrixGame.
-Подготовка проверяет SHA256 девятнадцати закреплённых upstream
-файлов после CRLF→LF и создаёт копии в build directory; upstream не изменяется.
+Подготовка проверяет SHA256 всех входных upstream-файлов из `INPUTS` в
+`tools/matrixgame_core_prepare.py` после CRLF→LF и создаёт копии в build directory;
+upstream не изменяется.
+
+E2E-5.15 также включает оригинальные CMain.cpp и Form.cpp: BaseInit/BaseDeInit,
+список форм, StaticInit и FormChange. Снята только зависимость от пустой release
+трассировки; Windows debug/trace режимы явно отвергаются. Это ещё не CGame Init/Run.
+100 quiescent lifecycle циклов проверены на sanitizer host, Windows x86 reference
+и Linux ARM64/QEMU; SDK ELF compile/link отдельно. `matrixgame-native-lifecycle-test`
+зарегистрирован в CTest. Навигационный тест настоящей Boarding.cmap теперь начинает
+ресурсную цепочку через BaseInit. Артефакты и ограничения — в
+`reports/matrixgame-e2e515-status.md`, metadata lifecycle/matrixlib JSON рядом.
 
 Обе декларации dword используют uint32_t. Исходный нестандартный алгоритм CRC
 сохранён. wchar_t и стандартная библиотека сохраняют платформенный ABI: строки

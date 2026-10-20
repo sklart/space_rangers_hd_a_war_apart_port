@@ -665,3 +665,26 @@ matrixgame-e2e515-navigation.json. Данные в private dumps только в
 Исходные восемь пользовательских файлов и pinned источники неизменны.
 Это закрывает navigation gates, оставленные OPEN в пакете 16; полный engine,
 Init/Run/бой/GPU/кампания, общие тормоза аркады и final NRO остаются OPEN.
+
+## Пакет 18: оригинальный CMain/Form и полный MatrixLib compile inventory
+
+В native-core включены полные оригинальные release CMain.cpp/Form.cpp. Overlay
+удаляет Windows Tracer include и пустые DTRACE, не меняет тела и порядок BaseInit,
+BaseDeInit, StaticInit, FormChange и списка форм. Windows debug/trace сборка явно
+не поддерживается. Это настоящие части CGame::static_init, но не его полная замена.
+
+100 quiescent lifecycle циклов: sanitizer host, original Windows x86 и ARM64/QEMU
+PASS, event traces равны. RecordingForm — явно тестовый получатель виртуальных
+вызовов, не CFormMatrixGame. 2/2 navigation/lifecycle CTest с ASan/UBSan/leak PASS.
+Настоящая Boarding.cmap после BaseInit: три CPU execution PASS, полные сериализованные
+буферы равны. Два devkitA64 ELF (lifecycle и navigation+BaseInit) LINK PASS,
+неразрешённых сильных символов нет; они не запускались, NRO не создавался.
+
+Добавлен полный поединичный audit 27 MatrixLib cpp: 9 PASS/18 FAIL → 11 PASS/16 FAIL.
+С 80 игровыми единицами это 107 проверенных cpp, 13 PASS/94 FAIL после изменений;
+Windows launcher отдельно исключён, legacy CList аудирован, но не включён upstream
+в исходный CMake target. Замещённые native backend cpp отделены от активных blockers.
+Это не процент готовности и не успешный полный link. Все таблицы/граф/границы в
+matrixgame-e2e515-status.md, metadata в lifecycle.json/matrixlib.json рядом.
+MatrixGame pin и восемь исходных пользовательских файлов неизменны. Полный CGame
+Init/Run, GPU, кампания, обычные тормоза аркады и final NRO остаются OPEN.
