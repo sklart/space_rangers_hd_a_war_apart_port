@@ -79,6 +79,9 @@ def analyze(game,clock=None,stage_log=None,clock_log=None,title_id='',max_align_
     wanted=title(title_id) if title_id else next(iter(ids)) if len(ids)==1 else ''
     if not wanted and clock:warnings.append('Title ID unknown/ambiguous; no cross-application join attempted')
     clocks,clock_bad=sysclk(clock,utc_offset) if clock else ([],0)
+    external_fields=sorted(set().union(*(set(r)-{'raw'} for r in clocks))) if clocks else []
+    if clocks and not any(k.endswith('_mhz') for k in external_fields):
+        warnings.append('Frequency columns/units unrecognized; inspect raw telemetry without guessing units')
     compatible=[r for r in clocks if wanted and r['app_tid']==wanted]
     times=[r['epoch_ms'] for r in compatible]
     if clock and not compatible:warnings.append('No sys-clk rows with the matching title ID')
@@ -126,6 +129,7 @@ def analyze(game,clock=None,stage_log=None,clock_log=None,title_id='',max_align_
         frame_p50_ms=percentile(gaps,.5),frame_p95_ms=percentile(gaps,.95),frame_max_ms=max(gaps) if gaps else None,
         max_observed_no_frame_ms=max((r['wall_us']/1000 for r in health),default=0),
         sysclk_rows=len(clocks),matched_frames=sum(r['clock_delta_ms'] is not None for r in aligned),
+        external_fields=external_fields,
         anchor_max_bracket_us=max((r['wall_us'] for r in anchors),default=None),
         time_alignment='DISABLED clock jump' if clock_jump else 'epoch anchors; nearest matching title, bounded tolerance',
         warnings=warnings,stages=stats,
@@ -144,15 +148,15 @@ def plots(out,rows,clocks):
         import matplotlib.pyplot as plt
     except ImportError:return 'matplotlib unavailable; numeric outputs preserved'
     start=min(r['mono_us'] for r in rows)
-    fig,axes=plt.subplots(5,1,figsize=(13,13),constrained_layout=True)
+    fig,axes=plt.subplots(5,1,figsize=(13,13),constrained_layout=True,sharex=True)
     for label in ['frame','timer','advance_total','draw','present']:
         selected=[r for r in rows if r['stage']==label]
-        if selected:axes[0].plot([(r['mono_us']-start)/1e6 for r in selected],[r['wall_us']/1000 for r in selected],label=label,linewidth=.8)
+        if selected:axes[0].plot([(r['mono_us']-start)/1e6 for r in selected],[r['wall_us']/1000 for r in selected],label=label,linewidth=.8,marker='.',markersize=3)
     axes[0].set(ylabel='Wall time (ms)',xlabel='Monotonic elapsed (s)');axes[0].legend()
     for label in ['backlog','memory']:
-        selected=[r for r in rows if r['stage']==label]
+        selected=[r for r in rows if r['stage']==label and r['a']>=0]
         ax=axes[1] if label=='backlog' else axes[2]
-        if selected:ax.plot([(r['mono_us']-start)/1e6 for r in selected],[r['a'] if label=='backlog' else r['a']/1048576 for r in selected],label=label)
+        if selected:ax.plot([(r['mono_us']-start)/1e6 for r in selected],[r['a'] if label=='backlog' else r['a']/1048576 for r in selected],label=label,marker='.',markersize=3)
         ax.set(ylabel='Backlog (ms)' if label=='backlog' else 'Process RAM (MiB)',xlabel='Monotonic elapsed (s)')
     if clocks:
         anchor=next((r for r in rows if r['stage']=='anchor' and r['epoch_ms']>0 and r['a']==0),None)
@@ -161,11 +165,12 @@ def plots(out,rows,clocks):
         for key in sorted(keys):
             if key.endswith('_mhz') or key.endswith('_c'):
                 selected=[r for r in clocks if isinstance(r.get(key),(float,int))]
-                if selected:axes[3 if key.endswith('_mhz') else 4].plot([(r['epoch_ms']-epoch_start)/1000 for r in selected],[r[key] for r in selected],label=key,linewidth=.8)
+                if selected:axes[3 if key.endswith('_mhz') else 4].plot([(r['epoch_ms']-epoch_start)/1000 for r in selected],[r[key] for r in selected],label=key,linewidth=.8,marker='.',markersize=3)
     axes[3].set(ylabel='Clock (MHz)',xlabel='Elapsed from game origin (s)')
     axes[4].set(ylabel='Temperature (C)',xlabel='Elapsed from game origin (s)')
     for ax in axes:
         ax.grid(alpha=.3)
+        if not ax.lines:ax.text(.5,.5,'No available samples',ha='center',va='center',transform=ax.transAxes)
         if ax.lines and ax is not axes[0]:ax.legend(fontsize=8)
     fig.suptitle('Recorded samples; gaps, dropped data and inclusive scopes require review')
     fig.savefig(out/'performance.png',dpi=150);plt.close(fig)

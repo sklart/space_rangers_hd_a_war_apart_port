@@ -54,6 +54,12 @@ class Analysis(unittest.TestCase):
         self.assertIsNone(timestamp('2026-10-20 10:30:00'))
         self.assertIsNotNone(timestamp('2026-10-20 10:30:00',180))
         self.assertIsNone(timestamp('1000'));self.assertIsNone(timestamp('nan'))
+    def test_unknown_fork_units_preserved(self):
+        self.clock.write_text(f'timestamp,app_tid,cpu,mystery\n{self.epoch+100},0100000000000001,1020,77\n')
+        summary,_,_,clocks=analyze(self.game,self.clock,self.log)
+        self.assertEqual(clocks[0]['raw']['mystery'],'77')
+        self.assertNotIn('cpu_mhz',clocks[0])
+        self.assertTrue(any('units unrecognized' in s for s in summary['warnings']))
     def test_measurement_errors(self):
         with self.game.open('a') as f:f.write('timer,broken\n# file_cap_reached\n')
         with self.log.open('a') as f:f.write('dropped=19 perf_failed=1 capped=1/0\n')
