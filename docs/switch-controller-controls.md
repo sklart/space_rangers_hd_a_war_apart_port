@@ -177,6 +177,26 @@ Host mailbox подтверждает команду только после е�
 
 ## Контроллеры и доказательства
 
+Планетный маршрут проверен на копии реального сейва 346-го хода, пять циклов:
+
+| Контрол | Исходный handler | Результат Confirm | Проверка |
+|---|---|---|---|
+| PP_Shop | TfPanelPlanet::EquipmentShopClicked | Оборудование, screen 8 | host route PASS |
+| PP_Goods | TfPanelPlanet::GoodsShopClicked | Товары, screen 34 | host route PASS |
+| PP_Info | TfPanelPlanet::InformationClicked | Новости, screen 28 | host route PASS |
+| PP_Hangar | TfPanelPlanet::HangarClicked | Ангар, screen 4 | host route PASS |
+| ButClose | PlanetClicked | Планета, screen 5 | host route PASS |
+| TfGoodsShop2 Tov0..7 | GoodsMouseUp(MainPanel) | Исходный диалог количества | Открытие/Cancel PASS |
+| TfGoodsShop2 Tov10..17 | GoodsMouseUp(MainPanel) | Продажа из трюма | Привязка есть, реальная продажа OPEN |
+| TfCount2 Ok | Исходный callback | Подтвердить количество | Начальный focus PASS; покупка OPEN |
+| TfCount2 Cancel/B | Исходный Escape handler | Вернуться без операции | Checkpoint до/после совпадает |
+| TfCount2 PanelBar, Add/Sub | Исходные mouse move/down/up | Изменить количество | Курсорный fallback, проверка OPEN |
+
+Строки товара с собственными callback/скриптами сохраняют общий путь.
+Ползунок исключён из одноразового focus Confirm во избежание незавершённого drag.
+Полный отчёт: reports/e2e5/e2e515-planet-goods.md. Удержание A при открытии не
+подтверждает новый диалог повторно; аппаратная проверка остаётся открытой.
+
 SDK-адаптер читает PadState и padIsConnected/padGetStyleSet; различает handheld,
 JoyDual и FullKey. Неполный одиночный Joy-Con классифицируется Unsupported и не
 передаёт игровые кнопки. UI-сообщение об этом ещё не реализовано. Host позволяет

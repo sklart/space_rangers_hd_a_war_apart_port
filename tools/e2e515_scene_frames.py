@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import re
 from pathlib import Path
 import numpy as np
 from PIL import Image
@@ -50,6 +51,7 @@ def generation_tiles(template, target):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('route_report', type=Path)
+    parser.add_argument('--generation-reference', type=Path, help='Recorded build PPM reference for a separate copied-save planet route; not same-process generation')
     args = parser.parse_args()
     path = args.route_report.resolve(strict=True)
     if not path.is_relative_to(ROOT / 'build'):
@@ -72,6 +74,64 @@ def main():
         assert sample['complete'] and fingerprint(image) == sample['rgb565_hash']
         images[sample['label']] = image
         verified.append(sequence)
+    if route.get('planet_cycles'):
+        if not args.generation_reference:
+            parser.error('Planet analysis requires an explicit recorded generation reference')
+        reference = args.generation_reference.resolve(strict=True)
+        if not reference.is_relative_to(ROOT / 'build'):
+            raise ValueError('Only an isolated build reference is accepted')
+        source = pixels(reference)
+        templates = dict(raw=source, shade=shade(source), grayscale=grayscale(source),
+                         shade_grayscale=grayscale(shade(source)))
+        controls = {name: generation_tiles(image, image)['retained_64px_fragment']
+                    for name, image in templates.items()}
+        targets = {label: target for label, target in images.items() if label != 'load-manager'}
+        fragments = {label: {name: generation_tiles(image, target) for name, image in templates.items()}
+                     for label, target in targets.items()}
+        suspicious = [label for label, variants in fragments.items()
+                      if any(item['retained_64px_fragment'] for item in variants.values())]
+        log = next(stage.rglob('e2e.log')).read_text(errors='replace')
+        entries = [tuple(map(int, row)) for row in re.findall(
+            r'scene canvas id=(\d+) inherit=(\d+) nested=(\d+) aux_width=(\d+) aux_height=(\d+) prepared=(\d+)', log)
+                   if int(row[0]) in (4, 5, 8, 28, 34) and int(row[2]) == 0]
+        required_entries = 1 + route['planet_cycles'] * 5 + (1 if route.get('trade_quantity_cancel') else 0)
+        independent = len(entries) >= required_entries and all(not row[1] and not row[3] and not row[4] and not row[5] for row in entries)
+        expected = [(button, screen) for _ in range(route['planet_cycles']) for button, screen in
+                    [('PP_Shop', 8), ('PP_Goods', 34), ('PP_Info', 28), ('PP_Hangar', 4), ('ButClose', 5)]]
+        actual = [(row['button'], row['screen']) for row in route['planet_transitions']]
+        owners = all(sample['registered_owner'] and sample['depth'] == 1 for sample in samples
+                     if not sample['label'].startswith('goods-'))
+        trade = not route.get('trade_quantity_cancel')
+        if route.get('trade_quantity_cancel'):
+            trade_samples = {sample['label']: sample for sample in samples if sample['label'].startswith('goods-')}
+            trade = (set(trade_samples) == {'goods-before-quantity', 'goods-quantity-dialog', 'goods-after-cancel'} and
+                     trade_samples['goods-before-quantity']['depth'] == 1 and
+                     trade_samples['goods-quantity-dialog']['depth'] == 2 and
+                     not trade_samples['goods-quantity-dialog']['registered_owner'] and
+                     trade_samples['goods-after-cancel']['depth'] == 1 and
+                     trade_samples['goods-after-cancel']['registered_owner'] and
+                     route['trade_native_confirms'] == 1 and route['trade_checkpoint_diff'] == {})
+        nonempty = all(len(np.unique(image)) >= 256 for image in targets.values())
+        passed = (route['status'] == 'PASS' and route['source_save_unchanged'] and route['source_configs_unchanged'] and
+                  len(verified) == 2 + route['planet_cycles'] * 5 + (3 if route.get('trade_quantity_cancel') else 0) and
+                  actual == expected and independent and owners and trade and
+                  nonempty and all(controls.values()) and not suspicious)
+        report = dict(status='PASS' if passed else 'FAIL', route_kind='copied-save planet panels',
+                      route_report_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+                      route_binary_sha256=route['binary_sha256'], verified_frames=len(verified),
+                      independent_scene_entries=len(entries), independent_entry_flags_verified=independent,
+                      required_independent_entries=required_entries,
+                      registered_owners_verified=owners, nonempty_scene_images=nonempty,
+                      quantity_cancel_verified=bool(route.get('trade_quantity_cancel')) and trade,
+                      generation_reference_sha256=hashlib.sha256(reference.read_bytes()).hexdigest(),
+                      generation_reference_same_process=False, generation_template_controls=controls,
+                      suspicious_generation_frames=suspicious, fragment_measurements=fragments,
+                      transitions_verified=actual == expected, hardware_executed=False,
+                      scope='Recorded planet/shop/info/hangar frames and independent canvas entry flags; generation reference is from another host process, not same-process regeneration or all possible stale layers')
+        (stage / 'scene-analysis.json').write_text(json.dumps(report, indent=2) + '\n')
+        print(json.dumps({k: v for k, v in report.items() if k != 'fragment_measurements'}, indent=2))
+        if not passed: raise SystemExit(1)
+        return
     source = images['generation-ready']
     templates = dict(raw=source, shade=shade(source), grayscale=grayscale(source),
                      shade_grayscale=grayscale(shade(source)))

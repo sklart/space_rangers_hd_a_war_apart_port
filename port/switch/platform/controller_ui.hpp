@@ -13,6 +13,12 @@
 #include "types/fTalk.hpp"
 #include "types/fRuinsTalk.hpp"
 #include "types/fSaveManager.hpp"
+#include "types/fGoodsShop2.hpp"
+#include "types/fCount2.hpp"
+#if defined(E2E5_HOST_SDL_WINDOW)
+#include "types/BreakMessageGIException.hpp"
+namespace srhd_awa::platform::e2e515_save_checkpoint { void ObserveCurrentWorld(const char* phase); }
+#endif
 #include "e2e5_pointer_payload.hpp"
 #include <algorithm>
 #include <filesystem>
@@ -98,10 +104,26 @@ inline fTalk::TfTalkA* DialogChoice(GI_MessageLoop::TObjectGI* object) {
     return nullptr;
   }
 }
+inline fGoodsShop2::TfGoodsShop2* GoodsRow(GI_MessageLoop::TObjectGI* object) {
+  if (!object) return nullptr;
+  auto* shop = pas::class_cast_if<fGoodsShop2::TfGoodsShop2*>(object->MessageLoop);
+  auto* button = pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(object);
+  if (!shop || !button || button->Disabled || pas::assigned(button->DownCallback) ||
+      pas::assigned(button->UpCallback) || button->OnPressCode) return nullptr;
+  const auto name = static_cast<std::u16string_view>(object->ControlName);
+  if (name.size() < 4 || name.substr(0, 3) != u"Tov") return nullptr;
+  const bool market = name.size() == 4 && name[3] >= u'0' && name[3] <= u'7';
+  const bool cargo = name.size() == 5 && name[3] == u'1' && name[4] >= u'0' && name[4] <= u'7';
+  return market || cargo ? shop : nullptr;
+}
 inline bool Callable(GI_MessageLoop::TObjectGI* object) {
   if (const auto* choice = DialogChoice(object))
     return pas::assigned(choice->Callback) || pas::assigned(choice->FallbackCallback);
   if (pas::class_cast_if<GI_Edit::TEditGI*>(object)) return true;
+  // This slider needs move/up delivery; a one-shot native Confirm cannot own
+  // its drag. Keep it in the cursor adapter instead of starting a stuck drag.
+  if (object->ControlName == u"PanelBar" && pas::class_cast_if<fCount2::TfCount2*>(object->MessageLoop)) return false;
+  if (GoodsRow(object)) return true;
   if (auto* button = pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(object)) {
     if (button->Disabled && (button->Kind == GI_GraphButton::gbkDisable || button->Kind == GI_GraphButton::gbkFixDisable)) return false;
     // Dual-edge hold controls retain the cursor fallback until their complete
@@ -218,6 +240,8 @@ inline void Refresh(GI_MessageLoop::TMessageLoopGI* loop) {
     state.selected = controller_focus::First(state.graph);
     if (input_platform::GetInputContext() == Context::MainMenu)
       for (const auto& entry : state.entries) if (entry.control->ControlName == u"New") { state.selected = entry.node.id; break; }
+    if (pas::class_cast_if<fCount2::TfCount2*>(loop))
+      for (const auto& entry : state.entries) if (entry.control->ControlName == u"Ok") { state.selected = entry.node.id; break; }
   }
   input_platform::SetUiFocusPolicy(!state.entries.empty(), state.focus);
   TraceGraph(state);
@@ -228,6 +252,34 @@ inline void InvalidateFocus(GI_MessageLoop::TMessageLoopGI* loop, std::uint64_t 
     loop->QueueUpdateRect({node->x - 3, node->y - 3, node->x + node->width + 3, node->y + node->height + 3});
 }
 inline void Activate(GI_MessageLoop::TObjectGI* object) {
+  if (auto* shop = GoodsRow(object)) {
+    if (!shop->CursorControl) return;
+    const auto& box = object->HitTestBounds;
+    const WindowsSdk::TPoint point{box.Left + (box.Right - box.Left) / 2, box.Top + (box.Bottom - box.Top) / 2};
+    auto* cursor = shop->CursorControl;
+    const auto previous = cursor->LocalPosition;
+    pas::ScopeExit restore = [cursor, previous]() noexcept { cursor->SetPosition(previous); };
+#if defined(E2E5_HOST_SDL_WINDOW)
+    e2e515_save_checkpoint::ObserveCurrentWorld("trade-quantity-before");
+#endif
+    // The original handler uses GetCursorPoint as well as its Point argument.
+    // Its stock, money/cargo limits, quantity dialog and transaction stay intact.
+    cursor->SetPosition(point);
+    try {
+      shop->GoodsMouseUp(shop->GetByName(u"MainPanel"sv), 0, point);
+    } catch (...) {
+#if defined(E2E5_HOST_SDL_WINDOW)
+      // Original mouse handlers finish with this control-flow exception.
+      if (pas::class_cast_if<BreakMessageGIException::EBreakMessageGI*>(pas::caught_object()))
+        e2e515_save_checkpoint::ObserveCurrentWorld("trade-quantity-after");
+#endif
+      throw; // Keep the original message-loop exception boundary.
+    }
+#if defined(E2E5_HOST_SDL_WINDOW)
+    e2e515_save_checkpoint::ObserveCurrentWorld("trade-quantity-after");
+#endif
+    return;
+  }
   if (DialogChoice(object)) {
     const auto& box = object->HitTestBounds;
     const WindowsSdk::TPoint point{box.Left + (box.Right - box.Left) / 2, box.Top + (box.Bottom - box.Top) / 2};

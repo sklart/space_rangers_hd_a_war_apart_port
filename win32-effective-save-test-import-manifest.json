@@ -3181,7 +3181,7 @@
     {
       "api": "GetModuleHandleW",
       "expression": "ModuleName.pchar()",
-      "callsite": "port/switch/build/e2e-game-save-test/generated/aGalaxy.cpp:311",
+      "callsite": "port/switch/build/e2e-game-save-test/generated/aGalaxy.cpp:316",
       "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
       "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
       "implementation": "win32_compat_modules",
@@ -3192,7 +3192,7 @@
     {
       "api": "GetModuleHandleW",
       "expression": "ModuleName.pchar()",
-      "callsite": "port/switch/build/e2e-game-save-test/generated/aGalaxy.cpp:315",
+      "callsite": "port/switch/build/e2e-game-save-test/generated/aGalaxy.cpp:320",
       "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
       "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
       "implementation": "win32_compat_modules",
@@ -3203,7 +3203,7 @@
     {
       "api": "GetModuleHandleW",
       "expression": "FileName.pchar()",
-      "callsite": "port/switch/build/e2e-game-save-test/generated/aGalaxy.cpp:4390",
+      "callsite": "port/switch/build/e2e-game-save-test/generated/aGalaxy.cpp:4395",
       "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
       "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
       "implementation": "win32_compat_modules",
@@ -3214,7 +3214,7 @@
     {
       "api": "GetModuleHandleW",
       "expression": "FileName.pchar()",
-      "callsite": "port/switch/build/e2e-game-save-test/generated/aGalaxy.cpp:4394",
+      "callsite": "port/switch/build/e2e-game-save-test/generated/aGalaxy.cpp:4399",
       "expression_kind": "DYNAMIC_MODULE_EXPRESSION",
       "classification": "NOT_REACHED_UNTIL_GAMEPLAY",
       "implementation": "win32_compat_modules",

@@ -176,6 +176,44 @@ int main() {
   ui::Activate(edit);
   assert(slots_selected == 1 && edit->Text == u"Draft Ёж"); // Reopening OSK must not refresh away an unsaved name.
   pas::free(save);
+  auto* goods = pas::construct_call<fGoodsShop2::TfGoodsShop2>(GI_MessageLoop::TMessageLoopGI_Create);
+  goods->RootUiObject = pas::construct_call<GI_MessageLoop::TObjectGI>(GI_MessageLoop::TObjectGI_Create, nullptr);
+  goods->RootUiObject->MessageLoop = goods;
+  auto* trade_row = Button(goods->RootUiObject, 0, 10, 10);
+  trade_row->MessageLoop = goods;
+  trade_row->UpCallback = {};
+  trade_row->ControlName = pas::WideString(u"Tov0");
+  assert(ui::Callable(trade_row) && ui::GoodsRow(trade_row) == goods);
+  trade_row->Disabled = true;
+  assert(!ui::Callable(trade_row));
+  trade_row->Disabled = false;
+  trade_row->ControlName = pas::WideString(u"Tov8");
+  assert(!ui::Callable(trade_row));
+  trade_row->ControlName = pas::WideString(u"Tov10");
+  assert(ui::Callable(trade_row));
+  trade_row->UpCallback = pas::bind_static_method<&Click>(goods);
+  const auto previous_clicks = clicked[0];
+  assert(!ui::GoodsRow(trade_row));
+  ui::Activate(trade_row);
+  assert(clicked[0] == previous_clicks + 1); // Preserve a fork/custom callback.
+  pas::free(goods);
+  auto* quantity = pas::construct_call<fCount2::TfCount2>(GI_MessageLoop::TMessageLoopGI_Create);
+  quantity->RootUiObject = pas::construct_call<GI_MessageLoop::TObjectGI>(GI_MessageLoop::TObjectGI_Create, nullptr);
+  quantity->RootUiObject->MessageLoop = quantity; quantity->ContentPanel = quantity->RootUiObject;
+  quantity->ViewportRect = {0,0,256,160}; quantity->RootUiObject->SetSize({256,160});
+  auto* close = Button(quantity->RootUiObject, 0, 10, 100); close->ControlName = pas::WideString(u"Close");
+  auto* accept = Button(quantity->RootUiObject, 1, 80, 100); accept->ControlName = pas::WideString(u"Ok");
+  auto* slider = pas::construct_call<GI_MessageLoop::TObjectGI>(GI_MessageLoop::TObjectGI_Create, quantity->RootUiObject);
+  slider->MessageLoop = quantity; slider->ControlName = pas::WideString(u"PanelBar");
+  slider->LeftButtonDownCallback = pas::bind_static_method<&ContextClick>(quantity);
+  slider->SetPosition({10,50}); slider->SetSize({100,20});
+  assert(!ui::Callable(slider));
+  quantity->RootUiObject->UpdateAbsolutePosition(); quantity->RootUiObject->UpdateSubtreeHitBounds();
+  {
+    ui::Scope scope(quantity); ui::Refresh(quantity);
+    assert(ui::active->selected == reinterpret_cast<std::uintptr_t>(accept));
+  }
+  pas::free(quantity);
   renderer_platform::ShutdownSoftwareRenderer();
   std::puts("PASS real native buttons via injected pad, focus frame, disabled/hidden exclusion, no held/replay click, cursor fallback, focus restoration and settings write refusal");
 }

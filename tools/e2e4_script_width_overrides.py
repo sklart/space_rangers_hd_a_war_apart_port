@@ -141,7 +141,11 @@ def prepare_script_source_overlay(source_root: Path, destination: Path) -> Path:
                 text = text[:load_state_start] + load_state + text[load_state_end:]
             elif relative.as_posix() == "aGalaxy.cpp":
                 text = _replace_exact(text, "namespace aGalaxy {",
-                    '#include "e2e5_save_inventory.hpp"\n#include "e2e515_save_checkpoint.hpp"\nnamespace aGalaxy {',
+                    '#include "e2e5_save_inventory.hpp"\n#include "e2e515_save_checkpoint.hpp"\n'
+                    '#if defined(E2E5_HOST_SDL_WINDOW)\n'
+                    'namespace srhd_awa::platform::e2e515_save_checkpoint {\n'
+                    'void ObserveCurrentWorld(const char* phase) { Observe(aGalaxy::Galaxy, phase); }\n'
+                    '}\n#endif\nnamespace aGalaxy {',
                     1, relative.as_posix())
                 text = _replace_exact(text,
                     "    void TGalaxy::SaveToBuffer(EC_Buf::TBufEC* Buffer) {",

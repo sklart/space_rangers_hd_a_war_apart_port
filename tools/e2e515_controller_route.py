@@ -30,9 +30,15 @@ def main():
     parser.add_argument('--expect-checkpoint', type=Path, help='Compare the loaded state to a prior route result')
     parser.add_argument('--label', help='Separate result folder under build/e2e515')
     parser.add_argument('--scene-cycles', type=int, default=0, help='After campaign takeoff, repeat real ship/menu/modal/return transitions with requested frame captures')
+    parser.add_argument('--planet-cycles', type=int, default=0, help='After loading a copied docked save, visit equipment/goods/info/hangar/planet via real pad actions')
+    parser.add_argument('--trade-dialog', action='store_true', help='Open a real market quantity dialog from native focus, hold A, cancel and verify ownership')
     args = parser.parse_args()
     if not 0 <= args.scene_cycles <= 10 or (args.scene_cycles and not args.campaign):
         parser.error('--scene-cycles requires --campaign and a count between 1 and 10')
+    if not 0 <= args.planet_cycles <= 10 or (args.planet_cycles and not args.load_save):
+        parser.error('--planet-cycles requires --load-save and a count between 1 and 10')
+    if args.trade_dialog and not args.load_save:
+        parser.error('--trade-dialog requires --load-save')
     if args.save and not args.campaign:
         parser.error('--save requires --campaign')
     if args.fail_save_once and not (args.save or args.resave_name):
@@ -95,7 +101,7 @@ def main():
                E2E511_HOST_FRAMES=str(frames.resolve()))
     if args.campaign:
         env['E2E515_HOST_ROUTE_OSK'] = '1'
-    if args.scene_cycles:
+    if args.scene_cycles or args.planet_cycles or args.trade_dialog:
         env['E2E515_HOST_FRAME_CAPTURE'] = '1'
     if args.resave_name:
         env.update(E2E515_HOST_ROUTE_OSK='1', E2E515_HOST_SAVE_NAME=args.resave_name)
@@ -226,6 +232,7 @@ def main():
             if not data['complete'] or data['screen'] != screen:
                 raise RuntimeError('Requested frame capture failed: ' + label)
             samples.append(dict(label=label, **data))
+            shutil.copyfile(stage / 'focus.txt', frames / f'frame-{sequence}.focus.txt')
 
         def select(name, remaining=128):
             if remaining <= 0:
@@ -503,6 +510,7 @@ def main():
                 pulse(1)
                 wait(lambda text: 'screen dispatch id=23 ' in text[at:] and
                      any(node[2] == 'Slot0' for node in graph()[2]), 'load UI copied slot')
+                if args.planet_cycles: capture(23, 'load-manager')
                 select('Slot0')
                 pulse(1)
                 select('ButLoad')
@@ -527,6 +535,63 @@ def main():
                     if diff:
                         raise RuntimeError('Loaded world checkpoint differs from saved state')
                     report['checkpoint_comparison_verified'] = True
+                if args.planet_cycles:
+                    if report['restored_screen'] != 5:
+                        raise RuntimeError('Planet tour requires an original inhabited-planet save')
+                    report['status'] = 'RUNNING'
+                    capture(5, 'planet-initial')
+                    trace = []
+                    route = [('PP_Shop', 8, 'equipment'), ('PP_Goods', 34, 'goods'),
+                             ('PP_Info', 28, 'info'), ('PP_Hangar', 4, 'hangar'),
+                             ('ButClose', 5, 'planet')]
+                    for cycle in range(1, args.planet_cycles + 1):
+                        for button, screen, name in route:
+                            select(button); parent = state()[0]; pulse(1)
+                            wait(lambda text, parent=parent: state()[0] != parent and state()[2] > 0,
+                                 'planet panel transition to ' + name, 90)
+                            # Re-entry does not always emit the dispatch marker.
+                            # The requested present below verifies the real top
+                            # registered owner, not an inferred log substring.
+                            capture(screen, f'planet-cycle-{cycle}-{name}')
+                            trace.append(dict(cycle=cycle, button=button, screen=screen))
+                    report.update(status='PASS', planet_cycles=args.planet_cycles, planet_transitions=trace,
+                                  scope='copied real planet save, raw-pad equipment/goods/info/hangar/planet transitions; image analysis pending')
+                if args.trade_dialog:
+                    if report['restored_screen'] != 5:
+                        raise RuntimeError('Trade dialog probe requires an original inhabited-planet save')
+                    report['status'] = 'RUNNING'
+                    select('PP_Goods'); at = len(lines()); pulse(1)
+                    wait(lambda text: 'screen dispatch id=34 ' in text[at:] and
+                         'screen Run first frame attempted' in text[text.rfind('screen dispatch id=34 '):], 'real goods shop')
+                    capture(34, 'goods-before-quantity')
+                    available = [node[2] for node in graph()[2] if re.fullmatch(r'Tov[0-7]', node[2])]
+                    if not available:
+                        raise RuntimeError('Real market rows are absent from native focus graph')
+                    select(sorted(available)[0]); parent = state()[0]; at = len(lines())
+                    pulse(1, .9)
+                    wait(lambda text: state()[0] != parent and
+                         {'Close', 'Ok'}.issubset({node[2] for node in graph()[2]}),
+                         'original quantity dialog; held A must not accept it')
+                    if next(node[2] for node in graph()[2] if node[0] == state()[1]) != 'Ok':
+                        raise RuntimeError('Quantity dialog did not focus its original acceptance button')
+                    confirms = lines()[at:].count('controller native action=Confirm ')
+                    if confirms != 1:
+                        raise RuntimeError(f'Expected one goods Confirm across dialog change, observed {confirms}')
+                    report['trade_native_confirms'] = confirms
+                    capture(34, 'goods-quantity-dialog')
+                    pulse(2); wait(lambda text: state()[0] == parent, 'quantity Cancel restores same goods owner')
+                    capture(34, 'goods-after-cancel')
+                    wait(lambda text: any(row['phase'] == 'trade-quantity-after' for row in checkpoints()),
+                         'trade Cancel world checkpoint')
+                    before = next(row for row in checkpoints() if row['phase'] == 'trade-quantity-before')
+                    after = next(row for row in checkpoints() if row['phase'] == 'trade-quantity-after')
+                    differences = {key: [before.get(key), value] for key, value in after.items()
+                                   if key != 'phase' and before.get(key) != value}
+                    report['trade_checkpoint_diff'] = differences
+                    if differences:
+                        raise RuntimeError('Quantity Cancel changed the recorded game state')
+                    report.update(status='PASS', trade_quantity_cancel=True,
+                                  scope='raw pad market row opens original quantity dialog, held A suppressed, B cancels')
                 if args.advance_turns:
                     if report['restored_screen'] not in (4, 5, 6):
                         raise RuntimeError('This turn scenario requires a recovered docked/planet state')

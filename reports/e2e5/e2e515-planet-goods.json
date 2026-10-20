@@ -1,0 +1,200 @@
+{
+  "status": "PARTIAL: planet navigation and native quantity entry/cancel PASS",
+  "base_git": "b4933042618e0320483102c2efeb9fed69456cdf",
+  "host_binary_sha256": "44de08424d41ad1293d2ad1c57b7a42306755ff298b3155817d4e4fd9aaa3f58",
+  "run": "284eef6b09ff4b68a9b37f3fdb62c38e",
+  "planet_cycles": 5,
+  "planet_transitions": [
+    {
+      "cycle": 1,
+      "button": "PP_Shop",
+      "screen": 8
+    },
+    {
+      "cycle": 1,
+      "button": "PP_Goods",
+      "screen": 34
+    },
+    {
+      "cycle": 1,
+      "button": "PP_Info",
+      "screen": 28
+    },
+    {
+      "cycle": 1,
+      "button": "PP_Hangar",
+      "screen": 4
+    },
+    {
+      "cycle": 1,
+      "button": "ButClose",
+      "screen": 5
+    },
+    {
+      "cycle": 2,
+      "button": "PP_Shop",
+      "screen": 8
+    },
+    {
+      "cycle": 2,
+      "button": "PP_Goods",
+      "screen": 34
+    },
+    {
+      "cycle": 2,
+      "button": "PP_Info",
+      "screen": 28
+    },
+    {
+      "cycle": 2,
+      "button": "PP_Hangar",
+      "screen": 4
+    },
+    {
+      "cycle": 2,
+      "button": "ButClose",
+      "screen": 5
+    },
+    {
+      "cycle": 3,
+      "button": "PP_Shop",
+      "screen": 8
+    },
+    {
+      "cycle": 3,
+      "button": "PP_Goods",
+      "screen": 34
+    },
+    {
+      "cycle": 3,
+      "button": "PP_Info",
+      "screen": 28
+    },
+    {
+      "cycle": 3,
+      "button": "PP_Hangar",
+      "screen": 4
+    },
+    {
+      "cycle": 3,
+      "button": "ButClose",
+      "screen": 5
+    },
+    {
+      "cycle": 4,
+      "button": "PP_Shop",
+      "screen": 8
+    },
+    {
+      "cycle": 4,
+      "button": "PP_Goods",
+      "screen": 34
+    },
+    {
+      "cycle": 4,
+      "button": "PP_Info",
+      "screen": 28
+    },
+    {
+      "cycle": 4,
+      "button": "PP_Hangar",
+      "screen": 4
+    },
+    {
+      "cycle": 4,
+      "button": "ButClose",
+      "screen": 5
+    },
+    {
+      "cycle": 5,
+      "button": "PP_Shop",
+      "screen": 8
+    },
+    {
+      "cycle": 5,
+      "button": "PP_Goods",
+      "screen": 34
+    },
+    {
+      "cycle": 5,
+      "button": "PP_Info",
+      "screen": 28
+    },
+    {
+      "cycle": 5,
+      "button": "PP_Hangar",
+      "screen": 4
+    },
+    {
+      "cycle": 5,
+      "button": "ButClose",
+      "screen": 5
+    }
+  ],
+  "verified_frames": 30,
+  "independent_entries": 27,
+  "required_independent_entries": 27,
+  "independent_entry_flags_verified": true,
+  "generation_reference_same_process": false,
+  "generation_reference_sha256": "1d9030e75ebe231b7f48bdf0c9a69c96f0a0313662d60c4eaf8474317b621bd2",
+  "generation_fragment_controls": {
+    "raw": true,
+    "shade": true,
+    "grayscale": true,
+    "shade_grayscale": true
+  },
+  "suspicious_generation_frames": [],
+  "trade_quantity_cancel": true,
+  "trade_native_confirms": 1,
+  "trade_checkpoint_diff": {},
+  "quantity_default_focus": "original Ok",
+  "quantity_slider": "cursor adapter; excluded from one-shot focus activation",
+  "source_save_sha256": "665b82366662e9a98fa85289a127621355e470035c8915b84a0379fb0aa955fb",
+  "source_save_unchanged": true,
+  "source_configs_unchanged": true,
+  "engine_tests": [
+    {
+      "name": "runtime-loop",
+      "status": "PASS"
+    },
+    {
+      "name": "scene-canvas",
+      "status": "PASS"
+    },
+    {
+      "name": "screen-context",
+      "status": "PASS"
+    },
+    {
+      "name": "native-focus",
+      "status": "PASS"
+    },
+    {
+      "name": "sanitized-scene",
+      "status": "PASS"
+    }
+  ],
+  "sanitizer_scope": "renderer_platform, GR_Main, GR_GraphBuf, GI_MessageLoop and scene test; not full asset-backed market execution",
+  "sdk_compile_units": 9,
+  "sdk_linked": false,
+  "hardware_executed": false,
+  "normal_shutdown_verified": false,
+  "source_sha256": {
+    "port/switch/platform/controller_ui.hpp": "817d4d653c361d006fac874eb490ca7b3673ebd1d8d3de4a5886b8a71fff0ce8",
+    "tests/test_e2e515_native_focus.cpp": "9a310795cf355240acaf5a591adb9a030ac13366bd68913e84b6ebaac9501589",
+    "tools/e2e4_script_width_overrides.py": "0edcb5aa1461b7767c5cdef999761591184f770fe1abee09869669874e996865",
+    "tools/e2e515_controller_route.py": "d5553369cd5fdebde9d07b638f87ce46fdbb23bd503eaaa70be6d4b85f768add",
+    "tools/e2e515_scene_frames.py": "e890f6725916f2701e1035e68a0d1bc1cb9604c820b61db6111984356ae2054c"
+  },
+  "baseline_missing_rows_run": "a17d9d95663b493e81cff340a73df154",
+  "earlier_successful_cancel_run": "31136e360c884acd9e97473cbe501c84",
+  "open": [
+    "Actual purchase and sale",
+    "Count changes with pad/cursor and bounds",
+    "Equipment inventory drag/drop and hover",
+    "Government, treatment and further screens",
+    "Same-process generation to these planet shops",
+    "Full world serialization parity and full process teardown",
+    "Switch input, GPU and SD hardware tests"
+  ]
+}
