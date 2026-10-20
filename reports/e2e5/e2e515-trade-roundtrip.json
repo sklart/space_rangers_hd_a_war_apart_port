@@ -1,0 +1,123 @@
+{
+  "status": "PARTIAL: one-unit planet trade, quantity bounds and fresh-process resave/reload PASS",
+  "base_git": "2a4077dfa15fc4bec00a00c5c682e8a4a6942e6e",
+  "host_binary_sha256": "3d472cc1b1999cd603ca74ce9f09940d83b948287b378ef40591e14b7487948c",
+  "trade_run": "d8173c76af0442a5b556f84776166d25",
+  "reload_run": "3931579a7ad3470bab75f3788d3e61be",
+  "source_save_sha256": "665b82366662e9a98fa85289a127621355e470035c8915b84a0379fb0aa955fb",
+  "trade_cancel_unchanged": true,
+  "trade_operations": [
+    {
+      "operation": "buy",
+      "good": 0,
+      "quantity": 1,
+      "price": 32,
+      "minimum_clamp_verified": true,
+      "maximum_clamp_verified": true,
+      "money_before": 2044,
+      "money_after": 2012
+    },
+    {
+      "operation": "sell",
+      "good": 0,
+      "quantity": 1,
+      "price": 31,
+      "minimum_clamp_verified": true,
+      "maximum_clamp_verified": true,
+      "money_before": 2012,
+      "money_after": 2043
+    }
+  ],
+  "verified_frames": 8,
+  "trade_frame_analysis": {
+    "status": "PASS",
+    "route_kind": "one-unit-planet-trade",
+    "verified_frames": 7,
+    "numeric_source": "actual E2E515_TRADE stderr records",
+    "cancel_unchanged": true,
+    "money_cargo_stock_free_space_cost_verified": true,
+    "owner_depth_verified": true,
+    "hardware_executed": false,
+    "full_world_parity": false
+  },
+  "manual_save_sha256": "9a93bba2b9ea185087f50cba14baf8a797564cd2b6a2a20c11e88310a68d1beb",
+  "manual_save_bytes": 798430,
+  "original_slots_preserved": true,
+  "fresh_process_reload_verified": true,
+  "checkpoint_diff": {},
+  "restored_screen": 34,
+  "engine_tests": [
+    {
+      "name": "runtime-loop",
+      "status": "PASS",
+      "stdout": "M12 runtime loop regression PASS frames=120+120\n",
+      "test_sha256": "965d8dcf2f698e19622bd459d24c3914b6e6c16e8a2c776059c241020f7388e9",
+      "binary_sha256": "a2adcf1a98d04a190b854d92e85e851ce1c2dbc51ac982fba99d6d78397e8415"
+    },
+    {
+      "name": "scene-canvas",
+      "status": "PASS",
+      "stdout": "PASS 10 cycles: prepared capture survives Clear and later parent draws, single consumption, child/independent invalidation, parent restore and exception unwind\n",
+      "test_sha256": "d2908fe1fdb9d5a00b053b9b743113766081b32235aef5d360e52bb4c3a223b8",
+      "binary_sha256": "41c3d499e1ad88823e8bf68e120921d1d9755ecf4f0813234158ceaee670fe41"
+    },
+    {
+      "name": "screen-context",
+      "status": "PASS",
+      "stdout": "PASS real TfAB/TObjectGI/TGraphButtonGI/TEditGI cancellation, fixed toggle, 10 stack/owner unwinds, injected OSK Unicode/Cancel/exception; no battle or native applet executed\n",
+      "test_sha256": "4ce41412a936e023869ee1e351d906faff0c62bd19bc03e35e5ecee3b5383a1f",
+      "binary_sha256": "5a4f2f30bab695ac95f98cd1c76d7ea7060c045a4731c4f58fc97b3acd41b6b4"
+    },
+    {
+      "name": "native-focus",
+      "status": "PASS",
+      "stdout": "PASS real native buttons via injected pad, focus frame, disabled/hidden exclusion, no held/replay click, cursor fallback, focus restoration and settings write refusal\n",
+      "test_sha256": "9a310795cf355240acaf5a591adb9a030ac13366bd68913e84b6ebaac9501589",
+      "binary_sha256": "5ed357472babd7d597c7c6a21314c78148676c189b25d3078effbc4b1aac8f6f"
+    },
+    {
+      "name": "sanitized-scene",
+      "status": "PASS",
+      "stdout": "PASS 10 cycles: prepared capture survives Clear and later parent draws, single consumption, child/independent invalidation, parent restore and exception unwind\n",
+      "instrumented_units": [
+        "renderer_platform",
+        "GR_Main",
+        "GR_GraphBuf",
+        "GI_MessageLoop"
+      ],
+      "remaining_game_units_instrumented": false,
+      "leak_detection": true,
+      "binary_sha256": "fac7d5d54093be64c5a7b3eebd4f364534f517118c11ea1eab1d49a8a53f7bf0"
+    }
+  ],
+  "sdk_compile_units": 9,
+  "sdk_linked": false,
+  "hardware_executed": false,
+  "normal_shutdown_verified": false,
+  "original_source_save_and_configs_unchanged": true,
+  "earlier_failures": [
+    {
+      "run": "906212b4801e4bde9a1d6d236a539a68",
+      "cause": "driver excluded restored shop screen 34"
+    },
+    {
+      "run": "103fd978655d48d28e3badc4fc6a845f",
+      "cause": "80s startup timeout while loading menu GAI; no save load attempted"
+    }
+  ],
+  "current_source_sha256": {
+    "port/switch/platform/controller_ui.hpp": "57946cea0372e3a720f16b2dd415fe7cbb01e65b5a7fcc5be4173e346ddbedfe",
+    "port/switch/platform/e2e515_save_checkpoint.hpp": "d1a58a83c30bacbb462d83f1d2ea2ec9c16682e4e5044d8ca49445f2a200e1c8",
+    "tools/e2e515_controller_route.py": "02e08470b8eca7e2569090779c9c794669f9853c2e6da8ff178a4c5f77bd80ee",
+    "tools/e2e515_scene_frames.py": "84fa873d52e1d675dd2eb2bff3997e3e51fba58af0f8efc52e013e7f3b945623"
+  },
+  "open": [
+    "Other goods, illegal trade, insufficient money, full cargo",
+    "Cursor slider/AddSub/drag/hover",
+    "Interstellar flight save scenario",
+    "Full world serialization parity and normal process teardown",
+    "General arcade CPU slowdown",
+    "Real MatrixGame Init/Run and battle",
+    "Switch hardware and final NRO/ELF"
+  ]
+}

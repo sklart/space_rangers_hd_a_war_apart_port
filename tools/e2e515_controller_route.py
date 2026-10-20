@@ -32,7 +32,10 @@ def main():
     parser.add_argument('--scene-cycles', type=int, default=0, help='After campaign takeoff, repeat real ship/menu/modal/return transitions with requested frame captures')
     parser.add_argument('--planet-cycles', type=int, default=0, help='After loading a copied docked save, visit equipment/goods/info/hangar/planet via real pad actions')
     parser.add_argument('--trade-dialog', action='store_true', help='Open a real market quantity dialog from native focus, hold A, cancel and verify ownership')
+    parser.add_argument('--trade-roundtrip', action='store_true', help='After Cancel, buy and sell one unit through the original quantity UI on a copied save')
     args = parser.parse_args()
+    if args.trade_roundtrip:
+        args.trade_dialog = True
     if not 0 <= args.scene_cycles <= 10 or (args.scene_cycles and not args.campaign):
         parser.error('--scene-cycles requires --campaign and a count between 1 and 10')
     if not 0 <= args.planet_cycles <= 10 or (args.planet_cycles and not args.load_save):
@@ -101,7 +104,7 @@ def main():
                E2E511_HOST_FRAMES=str(frames.resolve()))
     if args.campaign:
         env['E2E515_HOST_ROUTE_OSK'] = '1'
-    if args.scene_cycles or args.planet_cycles or args.trade_dialog:
+    if args.scene_cycles or args.planet_cycles or args.trade_dialog or args.expect_checkpoint:
         env['E2E515_HOST_FRAME_CAPTURE'] = '1'
     if args.resave_name:
         env.update(E2E515_HOST_ROUTE_OSK='1', E2E515_HOST_SAVE_NAME=args.resave_name)
@@ -158,7 +161,7 @@ def main():
 
         def restored_screen(text):
             records = list(re.finditer(r'screen dispatch id=(\d+) postload=', text))
-            if not records or int(records[-1][1]) not in (4, 5, 6, 16):
+            if not records or int(records[-1][1]) not in (4, 5, 6, 16, 34):
                 return 0
             tail = text[records[-1].end():]
             ready = 'HOST map orders ready' if int(records[-1][1]) == 16 else 'screen Run first frame attempted'
@@ -342,7 +345,7 @@ def main():
 
         try:
             wait(lambda text: 'screen first presented id=1 ' in text and state()[2] > 0,
-                 'main menu and native focus graph', 80)
+                 'main menu and native focus graph', 180)
             if args.load_save is None:
                 cycles = []
                 if not args.campaign:
@@ -535,6 +538,7 @@ def main():
                     if diff:
                         raise RuntimeError('Loaded world checkpoint differs from saved state')
                     report['checkpoint_comparison_verified'] = True
+                    capture(report['restored_screen'], 'restored-save-screen')
                 if args.planet_cycles:
                     if report['restored_screen'] != 5:
                         raise RuntimeError('Planet tour requires an original inhabited-planet save')
@@ -592,6 +596,68 @@ def main():
                         raise RuntimeError('Quantity Cancel changed the recorded game state')
                     report.update(status='PASS', trade_quantity_cancel=True,
                                   scope='raw pad market row opens original quantity dialog, held A suppressed, B cancels')
+                    if args.trade_roundtrip:
+                        def trades():
+                            return [json.loads(line.split('|', 1)[1]) for line in
+                                    (stage / 'stderr.log').read_text(errors='replace').splitlines()
+                                    if line.startswith('E2E515_TRADE|') and line.endswith('}')]
+
+                        def quantity():
+                            matches = list(re.finditer(r'controller quantity value=(\d+) minimum=(\d+) maximum=(\d+) limit=(\d+)', lines()))
+                            return tuple(map(int, matches[-1].groups())) if matches else None
+
+                        market_row = sorted(available)[0]
+                        operations = []
+                        for operation, row_name in [('buy', market_row), ('sell', 'Tov' + str(10 + int(market_row[3:])) )]:
+                            select(row_name); parent = state()[0]; records = len(trades())
+                            pulse(1)
+                            wait(lambda text: state()[0] != parent and
+                                 {'Close', 'Ok'}.issubset({node[2] for node in graph()[2]}), operation + ' quantity dialog')
+                            raw(32, 0)
+                            wait(lambda text: quantity() is not None and quantity()[0] == quantity()[2],
+                                 operation + ' quantity reaches original maximum', 40)
+                            raw(0)
+                            pulse(32, 0)
+                            if quantity()[0] != quantity()[2]:
+                                raise RuntimeError('Quantity moved above its original maximum')
+                            # Exercise the original minimum clamp via real repeated pad input.
+                            raw(16, 0)
+                            wait(lambda text: quantity() is not None and quantity()[0] == quantity()[1] == 0,
+                                 operation + ' quantity reaches original minimum', 40)
+                            raw(0)
+                            pulse(16, 0)
+                            if quantity()[0] != 0:
+                                raise RuntimeError('Quantity moved below its original minimum')
+                            pulse(32, 0)
+                            if quantity()[0] != 1:
+                                raise RuntimeError('Right pad step did not select exactly one unit')
+                            capture(34, operation + '-one-unit')
+                            pulse(1)
+                            wait(lambda text: state()[0] == parent and len(trades()) >= records + 2,
+                                 operation + ' transaction completes in original shop', 60)
+                            before, after = trades()[records:records + 2]
+                            changed = [(old, new) for old, new in zip(before['goods'], after['goods']) if old != new]
+                            cargo_changes = [(old, new) for old, new in changed if old['cargo'] != new['cargo']]
+                            if len(cargo_changes) != 1:
+                                raise RuntimeError(operation + ' did not change exactly one cargo good')
+                            old, new = cargo_changes[0]
+                            direction = 1 if operation == 'buy' else -1
+                            price = old[operation]
+                            if (new['cargo'] != old['cargo'] + direction or
+                                    new['stock'] != old['stock'] - direction or
+                                    after['money'] != before['money'] - direction * price or
+                                    after['free_space'] != before['free_space'] - direction):
+                                raise RuntimeError(operation + ' money/cargo/stock/free-space conservation failed')
+                            if any(a != b for a, b in zip(before['goods'], after['goods']) if a['id'] != old['id']):
+                                raise RuntimeError(operation + ' changed unrelated goods')
+                            if operations and old['id'] != operations[0]['good']:
+                                raise RuntimeError('Sale selected a different good after purchase')
+                            operations.append(dict(operation=operation, good=old['id'], quantity=1,
+                                                   price=price, minimum_clamp_verified=True,
+                                                   maximum_clamp_verified=True, before=before, after=after))
+                            capture(34, operation + '-completed')
+                        report.update(status='PASS', trade_roundtrip=operations,
+                                      scope='copied save, original one-unit purchase and sale, numeric conservation; hardware pending')
                 if args.advance_turns:
                     if report['restored_screen'] not in (4, 5, 6):
                         raise RuntimeError('This turn scenario requires a recovered docked/planet state')

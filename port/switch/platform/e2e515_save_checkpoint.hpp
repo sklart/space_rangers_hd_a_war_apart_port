@@ -116,6 +116,17 @@ inline void Observe(aGalaxy::TGalaxy* galaxy, const char* phase) {
         static_cast<unsigned long long>(rng_hash), static_cast<unsigned long long>(scripts.value),
         static_cast<unsigned long long>(globals.value), static_cast<unsigned long long>(inventory.value), items.size(),
         static_cast<unsigned long long>(ship.value));
+    if (std::string_view(phase).starts_with("trade-") && player->CurrentPlanet) {
+        std::fprintf(stderr, "E2E515_TRADE|{\"phase\":\"%s\",\"money\":%d,\"free_space\":%d,\"goods\":[",
+            phase, player->Money, player->GetCargoFreeSpace());
+        for (int i = 0; i < 8; ++i) {
+            const auto& cargo = player->CargoGoods[i];
+            std::fprintf(stderr, "%s{\"id\":%d,\"cargo\":%d,\"cost\":%d,\"stock\":%d,\"buy\":%d,\"sell\":%d}",
+                i ? "," : "", i, cargo.Count, cargo.TotalCost, player->GetLocationGoodsEntry(i)->Count,
+                player->ShopGoodsPurchasePrice(i, nullptr), player->ShopGoodsSellPrice(i, nullptr));
+        }
+        std::fprintf(stderr, "]}\n");
+    }
     std::fflush(stderr);
 }
 #else

@@ -413,6 +413,19 @@ inline bool Process(GI_MessageLoop::TMessageLoopGI* loop, std::uint32_t message,
     }
     return true;
   }
+  if (auto* quantity = pas::class_cast_if<fCount2::TfCount2*>(loop)) {
+    if (action == Action::NavigateLeft || action == Action::NavigateRight) {
+      // Use the original bounded single-step operation; unlike mouse-down it
+      // does not create a repeat timer needing a later mouse-up.
+      quantity->MainPanelKeyDown(quantity->GetByName(u"MainPanel"sv),
+          action == Action::NavigateLeft ? WindowsSdk::VK_LEFT : WindowsSdk::VK_RIGHT);
+      char diagnostic[160]{};
+      std::snprintf(diagnostic, sizeof(diagnostic), "controller quantity value=%d minimum=%d maximum=%d limit=%d",
+          quantity->Value, quantity->Minimum, quantity->Maximum, quantity->Limit);
+      e2e_stage::Log(diagnostic);
+      return true;
+    }
+  }
   Refresh(loop);
   if (active->entries.empty()) return true;
   using D = controller_focus::Direction;

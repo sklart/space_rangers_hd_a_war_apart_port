@@ -187,15 +187,21 @@ Host mailbox подтверждает команду только после е�
 | PP_Hangar | TfPanelPlanet::HangarClicked | Ангар, screen 4 | host route PASS |
 | ButClose | PlanetClicked | Планета, screen 5 | host route PASS |
 | TfGoodsShop2 Tov0..7 | GoodsMouseUp(MainPanel) | Исходный диалог количества | Открытие/Cancel PASS |
-| TfGoodsShop2 Tov10..17 | GoodsMouseUp(MainPanel) | Продажа из трюма | Привязка есть, реальная продажа OPEN |
-| TfCount2 Ok | Исходный callback | Подтвердить количество | Начальный focus PASS; покупка OPEN |
+| TfGoodsShop2 Tov10..17 | GoodsMouseUp(MainPanel) | Продажа из трюма | Одна единица продуктов: host PASS; остальные товары OPEN |
+| TfCount2 Ok | Исходный callback | Подтвердить количество | Начальный focus и покупка/продажа одной единицы: host PASS |
 | TfCount2 Cancel/B | Исходный Escape handler | Вернуться без операции | Checkpoint до/после совпадает |
+| TfCount2 D-pad влево/вправо | MainPanelKeyDown(VK_LEFT/VK_RIGHT) | Изменить количество на единицу | Press/repeat, нижняя/верхняя граница: host PASS |
 | TfCount2 PanelBar, Add/Sub | Исходные mouse move/down/up | Изменить количество | Курсорный fallback, проверка OPEN |
 
 Строки товара с собственными callback/скриптами сохраняют общий путь.
 Ползунок исключён из одноразового focus Confirm во избежание незавершённого drag.
 Полный отчёт: reports/e2e5/e2e515-planet-goods.md. Удержание A при открытии не
 подтверждает новый диалог повторно; аппаратная проверка остаётся открытой.
+В TfCount2 вверх/вниз перемещает focus, влево/вправо меняет количество штатным
+bounded handler без mouse-down repeat timer. Trade roundtrip на копии сейва:
+2044 → 2012 → 2043 денег, 0 → 1 → 0 продуктов, 23 → 22 → 23 остаток рынка.
+Это проверка одной операции с продуктами; запрещённые товары, другие цены,
+переполненный трюм, нехватка денег и cursor drag остаются отдельными проверками.
 
 SDK-адаптер читает PadState и padIsConnected/padGetStyleSet; различает handheld,
 JoyDual и FullKey. Неполный одиночный Joy-Con классифицируется Unsupported и не

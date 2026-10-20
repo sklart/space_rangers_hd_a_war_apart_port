@@ -74,6 +74,40 @@ def main():
         assert sample['complete'] and fingerprint(image) == sample['rgb565_hash']
         images[sample['label']] = image
         verified.append(sequence)
+    if route.get('trade_roundtrip') and not route.get('planet_cycles'):
+        records = [json.loads(line.split('|', 1)[1]) for line in
+                   (stage / 'stderr.log').read_text(errors='replace').splitlines()
+                   if line.startswith('E2E515_TRADE|') and line.endswith('}')]
+        assert len(records) == 6 and len(route['trade_roundtrip']) == 2
+        assert {k: v for k, v in records[0].items() if k != 'phase'} == {
+            k: v for k, v in records[1].items() if k != 'phase'}
+        for i, operation in enumerate(route['trade_roundtrip']):
+            before, after = records[2 + i * 2:4 + i * 2]
+            assert before == operation['before'] and after == operation['after']
+            good = operation['good']
+            old, new = before['goods'][good], after['goods'][good]
+            direction = 1 if i == 0 else -1
+            price = old['buy' if i == 0 else 'sell']
+            assert new['cargo'] - old['cargo'] == direction
+            assert new['stock'] - old['stock'] == -direction
+            assert after['money'] - before['money'] == -direction * price
+            assert after['free_space'] - before['free_space'] == -direction
+            # This fixture buys into an empty entry, then sells its only unit.
+            assert old['cargo'] == i and new['cargo'] == 1 - i
+            assert new['cost'] == (price if i == 0 else 0)
+            assert all(a == b for a, b in zip(before['goods'], after['goods']) if a['id'] != good)
+        assert route['trade_roundtrip'][0]['good'] == route['trade_roundtrip'][1]['good']
+        for sample in samples:
+            modal = sample['label'] in ('goods-quantity-dialog', 'buy-one-unit', 'sell-one-unit')
+            assert sample['screen'] == 34 and sample['depth'] == (2 if modal else 1)
+            assert sample['registered_owner'] == (not modal)
+        result = dict(status='PASS', route_kind='one-unit-planet-trade', verified_frames=len(verified),
+                      numeric_source='actual E2E515_TRADE stderr records', cancel_unchanged=True,
+                      money_cargo_stock_free_space_cost_verified=True, owner_depth_verified=True,
+                      hardware_executed=False, full_world_parity=False)
+        (stage / 'scene-analysis.json').write_text(json.dumps(result, indent=2) + '\n')
+        print(json.dumps(result, indent=2))
+        return
     if route.get('planet_cycles'):
         if not args.generation_reference:
             parser.error('Planet analysis requires an explicit recorded generation reference')
