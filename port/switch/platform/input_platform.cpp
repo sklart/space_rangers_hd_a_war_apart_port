@@ -207,7 +207,8 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
     raw.stick_x = raw.stick_y = 0;
     raw.dpad_left = raw.dpad_right = raw.dpad_up = raw.dpad_down = false;
   }
-  raw.a = raw.a || raw.touch;
+  const bool result_confirm = context == Context::ArcadeResult && raw.a;
+  raw.a = (context == Context::ArcadeResult ? false : raw.a) || raw.touch;
   const auto seconds = static_cast<double>(delta_us) / 1000000.0;
   const auto dx = (Axis(raw.stick_x, config) * config.stick_pixels_per_second +
                    (static_cast<int>(raw.dpad_right) - static_cast<int>(raw.dpad_left)) *
@@ -221,6 +222,7 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
                                 static_cast<double>(height - 1));
   Snapshot result{};
   result.actions = actions;
+  result.result_confirm_held = result_confirm;
   result.controller_style = raw.controller_style;
   result.connected = raw.connected;
   result.touch_held = raw.touch;

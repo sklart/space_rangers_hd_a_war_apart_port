@@ -165,6 +165,16 @@ int main() {
   while (peek(&message, 0, 0, 0, 1)) {}
   input.plus = true;
   InjectHostInput(input);
+  assert(!peek(&message, 0, 0x0100, 0x0100, 1)); // Already in main menu: PLUS is harmless.
+  assert(!peek(&message, 0, 0x0012, 0x0012, 1));
+  input = {};
+  InjectHostInput(input);
+  while (peek(&message, 0, 0, 0, 1)) {}
+  srhd_awa::platform::input_platform::SetInputContext(srhd_awa::platform::controller_actions::Context::Hangar);
+  InjectHostInput({});
+  while (peek(&message, 0, 0, 0, 1)) {}
+  input.plus = true;
+  InjectHostInput(input);
   assert(peek(&message, 0, 0x0100, 0x0100, 1) && message.wParam == 0x1b);
   assert(!peek(&message, 0, 0x0012, 0x0012, 1));
   assert(!peek(&message, 0, 0x0100, 0x0100, 1));
@@ -192,6 +202,26 @@ int main() {
   input = {};
   InjectHostInput(input);
   assert(peek(&message, 0, 0x0101, 0x0101, 1) && message.wParam == 0x13);
+  {
+    using namespace srhd_awa::platform;
+    input_platform::SetInputContext(controller_actions::Context::ArcadePause);
+    InjectHostInput({});
+    while (peek(&message, 0, 0, 0, 1)) {}
+    input = {}; input.b = true; input.zr = true;
+    InjectHostInput(input);
+    assert(peek(&message, 0, 0x0100, 0x0100, 1) && message.wParam == 0x13);
+    assert(!peek(&message, 0, 0x0100, 0x0100, 1)); // No fire while paused.
+    input_platform::SetInputContext(controller_actions::Context::ArcadeResult);
+    InjectHostInput({});
+    while (peek(&message, 0, 0, 0, 1)) {}
+    input = {}; input.a = true;
+    InjectHostInput(input);
+    assert(peek(&message, 0, 0x0100, 0x0100, 1) && message.wParam == 0x20);
+    assert(!peek(&message, 0, 0x0201, 0x0201, 1));
+    input = {};
+    InjectHostInput(input);
+    while (peek(&message, 0, 0, 0, 1)) {}
+  }
   {
     using namespace srhd_awa::platform;
     Owner parent, child, nested;

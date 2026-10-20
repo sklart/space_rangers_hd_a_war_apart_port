@@ -29,12 +29,17 @@ def main():
     build_report = json.loads((BUILD / 'report.json').read_text())
     effective_loop = ROOT / build_report['source_map']['upstream/cpp/src/GI_MessageLoop.cpp']
     effective_arcade = ROOT / build_report['source_map']['upstream/cpp/src/ab_MainForm.cpp']
+    effective_edit = ROOT / build_report['source_map']['upstream/cpp/src/GI_Edit.cpp']
     if effective_loop.read_text().count('InputContextScope e2e_input_owner(') != 2:
         raise RuntimeError('Scoped input owner missing from effective Run/RunContinuous')
     if effective_loop.read_text().count('e2e_input_owner.CancelHeldInput();') != 2:
         raise RuntimeError('Input must be cancelled before both effective OnClose calls')
+    if effective_loop.read_text().count('MessageLoopStackGuard e2e_loop_stack(this);') != 2:
+        raise RuntimeError('Both real loops must unwind their original MessageLoopStack')
     if 'SetArcadeControls(' in effective_arcade.read_text():
         raise RuntimeError('Effective OnOpen/OnClose overrides scoped owner')
+    if 'controller_text_entry::Open(this);' not in effective_edit.read_text():
+        raise RuntimeError('Generic keyboard missing from the real TEditGI input path')
     flags = build_report['compile_flags']
     original = [Path(name) for name in (BUILD / 'link-objects.rsp').read_text().splitlines()
                 if '/objects/host/' not in name]

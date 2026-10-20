@@ -41,6 +41,7 @@ struct Snapshot {
   bool escape_down{}, escape_up{}, escape_held{};
   bool plus_down{};
   bool pause_down{}, pause_up{}, pause_held{};
+  bool result_confirm_held{};
   bool quicksave_down{}, quicksave_up{}, quicksave_held{};
 };
 // libnx retains at most 17 recent Npad samples. An extra slot is kept for

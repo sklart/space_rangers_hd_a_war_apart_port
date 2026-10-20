@@ -29,6 +29,18 @@ def module(name: str):
 
 
 class E2E5ToolTests(unittest.TestCase):
+    def test_generic_keyboard_reaches_the_effective_edit_unit(self):
+        generator = module("e2e_source_overrides")
+        source = ROOT / "upstream/cpp/src/GI_Edit.cpp"
+        with tempfile.TemporaryDirectory() as directory:
+            effective = generator.generated_source(source, Path(directory) / source.name,
+                                                   audio_on=True, e2e5_profile=True, script_width=True)
+            self.assertNotEqual(effective, source, "A Python override alone is not an effective source")
+            text = effective.read_text(encoding="utf-8")
+            self.assertIn("controller_text_entry::Open(this);", text)
+            self.assertLess(text.index("MessageLoop->SetFocusedControl(this);"),
+                            text.index("controller_text_entry::Open(this);"))
+
     def test_existing_okgf_archive_is_reconfigured_with_explicit_optimization(self):
         builder = module("e2e_arm64_build")
         with tempfile.TemporaryDirectory() as directory:

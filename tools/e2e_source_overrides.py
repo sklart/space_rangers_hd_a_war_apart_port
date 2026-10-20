@@ -416,7 +416,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
     overrides = dict(FUNCTIONS.get(source.name, {}))
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ('fGameMenu.cpp', 'ab_WorldLine.cpp', 'ThreadCalc.cpp', 'aEFilm.cpp', 'aCalc.cpp', 'fPanelMain.cpp', 'fFilmFile.cpp', 'fGov.cpp', 'fStarMap.cpp', 'EC_File.cpp', 'ab_Global.cpp', 'EC_Cache.cpp', 'EC_CacheBuf.cpp', 'fGalaxy2.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameLoad.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ('fGameMenu.cpp', 'ab_WorldLine.cpp', 'ThreadCalc.cpp', 'aEFilm.cpp', 'aCalc.cpp', 'fPanelMain.cpp', 'fFilmFile.cpp', 'fGov.cpp', 'fStarMap.cpp', 'EC_File.cpp', 'ab_Global.cpp', 'EC_Cache.cpp', 'EC_CacheBuf.cpp', 'fGalaxy2.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_Edit.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameLoad.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "EC_Cache.cpp":
@@ -515,7 +515,10 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
                             std::snprintf(detail, sizeof(detail), "mods discovered name=%.100s description_chars=%d", e2e_name.c_str(), Info->FullDescription.length());
                             srhd_awa::platform::e2e_stage::Log(detail);''', 1, source.name)
     if source.name == "ab_MainForm.cpp":
-        text = '#include <atomic>\n#include "input_platform.hpp"\n#include "e2e56_arcade_steering.hpp"\n#include "e2e5_stage_profiler.hpp"\n' + text
+        text = '#include "controller_screen_context.hpp"\n#include <atomic>\n#include "input_platform.hpp"\n#include "e2e56_arcade_steering.hpp"\n#include "e2e5_stage_profiler.hpp"\n' + text
+        text = _replace_exact(text, '            SimulationPaused = static_cast<std::uint8_t>(SimulationPaused ^ 1);',
+            '''            SimulationPaused = static_cast<std::uint8_t>(SimulationPaused ^ 1);
+            srhd_awa::platform::controller_screen_context::Refresh(this);''', 1, source.name)
         exit_hint = '->SetText(aConst::LocalizedColorText(u"FormAB.TextExit"_wref.get()));'
         if text.count(exit_hint) != 2:
             raise RuntimeError("arcade victory/defeat hint boundary changed")
@@ -562,6 +565,14 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
                 marker = marker.replace("std::int32_t UserData", "std::intptr_t UserData")
             text = _replace_exact(text, marker, marker +
                 f'\n        srhd_awa::platform::e2e5_stage_profiler::Scope e2e_ab_scope(srhd_awa::platform::e2e5_stage_profiler::detail_window, {stage});', 1, source.name)
+    if source.name == "GI_Edit.cpp":
+        text = '#include "controller_text_entry.hpp"\n' + text
+        text = _replace_exact(text,
+            '            MessageLoop->SetFocusedControl(this);',
+            '''            MessageLoop->SetFocusedControl(this);
+#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
+            if (ContainsPoint(Point)) srhd_awa::platform::controller_text_entry::Open(this);
+#endif''', 1, source.name)
     if source.name == "GI_MessageLoop.cpp":
         text = '#include "controller_screen_context.hpp"\n#include "win32_compat_messages.hpp"\n#include "e2e5_failure_diagnostics.hpp"\n#include "e2e3_generation_state.hpp"\n' + text
         marker = "    void TMessageLoopGI::ProcessWindowMessage(std::uint32_t Message, std::uint32_t WParam, std::int32_t LParam) {"
@@ -1565,6 +1576,7 @@ void CloseVorbisStream(TOggWorker* worker) {
         srhd_awa::platform::win32_compat::InputContextScope e2e_input_owner(
             srhd_awa::platform::controller_screen_context::ForLoop(this), this,
             &srhd_awa::platform::controller_screen_context::Release);
+        srhd_awa::platform::controller_screen_context::MessageLoopStackGuard e2e_loop_stack(this);
         const bool e2e_independent_scene =
             this == GlobalsV::RegisteredScreens[GlobalsV::screenMainMenu] ||
             this == GlobalsV::RegisteredScreens[GlobalsV::screenNewGame] ||
@@ -1863,30 +1875,8 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
                 f'SysUtilsImports::FileExists(static_cast<pas::AnsiString>({path}))',
                 f'srhd_awa::platform::user_root::ConfigFileExists(({path}).pchar())',
                 1, source.name)
-        text = _replace_exact(text, 'namespace fSaveManager {', '''namespace fSaveManager {
-    void E2EArmSaveKeyboard(GI_MessageLoop::TObjectGI* sender,
-                            std::uint32_t, WindowsSdk::TPoint point) {
-        sender->UserState = sender->ContainsPoint(point) ? 1 : 0;
-    }
-    void E2EOpenSaveKeyboard(GI_MessageLoop::TObjectGI* sender,
-                             std::uint32_t, WindowsSdk::TPoint point) {
-        const bool activate = sender->UserState == 1 && sender->ContainsPoint(point);
-        sender->UserState = 0;
-        if (!activate) return;
-        auto* edit = pas::checked_cast<GI_Edit::TEditGI*>(sender);
-        auto name = edit->Text;
-        if (!srhd_awa::platform::e2e5_text_input::EditSaveName(name)) return;
-        for (std::int32_t i = 0; i < name.length(); ++i)
-            if (!TfSaveManager::AcceptSaveNameCharacter(sender, name.c_str()[i])) return;
-        edit->SetText(name);
-    }
-''', 1, source.name)
-        text = _replace_exact(text,
-            '            cpp_with_5->AcceptCharCallback = pas::bind_static_method<&TfSaveManager::AcceptSaveNameCharacter>(this);',
-            '''            cpp_with_5->AcceptCharCallback = pas::bind_static_method<&TfSaveManager::AcceptSaveNameCharacter>(this);
-            cpp_with_5->LeftButtonDownCallback = pas::bind_static_method<&E2EArmSaveKeyboard>(this);
-            cpp_with_5->LeftButtonUpCallback = pas::bind_static_method<&E2EOpenSaveKeyboard>(this);''',
-            1, source.name)
+        # All TEditGI fields use the common keyboard boundary; retain the real
+        # AcceptSaveNameCharacter callback rather than replacing its semantics.
         # The original uses both Save and save for one directory. The portable
         # host filesystem resolves those as different paths, while the slot
         # writer and user-root layout already use the lowercase spelling.
@@ -2440,31 +2430,7 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
         }''', 1)
         text = '#include "renderer_platform.hpp"\n#include "e2e_stage.hpp"\n#include <cstdio>\n' + text
     if source.name == "fGameSettings2.cpp":
-        text = '#include "e2e5_text_input.hpp"\n' + text
-        text = _replace_exact(text, 'namespace fGameSettings2 {', '''namespace fGameSettings2 {
-    void E2EArmNameKeyboard(GI_MessageLoop::TObjectGI* Sender,
-                            std::uint32_t, WindowsSdk::TPoint Point) {
-        Sender->UserState = Sender->ContainsPoint(Point) ? 1 : 0;
-    }
-''', 1, source.name)
-        text = _replace_exact(text, '            PlayerName->MaxLength = 13;',
-            '            PlayerName->MaxLength = 13;\n            PlayerName->LeftButtonDownCallback = pas::bind_static_method<&E2EArmNameKeyboard>(this);\n            PlayerName->LeftButtonUpCallback = pas::bind_method<&TfGameSettings2::PlayerNameMouseDown>(this);', 1, source.name)
-        callback_start = text.index('    void TfGameSettings2::PlayerNameMouseDown(')
-        callback_end = text.index('    void TfGameSettings2::ToggleLevelPanel(', callback_start)
-        callback = text[callback_start:callback_end]
-        callback = _replace_exact(callback, '        SetFocusedControl(GetByName(u"PlayerName"sv));', '''        auto* field = GetByName(u"PlayerName"sv);
-        SetFocusedControl(field);
-        const bool activate = Sender == field && field->UserState == 1 && field->ContainsPoint(Point);
-        field->UserState = 0;
-        if (activate) {
-            auto* edit = pas::checked_cast<GI_Edit::TEditGI*>(Sender);
-            auto name = edit->Text;
-            if (srhd_awa::platform::e2e5_text_input::EditPlayerName(name)) {
-                edit->SetText(name);
-                PlayerNameChanged(edit);
-            }
-        }''', 1, source.name)
-        text = text[:callback_start] + callback + text[callback_end:]
+        # Generic TEditGI keyboard dispatch also covers this player-name field.
         # The translated 32-bit UI stores object pointers in UserIndex/UserValue.
         # These controls are created as adjacent siblings, so resolve the live
         # object from the UI tree instead of narrowing its address on Switch.
@@ -3425,6 +3391,12 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
     if script_width:
         text = apply_followup(source.name, text)
         text = apply_input_followup(source.name, text)
+    if source.name == "GI_MessageLoop.cpp":
+        # Apply after E2E-5.11's ExitCode-first close gate; keep its exact
+        # boundary and do not pump or refresh an already-closed preview.
+        text = _replace_exact(text, 'GR_Main::GR_WinMessage(this->bind_ProcessWindowMessage())',
+            '(srhd_awa::platform::controller_screen_context::Refresh(this), GR_Main::GR_WinMessage(this->bind_ProcessWindowMessage()))',
+            2, source.name)
     destination.parent.mkdir(parents=True, exist_ok=True)
     if not destination.exists() or destination.read_text(encoding="utf-8") != text:
         destination.write_text(text, encoding="utf-8")

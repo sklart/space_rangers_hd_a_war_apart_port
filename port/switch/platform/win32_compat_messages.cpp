@@ -237,9 +237,12 @@ void Pump() {
     key(kVkReturn, sample.enter_down, sample.enter_up, sample.enter_held);
     // Transitional adapters to existing handlers. PLUS never posts WM_QUIT.
     // Arcade has an actual Pause handler; Escape there asks to leave the arena.
-    const bool arcade = sample.actions.context == controller_actions::Context::ArcadeGameplay;
-    const bool escape = sample.escape_held || (sample.pause_held && !arcade);
-    const bool pause = sample.pause_held && arcade;
+    const auto context = sample.actions.context;
+    const bool paused = context == controller_actions::Context::ArcadePause;
+    const bool arcade = context == controller_actions::Context::ArcadeGameplay || paused;
+    const bool escape = (sample.escape_held && !paused) ||
+        (sample.pause_held && !arcade && context != controller_actions::Context::MainMenu);
+    const bool pause = (sample.pause_held && arcade) || (sample.escape_held && paused);
     key(kVkEscape, escape && !g_emitted_escape, !escape && g_emitted_escape, escape);
     key(kVkPause, pause && !g_emitted_pause, !pause && g_emitted_pause, pause);
     g_emitted_escape = escape; g_emitted_pause = pause;
@@ -249,7 +252,8 @@ void Pump() {
     constexpr std::uint32_t flight_vks[]{0x26, 0x28, 0x25, 0x27, 0x11, 0x20, 0xdb, 0xdd, 'A'};
     for (unsigned bit = 0; bit < 9; ++bit) {
       const auto vk = flight_vks[bit];
-      const bool held = (sample.flight_keys & (1u << bit)) != 0;
+      const bool held = (sample.flight_keys & (1u << bit)) != 0 ||
+          (bit == 5 && sample.result_confirm_held);
       const bool previous = g_keys[vk];
       key(vk, held && !previous, !held && previous, held);
     }
@@ -468,6 +472,15 @@ InputContextScope::~InputContextScope() {
 void InputContextScope::CancelHeldInput() {
   const auto held = ChangeInputOwner(context_);
   if (release_) release_(owner_, held);
+}
+bool InputContextScope::UpdateContext(void* owner, controller_actions::Context context) {
+  if (owner != owner_ || context == context_) return false;
+  context_ = context;
+  CancelHeldInput();
+  return true;
+}
+bool UpdateActiveInputContext(void* owner, controller_actions::Context context) {
+  return g_input_scope && g_input_scope->UpdateContext(owner, context);
 }
 
 void InjectHostInput(input_platform::RawInput input) {

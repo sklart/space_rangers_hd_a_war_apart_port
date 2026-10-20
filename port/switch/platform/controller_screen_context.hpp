@@ -5,9 +5,35 @@
 #include "units/GlobalsV.hpp"
 #include "units/GI_MessageLoop.hpp"
 #include "types/GI_GraphButton.hpp"
+#include "types/GI_Panel.hpp"
 #include "types/ab_MainForm.hpp"
 
 namespace srhd_awa::platform::controller_screen_context {
+// Original Run pops on its normal return only. An exception must remove the
+// entry while its loop is still alive, otherwise later modals retain a dangling
+// parent. Do not remove another owner's entries on a corrupt/unexpected stack.
+class MessageLoopStackGuard {
+public:
+  explicit MessageLoopStackGuard(GI_MessageLoop::TMessageLoopGI* loop)
+      : loop_(loop), depth_(GI_MessageLoop::MessageLoopStack ?
+          pas::list_count(GI_MessageLoop::MessageLoopStack) : 0) {}
+  ~MessageLoopStackGuard() {
+    auto* stack = GI_MessageLoop::MessageLoopStack;
+    if (!stack || pas::list_count(stack) <= depth_) return;
+    if (pas::list_count(stack) == depth_ + 1 &&
+        pas::list_get(stack, depth_) == loop_) {
+      GI_MessageLoop::PopMessageLoop(loop_);
+    } else {
+      e2e_stage::Log("input loop stack unwind mismatch; unrelated owners preserved");
+    }
+  }
+  MessageLoopStackGuard(const MessageLoopStackGuard&) = delete;
+  MessageLoopStackGuard& operator=(const MessageLoopStackGuard&) = delete;
+private:
+  GI_MessageLoop::TMessageLoopGI* loop_;
+  int depth_;
+};
+
 inline controller_actions::Context ForLoop(const GI_MessageLoop::TMessageLoopGI* loop) {
   using controller_actions::Context;
   const auto is = [&](GlobalsV::TGameScreenId id) {
@@ -26,8 +52,18 @@ inline controller_actions::Context ForLoop(const GI_MessageLoop::TMessageLoopGI*
   if (is(GlobalsV::screenTalk) || is(GlobalsV::screenPlanetQuest) || is(GlobalsV::screenRuinsTalk))
     return Context::QuestDialog;
   if (is(GlobalsV::screenIntroduction) || is(GlobalsV::screenInfo)) return Context::Help;
-  if (is(GlobalsV::screenArcadeBattle)) return Context::ArcadeGameplay;
+  if (is(GlobalsV::screenArcadeBattle)) {
+    const auto* arcade = pas::class_cast_if<ab_MainForm::TfAB*>(
+        const_cast<GI_MessageLoop::TMessageLoopGI*>(loop));
+    if (arcade && ((arcade->VictoryPanel && arcade->VictoryPanel->Active) ||
+                  (arcade->DefeatPanel && arcade->DefeatPanel->Active))) return Context::ArcadeResult;
+    if (arcade && arcade->SimulationPaused) return Context::ArcadePause;
+    return Context::ArcadeGameplay;
+  }
   return Context::ModalDialog;
+}
+inline void Refresh(GI_MessageLoop::TMessageLoopGI* loop) {
+  win32_compat::UpdateActiveInputContext(loop, ForLoop(loop));
 }
 
 inline void CancelMomentaryButtons(GI_MessageLoop::TObjectGI* object) {

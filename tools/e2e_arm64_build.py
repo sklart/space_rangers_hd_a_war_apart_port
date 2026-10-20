@@ -290,7 +290,7 @@ def main() -> int:
     report["build_dirty"] = bool(dirty_sources)
     build_id = build_git[:7] + ("-dirty" if dirty_sources else "")
     report["source_overrides"] = sorted([*FUNCTIONS, "Rangers.cpp", "Globals.cpp",
-                                          "GI_MessageLoop.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp",
+                                          "GI_MessageLoop.cpp", "GI_Edit.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp",
                                           "aSaveLoad.cpp", "aScript.cpp", "fAbout.cpp", "EC_Buf.cpp", "EC_CacheBuf.cpp", "EC_Mem.cpp", "EC_File.cpp", "ab_WorldLine.cpp", "fIntroduction.cpp", "program.cpp"])
     if args.experimental_audio_on:
         report["source_overrides"] = sorted(set(report["source_overrides"]) |
