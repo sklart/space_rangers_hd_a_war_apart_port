@@ -10,6 +10,10 @@
 #include "units/GI_Label.hpp"
 #include "units/GR_Main.hpp"
 #include "units/GR_GraphBuf.hpp"
+#include "types/fTalk.hpp"
+#include "types/fRuinsTalk.hpp"
+#include "types/fSaveManager.hpp"
+#include "e2e5_pointer_payload.hpp"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -79,7 +83,24 @@ inline bool AllowedContext(Context context) {
       context != Context::MatrixDirectControl && context != Context::SwitchAppletActive &&
       context != Context::SuspendResume && context != Context::ControllerDisconnected;
 }
+inline fTalk::TfTalkA* DialogChoice(GI_MessageLoop::TObjectGI* object) {
+  if (!object || !object->Parent || object->Parent->ControlName != u"TalkPA" ||
+      !pas::assigned(object->LeftButtonDownCallback) || !pas::assigned(object->LeftButtonUpCallback) ||
+      (!pas::class_cast_if<fTalk::TfTalk*>(object->MessageLoop) &&
+       !pas::class_cast_if<fRuinsTalk::TfRuinsTalk*>(object->MessageLoop))) return nullptr;
+  // Effective fTalk/fRuinsTalk store owner-scoped int32 tokens, not pointers.
+  // Resolve through the same registry as their original choice-up handlers.
+  if (object->UserValue >= 0 || object->UserValue < INT32_MIN) return nullptr;
+  try {
+    return e2e5_pointer_payload::Resolve<fTalk::TfTalkA*>(object->MessageLoop,
+                                                       static_cast<std::int32_t>(object->UserValue));
+  } catch (const std::runtime_error&) {
+    return nullptr;
+  }
+}
 inline bool Callable(GI_MessageLoop::TObjectGI* object) {
+  if (const auto* choice = DialogChoice(object))
+    return pas::assigned(choice->Callback) || pas::assigned(choice->FallbackCallback);
   if (pas::class_cast_if<GI_Edit::TEditGI*>(object)) return true;
   if (auto* button = pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(object)) {
     if (button->Disabled && (button->Kind == GI_GraphButton::gbkDisable || button->Kind == GI_GraphButton::gbkFixDisable)) return false;
@@ -98,7 +119,8 @@ inline void Collect(GI_MessageLoop::TObjectGI* object, GI_MessageLoop::TMessageL
   const auto width = std::int64_t(box.Right) - box.Left, height = std::int64_t(box.Bottom) - box.Top;
   const WindowsSdk::TPoint center{static_cast<std::int32_t>(std::int64_t(box.Left) + width / 2),
                                 static_cast<std::int32_t>(std::int64_t(box.Top) + height / 2)};
-  if (width > 0 && height > 0 && width <= INT32_MAX && height <= INT32_MAX && Callable(object) &&
+  if (object != loop->ContentPanel && object != loop->RootUiObject &&
+      width > 0 && height > 0 && width <= INT32_MAX && height <= INT32_MAX && Callable(object) &&
       center.X >= loop->ViewportRect.Left && center.X < loop->ViewportRect.Right &&
       center.Y >= loop->ViewportRect.Top && center.Y < loop->ViewportRect.Bottom &&
       !object->IsOccludedAtPoint(center))
@@ -146,17 +168,35 @@ inline void TraceGraph(Scope& state) {
       if (name.size() >= 64) break;
       name += c >= '!' && c <= '~' ? static_cast<char>(c) : '_';
     }
+    if (name.empty() && DialogChoice(entry.control)) name = "DialogChoice" + std::to_string(entry.node.y);
     snapshot << "controller node scope=" << state.serial << " id=" << entry.node.id
              << " box=" << entry.node.x << ',' << entry.node.y << ',' << entry.node.width << ',' << entry.node.height
              << " name=" << name << '\n';
   }
   const auto text = snapshot.str();
   if (text == state.trace_snapshot) return;
+  char done[96]{};
+  std::snprintf(done, sizeof(done), "controller graph ready scope=%llu", static_cast<unsigned long long>(state.serial));
+  if (const auto* path = std::getenv("E2E515_FOCUS_SNAPSHOT")) {
+    const auto temporary = std::string(path) + ".tmp";
+    {
+      std::ofstream file(temporary, std::ios::binary | std::ios::trunc);
+      file << text << done << '\n'; file.flush();
+      if (!file) { e2e_stage::Log("FAIL HOST focus snapshot write"); return; }
+    }
+    std::error_code error;
+    std::filesystem::rename(temporary, path, error);
+    if (error) { e2e_stage::Log("FAIL HOST focus snapshot publish"); return; }
+    // The control protocol reads a single atomic snapshot, never a partially
+    // appended log record. Keep only its summary in the human-readable journal.
+    e2e_stage::Log(text.substr(0, text.find('\n')).c_str());
+    e2e_stage::Log(done);
+    state.trace_snapshot = text;
+    return;
+  }
   state.trace_snapshot = text;
   std::istringstream lines(text);
   for (std::string line; std::getline(lines, line);) e2e_stage::Log(line.c_str());
-  char done[96]{};
-  std::snprintf(done, sizeof(done), "controller graph ready scope=%llu", static_cast<unsigned long long>(state.serial));
   e2e_stage::Log(done);
 #endif
 }
@@ -188,7 +228,33 @@ inline void InvalidateFocus(GI_MessageLoop::TMessageLoopGI* loop, std::uint64_t 
     loop->QueueUpdateRect({node->x - 3, node->y - 3, node->x + node->width + 3, node->y + node->height + 3});
 }
 inline void Activate(GI_MessageLoop::TObjectGI* object) {
-  if (auto* edit = pas::class_cast_if<GI_Edit::TEditGI*>(object)) { controller_text_entry::Open(edit); return; }
+  if (DialogChoice(object)) {
+    const auto& box = object->HitTestBounds;
+    const WindowsSdk::TPoint point{box.Left + (box.Right - box.Left) / 2, box.Top + (box.Bottom - box.Top) / 2};
+    // These two audited handlers are visual press then the original choice
+    // transaction. The up handler may rebuild/free the row; do not touch it again.
+    object->LeftButtonDownCallback(object, 0, point);
+    object->LeftButtonUpCallback(object, 0, point);
+    return;
+  }
+  if (auto* edit = pas::class_cast_if<GI_Edit::TEditGI*>(object)) {
+    if (edit->MessageLoop) {
+      // Mouse input selects the save-slot parent before entering its edit.
+      // Keep that original transaction when semantic focus activates the edit.
+      auto* parent = edit->Parent;
+      auto* save = pas::class_cast_if<fSaveManager::TfSaveManager*>(edit->MessageLoop);
+      if (save && parent && save->SelectedSlot != parent->UserValue &&
+          parent->Parent && parent->Parent->ControlName == u"PanelSlot" &&
+          pas::assigned(parent->LeftButtonDownCallback)) {
+        const auto& box = edit->HitTestBounds;
+        parent->LeftButtonDownCallback(parent, 0,
+            {box.Left + (box.Right - box.Left) / 2, box.Top + (box.Bottom - box.Top) / 2});
+      }
+      edit->MessageLoop->SetFocusedControl(edit);
+    }
+    controller_text_entry::Open(edit);
+    return;
+  }
   if (auto* button = pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(object)) {
     if (button->Kind == GI_GraphButton::gbkFix || button->Kind == GI_GraphButton::gbkFixDisable) {
       button->Down = !button->Down;

@@ -6,6 +6,7 @@
 #include "user_root.hpp"
 #include "win32_compat_messages.hpp"
 #include "win32_compat_window.hpp"
+#include "e2e5_text_input.hpp"
 
 #include <atomic>
 #include <algorithm>
@@ -20,6 +21,35 @@
 #include <thread>
 
 namespace {
+bool RouteKeyboard(const srhd_awa::platform::controller_text_input::Request& request,
+                   std::u16string& value, void*) {
+  static unsigned calls{};
+  ++calls;
+  if (calls == 1) {
+    value = u"Пилот Ёж";
+    srhd_awa::platform::e2e_stage::Log("HOST OSK fixture call=1 result=Accept");
+    return true;
+  }
+  if (calls == 2) {
+    srhd_awa::platform::e2e_stage::Log(request.initial == u"Пилот Ёж"
+        ? "HOST OSK fixture call=2 initial_matches=1 result=Cancel"
+        : "FAIL HOST OSK fixture call=2 initial_matches=0 result=Cancel");
+    return false;
+  }
+  if (calls == 3) {
+    value = u"Проба Ёж";
+    srhd_awa::platform::e2e_stage::Log("HOST OSK fixture call=3 result=Accept");
+    return true;
+  }
+  if (calls == 4) {
+    srhd_awa::platform::e2e_stage::Log(request.initial == u"Проба Ёж"
+        ? "HOST OSK fixture call=4 initial_matches=1 result=Cancel"
+        : "FAIL HOST OSK fixture call=4 initial_matches=0 result=Cancel");
+    return false;
+  }
+  return false;
+}
+
 void DriveRawPadMailbox(const std::filesystem::path& stage, const std::atomic<bool>& running) {
   std::uint64_t previous{};
   while (running.load()) {
@@ -30,7 +60,10 @@ void DriveRawPadMailbox(const std::filesystem::path& stage, const std::atomic<bo
       raw.a = mask & 1; raw.b = mask & 2; raw.dpad_up = mask & 4; raw.dpad_down = mask & 8;
       raw.dpad_left = mask & 16; raw.dpad_right = mask & 32; raw.r3 = mask & 64;
       raw.l3 = mask & 128; raw.x = mask & 256; raw.plus = mask & 512;
-      srhd_awa::platform::win32_compat::InjectHostInput(raw);
+      const auto revision = srhd_awa::platform::win32_compat::InjectHostInputTracked(raw);
+      while (running.load() && !srhd_awa::platform::win32_compat::HostInputConsumed(revision))
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+      if (!running.load()) break;
       previous = sequence;
       char marker[96]{};
       std::snprintf(marker, sizeof(marker), "HOST raw pad sequence=%llu mask=%llu",
@@ -732,6 +765,8 @@ int main() {
   if (!srhd_awa::platform::user_root::EnsureLayout()) return 4;
   GR_Main::OverrideGameUserDirectory =
       pas::WideString((user / "config").u16string().c_str());
+  if (std::getenv("E2E515_HOST_ROUTE_OSK"))
+    srhd_awa::platform::e2e5_text_input::SetHostBackend(&RouteKeyboard);
   std::atomic<bool> running{true};
   std::thread new_game_driver;
   const char* drive = std::getenv("E2E5_HOST_AUTO_NEW_GAME");

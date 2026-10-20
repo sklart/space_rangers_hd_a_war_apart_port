@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
 #include <chrono>
 #include <cstdio>
 #include <cstdint>
@@ -70,6 +71,8 @@ input_platform::State g_input;
 // the UI thread alone owns the normalizer and its cursor/edge state.
 std::mutex g_host_input_mutex;
 input_platform::RawInput g_host_input;
+std::uint64_t g_host_input_revision{};
+std::atomic<std::uint64_t> g_host_consumed_revision{};
 #endif
 std::array<bool, 256> g_keys{};
 bool g_emitted_escape{}, g_emitted_pause{};
@@ -128,12 +131,17 @@ void Pump() {
   std::int32_t width = 1280, height = 720;
   MainWindowSize(&width, &height);
 #if !defined(__SWITCH__)
+  std::uint64_t host_revision{};
   {
     std::lock_guard lock(g_host_input_mutex);
     input_platform::InjectHostRaw(&g_input, g_host_input);
+    host_revision = g_host_input_revision;
   }
 #endif
   auto batch = input_platform::PollHistory(&g_input, width, height);
+#if !defined(__SWITCH__)
+  g_host_consumed_revision.store(host_revision, std::memory_order_release);
+#endif
   if (!batch.count) return;
   const auto& input = batch.snapshots[batch.count - 1];
   const bool source_changed = g_controller_connected &&
@@ -521,11 +529,24 @@ void CancelActivePointerForMode(void* owner) {
 }
 
 void InjectHostInput(input_platform::RawInput input) {
+  static_cast<void>(InjectHostInputTracked(input));
+}
+std::uint64_t InjectHostInputTracked(input_platform::RawInput input) {
 #if !defined(__SWITCH__)
   std::lock_guard lock(g_host_input_mutex);
   g_host_input = input;
+  return ++g_host_input_revision;
 #else
   static_cast<void>(input); // Physical input is sampled by the UI thread.
+  return 0;
+#endif
+}
+bool HostInputConsumed(std::uint64_t revision) {
+#if !defined(__SWITCH__)
+  return revision != 0 && g_host_consumed_revision.load(std::memory_order_acquire) >= revision;
+#else
+  static_cast<void>(revision);
+  return false;
 #endif
 }
 void WarpInputCursor(std::int32_t x, std::int32_t y) {

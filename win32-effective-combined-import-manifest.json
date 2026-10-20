@@ -3942,7 +3942,7 @@
         "port/switch/build/e2e-game-combined-experiment/source-overlay/WindowsSdk.cpp:571",
         "port/switch/platform/win32_compat_clipboard.cpp:76",
         "port/switch/platform/win32_compat_gdi.cpp:174",
-        "port/switch/platform/win32_compat_messages.cpp:566",
+        "port/switch/platform/win32_compat_messages.cpp:587",
         "port/switch/platform/win32_compat_modules.cpp:54",
         "port/switch/platform/win32_compat_text.cpp:124",
         "port/switch/platform/win32_compat_window.cpp:283"

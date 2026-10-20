@@ -2,6 +2,8 @@
 #include "renderer_platform.hpp"
 #include "win32_compat_window.hpp"
 #include "units/GI_GraphButton.hpp"
+#include "units/fTalk.hpp"
+#include "units/GI_Edit.hpp"
 #include <cassert>
 #include <filesystem>
 #include <fstream>
@@ -11,8 +13,19 @@ using namespace srhd_awa::platform;
 namespace {
 unsigned clicked[4]{};
 unsigned context_clicked{};
+unsigned choice_edge{};
+unsigned slots_selected{};
 void Click(GI_MessageLoop::TObjectGI* sender) { ++clicked[sender->UserIndex]; }
 void ContextClick(GI_MessageLoop::TObjectGI*, std::uint32_t, WindowsSdk::TPoint) { ++context_clicked; }
+void ChoicePress(GI_MessageLoop::TObjectGI*, std::uint32_t, WindowsSdk::TPoint) { assert(choice_edge == 0); choice_edge = 1; }
+void ChoiceRelease(GI_MessageLoop::TObjectGI*, std::uint32_t, WindowsSdk::TPoint) { assert(choice_edge == 1); choice_edge = 2; }
+void ChoiceResult(std::int32_t) {}
+void SlotSelect(GI_MessageLoop::TObjectGI* sender, std::uint32_t, WindowsSdk::TPoint) {
+  ++slots_selected;
+  auto* owner = pas::class_cast_if<fSaveManager::TfSaveManager*>(sender->MessageLoop);
+  assert(owner); owner->SelectedSlot = static_cast<std::int32_t>(sender->UserValue);
+  pas::class_cast_if<GI_Edit::TEditGI*>(sender->FirstChild)->SetText(pas::WideString(u"original"));
+}
 GI_GraphButton::TGraphButtonGI* Button(GI_MessageLoop::TObjectGI* root, int index, int x, int y) {
   auto* button = pas::construct_call<GI_GraphButton::TGraphButtonGI>(GI_GraphButton::TGraphButtonGI_Create, root);
   button->UserIndex = index;
@@ -34,6 +47,7 @@ int main() {
   auto* loop = pas::construct_call<GI_MessageLoop::TMessageLoopGI>(GI_MessageLoop::TMessageLoopGI_Create);
   loop->RootUiObject = pas::construct_call<GI_MessageLoop::TObjectGI>(GI_MessageLoop::TObjectGI_Create, nullptr);
   loop->RootUiObject->MessageLoop = loop; loop->ContentPanel = loop->RootUiObject;
+  loop->RootUiObject->LeftButtonDownCallback = pas::bind_static_method<&ContextClick>(loop);
   loop->ViewportRect = {0,0,256,160}; loop->RootUiObject->SetSize({256,160});
   auto* first = Button(loop->RootUiObject, 0, 10, 10); first->ControlName = pas::WideString(u"New");
   first->RightButtonDownCallback = pas::bind_static_method<&ContextClick>(loop);
@@ -58,7 +72,10 @@ int main() {
     win32_compat::InputContextScope input(Context::MainMenu, loop, &controller_screen_context::Release);
     ui::Scope scope(loop); ui::Refresh(loop);
     assert(scope.entries.size() == 2 && scope.selected == reinterpret_cast<std::uintptr_t>(first));
-    win32_compat::InjectHostInput({}); drain();
+    const auto initial_sample = win32_compat::InjectHostInputTracked({});
+    assert(!win32_compat::HostInputConsumed(initial_sample));
+    drain();
+    assert(win32_compat::HostInputConsumed(initial_sample));
     GR_Main::ScreenRenderBuffer->FillPixels16(0);
     loop->FinishQueuedDraw();
     const auto* row = reinterpret_cast<const std::uint16_t*>(
@@ -124,6 +141,41 @@ int main() {
   }
   win32_compat::UnregisterMainWindow(window);
   pas::free(loop);
+  auto* talk = pas::construct_call<fTalk::TfTalk>(GI_MessageLoop::TMessageLoopGI_Create);
+  talk->RootUiObject = pas::construct_call<GI_MessageLoop::TObjectGI>(GI_MessageLoop::TObjectGI_Create, nullptr);
+  talk->RootUiObject->MessageLoop = talk;
+  auto* choices = pas::construct_call<GI_MessageLoop::TObjectGI>(GI_MessageLoop::TObjectGI_Create, talk->RootUiObject);
+  choices->ControlName = pas::WideString(u"TalkPA");
+  auto* row = pas::construct_call<GI_MessageLoop::TObjectGI>(GI_MessageLoop::TObjectGI_Create, choices);
+  row->MessageLoop = talk; row->HitTestBounds = {10,10,100,30};
+  row->LeftButtonDownCallback = pas::bind_static_method<&ChoicePress>(talk);
+  row->LeftButtonUpCallback = pas::bind_static_method<&ChoiceRelease>(talk);
+  auto* choice = pas::construct_call<fTalk::TfTalkA>(fTalk::TfTalkA_Create);
+  row->UserValue = e2e5_pointer_payload::Register(talk, choice);
+  assert(!ui::Callable(row)); // Greyed choice with neither original transaction is not selectable.
+  choice->Callback = pas::bind_static_method<&ChoiceResult>(talk);
+  assert(ui::Callable(row)); ui::Activate(row); assert(choice_edge == 2);
+  choices->ControlName = pas::WideString(u"OtherPanel");
+  assert(!ui::Callable(row)); // Dual-edge controls outside audited dialog rows retain cursor fallback.
+  e2e5_pointer_payload::ReleaseOwner(talk);
+  pas::free(choice); pas::free(talk);
+  auto* save = pas::construct_call<fSaveManager::TfSaveManager>(GI_MessageLoop::TMessageLoopGI_Create);
+  save->SelectedSlot = -1;
+  save->RootUiObject = pas::construct_call<GI_MessageLoop::TObjectGI>(GI_MessageLoop::TObjectGI_Create, nullptr);
+  save->RootUiObject->MessageLoop = save;
+  auto* panel = pas::construct_call<GI_MessageLoop::TObjectGI>(GI_MessageLoop::TObjectGI_Create, save->RootUiObject);
+  panel->ControlName = pas::WideString(u"PanelSlot");
+  auto* slot = pas::construct_call<GI_MessageLoop::TObjectGI>(GI_MessageLoop::TObjectGI_Create, panel);
+  slot->MessageLoop = save; slot->UserValue = 5;
+  slot->LeftButtonDownCallback = pas::bind_static_method<&SlotSelect>(save);
+  auto* edit = pas::construct_call<GI_Edit::TEditGI>(GI_Edit::TEditGI_Create, slot);
+  edit->MessageLoop = save; edit->MaxLength = 55;
+  ui::Activate(edit);
+  assert(slots_selected == 1 && save->SelectedSlot == 5 && save->FocusedControl == edit);
+  edit->SetText(pas::WideString(u"Draft Ёж"));
+  ui::Activate(edit);
+  assert(slots_selected == 1 && edit->Text == u"Draft Ёж"); // Reopening OSK must not refresh away an unsaved name.
+  pas::free(save);
   renderer_platform::ShutdownSoftwareRenderer();
   std::puts("PASS real native buttons via injected pad, focus frame, disabled/hidden exclusion, no held/replay click, cursor fallback, focus restoration and settings write refusal");
 }

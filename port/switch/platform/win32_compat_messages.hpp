@@ -7,6 +7,8 @@
 namespace srhd_awa::platform::win32_compat {
 ImportAddress ResolveMessageImport(std::string_view dll, std::string_view symbol);
 void InjectHostInput(input_platform::RawInput input);
+std::uint64_t InjectHostInputTracked(input_platform::RawInput input);
+bool HostInputConsumed(std::uint64_t revision);
 void WarpInputCursor(std::int32_t x, std::int32_t y);
 void PostPaint(std::uint32_t window);
 std::uint64_t CurrentPressId();
