@@ -25,6 +25,7 @@ def run(command, name, cwd=ROOT):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--sanitize-scene', action='store_true', help='Instrument renderer, graph buffers, GR_Main, GI loop and the scene lifecycle test; other game objects remain uninstrumented')
+    parser.add_argument('--sanitize-item-references', action='store_true', help='Instrument actual galaxy/save-reference implementation and its ownership/typed-ID test; other game units remain uninstrumented')
     args = parser.parse_args()
     OUTPUT.mkdir(parents=True, exist_ok=True)
     report = OUTPUT / 'result.json'
@@ -76,7 +77,8 @@ def main():
                     ('runtime-loop', 'test_runtime_loop_slice.cpp', [str(runtime)]),
                     ('scene-canvas', 'test_e2e513_scene_canvas.cpp', []),
                     ('screen-context', 'test_e2e515_screen_context.cpp', []),
-                    ('native-focus', 'test_e2e515_native_focus.cpp', [])):
+                    ('native-focus', 'test_e2e515_native_focus.cpp', []),
+                    ('item-references', 'test_e2e515_item_references.cpp', [])):
                 source = ROOT / 'tests' / test
                 obj = staging / f'{name}.o'
                 run(['g++', *flags, '-c', str(source), '-o', str(obj)], name + '-compile')
@@ -116,6 +118,28 @@ def main():
                                     instrumented_units=list(selected), remaining_game_units_instrumented=False,
                                     leak_detection=True, binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest()))
                 print('sanitized-scene: PASS', flush=True)
+            if args.sanitize_item_references:
+                sanitizer_flags = ['-fsanitize=address,undefined', '-fno-omit-frame-pointer']
+                galaxy_obj = staging / 'sanitized-galaxy.o'
+                run(['g++', *flags, *sanitizer_flags, '-c', str(effective_galaxy), '-o', str(galaxy_obj)],
+                    'sanitized-item-galaxy')
+                response = staging / 'item-objects.rsp'
+                response.write_text('\n'.join(str(galaxy_obj) if source.stem == 'aGalaxy' else objects[i]
+                                             for i, source in enumerate(original)) + '\n')
+                source = ROOT / 'tests/test_e2e515_item_references.cpp'
+                obj = staging / 'sanitized-item-test.o'
+                run(['g++', *flags, *sanitizer_flags, '-c', str(source), '-o', str(obj)], 'sanitized-item-compile')
+                binary = staging / 'sanitized-item-references'
+                run(['g++', *sanitizer_flags, '@' + str(response), str(obj), '-Wl,--gc-sections',
+                     str(library), '-Wl,-rpath,' + str(library.parent), '-lz', '-lpng', '-ljpeg',
+                     '-lvorbisfile', '-lvorbis', '-logg', '-lSDL2', '-lm', '-pthread', '-o', str(binary)], 'sanitized-item-link')
+                output = run(['env', 'ASAN_OPTIONS=detect_leaks=1:halt_on_error=1',
+                              'UBSAN_OPTIONS=halt_on_error=1', str(binary)], 'sanitized-item-run', cwd=staging)
+                results.append(dict(name='sanitized-item-references', status='PASS', stdout=output,
+                                    instrumented_units=['aGalaxy', 'item-reference-test'],
+                                    remaining_game_units_instrumented=False, leak_detection=True,
+                                    binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest()))
+                print('sanitized-item-references: PASS', flush=True)
     except Exception as error:
         report.write_text(json.dumps({'status': 'FAIL', 'error': str(error), 'tests': results}, indent=2))
         raise

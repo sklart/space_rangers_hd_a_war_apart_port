@@ -33,9 +33,14 @@ def main():
     parser.add_argument('--planet-cycles', type=int, default=0, help='After loading a copied docked save, visit equipment/goods/info/hangar/planet via real pad actions')
     parser.add_argument('--trade-dialog', action='store_true', help='Open a real market quantity dialog from native focus, hold A, cancel and verify ownership')
     parser.add_argument('--trade-roundtrip', action='store_true', help='After Cancel, buy and sell one unit through the original quantity UI on a copied save')
+    parser.add_argument('--interstellar', action='store_true', help='Take off, touch an observed reachable star, issue original jump, advance real turns and resave')
     args = parser.parse_args()
     if args.trade_roundtrip:
         args.trade_dialog = True
+    if args.interstellar:
+        if not args.load_save or args.advance_turns or args.trade_dialog or args.planet_cycles:
+            parser.error('--interstellar requires --load-save and a separate flight route')
+        args.resave_name = args.resave_name or 'Перелёт Ёж 515'
     if not 0 <= args.scene_cycles <= 10 or (args.scene_cycles and not args.campaign):
         parser.error('--scene-cycles requires --campaign and a count between 1 and 10')
     if not 0 <= args.planet_cycles <= 10 or (args.planet_cycles and not args.load_save):
@@ -104,8 +109,10 @@ def main():
                E2E511_HOST_FRAMES=str(frames.resolve()))
     if args.campaign:
         env['E2E515_HOST_ROUTE_OSK'] = '1'
-    if args.scene_cycles or args.planet_cycles or args.trade_dialog or args.expect_checkpoint:
+    if args.scene_cycles or args.planet_cycles or args.trade_dialog or args.expect_checkpoint or args.interstellar:
         env['E2E515_HOST_FRAME_CAPTURE'] = '1'
+    if args.interstellar:
+        env.update(E2E515_FLIGHT_ROUTE='1', E2E515_GALAXY_SNAPSHOT=str((stage / 'galaxy.json').resolve()))
     if args.resave_name:
         env.update(E2E515_HOST_ROUTE_OSK='1', E2E515_HOST_SAVE_NAME=args.resave_name)
     if args.save or args.load_save:
@@ -203,12 +210,12 @@ def main():
             scope, selected, nodes = graph()
             return scope, selected, len(nodes)
 
-        def raw(mask, duration=.17):
+        def raw(mask, duration=.17, touch=None):
             nonlocal sequence
             sequence += 1
             at = len(lines())
             temporary = stage / 'pad-input.tmp'
-            temporary.write_text(f'{sequence} {mask}\n')
+            temporary.write_text(f'{sequence} {mask}' + (f' {touch[0]} {touch[1]}' if touch else '') + '\n')
             temporary.replace(stage / 'pad-input.txt')
             wait(lambda text: f'HOST raw pad sequence={sequence} mask={mask}' in text, 'raw HID delivery')
             action = {1: 'Confirm', 2: 'Cancel', 4: 'NavigateUp', 8: 'NavigateDown',
@@ -658,6 +665,56 @@ def main():
                             capture(34, operation + '-completed')
                         report.update(status='PASS', trade_roundtrip=operations,
                                       scope='copied save, original one-unit purchase and sale, numeric conservation; hardware pending')
+                if args.interstellar:
+                    if report['restored_screen'] != 5:
+                        raise RuntimeError('Flight route requires an inhabited-planet fixture')
+                    report['status'] = 'RUNNING'
+                    select('PP_Hangar'); parent = state()[0]; pulse(1)
+                    wait(lambda text: state()[0] != parent and any(node[2] == 'ButTakeOff' for node in graph()[2]), 'flight hangar')
+                    select('ButTakeOff'); at = len(lines()); pulse(1)
+                    wait(lambda text: 'HOST map orders ready' in text[at:], 'takeoff completes into real orders mode', 180)
+                    capture(16, 'flight-origin-map')
+                    select('PM_Gal'); parent = state()[0]; pulse(1)
+                    snapshot = stage / 'galaxy.json'
+                    wait(lambda text: state()[0] != parent and snapshot.exists(), 'original galaxy map and projected stars', 120)
+                    capture(18, 'flight-galaxy-targets')
+                    galaxy = json.loads(snapshot.read_text())
+                    candidates = [star for star in galaxy['stars'] if star['id'] != galaxy['star'] and
+                                  0 < star['distance'] <= galaxy['jump_range'] and
+                                  32 <= star['x'] < 1248 and 32 <= star['y'] < 608]
+                    if not candidates:
+                        raise RuntimeError('Original fixture has no visible reachable star within touch-safe map bounds')
+                    target = min(candidates, key=lambda star: (star['distance'], star['id']))
+                    report.update(flight_origin=galaxy['star'], flight_target=target)
+                    raw(1024, .17, (target['x'], target['y'])); raw(0)
+                    wait(lambda text: json.loads(snapshot.read_text())['selected'] == target['id'], 'original touch selects requested star')
+                    if json.loads(snapshot.read_text())['jump_disabled']:
+                        raise RuntimeError('Original jump button remains disabled for selected star')
+                    capture(18, 'flight-galaxy-selected')
+                    def flights():
+                        return [json.loads(line.split('|', 1)[1]) for line in
+                                (stage / 'stderr.log').read_text(errors='replace').splitlines()
+                                if line.startswith('E2E515_FLIGHT|') and line.endswith('}')]
+                    count = len(flights())
+                    select('ButJump'); pulse(1)
+                    wait(lambda text: len(flights()) > count, 'original jump order returns to map', 180)
+                    trace = flights()
+                    for _ in range(30):
+                        current = flights()[-1]
+                        if current['star'] == target['id'] and not current['hyperspace']:
+                            break
+                        count = len(flights())
+                        select('PM_EndTurn'); pulse(1)
+                        wait(lambda text: len(flights()) > count, 'original flight turn returns to orders', 180)
+                        trace = flights()
+                    else:
+                        raise RuntimeError('Original flight did not arrive in selected star within 30 real turns')
+                    arrived = flights()[-1]
+                    if arrived['star'] == galaxy['star'] or arrived['turn'] <= loaded['turn']:
+                        raise RuntimeError('Flight did not change the actual player star and turn')
+                    capture(16, 'flight-arrived-map')
+                    report.update(interstellar_arrival_verified=True, flight_trace=trace,
+                                  flight_arrived_turn=arrived['turn'])
                 if args.advance_turns:
                     if report['restored_screen'] not in (4, 5, 6):
                         raise RuntimeError('This turn scenario requires a recovered docked/planet state')
@@ -672,7 +729,7 @@ def main():
                     report.update(save_world(args.resave_name,
                         'HOST OSK save fixture call=1 result=Accept',
                         'HOST OSK save fixture call=2 initial_matches=1 result=Cancel'))
-                    if report['saved_checkpoint']['turn'] != loaded['turn'] + args.advance_turns:
+                    if report['saved_checkpoint']['turn'] != report.get('flight_arrived_turn', loaded['turn']) + args.advance_turns:
                         raise RuntimeError('Saved turn does not match the requested actual turn advance')
                     report.update(status='PASS', scope='recovered real state, native end-turns and original manual resave UI')
         except Exception as error:

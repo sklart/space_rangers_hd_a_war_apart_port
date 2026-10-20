@@ -130,6 +130,7 @@ def width(path, text):
 
 
 def star_map(text):
+    text = '#include <cstdlib>\n#if defined(E2E5_HOST_SDL_WINDOW)\nnamespace srhd_awa::platform::e2e515_save_checkpoint { void ObserveCurrentWorld(const char* phase); }\n#endif\n' + text
     text = '#include "e2e59_map_swipe.hpp"\n#include "e2e_stage.hpp"\n#include "win32_compat_messages.hpp"\n' + text
     text = once(text, "namespace fStarMap {", "namespace fStarMap {\n"
                 "    static srhd_awa::platform::MapSwipe e2e_swipe;\n"
@@ -141,6 +142,8 @@ def star_map(text):
     text = once(text, "        Mode = smmOrders;", '''        Mode = smmOrders;
 #if defined(E2E5_HOST_SDL_WINDOW)
         srhd_awa::platform::e2e_stage::LogE2E3("HOST map orders ready");
+        if (std::getenv("E2E515_FLIGHT_ROUTE"))
+            srhd_awa::platform::e2e515_save_checkpoint::ObserveCurrentWorld("flight-orders");
 #endif''')
     text = once(text, "void TfStarMap::OnClose() {", "void TfStarMap::OnClose() {\n"
                 "        e2e_swipe.Cancel();\n"

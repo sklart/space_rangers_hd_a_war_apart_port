@@ -67,11 +67,19 @@ void DriveRawPadMailbox(const std::filesystem::path& stage, const std::atomic<bo
   while (running.load()) {
     std::ifstream file(stage / "pad-input.txt");
     std::uint64_t sequence{}, mask{};
-    if ((file >> sequence >> mask) && sequence > previous && mask < (1u << 10)) {
+    if ((file >> sequence >> mask) && sequence > previous && mask < (1u << 11)) {
       srhd_awa::platform::input_platform::RawInput raw{};
       raw.a = mask & 1; raw.b = mask & 2; raw.dpad_up = mask & 4; raw.dpad_down = mask & 8;
       raw.dpad_left = mask & 16; raw.dpad_right = mask & 32; raw.r3 = mask & 64;
       raw.l3 = mask & 128; raw.x = mask & 256; raw.plus = mask & 512;
+      if (mask & 1024) {
+        if (!(file >> raw.touch_x >> raw.touch_y) || raw.touch_x < 0 || raw.touch_x >= 1280 ||
+            raw.touch_y < 0 || raw.touch_y >= 720) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(20));
+          continue;
+        }
+        raw.touch = true;
+      }
       const auto revision = srhd_awa::platform::win32_compat::InjectHostInputTracked(raw);
       while (running.load() && !srhd_awa::platform::win32_compat::HostInputConsumed(revision))
         std::this_thread::sleep_for(std::chrono::milliseconds(5));

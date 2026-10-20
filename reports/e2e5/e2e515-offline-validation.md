@@ -591,3 +591,31 @@ registered-owner кадр подтверждён; всего проверено 
 Метаданные и два ранних FAIL драйвера в e2e515-trade-roundtrip.md/json.
 Межзвёздный маршрут, полный teardown, общие тормоза
 аркады и настоящий MatrixGame остаются OPEN.
+
+## Пакет 14: реальная причина отказа сейва после перелёта
+
+Воспроизведён настоящий маршрут на копии сейва 346: взлёт → галактика → touch звезды
+в пределах исходной дальности → ButJump → обычные ходы/экран гиперпространства →
+ручное сохранение после прибытия. До исправления получен реальный FAIL:
+Script.PC_fem_rangers/init/quest_item содержит указатель на игровой предмет, который
+инвентаризация не умела записывать. Исходный скрипт использует ShipItems/CreateEquipment;
+скрипт и игровые ресурсы не менялись.
+
+Добавлена проверка live item identity по известным контейнерам и исходному IdToItem,
+typed kind 15/item ID в RSG64/v168 и transactional RebindPending. Неизвестные ссылки
+не обнуляются. Старый экспериментальный reader с максимумом kind 14 отвергнет новый
+item-tag; текущий reader загружает прежний сейв 346. Windows RSG/v167 не менялся.
+
+Итог: система 41 → 5, расстояние 7, топливо 20 → 13, прибытие на 360-м ходу.
+quest_item получил сохранённый item ID 182356; 873 переменные, 0 unknown.
+Unicode save 679360 bytes, SHA `bc6b1059a743800a4ae279356fd8d58968fd6948deaafc34dac02582b8a1f6b0`.
+Новый процесс восстановил screen 16/ход 360/систему 5, checkpoint diff пуст.
+Пять кадров обоих процессов проверены по fingerprint/owner и просмотрены визуально.
+
+Host ELF `63e8d10c4036687afe697620ee69f76dca76a7e89b33699e22660e6ab0e5bcc2`.
+Пять обычных engine tests, partial sanitized-scene и partial sanitized-item-references
+PASS. Последний инструментирует actual aGalaxy/save refs и item test, не весь ресурсный
+маршрут. Три preflight и десять SDK compile units PASS; imports unchanged. Восемь
+исходных файлов неизменны. Ошибка первой диагностики, промежуточный SIGSEGV nullable
+обхода и ранние test FAIL перечислены в e2e515-interstellar-save.md/json.
+SD/hardware, полный world parity/teardown, аркадные тормоза, MatrixGame и final NRO OPEN.

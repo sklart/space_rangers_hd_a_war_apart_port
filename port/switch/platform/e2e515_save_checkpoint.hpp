@@ -58,6 +58,17 @@ inline void Observe(aGalaxy::TGalaxy* galaxy, const char* phase) {
     if (!std::getenv("E2E515_SAVE_CHECKPOINTS")) return;
     auto* player = aPlayer::GetPlayer();
     if (!galaxy || !player) throw std::runtime_error("save checkpoint missing world/player");
+    if (std::string_view(phase).starts_with("flight-")) {
+        auto* target = player->Order == aShip::soJump ? pas::class_cast_if<aGalaxy::TStar*>(player->OrderTarget) : nullptr;
+        auto* tank = player->GetFuelTanks();
+        std::fprintf(stderr,
+            "E2E515_FLIGHT|{\"turn\":%u,\"star\":%u,\"planet\":%u,\"hyperspace\":%s,\"order\":%u,\"target\":%u,\"fuel\":%d}\n",
+            static_cast<unsigned>(galaxy->CurrentTurn), player->CurrentStar ? player->CurrentStar->Id : 0u,
+            player->CurrentPlanet ? player->CurrentPlanet->Id : 0u, player->InHyperspace ? "true" : "false",
+            static_cast<unsigned>(player->Order), target ? target->Id : 0u, tank ? tank->Fuel : -1);
+        std::fflush(stderr);
+        return;
+    }
     const auto rtl_rng = System::RandSeed;
     const auto rng_hash = Rng(galaxy);
     e2e5_save_refs::SaveScope save_scope(galaxy);

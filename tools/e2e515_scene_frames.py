@@ -74,6 +74,42 @@ def main():
         assert sample['complete'] and fingerprint(image) == sample['rgb565_hash']
         images[sample['label']] = image
         verified.append(sequence)
+    if route.get('interstellar_arrival_verified'):
+        trace = [json.loads(line.split('|', 1)[1]) for line in
+                 (stage / 'stderr.log').read_text(errors='replace').splitlines()
+                 if line.startswith('E2E515_FLIGHT|') and line.endswith('}')]
+        reported = route['flight_trace']
+        assert trace[:len(reported)] == reported and len(reported) >= 3
+        # Returning from the game menu can publish orders mode again without
+        # advancing the world; accept only identical post-arrival snapshots.
+        assert all(row == reported[-1] for row in trace[len(reported):])
+        target = route['flight_target']['id']
+        assert trace[0]['star'] == route['flight_origin'] != target
+        assert any(row['target'] == target and row['order'] == 3 for row in trace)
+        assert trace[-1]['star'] == target and not trace[-1]['hyperspace']
+        assert trace[-1]['turn'] > trace[0]['turn']
+        assert trace[0]['fuel'] - trace[-1]['fuel'] == route['flight_target']['distance']
+        assert route['saved_checkpoint']['star'] == target
+        assert route['saved_checkpoint']['turn'] == trace[-1]['turn']
+        expected = [('flight-origin-map', 16), ('flight-galaxy-targets', 18),
+                    ('flight-galaxy-selected', 18), ('flight-arrived-map', 16)]
+        assert [(sample['label'], sample['screen']) for sample in samples] == expected
+        assert all(sample['depth'] == 1 and sample['registered_owner'] for sample in samples)
+        log = next(stage.rglob('e2e.log')).read_text(errors='replace')
+        assert 'screen dispatch id=19 ' in log and re.search(r'HOST raw pad sequence=\d+ mask=1024', log)
+        inventory = (stage / 'stderr.log').read_text(errors='replace')
+        item_ids = re.findall(r'E2E5_SAVE_INV\|Script.PC_fem_rangers\|init\|quest_item\|vkDword\|STABLE_OBJECT_ID\|item\|(\d+)', inventory)
+        assert item_ids and int(item_ids[-1]) > 0
+        save = stage / 'user/config/save' / Path(route['manual_save_path']).name
+        assert hashlib.sha256(save.read_bytes()).hexdigest() == route['manual_save_sha256']
+        result = dict(status='PASS', route_kind='interstellar-item-save', verified_frames=len(verified),
+                      star_before=trace[0]['star'], star_after=target, turn_after=trace[-1]['turn'],
+                      fuel_consumed=trace[0]['fuel'] - trace[-1]['fuel'], typed_item_id=int(item_ids[-1]),
+                      original_jump_screen_verified=True, raw_touch_marker_verified=True,
+                      hardware_executed=False, full_world_parity=False)
+        (stage / 'scene-analysis.json').write_text(json.dumps(result, indent=2) + '\n')
+        print(json.dumps(result, indent=2))
+        return
     if route.get('trade_roundtrip') and not route.get('planet_cycles'):
         records = [json.loads(line.split('|', 1)[1]) for line in
                    (stage / 'stderr.log').read_text(errors='replace').splitlines()

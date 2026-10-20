@@ -1,0 +1,197 @@
+{
+  "status": "PARTIAL: actual interstellar manual save and fresh-process typed-item reload PASS",
+  "base_git": "2119202f41ce849c5f50ef888bf444df2f73716a",
+  "host_binary_sha256": "63e8d10c4036687afe697620ee69f76dca76a7e89b33699e22660e6ab0e5bcc2",
+  "save_run": "d98e9ae6ae8f42a0a2228105e3c95a13",
+  "reload_run": "893f28c02fa34121b9dcaa57f10c9cd5",
+  "source_fixture_sha256": "665b82366662e9a98fa85289a127621355e470035c8915b84a0379fb0aa955fb",
+  "origin_star": 41,
+  "target": {
+    "id": 5,
+    "x": 330,
+    "y": 422,
+    "distance": 7
+  },
+  "flight_trace": [
+    {
+      "turn": 347,
+      "star": 41,
+      "planet": 0,
+      "hyperspace": false,
+      "order": 0,
+      "target": 0,
+      "fuel": 20
+    },
+    {
+      "turn": 347,
+      "star": 41,
+      "planet": 0,
+      "hyperspace": false,
+      "order": 3,
+      "target": 5,
+      "fuel": 20
+    },
+    {
+      "turn": 357,
+      "star": 41,
+      "planet": 0,
+      "hyperspace": false,
+      "order": 3,
+      "target": 5,
+      "fuel": 20
+    },
+    {
+      "turn": 360,
+      "star": 5,
+      "planet": 0,
+      "hyperspace": false,
+      "order": 0,
+      "target": 0,
+      "fuel": 13
+    }
+  ],
+  "arrival_turn": 360,
+  "typed_item": {
+    "script": "Script.PC_fem_rangers",
+    "scope": "init",
+    "variable": "quest_item",
+    "id": 182356,
+    "disk_kind": 15
+  },
+  "inventory_variables": 873,
+  "unknown_variables_after_fix": 0,
+  "save_bytes": 679360,
+  "save_sha256": "bc6b1059a743800a4ae279356fd8d58968fd6948deaafc34dac02582b8a1f6b0",
+  "private_prior_slots_preserved": true,
+  "fresh_process_reload_verified": true,
+  "checkpoint_diff": {},
+  "verified_frames": 5,
+  "frame_analysis": {
+    "status": "PASS",
+    "route_kind": "interstellar-item-save",
+    "verified_frames": 4,
+    "star_before": 41,
+    "star_after": 5,
+    "turn_after": 360,
+    "fuel_consumed": 7,
+    "typed_item_id": 182356,
+    "original_jump_screen_verified": true,
+    "raw_touch_marker_verified": true,
+    "hardware_executed": false,
+    "full_world_parity": false
+  },
+  "engine_tests": [
+    {
+      "name": "runtime-loop",
+      "status": "PASS",
+      "stdout": "M12 runtime loop regression PASS frames=120+120\n",
+      "test_sha256": "965d8dcf2f698e19622bd459d24c3914b6e6c16e8a2c776059c241020f7388e9",
+      "binary_sha256": "bf23d9acd8fe86072cbd251a78fbbf517994a960e39f1080f108cf901c0f6c6d"
+    },
+    {
+      "name": "scene-canvas",
+      "status": "PASS",
+      "stdout": "PASS 10 cycles: prepared capture survives Clear and later parent draws, single consumption, child/independent invalidation, parent restore and exception unwind\n",
+      "test_sha256": "d2908fe1fdb9d5a00b053b9b743113766081b32235aef5d360e52bb4c3a223b8",
+      "binary_sha256": "acd3f25fa31d427ea02627683284ecae5d0a9f9df3f6d37fc1e528f476044e53"
+    },
+    {
+      "name": "screen-context",
+      "status": "PASS",
+      "stdout": "PASS real TfAB/TObjectGI/TGraphButtonGI/TEditGI cancellation, fixed toggle, 10 stack/owner unwinds, injected OSK Unicode/Cancel/exception; no battle or native applet executed\n",
+      "test_sha256": "4ce41412a936e023869ee1e351d906faff0c62bd19bc03e35e5ecee3b5383a1f",
+      "binary_sha256": "6d8b5ff15054a2a4ce0a5953f3b5bb0cc91141fbb3f89e9a3ef8a4fec4119877"
+    },
+    {
+      "name": "native-focus",
+      "status": "PASS",
+      "stdout": "PASS real native buttons via injected pad, focus frame, disabled/hidden exclusion, no held/replay click, cursor fallback, focus restoration and settings write refusal\n",
+      "test_sha256": "9a310795cf355240acaf5a591adb9a030ac13366bd68913e84b6ebaac9501589",
+      "binary_sha256": "b0b8fc44e647c1adbb9bb92596124a6db2c0617a62592646549a52eaa56f9ec9"
+    },
+    {
+      "name": "item-references",
+      "status": "PASS",
+      "stdout": "PASS live item identity, typed little-endian ID, roundtrip, missing-ID atomic rejection and legacy guard\n",
+      "test_sha256": "197bbc18456e184a4adfe7ce20f19720bfa9381954820fae5a3501535a272536",
+      "binary_sha256": "012e4178daff22758f4fe412c401702ace46c4ae0aad4fc152fe62b5b9d9355b"
+    },
+    {
+      "name": "sanitized-item-references",
+      "status": "PASS",
+      "stdout": "PASS live item identity, typed little-endian ID, roundtrip, missing-ID atomic rejection and legacy guard\n",
+      "instrumented_units": [
+        "aGalaxy",
+        "item-reference-test"
+      ],
+      "remaining_game_units_instrumented": false,
+      "leak_detection": true,
+      "binary_sha256": "65fd1b1ad735bb7fb7cdddb45eb1f4e39205b886ab4cdb93aca0598e12b82ffd"
+    },
+    {
+      "name": "sanitized-scene",
+      "status": "PASS",
+      "stdout": "PASS 10 cycles: prepared capture survives Clear and later parent draws, single consumption, child/independent invalidation, parent restore and exception unwind\n",
+      "instrumented_units": [
+        "renderer_platform",
+        "GR_Main",
+        "GR_GraphBuf",
+        "GI_MessageLoop"
+      ],
+      "remaining_game_units_instrumented": false,
+      "leak_detection": true,
+      "binary_sha256": "6d8e402a4b2ddfefc9e6e6ea304c2219fae1a4f3d29eb35ba2e7432481025cc4"
+    }
+  ],
+  "sdk_compile_units": 10,
+  "sdk_linked": false,
+  "preflight_variants": [
+    "ordinary",
+    "combined",
+    "Save ON"
+  ],
+  "imports_unchanged": true,
+  "original_files_unchanged": 8,
+  "source_and_configs_unchanged": true,
+  "hardware_executed": false,
+  "normal_shutdown_verified": false,
+  "format_compatibility": "New item kind 15 requires the updated experimental RSG64/v168 reader; Windows RSG/v167 unchanged",
+  "before_fix": {
+    "run": "78bf06de0c1f4a78be356523a595d38c",
+    "status": "FAIL",
+    "cause": "quest_item UNKNOWN after actual arrival"
+  },
+  "earlier_failures": [
+    {
+      "run": "833f3f7d8f5942948bf995ec206a7ff7",
+      "cause": "full serialization diagnostic interrupted orders transition"
+    },
+    {
+      "run": "ef5e17a856974b769326639c35a44d38",
+      "cause": "first item walker SIGSEGV; optional-null containers fixed"
+    }
+  ],
+  "current_sources_sha256": {
+    "port/switch/platform/e2e515_item_references.hpp": "564983aef9717d3aa2c218779e8fa263f86ead1f94b8f7cf2c5597342efb635d",
+    "port/switch/platform/e2e5_save_refs.hpp": "e80335faa3edc08e7a1c2c818a739658c22faf729faefa638f70e01e85973917",
+    "port/switch/platform/e2e5_save_inventory.hpp": "14c9f1e45fc239f239438e3358273f0b31f586c587a24d47db850c0bee14cb8e",
+    "port/switch/platform/e2e515_save_checkpoint.hpp": "f24bf6318deb6a5bec73f5c30cd1d067444daa7064c2428934399a4db1966492",
+    "port/switch/platform/e2e515_host_galaxy_snapshot.hpp": "060cf74ad7e2d0c733845c0919c7f5100f32581e827f8f5be58735a11f0eb4d9",
+    "tests/test_e2e515_item_references.cpp": "197bbc18456e184a4adfe7ce20f19720bfa9381954820fae5a3501535a272536",
+    "tools/e2e5_host_game_main.cpp": "67bdb95e4dc9b082e55ae7a6eeb043a556e8c714c3e5dabea769b3d0d1476ed9",
+    "tools/e2e_source_overrides.py": "f107156f12e2a3eb72d4c35b9adb531bbb8a88d3875a71b59230037cebfd314f",
+    "tools/e2e59_overrides.py": "33a83ba8d7e36778e964e0ba1704cf009af067cfcb5074fbf44cf83a2c2cc807",
+    "tools/e2e515_controller_route.py": "a1d2c49bb1a778830ca4b4802383ddc4c1eeddee56d92cb546a240b09bab9f18",
+    "tools/e2e515_engine_tests.py": "0322de377b9de697e12cd6e7028c24352a0b1fb18872f97381091feb2a1e4103",
+    "tools/e2e515_scene_frames.py": "1ac7ca1dc86f14967a2b23b1e9e158ae97122124c877fa862755df727841b778",
+    "tools/e2e515_sdk_input_probe.py": "080a46a044f11da3d39adecd1b79f537f54089c14d32ec1dbf6d142305ed03f5"
+  },
+  "open": [
+    "Switch/SD hardware save test",
+    "Other reference kinds and unsupported owner containers",
+    "Full world serialization parity and teardown",
+    "Remaining UI input coverage",
+    "General arcade slowdown",
+    "Real MatrixGame and final NRO/ELF"
+  ]
+}

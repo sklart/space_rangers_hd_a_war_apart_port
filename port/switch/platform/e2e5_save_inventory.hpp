@@ -7,6 +7,7 @@
 
 #include "e2e4_script_value.hpp"
 #include "e2e5_save_refs.hpp"
+#include "e2e515_item_references.hpp"
 
 // Diagnostic preflight for the disposable original-game source overlay. It
 // observes object identity before any 32-bit script value is written to disk.
@@ -94,6 +95,8 @@ inline Classification classify(aGalaxy::TGalaxy* galaxy, aScript::TScript* scrip
     if (signed_value ? srhd_awa::platform::e2e4_script_value::FitsDiskInt(cell->IntValue)
                      : srhd_awa::platform::e2e4_script_value::FitsDiskDword(value))
         return {"NUMERIC", "scalar", 0};
+    if (auto* item = e2e515_item_references::Find(galaxy, value))
+        return {"STABLE_OBJECT_ID", "item", static_cast<std::uint32_t>(item->Id)};
     return {};
 }
 
@@ -211,6 +214,7 @@ std::uint8_t object_kind(const e2e5_save_inventory::Classification& binding) {
     if (type == "planet") return kPlanet;
     if (type == "ship") return kShip;
     if (type == "constellation") return kConstellation;
+    if (type == "item") return kItem;
     bad_reference("E2E5 script object type has no stable disk representation");
 }
 
@@ -292,6 +296,7 @@ void RebindPending(aGalaxy::TGalaxy* galaxy) {
         case kPlanet: object = galaxy->IdToPlanet(pending.id, false); break;
         case kShip: object = galaxy->IdToShip(pending.id, false); break;
         case kConstellation: object = galaxy->IdToConstellation(pending.id); break;
+        case kItem: object = galaxy->IdToItem(pending.id, false); break;
         default: bad_reference("E2E5 invalid typed script reference");
         }
         if (pending.id != 0 && object == nullptr)

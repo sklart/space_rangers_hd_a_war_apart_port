@@ -3375,6 +3375,18 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
             e2e_last_report = e2e_now; e2e_hits = e2e_misses = 0;
         }''' + text[end:]
         text = '#include "e2e58_projection_cache.hpp"\n#include "e2e_clock.hpp"\n#include "e2e5_failure_diagnostics.hpp"\n' + text
+    if source.name == 'fGalaxy2.cpp':
+        text = _replace_exact(text, 'namespace fGalaxy2 {',
+            '#include "e2e515_host_galaxy_snapshot.hpp"\nnamespace fGalaxy2 {', 1, source.name)
+        for function, following in (('ConfigureJumpSelection', 'ClearJumpSelectionCallbacks'),
+                                     ('MapLeftButtonDown', 'MapRightButtonDown')):
+            start = text.index('    void TfGalaxy2::' + function + '(')
+            end = text.index('\n    void TfGalaxy2::' + following + '(', start)
+            close = text.rfind('\n    }', start, end)
+            text = text[:close] + '''
+#if defined(E2E5_HOST_SDL_WINDOW)
+        srhd_awa::platform::e2e515_host_galaxy_snapshot::Observe(this);
+#endif''' + text[close:]
     if script_width and source.name == "fStarMap.cpp":
         text = star_map(text)
     if e2e5_profile and source.name == "aEFilm.cpp":

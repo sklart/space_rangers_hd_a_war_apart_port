@@ -15,8 +15,9 @@ inline constexpr std::uint8_t kStar = 11;
 inline constexpr std::uint8_t kPlanet = 12;
 inline constexpr std::uint8_t kShip = 13;
 inline constexpr std::uint8_t kConstellation = 14;
+inline constexpr std::uint8_t kItem = 15;
 inline constexpr bool IsObjectKind(std::uint8_t kind) {
-    return kind >= kStar && kind <= kConstellation;
+    return kind >= kStar && kind <= kItem;
 }
 
 struct SaveScope {
