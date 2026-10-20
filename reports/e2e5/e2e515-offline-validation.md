@@ -142,15 +142,73 @@ python3 tools/e2e515_main_route.py --game-root /path/to/game --config-root /path
 требует все стадии/пять циклов без markers ошибки отмены/stack unwind. Новые кадры
 получают отдельный каталог; stale images не принимаются за свежий прогон.
 
+## Пакет 4: профили и прямая навигация UI
+
+Реализованы controller_profiles (Hybrid/Cursor, проверяемый codec и revision),
+controller_focus (spatial graph), controller_messages и typed controller_ui.
+Игровой код и адресные тесты зафиксированы локально:
+`ee44a6fbc8a22bc9e350a341a5c350143ffe0295`; push не выполнялся.
+Настоящие Run/RunContinuous создают UI Scope; ProcessWindowMessage обрабатывает
+новые команды внутри исходного try, FinishQueuedDraw рисует рамку в RGB565.
+Оба lifecycle sites, Process и Draw проверяются по effective generated source,
+а не только по Python override. Доставка Confirm вызывает исходные callbacks
+графических кнопок, toggle или общую OSK настоящего TEditGI. Указатель сохраняется
+для сложных hold/drag controls; generic graph не закрывает аудит всех экранов.
+
+Hybrid использует focus, Cursor — указатель; D-pad/L3/правый стик переключают
+режим без replay удержаний. ZR в cursor объединён с A/touch в одну левую кнопку.
+В focus A/X/Y не порождают второй mouse/Enter путь. Отдельно найден и устранён
+двойной Y/right-click; native-focus проверяет ровно один callback без WM_RBUTTONDOWN.
+Исправлена смена предпочтительного режима после modal teardown: Poll мог увидеть
+новый профиль раньше Refresh родителя. Отдельный regression проверяет этот порядок.
+
+R3 открывает штатный GI_MessageBox для профиля, deadzone, скорости, инверсии,
+ускорения, перестановки A/B; X — reset, Confirm — apply/persist, Cancel — отмена.
+Само окно параметров использует focus и в Cursor-профиле для восстановления
+без мыши. controller.ini находится в user config, вне игровых сейвов; ограниченное
+чтение, fallback .bak, temporary/readback/backup/copy-and-verify. При отказе
+показывается ошибка, действуют параметры в памяти. Отключение питания/SD не проверено.
+
+Новые проверки входят в существующие host workflow через два runner scripts:
+
+- input-asan: 10/10 PASS, включая codec/graph/два профиля, режимы, отсутствие
+  duplicate Y, ускорение 20/30/60 FPS за одну и три секунды.
+- engine-tests: добавлен четвёртый native-focus с настоящими GI объектами,
+  RawInput/message pump/effective handler, рамкой framebuffer, disabled/hidden,
+  held/cancellation, parent focus и отказом записи настроек.
+- SDK probe дополнен hashes четырёх новых headers и effective UI hook guards.
+  Пять original/platform units проходят compile; full link/NRO этого пакета нет.
+- Python tools: 26/26 PASS. Standard/combined Save OFF/Save ON preflight PASS;
+  manifests обновлены по четырём headers и смещению callsite, UNKNOWN=0.
+- Настоящая Win32 message/input очередь: повторный ASan/UBSan PASS после
+  последней правки policy/доставки Y.
+- SHA исходных восьми пользовательских файлов/архивов повторно совпали;
+  pinned submodules чистые. Push не выполняется.
+
+tools/e2e515_controller_route.py запускает отдельную копию host ELF с настоящими
+ресурсами и копиями CFG. Единственный driver — mailbox RawInput; legacy
+PostHostKey/PostHostLeftClick в этом режиме не запускается. Диагностические graph
+snapshots создаёт UI thread; driver не читает живые игровые объекты. Пять циклов
+NewGame/Cancel уже прошли: в каждом ровно один native Confirm, удержание A 900 мс
+не запускает генерацию. Расширенная проверка настроек и Cursor recovery
+также PASS: изменение скорости 600→650, Cancel без изменения файла, применение
+Cursor, L3→native NewGame→B, R3→X→Confirm возвращает все defaults без мыши.
+Текущий результат: build/e2e515/controller-route/result.json, host ELF SHA-256
+`25ce0b883ed961df23817cf093b54d4ce936f7de22ecae8f5b9ddb4189a147f6`.
+Отдельно обрабатывается временный ENODATA DrvFS при чтении лога. Ожидается
+фактический poll кнопки; короткий pulse во время первого тяжёлого draw больше
+не принимается за доставленное действие. После checkpoints runner останавливает
+процесс; normal shutdown не доказан. Полный controller-only маршрут до карты OPEN.
+
 | Требование ТЗ | Состояние |
 |---|---|
 | A1 полная handler matrix | PARTIAL: первая часть в controls doc, остальные экраны/drag/hover/OSK OPEN |
 | A2 Action/Context | PARTIAL: ядро, реальные scopes/очередь, OSK и динамические arcade contexts есть; suspend и полный controller-only route OPEN |
 | A3 controllers | PARTIAL: классификация/сброс есть; UI unsupported, dock/resume и hardware OPEN |
-| B два настоящих профиля, focus, RTS, touch, accessibility | OPEN; существующий pointer/arcade fallback не считается реализацией двух профилей |
+| B два настоящих профиля, focus, RTS, touch, accessibility | PARTIAL: Hybrid/Cursor, spatial focus, прямые UI callbacks, параметры и рамка реализованы; полная матрица экранов/RTS/scroll/gestures OPEN |
 | C1 все реальные screen transitions, фон | OPEN; десять canvas unit cycles не заменяют переходы между настоящими экранами |
 | C2 save fault injection / новый процесс / перелёт | OPEN в этом цикле; E2E-5.14 не объявляется новым тестом E2E-5.15 |
-| C3 generation → hangar → map controller route | Legacy real route и пять menu cycles PASS; controller-only route OPEN |
+| C3 generation → hangar → map controller route | Legacy real route PASS; raw pad menu/NewGame/settings route PASS; controller-only маршрут до карты OPEN |
 | D смерть/взрыв, overload 20/40/70/150/250, parity 500/1000, три perf пары | OPEN; оптимизаций/FPS-победы этого цикла пока нет |
 | E MatrixGame before/after units, новый real block, entry/resource pipeline | OPEN; текущий d3d9.h blocker ещё не закрыт |
 | F1 CI input | Core sanitizer suite, реальные owner/canvas tests и message-input ASan/UBSan включены в host workflow; удалённый CI не запускался/не проверялся |
@@ -166,8 +224,8 @@ python3 tools/e2e515_main_route.py --game-root /path/to/game --config-root /path
 
 1. Выполнить ресурсный fault-injection из Run/OnOpen и suspend/resume; собрать
    матрицу остальных handlers и проверить фактические OSK-поля на последующей Switch.
-2. Реализовать два настоящих UI-профиля, focus/drag/tab/scroll, настройки и подсказки;
-   пройти реальные маршруты с внедрённым контроллером, а не только host key driver.
+2. Довести два UI-профиля до полной матрицы drag/tab/scroll и подсказок;
+   расширить raw-pad route до OSK, генерации, ангара и карты.
 3. Повторить save failure/new-process цепочки и реальные screen transitions по ТЗ,
    сохранить исходные SHA.
 4. Аркада: смерть/взрыв, все overload cases, parity 500/1000, три парных perf series.

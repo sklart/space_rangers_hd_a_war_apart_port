@@ -5,7 +5,7 @@
 
 ## Реализованная граница
 
-`RawInput → controller_actions::Router → Snapshot.actions → legacy adapter`.
+`RawInput → controller_actions::Router → Snapshot.actions → native UI / legacy adapter`.
 Ядро не зависит от libnx, Win32 или движка. Оно выдаёт pressed/held/released/repeat.
 Владелец передаёт Context и поколение; даже повторный вход в тот же Context должен
 иметь новое поколение. Кнопки, удержанные при смене владельца/контроллера, блокируются
@@ -30,10 +30,10 @@ fault-injection из ресурсного OnOpen ещё OPEN. Инвентарн
 
 | Орган | Логическое действие | Реальная доставка сейчас |
 |---|---|---|
-| A / touch | Confirm | Один левый mouse down/up; курсорный fallback |
+| A / touch | Confirm | A в focus вызывает настоящий UI-handler; touch и cursor используют единый mouse down/up |
 | B | Cancel | Escape down/up; прежний right click убран |
 | Y | OpenContextAction | Right mouse down/up; исходные контекстные операции доступны |
-| X | Inspect | Сохраняется прежний Enter fallback; семантика Inspect ещё не привязана к экранам |
+| X | Inspect | В focus — HelpCallback выбранного объекта, если есть; в cursor — прежний Enter fallback |
 | + в аркаде | OpenPause | VK_PAUSE → TfAB::BattleKeyDown → SimulationPaused toggle |
 | + в главном меню | OpenPause | Безопасный no-op, меню уже открыто; выход не вызывается |
 | + на остальных экранах | OpenPause | Временный Escape fallback; полноценное открытие меню для всех экранов OPEN |
@@ -44,9 +44,11 @@ fault-injection из ресурсного OnOpen ещё OPEN. Инвентарн
 | L / R в аркаде | CyclePrimaryWeapon / CycleSecondaryWeapon | Исходные OEM [ / ]; оба циклически вперёд по своей группе, не «предыдущее/следующее» оружие |
 | D-pad в аркаде | MoveForward/Backward, TurnLeft/Right | Исходные стрелки |
 | Левый / правый стик в аркаде | Курс корабля / курсор | Существующий Steer и виртуальный курсор; независимый twin-stick огонь не заявлен |
-| Стик / D-pad вне аркады | Курсор / Navigate | Сохраняется курсорный fallback; focus graph OPEN |
-| ZR вне аркады | StartDrag / EndDrag | Только контракт ядра; доставка drag в UI OPEN |
-| L / R вне аркады | PrevTab / NextTab | Только контракт ядра; доставка в UI OPEN |
+| Стик / D-pad вне аркады | Курсор / Navigate | Hybrid: левый стик/D-pad — spatial focus; правый стик/touch — cursor. Cursor: левый стик — указатель, D-pad возвращает focus |
+| ZR вне аркады | StartDrag / EndDrag | Удержание левой кнопки в cursor; сценарии инвентаря ещё OPEN |
+| L / R вне аркады | PrevTab / NextTab | В focus — переход влево/вправо; специальные вкладки экранов ещё OPEN |
+| L3 | ToggleNavigationMode | Focus ↔ cursor, отмена старого указательного удержания без завершающего клика |
+| R3 | OpenControllerSettings | Штатное модальное окно GI_MessageBox с настройками контроллера |
 
 `+` не создаёт WM_QUIT и не вызывает QuitClicked в главном меню. В аркаде B
 сохраняет RequestExit с подтверждением, а + использует настоящий
@@ -77,12 +79,12 @@ Host backend внедряемый; без него обычный host keyboard 
 ## Аудит фактических handlers: первая часть
 
 Пути относительно `upstream/cpp/src`. Наличие handler означает обнаруженную точку
-доставки, но не готовность новой semantic mapping. Без мыши здесь пока доступен
-виртуальный указатель; два переключаемых профиля ещё не реализованы.
+доставки, но не готовность новой semantic mapping. Два профиля и общий focus
+реализованы; специальные механизмы экранов требуют проверки по строкам ниже.
 
 | Экран | Исходное действие | Целевая команда | Handler | Текущий статус / проверка |
 |---|---|---|---|---|
-| Главное меню | Enter / Escape / нажатие кнопки | Confirm / Cancel | fMainForm.cpp: MainPanelKeyDown, QuitClicked | Mouse/Enter/Escape fallback; unit message pump; focus OPEN |
+| Главное меню | Enter / Escape / нажатие кнопки | Confirm / Cancel | fMainForm.cpp: MainPanelKeyDown, QuitClicked | Native focus + прямые callbacks; пять ресурсных A/New/B циклов PASS; остальные пункты требуют route |
 | Игровое меню | Escape, S/F2, L/F3, C, E, H | BackToGame, SaveLoad, Options, Help | fGameMenu.cpp: MainPanelKeyDown | Fallback; direct actions OPEN |
 | Ангар | Space, F, A, B, S; right click | EndTurn, takeoff, repair, refuel, inspect, context | fHangar.cpp: MainKeyDown, MainRightButtonDown | Pointer/right-click fallback; shortcuts OPEN |
 | Планета | Space, Q, панель | EndTurn, quest, Confirm | fPlanet.cpp: MainPanelKeyDown | Pointer fallback; direct actions OPEN |
@@ -92,14 +94,56 @@ Host backend внедряемый; без него обычный host keyboard 
 | Диалог | Click choice, wheel, keys | Confirm, Scroll, Cancel | fTalk.cpp: ChoiceMouseDown, ProcessMouseWheel, MainPanelKeyDown | Pointer fallback; focus OPEN |
 | Save/load | Click, double click, key, wheel | Confirm, Inspect, Scroll, TextEntry | fSaveManager.cpp: SlotMouseDown, SlotDoubleClick, SlotKeyDown, ProcessMouseWheel | Pointer fallback; полный OSK/списки OPEN |
 | Редактируемые поля | Click edit, key | OpenTextKeyboard, Confirm, Cancel | GI_Edit.cpp: TEditGI::ProcessLeftButtonDown; исходные Changed/AcceptChar callbacks | Общий hook с MaxLength; в том числе fSelectFace, fGameSettings2, SaveManager; native OSK hardware PENDING |
-| Настройки новой игры | Click name, key, wheel | TextEntry, Navigate, Scroll | fGameSettings2.cpp: PlayerNameMouseDown, MainPanelKeyDown, ProcessMouseWheel | Pointer fallback; настройки контроллера OPEN |
+| Настройки новой игры | Click name, key, wheel | TextEntry, Navigate, Scroll | fGameSettings2.cpp: PlayerNameMouseDown, MainPanelKeyDown, ProcessMouseWheel | Общий focus; вход A/выход B PASS, все поля и дальнейшая генерация контроллером OPEN |
 | Аркада | Control/Space/arrows/[ / ]/A/Pause/Escape | Fire, Move, Weapon, Autopilot, Pause, Cancel | ab_MainForm.cpp: BattleKeyDown, BattleKeyUp, RequestExit | Прежние команды + новая безопасная PLUS-пауза; unit/adapter PASS, hardware PENDING |
 | MatrixGame | Ввод настоящего движка | MatrixRTS / MatrixDirectControl | Robot.cpp, port/matrixgame/native | Исполнение не подключено; mapping contract не является боем |
 
 Остаётся проаудировать остальные экраны, hover/double-click/drag lifetimes,
-модальные окна и все редактируемые поля. Неактивные/скрытые элементы, видимый фокус,
-профили Hybrid/Cursor, настройки deadzone/sensitivity/inversion/reset defaults,
-letterbox, экранное сообщение для single Joy-Con и актуальные подсказки — OPEN.
+модальные окна и все редактируемые поля. Длинные списки с прокруткой, letterbox,
+экранное сообщение для single Joy-Con и актуальные подсказки — OPEN.
+
+## Два профиля и общий focus
+
+Hybrid по умолчанию выбирает реальные доступные кнопки и TEditGI. Граф строится
+по текущим hit bounds и проверяет Active, HitTestDisabled, occlusion и disabled
+состояние графических кнопок. D-pad/левый стик выбирает соседний объект; при
+границе предусмотрен переход к противоположному краю. Выбранный объект отмечен
+жёлтой рамкой в настоящем RGB565 framebuffer. Вложенный loop сохраняет выбор
+родителя. Главное меню первоначально выбирает New.
+
+Confirm вызывает исходный callback / ExecuteOnPressCode либо общую OSK для
+TEditGI. Fixed toggle сохраняет исходное Down-состояние; обычные кнопки с двумя
+hold callbacks пока исключены из графа и доступны указателем. Общий spatial
+focus не считается готовой специальной навигацией каждого списка/инвентаря.
+
+Cursor использует левый стик для указателя. В обоих профилях L3 переключает
+режим, D-pad возвращает focus, правый стик/touch выбирает указатель. Старое
+удержание A/ZR при переключении отменяется без клика; новый физический press
+доставляется после отпускания. В cursor ZR объединён с A/touch в один срок
+жизни левой кнопки. Аркада сохраняет отдельное управление.
+
+R3 открывает штатный GI_MessageBox. D-pad вверх/вниз выбирает строку, влево/вправо
+меняет профиль, deadzone, скорость, инверсию X/Y, ускорение, перестановку A/B.
+X сбрасывает редактируемые значения к defaults; Confirm применяет и сохраняет,
+Cancel отменяет. Окно настроек всегда использует focus, чтобы X/reset и Confirm
+оставались доступны без мыши в Cursor-профиле. Действующие A/B отражены в
+подсказке. Ускорение интегрируется
+по времени; одинаковый интервал даёт одинаковое перемещение при 20/30/60 FPS.
+
+Настройки находятся в user config/controller.ini (отдельно от игровых сейвов).
+Чтение ограничено 1024 байтами, ошибочные версии/значения отклоняются целиком;
+при повреждении используется controller.ini.bak. Запись проверяет временный
+файл, сохраняет прежние байты в backup и проверяет результат перезаписи.
+При отказе записи параметры действуют до выхода и показывается сообщение.
+Проверены первоначальная запись, перезапись и отказ открытия .tmp; это не
+доказательство устойчивости к отключению питания во время записи на SD.
+
+Host test native-focus доставляет настоящий RawInput через message pump и
+effective ProcessWindowMessage, проверяет прямые callbacks, исключение disabled/
+hidden, framebuffer-рамку, отсутствие held/replay click, cursor fallback,
+восстановление родительского выбора и отказ записи настроек. Отдельный
+ресурсный runner: tools/e2e515_controller_route.py; область доказательства
+указывается в его result.json, полный маршрут кампании ещё OPEN.
 
 ## Контроллеры и доказательства
 
