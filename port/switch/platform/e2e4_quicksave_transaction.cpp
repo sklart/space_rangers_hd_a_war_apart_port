@@ -21,6 +21,7 @@
 #ifdef _WIN32
 #include <io.h>
 #else
+#include <fcntl.h>
 #include <unistd.h>
 #endif
 
@@ -102,6 +103,53 @@ bool SyncFile(const fs::path& path) {
     return std::fclose(file) == 0 && ok;
 }
 
+// libstdc++ copy_file also copies permission metadata. libnx's fchmod
+// returns ENOSYS, leaving an empty destination before any bytes are copied.
+// On POSIX use only byte I/O; exclusive creation retains no-overwrite safety.
+// CopyVerified still flushes and reads back the complete size/CRC afterwards.
+bool CopyBytesExclusive(const fs::path& from, const fs::path& to,
+                        std::error_code& ec) {
+#ifdef _WIN32
+    return fs::copy_file(from, to, fs::copy_options::none, ec);
+#else
+    FILE* input = std::fopen(from.c_str(), "rb");
+    if (!input) { ec = {errno, std::generic_category()}; return false; }
+    const int fd = ::open(to.c_str(), O_WRONLY | O_CREAT | O_EXCL, 0600);
+    if (fd < 0) {
+        ec = {errno, std::generic_category()};
+        std::fclose(input);
+        return false;
+    }
+    FILE* output = fdopen(fd, "wb");
+    if (!output) {
+        ec = {errno, std::generic_category()};
+        ::close(fd);
+        std::fclose(input);
+        return false;
+    }
+    auto failed = [&] {
+        if (!ec) ec = {errno ? errno : EIO, std::generic_category()};
+    };
+    std::array<unsigned char, 32768> buffer{};
+    std::uint64_t total{};
+    while (!ec) {
+        const auto count = std::fread(buffer.data(), 1, buffer.size(), input);
+        if (count) {
+            total += count;
+            if (total > kMaxSaveBytes) { ec = {EFBIG, std::generic_category()}; break; }
+            if (std::fwrite(buffer.data(), 1, count, output) != count) { failed(); break; }
+        }
+        if (std::ferror(input)) { failed(); break; }
+        if (std::feof(input)) break;
+        if (!count) { ec = {EIO, std::generic_category()}; break; }
+    }
+    if (std::fflush(output) != 0) failed();
+    if (std::fclose(output) != 0) failed();
+    if (std::fclose(input) != 0) failed();
+    return !ec;
+#endif
+}
+
 bool CopyVerified(const fs::path& from, const fs::path& to,
                   const Fingerprint& expected, const Fault& fault,
                   const char* operation, std::string& error) {
@@ -111,9 +159,9 @@ bool CopyVerified(const fs::path& from, const fs::path& to,
     }
     if (!Step(fault, operation)) { error = std::string(operation) + ": injected failure"; return false; }
     std::error_code ec;
-    if (!fs::copy_file(from, to, fs::copy_options::none, ec) || ec ||
+    if (!CopyBytesExclusive(from, to, ec) || ec ||
         FileKind(to) != Kind::regular) {
-        error = std::string(operation) + ": copy or flush failed: " + ec.message() +
+        error = std::string(operation) + ": byte copy failed: " + ec.message() +
                 ", errno=" + std::strerror(errno);
         return false;
     }
