@@ -11,6 +11,8 @@
 #include "types/ab_WorldLine.hpp"
 #include "units/ab_WorldLine.hpp"
 #include "types/GI_PolyLine.hpp"
+#include "units/GR_Main.hpp"
+#include "e2e515_arcade_clock.hpp"
 #include <array>
 #include <chrono>
 #include <cstdio>
@@ -62,6 +64,28 @@ inline void Row(const char* event, std::uint64_t duration = 0, std::uint64_t cpu
         static_cast<unsigned long long>(duration), static_cast<unsigned long long>(cpu), presents);
     std::fflush(output);
 }
+inline void BeginReplayClock(ab_MainForm::TfAB* form) {
+    if (!Option("E2E515_ARCADE_REPLAY", 0)) return;
+    // Rebase already-created UI timers, preserving every relative deadline.
+    const std::uint32_t base = 100000;
+    const auto previous = form->TimerTick;
+    for (auto* timer = form->FirstTimer; timer; timer = timer->Next)
+        timer->DueTick = timer->DueTick <= previous ? base : base + (timer->DueTick - previous);
+    form->TimerTick = base;
+    e2e515_arcade_clock::milliseconds = base;
+    e2e515_arcade_clock::enabled = true;
+    GR_Main::LastPresentationTick = base;
+}
+inline void Replay(GI_MessageLoop::TMessageLoopGI* loop) {
+    if (!e2e515_arcade_clock::enabled || loop != active) return;
+    Row("replay-begin");
+    for (unsigned elapsed = 0; elapsed < 60000 && loop->ExitCode == 0; ++elapsed) {
+        ++e2e515_arcade_clock::milliseconds;
+        loop->AdvanceTimerTick(); // Original timer queue and original callbacks.
+        if ((elapsed + 1) % 20 == 0) loop->DrawFrame();
+    }
+    Row("replay-incomplete"); std::fflush(nullptr); std::_Exit(8);
+}
 inline void Checkpoint() {
     std::uint64_t hash = UINT64_C(14695981039346656037);
     auto add = [&]<class T>(const T& value) {
@@ -95,6 +119,7 @@ inline void Checkpoint() {
     std::fflush(stderr);
 }
 inline void Finish() {
+    if (e2e515_arcade_clock::enabled) Row("replay-logical-ms", e2e515_arcade_clock::milliseconds - 100000);
     Checkpoint(); Row("complete", Now() - start, Cpu() - start_cpu);
     if (auto* file = std::fopen("arcade-hotspots.csv", "w")) {
         for (unsigned i = 1; i < hotspots.size(); ++i)
@@ -131,6 +156,7 @@ struct Tick {
     ~Tick() {
         if (std::uncaught_exceptions()) { Row("exception"); return; }
         Row("tick", Now() - begin, Cpu() - cpu);
+        Row("rng", System::RandSeed, self->RandomSeed);
         if (lethal && self->DefeatPanel->Active && !result) { result = true; Row("result"); }
         const int tick = ab_Global::ArcadeTickCount;
         if (tick == 500 || tick == 1000) Checkpoint();

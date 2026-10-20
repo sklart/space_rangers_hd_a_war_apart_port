@@ -1,5 +1,6 @@
 {
-  "status": "EXPERIMENT_REJECTED",
+  "status": "LIVE_COMPARISON_INVALID; FIXED_REPLAY_PARITY_PASS; NO_PROVEN_SPEEDUP",
+  "candidate_acceptance": "NOT_ACCEPTED",
   "shipping_sources_changed": false,
   "hardware_executed": false,
   "scenario": "real ordinary arena, System seed 0x515, no lethal hit, no synthetic delay, 1000 active ticks",
@@ -38,6 +39,18 @@
     "geometry_1000": "44aa9a9593415a80"
   },
   "cpu_change_percent": 32.07593474057682,
+  "comparison_causality": "UNPROVEN: unchanged baseline is not repeatable",
+  "baseline_repeat": {
+    "run": "e844095843f34c4f8126bc0fe9d32f78",
+    "same_binary": true,
+    "thread_cpu_ns": 9730996267,
+    "cpu_change_percent": 24.830413799389106,
+    "world_500": "7cd4c660df14486e",
+    "world_1000": "447a33c37e682b11",
+    "shared_image_ticks": 879,
+    "identical_full_frame_hashes": 0,
+    "repeatability": "FAIL"
+  },
   "common_image_ticks": 870,
   "identical_full_frame_hashes": 0,
   "world_rng_parity": "FAIL",
@@ -48,5 +61,24 @@
     "arm64_qemu": "PASS, 98304 bit-exact checks, four rounding modes",
     "devkit_a64": "COMPILE PASS only, not linked or executed"
   },
-  "next_gate": "Repeatability control and fixed timer/input/render replay; find the earliest divergence before attempting further optimizations"
+  "fixed_replay": {
+    "baseline_repeatability": "PASS: selected state, geometry, 1001 RNG snapshots, 1000 software frames",
+    "baseline_repeat_runs": ["8e0bbe1a11774050becc9ad1032c39fb", "b4c200a2c42d42c8aabc21b82c26bf33"],
+    "baseline_elf_sha256": "36a96d765d353a6ca8feee49a47e0934611d6075149e508be6f2297700c7e16e",
+    "candidate_elf_sha256": "e5fe2956cbc744019077dee79b5a79961a02cd763ba59346a0f19651768d6d82",
+    "three_paired_series_complete": true,
+    "pairs": [
+      {"order": "baseline,candidate", "baseline_run": "8e0bbe1a11774050becc9ad1032c39fb", "candidate_run": "1b1d0f83590343f694251b01d6892dfc", "baseline_cpu_ns": 4762858937, "candidate_cpu_ns": 4854980727, "parity": "PASS"},
+      {"order": "candidate,baseline", "baseline_run": "2b4e6bbf19a34471b51f9adc41632a68", "candidate_run": "827448bbbd0545ee8c1bc9683f597542", "baseline_cpu_ns": 4576922917, "candidate_cpu_ns": 4693173558, "parity": "PASS"},
+      {"order": "baseline,candidate", "baseline_run": "b118742f9ca7488d9685612419314d14", "candidate_run": "3da663e0abdf4882895dfe473eca180a", "baseline_cpu_ns": 4993295257, "candidate_cpu_ns": 4887893026, "parity": "PASS"}
+    ],
+    "aggregate_cpu_change_percent": 0.7184095864591011,
+    "median_cpu_change_percent": 1.9341700272573092,
+    "random_sound_events": 0,
+    "logical_ms": 20540,
+    "input_sequence": "empty",
+    "performance_conclusion": "No demonstrated speedup; candidate NOT_ACCEPTED",
+    "scope": "Diagnostic fixed scheduling only; not live scheduler, input latency, full serialization, cleanup, GPU or Switch FPS"
+  },
+  "next_gate": "Optimize another measured hot path using repeatable replay; preserve live scheduler and gameplay; investigate first live divergence separately"
 }
