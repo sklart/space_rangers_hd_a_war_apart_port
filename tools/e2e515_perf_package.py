@@ -36,7 +36,9 @@ def main():
     assert sha(original)==r['nro']['sha256'].lower() and sha(original_elf)==r['matching_elf']['sha256'].lower()
     assert matching_build_id(original.read_bytes(),original_elf.read_bytes())==r['build_id']
     nm=subprocess.check_output([str(sdk/('devkitA64/bin/aarch64-none-elf-nm'+suffix)),'-C',str(original_elf)],text=True)
-    for name in ['perf515::Initialize','perf515::Frame','perf515::TickBatch','perf515::Scope','perf515::CpuMicros','TfAB::TimerTakt','swkbdShow']:
+    # CpuMicros is inlined into Scope in Release; inspect the retained scopes
+    # and their exact compiled-source hashes rather than requiring that symbol.
+    for name in ['perf515::Initialize','perf515::Frame','perf515::TickBatch','perf515::Scope','perf515::Record','TfAB::TimerTakt','swkbdShow']:
         assert name in nm,name
     for name in ['DekoBufferRenderer','DekoMeshRenderer','pcvSetClockRate','clkrstSetClockRate','sysclkIpcSet']:
         assert name not in nm,name
