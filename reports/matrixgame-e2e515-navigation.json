@@ -1,0 +1,71 @@
+{
+  "status": "PASS",
+  "scope": "actual CPU graph bytes only; not battle/renderer execution",
+  "executions": 3,
+  "cross_platform_bytes_equal": true,
+  "normalization": {
+    "zones": 149,
+    "crotches": 27,
+    "roads": 35,
+    "places": 94,
+    "cannons": 10,
+    "changed_movement_offsets": [
+      15375,
+      15430,
+      15565,
+      15725,
+      15815,
+      15940,
+      16235,
+      16285,
+      16530
+    ]
+  },
+  "artifacts": {
+    ".fixture.bin": {
+      "bytes": 310,
+      "sha256": "a8806f497498b0a07d42bc34a4e6c0c6f68f6645e8e8a439660f5401d5f0275d"
+    },
+    ".roads.raw.bin": {
+      "bytes": 18894,
+      "sha256": "a50233480e7317e8dce9b4d067fafce2319f82d6c3eb5892b3117871fcb206a6"
+    },
+    ".roads.normalized.bin": {
+      "bytes": 18894,
+      "sha256": "79bffdee621f7af02af5c2ad1495b105b541d98c079b34dd634df05d9d323ea2"
+    }
+  },
+  "battle_executed": false,
+  "hardware_executed": false,
+  "execution_artifacts": {
+    "host_asan": {
+      "path": "build/e2e515/mg-navigation-asan/matrixgame-native-navigation-test",
+      "sha256": "ba3f8b35fea3cebb131605f25f03ce164557f34ebb0a3fa60ffe22a8d2ca9ea4"
+    },
+    "linux_arm64_qemu": {
+      "path": "build/e2e515/mg-navigation-arm64/navigation-contract",
+      "sha256": "138319167ffe0bcab9dfed620c6dce7b96949fc0f00066cb530ac74cff1f4277"
+    },
+    "original_windows_x86": {
+      "path": "build/e2e515/mg-navigation-x86/Release/matrixgame-navigation-x86-reference.exe",
+      "sha256": "094c6008ac9e42f1d4dcbd78fdc0f7580fe36a9e9eb3aa6149d6a915be343a53"
+    }
+  },
+  "sdk_compile_link": {
+    "status": "PASS",
+    "sha256": "d57218129e5e93267dede702e74f7c12b3f7c052dc4f1c8a837ad96303f89b0b",
+    "bytes": 6885096,
+    "build_id": "Build ID: 05a10f687384aa1577564cd6cf4b7ba02e4c18a4",
+    "undefined_strong": [],
+    "runtime_executed": false,
+    "hardware_executed": false
+  },
+  "source_commit": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
+  "asset_free_ctest": {
+    "status": "PASS",
+    "tests_run": 1,
+    "tests_failed": 0,
+    "sanitizers": "ASan+UBSan+leak detection",
+    "remote_ci_executed": false
+  }
+}

@@ -648,3 +648,20 @@ Initial test failures, причины, ограничения и все 80 ст�
 `reports/matrixgame-e2e515-status.md`, machine-readable compile metadata в соседнем
 `matrixgame-e2e515-compile.json`. Игровые ресурсы в Git не добавлены.
 Полный Init/Run/бой, GPU, кампания, новый navigation ASan/ARM64/SDK и final NRO OPEN.
+
+## Пакет 17: navigation sanitizer, x86 reference, ARM64/QEMU и SDK
+
+Для полного перенесённого MatrixRoadNetwork закрыты дополнительные gates:
+host ASan/UBSan/leak detection, оригинальный Windows x86 reference, Linux ARM64/QEMU
+и devkitA64 ELF compile/link PASS. Все три фактических CPU исполнения прошли fixture
+и Boarding.cmap; полные serialized bytes совпали между платформами. Независимый
+wire-format разбор атрибутировал все девять изменений raw→normalized оригинальному
+правилу маски движения места с пушкой; других изменений нет.
+
+1/1 navigation CTest с ASan/UBSan PASS, регистрация проверена с `--no-tests=error`.
+Asset-free contract подключён к host CI, удалённый CI не запускался. Полные hashes,
+Build ID, scope, initial failures, воспроизведение в matrixgame-e2e515-status.md и
+matrixgame-e2e515-navigation.json. Данные в private dumps только в ignored build.
+Исходные восемь пользовательских файлов и pinned источники неизменны.
+Это закрывает navigation gates, оставленные OPEN в пакете 16; полный engine,
+Init/Run/бой/GPU/кампания, общие тормоза аркады и final NRO остаются OPEN.

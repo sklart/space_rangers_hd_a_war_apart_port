@@ -30,7 +30,8 @@ RoadNetwork не компилируется повторно в основной
 GNU C++ 15.2, Release, C++20, `-ffp-contract=off`.
 `matrixgame-native-navigation` STATIC и `matrixgame-native-navigation-test`
 скомпилированы и скомпонованы успешно.
-SHA-256 executable: `f96ff95c01ea17c5d2616aafdcc2e937057e5d6de901675656d525994a7fdbcc`.
+SHA-256 первого executable пакета 16: `f96ff95c01ea17c5d2616aafdcc2e937057e5d6de901675656d525994a7fdbcc`.
+Окончательные проверки с выгрузкой буферов перечислены ниже.
 
 Тест выполнил десять циклов трёхзонного графа: путь 0→1→2, расстояние 20,
 ограничение движения, Save/Load v27 и точное равенство повторной сериализации.
@@ -47,14 +48,56 @@ FNV32 `2cbab80a`. Выполнены 33 соседних запроса с ма�
 
 Raw resource Save не равен входным bytes: original Load принудительно меняет
 movement mask мест с пушками; на карте 10 таких мест. Нормализованная повторная
-Save/Load/Save стабильна, FNV32 `e18e7b8d`. Полная побайтная атрибуция всех
-отличий от исходного буфера ещё не выполнена; raw parity не заявляется.
+Save/Load/Save стабильна, FNV32 `e18e7b8d`. Независимый wire-format разбор в
+`tests/probe_matrixgame_navigation.py` подтвердил все отличия: девять байтов
+movement mask становятся 31; десятое место уже имело 31. Остальные bytes неизменны.
+Равенство raw input и normalized output не заявляется.
 
 Первый fixture FAIL вызван неинициализированными полями искусственно добавленного
-региона: pinned POSIX ReAllocClear не очищает расширение памяти. Тест теперь явно
+региона: pinned release ReAllocClear не очищает расширение памяти. Тест теперь явно
 инициализирует свои регионы. Алгоритм движка не менялся. Второй FAIL был неверным
-ожиданием raw byte equality после штатного Load; он сохранён как ограничение выше.
-Новый модуль ещё не прошёл ASan/UBSan, Windows x86 reference, ARM64/QEMU и SDK link.
+ожиданием raw byte equality после штатного Load; причина теперь подтверждена
+побайтным разбором и оригинальным Windows x86 выполнением.
+
+## Пакет 17: санитайзеры и архитектурная совместимость
+
+Код/тесты пакета: `227000b0f6968321c9ca8649287e9e979d345802`.
+
+Все три исполнения прошли synthetic graph и настоящую Boarding.cmap. Отдельно
+сравнены **полные bytes** fixture, raw roads и normalized roads; все три набора
+совпали. SHA-256 и девять offsets приведены в `matrixgame-e2e515-navigation.json`.
+Это CPU graph/resource parity данной карты и fixture, не всех карт и не AI боя.
+
+| Проверка | Результат | SHA-256 executable |
+|---|---|---|
+| GNU host + ASan/UBSan/leak detection, весь связанный native-core инструментирован | PASS | `ba3f8b35fea3cebb131605f25f03ce164557f34ebb0a3fa60ffe22a8d2ca9ea4` |
+| Linux ARM64/QEMU, GNU 15.2 | PASS | `138319167ffe0bcab9dfed620c6dce7b96949fc0f00066cb530ac74cff1f4277` |
+| Original Windows x86, MSVC 19.44, Release | PASS | `094c6008ac9e42f1d4dcbd78fdc0f7580fe36a9e9eb3aa6149d6a915be343a53` |
+| DevkitA64 16.1, Horizon ELF compile/link; не запускался | PASS | `d57218129e5e93267dede702e74f7c12b3f7c052dc4f1c8a837ad96303f89b0b` |
+
+SDK Build ID `05a10f687384aa1577564cd6cf4b7ba02e4c18a4`, ELF 6885096 bytes,
+ELF64/AArch64, неразрешённых сильных символов нет. Проверено наличие реальных
+FindPathInRegionRun/Load/Save. NRO не создавался, аппаратный runtime не заявляется.
+SDK report: `build/e2e515/mg-navigation-sdk-capture/result.json`.
+
+Win32 reference компилирует непосредственно неизменённые исходники pinned tree:
+RoadNetwork, CBuf, CStorage, CBlockPar, CRC, CFile, CHeap, CException и Tracer.
+Оригинальный MAXEXP_EXPORTS выбирает disk path без optional package API; читается
+ранее извлечённая cmap. Никакого portable overlay в этом reference нет.
+Проект `port/matrixgame/navigation-reference` проверяет pin/чистоту MatrixGame и zlib.
+zlib v1.3.2 pin `da607da739fa6047df13e66a2af6b8bec7c2a498`, исходник в ignored build.
+
+Диагностические SDK attempts сохранены: первый без POSIX feature macro не видел
+fileno/fseeko/ftello; второй наследовал чужой DEVKITPRO=/opt/devkitpro и не нашёл
+switch.ld. Инструмент теперь передаёт те же POSIX declarations, что native-core,
+и свой локальный SDK environment. Первая Win32 LINK попытка показала шесть
+неразрешённых CBlockPar methods; включение оригинального CBlockPar.cpp закрыло их.
+Это исправления сборочных рецептов, не замена engine functions.
+
+Root native-engine теперь включает CTest. Локально команда с точным regex и
+`--no-tests=error` выполнила 1/1 navigation contract с ASan/UBSan/leak detection.
+Тот же asset-free test добавлен в host-regression CI; удалённый CI не запускался.
+Восемь исходных пользовательских файлов, MatrixGame и zlib источники неизменны.
 
 ## До первого настоящего боя
 
@@ -64,6 +107,7 @@ Save/Load/Save стабильна, FNV32 `e18e7b8d`. Полная побайтн
 | Полный engine LINK | BLOCKED компиляцией; проверенных LINK_FAIL нет |
 | Native CGame Init/Run | RUNTIME UNSUPPORTED, не вызывался |
 | Загрузка навигации настоящей карты | HOST PASS в описанной CPU-цепочке |
+| Navigation sanitizer / x86 reference / ARM64-QEMU / SDK link | PASS в ограниченном описанном CPU scope |
 | Полный ресурсный поток карты/моделей/материалов | OPEN |
 | D3D9 lifecycle/state/resources → deko3d | PARTIAL экспериментальный backend, не полный engine renderer |
 | AI/physics/battle update | OPEN; путь региона не доказывает выполнение боя |
@@ -88,6 +132,24 @@ build/e2e515/mg-engine-after/matrixgame-native-navigation-test build/e2e515/mg-m
 
 Пути build локальные ignored; копию лицензируемой карты надо подготовить из своей
 установки. Полный поединичный compile audit приведён ниже.
+
+Санитайзеры и ARM64 (Linux/WSL):
+
+```
+cmake -S port/matrixgame/native-engine -B build/mg-navigation-asan -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCORE_SANITIZERS=ON -DBUILD_TESTING=ON
+cmake --build build/mg-navigation-asan --target matrixgame-native-navigation-test --parallel 2
+ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 ctest --test-dir build/mg-navigation-asan -R '^matrixgame-native-navigation-contract$' --output-on-failure --no-tests=error
+bash tools/matrixgame_navigation_arm64.sh build/e2e515/mg-map-private/Boarding.cmap build/e2e515/mg-navigation-arm64/capture
+```
+
+Для ARM64 script заранее нужен указанный pinned zlib source в
+`build/e2e515/deps/zlib-1.3.2`. На Windows: CMake navigation-reference с генератором
+Visual Studio 17 2022, `-A Win32 -DGIT_EXECUTABLE="C:/Program Files/Git/cmd/git.exe"`,
+затем target matrixgame-navigation-x86-reference config Release. Третий аргумент
+исполняемого теста — необязательный output prefix для трёх private binary dumps.
+SDK: `py -3 tools/matrixgame_navigation_sdk.py --output build/e2e515/mg-navigation-sdk-fresh`
+(каталог должен быть новым). Byte comparison: `tests/probe_matrixgame_navigation.py`
+с тремя `--prefix` из выполненных тестов и `--output` для JSON metadata.
 
 ## Поединичный compile audit
 
