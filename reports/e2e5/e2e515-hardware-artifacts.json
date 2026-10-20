@@ -1,0 +1,42 @@
+{
+  "source_commit": "7d3b4f5566e41d4d1b29fa8f0770e22aa2d06ee5",
+  "build_marker": "7d3b4f5-dirty",
+  "build_id": "dd1d476cce2a021daaadf6ecde7ae28c0f081a72",
+  "build_dirty_reason": "Only pre-existing untracked report metadata at build start; tracked sources clean; saves excluded",
+  "save_on": true,
+  "audio_on": true,
+  "profile": "Release O2",
+  "hardware": "PENDING",
+  "matrixgame_experimental_linked": false,
+  "full_game_units": 298,
+  "link_objects": 379,
+  "compiled_objects": 26,
+  "reused_dependency_checked": 354,
+  "required_symbols": [
+    "e2e5_text_input::NativeBackend",
+    "input_platform::NormalizeAt",
+    "renderer_platform::SceneCanvas::SceneCanvas",
+    "e2e5_save_refs::",
+    "swkbdShow",
+    "TfAB::TimerTakt",
+    "TfAB::DrawFrame"
+  ],
+  "nro": {
+    "path": "port/switch/build/e2e-game-save-test/SpaceRangersHDAWarApart-save-test-v168-7d3b4f5-dirty-83b1477a96eb.nro",
+    "working_path": "port/switch/build/e2e-game-save-test/SpaceRangersHDAWarApart-save-test-v168.nro",
+    "bytes": 16554288,
+    "sha256": "83B1477A96EB585BE3E788E1BAAE72F380B7990F31EB44621304D95293252C1F",
+    "status": "SOFTWARE AUDIT PASS; hardware not tested"
+  },
+  "matching_elf": {
+    "path": "port/switch/build/e2e-game-save-test/SpaceRangersHDAWarApart-save-test-v168-7d3b4f5-dirty-83b1477a96eb.elf",
+    "bytes": 57095480,
+    "sha256": "E0FDA7FB45AF56E4CA2D5DD99C6DB4B66DB5F24E519237C50E2394D3327247AC"
+  },
+  "source_inputs_hashed": 1474,
+  "bundle": {
+    "path": "build/e2e515/hardware-main-7d3b4f5.zip",
+    "bytes": 27125566,
+    "sha256": "9d452e6bcb0586848f37452e176778038782e5e604ca315fd2611dc734eb31be"
+  }
+}

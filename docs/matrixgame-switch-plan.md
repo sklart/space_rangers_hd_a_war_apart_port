@@ -23,6 +23,13 @@ Gitlink фиксирует точный commit, поэтому обычный `s
 
 ## Состояние переноса
 
+Корректировка 20.10.2026: BigVB/BigIB сохранены отдельным локальным коммитом,
+адресные CPU проверки PASS. Подготовлена самостоятельная аппаратная NRO с
+реальной VO-моделью и deko3d upload/draw/readback, без сцены боя. GPU PENDING.
+Основная игра собрана отдельно; дальнейший большой этап MatrixGame отложен
+до разбора первого аппаратного прогона. См. [инструкцию и хэши](../reports/e2e5/e2e515-hardware-first-run.md)
+и [результаты буферов](../reports/matrixgame-e2e515-buffers.md).
+
 Обновление 20.10.2026, E2E-5.15: настоящий RoadNetwork и CMain/Form release lifecycle
 прошли host sanitizer, оригинальный Windows x86 reference, ARM64/QEMU и SDK link.
 На Boarding.cmap совпали полные буферы графа после BaseInit/Load/Save. Полный native
