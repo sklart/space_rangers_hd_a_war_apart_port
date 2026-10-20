@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(MatrixGameNativeEngine LANGUAGES CXX)
+include(CTest)
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 get_filename_component(PORT_ROOT "${CMAKE_CURRENT_LIST_DIR}/../../.." ABSOLUTE)
 set(ENGINE_SOURCE "${CMAKE_CURRENT_BINARY_DIR}/source")

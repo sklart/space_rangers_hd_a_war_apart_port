@@ -281,6 +281,13 @@ jobs:
           cmake --build build/mg-core-asan --parallel 2
           ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 \
             ctest --test-dir build/mg-core-asan --output-on-failure
+      - name: Original MatrixGame navigation with ASan and UBSan
+        run: |
+          cmake -S port/matrixgame/native-engine -B build/mg-navigation-asan \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCORE_SANITIZERS=ON -DBUILD_TESTING=ON
+          cmake --build build/mg-navigation-asan --target matrixgame-native-navigation-test --parallel 2
+          ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 UBSAN_OPTIONS=halt_on_error=1 \
+            ctest --test-dir build/mg-navigation-asan -R '^matrixgame-native-navigation-contract$' --output-on-failure --no-tests=error
       - name: Native MatrixLib CFile and RNG threads with ThreadSanitizer
         run: |
           cmake -S port/matrixgame/native-core -B build/mg-core-tsan \

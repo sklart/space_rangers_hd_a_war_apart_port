@@ -15,7 +15,12 @@ static std::uint32_t fingerprint(const CBuf& b) {
     for (size_t i=0;i<b.Len();++i) hash=(hash^data[i])*16777619u;
     return hash;
 }
-static void fixture() {
+static void write_buffer(const std::filesystem::path& path,const CBuf& b) {
+    std::ofstream stream(path,std::ios::binary);
+    stream.write(static_cast<const char*>(b.Get()),static_cast<std::streamsize>(b.Len()));
+    stream.close();assert(stream.good());
+}
+static void fixture(const char* output) {
     for (int cycle=0;cycle<10;++cycle) {
         CMatrixRoadNetwork graph(nullptr);
         graph.SetZoneCntMax(3); graph.m_ZoneCnt=3;
@@ -48,12 +53,14 @@ static void fixture() {
         assert(loaded.CalcDistByRoad(0,2)==20);
         CBuf again; loaded.Save(again);
         assert(saved.Len()==again.Len() && std::memcmp(saved.Get(),again.Get(),saved.Len())==0);
+        if(cycle==0 && output) write_buffer(std::string(output)+".fixture.bin",saved);
         if(cycle==0) std::printf("fixture bytes=%zu hash=%08x path=0,1,2 distance=20\n",saved.Len(),fingerprint(saved));
     }
 }
 int main(int argc,char** argv) {
-    fixture();
-    if(argc==2) {
+    assert(argc<=3);
+    fixture(argc==3 ? argv[2] : nullptr);
+    if(argc>=2) {
         std::filesystem::path file(argv[1]);
 #ifdef _WIN32
         const auto wide=file.wstring();
@@ -84,6 +91,10 @@ int main(int argc,char** argv) {
         assert(roundtrip.Pointer()==roundtrip.Len());
         CBuf stable;stable.Add<std::uint32_t>(27);reloaded.Save(stable);
         assert(stable.Len()==roundtrip.Len() && std::memcmp(stable.Get(),roundtrip.Get(),stable.Len())==0);
+        if(argc==3) {
+            write_buffer(std::string(argv[2])+".roads.raw.bin",b);
+            write_buffer(std::string(argv[2])+".roads.normalized.bin",roundtrip);
+        }
         int cannons=0;for(int i=0;i<graph.m_PlaceCnt;++i) cannons+=graph.GetPlace(i)->m_Cannon!=0;
         std::printf("map zones=%d roads=%d crotches=%d regions=%d bytes=%zu hash=%08x normalized_hash=%08x queries=%d reachable=%d cannons=%d raw_equal=%d normalized_stable=true\n",
                     graph.m_ZoneCnt,graph.m_RoadCnt,graph.m_CrotchCnt,graph.m_RegionCnt,b.Len(),fingerprint(b),fingerprint(roundtrip),queries,reachable,cannons,int(raw_equal));
