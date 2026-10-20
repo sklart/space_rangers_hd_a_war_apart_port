@@ -34,7 +34,8 @@ def build(variant):
                if Path(p).stem not in sources]
     provenance = {'host_binary_sha256': report['binary_sha256'], 'header_sha256': sha(header),
                   'clock_header_sha256': sha(ROOT / 'tests/e2e515_arcade_clock.hpp'),
-                  'memo_header_sha256': sha(ROOT / 'tests/e2e515_polygon_projection.hpp'), 'variant': variant}
+                  'memo_header_sha256': sha(ROOT / 'tests/e2e515_polygon_projection.hpp'),
+                  'prepared_header_sha256': sha(ROOT / 'tests/e2e515_polygon_prepared.hpp'), 'variant': variant}
     with tempfile.TemporaryDirectory(prefix='e2e515-arena-') as tmp:
         temp = Path(tmp)
         staged = []
@@ -70,12 +71,12 @@ def build(variant):
             if name == 'ab_Polygon' and variant == 'polygon-memo':
                 from e2e515_polygon_overrides import apply
                 text = apply(text)
-            if name == 'ab_Polygon' and variant == 'projection-inline':
-                from e2e515_polygon_overrides import apply_inline
+            if name == 'ab_Polygon' and variant in ('projection-inline', 'projection-prepared'):
+                from e2e515_polygon_overrides import apply_inline, apply_prepared
                 projector = sources['ab_Global'].read_text()
                 projector = projector.replace('    EC_Struct::TVector3D ProjectPointByMatrix(const TMatrix4D& Matrix, pas::ConstRef<EC_Struct::TVector3D> Source) {',
                     '    EC_Struct::TVector3D ProjectPointByMatrix(const TMatrix4D& Matrix, pas::ConstRef<EC_Struct::TVector3D> Source) {\n        e2e515_arcade_observer::Scope e2e_inline_scope(7);')
-                text = apply_inline(text, projector)
+                text = (apply_prepared if variant == 'projection-prepared' else apply_inline)(text, projector)
             scopes = {'ab_Global': (('ComputeSphericalBearingAndDistance', 1), ('ProjectPointByMatrix', 7)),
                       'ab_Object': (('TabObject::DistanceTo', 2), ('TabObject::Advance', 3)),
                       'ab_ShipAI': (('TabShipAI::Advance', 4), ('TabShipAI::DecideActions', 5),
@@ -89,7 +90,7 @@ def build(variant):
             generated = temp / (name + '.cpp'); generated.write_text(text)
             cache = OUTPUT / 'objects'; cache.mkdir(exist_ok=True)
             memo_header = ROOT / 'tests/e2e515_polygon_projection.hpp'
-            key = hashlib.sha256((text + sha(header) + sha(ROOT / 'tests/e2e515_arcade_clock.hpp') + sha(memo_header) + repr(flags) + report['binary_sha256']).encode()).hexdigest()
+            key = hashlib.sha256((text + sha(header) + sha(ROOT / 'tests/e2e515_arcade_clock.hpp') + sha(memo_header) + provenance['prepared_header_sha256'] + repr(flags) + report['binary_sha256']).encode()).hexdigest()
             obj = cache / (name + '-' + key + '.o')
             if not obj.exists():
                 temporary_obj = temp / (name + '.o')
@@ -125,7 +126,7 @@ def percentile(values, fraction):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build', action='store_true')
-    parser.add_argument('--variant', choices=('baseline', 'polygon-memo', 'projection-inline'), default='baseline',
+    parser.add_argument('--variant', choices=('baseline', 'polygon-memo', 'projection-inline', 'projection-prepared'), default='baseline',
                         help='Diagnostic comparisons only; none enables a shipping feature')
     parser.add_argument('--game-root', type=Path, required=True)
     parser.add_argument('--config-root', type=Path, required=True)

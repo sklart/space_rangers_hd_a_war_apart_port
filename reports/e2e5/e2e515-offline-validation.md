@@ -619,3 +619,19 @@ PASS. Последний инструментирует actual aGalaxy/save refs
 исходных файлов неизменны. Ошибка первой диагностики, промежуточный SIGSEGV nullable
 обхода и ранние test FAIL перечислены в e2e515-interstellar-save.md/json.
 SD/hardware, полный world parity/teardown, аркадные тормоза, MatrixGame и final NRO OPEN.
+
+## Пакет 15: подготовка матрицы проекции — без доказанного ускорения
+
+Проверен диагностический projection-prepared: точная конверсия коэффициентов матрицы
+в Extended один раз на пакет, исходная арифметика проекции без результата-кэша.
+Exceptional/denormal matrix coefficients используют исходный путь. ASan/UBSan и
+ARM64/QEMU: 32784 direct byte/FP-flag comparisons в четырёх rounding modes плюс
+98304 прежних memo checks PASS. DevkitA64 actual polygon COMPILE PASS.
+
+Три последовательные пары 1000 active ticks в порядке B/C, C/B, B/C прошли raw
+state/RNG/geometry/software-frame parity. Все baseline также повторяемы между
+собой. CPU: +4.882%, +0.404%, −1.496%; сумма +1.163%, отношение медиан +3.953%,
+baseline spread 11.019%. Устойчивого ускорения нет: NOT ACCEPTED, shipping-код
+не менялся. Числа/CPU p50/p95/p99/total/hotspots/wall и hashes в
+e2e515-perf-comparison.md и e2e515-projection-prepared.csv/json. Новых NRO/CI нет.
+Эти результаты не закрывают обычные тормоза или аппаратный FPS. Большая цель active.

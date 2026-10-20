@@ -9,6 +9,9 @@
 #if defined(E2E515_PROJECTION_INLINE)
 #include "inline-projector.hpp"
 #endif
+#if defined(E2E515_PROJECTION_PREPARED)
+#include "prepared-projector.hpp"
+#endif
 
 using Memo = srhd_awa::platform::PolygonProjectionMemo<ab_Global::TMatrix4D, EC_Struct::TVector3D, 16>;
 bool Same(EC_Struct::TVector3D a, EC_Struct::TVector3D b) {
@@ -32,7 +35,7 @@ int main() {
             EC_Struct::TVector3D point{double(i % 113) / 13., double(i % 71) / -9., double(i % 43) / 7.};
             if (i % 17 == 0) point.X = -0.;
             if (i % 32 == 0) matrix[3][0] = double(i % 83) / 17.;
-#if defined(E2E515_PROJECTION_INLINE)
+#if defined(E2E515_PROJECTION_INLINE) || defined(E2E515_PROJECTION_PREPARED)
             // Exercise perspective denominators and each original summation,
             // with varied finite signs/exponents instead of identity alone.
             for (unsigned row = 0; row < 4; ++row) for (unsigned col = 0; col < 4; ++col) {
@@ -47,10 +50,17 @@ int main() {
             std::feclearexcept(FE_ALL_EXCEPT);
 #endif
             const auto expected = original(matrix, point);
-#if defined(E2E515_PROJECTION_INLINE)
+#if defined(E2E515_PROJECTION_INLINE) || defined(E2E515_PROJECTION_PREPARED)
             const auto expected_flags = std::fetestexcept(FE_ALL_EXCEPT);
             std::feclearexcept(FE_ALL_EXCEPT);
-            if (!Same(e2e_project_inline(matrix, pas::ConstRef<EC_Struct::TVector3D>(&point)), expected) ||
+#if defined(E2E515_PROJECTION_PREPARED)
+            const e2e515::PreparedPolygonMatrix prepared(matrix);
+            if (std::fetestexcept(FE_ALL_EXCEPT)) return 9;
+            const auto projected = e2e_project_prepared(prepared, pas::ConstRef<EC_Struct::TVector3D>(&point));
+#else
+            const auto projected = e2e_project_inline(matrix, pas::ConstRef<EC_Struct::TVector3D>(&point));
+#endif
+            if (!Same(projected, expected) ||
                 std::fetestexcept(FE_ALL_EXCEPT) != expected_flags) {
                 std::fprintf(stderr, "inline mismatch case=%u mode=%d expected_flags=%d actual_flags=%d\n",
                     i, mode, expected_flags, std::fetestexcept(FE_ALL_EXCEPT));
@@ -72,6 +82,25 @@ int main() {
     }
     ab_Global::TMatrix4D matrix{}; for (int i = 0; i < 4; ++i) matrix[i][i] = 1.;
     EC_Struct::TVector3D point{1.,2.,3.};
+#if defined(E2E515_PROJECTION_PREPARED)
+    for (auto mode : {FE_TONEAREST, FE_DOWNWARD, FE_UPWARD, FE_TOWARDZERO}) {
+        std::fesetround(mode);
+        for (auto bits : {UINT64_C(1), UINT64_C(0x7ff0000000000000),
+                          UINT64_C(0x7ff8000000000123), UINT64_C(0x7ff0000000000001)}) {
+            matrix[0][0] = std::bit_cast<double>(bits);
+            std::feclearexcept(FE_ALL_EXCEPT);
+            const auto expected = original(matrix, point);
+            const auto flags = std::fetestexcept(FE_ALL_EXCEPT);
+            std::feclearexcept(FE_ALL_EXCEPT);
+            const e2e515::PreparedPolygonMatrix prepared(matrix);
+            if (prepared.finite || std::fetestexcept(FE_ALL_EXCEPT)) return 10;
+            if (!Same(e2e_project_prepared(prepared, pas::ConstRef<EC_Struct::TVector3D>(&point)), expected) ||
+                flags != std::fetestexcept(FE_ALL_EXCEPT)) return 11;
+            ++inline_checks;
+        }
+    }
+    matrix[0][0] = 1.;
+#endif
     try {
         memo.Project(matrix, point, 0xFFFFFFFF, [](const auto&, const auto&) -> EC_Struct::TVector3D {
             throw std::runtime_error("injected projector failure");

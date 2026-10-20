@@ -20,6 +20,29 @@ def apply_inline(text, projector_text):
         raise RuntimeError('Polygon namespace changed')
     return text.replace(prefix, 'e2e_project_inline(').replace(
         anchor, inline_projector(projector_text) + '\n' + anchor, 1)
+
+
+def prepared_projector(projector_text):
+    function = inline_projector(projector_text).replace('e2e_project_inline(', 'e2e_project_prepared(')
+    function = function.replace('const ab_Global::TMatrix4D& Matrix', 'const e2e515::PreparedPolygonMatrix& Matrix')
+    anchor = '        EC_Struct::TVector3D Result{};'
+    if function.count(anchor) != 1:
+        raise RuntimeError('Prepared projector entry changed')
+    return '#include "e2e515_polygon_prepared.hpp"\n' + function.replace(anchor,
+        '        if (!Matrix.finite) return ab_Global::ProjectPointByMatrix(Matrix.original, Source);\n' + anchor, 1)
+
+
+def apply_prepared(text, projector_text):
+    call = 'ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix, '
+    if text.count(call) != 5:
+        raise RuntimeError('Prepared polygon callsites changed')
+    for boundary in ('        std::int32_t Count = CurrentPolygonCell->Points.length() - 1 + 1;',
+                     '        std::int32_t Count = CurrentPolygonCell->Groups.length() - 1 + 1;'):
+        if text.count(boundary) != 1:
+            raise RuntimeError('Prepared batch boundary changed')
+        text = text.replace(boundary, boundary + '\n        const e2e515::PreparedPolygonMatrix e2e_matrix(ab_Global::SphereProjectionMatrix);')
+    text = text.replace(call, 'e2e_project_prepared(e2e_matrix, ')
+    return text.replace('namespace ab_Polygon {', prepared_projector(projector_text) + '\nnamespace ab_Polygon {', 1)
 def apply(text):
     prefix = 'ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix, '
     if text.count(prefix) != 5:

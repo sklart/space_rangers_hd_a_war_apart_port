@@ -272,3 +272,59 @@ DevkitA64 effective ab_Polygon COMPILE PASS, object SHA-256
 не полный link и не GPU execution. Тест включён в host CI после сборки engine;
 CI в этом цикле не запускался. Воспроизведение: polygon_tests.py --inline,
 затем --inline --arm64; на Windows --inline --sdk.
+
+## Подготовка коэффициентов матрицы: третий эксперимент
+
+`projection-prepared` делает точную конверсию 16 коэффициентов double →
+pas::Extended один раз на пакет polygon points/group corners. Скопированное тело
+исходного projector сохраняет формулы, порядок суммирования, деление и binary64
+stores. Результаты точек не кэшируются, матрица принадлежит одному вызову пакета;
+нет borrowed pointers или повторного использования данных между кадрами.
+Для NaN/Inf и денормальных коэффициентов сохранён вызов исходной функции,
+без предварительных FP-операций. Это только диагностический вариант в tests/tools.
+
+Контракт: 32784 побитных сравнения результата/FE_ALL_EXCEPT в четырёх rounding modes,
+включая 16 exceptional fallback cases; дополнительно прежние 98304 memo checks.
+ASan/UBSan PASS и ARM64/QEMU PASS (host Extended storage 10 bytes, ARM64 16 bytes).
+Первая host-компиляция отвергла numeric_limits<pas::Extended>, поскольку x87 Extended
+является storage wrapper; проверка исправлена на underlying long double. Математика
+не менялась. Actual devkitA64 ab_Polygon COMPILE PASS, object SHA-256
+`e9b9c2aec42f767b98dd981f1a5f31037e120f23de0446fc5c4b6e3f2ad44c89`.
+Это не link, исполнение на Switch или GPU proof.
+
+Оба диагностических ELF построены до замеров из одного host base
+`63e8d10c4036687afe697620ee69f76dca76a7e89b33699e22660e6ab0e5bcc2`.
+Во время шести последовательных замеров компиляции отсутствовали.
+1000 active ticks, 20540 logical ms, seed 0x515, пустой input, без slow callback
+и lethal hit. Каждый вариант имеет 15380504 projection calls / 240321 samples.
+Это новая серия с одной CFG fixture; её baseline не смешивается со старыми числами.
+
+| Пара, порядок | Baseline run | Prepared run | CPU B/C, с | Изменение |
+|---|---|---|---|---|
+| 1, B/C | 2b94110804c64d40bb768a7a20315eeb | 5ca5dc162c1f406b8752e875dee9c07f | 4.218463 / 4.424429 | +4.882% |
+| 2, C/B | cea5ab4a3af4498795361eef3738158e | 8401a537b01b498fa2689716430ae7ce | 4.256202 / 4.273393 | +0.404% |
+| 3, B/C | 1c569034f5f645958296cf5d74f142a6 | b85b3dd8b950416cb83a15a36f9254a2 | 4.683297 / 4.613220 | −1.496% |
+
+Все три пары: raw CSV/stderr/artifact SHA verification PASS, selected state/geometry
+на checkpoints, 1001 RNG snapshots и 1000 software framebuffer hashes совпали.
+Отдельно baseline 1 сравнён с baseline 2/3: PARITY PASS. Исходная CFG неизменна.
+Baseline ELF `d795238c17a04bfd6b9a5a7522292036f6c72e50729de5180d7493aa3684aa84`;
+prepared ELF `391205eee4e47a0231f454e052cd45c4825009c4513a65d8c32a255b57e831f1`.
+
+Суммарный CPU кандидата +1.163%, отношение медиан +3.953%; baseline spread 11.019%.
+Sampled inclusive projection CPU по парам B/C: 54.868/56.168, 56.958/56.007,
+58.483/58.688 ms. Эти samples не суммируются с DrawFrame или total и не являются
+полным временем projector: они содержат измерительные расходы. Полные totals,
+tick/draw CPU p50/p95/p99/max, wall и run IDs: e2e515-projection-prepared.csv/json.
+
+**NOT ACCEPTED**: устойчивое ускорение не показано. Это не доказательство
+замедления Switch на 1.163% и не аппаратный FPS-замер. В shipping overrides правка
+не подключена. Нормальные аркадные тормоза, live repeatability, input latency,
+полный world parity и teardown остаются OPEN; новых NRO/CI в этом пакете нет.
+
+Воспроизведение: `polygon_tests.py --prepared`, затем `--prepared --arm64`,
+Windows `--prepared --sdk`. Для арены сначала build('baseline') и
+build('projection-prepared') из tools/e2e515_arcade_probe.py. Затем шесть вызовов
+`arcade_probe.py --variant NAME --fixed-replay --ticks 1000 --game-root GAME --config-root CONFIG`
+в указанном порядке без --build; каждую пару проверить arcade_compare.py.
+Исходные game/config только для чтения, каждый процесс получает отдельный user root.
