@@ -6,6 +6,7 @@
 #include "units/GI_MessageLoop.hpp"
 #if defined(E2E5_HOST_SDL_WINDOW)
 #include "e2e3_generation_state.hpp"
+#include "e2e515_host_frame_capture.hpp"
 #include <array>
 #include <cstdlib>
 #endif
@@ -47,6 +48,12 @@ struct SceneBackdrop {
 // Keep their addresses stable until renderer shutdown, unlike frame canvases.
 std::vector<SceneBackdrop> g_scene_backdrops;
 SceneCanvas* g_active_canvas{};
+struct CapturedBackground {
+  GR_GraphBuf::TGraphBufGR* buffer{};
+  const GR_GraphBuf::TGraphBufGR* source{};
+  std::uint64_t source_hash{};
+  bool valid{};
+} g_captured_background;
 
 #if defined(__SWITCH__) && defined(E2E3_TRACE) && E2E3_TRACE
 void CaptureSceneSample(const void* pixels, int pitch, int width, int height) {
@@ -165,6 +172,8 @@ std::uint64_t HashRgb565(const void* pixels, std::int32_t pitch, std::int32_t wi
 }
 
 void ClearSoftwareGlobals() {
+  pas::free(g_captured_background.buffer);
+  g_captured_background = {};
   for (const auto& backdrop : g_scene_backdrops) pas::free(backdrop.buffer);
   g_scene_backdrops.clear();
   GR_Main::FreeScreenRenderBuffers();
@@ -184,12 +193,51 @@ void ClearSoftwareGlobals() {
 
 void SetNativeWindow(void* native_window) { g_native_window = native_window; }
 
+void PreserveCapturedBackground() {
+  auto& captured = g_captured_background;
+  auto* source = GR_Main::ScreenRenderBuffer;
+  auto* prepared = GR_Main::AuxRenderBuffer;
+  auto* owner = g_active_canvas;
+  if (owner && source != owner->canvas_) return;
+  auto& ready = owner ? owner->captured_ready_ : captured.valid;
+  ready = false;
+  if (!source || !prepared || !source->GetPixels() || !prepared->GetPixels() ||
+      source->Width != prepared->Width || source->Height != prepared->Height) return;
+  auto& buffer = owner ? owner->captured_ : captured.buffer;
+  if (!buffer && owner && !captured.valid) {
+    buffer = captured.buffer;
+    captured.buffer = nullptr;
+  }
+  if (!buffer)
+    buffer = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+  buffer->AllocateNativePitch(prepared->Width, prepared->Height, prepared->PitchBytes);
+  GR_Main::Ex_OKGR_Copy_XY_XY_WORD(buffer->GetPixels(), buffer->PitchBytes, 0, 0,
+      prepared->GetPixels(), prepared->PitchBytes, 0, 0, prepared->Width, prepared->Height);
+  const auto source_hash = HashRgb565(source->GetPixels(), source->PitchBytes, source->Width, source->Height);
+  if (owner) owner->captured_source_hash_ = source_hash;
+  else { captured.source = source; captured.source_hash = source_hash; }
+  ready = true;
+  char detail[224]{};
+  std::snprintf(detail, sizeof(detail), "scene background captured id=%u width=%d height=%d source_hash=%016llx prepared_hash=%016llx",
+      static_cast<unsigned>(GlobalsV::CurrentScreenId), prepared->Width, prepared->Height,
+      static_cast<unsigned long long>(source_hash),
+      static_cast<unsigned long long>(HashRgb565(prepared->GetPixels(), prepared->PitchBytes, prepared->Width, prepared->Height)));
+  e2e_stage::Log(detail);
+}
+
 SceneCanvas::SceneCanvas(bool inherit_background, const void* scene)
     : parent_(GR_Main::ScreenRenderBuffer), parent_aux_(GR_Main::AuxRenderBuffer),
       parent_scope_(g_active_canvas), started_ms_(e2e_clock::Microseconds() / 1000) {
   if (!parent_) return;
   nested_ = GI_MessageLoop::MessageLoopStack &&
       pas::list_count(GI_MessageLoop::MessageLoopStack) != 0;
+  auto* prepared = nested_ && parent_scope_ && parent_scope_->captured_ready_ ? parent_scope_->captured_ :
+      (!nested_ && g_captured_background.valid && g_captured_background.source == parent_ ? g_captured_background.buffer : nullptr);
+  const bool use_prepared = inherit_background && prepared &&
+      prepared->Width == parent_->Width && prepared->Height == parent_->Height;
+  // Capture freezes an intentional image. Cursor updates and save-preview
+  // rendering may change this same scene afterwards; they do not revoke it.
+  // Entry to another independent scene and child exit invalidate ownership.
   canvas_ = pas::construct_call<GR_GraphBuf::TGraphBufGR>(
       GR_GraphBuf::TGraphBufGR_Create, false);
   try {
@@ -216,18 +264,20 @@ SceneCanvas::SceneCanvas(bool inherit_background, const void* scene)
     }
     if (inherit_background) {
       aux->AllocateNativePitch(parent_->Width, parent_->Height, parent_->PitchBytes);
+      auto* backdrop = use_prepared ? prepared : parent_;
       GR_Main::Ex_OKGR_Copy_XY_XY_WORD(aux->GetPixels(), aux->PitchBytes, 0, 0,
-          parent_->GetPixels(), parent_->PitchBytes, 0, 0, parent_->Width, parent_->Height);
+          backdrop->GetPixels(), backdrop->PitchBytes, 0, 0, parent_->Width, parent_->Height);
     } else aux->Clear();
   } catch (...) { pas::free(canvas_); canvas_ = nullptr; throw; }
   GR_Main::AuxRenderBuffer = aux;
+  if (!nested_) g_captured_background.valid = false;
   GR_Main::ScreenRenderBuffer = canvas_;
   g_active_canvas = this;
   GR_Main::FullFrameRedrawRequested = true;
   char detail[160]{};
-  std::snprintf(detail, sizeof(detail), "scene canvas id=%u inherit=%u nested=%u aux_width=%d aux_height=%d",
+  std::snprintf(detail, sizeof(detail), "scene canvas id=%u inherit=%u nested=%u aux_width=%d aux_height=%d prepared=%u",
       static_cast<unsigned>(GlobalsV::CurrentScreenId), static_cast<unsigned>(inherit_background),
-      static_cast<unsigned>(nested_), aux->Width, aux->Height);
+      static_cast<unsigned>(nested_), aux->Width, aux->Height, static_cast<unsigned>(use_prepared));
   e2e_stage::Log(detail);
 }
 
@@ -239,6 +289,19 @@ SceneCanvas::~SceneCanvas() {
     GR_Main::Ex_OKGR_Copy_XY_XY_WORD(parent_->GetPixels(), parent_->PitchBytes, 0, 0,
         canvas_->GetPixels(), canvas_->PitchBytes, 0, 0, canvas_->Width, canvas_->Height);
   }
+  if (!nested_) {
+    // Transfer the closing scene's frozen image past OnClose/Clear. Nested
+    // previews keep their own captures and never consume/replace their parent's.
+    g_captured_background.valid = captured_ready_;
+    if (captured_ready_) {
+      pas::free(g_captured_background.buffer);
+      g_captured_background.buffer = captured_;
+      captured_ = nullptr;
+      g_captured_background.source = parent_;
+      g_captured_background.source_hash = captured_source_hash_;
+    }
+  }
+  pas::free(captured_);
   GR_Main::ScreenRenderBuffer = parent_;
   GR_Main::AuxRenderBuffer = parent_aux_;
   GR_Main::FullFrameRedrawRequested = true;
@@ -403,13 +466,22 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   if (const auto* directory = std::getenv("E2E511_HOST_FRAMES")) {
     static unsigned frame_counts[256]{};
     auto screen = static_cast<unsigned>(GlobalsV::CurrentScreenId);
+    bool registered_owner = false;
     if (GI_MessageLoop::MessageLoopStack && pas::list_count(GI_MessageLoop::MessageLoopStack)) {
       const auto top = pas::list_get(GI_MessageLoop::MessageLoopStack,
                                     pas::list_count(GI_MessageLoop::MessageLoopStack) - 1);
       for (unsigned id = 1; id < 42; ++id)
-        if (GlobalsV::RegisteredScreens[id] == top) { screen = id; break; }
+        if (GlobalsV::RegisteredScreens[id] == top) { screen = id; registered_owner = true; break; }
     }
     const auto frame = ++frame_counts[screen];
+    if (std::getenv("E2E515_HOST_FRAME_CAPTURE")) {
+      host_frame_capture::Requested(directory, screen, pixels, pitch, width, height,
+          GI_MessageLoop::MessageLoopStack ? pas::list_count(GI_MessageLoop::MessageLoopStack) : 0,
+          registered_owner,
+          GR_Main::AuxRenderBuffer ? GR_Main::AuxRenderBuffer->Width : 0,
+          GR_Main::AuxRenderBuffer ? GR_Main::AuxRenderBuffer->Height : 0,
+          HashRgb565(pixels, pitch, width, height));
+    }
     if (frame == 1 || frame == 60) {
       char path[1024]{};
       std::snprintf(path, sizeof(path), "%s/screen-%u-%u.ppm", directory, screen, frame);

@@ -290,7 +290,7 @@ jobs:
       - name: Build complete Linux host for native asset-free regressions
         run: python3 tools/e2e5_host_game_build.py --profile optimized --jobs 2
       - name: Scoped controller ownership and canvas lifecycle in real host objects
-        run: python3 tools/e2e515_engine_tests.py
+        run: python3 tools/e2e515_engine_tests.py --sanitize-scene
       - name: Original projection math and inline equivalence with ASan and UBSan
         run: python3 tools/e2e515_polygon_tests.py --inline
       - name: Controller message queue ownership with ASan and UBSan

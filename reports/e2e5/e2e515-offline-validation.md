@@ -2,7 +2,7 @@
 
 20.10.2026. **IN PROGRESS / PARTIAL. Цель не завершена.**
 
-Последнее обновление: пакет 10, проверка inlining исходной проекции. Разделы
+Последнее обновление: пакет 11, владельцы снимков и реальные переходы экранов. Разделы
 ранних пакетов сохраняют их исторические границы; сводная таблица в конце
 отражает текущий остаток требований.
 
@@ -305,14 +305,14 @@ python3 tools/e2e515_controller_route.py --load-save /path/inside/build/Проб
 | A2 Action/Context | PARTIAL: ядро, реальные scopes/очередь, OSK и динамические arcade contexts есть; suspend и полный controller-only route OPEN |
 | A3 controllers | PARTIAL: классификация/сброс есть; UI unsupported, dock/resume и hardware OPEN |
 | B два настоящих профиля, focus, RTS, touch, accessibility | PARTIAL: Hybrid/Cursor, spatial focus, прямые UI callbacks, параметры и рамка реализованы; полная матрица экранов/RTS/scroll/gestures OPEN |
-| C1 все реальные screen transitions, фон | OPEN; десять canvas unit cycles не заменяют переходы между настоящими экранами |
+| C1 все реальные screen transitions, фон | PARTIAL: исправлена потеря подготовленного snapshot через OnClose/вложенный preview; real generation/character/hangar/map и пять ship/menu/modal/return cycles, 34 frame checks PASS. Planet/shop/treatment/ruins/arcade и hardware OPEN |
 | C2 save fault injection / новый процесс / перелёт | PARTIAL: реальный 346-й ход → три хода → UI отказ/повтор → Unicode save → новый процесс/checkpoint compare PASS; manual transaction fault/process-stop/retry PASS (пакет 6). Новый межзвёздный перелёт, реальные no-space/permission и SD остаются непроверенными |
 | C3 generation → hangar → map controller route | Legacy real route PASS; raw pad menu/NewGame/settings и Unicode→generation→4 choices→hangar→takeoff→map PASS; остальные экраны OPEN |
 | D смерть/взрыв, overload 20/40/70/150/250, parity 500/1000, три perf пары | PARTIAL: шесть real-arena death/overload сценариев завершили host кадры, explosion/result callbacks PASS; pixel progression, input latency, replay/parity 500/1000, три perf пары и lifecycle OPEN |
 | E MatrixGame before/after units, новый real block, entry/resource pipeline | OPEN; текущий d3d9.h blocker ещё не закрыт |
 | F1 CI input | Core sanitizer suite, реальные owner/canvas tests и message-input ASan/UBSan включены в host workflow; удалённый CI не запускался/не проверялся |
 | F2/F3 runtime suites | PARTIAL/OPEN согласно строкам выше |
-| F4 full release NRO + matching ELF | OPEN; финальный кандидат этого цикла не выпускался |
+| F4 full release NRO + matching ELF | OPEN; preflight трёх профилей и current SDK compile девяти units PASS; финальный кандидат этого цикла не выпускался |
 | Отчёты perf/MG, SHA/provenance и hardware checklist | Perf PARTIAL с сырыми CSV/JSON; MG, финальная provenance и hardware checklist OPEN |
 
 Все аппаратные пункты остаются HARDWARE PENDING: фон, зависание при взрыве,
@@ -519,3 +519,27 @@ modes плюс 98304 memo checks PASS. DevkitA64 effective polygon COMPILE PASS,
 CI не запускался. Новых NRO и утверждений о Switch FPS нет. Обычные аппаратные
 тормоза, live repeatability, полный паритет сериализованного мира, input lag
 и teardown остаются OPEN.
+
+## Пакет 11: подготовленный фон принадлежит сцене
+
+Подтверждён и исправлен отдельный host-дефект: SceneCanvas терял подготовленный
+исходным CaptureScreenBackground результат. Snapshot теперь принадлежит scope
+сцены, переживает OnClose/Clear и не расходуется вложенной миниатюрой перед меню.
+Дочерние captures не заменяют snapshot родителя; самостоятельная сцена не
+наследует его. Это сохранение исходной подложки/эффектов, не дополнительная очистка
+всего кадра и не утверждение о первопричине аппаратного фона генерации.
+
+Baseline shaded-capture test FAIL; после правки 10 lifecycle cycles и пять
+engine tests PASS. ASan/UBSan/leak detection покрывают четыре renderer/GI units
+и тест; остальные game objects не инструментированы. Реальный raw-pad campaign
+route и пять ship/map/menu/exit-confirmation Cancel/map cycles PASS, 34 PPM/hashes
+проверены; по двум боковым областям меню после каждого Cancel 0 changed pixels.
+В пяти ship/menu entries `prepared=1`. Host SHA:
+`d310e45ad19fd32ad5ca47fb9dfbc6ff34d342b4023bf9560b25606228a9fbdd`.
+
+Preflight ordinary/combined/Save ON и devkitA64 compile девяти units PASS;
+imports/implementations не изменены, manifests обновлены по новым callsites.
+Исходные восемь файлов данных неизменны. Новых NRO/CI не было. Маршрут остановлен
+runner после завершения, full-game shutdown не проверен. Подробные границы,
+ранние FAIL тестового драйвера и команды в e2e515-scene-ownership.md; санитизированные
+метаданные в e2e515-scene-validation.json. Полный C1 и HARDWARE остаются открытыми.

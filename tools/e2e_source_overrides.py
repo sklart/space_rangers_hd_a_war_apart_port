@@ -3406,6 +3406,15 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
         text = _replace_exact(text, 'GR_Main::GR_WinMessage(this->bind_ProcessWindowMessage())',
             '(srhd_awa::platform::controller_screen_context::Refresh(this), GR_Main::GR_WinMessage(this->bind_ProcessWindowMessage()))',
             2, source.name)
+    if source.name == 'GR_Main.cpp':
+        capture = '    void CaptureScreenBackground(std::uint8_t ApplyEffects, std::uint8_t UnusedOption) {'
+        assert text.count(capture) == 1
+        start = text.index(capture)
+        end = text.index('\n    }', start)
+        text = text[:end] + '''
+#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
+        srhd_awa::platform::renderer_platform::PreserveCapturedBackground();
+#endif''' + text[end:]
     destination.parent.mkdir(parents=True, exist_ok=True)
     if not destination.exists() or destination.read_text(encoding="utf-8") != text:
         destination.write_text(text, encoding="utf-8")

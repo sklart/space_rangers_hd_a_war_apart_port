@@ -1,4 +1,4 @@
-"""Compile actual effective input/message-loop units, without making a test NRO."""
+"""Compile actual effective input/scene units, without making a test NRO."""
 import hashlib
 import json
 from pathlib import Path
@@ -31,6 +31,9 @@ def main():
     edit = ROOT / mapping['upstream/cpp/src/GI_Edit.cpp']
     arcade = ROOT / mapping['upstream/cpp/src/ab_MainForm.cpp']
     galaxy = ROOT / mapping['upstream/cpp/src/aGalaxy.cpp']
+    gr_main = ROOT / mapping['upstream/cpp/src/GR_Main.cpp']
+    if gr_main.read_text().count('renderer_platform::PreserveCapturedBackground();') != 1:
+        raise RuntimeError('Prepared backdrop ownership hook missing from effective GR_Main')
     text = loop.read_text()
     if text.count('InputContextScope e2e_input_owner(') != 2 or text.count('e2e_input_owner.CancelHeldInput();') != 2:
         raise RuntimeError('Both real loops must enter and cancel scoped input')
@@ -48,7 +51,8 @@ def main():
     results = []
     for source in (ROOT / 'port/switch/platform/input_platform.cpp',
                    ROOT / 'port/switch/platform/win32_compat_messages.cpp', loop, edit, arcade, galaxy,
-                   ROOT / 'port/switch/platform/e2e4_quicksave_transaction.cpp'):
+                   ROOT / 'port/switch/platform/e2e4_quicksave_transaction.cpp', gr_main,
+                   ROOT / 'port/switch/platform/renderer_platform.cpp'):
         obj = OUTPUT / (source.stem + '.o')
         command = [config['compiler'], *flags, '-c', str(source), '-o', str(obj)]
         result = subprocess.run(command, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -64,7 +68,8 @@ def main():
                 'input_platform.hpp', 'win32_compat_messages.hpp', 'e2e5_text_input.hpp',
                 'controller_text_input.hpp', 'controller_text_entry.hpp',
                 'controller_profiles.hpp', 'controller_focus.hpp',
-                'controller_messages.hpp', 'controller_ui.hpp', 'e2e515_save_checkpoint.hpp')}
+                'controller_messages.hpp', 'controller_ui.hpp', 'e2e515_save_checkpoint.hpp',
+                'renderer_platform.hpp')}
     report.write_text(json.dumps({'status': 'COMPILE PASS', 'linked': False, 'hardware_executed': False,
                                  'compiler': config['compiler'], 'flags': flags,
                                  'headers_sha256': headers, 'objects': results}, indent=2) + '\n')

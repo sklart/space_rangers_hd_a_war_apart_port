@@ -1,0 +1,196 @@
+{
+  "status": "PARTIAL: scoped host fix verified; full C1 and hardware pending",
+  "hardware_executed": false,
+  "host_binary_sha256": "d310e45ad19fd32ad5ca47fb9dfbc6ff34d342b4023bf9560b25606228a9fbdd",
+  "base_git": "18514bce92194ff51e35bea67d9f25218bb59117",
+  "build_dirty": true,
+  "source_sha256": {
+    "port/switch/platform/renderer_platform.cpp": "07356e6b54516b37d6206188a0111eb137bc65c6f904107d5806ce1bf64574e9",
+    "port/switch/platform/renderer_platform.hpp": "a7c642a97b4115562c0cd2a4a7984aadc37a219c0fc6bdc343ab6acf333a1bdd",
+    "port/switch/platform/e2e515_host_frame_capture.hpp": "7456159381c2ef90f16b6630ef2dd7abd4cdad3e12984e49f283677afbd21eff",
+    "tools/e2e_source_overrides.py": "79095e8a7f7ba2c9e1d7746b43763876caac86805180af5608f0bea2f618097b"
+  },
+  "regression": "Original prepared/shaded CaptureScreenBackground result was replaced by raw parent canvas; baseline scene assertion failed; fixed owner-specific snapshot survives Clear and nested previews",
+  "engine_tests": [
+    {
+      "name": "runtime-loop",
+      "status": "PASS",
+      "stdout": "M12 runtime loop regression PASS frames=120+120\n",
+      "test_sha256": "965d8dcf2f698e19622bd459d24c3914b6e6c16e8a2c776059c241020f7388e9",
+      "binary_sha256": "c8ad5570bcbb70844d7b57f1aa0297abf5b2067892d7f1dc9124f9a57710749d"
+    },
+    {
+      "name": "scene-canvas",
+      "status": "PASS",
+      "stdout": "PASS 10 cycles: prepared capture survives Clear and later parent draws, single consumption, child/independent invalidation, parent restore and exception unwind\n",
+      "test_sha256": "d2908fe1fdb9d5a00b053b9b743113766081b32235aef5d360e52bb4c3a223b8",
+      "binary_sha256": "8d953e9ccf0a871adece642d36f939d9253592d248b8b496164e95b07e970e5f"
+    },
+    {
+      "name": "screen-context",
+      "status": "PASS",
+      "stdout": "PASS real TfAB/TObjectGI/TGraphButtonGI/TEditGI cancellation, fixed toggle, 10 stack/owner unwinds, injected OSK Unicode/Cancel/exception; no battle or native applet executed\n",
+      "test_sha256": "4ce41412a936e023869ee1e351d906faff0c62bd19bc03e35e5ecee3b5383a1f",
+      "binary_sha256": "24fb84de445da44ac737fdb206e059e9c609889bc72181ba41a9f62bf055d66e"
+    },
+    {
+      "name": "native-focus",
+      "status": "PASS",
+      "stdout": "PASS real native buttons via injected pad, focus frame, disabled/hidden exclusion, no held/replay click, cursor fallback, focus restoration and settings write refusal\n",
+      "test_sha256": "d80474453cda7dd67c20a868d650b3df15e720e489de0973723f25856375e932",
+      "binary_sha256": "8310c335578a5965e498477a2ad7ad9def2439c6aca63faa42f0c4447a487585"
+    },
+    {
+      "name": "sanitized-scene",
+      "status": "PASS",
+      "stdout": "PASS 10 cycles: prepared capture survives Clear and later parent draws, single consumption, child/independent invalidation, parent restore and exception unwind\n",
+      "instrumented_units": [
+        "renderer_platform",
+        "GR_Main",
+        "GR_GraphBuf",
+        "GI_MessageLoop"
+      ],
+      "remaining_game_units_instrumented": false,
+      "leak_detection": true,
+      "binary_sha256": "20d4a6eec8023131bf99cf666bcb415f019a57c16f2acf4509a8b05ecb175c85"
+    }
+  ],
+  "route_run": "a8d8875e123a4395891731ef6a22a9d2",
+  "route_cycles": 5,
+  "verified_frames": 34,
+  "ship_prepared_entries": 5,
+  "menu_prepared_entries": 5,
+  "generation_fragment_check": {
+    "status": "PASS",
+    "suspicious_frames": [],
+    "positive_controls": {
+      "raw": true,
+      "shade": true,
+      "grayscale": true,
+      "shade_grayscale": true
+    },
+    "scope": "Recorded host frames only: raw/shaded/grayscale exact 64px generation fragments and two frozen menu side regions; not all screens or all possible stale layers"
+  },
+  "parent_regions": [
+    [
+      0,
+      0,
+      320,
+      600
+    ],
+    [
+      1024,
+      160,
+      1280,
+      600
+    ]
+  ],
+  "restoration": [
+    {
+      "cycle": 1,
+      "changed_pixels": [
+        0,
+        0
+      ],
+      "nested_owner_verified": true
+    },
+    {
+      "cycle": 2,
+      "changed_pixels": [
+        0,
+        0
+      ],
+      "nested_owner_verified": true
+    },
+    {
+      "cycle": 3,
+      "changed_pixels": [
+        0,
+        0
+      ],
+      "nested_owner_verified": true
+    },
+    {
+      "cycle": 4,
+      "changed_pixels": [
+        0,
+        0
+      ],
+      "nested_owner_verified": true
+    },
+    {
+      "cycle": 5,
+      "changed_pixels": [
+        0,
+        0
+      ],
+      "nested_owner_verified": true
+    }
+  ],
+  "source_configs_unchanged": true,
+  "normal_shutdown_verified": false,
+  "runner_stopped_after_completion": true,
+  "sdk": {
+    "status": "COMPILE PASS",
+    "linked": false,
+    "objects": [
+      {
+        "source": "input_platform.cpp",
+        "source_sha256": "ec4d40cd3f2cf339cb1804423e5532df54b001fe35a865776ab8455b725d992e",
+        "object_sha256": "8e203275128e2f0609725ad442e4c99593c59c8d1a4b6ea8f9235a8b87d04a47"
+      },
+      {
+        "source": "win32_compat_messages.cpp",
+        "source_sha256": "4487ba989c5b3c0d321c8d4ca1c2eba4db8e33252d48dd22e9f6c5532aaae6c9",
+        "object_sha256": "5ed0d04eaf5189e3af4da1e4feb5ba4de9c93906724338fbc985aec7428b4f7d"
+      },
+      {
+        "source": "GI_MessageLoop.cpp",
+        "source_sha256": "c135fcc96727af77dc94f6a7bb6e7a926beaab68e391740f79cb612c282dfd55",
+        "object_sha256": "a7d3a19d96b1c1ebb096039ddfd6195c7a383e71b18b1db116108b9656c5bf6f"
+      },
+      {
+        "source": "GI_Edit.cpp",
+        "source_sha256": "4b5b6a8a6d167df026f00552fb6e35bca82a6b7ba6b4ba284c5e71eec1de12d1",
+        "object_sha256": "1067902f81a647025401dba481572c949e53d8299d366339927c3e6b4fe7975a"
+      },
+      {
+        "source": "ab_MainForm.cpp",
+        "source_sha256": "c997afc15381642dcf88a5d105eca35ca2169ea47500f9445d099b65ce1e3547",
+        "object_sha256": "be708fc295d107851d57c958e450e20a7284ea7111f25adf008e7b609fa04b1c"
+      },
+      {
+        "source": "aGalaxy.cpp",
+        "source_sha256": "4fe538e0a22aa76205d70c78ae8f2c212ff918c9560508685dd05d04ffc74c94",
+        "object_sha256": "dbfc433118fe7660317cb156ae8a2b186f54b99dfb389fcc9c16b77d7650f2d4"
+      },
+      {
+        "source": "e2e4_quicksave_transaction.cpp",
+        "source_sha256": "8b655be6492fbe5771cd094c98f030a4d43bed5ae8c931a3e7a99bd7e04c0316",
+        "object_sha256": "fc9b809bd4dec8e5ac22eaebd6f6cb6f0a49dc8c42344deebf034fdef8a1f37d"
+      },
+      {
+        "source": "GR_Main.cpp",
+        "source_sha256": "e7c9156cdcfe9c5cbcbb5b3c10fab1ce3cbea4bba04168e1c8c8d66190ba0196",
+        "object_sha256": "292ecadadaa1441191d3b5804bb8a2b3a56b6b3666a8ebe4ac5a1eef07e6c236"
+      },
+      {
+        "source": "renderer_platform.cpp",
+        "source_sha256": "07356e6b54516b37d6206188a0111eb137bc65c6f904107d5806ce1bf64574e9",
+        "object_sha256": "c3b71b2f39dd92471a10b8d7cd117a4be69133002900cc6bed8277071aabefb0"
+      }
+    ]
+  },
+  "preflight_profiles": [
+    "ordinary PASS",
+    "combined PASS",
+    "save-test PASS"
+  ],
+  "original_data_integrity": "8 files unchanged",
+  "open": [
+    "Actual Switch defect/root-cause confirmation",
+    "Planet, shops, treatment, ruins, arcade and other screen transitions",
+    "Full process teardown and full-game sanitizer execution",
+    "Final release NRO and matching ELF"
+  ]
+}

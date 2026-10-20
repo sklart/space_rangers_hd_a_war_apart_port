@@ -29,7 +29,10 @@ def main():
     parser.add_argument('--resave-name', help='After loading, write a new slot using host OSK')
     parser.add_argument('--expect-checkpoint', type=Path, help='Compare the loaded state to a prior route result')
     parser.add_argument('--label', help='Separate result folder under build/e2e515')
+    parser.add_argument('--scene-cycles', type=int, default=0, help='After campaign takeoff, repeat real ship/menu/modal/return transitions with requested frame captures')
     args = parser.parse_args()
+    if not 0 <= args.scene_cycles <= 10 or (args.scene_cycles and not args.campaign):
+        parser.error('--scene-cycles requires --campaign and a count between 1 and 10')
     if args.save and not args.campaign:
         parser.error('--save requires --campaign')
     if args.fail_save_once and not (args.save or args.resave_name):
@@ -92,6 +95,8 @@ def main():
                E2E511_HOST_FRAMES=str(frames.resolve()))
     if args.campaign:
         env['E2E515_HOST_ROUTE_OSK'] = '1'
+    if args.scene_cycles:
+        env['E2E515_HOST_FRAME_CAPTURE'] = '1'
     if args.resave_name:
         env.update(E2E515_HOST_ROUTE_OSK='1', E2E515_HOST_SAVE_NAME=args.resave_name)
     if args.save or args.load_save:
@@ -105,8 +110,14 @@ def main():
               'normal_shutdown_verified': False}
     if source_save:
         report.update(source_save_path=str(source_save), source_save_sha256=source_digest)
-    result_path = OUTPUT / 'result.json'
-    result_path.write_text(json.dumps(report, indent=2))
+    result_path = stage / 'result.json'
+
+    def publish_report():
+        content = json.dumps(report, indent=2) + '\n'
+        result_path.write_text(content)
+        (OUTPUT / 'result.json').write_text(content)
+
+    publish_report()
     with (stage / 'stdout.log').open('wb') as out, (stage / 'stderr.log').open('wb') as err:
         process = subprocess.Popen([str(binary)], cwd=stage, env=env, stdout=out, stderr=err)
 
@@ -203,7 +214,22 @@ def main():
             raw(mask, duration)
             raw(0)
 
-        def select(name):
+        def capture(screen, label):
+            samples = report.setdefault('scene_frames', [])
+            sequence = len(samples) + 1
+            temporary = frames / 'frame-request.tmp'
+            temporary.write_text(f'{sequence} {screen}\n')
+            temporary.replace(frames / 'frame-request.txt')
+            metadata = frames / f'frame-{sequence}.json'
+            wait(lambda text: metadata.exists(), 'presented frame capture ' + label)
+            data = json.loads(metadata.read_text())
+            if not data['complete'] or data['screen'] != screen:
+                raise RuntimeError('Requested frame capture failed: ' + label)
+            samples.append(dict(label=label, **data))
+
+        def select(name, remaining=128):
+            if remaining <= 0:
+                raise RuntimeError('Focus route did not converge: ' + name)
             wait(lambda text: any(node[2] == name for node in graph()[2]), 'focus target ' + name)
             scope, selected, nodes = graph()
             target = next(node[0] for node in nodes if node[2] == name)
@@ -241,9 +267,16 @@ def main():
                 raise RuntimeError('Native focus target unreachable: ' + name)
             # This is a navigation plan, not a mocked game result: observe every
             # actual focus change and fail if the game takes a different edge.
-            for key, reached in path:
-                pulse(key)
-                wait(lambda text: state()[:2] == (scope, reached), 'actual focus step to ' + name)
+            for key, reached in path[:1]:
+                # One graph edge per press. Do not intentionally hold navigation
+                # while waiting on diagnostic log I/O: that permits real repeats.
+                pulse(key, 0)
+                wait(lambda text: state()[:2] == (scope, reached) or
+                     (graph()[0] == scope and graph()[1] != selected and graph()[2] != nodes),
+                     'actual focus step to ' + name)
+                # Opening panels and hover sequences can move/resize real hit
+                # boxes. Replan from the newly published graph after every edge.
+                return select(name, remaining - 1)
 
         def save_world(name, accept, cancel):
             select('PM_Logo')
@@ -394,6 +427,7 @@ def main():
                     wait(lambda text: 'screen dispatch id=3 ' in text[at:] and
                          'introduction status=continue-enabled' in text[at:], 'real world generation', 180)
                     report['world_generation_complete'] = True
+                    if args.scene_cycles: capture(3, 'generation-ready')
                     select('Ok')
                     at = len(lines())
                     pulse(1)
@@ -408,6 +442,7 @@ def main():
                         if 'screen dispatch id=4 ' in lines()[at:]:
                             break
                         available = [node for node in graph()[2] if node[2].startswith('DialogChoice')]
+                        if args.scene_cycles and not choices_taken: capture(20, 'character-dialog')
                         select(min(available, key=lambda node: node[1][1])[2])
                         callbacks = lines().count('dialog choice callback complete')
                         ready_after = len(lines())
@@ -420,6 +455,7 @@ def main():
                          'real hangar after character introduction')
                     report['native_dialog_choices'] = choices_taken
                     report['hangar_opened'] = True
+                    if args.scene_cycles: capture(4, 'hangar')
                     select('ButTakeOff')
                     at = len(lines())
                     pulse(1)
@@ -427,6 +463,34 @@ def main():
                          'HOST map orders ready' in text[at:], 'real takeoff and star map', 90)
                     report.update(status='PASS', map_orders_ready=True,
                                   scope='raw pad campaign through Unicode OSK, generation, character choices, hangar and takeoff to map')
+                    if args.scene_cycles:
+                        report['status'] = 'RUNNING'
+                        capture(16, 'map-initial')
+                        for cycle in range(1, args.scene_cycles + 1):
+                            select('PM_Ship'); at = len(lines()); pulse(1)
+                            wait(lambda text: 'screen dispatch id=10 ' in text[at:] and
+                                 'screen Run first frame attempted' in text[text.rfind('screen dispatch id=10 '):], 'ship overlay')
+                            capture(10, f'cycle-{cycle}-ship')
+                            select('Exit'); at = len(lines()); pulse(1)
+                            wait(lambda text: 'screen dispatch id=16 ' in text[at:] and
+                                 'HOST map orders ready' in text[at:], 'ship returns to map', 90)
+                            capture(16, f'cycle-{cycle}-map-after-ship')
+                            select('PM_Logo'); at = len(lines()); pulse(1)
+                            wait(lambda text: 'screen dispatch id=25 ' in text[at:] and
+                                 'screen Run first frame attempted' in text[text.rfind('screen dispatch id=25 '):], 'game menu')
+                            select('Exit'); capture(25, f'cycle-{cycle}-menu-before-modal')
+                            parent = state()[0]; pulse(1)
+                            wait(lambda text: state()[0] != parent and state()[2] > 0, 'real exit confirmation')
+                            capture(25, f'cycle-{cycle}-exit-confirmation')
+                            pulse(2)
+                            wait(lambda text: state()[0] == parent, 'cancel exit returns to same menu owner')
+                            capture(25, f'cycle-{cycle}-menu-after-modal')
+                            select('Resume'); at = len(lines()); pulse(1)
+                            wait(lambda text: 'screen dispatch id=16 ' in text[at:] and
+                                 'HOST map orders ready' in text[at:], 'menu returns to map', 90)
+                            capture(16, f'cycle-{cycle}-map-after-menu')
+                        report.update(status='PASS', scene_cycles=args.scene_cycles,
+                                      scope='real campaign and repeated raw-pad ship/menu/exit-confirmation cancellation; frame analysis pending')
                     if args.save:
                         report['status'] = 'RUNNING'
                         report.update(save_world('Проба Ёж',
@@ -496,7 +560,7 @@ def main():
         report['source_save_unchanged'] = hashlib.sha256(source_save.read_bytes()).hexdigest() == source_digest
         if not report['source_save_unchanged']:
             report.update(status='FAIL', error='Input save fixture changed')
-    result_path.write_text(json.dumps(report, indent=2) + '\n')
+    publish_report()
     print(json.dumps(report, indent=2), flush=True)
     if report['status'] != 'PASS':
         raise SystemExit(1)

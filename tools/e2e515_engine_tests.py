@@ -1,4 +1,5 @@
 """Link focused tests to the complete effective host game without editing upstream."""
+import argparse
 import hashlib
 import json
 from pathlib import Path
@@ -22,6 +23,9 @@ def run(command, name, cwd=ROOT):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--sanitize-scene', action='store_true', help='Instrument renderer, graph buffers, GR_Main, GI loop and the scene lifecycle test; other game objects remain uninstrumented')
+    args = parser.parse_args()
     OUTPUT.mkdir(parents=True, exist_ok=True)
     report = OUTPUT / 'result.json'
     report.write_text(json.dumps({'status': 'RUNNING'}))
@@ -86,6 +90,32 @@ def main():
                                 'test_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
                                 'binary_sha256': hashlib.sha256(binary.read_bytes()).hexdigest()})
                 print(f'{name}: PASS', flush=True)
+            if args.sanitize_scene:
+                sanitizer_flags = ['-fsanitize=address,undefined', '-fno-omit-frame-pointer']
+                selected = {'renderer_platform': ROOT / 'port/switch/platform/renderer_platform.cpp'}
+                for unit in ('GR_Main', 'GR_GraphBuf', 'GI_MessageLoop'):
+                    selected[unit] = ROOT / build_report['source_map'][f'upstream/cpp/src/{unit}.cpp']
+                replacements = {}
+                for unit, source in selected.items():
+                    obj = staging / ('sanitized-' + unit + '.o')
+                    run(['g++', *flags, *sanitizer_flags, '-c', str(source), '-o', str(obj)], 'sanitized-' + unit)
+                    replacements[unit] = obj
+                response = staging / 'sanitized-objects.rsp'
+                response.write_text('\n'.join(str(replacements.get(source.stem, objects[i]))
+                                             for i, source in enumerate(original)) + '\n')
+                source = ROOT / 'tests/test_e2e513_scene_canvas.cpp'
+                obj = staging / 'sanitized-test.o'
+                run(['g++', *flags, *sanitizer_flags, '-c', str(source), '-o', str(obj)], 'sanitized-scene-compile')
+                binary = staging / 'sanitized-scene'
+                run(['g++', *sanitizer_flags, '@' + str(response), str(obj), '-Wl,--gc-sections',
+                     str(library), '-Wl,-rpath,' + str(library.parent), '-lz', '-lpng', '-ljpeg',
+                     '-lvorbisfile', '-lvorbis', '-logg', '-lSDL2', '-lm', '-pthread', '-o', str(binary)], 'sanitized-scene-link')
+                output = run(['env', 'ASAN_OPTIONS=detect_leaks=1:halt_on_error=1',
+                              'UBSAN_OPTIONS=halt_on_error=1', str(binary)], 'sanitized-scene-run', cwd=staging)
+                results.append(dict(name='sanitized-scene', status='PASS', stdout=output,
+                                    instrumented_units=list(selected), remaining_game_units_instrumented=False,
+                                    leak_detection=True, binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest()))
+                print('sanitized-scene: PASS', flush=True)
     except Exception as error:
         report.write_text(json.dumps({'status': 'FAIL', 'error': str(error), 'tests': results}, indent=2))
         raise

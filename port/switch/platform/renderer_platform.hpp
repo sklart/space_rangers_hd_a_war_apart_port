@@ -18,16 +18,24 @@ public:
   SceneCanvas& operator=(const SceneCanvas&) = delete;
   std::uint64_t NestedMillis() const { return nested_millis_; }
 private:
+  friend void PreserveCapturedBackground();
   GR_GraphBuf::TGraphBufGR* parent_{};
   GR_GraphBuf::TGraphBufGR* canvas_{};
   GR_GraphBuf::TGraphBufGR* parent_aux_{};
   SceneCanvas* parent_scope_{};
+  GR_GraphBuf::TGraphBufGR* captured_{};
+  std::uint64_t captured_source_hash_{};
+  bool captured_ready_{};
   std::uint64_t started_ms_{}, nested_millis_{};
   bool nested_{};
 };
 
 // Time spent in child message loops is paused time for the caller's arcade.
 std::uint64_t NestedLoopMillis();
+
+// Own the result of CaptureScreenBackground across the caller's OnClose/Clear.
+// The next overlay may consume it only from that same scene owner.
+void PreserveCapturedBackground();
 
 struct RendererConfig {
   std::int32_t game_width{1280};

@@ -2,6 +2,7 @@
 #include "units/GR_Main.hpp"
 #include "units/GR_GraphBuf.hpp"
 #include "units/GI_MessageLoop.hpp"
+#include "units/GlobalsV.hpp"
 #include <cassert>
 #include <cstdint>
 #include <cstdio>
@@ -20,6 +21,8 @@ int main() {
     original_aux->AllocateNative(64, 48);
     original_aux->FillPixels16(0xf800);
     auto pixel = [] { return *static_cast<std::uint16_t*>(GR_Main::ScreenRenderBuffer->GetPixels()); };
+    auto aux_pixel = [] { return *static_cast<std::uint16_t*>(GR_Main::AuxRenderBuffer->GetPixels()); };
+    std::uint16_t sequential_prepared{};
     original->FillPixels16(0xf800); // Unrelated preceding generation scene.
     {
         renderer::SceneCanvas scene(false);
@@ -45,12 +48,49 @@ int main() {
         assert(GR_Main::AuxRenderBuffer == scene_aux);
         assert(renderer::NestedLoopMillis() >= 2);
         assert(*static_cast<std::uint16_t*>(scene_aux->GetPixels()) == 0x001f);
+        const auto old_shade = GlobalsV::BackgroundShade;
+        const auto old_grayscale = GlobalsV::BackgroundGrayscale;
+        GlobalsV::BackgroundShade = true;
+        GlobalsV::BackgroundGrayscale = false;
+        GR_Main::CaptureScreenBackground(true, false);
+        const auto prepared = *static_cast<std::uint16_t*>(scene_aux->GetPixels());
+        assert(prepared != pixel());
+        {
+            renderer::SceneCanvas modal(true);
+            // The caller explicitly prepared this parent's shaded background.
+            assert(*static_cast<std::uint16_t*>(GR_Main::AuxRenderBuffer->GetPixels()) == prepared);
+        }
+        GlobalsV::BackgroundShade = old_shade;
+        GlobalsV::BackgroundGrayscale = old_grayscale;
+        {
+            renderer::SceneCanvas modal(true);
+            assert(aux_pixel() == prepared); // Another nested preview preserves the parent's snapshot.
+        }
+        GR_Main::CaptureScreenBackground(false, false);
+        GR_Main::ScreenRenderBuffer->FillPixels16(0x07e0);
+        {
+            renderer::SceneCanvas modal(true);
+            assert(aux_pixel() == 0x001f); // Explicit snapshot remains frozen as the parent draws.
+            GR_Main::ScreenRenderBuffer->FillPixels16(0xffff);
+            GR_Main::CaptureScreenBackground(false, false);
+        }
+        {
+            renderer::SceneCanvas modal(true);
+            assert(aux_pixel() == 0x001f); // Child cannot replace the parent's frozen capture.
+        }
+        GR_Main::ScreenRenderBuffer->FillPixels16(0x001f);
         try {
             renderer::SceneCanvas modal(true);
             GR_Main::ScreenRenderBuffer->FillPixels16(0xffff);
             throw std::runtime_error("modal interrupted");
         } catch (const std::runtime_error&) {}
         assert(GR_Main::ScreenRenderBuffer == parent && pixel() == 0x001f);
+        GlobalsV::BackgroundShade = true;
+        GR_Main::CaptureScreenBackground(true, false);
+        sequential_prepared = aux_pixel();
+        // Real screen OnClose paths clear this borrowed buffer before dispatch.
+        scene_aux->Clear();
+        GlobalsV::BackgroundShade = old_shade;
         GI_MessageLoop::PopMessageLoop(loop);
     }
     assert(GR_Main::ScreenRenderBuffer == original && pixel() == 0x001f);
@@ -58,14 +98,25 @@ int main() {
     {
         renderer::SceneCanvas overlay(true);
         assert(pixel() == 0x001f); // Fullscreen overlay can capture OnOpen's parent.
+        assert(aux_pixel() == sequential_prepared); // Survives caller OnClose/Clear.
     }
+    {
+        renderer::SceneCanvas overlay(true);
+        assert(aux_pixel() == 0x001f); // Sequential transfer is consumed only once.
+    }
+    GR_Main::CaptureScreenBackground(false, false);
     {
         renderer::SceneCanvas next(false);
         assert(pixel() == 0); // New scene cannot inherit the previous one.
+    }
+    original->FillPixels16(0x07e0);
+    {
+        renderer::SceneCanvas overlay(true);
+        assert(aux_pixel() == 0x07e0); // Independent scene discarded pending capture.
     }
     renderer::ShutdownSoftwareRenderer();
     pas::free(GI_MessageLoop::MessageLoopStack);
     GI_MessageLoop::MessageLoopStack = nullptr;
   }
-  std::puts("PASS 10 cycles: actual renderer canvas isolation, parent restore and exception unwind");
+  std::puts("PASS 10 cycles: prepared capture survives Clear and later parent draws, single consumption, child/independent invalidation, parent restore and exception unwind");
 }
