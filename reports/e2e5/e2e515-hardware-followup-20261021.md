@@ -203,8 +203,19 @@ Release ARM64 Save ON / Audio ON, undefined symbols=0, 298 game units,
 
 Source Git SHA: `e594e5dd9e77defad971a46fa3885f0c30108d00`.
 Build ID: `376344d2587b08d19dd7ef05f7db15067082782e`.
-Точное имя итогового ZIP и его хэш фиксируются после проверки упаковки;
-переупаковка README/manifest не пересобирает и не меняет сегменты NRO.
+Итоговый комплект:
+`build/e2e515/hardware-scene-e594e5d-verified.zip`, 26898459 байт.
+SHA-256: `cbc1dfd4226f21e4d62cdda13e8d3398312191a00c16ba8255e5304cd2a0625a`.
+Packaging Git SHA: `6bf58bb5aa42a7972a4e46583929d22db81bc382`.
+ZIP CRC, все SHA256SUMS, source SHA, Save ON, matching Build ID и сохранённые
+символы/строки scene diagnostics проверены. В комплекте README-test.md,
+build-report.json, manifest.json, source hashes и оба скрипта анализа.
+Уточнение README/manifest не пересобирало и не изменяло сегменты NRO.
+
+Повторно проверены SHA 19 извлечённых файлов, оригинальных D:/logs.zip и MP4,
+а также прежнего save-fix ZIP — неизменны. Восемь исходных пользовательских
+файлов по data-baseline также неизменны. Итоговый диагностический вариант
+предъявляется один; старые immutable комплекты не заменялись.
 
 Аппаратные приёмки сохранений, фонов, актуальности карты и темпа аркады
 остаются HARDWARE PENDING. Наличие диагностической NRO не закрывает P0.
