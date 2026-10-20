@@ -19,3 +19,12 @@ target_link_libraries(matrixgame-deko-mesh-probe PRIVATE matrixgame-native-deko)
 target_link_options(matrixgame-deko-mesh-probe PRIVATE
   "-specs=${MATRIXGAME_DEVKITPRO}/libnx/switch.specs" -fPIE -Wl,--gc-sections -Wl,--build-id=sha1)
 set_target_properties(matrixgame-deko-mesh-probe PROPERTIES SUFFIX ".elf")
+
+# Separate physical smoke launcher. Never linked into the main game target.
+add_executable(matrixgame-gpu-smoke EXCLUDE_FROM_ALL "${PORT_ROOT}/tests/probe_matrixgame_gpu_smoke.cpp")
+target_include_directories(matrixgame-gpu-smoke PRIVATE "${MATRIXGAME_SHADER_DIR}")
+target_compile_definitions(matrixgame-gpu-smoke PRIVATE MATRIXGAME_SMOKE_GIT="${MATRIXGAME_SMOKE_GIT}")
+target_link_libraries(matrixgame-gpu-smoke PRIVATE matrixgame-native-deko)
+target_link_options(matrixgame-gpu-smoke PRIVATE
+  "-specs=${MATRIXGAME_DEVKITPRO}/libnx/switch.specs" -fPIE -Wl,--gc-sections -Wl,--build-id=sha1)
+set_target_properties(matrixgame-gpu-smoke PROPERTIES SUFFIX ".elf")
