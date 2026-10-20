@@ -38,7 +38,8 @@ def main():
     nm=subprocess.check_output([str(sdk/('devkitA64/bin/aarch64-none-elf-nm'+suffix)),'-C',str(original_elf)],text=True)
     # CpuMicros is inlined into Scope in Release; inspect the retained scopes
     # and their exact compiled-source hashes rather than requiring that symbol.
-    for name in ['perf515::Initialize','perf515::Frame','perf515::TickBatch','perf515::Scope','perf515::Record','TfAB::TimerTakt','swkbdShow']:
+    for name in ['perf515::Initialize','perf515::Frame','perf515::TickBatch','perf515::Scope','perf515::Record','perf515::SceneImage',
+                 'renderer_platform::SceneFrameBegin','renderer_platform::SceneCache','TfAB::TimerTakt','swkbdShow']:
         assert name in nm,name
     for name in ['DekoBufferRenderer','DekoMeshRenderer','pcvSetClockRate','clkrstSetClockRate','sysclkIpcSet']:
         assert name not in nm,name
@@ -58,6 +59,8 @@ def main():
     assert matching_build_id(new,elf.read_bytes())==r['build_id']
     assert ('build_git='+r['build_git'][:7]).encode() in new
     assert b'perf515.csv' in new and b'perf515-stage.log' in new
+    for marker in [b'scene-mode.txt',b'compose-before',b'present-input',b'load-from-screen-failed']:
+        assert marker in new,marker
     (out/'analysis').mkdir()
     shutil.copyfile(ROOT/'tools/e2e515_perf_analyze.py',out/'analysis/e2e515_perf_analyze.py')
     shutil.copyfile(ROOT/'docs/e2e515-performance-diagnostics.md',out/'README-RU.md')
@@ -80,7 +83,9 @@ def main():
     (out/'source-sha256.json').write_text(json.dumps(local,indent=2)+'\n')
     summary=dict(source_commit=r['build_git'],packaging_commit=subprocess.check_output([str(git),'rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
         build_id=r['build_id'],build_dirty=r['build_dirty'],hardware='PENDING; no Switch run received',
-        profile='Release Save ON Audio ON; performance diagnostics; E2E3/PPM OFF',
+        profile='Release Save ON Audio ON; performance diagnostics; E2E3/legacy PPM OFF; scene snapshots opt-in',
+        scene_diagnostics=dict(setting='scene-mode.txt=on',default='off',images_per_run=48,
+            image_size=[640,360],rgb565_queue_slots=4,filesystem_writer='background thread',gpu_readback=False),
         game_units=298,link_objects=r['link_objects'],source_inputs_hashed=len(local),
         packaging='hbmenu diagnostic title changed; loaded text/ro/data segments verified byte-identical to built NRO',
         artifacts={p.relative_to(out).as_posix():dict(bytes=p.stat().st_size,sha256=sha(p)) for p in [nro,elf]},

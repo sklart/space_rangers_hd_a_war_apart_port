@@ -109,9 +109,9 @@ def main():
                E2E511_HOST_FRAMES=str(frames.resolve()))
     if args.campaign:
         env['E2E515_HOST_ROUTE_OSK'] = '1'
-    if args.scene_cycles or args.planet_cycles or args.trade_dialog or args.expect_checkpoint or args.interstellar:
+    if args.scene_cycles or args.planet_cycles or args.trade_dialog or args.expect_checkpoint or args.interstellar or args.advance_turns:
         env['E2E515_HOST_FRAME_CAPTURE'] = '1'
-    if args.interstellar:
+    if args.interstellar or args.advance_turns:
         env.update(E2E515_FLIGHT_ROUTE='1', E2E515_GALAXY_SNAPSHOT=str((stage / 'galaxy.json').resolve()))
     if args.resave_name:
         env.update(E2E515_HOST_ROUTE_OSK='1', E2E515_HOST_SAVE_NAME=args.resave_name)
@@ -716,15 +716,31 @@ def main():
                     report.update(interstellar_arrival_verified=True, flight_trace=trace,
                                   flight_arrived_turn=arrived['turn'])
                 if args.advance_turns:
-                    if report['restored_screen'] not in (4, 5, 6):
-                        raise RuntimeError('This turn scenario requires a recovered docked/planet state')
+                    if report['restored_screen'] not in (4, 5, 6, 16):
+                        raise RuntimeError('This turn scenario requires a docked/planet/map state')
+                    map_mode = report['restored_screen'] == 16
+                    def observed_map_turns():
+                        return [json.loads(line.split('|',1)[1]) for line in
+                                (stage/'stderr.log').read_text(errors='replace').splitlines()
+                                if line.startswith('E2E515_FLIGHT|') and line.endswith('}')]
+                    if map_mode:
+                        capture(16,'command-map-before')
+                        report['map_command_before'] = observed_map_turns()[-1]
                     for turn in range(loaded['turn'] + 1, loaded['turn'] + args.advance_turns + 1):
                         callbacks = lines().count('turn operation=end-turn-ui')
                         select('PM_EndTurn'); pulse(1)
-                        wait(lambda text: f'hangar_end_turn_done turn={turn}' in text or
-                             text.count('turn operation=end-turn-ui') > callbacks,
-                             f'original end-turn handler reaches {turn}', 90)
+                        if map_mode:
+                            wait(lambda text: bool(observed_map_turns()) and observed_map_turns()[-1]['turn']==turn,
+                                 f'actual map model reaches {turn}',90)
+                            capture(16,'command-map-after-'+str(turn))
+                        else:
+                            wait(lambda text: f'hangar_end_turn_done turn={turn}' in text or
+                                 text.count('turn operation=end-turn-ui') > callbacks,
+                                 f'original end-turn handler reaches {turn}', 90)
                     report['turns_advanced'] = args.advance_turns
+                    if map_mode:
+                        report['map_command_after'] = observed_map_turns()[-1]
+                        report['map_command_actual_turn_verified'] = True
                 if args.resave_name:
                     report.update(save_world(args.resave_name,
                         'HOST OSK save fixture call=1 result=Accept',

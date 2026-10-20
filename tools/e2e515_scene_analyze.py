@@ -81,7 +81,7 @@ def analyze(log, directory):
                 dropped_images=max((int(r.get('image_dropped',0)) for r in rows),default=0),
                 actions=[r for r in rows if r['event'] in ('day-accepted','turn-film-start','turn-film-stop','map-state','map-state-observed','load-from-screen-failed')],
                 comparisons=comparisons,
-                scope='640x360 samples; fixed central rectangle and bottom panel; union of two cursor masks excluded; small/moved features can be missed',
+                scope='640x360 samples; fixed central rectangle and bottom panel; union of two cursor masks excluded; center can include UI overlays/tooltips, so changed pixels alone do not prove world-layer updates; small/moved features can be missed',
                 input_log_sha256=hashlib.sha256(log.read_bytes()).hexdigest())
 
 
