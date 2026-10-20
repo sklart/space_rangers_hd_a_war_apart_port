@@ -46,6 +46,8 @@ def prepare_engine(output):
     main=output/'MatrixGame/src/MatrixGame.cpp'
     text=main.read_text();text=replace_body(text,'int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPTSTR, int)','')
     main.write_bytes(text.encode());paths['MatrixGame/src/MatrixGame.cpp']=hashlib.sha256(main.read_bytes()).hexdigest()
+    from matrixgame_navigation_overrides import patch_navigation
+    paths.update(patch_navigation(output))
     result={'schema':1,'source_commit':revision,'scope':'full engine compilation input; runtime/backend not implemented here',
         'files_sha256':paths,'portable_inputs':report['inputs_sha256'],
         'excluded_platform_launcher':'MatrixGameDll.cpp; native entry remains to implement'}
