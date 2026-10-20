@@ -1,0 +1,35 @@
+{
+  "source_commit": "6c9b3148d5f7609eba6ba2e5edcca51cb25c6794",
+  "packaging_commit": "8319cecd057c4af112af6f96d4f010e4b0838042",
+  "build_id": "89e9db2998974a1b27bab1626cb216e6b8efffff",
+  "build_dirty": true,
+  "hardware": "PENDING; no Switch run received",
+  "profile": "Release Save ON Audio ON; performance diagnostics; E2E3/PPM OFF",
+  "game_units": 298,
+  "link_objects": 380,
+  "source_inputs_hashed": 1422,
+  "packaging": "hbmenu diagnostic title changed; loaded text/ro/data segments verified byte-identical to built NRO",
+  "artifacts": {
+    "switch/space-rangers-hd-a-war-apart/SpaceRangersHD-perf515.nro": {
+      "bytes": 16558384,
+      "sha256": "adbfa32e4b25aeb8820c210b41ff7a3b2e73af75037b8042cfa2f4a272649d3e"
+    },
+    "debug/SpaceRangersHD-perf515.elf": {
+      "bytes": 56393224,
+      "sha256": "065bf90ac53de0f54e5bd20ede5a59900f5bcc886d89c23fc1a97ea3c71a4569"
+    }
+  },
+  "original_build_nro": {
+    "path": "port/switch/build/e2e-game-perf515/SpaceRangersHD-perf515-v168-6c9b314-dirty-c945fd1de120.nro",
+    "working_path": "port/switch/build/e2e-game-perf515/SpaceRangersHD-perf515-v168.nro",
+    "bytes": 16558384,
+    "sha256": "C945FD1DE12004BAED47F008C7AA7D54B8DE28CEEFAF567FA03913440B5B2BF3",
+    "status": "SOFTWARE AUDIT PASS; hardware not tested"
+  },
+  "analyzer_sha256": "98e4b3e2a0d2ef65494a03927d899158684be7aa16c765a737c95d5b608c6ac2",
+  "bundle": {
+    "path": "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\hardware-perf515-6c9b314.zip",
+    "bytes": 26877331,
+    "sha256": "da93a207a6b8eef9b506ff681d51eeee66fe8472ec6a00ed13653dbc9d3bcfad"
+  }
+}
