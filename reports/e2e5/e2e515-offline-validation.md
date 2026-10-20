@@ -94,15 +94,63 @@ C:/devkitPro/devkitA64/bin/aarch64-none-elf-g++.exe -std=gnu++20 -O2 -Wall -Wext
 
 ## Аудит требований: ещё не достигнуто
 
+### Продолжение: keyboard/lifecycle/arcade contexts
+
+Код этого пакета: `a3ff58c028b180256533d256713d6c44da573f8b` (локальный commit,
+без push). Проверки выполнены на соответствующих рабочих source bytes до commit;
+SDK source/header SHA повторно сопоставлены с сохранёнными fingerprints.
+
+- Общий OSK hook теперь находится в effective `GI_Edit.cpp`, а не в двух отдельных
+  callbacks. Все TEditGI получают свой MaxLength; сохранены HasGlyph,
+  AcceptCharCallback и уведомления изменения. Unicode/Cancel/ошибки проверены
+  внедряемым backend. Реальный системный applet на Switch **NOT TESTED**.
+- Два scoped TextEntry/Applet владельца очищают очереди и удержания; проверены
+  accepted/Cancel/throw и последующее новое A, без переноса старого нажатия.
+- ArcadePause/ArcadeResult выбираются по реальным полям TfAB. B в паузе продолжает
+  игру через исходный Pause handler, A на результате вызывает исходный Space
+  без mouse-down; + в главном меню безопасно игнорируется. Новых правил боя нет.
+- MessageLoopStackGuard включён в оба effective Run; десять исключений между
+  настоящими Push/Pop сохраняют родителя, нормальный Pop не дублируется. Ресурсный
+  fault-injection из OnOpen ещё не выполнялся.
+- Фактически обнаружены и исправлены два дефекта композиции: Refresh конфликтовал
+  с точным ExitCode-first gate E2E-5.11; GI_Edit отсутствовал в whitelist генератора.
+  Проверки effective sources не позволили объявить эти Python-only изменения PASS.
+  Новый regression test воспроизводит второй случай.
+- Текущий набор: **9/9 input/text suites ASan/UBSan**, новый message-input ASan/UBSan,
+  **26/26 Python tools**, три focused real-host tests. SDK **5/5 COMPILE PASS**:
+  input_platform, win32_compat_messages, effective GI_MessageLoop, GI_Edit,
+  ab_MainForm; strong full link/NRO этим не проверены.
+- Настоящий ресурсный маршрут с настройками архива прошёл:
+  `22 → 1 → 33 → 3 → 20 → 4 → 22 → 16`, затем **пять** `25 → 16`.
+  `build/e2e515/main-route/result.json`: route_complete=true, timed_out=false,
+  source_configs_unchanged=true, host ELF SHA-256
+  `efe63921699134dd407f1f97798b07c045a57aa9455db17973fa6ad24272271f`.
+  Это прежний keyboard/mouse driver, **не controller-only PASS**. После контрольной
+  точки процесс остановлен probe (`returncode=-9`), обычный shutdown не проверен.
+- Просмотрен контактный лист 11 реальных кадров: меню, генерация/Introduction,
+  диалог, ангар, карта и игровое меню имеют соответствующие подложки; чужой фон
+  генерации в этих samples не наблюдался. Это визуальная проверка ограниченной
+  выборки, не полный layer analyzer/все экраны и не аппаратное доказательство.
+
+Воспроизведение ресурсного маршрута (Linux/WSL, законные локальные assets и копии CFG):
+
+```sh
+python3 tools/e2e515_main_route.py --game-root /path/to/game --config-root /path/to/copied/config
+```
+
+Процедура копирует настройки в отдельный stage, сохраняет hashes, log/frame data и
+требует все стадии/пять циклов без markers ошибки отмены/stack unwind. Новые кадры
+получают отдельный каталог; stale images не принимаются за свежий прогон.
+
 | Требование ТЗ | Состояние |
 |---|---|
 | A1 полная handler matrix | PARTIAL: первая часть в controls doc, остальные экраны/drag/hover/OSK OPEN |
-| A2 Action/Context | PARTIAL: ядро, реальные scoped loops, очистка очереди, owner cancellation есть; OSK, suspend, динамические arcade contexts и полный route OPEN |
+| A2 Action/Context | PARTIAL: ядро, реальные scopes/очередь, OSK и динамические arcade contexts есть; suspend и полный controller-only route OPEN |
 | A3 controllers | PARTIAL: классификация/сброс есть; UI unsupported, dock/resume и hardware OPEN |
 | B два настоящих профиля, focus, RTS, touch, accessibility | OPEN; существующий pointer/arcade fallback не считается реализацией двух профилей |
 | C1 все реальные screen transitions, фон | OPEN; десять canvas unit cycles не заменяют переходы между настоящими экранами |
 | C2 save fault injection / новый процесс / перелёт | OPEN в этом цикле; E2E-5.14 не объявляется новым тестом E2E-5.15 |
-| C3 generation → hangar → map controller route | OPEN |
+| C3 generation → hangar → map controller route | Legacy real route и пять menu cycles PASS; controller-only route OPEN |
 | D смерть/взрыв, overload 20/40/70/150/250, parity 500/1000, три perf пары | OPEN; оптимизаций/FPS-победы этого цикла пока нет |
 | E MatrixGame before/after units, новый real block, entry/resource pipeline | OPEN; текущий d3d9.h blocker ещё не закрыт |
 | F1 CI input | Core sanitizer suite, реальные owner/canvas tests и message-input ASan/UBSan включены в host workflow; удалённый CI не запускался/не проверялся |
@@ -116,8 +164,8 @@ C:/devkitPro/devkitA64/bin/aarch64-none-elf-g++.exe -std=gnu++20 -O2 -Wall -Wext
 
 ## Следующие обязательные работы
 
-1. Закрыть реальный lifecycle при ошибке Run, OSK/suspend и динамические arcade
-   pause/result contexts; собрать матрицу остальных handlers.
+1. Выполнить ресурсный fault-injection из Run/OnOpen и suspend/resume; собрать
+   матрицу остальных handlers и проверить фактические OSK-поля на последующей Switch.
 2. Реализовать два настоящих UI-профиля, focus/drag/tab/scroll, настройки и подсказки;
    пройти реальные маршруты с внедрённым контроллером, а не только host key driver.
 3. Повторить save failure/new-process цепочки и реальные screen transitions по ТЗ,

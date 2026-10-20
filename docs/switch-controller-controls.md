@@ -20,10 +20,11 @@
 удержаний. Нормальные кнопки сбрасывают Down без mouse-up/click, fixed toggle
 сохраняет выбор. В аркаде сбрасываются реальные movement/fire fields. Отмена
 выполняется перед OnClose, до освобождения ресурсов. Старые overrides OnOpen/OnClose
-SetArcadeControls удалены из generated source. Инвентарный drag, OSK, HOME/suspend
-и динамические ArcadePause/ArcadeResult требуют дальнейшей интеграции. Matrix
-contexts в настоящий бой не подключены. RAII-тест не доказывает восстановление
-всего оригинального MessageLoopStack после исключения из самого Run — этот путь OPEN.
+SetArcadeControls удалены из generated source. MessageLoopStackGuard в обоих loops
+удаляет только свой незакрытый stack entry при исключении; нормальный Pop не
+повторяется. На настоящем стеке проверено десять nested exception cycles; отдельный
+fault-injection из ресурсного OnOpen ещё OPEN. Инвентарный drag и HOME/suspend
+требуют дальнейшей интеграции. Matrix contexts в настоящий бой не подключены.
 
 ## Кнопки в текущем адаптере
 
@@ -34,7 +35,10 @@ contexts в настоящий бой не подключены. RAII-тест �
 | Y | OpenContextAction | Right mouse down/up; исходные контекстные операции доступны |
 | X | Inspect | Сохраняется прежний Enter fallback; семантика Inspect ещё не привязана к экранам |
 | + в аркаде | OpenPause | VK_PAUSE → TfAB::BattleKeyDown → SimulationPaused toggle |
-| + вне аркады | OpenPause | Временный Escape fallback; полноценное открытие меню для всех экранов OPEN |
+| + в главном меню | OpenPause | Безопасный no-op, меню уже открыто; выход не вызывается |
+| + на остальных экранах | OpenPause | Временный Escape fallback; полноценное открытие меню для всех экранов OPEN |
+| B в ArcadePause | BackToGame через Cancel | VK_PAUSE, возврат к симуляции; стрельба в паузе не доставляется |
+| A в ArcadeResult | Confirm | Исходный Space, без одновременного mouse-down; touch остаётся указателем |
 | − в аркаде | ToggleAutopilot | Исходный A → ToggleAutopilot |
 | ZR / ZL в аркаде | PrimaryFire / SecondaryFire | Исходные Control / Space |
 | L / R в аркаде | CyclePrimaryWeapon / CycleSecondaryWeapon | Исходные OEM [ / ]; оба циклически вперёд по своей группе, не «предыдущее/следующее» оружие |
@@ -44,11 +48,31 @@ contexts в настоящий бой не подключены. RAII-тест �
 | ZR вне аркады | StartDrag / EndDrag | Только контракт ядра; доставка drag в UI OPEN |
 | L / R вне аркады | PrevTab / NextTab | Только контракт ядра; доставка в UI OPEN |
 
-`+` не создаёт WM_QUIT. В главном меню временный Escape доходит до QuitClicked,
-который требует исходное подтверждение ShowMessageBoxGI; это ещё не целевое меню
-паузы. В аркаде B сохраняет RequestExit с подтверждением, а + использует настоящий
+`+` не создаёт WM_QUIT и не вызывает QuitClicked в главном меню. В аркаде B
+сохраняет RequestExit с подтверждением, а + использует настоящий
 обработчик паузы. Удалён отдельный автоматический выход по PLUS в runtime_loop_slice.
 Quicksave остаётся существующим сочетанием ZL+ZR+Minus; одиночный Minus его не вызывает.
+ArcadeGameplay/Pause/Result выбираются по настоящим SimulationPaused и Active
+VictoryPanel/DefeatPanel. Контекст обновляется перед poll и сразу после pause toggle;
+фоновой аркаде запрещено перехватывать ввод у открытого модального окна.
+
+## Общая экранная клавиатура
+
+Все настоящие TEditGI используют один hook после установки фокуса при нажатии
+внутри поля. Специальные UpCallback overlays двух полей удалены. Сохраняются
+MaxLength в UTF-16 units, исходные HasGlyph/AcceptCharCallback и уведомление об
+изменении; отклонённая строка сохраняет прежний текст/каретку. Native backend
+использует swkbdCreate/Show/Close с освобождением при отказе. TextEntry и
+SwitchAppletActive — отдельные scopes, возврат подавляет старый A/touch до отпускания.
+Один press_id не открывает несколько клавиатур на перекрывающихся полях.
+
+Host backend внедряемый; без него обычный host keyboard driver сохраняется.
+Проверены русский/английский, Ё, пробелы, длинные строки, Cancel, некорректный UTF-16,
+исключение и восстановление контекста. На настоящем TEditGI проверен Cancel без
+изменения текста/каретки. Принятие через реальную OSK, font coverage и удобство всех
+полей остаются HARDWARE PENDING; полный ресурсный controller-only route OPEN.
+Защитная граница буфера — 4096 UTF-16 units; больший MaxLength отвергается явно,
+без усечения текста. Это не утверждение о лимите/поддержке самой системной OSK.
 
 ## Аудит фактических handlers: первая часть
 
@@ -67,7 +91,7 @@ Quicksave остаётся существующим сочетанием ZL+ZR+M
 | Торговля | Right click, keys | OpenContextAction, trade | fGoodsShop2.cpp: GoodsRightMouseDown, MainPanelKeyDown | Y/right-click fallback; операции покупки/drag OPEN |
 | Диалог | Click choice, wheel, keys | Confirm, Scroll, Cancel | fTalk.cpp: ChoiceMouseDown, ProcessMouseWheel, MainPanelKeyDown | Pointer fallback; focus OPEN |
 | Save/load | Click, double click, key, wheel | Confirm, Inspect, Scroll, TextEntry | fSaveManager.cpp: SlotMouseDown, SlotDoubleClick, SlotKeyDown, ProcessMouseWheel | Pointer fallback; полный OSK/списки OPEN |
-| Имя персонажа | Click edit, key | OpenTextKeyboard, Confirm, Cancel | fSelectFace.cpp: PlayerNameMouseDown, MainPanelKeyDown | Существующая OSK; все редактируемые поля ещё не проаудированы |
+| Редактируемые поля | Click edit, key | OpenTextKeyboard, Confirm, Cancel | GI_Edit.cpp: TEditGI::ProcessLeftButtonDown; исходные Changed/AcceptChar callbacks | Общий hook с MaxLength; в том числе fSelectFace, fGameSettings2, SaveManager; native OSK hardware PENDING |
 | Настройки новой игры | Click name, key, wheel | TextEntry, Navigate, Scroll | fGameSettings2.cpp: PlayerNameMouseDown, MainPanelKeyDown, ProcessMouseWheel | Pointer fallback; настройки контроллера OPEN |
 | Аркада | Control/Space/arrows/[ / ]/A/Pause/Escape | Fire, Move, Weapon, Autopilot, Pause, Cancel | ab_MainForm.cpp: BattleKeyDown, BattleKeyUp, RequestExit | Прежние команды + новая безопасная PLUS-пауза; unit/adapter PASS, hardware PENDING |
 | MatrixGame | Ввод настоящего движка | MatrixRTS / MatrixDirectControl | Robot.cpp, port/matrixgame/native | Исполнение не подключено; mapping contract не является боем |
