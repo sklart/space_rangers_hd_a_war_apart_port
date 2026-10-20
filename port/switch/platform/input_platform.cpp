@@ -13,13 +13,25 @@
 namespace srhd_awa::platform::input_platform {
 namespace {
 std::atomic_bool suppress_applet_input{false};
-std::atomic_bool arcade_controls{false};
+// Context and generation are published together; changing owner invalidates
+// held buttons even if two windows share the same context type.
+std::atomic<std::uint64_t> context_token{};
 std::atomic<std::uint64_t> flight_stick{};
+RawInput Neutral(const RawInput& source) {
+  RawInput result{};
+  result.connected = source.connected;
+  result.controller_style = source.controller_style;
+  return result;
+}
 bool Suppressed(const RawInput& raw) {
   if (!suppress_applet_input.load()) return false;
   if (!raw.touch && !raw.a && !raw.b && !raw.x && !raw.y && !raw.plus &&
       !raw.zl && !raw.zr && !raw.minus && !raw.l && !raw.r && !raw.dpad_left && !raw.dpad_right &&
-      !raw.dpad_up && !raw.dpad_down)
+      !raw.dpad_up && !raw.dpad_down &&
+      std::abs(static_cast<std::int64_t>(raw.stick_x)) <= 5500 &&
+      std::abs(static_cast<std::int64_t>(raw.stick_y)) <= 5500 &&
+      std::abs(static_cast<std::int64_t>(raw.right_stick_x)) <= 5500 &&
+      std::abs(static_cast<std::int64_t>(raw.right_stick_y)) <= 5500)
     suppress_applet_input.store(false);
   return true; // Discard the release sample and old applet history as well.
 }
@@ -34,6 +46,13 @@ double Axis(std::int32_t value, const Config& config) {
   return value < 0 ? -curved : curved;
 }
 #if defined(__SWITCH__)
+void SetControllerSource(RawInput& raw, const PadState& pad) {
+  const auto style = padGetStyleSet(&pad);
+  raw.controller_style = padIsHandheld(&pad) ? ControllerStyle::Handheld :
+      (style & HidNpadStyleTag_NpadFullKey) ? ControllerStyle::FullKey :
+      (style & HidNpadStyleTag_NpadJoyDual) ? ControllerStyle::JoyDual : ControllerStyle::Unsupported;
+  raw.connected = padIsConnected(&pad) && raw.controller_style != ControllerStyle::Unsupported;
+}
 void ReadTouch(RawInput* raw) {
   static bool initialized = false;
   if (!initialized) { hidInitializeTouchScreen(); initialized = true; }
@@ -126,8 +145,45 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
   state->last_update_us = now_us;
   state->time_initialized = true;
   const auto& config = state->config;
+  using namespace controller_actions;
+  const auto token = context_token.load();
+  const auto context = static_cast<Context>(token & 255);
+  const auto button = [](bool held, Button bit) -> Mask { return held ? Mask(bit) : Mask{}; };
+  const Mask buttons = button(raw.a, A) | button(raw.b, B) | button(raw.x, X) |
+      button(raw.y, Y) | button(raw.plus, Plus) | button(raw.minus, Minus) |
+      button(raw.l, L) | button(raw.r, R) | button(raw.zl, ZL) | button(raw.zr, ZR) |
+      button(raw.dpad_up, Up) | button(raw.dpad_down, Down) |
+      button(raw.dpad_left, Left) | button(raw.dpad_right, Right) | button(raw.touch, Touch);
+  const auto source_token = token * 256 + static_cast<unsigned>(raw.controller_style);
+  const auto actions = state->actions.Update(buttons, context, source_token, now_us,
+                                            raw.connected, true);
+  const auto displaced = [&](std::int32_t x, std::int32_t y) {
+    const auto deadzone = std::clamp(config.stick_deadzone, 0, 32766);
+    return std::abs(static_cast<std::int64_t>(x)) > deadzone ||
+           std::abs(static_cast<std::int64_t>(y)) > deadzone;
+  };
+  if (actions.changed || !raw.connected) {
+    state->left_stick_blocked = displaced(raw.stick_x, raw.stick_y);
+    state->right_stick_blocked = displaced(raw.right_stick_x, raw.right_stick_y);
+    delta_us = 0;
+  }
+  if (!displaced(raw.stick_x, raw.stick_y)) state->left_stick_blocked = false;
+  if (!displaced(raw.right_stick_x, raw.right_stick_y)) state->right_stick_blocked = false;
+  if (state->left_stick_blocked) raw.stick_x = raw.stick_y = 0;
+  if (state->right_stick_blocked) raw.right_stick_x = raw.right_stick_y = 0;
+  const auto accepted = actions.accepted_buttons;
+  raw.a = accepted & A; raw.b = accepted & B; raw.x = accepted & X; raw.y = accepted & Y;
+  raw.plus = accepted & Plus; raw.minus = accepted & Minus;
+  raw.l = accepted & L; raw.r = accepted & R; raw.zl = accepted & ZL; raw.zr = accepted & ZR;
+  raw.dpad_up = accepted & Up; raw.dpad_down = accepted & Down;
+  raw.dpad_left = accepted & Left; raw.dpad_right = accepted & Right;
+  raw.touch = accepted & Touch;
+  if (!raw.connected || context == Context::ControllerDisconnected ||
+      context == Context::SwitchAppletActive || context == Context::SuspendResume) {
+    raw.stick_x = raw.stick_y = raw.right_stick_x = raw.right_stick_y = 0;
+  }
   std::uint16_t flight = 0;
-  if (arcade_controls.load()) {
+  if (context == Context::ArcadeGameplay) {
     const auto sx = std::clamp(raw.stick_x, -32767, 32767);
     const auto sy = std::clamp(raw.stick_y, -32767, 32767);
     const auto deadzone = std::clamp(config.stick_deadzone, 0, 32766);
@@ -164,6 +220,9 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
   state->precise_y = std::clamp(state->precise_y + dy, 0.0,
                                 static_cast<double>(height - 1));
   Snapshot result{};
+  result.actions = actions;
+  result.controller_style = raw.controller_style;
+  result.connected = raw.connected;
   result.touch_held = raw.touch;
   result.touch_message = raw.touch || (state->last.touch_held && !raw.a);
   result.flight_keys = flight;
@@ -172,16 +231,19 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
   result.left_down = raw.a && !state->last.left_held;
   result.left_up = !raw.a && state->last.left_held;
   result.left_held = raw.a;
-  result.right_down = raw.b && !state->last.right_held;
-  result.right_up = !raw.b && state->last.right_held;
-  result.right_held = raw.b;
+  result.right_down = raw.y && !state->last.right_held;
+  result.right_up = !raw.y && state->last.right_held;
+  result.right_held = raw.y;
   result.enter_down = raw.x && !state->last.enter_held;
   result.enter_up = !raw.x && state->last.enter_held;
   result.enter_held = raw.x;
-  result.escape_down = raw.y && !state->last.escape_held;
-  result.escape_up = !raw.y && state->last.escape_held;
-  result.escape_held = raw.y;
+  result.escape_down = raw.b && !state->last.escape_held;
+  result.escape_up = !raw.b && state->last.escape_held;
+  result.escape_held = raw.b;
   result.plus_down = raw.plus && !state->plus_held;
+  result.pause_held = actions.Has(Action::OpenPause);
+  result.pause_down = (actions.pressed & Bit(Action::OpenPause)) != 0;
+  result.pause_up = (actions.released & Bit(Action::OpenPause)) != 0;
   result.quicksave_held = raw.zl && raw.zr && raw.minus;
   result.quicksave_down = result.quicksave_held && !state->last.quicksave_held;
   result.quicksave_up = !result.quicksave_held && state->last.quicksave_held;
@@ -195,7 +257,19 @@ Snapshot Normalize(State* state, RawInput raw, std::int32_t width,
 }
 void InjectHostRaw(State* state, RawInput raw) { if (state) state->host_raw = raw; }
 void SuppressUntilReleased() { suppress_applet_input.store(true); }
-void SetArcadeControls(bool enabled) { flight_stick.store(0); arcade_controls.store(enabled); }
+void SetInputContext(controller_actions::Context context) {
+  auto previous = context_token.load();
+  while (!context_token.compare_exchange_weak(previous,
+      ((previous >> 8) + 1) * 256 + static_cast<unsigned>(context))) {}
+  flight_stick.store(0);
+}
+controller_actions::Context GetInputContext() {
+  return static_cast<controller_actions::Context>(context_token.load() & 255);
+}
+void SetArcadeControls(bool enabled) {
+  SetInputContext(enabled ? controller_actions::Context::ArcadeGameplay :
+                           controller_actions::Context::MainMenu);
+}
 FlightStick GetFlightStick() {
   const auto packed = flight_stick.load();
   return {static_cast<std::int32_t>(packed), static_cast<std::int32_t>(packed >> 32)};
@@ -222,11 +296,13 @@ Snapshot Poll(State* state, std::int32_t width, std::int32_t height) {
   }
   padUpdate(&pad);
   auto raw = FromButtons(padGetButtons(&pad), padGetStickPos(&pad, 0), padGetStickPos(&pad, 1));
+  SetControllerSource(raw, pad);
   ReadTouch(&raw);
-  if (Suppressed(raw)) raw = {};
+  if (Suppressed(raw)) raw = Neutral(raw);
   return Normalize(state, raw, width, height);
 #else
-  return Normalize(state, state->host_raw, width, height);
+  const auto raw = Suppressed(state->host_raw) ? Neutral(state->host_raw) : state->host_raw;
+  return Normalize(state, raw, width, height);
 #endif
 }
 
@@ -236,6 +312,10 @@ PollBatch NormalizeHistoryAt(State* state, const RawHistoryEntry* entries,
                              std::uint64_t now_us) {
   PollBatch result{};
   if (!state) return result;
+  const auto owner = context_token.load() * 256 + static_cast<unsigned>(fallback.controller_style);
+  if (state->history_owner_token != owner || state->last.connected != fallback.connected)
+    state->hid_history_ready = false; // Never replay the previous owner's HID history.
+  state->history_owner_token = owner;
   auto append = [&](RawInput raw, std::uint64_t sample_us,
                     std::uint64_t sequence) {
     auto& snapshot = result.snapshots[result.count++];
@@ -289,14 +369,19 @@ PollBatch PollHistory(State* state, std::int32_t width, std::int32_t height) {
   }
   padUpdate(&pad);
   auto fallback = FromButtons(padGetButtons(&pad), padGetStickPos(&pad, 0), padGetStickPos(&pad, 1));
+  SetControllerSource(fallback, pad);
   ReadTouch(&fallback);
   if (Suppressed(fallback)) {
     state->hid_history_ready = false;
-    return NormalizeHistoryAt(state, nullptr, 0, {}, width, height, e2e_clock::Microseconds());
+    return NormalizeHistoryAt(state, nullptr, 0, Neutral(fallback), width, height, e2e_clock::Microseconds());
   }
   std::array<RawHistoryEntry, 17> entries{};
   std::uint64_t source_key{};
   const auto count = ReadNpadHistory(pad, entries, &source_key);
+  for (std::size_t i = 0; i < count; ++i) {
+    entries[i].raw.connected = fallback.connected;
+    entries[i].raw.controller_style = fallback.controller_style;
+  }
   if (source_key != state->hid_source_key) {
     state->hid_source_key = source_key;
     state->hid_history_ready = false;
@@ -312,7 +397,7 @@ PollBatch PollHistory(State* state, std::int32_t width, std::int32_t height) {
   return NormalizeHistoryAt(state, entries.data(), count, fallback,
                             width, height, e2e_clock::Microseconds());
 #else
-  const auto raw = Suppressed(state->host_raw) ? RawInput{} : state->host_raw;
+  const auto raw = Suppressed(state->host_raw) ? Neutral(state->host_raw) : state->host_raw;
   return NormalizeHistoryAt(state, nullptr, 0, raw,
                             width, height, e2e_clock::Microseconds());
 #endif

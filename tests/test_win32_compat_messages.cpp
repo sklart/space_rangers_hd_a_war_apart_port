@@ -91,6 +91,8 @@ int main() {
   assert(peek(&message, 0, 0x0101, 0x0101, 1));
   assert(message.message == 0x0101 && message.wParam == 0x0d);
   srhd_awa::platform::input_platform::SetArcadeControls(true);
+  InjectHostInput({});
+  while (peek(&message, 0, 0, 0, 1)) {}
   input.dpad_up = true; input.zr = true;
   InjectHostInput(input);
   assert(peek(&message, 0, 0x0100, 0x0100, 1) && message.wParam == 0x26);
@@ -154,6 +156,32 @@ int main() {
   while (peek(&message, 0, 0, 0, 1)) {}
   input.plus = true;
   InjectHostInput(input);
-  assert(peek(&message, 0, 0x0012, 0x0012, 1) && message.message == 0x0012);
+  assert(peek(&message, 0, 0x0100, 0x0100, 1) && message.wParam == 0x1b);
+  assert(!peek(&message, 0, 0x0012, 0x0012, 1));
+  assert(!peek(&message, 0, 0x0100, 0x0100, 1));
+  input = {};
+  InjectHostInput(input);
+  assert(peek(&message, 0, 0x0101, 0x0101, 1) && message.wParam == 0x1b);
+  input.b = true;
+  InjectHostInput(input);
+  assert(peek(&message, 0, 0x0100, 0x0100, 1) && message.wParam == 0x1b);
+  assert(!peek(&message, 0, 0x0204, 0x0204, 1)); // B is Cancel, never right click.
+  input.b = false; input.y = true;
+  InjectHostInput(input);
+  assert(peek(&message, 0, 0x0204, 0x0204, 1)); // Right click remains reachable.
+  input = {};
+  InjectHostInput(input);
+  while (peek(&message, 0, 0, 0, 1)) {}
+  srhd_awa::platform::input_platform::SetArcadeControls(true);
+  InjectHostInput({});
+  while (peek(&message, 0, 0, 0, 1)) {}
+  input.plus = true;
+  InjectHostInput(input);
+  assert(peek(&message, 0, 0x0100, 0x0100, 1) && message.wParam == 0x13);
+  assert(!peek(&message, 0, 0x0012, 0x0012, 1));
+  assert(!peek(&message, 0, 0x0100, 0x0100, 1));
+  input = {};
+  InjectHostInput(input);
+  assert(peek(&message, 0, 0x0101, 0x0101, 1) && message.wParam == 0x13);
   UnregisterMainWindow(main);
 }

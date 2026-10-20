@@ -8,7 +8,7 @@
 
 namespace srhd_awa::platform::runtime_loop_slice {
 
-enum class ExitReason { none, requested, plus, applet, presentation_failure, diagnostic_failure };
+enum class ExitReason { none, requested, applet, presentation_failure, diagnostic_failure };
 
 using FrameCallback = bool (*)(void* user_data, std::uint64_t now_ms, std::string* error);
 using DrawCallback = bool (*)(void* user_data, std::string* error);

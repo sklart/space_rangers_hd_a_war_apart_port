@@ -63,7 +63,6 @@ bool RunOneFrame(State* state, const runtime_platform::State& platform, std::str
   const auto previous_input = state->last_input;
   state->last_input = input_platform::Poll(&state->input_state,
       GR_Main::PresentationWidth, GR_Main::PresentationHeight);
-  if (state->last_input.plus_down) { state->statistics.exit_reason = ExitReason::plus; return true; }
   if (state->exit_requested) { state->statistics.exit_reason = ExitReason::requested; return true; }
   if (state->input_callback) {
     const auto started = std::chrono::steady_clock::now();
@@ -166,6 +165,6 @@ void Shutdown(State* state) {
   if (state) *state = {};
 }
 const char* ExitReasonName(ExitReason reason) {
-  switch (reason) { case ExitReason::requested: return "requested"; case ExitReason::plus: return "plus"; case ExitReason::applet: return "applet"; case ExitReason::presentation_failure: return "presentation_failure"; case ExitReason::diagnostic_failure: return "diagnostic_failure"; default: return "none"; }
+  switch (reason) { case ExitReason::requested: return "requested"; case ExitReason::applet: return "applet"; case ExitReason::presentation_failure: return "presentation_failure"; case ExitReason::diagnostic_failure: return "diagnostic_failure"; default: return "none"; }
 }
 }  // namespace srhd_awa::platform::runtime_loop_slice

@@ -38,6 +38,7 @@ constexpr std::uint32_t kWmKeyUp = 0x0101u;
 constexpr std::uint32_t kWmChar = 0x0102u;
 constexpr std::uint32_t kVkReturn = 0x0du;
 constexpr std::uint32_t kVkEscape = 0x1bu;
+constexpr std::uint32_t kVkPause = 0x13u;
 constexpr std::uint32_t kVkF5 = 0x74u;
 constexpr std::uint32_t kVkLeftMouse = 1u;
 constexpr std::uint32_t kVkRightMouse = 2u;
@@ -70,6 +71,7 @@ std::mutex g_host_input_mutex;
 input_platform::RawInput g_host_input;
 #endif
 std::array<bool, 256> g_keys{};
+bool g_emitted_escape{}, g_emitted_pause{};
 std::int32_t g_last_x = -1, g_last_y = -1;
 #if defined(__SWITCH__)
 std::uint32_t g_last_input_diagnostic_tick{};
@@ -177,6 +179,21 @@ void Pump() {
   std::lock_guard lock(g_mutex);
   for (std::size_t index = 0; index < batch.count; ++index) {
     const auto& sample = batch.snapshots[index];
+    for (const auto& edge : {std::pair{sample.actions.pressed, "pressed"},
+                            std::pair{sample.actions.released, "released"},
+                            std::pair{sample.actions.repeat, "repeat"}}) {
+      for (unsigned i = 0; i < static_cast<unsigned>(controller_actions::Action::Count); ++i) {
+        if (!(edge.first & (std::uint64_t{1} << i))) continue;
+        char detail[224]{};
+        std::snprintf(detail, sizeof(detail),
+            "input action time_us=%llu source=%s style=%u context=%u action=%s edge=%s target=legacy-adapter window=%u",
+            static_cast<unsigned long long>(e2e_clock::Microseconds()),
+            sample.touch_message ? "touch" : "pad", static_cast<unsigned>(sample.controller_style),
+            static_cast<unsigned>(sample.actions.context),
+            controller_actions::Name(static_cast<controller_actions::Action>(i)), edge.second, window);
+        e2e_stage::Log(detail);
+      }
+    }
     const auto lparam = MouseLParam(sample.x, sample.y);
     const bool pointer_target = index + 1 == batch.count || sample.left_down ||
         sample.left_up || sample.right_down || sample.right_up;
@@ -197,7 +214,14 @@ void Pump() {
       if (up) Enqueue(window, kWmKeyUp, vk);
     };
     key(kVkReturn, sample.enter_down, sample.enter_up, sample.enter_held);
-    key(kVkEscape, sample.escape_down, sample.escape_up, sample.escape_held);
+    // Transitional adapters to existing handlers. PLUS never posts WM_QUIT.
+    // Arcade has an actual Pause handler; Escape there asks to leave the arena.
+    const bool arcade = sample.actions.context == controller_actions::Context::ArcadeGameplay;
+    const bool escape = sample.escape_held || (sample.pause_held && !arcade);
+    const bool pause = sample.pause_held && arcade;
+    key(kVkEscape, escape && !g_emitted_escape, !escape && g_emitted_escape, escape);
+    key(kVkPause, pause && !g_emitted_pause, !pause && g_emitted_pause, pause);
+    g_emitted_escape = escape; g_emitted_pause = pause;
 #if !defined(__SWITCH__) || (defined(E2E4_QUICKSAVE_EXPERIMENT) && E2E4_QUICKSAVE_EXPERIMENT)
     key(kVkF5, sample.quicksave_down, sample.quicksave_up, sample.quicksave_held);
 #endif
@@ -210,7 +234,6 @@ void Pump() {
     }
     g_keys[kVkLeftMouse] = sample.left_held;
     g_keys[kVkRightMouse] = sample.right_held;
-    if (sample.plus_down) Enqueue(0, kWmQuit); // PLUS is process exit, never a VK.
   }
   const auto now = static_cast<std::uint64_t>(e2e_clock::Milliseconds());
   for (const auto& timer : g_timers) {

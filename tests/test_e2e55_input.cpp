@@ -4,6 +4,7 @@ using namespace srhd_awa::platform::input_platform;
 int main() {
   State s; RawInput raw{};NormalizeAt(&s,raw,1280,720,0);
   SetArcadeControls(true);
+  NormalizeAt(&s,raw,1280,720,0); // Establish neutral state in the new owner.
   raw.dpad_up=raw.dpad_left=raw.zr=raw.zl=true;
   auto flight=NormalizeAt(&s,raw,1280,720,10000);
   assert(flight.flight_keys==53 && flight.x==640 && flight.y==360);

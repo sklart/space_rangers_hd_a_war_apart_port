@@ -8,6 +8,7 @@ int main() {
   State s; RawInput raw{};
   NormalizeAt(&s, raw, 1280, 720, 0);
   SetArcadeControls(true);
+  NormalizeAt(&s,raw,1280,720,0);
   raw.stick_x=32767;
   auto sample=NormalizeAt(&s,raw,1280,720,50000);
   assert(sample.x==640 && GetFlightStick().x==32767);
@@ -21,6 +22,8 @@ int main() {
   NormalizeAt(&s,raw,1280,720,200000);
   assert(!GetFlightStick().x && !GetFlightStick().y);
   SetArcadeControls(false);
+  raw = {};
+  NormalizeAt(&s,raw,1280,720,200000);
   raw.stick_x=32767;raw.stick_y=0;
   sample=NormalizeAt(&s,raw,1280,720,250000);
   assert(sample.x>300 && !GetFlightStick().x);

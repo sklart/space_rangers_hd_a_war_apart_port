@@ -44,9 +44,9 @@ int main() {
     raw.plus = raw.a = true;
     input_platform::InjectHostRaw(&loop.input_state, raw);
     if (!runtime_loop_slice::RunFrames(&loop, platform, 1, &error) ||
-        loop.statistics.exit_reason != runtime_loop_slice::ExitReason::plus ||
-        loop.statistics.frames != 0 || input_callbacks != 0) {
-      std::fprintf(stderr, "M27 PLUS dispatch order failed: %s\n", error.c_str());
+        loop.statistics.exit_reason != runtime_loop_slice::ExitReason::requested ||
+        loop.statistics.frames != 1 || input_callbacks != 1 || !loop.last_input.pause_down) {
+      std::fprintf(stderr, "PLUS must reach input handler without exiting: %s\n", error.c_str());
       return 1;
     }
     runtime_loop_slice::Shutdown(&loop);

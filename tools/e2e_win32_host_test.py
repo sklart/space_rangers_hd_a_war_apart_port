@@ -1,6 +1,7 @@
 """Compile and run the Win32 compatibility tests through the game wrappers."""
 
 from pathlib import Path
+import argparse
 import os
 import subprocess
 import sys
@@ -33,6 +34,11 @@ def implementation_sources() -> list[str]:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--only', choices=('handles', 'filetime', 'window-message-input',
+                                           'resolver', 'original-wrappers'))
+    parser.add_argument('--sanitize', action='store_true')
+    args = parser.parse_args()
     OVERLAY.mkdir(parents=True, exist_ok=True)
     prepare_runtime_overlay(RUNTIME, OVERLAY)
     compiler = os.environ.get("CXX", "g++")
@@ -40,6 +46,8 @@ def main() -> None:
               "-ffunction-sections", "-fdata-sections", "-DE2E_HOST_OKGF_STUB",
               "-I" + str(ROOT / "tests"), "-I" + str(PLATFORM),
               "-I" + str(OVERLAY), "-I" + str(GAME), "-I" + str(RUNTIME)]
+    if args.sanitize:
+        common += ['-fsanitize=address,undefined', '-fno-omit-frame-pointer']
     implementation = implementation_sources()
     with tempfile.TemporaryDirectory(prefix="e2e-win32-host-") as temp:
         for name, source, units in (
@@ -51,6 +59,8 @@ def main() -> None:
              ["win32_compat_messages.cpp", "win32_compat_window.cpp",
               "win32_handles.cpp", "e2e_events.cpp", "input_platform.cpp"]),
         ):
+            if args.only and args.only != name:
+                continue
             output = Path(temp) / name
             run(common + [str(ROOT / "tests" / source),
                           *(str(PLATFORM / unit) for unit in units),
@@ -64,6 +74,8 @@ def main() -> None:
               GAME / "SysUtilsImports.cpp", GAME / "SysUtils.cpp",
               RUNTIME / "runtime.cpp"]),
         ):
+            if args.only and args.only != name:
+                continue
             output = Path(temp) / name
             flags = ["-DE2E_HOST_RESOLVER_TEST"] if wrappers else []
             run(common + flags + [str(source), *map(str, wrappers), *implementation,

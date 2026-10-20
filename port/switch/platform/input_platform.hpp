@@ -3,6 +3,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include "controller_actions.hpp"
 
 namespace srhd_awa::platform::input_platform {
 
@@ -13,6 +14,7 @@ struct Config {
   std::uint64_t max_delta_us{50000};  // Motion after an actual stall.
   std::uint64_t stall_threshold_us{500000};
 };
+enum class ControllerStyle : std::uint8_t { Host, Handheld, JoyDual, FullKey, Unsupported };
 struct RawInput {
   std::int32_t stick_x{}, stick_y{};
   bool dpad_left{}, dpad_right{}, dpad_up{}, dpad_down{};
@@ -22,8 +24,13 @@ struct RawInput {
   bool touch{};
   std::int32_t touch_x{}, touch_y{}; // HID coordinates in the 1280x720 panel.
   std::int32_t right_stick_x{}, right_stick_y{};
+  bool connected{true}; // Host injection defaults to one connected controller.
+  ControllerStyle controller_style{ControllerStyle::Host};
 };
 struct Snapshot {
+  controller_actions::Events actions{};
+  ControllerStyle controller_style{ControllerStyle::Host};
+  bool connected{true};
   bool touch_held{}, touch_message{}; // Provenance travels with the queued mouse event.
   std::uint16_t flight_keys{}; // movement/fire, main/secondary weapon cycle, autopilot, arcade only
   std::int32_t x{}, y{};
@@ -33,6 +40,7 @@ struct Snapshot {
   bool enter_down{}, enter_up{}, enter_held{};
   bool escape_down{}, escape_up{}, escape_held{};
   bool plus_down{};
+  bool pause_down{}, pause_up{}, pause_held{};
   bool quicksave_down{}, quicksave_up{}, quicksave_held{};
 };
 // libnx retains at most 17 recent Npad samples. An extra slot is kept for
@@ -49,6 +57,7 @@ struct PollBatch {
   std::uint64_t newest_sequence{};
 };
 struct State {
+  controller_actions::Router actions;
   Config config{};
   Snapshot last{};
   RawInput host_raw{};
@@ -62,6 +71,8 @@ struct State {
   std::uint64_t hid_source_key{};
   bool hid_history_ready{};
   bool touch_was_active{};
+  bool left_stick_blocked{}, right_stick_blocked{};
+  std::uint64_t history_owner_token{};
 };
 
 Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
@@ -70,6 +81,8 @@ Snapshot Normalize(State* state, RawInput raw, std::int32_t width, std::int32_t 
 void InjectHostRaw(State* state, RawInput raw);
 void SuppressUntilReleased();
 void SetArcadeControls(bool enabled);
+void SetInputContext(controller_actions::Context context);
+controller_actions::Context GetInputContext();
 struct FlightStick { std::int32_t x{}, y{}; };
 FlightStick GetFlightStick();
 void Warp(State* state, std::int32_t x, std::int32_t y,
