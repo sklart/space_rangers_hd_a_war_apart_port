@@ -1,0 +1,52 @@
+{
+  "status": "EXPERIMENT_REJECTED",
+  "shipping_sources_changed": false,
+  "hardware_executed": false,
+  "scenario": "real ordinary arena, System seed 0x515, no lethal hit, no synthetic delay, 1000 active ticks",
+  "hardware_archive_profile": {
+    "source": "build/e2e514/hardware-input/logs/e2e.log",
+    "timer_callbacks": 1547,
+    "timer_weighted_window_average_us": 36366.57,
+    "advance_weighted_window_average_us": 24405.16,
+    "worldline_weighted_window_average_us": 7429.02,
+    "note": "Historical Switch window aggregates; not a new device measurement"
+  },
+  "baseline": {
+    "run": "e4a6b6818be346899343da1dbe0ab523",
+    "binary_sha256": "deb832333e81c8b2b6803d6b045321d76f5fca48db1f3b20b00d1c69bbbd90f3",
+    "thread_cpu_ns": 7795372915,
+    "timer_cpu_ns": 965937878,
+    "draw_cpu_ns": 6405137125,
+    "draw_calls": 3123,
+    "software_presentations": 948,
+    "world_500": "83636062c78dead8",
+    "world_1000": "85928e7a625ea448",
+    "geometry_500": "3dbe2a07ad36dd18",
+    "geometry_1000": "da27db3515f3a423"
+  },
+  "polygon_memo": {
+    "run": "c87aa9ce11564bf08a621f9d68c99974",
+    "binary_sha256": "2845dec850b417656109460667856832177ab5ddce4fbb4f0681f5759e85781b",
+    "thread_cpu_ns": 10295811644,
+    "timer_cpu_ns": 943111194,
+    "draw_cpu_ns": 8893843688,
+    "draw_calls": 5203,
+    "software_presentations": 1098,
+    "world_500": "44c06a3d69bafc8a",
+    "world_1000": "621221be74ea20bf",
+    "geometry_500": "952327664237145a",
+    "geometry_1000": "44aa9a9593415a80"
+  },
+  "cpu_change_percent": 32.07593474057682,
+  "common_image_ticks": 870,
+  "identical_full_frame_hashes": 0,
+  "world_rng_parity": "FAIL",
+  "geometry_parity": "FAIL",
+  "image_parity": "FAIL",
+  "component_math": {
+    "host_asan_ubsan": "PASS, 98304 bit-exact checks, four rounding modes",
+    "arm64_qemu": "PASS, 98304 bit-exact checks, four rounding modes",
+    "devkit_a64": "COMPILE PASS only, not linked or executed"
+  },
+  "next_gate": "Repeatability control and fixed timer/input/render replay; find the earliest divergence before attempting further optimizations"
+}

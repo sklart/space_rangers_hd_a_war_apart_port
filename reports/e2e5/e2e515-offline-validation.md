@@ -2,7 +2,7 @@
 
 20.10.2026. **IN PROGRESS / PARTIAL. Цель не завершена.**
 
-Последнее обновление: пакет 7, host arcade death/overload liveness. Разделы
+Последнее обновление: пакет 8, обычный бой и отклонённый performance experiment. Разделы
 ранних пакетов сохраняют их исторические границы; сводная таблица в конце
 отражает текущий остаток требований.
 
@@ -313,7 +313,7 @@ python3 tools/e2e515_controller_route.py --load-save /path/inside/build/Проб
 | F1 CI input | Core sanitizer suite, реальные owner/canvas tests и message-input ASan/UBSan включены в host workflow; удалённый CI не запускался/не проверялся |
 | F2/F3 runtime suites | PARTIAL/OPEN согласно строкам выше |
 | F4 full release NRO + matching ELF | OPEN; финальный кандидат этого цикла не выпускался |
-| Отчёты perf/MG, SHA/provenance и hardware checklist | OPEN; сформировать по настоящим завершённым проверкам |
+| Отчёты perf/MG, SHA/provenance и hardware checklist | Perf PARTIAL с сырыми CSV/JSON; MG, финальная provenance и hardware checklist OPEN |
 
 Все аппаратные пункты остаются HARDWARE PENDING: фон, зависание при взрыве,
 сейвы на SD после перелёта, Joy-Con/Pro/touch/OSK и GPU MatrixGame.
@@ -431,3 +431,39 @@ python3 tools/e2e515_controller_route.py --load-save '<manual_save_path из res
 Оптимизаций с таким расхождением не добавлялось. Нужны deterministic replay,
 500/1000 ticks, geometry/image checkpoints, три paired series, pause/retry/main,
 cleanup, watchdog и аппаратное подтверждение. Shipping ELF/NRO не менялись.
+
+## Пакет 8: постоянные тормоза обычного боя
+
+Пользователь уточнил: взрыв был крайним проявлением, основная проблема — тяжёлый
+обычный бой. Последующая работа сосредоточена на полном CPU тика/кадра, а не только
+на death transition. Повторно разобран аппаратный pack: 1547 TimerTakt,
+взвешенное среднее окон 36.367 мс; Advance 24.405 мс, worldline 7.429 мс.
+Это данные прежнего устройства из архива, не новый hardware тест.
+
+Выполнен обычный host-бой на 1000 тиках без lethal hit/slow callback; добавлены
+CPU samples горячих функций (1/64, полный call count), геометрические checkpoints
+на 500/1000 и RGB565 hashes завершённых software кадров. Рассмотренный новый
+sin/cos reuse оказался уже существующим e2e56 effective override и не принят
+как новое улучшение.
+
+Изолированный кандидат polygon-memo сохраняет только результаты исходной
+проекции при точном совпадении matrix/point/FP-control. Математический контракт
+на настоящем ProjectPointByMatrix: ASan/UBSan 98304 checks PASS, ARM64/QEMU 98304
+checks PASS, четыре режима округления. Отдельный polygon unit скомпилирован
+devkitA64: COMPILE PASS, LINK/HARDWARE не проверены.
+
+Полный before/after gate **FAIL / REJECTED**: main-thread CPU 7.795 → 10.296 с
+(+32.08%), DrawFrame 3123 → 5203; world/RNG и geometry на 500/1000 расходятся,
+из 870 общих ticks полные frame hashes совпали в нуле. По требованию ТЗ
+эксперимент не включён в shipping overrides. Header хранится в tests, а вариант
+доступен только явным diagnostic флагом. Дополнительные paired series не
+запускались после первого FAIL; ускорение обычной аркады не объявляется.
+
+Факты и гипотезы разделены: ограничитель EndFramePresentation вызывается после
+полной отрисовки; рост лишних DrawFrame подтверждён CSV. В SE_Space::TObjectSE::Advance
+найден wall-clock RandomSound с общим System::RandSeed, но его вклад в конкретный
+parity FAIL ещё не установлен. Следующий gate — repeatability и контролируемый
+timer/input/render replay с поиском самого раннего расхождения, без обнуления RNG
+или удаления эффектов/событий. Числа и команды в perf-comparison.md и
+e2e515-arcade-normal-profile.json. Эта работа не закрывает D/F3, новые тесты
+компонента выполнены локально; CI и итоговая NRO этого пакета не запускались.

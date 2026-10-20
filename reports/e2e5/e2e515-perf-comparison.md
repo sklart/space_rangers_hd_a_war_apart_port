@@ -98,3 +98,71 @@ Runner также отвергает прогон без интервалов з
 
 На Switch остаются HARDWARE PENDING зависание около 40 с, p95/p99, скорость
 игрового времени, SDL present, отзывчивость контроллера и handheld/docked.
+
+## Обычный бой: аппаратный профиль и отклонённый эксперимент
+
+После уточнения пользователя приоритет — постоянные тормоза в обычной аркаде;
+взрыв остаётся крайним регрессионным случаем. Из сохранённого аппаратного лога
+`build/e2e514/hardware-input/logs/e2e.log` пересчитаны 12 профильных окон:
+1547 TimerTakt, взвешенное по числу вызовов среднее окон 36.367 мс.
+Advance (stage 2) — 24.405 мс, worldline (stage 4) — 7.429 мс.
+Это историческое измерение приставки, не новая hardware проверка; p95 всех
+вызовов из агрегированных окон не восстанавливается. Нельзя объяснять эту
+нагрузку только SDL present или взрывом.
+
+В диагностическом обычном бое добавлены счётчики и CPU samples горячих функций,
+геометрические checkpoints и RGB565 hashes на реально завершённых host кадрах.
+Каждый 64-й вызов измеряется clock_gettime; полный call count сохраняется.
+Inclusive samples вложены друг в друга, их нельзя суммировать в общий CPU.
+Первоначальный all-calls profiler сам заметно замедлял проекции и не используется
+для сравнения performance. Исходная идея повторных sin/cos отклонена до компиляции:
+такая правка уже присутствует в effective ab_Global через e2e56_geometry_overrides.
+
+Исследован отдельный opt-in `--variant polygon-memo`: ограниченная таблица
+результатов оригинальной проекции полигонов с точными matrix/point/FP-control keys.
+Point pointers и ресурсы не сохраняются, арифметика не упрощается, исходные
+DrawFrame/AI/events не пропускаются. Проверка компонента на настоящем
+ProjectPointByMatrix и настоящем runtime дала 98304 побайтовых сравнения в четырёх
+режимах округления: ASan/UBSan PASS и ARM64/QEMU PASS. Проверены изменения
+матрицы/координат, повторное использование адресов и исключение projector.
+Отдельный реальный Switch polygon translation unit с кандидатом скомпилирован
+devkitA64: COMPILE PASS, linked=false, hardware_executed=false.
+Данные: `build/e2e515/polygon-contract/{asan,arm64,sdk}/result.json`.
+
+Полный обычный бой без искусственных задержек и без lethal hit:
+
+| 1000 активных тиков, seed=0x515 | Baseline | Polygon memo |
+|---|---:|---:|
+| Main-thread CPU, с | 7.795 | 10.296 |
+| Timer CPU, с | 0.966 | 0.943 |
+| Draw CPU, с | 6.405 | 8.894 |
+| DrawFrame calls | 3123 | 5203 |
+| Software presentations | 948 | 1098 |
+| Среднее CPU одного DrawFrame, мс | 2.051 | 1.709 |
+
+**REJECTED**: общий CPU вырос на 32.08%; world/RNG и геометрия на 500/1000 тиках
+не совпали. Из 870 общих ticks полные framebuffer hashes совпали в нуле случаев.
+Из-за различия состояния даже эти времена не являются валидной performance
+победой. Три дополнительные пары не запускались: первый обязательный parity/total
+gate уже FAIL. В shipping overrides кандидат не подключён, header перенесён в
+`tests/`; он сохраняется только как воспроизводимый отвергнутый эксперимент.
+Сводка: `reports/e2e5/e2e515-arcade-normal-profile.json`, сырые CSV/JSON по run IDs
+внутри `build/e2e515/arcade/runs/`.
+
+Установлено по коду: EndFramePresentation ограничивает только фактическую
+презентацию; DrawFrame выполняет полную работу до этой проверки. В эксперименте
+отдельный кадр стал дешевле, но число DrawFrame выросло. Отдельно в
+SE_Space::TObjectSE::Advance случайные звуки зависят от timeGetTime и используют
+System::RandSeed. Вклад этого wall-time пути в конкретное расхождение пока
+НЕ ДОКАЗАН; это точная проверяемая гипотеза, а не установленная первопричина.
+Следующий gate — baseline repeatability и одинаковый replay timer/input/render,
+с фиксацией первого расхождения. Дальнейшее пропускание DrawFrame, изменение
+точности и перенос RNG не внедрялись. Постоянные аппаратные тормоза ещё не
+объявлены исправленными.
+
+Воспроизведение контракта: `python3 tools/e2e515_polygon_tests.py`, затем
+`python3 tools/e2e515_polygon_tests.py --arm64`; devkit compile на Windows:
+`py -3 tools/e2e515_polygon_tests.py --sdk`.
+Обычный бой: команда arcade_probe выше без `--death-tick`, с `--build --ticks 1000`
+и `--variant baseline` либо `--variant polygon-memo`. Варианты собираются в
+раздельные `build/e2e515/arcade/variants/<variant>/`.

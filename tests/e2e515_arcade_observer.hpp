@@ -7,6 +7,11 @@
 #include "units/ab_Object.hpp"
 #include "units/ab_Ship.hpp"
 #include "units/System.hpp"
+#include "renderer_platform.hpp"
+#include "types/ab_WorldLine.hpp"
+#include "units/ab_WorldLine.hpp"
+#include "types/GI_PolyLine.hpp"
+#include <array>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -30,6 +35,26 @@ inline ab_MainForm::TfAB* active{};
 inline bool lethal{}, result{}, result_presented{}, explosion_complete{};
 inline unsigned presents{};
 inline std::uint64_t start{}, start_cpu{};
+struct Hotspot { std::uint64_t calls{}, samples{}, cpu{}, maximum{}; };
+inline thread_local bool measuring{};
+inline thread_local std::array<Hotspot, 8> hotspots{};
+inline constexpr const char* names[] = {"unused", "bearing-distance", "object-distance",
+    "object-advance", "ship-ai-advance", "decide-actions", "avoid-obstacle", "matrix-projection"};
+struct Scope {
+    unsigned id;
+    bool enabled{measuring};
+    std::uint64_t begin{};
+    explicit Scope(unsigned value) : id(value) {
+        if (enabled) enabled = (++hotspots[id].calls % 64) == 1;
+        if (enabled) begin = Cpu();
+    }
+    ~Scope() {
+        if (!enabled) return;
+        const auto used = Cpu() - begin;
+        auto& target = hotspots[id]; ++target.samples; target.cpu += used;
+        if (used > target.maximum) target.maximum = used;
+    }
+};
 inline void Row(const char* event, std::uint64_t duration = 0, std::uint64_t cpu = 0) {
     if (!output) return;
     std::fprintf(output, "%s,%llu,%d,%llu,%llu,%u\n", event,
@@ -55,10 +80,31 @@ inline void Checkpoint() {
     }
     std::fprintf(stderr, "ARCADE_CHECKPOINT tick=%d objects=%u hash=%016llx\n",
         ab_Global::ArcadeTickCount, objects, static_cast<unsigned long long>(hash));
+    hash = UINT64_C(14695981039346656037);
+    unsigned lines{};
+    for (auto* line = ab_WorldLine::FirstWorldLine; line; line = line->Next) {
+        ++lines; add(line->Kind);
+        const bool visible = line->Segment != nullptr; add(visible);
+        if (!visible) continue;
+        add(line->Segment->First.X); add(line->Segment->First.Y);
+        add(line->Segment->Last.X); add(line->Segment->Last.Y);
+        add(line->Segment->PixelCount); add(line->Segment->Color); add(line->Segment->EndColor);
+    }
+    std::fprintf(stderr, "ARCADE_GEOMETRY tick=%d lines=%u hash=%016llx\n",
+        ab_Global::ArcadeTickCount, lines, static_cast<unsigned long long>(hash));
     std::fflush(stderr);
 }
 inline void Finish() {
     Checkpoint(); Row("complete", Now() - start, Cpu() - start_cpu);
+    if (auto* file = std::fopen("arcade-hotspots.csv", "w")) {
+        for (unsigned i = 1; i < hotspots.size(); ++i)
+            std::fprintf(file, "%s,%llu,%llu,%llu,%llu\n", names[i],
+                static_cast<unsigned long long>(hotspots[i].calls),
+                static_cast<unsigned long long>(hotspots[i].samples),
+                static_cast<unsigned long long>(hotspots[i].cpu),
+                static_cast<unsigned long long>(hotspots[i].maximum));
+        std::fclose(file);
+    }
     std::fclose(output); output = nullptr; std::fflush(nullptr); std::_Exit(0);
 }
 struct Tick {
@@ -68,7 +114,7 @@ struct Tick {
         if (!output) {
             output = std::fopen("arcade-events.csv", "w");
             if (!output) std::_Exit(3);
-            active = form; start = begin; start_cpu = cpu; Row("begin");
+            active = form; start = begin; start_cpu = cpu; measuring = true; Row("begin");
         }
         if (ab_Global::ArcadeTickCount > 0) {
             const int death_tick = Option("E2E515_ARCADE_DEATH_TICK", 0);
@@ -98,6 +144,7 @@ struct Draw {
 inline void Present() {
     if (!output) return;
     ++presents; Row("present");
+    Row("image-hash", srhd_awa::platform::renderer_platform::LastPresentationHash());
     if (result && !result_presented) { result_presented = true; Row("result-presented"); }
     if (result_presented && explosion_complete) Finish();
 }

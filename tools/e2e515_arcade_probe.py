@@ -17,19 +17,23 @@ OUTPUT = ROOT / 'build/e2e515/arcade'
 def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
-def build():
-    (OUTPUT / 'build-status.json').write_text(json.dumps({'status': 'RUNNING'}))
+def build(variant):
+    variant_root = OUTPUT / 'variants' / variant
+    variant_root.mkdir(parents=True, exist_ok=True)
+    (variant_root / 'build-status.json').write_text(json.dumps({'status': 'RUNNING'}))
     report = json.loads((BUILD / 'report.json').read_text())
     mapping = report['source_map']
     flags = report['compile_flags']
+    flags = [*flags, '-I' + str(ROOT / 'tests')]
     header = ROOT / 'tests/e2e515_arcade_observer.hpp'
     sources = {}
-    for name in ('ab_MainForm', 'ab_Hit'):
+    for name in ('ab_MainForm', 'ab_Hit', 'ab_Global', 'ab_Object', 'ab_ShipAI', 'ab_Polygon'):
         sources[name] = ROOT / mapping[f'upstream/cpp/src/{name}.cpp']
     sources['renderer_platform'] = ROOT / 'port/switch/platform/renderer_platform.cpp'
     objects = [Path(p) for p in (BUILD / 'link-objects.rsp').read_text().splitlines()
                if Path(p).stem not in sources]
-    provenance = {'host_binary_sha256': report['binary_sha256'], 'header_sha256': sha(header)}
+    provenance = {'host_binary_sha256': report['binary_sha256'], 'header_sha256': sha(header),
+                  'memo_header_sha256': sha(ROOT / 'tests/e2e515_polygon_projection.hpp'), 'variant': variant}
     with tempfile.TemporaryDirectory(prefix='e2e515-arena-') as tmp:
         temp = Path(tmp)
         staged = []
@@ -50,25 +54,46 @@ def build():
             elif name == 'ab_Hit':
                 marker = '    void TabHit::ExplosionComplete(GI_MessageLoop::TObjectGI* Sender) {'
                 replace(marker, marker + '\n        e2e515_arcade_observer::ExplosionComplete(this);')
-            else:
+            elif name == 'renderer_platform':
                 replace('  e2e5_stage_profiler::PresentFrame(width, height);',
                         '  e2e5_stage_profiler::PresentFrame(width, height);\n  e2e515_arcade_observer::Present();')
+            if name == 'ab_Polygon' and variant == 'polygon-memo':
+                from e2e515_polygon_overrides import apply
+                text = apply(text)
+            scopes = {'ab_Global': (('ComputeSphericalBearingAndDistance', 1), ('ProjectPointByMatrix', 7)),
+                      'ab_Object': (('TabObject::DistanceTo', 2), ('TabObject::Advance', 3)),
+                      'ab_ShipAI': (('TabShipAI::Advance', 4), ('TabShipAI::DecideActions', 5),
+                                    ('TabShipAI::AvoidImmediateObstacle', 6))}
+            for function, number in scopes.get(name, ()):
+                markers = [line for line in text.splitlines() if line.startswith('    ') and
+                           not line.startswith('     ') and function + '(' in line and line.endswith(' {')]
+                if len(markers) != 1: raise RuntimeError('Hotspot boundary changed: ' + function)
+                replace(markers[0], markers[0] + f'\n        e2e515_arcade_observer::Scope e2e_hotspot({number});')
             text = f'#include "{header}"\n' + text
             generated = temp / (name + '.cpp'); generated.write_text(text)
-            obj = temp / (name + '.o')
-            subprocess.run(['g++', *flags, '-c', str(generated), '-o', str(obj)], cwd=ROOT, check=True)
+            cache = OUTPUT / 'objects'; cache.mkdir(exist_ok=True)
+            memo_header = ROOT / 'tests/e2e515_polygon_projection.hpp'
+            key = hashlib.sha256((text + sha(header) + sha(memo_header) + repr(flags) + report['binary_sha256']).encode()).hexdigest()
+            obj = cache / (name + '-' + key + '.o')
+            if not obj.exists():
+                temporary_obj = temp / (name + '.o')
+                subprocess.run(['g++', *flags, '-c', str(generated), '-o', str(temporary_obj)], cwd=ROOT, check=True)
+                pending_obj = obj.with_suffix('.' + uuid.uuid4().hex + '.tmp')
+                shutil.copyfile(temporary_obj, pending_obj)
+                pending_obj.replace(obj)
+            print(name + ': diagnostic object ready', flush=True)
             staged.append(str(obj))
             provenance[name] = {'source_sha256': sha(source), 'generated_sha256': sha(generated)}
         rsp = temp / 'objects.rsp'; rsp.write_text('\n'.join(staged) + '\n')
-        binary = OUTPUT / 'arena-host'
+        binary = variant_root / 'arena-host'
         library = BUILD / 'okgf/libokgf.so'
         subprocess.run(['g++', '@' + str(rsp), '-Wl,--gc-sections', str(library),
                         '-Wl,-rpath,' + str(library.parent), '-lz', '-lpng', '-ljpeg',
                         '-lvorbisfile', '-lvorbis', '-logg', '-lSDL2', '-lm', '-pthread',
                         '-o', str(binary)], cwd=ROOT, check=True)
         provenance['binary_sha256'] = sha(binary)
-        (OUTPUT / 'provenance.json').write_text(json.dumps(provenance, indent=2) + '\n')
-        (OUTPUT / 'build-status.json').write_text(json.dumps({'status': 'PASS', 'binary_sha256': sha(binary)}))
+        (variant_root / 'provenance.json').write_text(json.dumps(provenance, indent=2) + '\n')
+        (variant_root / 'build-status.json').write_text(json.dumps({'status': 'PASS', 'binary_sha256': sha(binary)}))
         print('Diagnostic arena linked', flush=True)
 
 def percentile(values, fraction):
@@ -78,6 +103,8 @@ def percentile(values, fraction):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build', action='store_true')
+    parser.add_argument('--variant', choices=('baseline', 'polygon-memo'), default='baseline',
+                        help='polygon-memo is a rejected diagnostic comparison, never a shipping feature')
     parser.add_argument('--game-root', type=Path, required=True)
     parser.add_argument('--config-root', type=Path, required=True)
     parser.add_argument('--slow-ms', type=int, choices=(0, 20, 40, 70, 150, 250), default=0)
@@ -86,11 +113,16 @@ def main():
     args = parser.parse_args()
     if not 0 <= args.death_tick <= 1000: parser.error('death tick outside 0..1000')
     OUTPUT.mkdir(parents=True, exist_ok=True)
-    if args.build: build()
-    binary = OUTPUT / 'arena-host'
-    provenance = json.loads((OUTPUT / 'provenance.json').read_text())
+    variant_root = OUTPUT / 'variants' / args.variant
+    if args.build:
+        try: build(args.variant)
+        except Exception as error:
+            (variant_root / 'build-status.json').write_text(json.dumps({'status': 'FAIL', 'error': str(error)}))
+            raise
+    binary = variant_root / 'arena-host'
+    provenance = json.loads((variant_root / 'provenance.json').read_text())
     if provenance['binary_sha256'] != sha(binary): raise RuntimeError('Probe binary changed')
-    build_status = OUTPUT / 'build-status.json'
+    build_status = variant_root / 'build-status.json'
     if build_status.exists() and json.loads(build_status.read_text()).get('status') != 'PASS':
         raise RuntimeError('Last diagnostic build did not finish successfully')
     stage = OUTPUT / 'runs' / uuid.uuid4().hex
@@ -103,7 +135,7 @@ def main():
                SDL_VIDEODRIVER='dummy', SDL_AUDIODRIVER='dummy', LD_LIBRARY_PATH=str(BUILD / 'okgf'),
                E2E515_ARCADE_SLOW_MS=str(args.slow_ms), E2E515_ARCADE_DEATH_TICK=str(args.death_tick),
                E2E515_ARCADE_TICKS=str(args.ticks))
-    report = dict(status='RUNNING', stage=str(stage), slow_ms=args.slow_ms, death_tick=args.death_tick,
+    report = dict(status='RUNNING', stage=str(stage), variant=args.variant, slow_ms=args.slow_ms, death_tick=args.death_tick,
                   requested_ticks=args.ticks, binary_sha256=sha(binary), hardware_executed=False,
                   presentation_backend='host software PresentRgb565 completion; no SDL GPU presentation', seed=0x515,
                   checkpoint_scope='selected object scalar fields, health, form/System RNG; not full world serialization',
@@ -137,12 +169,16 @@ def main():
     if not gaps or max(gaps) > report['liveness_limit_ns'] or 'exception' in events:
         report['status'] = 'FAIL'
     report['checkpoints'] = [line for line in (stage / 'stderr.log').read_text(errors='replace').splitlines()
-                             if line.startswith('ARCADE_CHECKPOINT ')]
+                             if line.startswith(('ARCADE_CHECKPOINT ', 'ARCADE_GEOMETRY '))]
+    hotspot_path = stage / 'arcade-hotspots.csv'
+    report['sampled_inclusive_hotspots'] = {row[0]: dict(calls=int(row[1]), samples=int(row[2]), sampled_cpu_ns=int(row[3]), max_sample_cpu_ns=int(row[4]))
+                                    for row in csv.reader(hotspot_path.open())} if hotspot_path.exists() else {}
+    report['image_hashes_by_tick'] = {row[2]: row[3] for row in rows if row[0] == 'image-hash'}
     if args.death_tick and not (report['death_observed'] and report['explosion_complete'] and report['result_presented']):
         report['status'] = 'FAIL'
     if not report['config_source_unchanged']: report['status'] = 'FAIL'
     report['phase_events'] = [{'event': row[0], 'wall_ns': int(row[1]), 'tick': int(row[2])}
-                              for row in rows if row[0] not in ('tick', 'draw', 'present')]
+                              for row in rows if row[0] not in ('tick', 'draw', 'present', 'image-hash')]
     for event, column, name in (('tick', 3, 'tick_wall_ns'), ('tick', 4, 'tick_cpu_ns'),
                                 ('draw', 4, 'draw_cpu_ns')):
         values = [int(row[column]) for row in rows if row[0] == event]
@@ -154,7 +190,9 @@ def main():
         report['total_wall_ns'] = int(complete[-1][3])
         report['total_thread_cpu_ns'] = int(complete[-1][4])
     result.write_text(json.dumps(report, indent=2) + '\n')
-    print(json.dumps(report, indent=2), flush=True)
+    display = dict(report)
+    display['image_hashes_by_tick'] = {'recorded_ticks': len(report['image_hashes_by_tick'])}
+    print(json.dumps(display, indent=2), flush=True)
     if report['status'] != 'PASS': raise SystemExit(1)
 
 if __name__ == '__main__': main()
