@@ -28,6 +28,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <limits>
+#include <vector>
 
 namespace srhd_awa::platform::renderer_platform {
 namespace {
@@ -37,6 +38,50 @@ std::uint64_t g_presentation_count{};
 std::uint64_t g_last_presentation_hash{};
 PresentationDiagnostics g_presentation_diagnostics{};
 bool g_presentation_failure_logged{};
+struct SceneBackdrop {
+  const void* scene;
+  std::int32_t depth;
+  GR_GraphBuf::TGraphBufGR* buffer;
+};
+// BGBuf controls borrow these objects and can outlive their Run() invocation.
+// Keep their addresses stable until renderer shutdown, unlike frame canvases.
+std::vector<SceneBackdrop> g_scene_backdrops;
+SceneCanvas* g_active_canvas{};
+
+#if defined(__SWITCH__) && defined(E2E3_TRACE) && E2E3_TRACE
+void CaptureSceneSample(const void* pixels, int pitch, int width, int height) {
+  static unsigned counts[256]{};
+  unsigned id = GlobalsV::CurrentScreenId;
+  if (GI_MessageLoop::MessageLoopStack && pas::list_count(GI_MessageLoop::MessageLoopStack)) {
+    const auto top = pas::list_get(GI_MessageLoop::MessageLoopStack,
+                                  pas::list_count(GI_MessageLoop::MessageLoopStack) - 1);
+    for (unsigned i = 1; i < 42; ++i) if (GlobalsV::RegisteredScreens[i] == top) { id = i; break; }
+  }
+  const auto count = ++counts[id];
+  if (count != 1 && count != 60) return;
+  char path[256]{};
+  std::snprintf(path, sizeof(path), "%s/logs/scene-%u-%u.ppm", e2e_stage::kRoot, id, count);
+  FILE* file = std::fopen(path, "wb");
+  if (!file) return;
+  bool ok = std::fprintf(file, "P6\n320 180\n255\n") > 0;
+  unsigned char row[320 * 3]{};
+  for (int y = 0; y < 180 && ok; ++y) {
+    const auto* source = reinterpret_cast<const std::uint16_t*>(
+        static_cast<const unsigned char*>(pixels) + (y * height / 180) * pitch);
+    for (int x = 0; x < 320; ++x) {
+      const auto color = source[x * width / 320];
+      row[x * 3] = ((color >> 11) & 31) * 255 / 31;
+      row[x * 3 + 1] = ((color >> 5) & 63) * 255 / 63;
+      row[x * 3 + 2] = (color & 31) * 255 / 31;
+    }
+    ok = std::fwrite(row, 1, sizeof(row), file) == sizeof(row);
+  }
+  if (std::fclose(file)) ok = false;
+  char detail[320]{};
+  std::snprintf(detail, sizeof(detail), "scene sample %s path=%s", ok ? "written" : "failed", path);
+  e2e_stage::Log(detail);
+}
+#endif
 
 #if defined(__SWITCH__)
 SDL_Renderer* g_sdl_renderer{};
@@ -120,6 +165,8 @@ std::uint64_t HashRgb565(const void* pixels, std::int32_t pitch, std::int32_t wi
 }
 
 void ClearSoftwareGlobals() {
+  for (const auto& backdrop : g_scene_backdrops) pas::free(backdrop.buffer);
+  g_scene_backdrops.clear();
   GR_Main::FreeScreenRenderBuffers();
   pas::free(GR_Main::CurrentPixelFormat);
   GR_Main::CurrentPixelFormat = nullptr;
@@ -137,7 +184,9 @@ void ClearSoftwareGlobals() {
 
 void SetNativeWindow(void* native_window) { g_native_window = native_window; }
 
-SceneCanvas::SceneCanvas(bool inherit_background) : parent_(GR_Main::ScreenRenderBuffer) {
+SceneCanvas::SceneCanvas(bool inherit_background, const void* scene)
+    : parent_(GR_Main::ScreenRenderBuffer), parent_aux_(GR_Main::AuxRenderBuffer),
+      parent_scope_(g_active_canvas), started_ms_(e2e_clock::Microseconds() / 1000) {
   if (!parent_) return;
   nested_ = GI_MessageLoop::MessageLoopStack &&
       pas::list_count(GI_MessageLoop::MessageLoopStack) != 0;
@@ -155,8 +204,31 @@ SceneCanvas::SceneCanvas(bool inherit_background) : parent_(GR_Main::ScreenRende
     pas::free(canvas_);
     throw;
   }
+  const auto depth = GI_MessageLoop::MessageLoopStack ? pas::list_count(GI_MessageLoop::MessageLoopStack) : 0;
+  GR_GraphBuf::TGraphBufGR* aux{};
+  for (const auto& entry : g_scene_backdrops)
+    if (entry.scene == scene && entry.depth == depth) { aux = entry.buffer; break; }
+  try {
+    if (!aux) {
+      aux = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+      try { g_scene_backdrops.push_back({scene, depth, aux}); }
+      catch (...) { pas::free(aux); throw; }
+    }
+    if (inherit_background) {
+      aux->AllocateNativePitch(parent_->Width, parent_->Height, parent_->PitchBytes);
+      GR_Main::Ex_OKGR_Copy_XY_XY_WORD(aux->GetPixels(), aux->PitchBytes, 0, 0,
+          parent_->GetPixels(), parent_->PitchBytes, 0, 0, parent_->Width, parent_->Height);
+    } else aux->Clear();
+  } catch (...) { pas::free(canvas_); canvas_ = nullptr; throw; }
+  GR_Main::AuxRenderBuffer = aux;
   GR_Main::ScreenRenderBuffer = canvas_;
+  g_active_canvas = this;
   GR_Main::FullFrameRedrawRequested = true;
+  char detail[160]{};
+  std::snprintf(detail, sizeof(detail), "scene canvas id=%u inherit=%u nested=%u aux_width=%d aux_height=%d",
+      static_cast<unsigned>(GlobalsV::CurrentScreenId), static_cast<unsigned>(inherit_background),
+      static_cast<unsigned>(nested_), aux->Width, aux->Height);
+  e2e_stage::Log(detail);
 }
 
 SceneCanvas::~SceneCanvas() {
@@ -168,9 +240,14 @@ SceneCanvas::~SceneCanvas() {
         canvas_->GetPixels(), canvas_->PitchBytes, 0, 0, canvas_->Width, canvas_->Height);
   }
   GR_Main::ScreenRenderBuffer = parent_;
+  GR_Main::AuxRenderBuffer = parent_aux_;
   GR_Main::FullFrameRedrawRequested = true;
   pas::free(canvas_);
+  g_active_canvas = parent_scope_;
+  if (parent_scope_) parent_scope_->nested_millis_ += e2e_clock::Microseconds() / 1000 - started_ms_;
 }
+
+std::uint64_t NestedLoopMillis() { return g_active_canvas ? g_active_canvas->NestedMillis() : 0; }
 
 bool InitializeSoftwareRenderer(const RendererConfig& config, std::string* error) {
   if (g_initialized) {
@@ -481,6 +558,9 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   g_presentation_diagnostics.present_succeeded = true;
 #endif
   ++g_presentation_count;
+#if defined(__SWITCH__) && defined(E2E3_TRACE) && E2E3_TRACE
+  CaptureSceneSample(pixels, pitch, width, height);
+#endif
   e2e5_stage_profiler::PresentFrame(width, height);
   const auto completed_us = e2e_clock::Microseconds();
   presentation_profile.Measure(44, completed_us - present_start_us);

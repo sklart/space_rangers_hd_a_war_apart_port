@@ -545,13 +545,38 @@ bool CanCreateGameTemp(const char16_t* source) {
            FileKind(path) == Kind::missing;
 }
 
+Result PrepareGameTemp(const char16_t* source) {
+    const auto temp = GamePath(source);
+    if (temp.filename() != "save.tmp" || !SafeDirectory(temp.parent_path()))
+        return {false, false, {}, "unsafe temporary save path"};
+    if (FileKind(temp) == Kind::missing) return {true, false, {}, "temporary path available"};
+    Fingerprint previous;
+    if (!HashFile(temp, previous))
+        return {false, false, {}, "occupied temp is not a readable regular file; retained"};
+    // The file may be incomplete. Preserve its exact bytes rather than
+    // requiring a valid game-state CRC before permitting a fresh save.
+    std::string validation;
+    const bool loadable = ValidateSave(temp, validation);
+    for (unsigned i = 1; i <= 4096; ++i) {
+        const auto backup = temp.parent_path() / ("RecoveredSave-" + std::to_string(i) +
+                                                  (loadable ? ".sav" : ".tmp"));
+        if (FileKind(backup) != Kind::missing) continue;
+        std::string error;
+        if (!CopyVerified(temp, backup, previous, {}, "retain-failed-save", error) ||
+            !RemoveVerified(temp, previous, {}, "release-temp-after-backup", error))
+            return {false, false, backup, error + "; original temp retained unless verified removal completed"};
+        return {true, true, backup, "previous failed write retained as " + backup.string()};
+    }
+    return {false, false, {}, "recovery file limit reached; original temp retained"};
+}
+
 bool GameSavePathExists(const char16_t* path) {
     const auto file = GamePath(path);
     return file.extension() == ".sav" && SafeDirectory(file.parent_path()) &&
            FileKind(file) == Kind::regular;
 }
 
-Result ReplaceGameSavePath(const char16_t* source, const char16_t* target) {
+Result ReplaceGameSavePath(const char16_t* source, const char16_t* target, const Fault& fault) {
     const auto temp = GamePath(source);
     const auto destination = GamePath(target);
     if (temp.filename() != "save.tmp" || destination.parent_path() != temp.parent_path() ||
@@ -562,13 +587,44 @@ Result ReplaceGameSavePath(const char16_t* source, const char16_t* target) {
     std::string detail;
     if (!ValidateSave(temp, detail))
         return {false, false, {}, "manual save rejected: " + detail};
-    const auto result = e2e4_save_replace::ReplaceWithBackup(temp, destination);
-    if (result != e2e4_save_replace::Status::success)
-        return {false, false, destination.string() + ".bak",
-                std::string("manual save replace failed: ") + e2e4_save_replace::StatusText(result)};
-    if (!GameSavePathExists(target))
-        return {false, false, {}, "manual save destination missing after replace"};
-    return {true, false, {}, "manual save installed; previous generation retained in backup"};
+    Fingerprint next, previous;
+    if (!HashFile(temp, next) || !SyncFile(temp))
+        return {false, false, {}, "manual temp read/flush failed; retained"};
+    fs::path backup;
+    const bool occupied = FileKind(destination) == Kind::regular;
+    if (occupied) {
+        if (!HashFile(destination, previous)) return {false, false, {}, "old manual save unreadable"};
+        for (unsigned i = 0; i < 1024; ++i) {
+            auto candidate = destination;
+            candidate += i == 0 ? ".bak" : ".bak." + std::to_string(i);
+            if (FileKind(candidate) == Kind::missing) { backup = candidate; break; }
+        }
+        if (backup.empty() || !CopyVerified(destination, backup, previous, fault, "manual-backup", detail))
+            return {false, false, backup, "manual backup failed; old save unchanged: " + detail};
+        if (!RemoveVerified(destination, previous, fault, "manual-remove-old", detail))
+            return {false, false, backup, "manual old generation retained: " + detail};
+    }
+    // Use the same verified copy/flush/readback primitive as quicksave. SD
+    // rename success is not sufficient: hardware reported missing destinations
+    // even after a successful rename; failed installs then poisoned temp.
+    if (!CopyVerified(temp, destination, next, fault, "manual-publish", detail)) {
+        std::string rollback;
+        if (FileKind(destination) == Kind::regular) {
+            Fingerprint partial;
+            if (!HashFile(destination, partial))
+                return {false, false, backup, detail + "; partial destination unreadable; temp and backup retained"};
+            // The original complete new generation remains in temp. Only
+            // remove our verified incomplete copy, never a changed old file.
+            if (!RemoveVerified(destination, partial, {}, "manual-remove-partial", rollback))
+                return {false, false, backup, detail + "; " + rollback};
+        }
+        if (occupied && !CopyVerified(backup, destination, previous, {}, "manual-restore-old", rollback))
+            return {false, false, backup, detail + "; restore failed: " + rollback + "; old snapshot retained"};
+        return {false, occupied, backup, detail + "; old slot restored, new generation retained in temp"};
+    }
+    if (!RemoveVerified(temp, next, {}, "manual-release-temp", detail))
+        return {true, false, backup, "manual save verified; temp cleanup deferred: " + detail};
+    return {true, false, backup, "manual save installed and readback verified; previous generation retained in backup"};
 }
 
 Result RotateGamePaths(const char16_t* source, const char16_t* quick_slot_one,

@@ -38,5 +38,33 @@ int main() {
     run(1000, false); assert(logical_ticks == 50);
     run(5000, true); assert(logical_ticks == 50);
     run(1000, false); assert(logical_ticks == 100);
+    // Model an overloaded device: each real 20-ms simulation callback costs
+    // 40 ms CPU. A presentation/input poll must occur after that callback,
+    // not after recursively catching up the whole previous processing cost.
+    srhd_awa::platform::ContinuousTimerDebt debt;
+    std::uint64_t supplied{}, consumed{};
+    unsigned slow_ticks{}, polls{};
+    for (unsigned frame = 0; frame < 600; ++frame) {
+        debt.Add(33, frame ? 40 : 0); supplied += 33 + (frame ? 40 : 0);
+        unsigned batch_ms{}, callbacks{};
+        while (debt.TakeOne()) {
+            ++consumed;
+            if (consumed % 20 == 0) { ++slow_ticks; ++callbacks; batch_ms += 40; }
+            if (batch_ms >= srhd_awa::platform::ContinuousTimerDebt::BatchBudgetMs) break;
+        }
+        assert(callbacks <= 1);
+        assert(supplied == consumed + debt.Pending());
+        ++polls;
+    }
+    assert(polls == 600 && slow_ticks == 600 && debt.Pending() > 0);
+    // Once load stops, retained milliseconds drain in order without dropped
+    // ticks. This promises responsiveness, not impossible 50 Hz under load.
+    while (debt.TakeOne()) ++consumed;
+    assert(consumed == supplied && debt.Pending() == 0);
+    assert(srhd_awa::platform::WithoutNestedLoopTime(5040, 100, 5100) == 40);
+    assert(srhd_awa::platform::WithoutNestedLoopTime(5000, 100, 5100) == 0);
+    assert(srhd_awa::platform::WithoutNestedLoopTime(0, 100, 5101) == 0);
+    std::printf("PASS overloaded callbacks: polls=%u ticks=%u supplied=%llu consumed=%llu\n",
+        polls, slow_ticks, (unsigned long long)supplied, (unsigned long long)consumed);
     std::puts("PASS timer delivery contract; gameplay and device performance are separate checks");
 }

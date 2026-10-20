@@ -608,9 +608,9 @@ void DriveOriginalGameLoad(const std::filesystem::path& stage,
           if (ship_closed_at != std::chrono::steady_clock::time_point{}) {
             const auto now = std::chrono::steady_clock::now();
             unsigned completed = 0;
-            for (auto at = lines.find("hangar_end_turn_done turn=", open);
+            for (auto at = lines.find("turn operation=end-turn-ui", open);
                  at != std::string::npos;
-                 at = lines.find("hangar_end_turn_done turn=", at + 1)) ++completed;
+                 at = lines.find("turn operation=end-turn-ui", at + 1)) ++completed;
             if (completed >= load_turns_target &&
                 load_turns_sent == load_turns_target) {
               if (std::getenv("E2E513_HOST_MANUAL_AFTER_LOAD")) {
@@ -643,8 +643,15 @@ void DriveOriginalGameLoad(const std::filesystem::path& stage,
         continue;
       }
       const auto load = lines.find("screen dispatch id=24 postload=");
-      const auto hangar = load == std::string::npos ? load :
-          lines.find("screen dispatch id=4 postload=", load);
+      auto hangar = std::string::npos;
+      if (load != std::string::npos) {
+        for (const auto* checkpoint : {"screen dispatch id=4 postload=",
+                                     "screen dispatch id=5 postload=",
+                                     "screen dispatch id=6 postload="}) {
+          const auto found = lines.find(checkpoint, load);
+          if (found != std::string::npos && (hangar == std::string::npos || found < hangar)) hangar = found;
+        }
+      }
       if (hangar != std::string::npos &&
           lines.find("screen Run frames=60", hangar) != std::string::npos) {
         const auto window = srhd_awa::platform::win32_compat::MainWindow();

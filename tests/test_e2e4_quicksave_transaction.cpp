@@ -303,5 +303,29 @@ int main(int argc, char** argv) {
         assert(ReplaceGameSavePath(temp_name.c_str(), unicode_name.c_str()).ok);
         assert(GameSavePathExists(unicode_name.c_str()));
         assert(!GameSavePathExists(u"Несуществующий.sav"));
+        const auto original_unicode = Read(unicode_target);
+        Write(source, ValidSave("RSG64", "v168"));
+        bool publishing = false;
+        const auto failed = ReplaceGameSavePath(temp_name.c_str(), unicode_name.c_str(),
+            [&](const char* operation) {
+                if (std::string(operation) == "manual-publish") publishing = true;
+                return !(publishing && std::string(operation) == "copy-before-flush");
+            });
+        assert(!failed.ok && Read(unicode_target) == original_unicode);
+        assert(fs::exists(source));
+        const auto retained = Read(source);
+        auto prepared = PrepareGameTemp(temp_name.c_str());
+        assert(prepared.ok && prepared.recovered && !fs::exists(source));
+        assert(prepared.backup_directory.extension() == ".sav");
+        assert(Read(prepared.backup_directory) == retained);
+        // A malformed partial write is retained too; it must not poison all
+        // subsequent attempts or be silently discarded.
+        Write(source, "incomplete previous serialization");
+        prepared = PrepareGameTemp(temp_name.c_str());
+        assert(prepared.ok && Read(prepared.backup_directory) == "incomplete previous serialization");
+        assert(prepared.backup_directory.extension() == ".tmp");
+        assert(CanCreateGameTemp(temp_name.c_str()));
+        Write(source, ValidSave("RSG64", "v168"));
+        assert(ReplaceGameSavePath(temp_name.c_str(), unicode_name.c_str()).ok);
     }
 }

@@ -12,15 +12,22 @@ namespace srhd_awa::platform::renderer_platform {
 // canvas instead of leaving their pixels in a shared framebuffer.
 class SceneCanvas {
 public:
-  explicit SceneCanvas(bool inherit_background);
+  explicit SceneCanvas(bool inherit_background, const void* scene = nullptr);
   ~SceneCanvas();
   SceneCanvas(const SceneCanvas&) = delete;
   SceneCanvas& operator=(const SceneCanvas&) = delete;
+  std::uint64_t NestedMillis() const { return nested_millis_; }
 private:
   GR_GraphBuf::TGraphBufGR* parent_{};
   GR_GraphBuf::TGraphBufGR* canvas_{};
+  GR_GraphBuf::TGraphBufGR* parent_aux_{};
+  SceneCanvas* parent_scope_{};
+  std::uint64_t started_ms_{}, nested_millis_{};
   bool nested_{};
 };
+
+// Time spent in child message loops is paused time for the caller's arcade.
+std::uint64_t NestedLoopMillis();
 
 struct RendererConfig {
   std::int32_t game_width{1280};

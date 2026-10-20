@@ -39,7 +39,11 @@ Result RotateGamePaths(const char16_t* source, const char16_t* quick_slot_one,
                        std::int32_t extra_slots);
 Result RecoverGamePaths(const char16_t* quick_slot_one);
 bool CanCreateGameTemp(const char16_t* source);
+// Retain an earlier failed write under an ASCII recovery name before reusing
+// save.tmp. Never truncate or discard an occupied user's temporary save.
+Result PrepareGameTemp(const char16_t* source);
 bool GameSavePathExists(const char16_t* path);
-Result ReplaceGameSavePath(const char16_t* source, const char16_t* target);
+Result ReplaceGameSavePath(const char16_t* source, const char16_t* target,
+                          const Fault& fault = {});
 
 } // namespace srhd_awa::platform::e2e4_quicksave

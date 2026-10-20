@@ -3,6 +3,7 @@
 
 #include <filesystem>
 #include <string_view>
+#include <vector>
 
 namespace srhd_awa::platform::user_root {
 namespace {
@@ -83,22 +84,32 @@ std::string ResolveConfigPath(const std::string& path) {
   for (const auto& part : resolved.lexically_relative(config)) {
     if (part == ".") continue;
     if (first_component && SameAsciiName(part.string(), "save")) {
-      const auto legacy = config / "Save", lower = config / "save";
-      if (std::filesystem::is_directory(legacy, error) &&
-          std::filesystem::is_directory(lower, error) &&
-          !std::filesystem::equivalent(legacy, lower, error)) {
-        if (error) return {};
-        const bool legacy_saves = ContainsSave(legacy, error);
-        if (error) return {};
-        const bool lower_saves = ContainsSave(lower, error);
-        if (error || (legacy_saves && lower_saves)) return {};
-        if (legacy_saves || lower_saves) {
-          cursor = legacy_saves ? legacy : lower;
-          first_component = false;
-          continue;
-        }
+      // Enumerate physical names, rather than stat'ing Save and save and
+      // comparing inode identity. libnx reports zero inodes; on SD both
+      // spellings can open the same directory while the manifest must retain
+      // its actual name for every later publish/readback operation.
+      std::vector<std::filesystem::path> directories;
+      for (const auto& entry : std::filesystem::directory_iterator(config, error)) {
+        if (error) break;
+        if (SameAsciiName(entry.path().filename().string(), "save") && entry.is_directory(error))
+          directories.push_back(entry.path());
       }
-      error.clear();
+      if (error) return {};
+      if (directories.size() > 1) {
+        std::filesystem::path populated;
+        for (const auto& directory : directories) {
+          if (ContainsSave(directory, error)) {
+            if (!populated.empty()) return {};
+            populated = directory;
+          }
+          if (error) return {};
+        }
+        if (populated.empty()) return {};
+        cursor = populated;
+      } else if (directories.size() == 1) cursor = directories.front();
+      else cursor /= part;
+      first_component = false;
+      continue;
     }
     first_component = false;
     auto next = cursor / part;

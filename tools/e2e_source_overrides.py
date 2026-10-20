@@ -1473,14 +1473,55 @@ void CloseVorbisStream(TOggWorker* worker) {
         continuous = _replace_exact(continuous, '''                    if (CarryTicks > 200) {
                         CarryTicks = 0u;
                     }''', '', 1, source.name)
-        continuous = _replace_exact(continuous, 'FrameTime + CarryTicks - 1',
-            '''srhd_awa::platform::ContinuousTimerMillis(FrameTime, CarryTicks,
-                            GlobalsV::RegisteredScreens[GlobalsV::screenArcadeBattle] == this) - 1''',
-            1, source.name)
+        continuous = _replace_exact(continuous, '                    FrameTime = MMSystem::timeGetTime();',
+            '''                    const auto e2e_draw_nested = srhd_awa::platform::renderer_platform::NestedLoopMillis();
+                    FrameTime = MMSystem::timeGetTime();''', 1, source.name)
+        continuous = _replace_exact(continuous, '                    FrameTime = MMSystem::timeGetTime() - FrameTime;',
+            '''                    FrameTime = srhd_awa::platform::WithoutNestedLoopTime(
+                        MMSystem::timeGetTime() - FrameTime, e2e_draw_nested,
+                        srhd_awa::platform::renderer_platform::NestedLoopMillis());''', 1, source.name)
+        continuous = _replace_exact(continuous, '                    ProcessingTime = MMSystem::timeGetTime();',
+            '''                    const auto e2e_processing_nested = srhd_awa::platform::renderer_platform::NestedLoopMillis();
+                    ProcessingTime = MMSystem::timeGetTime();''', 1, source.name)
+        continuous = _replace_exact(continuous, '                    ProcessingTime = MMSystem::timeGetTime() - ProcessingTime;',
+            '''                    ProcessingTime = srhd_awa::platform::WithoutNestedLoopTime(
+                        MMSystem::timeGetTime() - ProcessingTime, e2e_processing_nested,
+                        srhd_awa::platform::renderer_platform::NestedLoopMillis());''', 1, source.name)
+        timer_range = '                    for (auto cpp_range_2 = pas::for_to<std::int32_t>(0, static_cast<std::int32_t>(FrameTime + CarryTicks - 1)); cpp_range_2.next(Index); ) {'
+        continuous = _replace_exact(continuous, timer_range, '''                    const bool e2e_arcade = GlobalsV::RegisteredScreens[GlobalsV::screenArcadeBattle] == this;
+                    const auto e2e_film_ms = srhd_awa::platform::ContinuousTimerMillis(FrameTime, CarryTicks, false);
+                    if (e2e_arcade) e2e_timer_debt.Add(FrameTime, CarryTicks);
+                    std::uint32_t e2e_delivered_ms = 0;
+                    for (Index = 0; e2e_arcade ? e2e_timer_debt.TakeOne() :
+                         static_cast<std::uint32_t>(Index) < e2e_film_ms; ++Index) {
+                        ++e2e_delivered_ms;''', 1, source.name)
+        timer_end = '''                            PopUp::PopupController->AdvancePopups(TimerTick);
+                        }
+                    }
+                    Stage = 24;'''
+        continuous = _replace_exact(continuous, timer_end, '''                            PopUp::PopupController->AdvancePopups(TimerTick);
+                        }
+                        // Yield only between callbacks. The next outer loop
+                        // polls input and presents before consuming more debt.
+                        if (e2e_arcade && (ExitCode != 0 ||
+                            MMSystem::timeGetTime() - ProcessingTime >=
+                                srhd_awa::platform::ContinuousTimerDebt::BatchBudgetMs)) break;
+                    }
+                    if (e2e_arcade && MMSystem::timeGetTime() - e2e_debt_log_tick >= 5000u) {
+                        e2e_debt_log_tick = MMSystem::timeGetTime();
+                        char detail[192]{};
+                        std::snprintf(detail, sizeof(detail),
+                            "arcade timer debt pending_ms=%llu delivered_ms=%u batch_ms=%u budget_ms=%u",
+                            static_cast<unsigned long long>(e2e_timer_debt.Pending()), e2e_delivered_ms,
+                            MMSystem::timeGetTime() - ProcessingTime,
+                            srhd_awa::platform::ContinuousTimerDebt::BatchBudgetMs);
+                        srhd_awa::platform::e2e_stage::Log(detail);
+                    }
+                    Stage = 24;''', 1, source.name)
         continuous = continuous.replace("            Stage = 1;",
             '            srhd_awa::platform::e2e_stage::Log("screen RunContinuous begin");\n            Stage = 1;', 1)
         continuous = continuous.replace("        std::int32_t Stage = 0;",
-            "        std::int32_t Stage = 0;\n        std::uint32_t e2e_continuous_frames = 0;", 1)
+            "        std::int32_t Stage = 0;\n        std::uint32_t e2e_continuous_frames = 0;\n        std::uint32_t e2e_debt_log_tick = 0;\n        srhd_awa::platform::ContinuousTimerDebt e2e_timer_debt;", 1)
         continuous = continuous.replace("            Stage = 6;\n            OnOpen();", '''            Stage = 6;
             srhd_awa::platform::e2e_stage::Log("screen RunContinuous OnOpen begin");
 #if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
@@ -1523,12 +1564,31 @@ void CloseVorbisStream(TOggWorker* worker) {
                       "    std::int32_t TMessageLoopGI::RunContinuous() {"):
             text = _replace_exact(text, entry, entry + '''
 #if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
-        const bool e2e_inherit_canvas =
+        const bool e2e_independent_scene =
+            this == GlobalsV::RegisteredScreens[GlobalsV::screenMainMenu] ||
+            this == GlobalsV::RegisteredScreens[GlobalsV::screenNewGame] ||
+            this == GlobalsV::RegisteredScreens[GlobalsV::screenIntroduction] ||
+            this == GlobalsV::RegisteredScreens[GlobalsV::screenLoad] ||
+            this == GlobalsV::RegisteredScreens[GlobalsV::screenGameLoad] ||
+            this == GlobalsV::RegisteredScreens[GlobalsV::screenHangar] ||
+            this == GlobalsV::RegisteredScreens[GlobalsV::screenPlanet] ||
+            this == GlobalsV::RegisteredScreens[GlobalsV::screenPlanetNO] ||
+            this == GlobalsV::RegisteredScreens[GlobalsV::screenEquipmentShop] ||
+            this == GlobalsV::RegisteredScreens[GlobalsV::screenGoodsShop] ||
+            this == GlobalsV::RegisteredScreens[GlobalsV::screenGovernment] ||
+            this == GlobalsV::RegisteredScreens[GlobalsV::screenInfo] ||
+            this == GlobalsV::RegisteredScreens[GlobalsV::screenRuinsTalk] ||
+            this == GlobalsV::RegisteredScreens[GlobalsV::screenStarMap] ||
+            this == GlobalsV::RegisteredScreens[GlobalsV::screenJump] ||
+            this == GlobalsV::RegisteredScreens[GlobalsV::screenArcadeBattle];
+        const bool e2e_nested_canvas = GI_MessageLoop::MessageLoopStack &&
+            pas::list_count(GI_MessageLoop::MessageLoopStack) != 0;
+        const bool e2e_inherit_canvas = e2e_nested_canvas || (!e2e_independent_scene && (
             ViewportRect.Left != 0 || ViewportRect.Top != 0 ||
             ViewportRect.Right != GR_Main::GameScreenWidth ||
             ViewportRect.Bottom != GR_Main::GameScreenHeight ||
-            (ContentPanel && ContentPanel->FindByNameRecursive(u"BGBuf"sv) != nullptr);
-        srhd_awa::platform::renderer_platform::SceneCanvas e2e_canvas(e2e_inherit_canvas);
+            (ContentPanel && ContentPanel->FindByNameRecursive(u"BGBuf"sv) != nullptr)));
+        srhd_awa::platform::renderer_platform::SceneCanvas e2e_canvas(e2e_inherit_canvas, this);
 #endif''', 1, source.name)
         if e2e5_profile:
             for entry in ("    std::int32_t TMessageLoopGI::Run() {",
@@ -2877,7 +2937,9 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
         if saver.count(temp_delete) != 1:
             raise RuntimeError("quicksave temporary-file boundary changed")
         saver = saver.replace(temp_delete, '''#if defined(E2E4_QUICKSAVE_EXPERIMENT)
-            if (!srhd_awa::platform::e2e4_quicksave::CanCreateGameTemp(TempName.pchar())) {
+            const auto e2e_temp = srhd_awa::platform::e2e4_quicksave::PrepareGameTemp(TempName.pchar());
+            GR_Main::AppendLogLineThreadSafe(pas::AnsiString(e2e_temp.detail.c_str()));
+            if (!e2e_temp.ok) {
                 pas::raise(pas::make_exception<pas::Abort>("E2E4 save: occupied temp or unsafe directory"_a));
             }
 #else
