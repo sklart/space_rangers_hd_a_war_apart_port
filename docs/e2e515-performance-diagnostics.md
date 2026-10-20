@@ -115,10 +115,20 @@ wall time включает ожидания. Вложенные scopes нель�
 
 ## sys-clk / hoc-clk
 
-На присланном фото включена строка **hoc-clk**. Версия самого модуля не видна;
-`1.5.3` относится к показанному экрану Sysmodules. Точный fork/API и формат
-установленного hoc-clk не подтверждены. `System RAM free` не является объёмом
-памяти, доступной игре. Локального доступа к SD/его telemetry файлам пока нет.
+Пользователь уточнил установленную версию: **Horizon OC (HOC) 2.6.0**.
+Это сообщённая пользователем версия, не результат чтения бинарника с SD.
+По проверенным исходникам тега 2.6.0 TARGET=hoc-clk, CONFIG_DIR=horizon-oc:
+[Makefile](https://github.com/Horizon-OC/Horizon-OC/blob/2.6.0/Source/hoc-clk/sysmodule/Makefile),
+[пути файлов](https://github.com/Horizon-OC/Horizon-OC/blob/2.6.0/Source/hoc-clk/sysmodule/src/file/file_utils.hpp).
+Для этой установки использовать **sdmc:/config/horizon-oc/**: config.ini,
+context.csv, log.txt и log.flag. Ранее приведённый каталог sys-clk относится
+к оригинальному модулю, а не к этому HOC.
+
+[CSV HOC 2.6.0](https://github.com/Horizon-OC/Horizon-OC/blob/2.6.0/Source/hoc-clk/sysmodule/src/file/file_utils.cpp)
+содержит epoch_ms timestamp, profile, app_tid, *_hz, *_milliC, *_real_hz и *_mw.
+Этот формат поддержан существующим анализатором; менять NRO не требуется.
+Сопоставление настоящих файлов этой консоли всё ещё HARDWARE PENDING.
+`System RAM free` на фото не является объёмом памяти, доступной игре.
 
 Для оригинального sys-clk официально описаны `/config/sys-clk/context.csv`,
 `log.txt`, `log.flag` и параметры секции `[values]`:
@@ -127,8 +137,10 @@ wall time включает ожидания. Вложенные scopes нель�
 в milliC и power в mW:
 [формат CSV](https://github.com/retronx-team/sys-clk/blob/develop/sysmodule/src/file_utils.cpp).
 
-**Только при подтверждённой поддержке установленной версией** вручную добавить
-в существующую `[values]`, предварительно сохранив config.ini:
+Для HOC 2.6.0 эти ключи проверены в
+[config.h](https://github.com/Horizon-OC/Horizon-OC/blob/2.6.0/Source/hoc-clk/common/include/hocclk/config.h).
+Вручную добавить/изменить их в существующей `[values]` файла
+`sdmc:/config/horizon-oc/config.ini`, предварительно сохранив копию config.ini:
 
 ```ini
 temp_log_interval_ms=1000
@@ -137,9 +149,12 @@ csv_write_interval_ms=1000
 ```
 
 Не создавать вторую секцию, не перезаписывать файл и не менять poll_interval_ms,
-профили частот/overrides. Для соответствующей версии log.flag включает log.txt;
-сохранить прежнее состояние flag и после прогона вернуть его. Не переносить эти
-настройки автоматически на hoc-clk по одному названию. Если CSV недоступен,
+профили частот/overrides. Для log.txt нужен пустой
+`sdmc:/config/horizon-oc/log.flag`; CSV включается своим csv_write_interval_ms.
+Создать flag перед перезапуском HOC/перезагрузкой консоли, чтобы он гарантированно
+прочитался при инициализации: в исходнике интервал повторной проверки flag очень
+длинный. Сохранить прежнее состояние flag/ключей и после прогона вернуть его.
+Для другого fork/версии не переносить настройки по одному названию. Если CSV недоступен,
 продолжить прогон A средствами игры и отметить EXTERNAL TELEMETRY UNAVAILABLE.
 Файлы clock-модуля имеют собственную ротацию/лимиты, которыми NRO не управляет.
 
