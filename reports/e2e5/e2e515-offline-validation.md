@@ -2,7 +2,7 @@
 
 20.10.2026. **IN PROGRESS / PARTIAL. Цель не завершена.**
 
-Последнее обновление: пакет 6, real-state checkpoints и manual save recovery. Разделы
+Последнее обновление: пакет 7, host arcade death/overload liveness. Разделы
 ранних пакетов сохраняют их исторические границы; сводная таблица в конце
 отражает текущий остаток требований.
 
@@ -308,7 +308,7 @@ python3 tools/e2e515_controller_route.py --load-save /path/inside/build/Проб
 | C1 все реальные screen transitions, фон | OPEN; десять canvas unit cycles не заменяют переходы между настоящими экранами |
 | C2 save fault injection / новый процесс / перелёт | PARTIAL: реальный 346-й ход → три хода → UI отказ/повтор → Unicode save → новый процесс/checkpoint compare PASS; manual transaction fault/process-stop/retry PASS (пакет 6). Новый межзвёздный перелёт, реальные no-space/permission и SD остаются непроверенными |
 | C3 generation → hangar → map controller route | Legacy real route PASS; raw pad menu/NewGame/settings и Unicode→generation→4 choices→hangar→takeoff→map PASS; остальные экраны OPEN |
-| D смерть/взрыв, overload 20/40/70/150/250, parity 500/1000, три perf пары | OPEN; оптимизаций/FPS-победы этого цикла пока нет |
+| D смерть/взрыв, overload 20/40/70/150/250, parity 500/1000, три perf пары | PARTIAL: шесть real-arena death/overload сценариев завершили host кадры, explosion/result callbacks PASS; pixel progression, input latency, replay/parity 500/1000, три perf пары и lifecycle OPEN |
 | E MatrixGame before/after units, новый real block, entry/resource pipeline | OPEN; текущий d3d9.h blocker ещё не закрыт |
 | F1 CI input | Core sanitizer suite, реальные owner/canvas tests и message-input ASan/UBSan включены в host workflow; удалённый CI не запускался/не проверялся |
 | F2/F3 runtime suites | PARTIAL/OPEN согласно строкам выше |
@@ -405,3 +405,29 @@ python3 tools/e2e515_save_faults.py --old build/e2e514/recovered/Recovered-turn-
 python3 tools/e2e515_controller_route.py --load-save build/e2e514/recovered/Recovered-turn-346.sav --advance-turns 3 --resave-name 'Повтор Ёж 515' --fail-save-once --label real346-retry --game-root '/path/to/game' --config-root '/path/to/copied/config'
 python3 tools/e2e515_controller_route.py --load-save '<manual_save_path из result.json>' --expect-checkpoint build/e2e515/real346-retry/result.json --label real349-retry-reload --game-root '/path/to/game' --config-root '/path/to/copied/config'
 ```
+
+## Пакет 7: настоящая арена, смерть, взрыв и slow callbacks
+
+Добавлены только diagnostic observer/header и host builder/runner; нового
+исправления игровой механики или оптимизации в этом пакете нет.
+`tests/e2e515_arcade_observer.hpp` вызывается из трёх disposable translation units,
+`tools/e2e515_arcade_probe.py` линкует их с остальной полной host-игрой.
+Смертельный удар на тике 50 проходит настоящий ApplyDamage; DefeatPanel появляется
+из оригинального countdown, ExplosionComplete вызывается исходной анимацией.
+
+Без задержки и с +20/+40/+70/+150/+250 мс пройдены все шесть host liveness случаев.
+Максимальный интервал завершения software кадра среди них 402.59 мс, исходные CFG
+не изменены. Измеряется успешный host PresentRgb565, не Switch SDL/GPU/scanout.
+Первая неправильная попытка поставить probe в Switch-only SDL_RenderPresent
+сохранена FAIL и исключена из таблиц. Корректный отдельный ELF:
+`9b0089751fd7568561c4d1204b4eb74db8532a69260bc6ba7dcce1826f23fce6`.
+
+Полные числа, raw CSV/JSON пути, команды и границы:
+`reports/e2e5/e2e515-perf-comparison.md`, `reports/e2e5/e2e515-arcade-overload.json`.
+Отсутствие длинного промежутка между host кадрами не доказывает изменения пикселей
+самого спрайта или input-to-action. При +250 мс поражение появляется через 52.7 с,
+окончание взрыва через 88.1 с; slow motion остаётся. Хеш выбранного состояния
+различается между overload сценариями, поэтому world/RNG parity ещё NOT PROVEN.
+Оптимизаций с таким расхождением не добавлялось. Нужны deterministic replay,
+500/1000 ticks, geometry/image checkpoints, три paired series, pause/retry/main,
+cleanup, watchdog и аппаратное подтверждение. Shipping ELF/NRO не менялись.

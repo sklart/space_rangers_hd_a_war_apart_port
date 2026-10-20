@@ -1,0 +1,21 @@
+{
+  "status": "HOST_SOFTWARE_LIVENESS_PASS",
+  "hardware_executed": false,
+  "world_rng_parity": "NOT_PROVEN",
+  "pixel_animation_parity": "NOT_TESTED",
+  "input_latency": "NOT_TESTED",
+  "normal_shutdown": "NOT_TESTED",
+  "binary_sha256": "9b0089751fd7568561c4d1204b4eb74db8532a69260bc6ba7dcce1826f23fce6",
+  "source_provenance": "build/e2e515/arcade/provenance.json",
+  "raw_event_csv": "build/e2e515/arcade/runs/<run>/arcade-events.csv",
+  "seed": 1301,
+  "lethal_hit_tick": 50,
+  "cases": [
+    {"slow_ms": 0, "run": "9f1006f138394df7badaae336058ef43", "presents": 245, "max_gap_ns": 391673763},
+    {"slow_ms": 20, "run": "c6c2454a8c634251b748158a69095349", "presents": 371, "max_gap_ns": 142003117},
+    {"slow_ms": 40, "run": "ae78a86af7ea44bc859514f3f4d84e0f", "presents": 261, "max_gap_ns": 371635373},
+    {"slow_ms": 70, "run": "560b265f89064a8fb7ebc01e7e60a6eb", "presents": 263, "max_gap_ns": 175682481},
+    {"slow_ms": 150, "run": "71ff4c0f45bb49d8b3dad44faa6dfe16", "presents": 371, "max_gap_ns": 255166528},
+    {"slow_ms": 250, "run": "be8ecaeee6644c3ba7acecabef9fc617", "presents": 371, "max_gap_ns": 402588471}
+  ]
+}
