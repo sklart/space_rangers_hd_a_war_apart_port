@@ -63,14 +63,38 @@
   },
   "fixed_replay": {
     "baseline_repeatability": "PASS: selected state, geometry, 1001 RNG snapshots, 1000 software frames",
-    "baseline_repeat_runs": ["8e0bbe1a11774050becc9ad1032c39fb", "b4c200a2c42d42c8aabc21b82c26bf33"],
+    "baseline_repeat_runs": [
+      "8e0bbe1a11774050becc9ad1032c39fb",
+      "b4c200a2c42d42c8aabc21b82c26bf33"
+    ],
     "baseline_elf_sha256": "36a96d765d353a6ca8feee49a47e0934611d6075149e508be6f2297700c7e16e",
     "candidate_elf_sha256": "e5fe2956cbc744019077dee79b5a79961a02cd763ba59346a0f19651768d6d82",
     "three_paired_series_complete": true,
     "pairs": [
-      {"order": "baseline,candidate", "baseline_run": "8e0bbe1a11774050becc9ad1032c39fb", "candidate_run": "1b1d0f83590343f694251b01d6892dfc", "baseline_cpu_ns": 4762858937, "candidate_cpu_ns": 4854980727, "parity": "PASS"},
-      {"order": "candidate,baseline", "baseline_run": "2b4e6bbf19a34471b51f9adc41632a68", "candidate_run": "827448bbbd0545ee8c1bc9683f597542", "baseline_cpu_ns": 4576922917, "candidate_cpu_ns": 4693173558, "parity": "PASS"},
-      {"order": "baseline,candidate", "baseline_run": "b118742f9ca7488d9685612419314d14", "candidate_run": "3da663e0abdf4882895dfe473eca180a", "baseline_cpu_ns": 4993295257, "candidate_cpu_ns": 4887893026, "parity": "PASS"}
+      {
+        "order": "baseline,candidate",
+        "baseline_run": "8e0bbe1a11774050becc9ad1032c39fb",
+        "candidate_run": "1b1d0f83590343f694251b01d6892dfc",
+        "baseline_cpu_ns": 4762858937,
+        "candidate_cpu_ns": 4854980727,
+        "parity": "PASS"
+      },
+      {
+        "order": "candidate,baseline",
+        "baseline_run": "2b4e6bbf19a34471b51f9adc41632a68",
+        "candidate_run": "827448bbbd0545ee8c1bc9683f597542",
+        "baseline_cpu_ns": 4576922917,
+        "candidate_cpu_ns": 4693173558,
+        "parity": "PASS"
+      },
+      {
+        "order": "baseline,candidate",
+        "baseline_run": "b118742f9ca7488d9685612419314d14",
+        "candidate_run": "3da663e0abdf4882895dfe473eca180a",
+        "baseline_cpu_ns": 4993295257,
+        "candidate_cpu_ns": 4887893026,
+        "parity": "PASS"
+      }
     ],
     "aggregate_cpu_change_percent": 0.7184095864591011,
     "median_cpu_change_percent": 1.9341700272573092,
@@ -80,5 +104,41 @@
     "performance_conclusion": "No demonstrated speedup; candidate NOT_ACCEPTED",
     "scope": "Diagnostic fixed scheduling only; not live scheduler, input latency, full serialization, cleanup, GPU or Switch FPS"
   },
-  "next_gate": "Optimize another measured hot path using repeatable replay; preserve live scheduler and gameplay; investigate first live divergence separately"
+  "next_gate": "Optimize another measured hot path using repeatable replay; preserve live scheduler and gameplay; investigate first live divergence separately",
+  "projection_inline": {
+    "candidate_acceptance": "NOT_ACCEPTED: improvement not separated from measured run variability",
+    "shipping_sources_changed": false,
+    "three_paired_series_complete": true,
+    "parity": "PASS: selected state, geometry, 1001 RNG snapshots, 1000 software frames per pair",
+    "seed": 1301,
+    "active_ticks": 1000,
+    "logical_ms": 20540,
+    "input_sequence": "empty",
+    "baseline_elf_sha256": "36a96d765d353a6ca8feee49a47e0934611d6075149e508be6f2297700c7e16e",
+    "candidate_elf_sha256": "5cc08845363236c1279fbc80fe39b5e14c557fc01b507f82742c22ee7eb795e4",
+    "aggregate_cpu_change_percent": -2.431113821231301,
+    "median_cpu_change_percent": -1.7075488379997283,
+    "pairs": [
+      {
+        "baseline_run": "7b22fe5c3ac444b88f3a795e7c656468",
+        "candidate_run": "64361642a30e4d8db182c4fa2cadb677",
+        "order": "baseline,candidate"
+      },
+      {
+        "baseline_run": "747bf192a1dd4600a5e92a5ab4bdcbab",
+        "candidate_run": "7dbfd73e08664f7cbbbf0c25ae1da053",
+        "order": "candidate,baseline"
+      },
+      {
+        "baseline_run": "5c4f1a4d27d64ed295b0001e74138d62",
+        "candidate_run": "407cd88fa6d74a2388dedca706b4d71e",
+        "order": "baseline,candidate"
+      }
+    ],
+    "sanitizers": "PASS: 32768 inline byte/FP-flag comparisons and 98304 memo byte checks",
+    "arm64_qemu": "PASS: same checks",
+    "devkit_a64": "COMPILE PASS only",
+    "csv": "reports/e2e5/e2e515-projection-inline.csv",
+    "hardware_executed": false
+  }
 }

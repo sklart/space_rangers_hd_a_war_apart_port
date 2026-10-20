@@ -1,4 +1,25 @@
-"""Rejected polygon projection experiment, kept for diagnostic reproduction only."""
+"""Diagnostic projection experiments; no shipping override is enabled here."""
+
+def inline_projector(projector_text):
+    signature = '    EC_Struct::TVector3D ProjectPointByMatrix('
+    if projector_text.count(signature) != 1:
+        raise RuntimeError('Original projector boundary changed')
+    start = projector_text.index(signature)
+    end = projector_text.index('\n    }', start) + len('\n    }')
+    function = projector_text[start:end].replace('ProjectPointByMatrix(', 'e2e_project_inline(', 1)
+    function = function.replace('const TMatrix4D&', 'const ab_Global::TMatrix4D&', 1)
+    return 'namespace {\n    __attribute__((always_inline)) inline ' + function.strip() + '\n}\n'
+
+
+def apply_inline(text, projector_text):
+    prefix = 'ab_Global::ProjectPointByMatrix('
+    if text.count(prefix) != 5:
+        raise RuntimeError('Polygon projection callsites changed')
+    anchor = 'namespace ab_Polygon {'
+    if text.count(anchor) != 1:
+        raise RuntimeError('Polygon namespace changed')
+    return text.replace(prefix, 'e2e_project_inline(').replace(
+        anchor, inline_projector(projector_text) + '\n' + anchor, 1)
 def apply(text):
     prefix = 'ab_Global::ProjectPointByMatrix(ab_Global::SphereProjectionMatrix, '
     if text.count(prefix) != 5:

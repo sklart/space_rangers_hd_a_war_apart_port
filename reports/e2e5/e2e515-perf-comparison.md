@@ -1,14 +1,16 @@
 # E2E-5.15: аркада — измерения host и открытые сравнения
 
 20.10.2026. PARTIAL; это не итоговая оценка FPS Switch и не доказательство
-ускорения относительно baseline. Три парных before/after series, полная
-world/geometry/image parity 500/1000 и input latency ещё OPEN.
+ускорения относительно baseline. Для diagnostic fixed replay выполнены три
+пары и selected state/RNG/geometry/software-image parity; полная сериализация
+мира, live scheduler и input latency ещё OPEN.
 
 ## Настоящая смерть и анимация
 
 `tools/e2e515_arcade_probe.py` собирает отдельный диагностический ELF из
-существующих 331 объектов полной host-игры, заменяя три единицы инструментированными
-копиями: ab_MainForm, ab_Hit, renderer_platform. Остальные игровые функции,
+существующих 331 объектов полной host-игры. В первом death-тесте заменены три единицы инструментированными
+копиями: ab_MainForm, ab_Hit, renderer_platform; текущий profiler/replay заменяет
+десять units, перечисленных в provenance.json. Остальные игровые функции,
 карта и ресурсы настоящие. Pinned upstream и основная NRO не изменяются.
 Смерть воспроизводится вызовом исходного `PlayerArcadeShip->ApplyDamage` на
 тике 50; это контролируемое смертельное попадание, не естественное столкновение.
@@ -227,3 +229,46 @@ DrawFrame CPU оказался выше baseline своей пары: 3.740/3.59
 Сырые per-tick p50/p95/p99 CPU остаются в каждом result.json; sampled inclusive
 hotspots не суммируются. Исходные восемь файлов данных неизменны, AST и
 git diff --check PASS; full NRO/CI этого пакета не собирались.
+
+## Встраивание исходной проекции: отдельный эксперимент
+
+`projection-inline` встраивает исходное тело effective ProjectPointByMatrix в
+пять polygon callsites. Изменены только имя/квалификация типа и inline attribute;
+арифметика, Extended, порядок суммирования, деление и конечные binary64 stores
+сохранены. Memo и новая арифметика в этом варианте отсутствуют. Исходная функция
+остаётся oracle и используется остальными units; новая Scope(7) считает также
+встроенные вызовы. Все варианты имеют 14817239 projection calls / 231520 samples.
+
+Первый exploratory run `5580e438a3af44849ce460e25bade027` не включён в series:
+сборка/functional tests запускались независимо и могли пересекаться по времени.
+Затем выполнены шесть последовательных прогонов без параллельной компиляции.
+
+| Пара, порядок | Baseline run | Inline run | CPU B/C, с | Изменение |
+|---|---|---|---|---|
+| 1, B/C | 7b22fe5c3ac444b88f3a795e7c656468 | 64361642a30e4d8db182c4fa2cadb677 | 4.477 / 4.640 | +3.64% |
+| 2, C/B | 747bf192a1dd4600a5e92a5ab4bdcbab | 7dbfd73e08664f7cbbbf0c25ae1da053 | 4.860 / 4.397 | −9.54% |
+| 3, B/C | 5c4f1a4d27d64ed295b0001e74138d62 | 407cd88fa6d74a2388dedca706b4d71e | 4.435 / 4.401 | −0.77% |
+
+В каждой паре raw CSV/stderr и SHA сохранённого ELF проверены компаратором:
+selected state/geometry на 500/1000, 1001 RNG snapshots и 1000 полных software
+кадров совпадают. 20540 logical ms, 1000 active ticks, empty input.
+ELF inline SHA-256 `5cc08845363236c1279fbc80fe39b5e14c557fc01b507f82742c22ee7eb795e4`.
+
+Сумма CPU −2.43%, отношение медиан −1.71%; baseline между прогонами меняется
+на 9.58% относительно минимума. Выигрыш не отделён от наблюдаемого разброса,
+кандидат **NOT ACCEPTED**, в shipping overrides не подключён. Это консервативное
+решение по имеющимся данным, а не доказательство нулевого эффекта inlining.
+Raw totals и p50/p95/p99 CPU тика/отрисовки, wall и sampled projection CPU:
+`reports/e2e5/e2e515-projection-inline.csv`; JSON содержит run IDs/решение.
+Sampled projection CPU включительный, не суммировать с total DrawFrame/TimerTakt.
+
+Контракт расширен: 32768 прямых побитных сравнений inline/original с проверкой
+FE_ALL_EXCEPT в четырёх режимах округления; perspective matrices, разные знаки/
+экспоненты, signed zero, denorm_min и предельные finite double. Дополнительно
+98304 memo byte checks. ASan/UBSan PASS, ARM64/QEMU PASS. Проверены результаты
+и FP flags на каждом исполняемом ABI, не межархитектурная идентичность x87/quad.
+DevkitA64 effective ab_Polygon COMPILE PASS, object SHA-256
+`3486db8eba232bc4014e7a6e210cf74202e6af12b14175be7e9cbf01edfa1a4a`;
+не полный link и не GPU execution. Тест включён в host CI после сборки engine;
+CI в этом цикле не запускался. Воспроизведение: polygon_tests.py --inline,
+затем --inline --arm64; на Windows --inline --sdk.

@@ -70,6 +70,12 @@ def build(variant):
             if name == 'ab_Polygon' and variant == 'polygon-memo':
                 from e2e515_polygon_overrides import apply
                 text = apply(text)
+            if name == 'ab_Polygon' and variant == 'projection-inline':
+                from e2e515_polygon_overrides import apply_inline
+                projector = sources['ab_Global'].read_text()
+                projector = projector.replace('    EC_Struct::TVector3D ProjectPointByMatrix(const TMatrix4D& Matrix, pas::ConstRef<EC_Struct::TVector3D> Source) {',
+                    '    EC_Struct::TVector3D ProjectPointByMatrix(const TMatrix4D& Matrix, pas::ConstRef<EC_Struct::TVector3D> Source) {\n        e2e515_arcade_observer::Scope e2e_inline_scope(7);')
+                text = apply_inline(text, projector)
             scopes = {'ab_Global': (('ComputeSphericalBearingAndDistance', 1), ('ProjectPointByMatrix', 7)),
                       'ab_Object': (('TabObject::DistanceTo', 2), ('TabObject::Advance', 3)),
                       'ab_ShipAI': (('TabShipAI::Advance', 4), ('TabShipAI::DecideActions', 5),
@@ -119,8 +125,8 @@ def percentile(values, fraction):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build', action='store_true')
-    parser.add_argument('--variant', choices=('baseline', 'polygon-memo'), default='baseline',
-                        help='polygon-memo is a rejected diagnostic comparison, never a shipping feature')
+    parser.add_argument('--variant', choices=('baseline', 'polygon-memo', 'projection-inline'), default='baseline',
+                        help='Diagnostic comparisons only; none enables a shipping feature')
     parser.add_argument('--game-root', type=Path, required=True)
     parser.add_argument('--config-root', type=Path, required=True)
     parser.add_argument('--slow-ms', type=int, choices=(0, 20, 40, 70, 150, 250), default=0)

@@ -5,6 +5,10 @@
 #include <cfenv>
 #include <cstdio>
 #include <stdexcept>
+#include <limits>
+#if defined(E2E515_PROJECTION_INLINE)
+#include "inline-projector.hpp"
+#endif
 
 using Memo = srhd_awa::platform::PolygonProjectionMemo<ab_Global::TMatrix4D, EC_Struct::TVector3D, 16>;
 bool Same(EC_Struct::TVector3D a, EC_Struct::TVector3D b) {
@@ -16,6 +20,7 @@ int main() {
     Memo memo;
     const auto initial = std::fegetround();
     unsigned checks{};
+    unsigned inline_checks{};
     auto original = [](const ab_Global::TMatrix4D& matrix, const EC_Struct::TVector3D& point) {
         return ab_Global::ProjectPointByMatrix(matrix, pas::ConstRef<EC_Struct::TVector3D>(&point));
     };
@@ -27,7 +32,32 @@ int main() {
             EC_Struct::TVector3D point{double(i % 113) / 13., double(i % 71) / -9., double(i % 43) / 7.};
             if (i % 17 == 0) point.X = -0.;
             if (i % 32 == 0) matrix[3][0] = double(i % 83) / 17.;
+#if defined(E2E515_PROJECTION_INLINE)
+            // Exercise perspective denominators and each original summation,
+            // with varied finite signs/exponents instead of identity alone.
+            for (unsigned row = 0; row < 4; ++row) for (unsigned col = 0; col < 4; ++col) {
+                auto bits = (std::uint64_t(i + 1) * UINT64_C(0x9e3779b97f4a7c15)) ^
+                            (std::uint64_t(row * 4 + col + 1) * UINT64_C(0xbf58476d1ce4e5b9));
+                bits = (bits & UINT64_C(0x800fffffffffffff)) | ((UINT64_C(0x3e0) + (bits % 64)) << 52);
+                matrix[row][col] = std::bit_cast<double>(bits);
+            }
+            if (i % 29 == 0) point.X = std::numeric_limits<double>::denorm_min();
+            if (i % 31 == 0) point.Z = std::numeric_limits<double>::max();
+            if (i % 37 == 0) point.Y = std::numeric_limits<double>::lowest();
+            std::feclearexcept(FE_ALL_EXCEPT);
+#endif
             const auto expected = original(matrix, point);
+#if defined(E2E515_PROJECTION_INLINE)
+            const auto expected_flags = std::fetestexcept(FE_ALL_EXCEPT);
+            std::feclearexcept(FE_ALL_EXCEPT);
+            if (!Same(e2e_project_inline(matrix, pas::ConstRef<EC_Struct::TVector3D>(&point)), expected) ||
+                std::fetestexcept(FE_ALL_EXCEPT) != expected_flags) {
+                std::fprintf(stderr, "inline mismatch case=%u mode=%d expected_flags=%d actual_flags=%d\n",
+                    i, mode, expected_flags, std::fetestexcept(FE_ALL_EXCEPT));
+                return 8;
+            }
+            ++inline_checks;
+#endif
             for (int repeat = 0; repeat < 3; ++repeat) {
                 const auto actual = memo.Project(matrix, point, mode, original);
                 if (!Same(actual, expected) || std::fegetround() != mode) return 3;
@@ -51,4 +81,5 @@ int main() {
     std::fesetround(initial);
     std::printf("PASS original projector memo; byte_checks=%u rounding_modes=4 hits=%llu misses=%llu extended_bytes=%zu\n",
         checks, static_cast<unsigned long long>(memo.Hits()), static_cast<unsigned long long>(memo.Misses()), sizeof(pas::Extended));
+    std::printf("inline_projection_byte_checks=%u\n", inline_checks);
 }
