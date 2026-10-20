@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <limits>
+#include "e2e_clock.hpp"
 
 namespace srhd_awa::platform::e2e5_stage_profiler {
 
@@ -91,7 +92,11 @@ inline void SetScreen(std::int32_t screen) {
 // allocation.  Numeric stage IDs map directly to the original source.
 class Window {
 public:
-    using Clock = std::chrono::steady_clock;
+    struct Clock {
+        using duration=std::chrono::microseconds;
+        using time_point=std::chrono::time_point<Clock,duration>;
+        static time_point now(){return time_point(duration(e2e_clock::Microseconds()));}
+    };
     static constexpr std::size_t kStages = 48;
     static constexpr std::size_t kSamples = 128;
     explicit Window(const char* domain = "loop") : domain_(domain) {}
@@ -99,6 +104,15 @@ public:
     ~Window() { Stop(); Flush(); }
 
     void Measure(std::uint32_t stage, std::uint64_t microseconds) {
+#if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
+        if(!perf515::Mode())return;
+        if(std::strcmp(domain_,"present")==0) {
+            static constexpr const char* names[]={"prepare","upload","copy","present","presentation_total","frame_interval"};
+            if(stage>=40&&stage<=45)perf515::Record(names[stage-40],microseconds);
+        }
+        if(std::strcmp(domain_,"arcade-phase")==0&&stage==2)
+            perf515::Record("advance_total",microseconds);
+#endif
         if (screen_ != current_screen) {
             Flush();
             screen_ = current_screen;
@@ -113,6 +127,9 @@ public:
     }
 
     void Enter(std::uint32_t next) {
+#if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
+        if(!perf515::Mode())return;
+#endif
         const auto now = Clock::now();
         if (active_ < kStages) {
             const auto delta = std::chrono::duration_cast<std::chrono::microseconds>(now - last_).count();

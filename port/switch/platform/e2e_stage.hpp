@@ -9,6 +9,7 @@
 #include <string>
 #include <string_view>
 #include "e2e510_heap_reserve.hpp"
+#include "e2e515_perf.hpp"
 
 namespace srhd_awa::platform::e2e_stage {
 inline constexpr const char* kRoot = "sdmc:/switch/space-rangers-hd-a-war-apart";
@@ -82,6 +83,12 @@ inline LogStats Stats() {
 }
 
 inline void Append(const char* prefix, const char* message) {
+#if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
+  // Only fixed-size memory publication here. All diagnostic filesystem work
+  // belongs to the dedicated writer, including flush and rotation.
+  perf515::AsyncLog(prefix,message);
+  return;
+#endif
   const auto started = std::chrono::steady_clock::now();
   if (!g_log.file) {
     std::error_code error;

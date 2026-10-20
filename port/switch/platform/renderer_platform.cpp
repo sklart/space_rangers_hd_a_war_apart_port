@@ -630,6 +630,9 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   g_presentation_diagnostics.present_succeeded = true;
 #endif
   ++g_presentation_count;
+#if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
+  perf515::Frame(GlobalsV::CurrentScreenId);
+#endif
 #if defined(__SWITCH__) && defined(E2E3_TRACE) && E2E3_TRACE
   CaptureSceneSample(pixels, pitch, width, height);
 #endif

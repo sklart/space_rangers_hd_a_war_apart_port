@@ -191,6 +191,8 @@ def main() -> int:
     global BUILD, REPORT
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", choices=("debug", "release"), default="release")
+    parser.add_argument("--performance-diagnostics", action="store_true",
+                        help="separate E2E-5.15 async performance build; no clock changes")
     parser.add_argument("--e2e3-trace", action=argparse.BooleanOptionalAction,
                         default=True, help="log E2E-3 state changes without per-frame output")
     variants = parser.add_mutually_exclusive_group()
@@ -227,11 +229,17 @@ def main() -> int:
         args.experimental_quicksave = True
         args.experimental_audio_on = True
     script_width_enabled = args.experimental_e2e4_combined
+    if args.performance_diagnostics:
+        if not args.enable_experimental_saves or args.e2e3_trace:
+            parser.error("performance diagnostics requires Save ON combined and --no-e2e3-trace")
+        BUILD = SWITCH / "build/e2e-game-perf515"
+        REPORT = BUILD / "build-report.json"
     sources = sorted((GAME / "src").glob("*.cpp"))
     sources.append(GAME / "runtime/runtime.cpp")
     report = {
         "target": "switch-e2e-game",
         "build_profile": args.profile,
+        "performance_diagnostics": args.performance_diagnostics,
         "e2e3_trace": args.e2e3_trace,
         "experimental_quicksave": args.experimental_quicksave,
         "experimental_audio_on": args.experimental_audio_on,
@@ -351,6 +359,8 @@ def main() -> int:
                             "win32-effective-combined-import-manifest.json"
                             if args.experimental_e2e4_combined
                             else "win32-effective-import-manifest.json")
+    if args.performance_diagnostics:
+        manifest_path = BUILD / "effective-import-manifest.json"
     if not manifest_path.is_file():
         report["first_failure"] = {"phase": "Win32 manifest stamp",
                                    "exact_error": "effective manifest is missing"}
@@ -401,6 +411,16 @@ def main() -> int:
                 if not ui_source.is_file() or ui_source.read_text(encoding="utf-8") != repaired:
                     ui_source.write_text(repaired, encoding="utf-8")
                 compile_source = ui_source
+        if args.performance_diagnostics:
+            from e2e515_perf_overrides import apply as apply_perf
+            before = compile_source.read_text(encoding="utf-8")
+            observed = apply_perf(source.name, before)
+            if observed != before:
+                target = BUILD / "generated-perf" / source.name
+                target.parent.mkdir(parents=True,exist_ok=True)
+                if not target.is_file() or target.read_text(encoding="utf-8") != observed:
+                    target.write_text(observed,encoding="utf-8")
+                compile_source=target
         effective_sources[source] = compile_source
         source_map[source.relative_to(ROOT).as_posix()] = compile_source.relative_to(ROOT).as_posix()
     map_path = BUILD / "effective-source-map.json"
@@ -444,6 +464,8 @@ def main() -> int:
     else:
         flags += ["-O0", "-DE2E_DIAGNOSTICS=1"]
     flags += ["-DE2E3_TRACE=" + str(int(args.e2e3_trace))]
+    if args.performance_diagnostics:
+        flags += ["-DE2E515_PERF_DIAGNOSTICS=1"]
     if args.experimental_quicksave:
         flags += ["-DE2E4_QUICKSAVE_EXPERIMENT=1"]
     if args.experimental_e2e4_combined and not args.enable_experimental_saves:
@@ -570,6 +592,8 @@ def main() -> int:
                      else "SpaceRangersHDAWarApartE2E4Combined" if args.experimental_e2e4_combined
                      else "SpaceRangersHDAWarApartE2EAudioON" if args.experimental_audio_on
                      else "SpaceRangersHDAWarApartE2E")
+    if args.performance_diagnostics:
+        artifact_stem = "SpaceRangersHD-perf515-v168"
     elf = BUILD / f"{artifact_stem}.elf"
     response_file = BUILD / "link-objects.rsp"
     response_file.write_text("\n".join('"' + native_path(obj) + '"' for obj in objects) + "\n", encoding="utf-8")

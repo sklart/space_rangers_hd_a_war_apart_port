@@ -1,0 +1,176 @@
+#include "e2e515_perf.hpp"
+#include "e2e_clock.hpp"
+#include <array>
+#include <atomic>
+#include <chrono>
+#include <cstdio>
+#include <cstring>
+#include <filesystem>
+#include <mutex>
+#include <thread>
+#include <ctime>
+
+namespace srhd_awa::platform::perf515 {
+namespace {
+constexpr std::size_t Capacity=8192, PerfLimit=16*1024*1024, LogLimit=8*1024*1024;
+struct Entry {bool log{};char text[640]{};};
+std::array<Entry,Capacity> queue;
+std::size_t head{},tail{},count{};
+std::mutex mutex;
+std::atomic<int> mode{};
+std::atomic<bool> running{};
+std::atomic<std::uint64_t> dropped{},truncated{},last_frame{},max_gap{},ticks{};
+std::atomic<int> screen{-1};
+std::atomic<const char*> active{"idle"},completed{"none"};
+std::atomic<std::uint64_t> active_since{};
+std::thread writer;
+std::uint64_t frame_ticks{};
+std::uint64_t Now(){return e2e_clock::Microseconds();}
+void Push(bool log,const char* text) {
+  if(!running.load(std::memory_order_relaxed))return;
+  std::unique_lock lock(mutex,std::try_to_lock);
+  if(!lock.owns_lock()||count==Capacity){++dropped;return;}
+  auto& entry=queue[tail];entry.log=log;
+  const auto n=std::snprintf(entry.text,sizeof(entry.text),"%s",text);
+  if(n<0||static_cast<std::size_t>(n)>=sizeof(entry.text))++truncated;
+  tail=(tail+1)%Capacity;++count;
+}
+struct Sink {
+ FILE* file{};std::size_t bytes{},limit{};bool failed{},capped{};
+ Sink(const std::filesystem::path& path,std::size_t cap):limit(cap) {
+   std::error_code ec;
+   auto previous=path;previous+=".1";
+   if(std::filesystem::exists(path,ec)) {
+     std::filesystem::remove(previous,ec);ec.clear();
+     std::filesystem::rename(path,previous,ec);
+     if(ec){failed=true;return;}
+   }
+   file=std::fopen(path.generic_string().c_str(),"w");failed=!file;
+ }
+ void Write(const char* text) {
+   if(!file||failed||capped)return;
+   const auto n=std::strlen(text);
+   if(bytes+n+1>limit-256) {
+     const char stop[]="# file_cap_reached; remaining samples unavailable\n";
+     std::fwrite(stop,1,sizeof(stop)-1,file);capped=true;return;
+   }
+   if(std::fwrite(text,1,n,file)!=n||std::fputc('\n',file)==EOF)failed=true;
+   bytes+=n+1;
+ }
+ void Flush(){if(file&&std::fflush(file)!=0)failed=true;}
+ ~Sink(){if(file)std::fclose(file);}
+};
+void Writer(std::filesystem::path root) {
+  std::error_code ec;std::filesystem::create_directories(root/"logs",ec);
+  Sink perf(root/"logs/perf515.csv",PerfLimit),log(root/"logs/perf515-stage.log",LogLimit);
+  perf.Write("stage,mono_us,epoch_ms,wall_us,cpu_us,screen,a,b");
+  std::array<Entry,16> batch; // Keep below the libnx worker stack budget.
+  auto next=Now();
+  while(true) {
+    std::size_t size{};bool done{};
+    {std::lock_guard lock(mutex);
+      while(count&&size<batch.size()) {batch[size++]=queue[head];head=(head+1)%Capacity;--count;}
+      done=!running.load()&&count==0;
+    }
+    for(std::size_t i=0;i<size;++i)(batch[i].log?log:perf).Write(batch[i].text);
+    const auto now=Now();
+    if((now>=next||done) && Mode()) {
+      timespec real{};const int time_rc=clock_gettime(CLOCK_REALTIME,&real);
+      const auto after=Now();char line[640]{};
+      std::snprintf(line,sizeof(line),"anchor,%llu,%lld,%llu,-1,%d,%d,0",
+        static_cast<unsigned long long>(now),time_rc? -1LL:static_cast<long long>(real.tv_sec)*1000+real.tv_nsec/1000000,
+        static_cast<unsigned long long>(after-now),screen.load(),time_rc);perf.Write(line);
+      const auto last=last_frame.load();const auto since=active_since.load();
+      std::snprintf(line,sizeof(line),"heartbeat,%llu,-1,%llu,-1,%d,%llu,%llu",
+        static_cast<unsigned long long>(now),static_cast<unsigned long long>(last&&now>=last?now-last:0),screen.load(),
+        static_cast<unsigned long long>(max_gap.load()),static_cast<unsigned long long>(ticks.load()));perf.Write(line);
+      std::snprintf(line,sizeof(line),"mono_us=%llu active=%s active_age_us=%llu last_completed=%s dropped=%llu truncated=%llu perf_failed=%d log_failed=%d capped=%d/%d",
+        static_cast<unsigned long long>(now),active.load(),static_cast<unsigned long long>(since&&now>=since?now-since:0),completed.load(),
+        static_cast<unsigned long long>(dropped.load()),static_cast<unsigned long long>(truncated.load()),perf.failed,log.failed,perf.capped,log.capped);log.Write(line);
+#if defined(__SWITCH__)
+      u64 used{},total{},program{};
+      const auto ur=svcGetInfo(&used,InfoType_UsedMemorySize,CUR_PROCESS_HANDLE,0);
+      const auto tr=svcGetInfo(&total,InfoType_TotalMemorySize,CUR_PROCESS_HANDLE,0);
+      const auto pr=svcGetInfo(&program,InfoType_ProgramId,CUR_PROCESS_HANDLE,0);
+      std::snprintf(line,sizeof(line),"memory,%llu,-1,0,-1,%d,%lld,%lld",static_cast<unsigned long long>(Now()),screen.load(),
+        R_FAILED(ur)?-1LL:static_cast<long long>(used),R_FAILED(tr)?-1LL:static_cast<long long>(total));perf.Write(line);
+      std::snprintf(line,sizeof(line),"mono_us=%llu applet_type=%d operation_mode=%d program_id=%016llx info_rc=%x/%x/%x",
+        static_cast<unsigned long long>(Now()),int(appletGetAppletType()),int(appletGetOperationMode()),static_cast<unsigned long long>(program),ur,tr,pr);log.Write(line);
+#endif
+      const auto io_start=Now();perf.Flush();log.Flush();
+      std::snprintf(line,sizeof(line),"writer_io,%llu,-1,%llu,-1,%d,%llu,%d",static_cast<unsigned long long>(Now()),
+        static_cast<unsigned long long>(Now()-io_start),screen.load(),static_cast<unsigned long long>(dropped.load()),int(perf.failed||log.failed));perf.Write(line);
+      next=now+1000000;
+    }
+    if(!Mode()&&(now>=next||done)){log.Flush();next=now+1000000;}
+    if(done)break;
+    if(size==0)e2e_clock::SleepMilliseconds(20);
+  }
+}
+} // namespace
+int Mode(){return mode.load(std::memory_order_relaxed);}
+void Initialize(const char* root) {
+#if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
+  if(running.load())return;
+  int value=1;char setting[32]{};
+  const auto config=std::filesystem::path(root)/"perf-mode.txt";
+  if(FILE* f=std::fopen(config.generic_string().c_str(),"r")) {
+    if(std::fgets(setting,sizeof(setting),f)) {
+      if(std::strncmp(setting,"off",3)==0)value=0;
+      else if(std::strncmp(setting,"detail",6)==0)value=2;
+    }
+    std::fclose(f);
+  }
+  mode.store(value);running.store(true);
+  try{writer=std::thread([path=std::filesystem::path(root)]{
+    try{Writer(path);}catch(...){running.store(false);mode.store(0);}
+  });}
+  catch(...){running.store(false);mode.store(0);std::fprintf(stderr,"perf515 writer unavailable; diagnostics disabled\n");return;}
+  Record("session",0,-1,value,0);
+#else
+  (void)root;
+#endif
+}
+void Shutdown(){running.store(false);if(writer.joinable())writer.join();}
+void AsyncLog(const char* prefix,const char* message) {
+  char line[640]{};const auto n=std::snprintf(line,sizeof(line),"mono_us=%llu %s%s",static_cast<unsigned long long>(Now()),prefix,message);
+  if(n<0||static_cast<std::size_t>(n)>=sizeof(line))++truncated;
+  Push(true,line);
+}
+void Record(const char* stage,std::uint64_t wall,std::int64_t cpu,std::int64_t a,std::int64_t b) {
+  if(!Mode()&&std::strcmp(stage,"session"))return;
+  if(std::strcmp(stage,"logical_tick")==0)ticks.fetch_add(1);
+  char line[256]{};
+  std::snprintf(line,sizeof(line),"%s,%llu,-1,%llu,%lld,%d,%lld,%lld",stage,
+    static_cast<unsigned long long>(Now()),static_cast<unsigned long long>(wall),static_cast<long long>(cpu),screen.load(),static_cast<long long>(a),static_cast<long long>(b));
+  Push(false,line);
+}
+std::int64_t CpuMicros() {
+#if defined(__SWITCH__)
+  u64 ticks{};
+  if(R_FAILED(svcGetInfo(&ticks,InfoType_ThreadTickCount,CUR_THREAD_HANDLE,TickCountInfo_Total)))return -1;
+  return armTicksToNs(ticks)/1000;
+#else
+  timespec t{};if(clock_gettime(CLOCK_THREAD_CPUTIME_ID,&t))return -1;
+  return static_cast<std::int64_t>(t.tv_sec)*1000000+t.tv_nsec/1000;
+#endif
+}
+Scope::Scope(const char* stage,bool detail) {
+  if(!Mode()||(detail&&Mode()<2))return;
+  stage_=stage;parent_=active.load();parent_start_=active_since.load();
+  start_=Now();cpu_=CpuMicros();active.store(stage);active_since.store(start_);
+}
+Scope::~Scope(){if(stage_) {
+  const auto end=Now();const auto cpu=CpuMicros();
+  Record(stage_,end-start_,cpu>=0&&cpu_>=0&&cpu>=cpu_?cpu-cpu_:-1);
+  completed.store(stage_);active.store(parent_);active_since.store(parent_start_);
+}}
+void Frame(int value) {
+  if(!Mode())return;screen.store(value);
+  const auto now=Now(),previous=last_frame.exchange(now),n=ticks.load();
+  const auto gap=previous&&now>=previous?now-previous:0;
+  if(gap>max_gap.load())max_gap.store(gap);
+  Record("frame",gap,-1,n-frame_ticks,max_gap.load());frame_ticks=n;
+}
+void TickBatch(std::uint64_t pending,std::uint32_t delivered){Record("backlog",0,-1,pending,delivered);}
+} // namespace srhd_awa::platform::perf515
