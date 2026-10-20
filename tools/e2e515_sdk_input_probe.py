@@ -33,6 +33,11 @@ def main():
     text = loop.read_text()
     if text.count('InputContextScope e2e_input_owner(') != 2 or text.count('e2e_input_owner.CancelHeldInput();') != 2:
         raise RuntimeError('Both real loops must enter and cancel scoped input')
+    for hook, expected in (('controller_ui::Scope e2e_controller_ui(this);', 2),
+                           ('controller_ui::Process(this, Message, WParam, LParam)', 1),
+                           ('controller_ui::Draw(this);', 1)):
+        if text.count(hook) != expected:
+            raise RuntimeError(f'Native focus hook missing or duplicated: {hook}')
     if 'controller_text_entry::Open(this);' not in edit.read_text():
         raise RuntimeError('Generic TEditGI keyboard is not in the effective source')
     results = []
@@ -51,7 +56,9 @@ def main():
     headers = {name: digest(ROOT / 'port/switch/platform' / name) for name in
                ('controller_actions.hpp', 'controller_screen_context.hpp',
                 'input_platform.hpp', 'win32_compat_messages.hpp', 'e2e5_text_input.hpp',
-                'controller_text_input.hpp', 'controller_text_entry.hpp')}
+                'controller_text_input.hpp', 'controller_text_entry.hpp',
+                'controller_profiles.hpp', 'controller_focus.hpp',
+                'controller_messages.hpp', 'controller_ui.hpp')}
     report.write_text(json.dumps({'status': 'COMPILE PASS', 'linked': False, 'hardware_executed': False,
                                  'compiler': config['compiler'], 'flags': flags,
                                  'headers_sha256': headers, 'objects': results}, indent=2) + '\n')

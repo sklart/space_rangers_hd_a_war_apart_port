@@ -18,7 +18,8 @@ enum class Action : std::uint8_t {
   StartDrag, EndDrag, NextTab, PrevTab, CycleTarget, NextWeapon, PrevWeapon,
   PrimaryFire, SecondaryFire, Move, Aim, IssueCommand, OpenCommandWheel,
   OpenMap, OpenTextKeyboard, QuickSave, BackToGame, MoveForward, MoveBackward,
-  TurnLeft, TurnRight, ToggleAutopilot, CyclePrimaryWeapon, CycleSecondaryWeapon, Count
+  TurnLeft, TurnRight, ToggleAutopilot, CyclePrimaryWeapon, CycleSecondaryWeapon,
+  ToggleNavigationMode, OpenControllerSettings, Count
 };
 using Mask = std::uint64_t;
 static_assert(static_cast<unsigned>(Action::Count) <= 64);
@@ -29,7 +30,8 @@ constexpr const char* Name(Action action) {
       "Inspect", "SelectMultiple", "StartDrag", "EndDrag", "NextTab", "PrevTab", "CycleTarget",
       "NextWeapon", "PrevWeapon", "PrimaryFire", "SecondaryFire", "Move", "Aim", "IssueCommand",
       "OpenCommandWheel", "OpenMap", "OpenTextKeyboard", "QuickSave", "BackToGame", "MoveForward",
-      "MoveBackward", "TurnLeft", "TurnRight", "ToggleAutopilot", "CyclePrimaryWeapon", "CycleSecondaryWeapon"};
+      "MoveBackward", "TurnLeft", "TurnRight", "ToggleAutopilot", "CyclePrimaryWeapon", "CycleSecondaryWeapon",
+      "ToggleNavigationMode", "OpenControllerSettings"};
   static_assert(sizeof(names) / sizeof(*names) == static_cast<unsigned>(Action::Count));
   return action < Action::Count ? names[static_cast<unsigned>(action)] : "Invalid";
 }
@@ -37,7 +39,7 @@ enum Button : Mask {
   A = 1u << 0, B = 1u << 1, X = 1u << 2, Y = 1u << 3,
   Plus = 1u << 4, Minus = 1u << 5, L = 1u << 6, R = 1u << 7,
   ZL = 1u << 8, ZR = 1u << 9, Up = 1u << 10, Down = 1u << 11,
-  Left = 1u << 12, Right = 1u << 13, Touch = 1u << 14
+  Left = 1u << 12, Right = 1u << 13, Touch = 1u << 14, L3 = 1u << 15, R3 = 1u << 16
 };
 struct Events {
   Mask pressed{}, held{}, released{}, repeat{};
@@ -51,11 +53,12 @@ struct Events {
 // A new owner must change epoch, even when it uses the same context enum.
 class Router {
 public:
+  void BlockUntilReleased(Mask buttons) { blocked_ |= buttons; }
   Events Update(Mask buttons, Context context, std::uint64_t epoch,
                 std::uint64_t now_us, bool available = true,
-                bool enable_quicksave = false) {
+                bool enable_quicksave = false, std::uint64_t input_revision = 0) {
     const bool changed = initialized_ &&
-        (context != context_ || epoch != epoch_ || available != available_);
+        (context != context_ || epoch != epoch_ || available != available_ || input_revision != input_revision_);
     const auto previous = held_;
     if (changed || !available) blocked_ |= buttons;
     blocked_ &= buttons;
@@ -72,6 +75,8 @@ public:
     bind(Plus, Action::OpenPause);
     bind(Y, Action::OpenContextAction);
     bind(X, Action::Inspect);
+    bind(L3, Action::ToggleNavigationMode);
+    bind(R3, Action::OpenControllerSettings);
     if (context == Context::ArcadeGameplay) {
       bind(Up, Action::MoveForward); bind(Down, Action::MoveBackward);
       bind(Left, Action::TurnLeft); bind(Right, Action::TurnRight);
@@ -105,6 +110,7 @@ public:
     if (result.released & Bit(Action::StartDrag)) result.released |= Bit(Action::EndDrag);
     held_ = next; context_ = context; epoch_ = epoch;
     available_ = available; initialized_ = true;
+    input_revision_ = input_revision;
     return result;
   }
 private:
@@ -112,6 +118,7 @@ private:
   std::array<std::uint64_t, static_cast<unsigned>(Action::Count)> repeat_at_{};
   Context context_{Context::MainMenu};
   std::uint64_t epoch_{};
+  std::uint64_t input_revision_{};
   bool initialized_{}, available_{true};
 };
 } // namespace srhd_awa::platform::controller_actions

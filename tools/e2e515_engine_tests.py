@@ -36,6 +36,11 @@ def main():
         raise RuntimeError('Input must be cancelled before both effective OnClose calls')
     if effective_loop.read_text().count('MessageLoopStackGuard e2e_loop_stack(this);') != 2:
         raise RuntimeError('Both real loops must unwind their original MessageLoopStack')
+    for hook, expected in (('controller_ui::Scope e2e_controller_ui(this);', 2),
+                           ('controller_ui::Process(this, Message, WParam, LParam)', 1),
+                           ('controller_ui::Draw(this);', 1)):
+        if effective_loop.read_text().count(hook) != expected:
+            raise RuntimeError(f'Native focus hook missing or duplicated: {hook}')
     if 'SetArcadeControls(' in effective_arcade.read_text():
         raise RuntimeError('Effective OnOpen/OnClose overrides scoped owner')
     if 'controller_text_entry::Open(this);' not in effective_edit.read_text():
@@ -61,7 +66,8 @@ def main():
             for name, test, extras in (
                     ('runtime-loop', 'test_runtime_loop_slice.cpp', [str(runtime)]),
                     ('scene-canvas', 'test_e2e513_scene_canvas.cpp', []),
-                    ('screen-context', 'test_e2e515_screen_context.cpp', [])):
+                    ('screen-context', 'test_e2e515_screen_context.cpp', []),
+                    ('native-focus', 'test_e2e515_native_focus.cpp', [])):
                 source = ROOT / 'tests' / test
                 obj = staging / f'{name}.o'
                 run(['g++', *flags, '-c', str(source), '-o', str(obj)], name + '-compile')

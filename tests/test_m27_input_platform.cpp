@@ -52,7 +52,7 @@ int main() {
   auto frame = NormalizeAt(&slow_poll, full_stick, 1280, 720, 200000);
   assert(frame.x == 760);
   frame = NormalizeAt(&slow_poll, full_stick, 1280, 720, 700000);
-  assert(frame.x == 1060);  // A 500 ms frame interval retains true velocity.
+  assert(frame.x == 790);  // A 500 ms UI stall is capped; ordinary 20/30/60 FPS is unchanged.
 
   for (const std::uint64_t stall_us : {1000000ULL, 2000000ULL, 3000000ULL}) {
     State stalled;

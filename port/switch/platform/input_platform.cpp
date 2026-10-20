@@ -1,5 +1,6 @@
 #include "input_platform.hpp"
 #include "e2e_clock.hpp"
+#include "controller_profiles.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -17,6 +18,7 @@ std::atomic_bool suppress_applet_input{false};
 // held buttons even if two windows share the same context type.
 std::atomic<std::uint64_t> context_token{};
 std::atomic<std::uint64_t> flight_stick{};
+std::atomic_bool focus_available{}, prefer_focus{}, ui_focus_mode{};
 RawInput Neutral(const RawInput& source) {
   RawInput result{};
   result.connected = source.connected;
@@ -25,13 +27,14 @@ RawInput Neutral(const RawInput& source) {
 }
 bool Suppressed(const RawInput& raw) {
   if (!suppress_applet_input.load()) return false;
+  const auto deadzone = controller_profiles::Get().deadzone;
   if (!raw.touch && !raw.a && !raw.b && !raw.x && !raw.y && !raw.plus &&
-      !raw.zl && !raw.zr && !raw.minus && !raw.l && !raw.r && !raw.dpad_left && !raw.dpad_right &&
+      !raw.zl && !raw.zr && !raw.minus && !raw.l && !raw.r && !raw.l3 && !raw.r3 && !raw.dpad_left && !raw.dpad_right &&
       !raw.dpad_up && !raw.dpad_down &&
-      std::abs(static_cast<std::int64_t>(raw.stick_x)) <= 5500 &&
-      std::abs(static_cast<std::int64_t>(raw.stick_y)) <= 5500 &&
-      std::abs(static_cast<std::int64_t>(raw.right_stick_x)) <= 5500 &&
-      std::abs(static_cast<std::int64_t>(raw.right_stick_y)) <= 5500)
+      std::abs(static_cast<std::int64_t>(raw.stick_x)) <= deadzone &&
+      std::abs(static_cast<std::int64_t>(raw.stick_y)) <= deadzone &&
+      std::abs(static_cast<std::int64_t>(raw.right_stick_x)) <= deadzone &&
+      std::abs(static_cast<std::int64_t>(raw.right_stick_y)) <= deadzone)
     suppress_applet_input.store(false);
   return true; // Discard the release sample and old applet history as well.
 }
@@ -81,6 +84,8 @@ RawInput FromButtons(std::uint64_t held, HidAnalogStickState stick, HidAnalogSti
   raw.minus = (held & HidNpadButton_Minus) != 0;
   raw.l = (held & HidNpadButton_L) != 0;
   raw.r = (held & HidNpadButton_R) != 0;
+  raw.l3 = (held & HidNpadButton_StickL) != 0;
+  raw.r3 = (held & HidNpadButton_StickR) != 0;
   return raw;
 }
 
@@ -148,15 +153,50 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
   using namespace controller_actions;
   const auto token = context_token.load();
   const auto context = static_cast<Context>(token & 255);
+  const auto settings = controller_profiles::Get();
+  const auto profile_revision = controller_profiles::revision.load();
+  if (settings.swap_confirm_cancel) std::swap(raw.a, raw.b);
+  const bool available = focus_available.load() && context != Context::ArcadeGameplay &&
+      context != Context::ArcadePause && context != Context::ArcadeResult;
+  const bool right_motion = std::abs(static_cast<std::int64_t>(raw.right_stick_x)) > config.stick_deadzone ||
+      std::abs(static_cast<std::int64_t>(raw.right_stick_y)) > config.stick_deadzone;
+  const bool left_motion = std::abs(static_cast<std::int64_t>(raw.stick_x)) > config.stick_deadzone ||
+      std::abs(static_cast<std::int64_t>(raw.stick_y)) > config.stick_deadzone;
+  bool focus = state->ui_focus;
+  const bool owner_changed = token != state->ui_owner_token || profile_revision != state->ui_profile_revision;
+  const bool preferred = prefer_focus.load();
+  const bool policy_changed = available != state->ui_available || preferred != state->ui_preferred_focus;
+  if (!state->focus_initialized || owner_changed || policy_changed) focus = available && preferred;
+  state->ui_available = available; state->ui_preferred_focus = preferred;
+  if (!available) focus = false;
+  if (raw.touch || right_motion ||
+      (settings.profile == controller_profiles::Profile::Cursor && left_motion)) focus = false;
+  if (available && raw.l3 && !state->last_l3) focus = !focus;
+  if (available && !raw.touch && !right_motion &&
+      (raw.dpad_left || raw.dpad_right || raw.dpad_up || raw.dpad_down)) focus = true;
+  const bool mode_changed = state->focus_initialized && focus != state->ui_focus && !owner_changed;
+  state->focus_initialized = true;
+  state->ui_owner_token = token; state->ui_profile_revision = profile_revision;
+  state->ui_focus = focus; state->last_l3 = raw.l3;
+  ui_focus_mode.store(focus);
+  if (focus) {
+    const auto threshold = std::max(config.stick_deadzone, 16000);
+    raw.dpad_left |= raw.stick_x < -threshold; raw.dpad_right |= raw.stick_x > threshold;
+    raw.dpad_up |= raw.stick_y > threshold; raw.dpad_down |= raw.stick_y < -threshold;
+  }
   const auto button = [](bool held, Button bit) -> Mask { return held ? Mask(bit) : Mask{}; };
   const Mask buttons = button(raw.a, A) | button(raw.b, B) | button(raw.x, X) |
       button(raw.y, Y) | button(raw.plus, Plus) | button(raw.minus, Minus) |
       button(raw.l, L) | button(raw.r, R) | button(raw.zl, ZL) | button(raw.zr, ZR) |
       button(raw.dpad_up, Up) | button(raw.dpad_down, Down) |
-      button(raw.dpad_left, Left) | button(raw.dpad_right, Right) | button(raw.touch, Touch);
+      button(raw.dpad_left, Left) | button(raw.dpad_right, Right) | button(raw.touch, Touch) |
+      button(raw.l3, L3) | button(raw.r3, R3);
+  if (mode_changed) state->actions.BlockUntilReleased(buttons & state->previous_buttons &
+      ~(Mask(Up) | Mask(Down) | Mask(Left) | Mask(Right)));
+  state->previous_buttons = buttons;
   const auto source_token = token * 256 + static_cast<unsigned>(raw.controller_style);
   const auto actions = state->actions.Update(buttons, context, source_token, now_us,
-                                            raw.connected, true);
+                                            raw.connected, true, profile_revision);
   const auto displaced = [&](std::int32_t x, std::int32_t y) {
     const auto deadzone = std::clamp(config.stick_deadzone, 0, 32766);
     return std::abs(static_cast<std::int64_t>(x)) > deadzone ||
@@ -198,6 +238,11 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
         (raw.l << 6) | (raw.r << 7) | (raw.minus << 8);
     if (raw.zl && raw.zr && raw.minus) flight &= 15; // Preserve quicksave chord.
     raw.dpad_left = raw.dpad_right = raw.dpad_up = raw.dpad_down = false;
+  } else if (focus) {
+    raw.stick_x = raw.stick_y = 0;
+    raw.dpad_left = raw.dpad_right = raw.dpad_up = raw.dpad_down = false;
+  } else if (right_motion) {
+    raw.stick_x = raw.right_stick_x; raw.stick_y = raw.right_stick_y;
   }
   if (raw.touch) {
     state->precise_x = std::clamp<std::int32_t>(
@@ -208,12 +253,30 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
     raw.dpad_left = raw.dpad_right = raw.dpad_up = raw.dpad_down = false;
   }
   const bool result_confirm = context == Context::ArcadeResult && raw.a;
-  raw.a = (context == Context::ArcadeResult ? false : raw.a) || raw.touch;
-  const auto seconds = static_cast<double>(delta_us) / 1000000.0;
-  const auto dx = (Axis(raw.stick_x, config) * config.stick_pixels_per_second +
+  raw.a = (context == Context::ArcadeResult || focus ? false : raw.a) || raw.touch;
+  if (focus) raw.y = false; // OpenContextAction is delivered directly; never duplicate it as a mouse click.
+  if (!focus && context != Context::ArcadeGameplay && context != Context::ArcadePause &&
+      context != Context::ArcadeResult) raw.a |= raw.zr; // Cursor profile drag, same left-button lifetime.
+  auto seconds = static_cast<double>(delta_us) / 1000000.0;
+  const auto sign_x = (raw.stick_x > 0) - (raw.stick_x < 0);
+  const auto sign_y = (raw.stick_y > 0) - (raw.stick_y < 0);
+  const bool pointer_motion = Axis(raw.stick_x, config) != 0 || Axis(raw.stick_y, config) != 0;
+  if (!pointer_motion || raw.touch || focus ||
+      sign_x != state->pointer_sign_x || sign_y != state->pointer_sign_y) state->pointer_hold_us = 0;
+  if (config.pointer_acceleration && !raw.touch && !focus && pointer_motion) {
+    const auto integral = [](std::uint64_t time) -> double {
+      const double t = std::min<std::uint64_t>(time, 500000);
+      return t + t * t / 1000000.0 + 2.0 * (time - static_cast<std::uint64_t>(t));
+    };
+    const auto next = state->pointer_hold_us + delta_us;
+    seconds = (integral(next) - integral(state->pointer_hold_us)) / 1000000.0;
+    state->pointer_hold_us = std::min<std::uint64_t>(500000, next);
+  }
+  state->pointer_sign_x = sign_x; state->pointer_sign_y = sign_y;
+  const auto dx = ((config.invert_x ? -1 : 1) * Axis(raw.stick_x, config) * config.stick_pixels_per_second +
                    (static_cast<int>(raw.dpad_right) - static_cast<int>(raw.dpad_left)) *
                        config.dpad_pixels_per_second) * seconds;
-  const auto dy = (-Axis(raw.stick_y, config) * config.stick_pixels_per_second +
+  const auto dy = ((config.invert_y ? 1 : -1) * Axis(raw.stick_y, config) * config.stick_pixels_per_second +
                    (static_cast<int>(raw.dpad_down) - static_cast<int>(raw.dpad_up)) *
                        config.dpad_pixels_per_second) * seconds;
   state->precise_x = std::clamp(state->precise_x + dx, 0.0,
@@ -222,6 +285,7 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
                                 static_cast<double>(height - 1));
   Snapshot result{};
   result.actions = actions;
+  result.ui_focus = focus; result.ui_mode_changed = mode_changed;
   result.result_confirm_held = result_confirm;
   result.controller_style = raw.controller_style;
   result.connected = raw.connected;
@@ -236,9 +300,9 @@ Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
   result.right_down = raw.y && !state->last.right_held;
   result.right_up = !raw.y && state->last.right_held;
   result.right_held = raw.y;
-  result.enter_down = raw.x && !state->last.enter_held;
-  result.enter_up = !raw.x && state->last.enter_held;
-  result.enter_held = raw.x;
+  result.enter_down = raw.x && !focus && !state->last.enter_held;
+  result.enter_up = (!raw.x || focus) && state->last.enter_held;
+  result.enter_held = raw.x && !focus;
   result.escape_down = raw.b && !state->last.escape_held;
   result.escape_up = !raw.b && state->last.escape_held;
   result.escape_held = raw.b;
@@ -268,6 +332,18 @@ void SetInputContext(controller_actions::Context context) {
 controller_actions::Context GetInputContext() {
   return static_cast<controller_actions::Context>(context_token.load() & 255);
 }
+void SetUiFocusPolicy(bool available, bool preferred) {
+  focus_available.store(available); prefer_focus.store(preferred);
+}
+bool UiFocusMode() { return ui_focus_mode.load(); }
+void SyncControllerSettings(State* state) {
+  if (!state) return;
+  const auto settings = controller_profiles::Get();
+  state->config.stick_deadzone = settings.deadzone;
+  state->config.stick_pixels_per_second = settings.pointer_speed;
+  state->config.invert_x = settings.invert_x; state->config.invert_y = settings.invert_y;
+  state->config.pointer_acceleration = settings.acceleration;
+}
 void SetArcadeControls(bool enabled) {
   SetInputContext(enabled ? controller_actions::Context::ArcadeGameplay :
                            controller_actions::Context::MainMenu);
@@ -288,6 +364,7 @@ void Warp(State* state, std::int32_t x, std::int32_t y,
 }
 Snapshot Poll(State* state, std::int32_t width, std::int32_t height) {
   if (!state) return {};
+  SyncControllerSettings(state);
 #if defined(__SWITCH__)
   static PadState pad;
   static bool pad_initialized{};
@@ -361,6 +438,7 @@ PollBatch NormalizeHistoryAt(State* state, const RawHistoryEntry* entries,
 
 PollBatch PollHistory(State* state, std::int32_t width, std::int32_t height) {
   if (!state) return {};
+  SyncControllerSettings(state);
 #if defined(__SWITCH__)
   static PadState pad;
   static bool initialized{};

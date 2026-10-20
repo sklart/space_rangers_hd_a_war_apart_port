@@ -6,7 +6,7 @@ from pathlib import Path
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
-TESTS = ('e2e515_controller_actions', 'e2e515_text_input', 'm27_input_platform', 'e2e54_touch',
+TESTS = ('e2e515_controller_actions', 'e2e515_text_input', 'e2e515_profiles', 'm27_input_platform', 'e2e54_touch',
          'e2e55_input', 'e2e56_input', 'e2e5_input_history',
          'e2e59_map_swipe', 'e2e511_arcade_commands')
 

@@ -20,6 +20,28 @@
 #include <thread>
 
 namespace {
+void DriveRawPadMailbox(const std::filesystem::path& stage, const std::atomic<bool>& running) {
+  std::uint64_t previous{};
+  while (running.load()) {
+    std::ifstream file(stage / "pad-input.txt");
+    std::uint64_t sequence{}, mask{};
+    if ((file >> sequence >> mask) && sequence > previous && mask < (1u << 10)) {
+      srhd_awa::platform::input_platform::RawInput raw{};
+      raw.a = mask & 1; raw.b = mask & 2; raw.dpad_up = mask & 4; raw.dpad_down = mask & 8;
+      raw.dpad_left = mask & 16; raw.dpad_right = mask & 32; raw.r3 = mask & 64;
+      raw.l3 = mask & 128; raw.x = mask & 256; raw.plus = mask & 512;
+      srhd_awa::platform::win32_compat::InjectHostInput(raw);
+      previous = sequence;
+      char marker[96]{};
+      std::snprintf(marker, sizeof(marker), "HOST raw pad sequence=%llu mask=%llu",
+          static_cast<unsigned long long>(sequence), static_cast<unsigned long long>(mask));
+      srhd_awa::platform::e2e_stage::Log(marker);
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+  }
+  srhd_awa::platform::win32_compat::InjectHostInput({});
+}
+
 void DriveMenuProbe(const std::filesystem::path& stage,
                     const std::atomic<bool>& running, char key) {
   const auto log = stage / "sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log";
@@ -724,7 +746,9 @@ int main() {
   const char* expect_rejection = std::getenv("E2E5_HOST_EXPECT_LOAD_REJECTION");
   const char* options = std::getenv("E2E5_HOST_AUTO_OPTIONS");
   const char* menu_probe = std::getenv("E2E5_HOST_MENU_PROBE");
-  if (menu_probe && (*menu_probe == 'M' || *menu_probe == 'A'))
+  if (std::getenv("E2E515_HOST_PAD_MAILBOX"))
+    new_game_driver = std::thread(DriveRawPadMailbox, stage, std::cref(running));
+  else if (menu_probe && (*menu_probe == 'M' || *menu_probe == 'A'))
     new_game_driver = std::thread(DriveMenuProbe, stage, std::cref(running), *menu_probe);
   else if (load_save && *load_save == '1')
     new_game_driver = std::thread(DriveOriginalGameLoad, stage, std::cref(running),

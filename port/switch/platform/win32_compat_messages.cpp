@@ -1,6 +1,7 @@
 #include "win32_compat_messages.hpp"
 
 #include "e2e_clock.hpp"
+#include "controller_messages.hpp"
 #include "e2e_events.hpp"
 #include "e2e_stage.hpp"
 #include "win32_compat_window.hpp"
@@ -200,6 +201,24 @@ void Pump() {
   std::lock_guard lock(g_mutex);
   for (std::size_t index = 0; index < batch.count; ++index) {
     const auto& sample = batch.snapshots[index];
+    if (sample.ui_mode_changed)
+      Enqueue(window, controller_messages::kMessage,
+          static_cast<unsigned>(controller_actions::Action::ToggleNavigationMode),
+          static_cast<int>(sample.ui_focus ? controller_messages::Edge::FocusMode : controller_messages::Edge::PointerMode));
+    for (const auto& edge : {std::pair{sample.actions.pressed, controller_messages::Edge::Pressed},
+                            std::pair{sample.actions.released, controller_messages::Edge::Released},
+                            std::pair{sample.actions.repeat, controller_messages::Edge::Repeat}}) {
+      for (const auto action : {controller_actions::Action::Confirm, controller_actions::Action::Cancel,
+          controller_actions::Action::NavigateUp, controller_actions::Action::NavigateDown,
+          controller_actions::Action::NavigateLeft, controller_actions::Action::NavigateRight,
+          controller_actions::Action::Inspect, controller_actions::Action::OpenContextAction,
+          controller_actions::Action::PrevTab, controller_actions::Action::NextTab,
+          controller_actions::Action::OpenControllerSettings}) {
+        if ((sample.ui_focus || action == controller_actions::Action::OpenControllerSettings) &&
+            (edge.first & controller_actions::Bit(action)))
+          Enqueue(window, controller_messages::kMessage, static_cast<unsigned>(action), static_cast<int>(edge.second));
+      }
+    }
     for (const auto& edge : {std::pair{sample.actions.pressed, "pressed"},
                             std::pair{sample.actions.released, "released"},
                             std::pair{sample.actions.repeat, "repeat"}}) {
@@ -225,10 +244,10 @@ void Pump() {
     }
     if (sample.left_down) Enqueue(window, kWmLeftDown, 1, lparam, sample.x, sample.y,
                                   sample.hid_sequence, sample.touch_message);
-    if (sample.left_up) Enqueue(window, kWmLeftUp, 0, lparam, sample.x, sample.y,
+    if (sample.left_up && !sample.ui_mode_changed) Enqueue(window, kWmLeftUp, 0, lparam, sample.x, sample.y,
                                 sample.hid_sequence, sample.touch_message);
     if (sample.right_down) Enqueue(window, kWmRightDown, 2, lparam, sample.x, sample.y);
-    if (sample.right_up) Enqueue(window, kWmRightUp, 0, lparam, sample.x, sample.y);
+    if (sample.right_up && !sample.ui_mode_changed) Enqueue(window, kWmRightUp, 0, lparam, sample.x, sample.y);
     auto key = [&](std::uint32_t vk, bool down, bool up, bool held) {
       g_keys[vk] = held;
       if (down) Enqueue(window, kWmKeyDown, vk);
@@ -281,7 +300,8 @@ ReleasedInput ChangeInputOwner(controller_actions::Context context) {
   }
   std::erase_if(g_queue, [](const auto& queued) {
     const auto message = queued.message.message;
-    return (message >= 0x100 && message <= 0x109) || (message >= 0x200 && message <= 0x20e);
+    return (message >= 0x100 && message <= 0x109) || (message >= 0x200 && message <= 0x20e) ||
+        message == controller_messages::kMessage;
   });
   g_keys.fill(false);
   g_emitted_escape = g_emitted_pause = false;
@@ -481,6 +501,23 @@ bool InputContextScope::UpdateContext(void* owner, controller_actions::Context c
 }
 bool UpdateActiveInputContext(void* owner, controller_actions::Context context) {
   return g_input_scope && g_input_scope->UpdateContext(owner, context);
+}
+void InputContextScope::CancelPointerForMode(void* owner) {
+  if (owner != owner_) return;
+  ReleasedInput held{};
+  {
+    std::lock_guard lock(g_mutex);
+    held.keys[1] = g_keys[1]; held.keys[2] = g_keys[2];
+    g_keys[1] = g_keys[2] = false;
+    g_active_press_id = 0;
+    g_input.last.left_held = g_input.last.right_held = false;
+  }
+  // Keep completed HID pulses and new navigation packets in their original
+  // order. A mode switch cancels a hold, not earlier completed presses.
+  if (release_) release_(owner_, held);
+}
+void CancelActivePointerForMode(void* owner) {
+  if (g_input_scope) g_input_scope->CancelPointerForMode(owner);
 }
 
 void InjectHostInput(input_platform::RawInput input) {

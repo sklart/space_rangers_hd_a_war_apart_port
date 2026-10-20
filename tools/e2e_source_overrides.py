@@ -1602,6 +1602,7 @@ void CloseVorbisStream(TOggWorker* worker) {
             ViewportRect.Bottom != GR_Main::GameScreenHeight ||
             (ContentPanel && ContentPanel->FindByNameRecursive(u"BGBuf"sv) != nullptr)));
         srhd_awa::platform::renderer_platform::SceneCanvas e2e_canvas(e2e_inherit_canvas, this);
+        srhd_awa::platform::controller_ui::Scope e2e_controller_ui(this);
 #endif''', 1, source.name)
         text = _replace_exact(text, '            OnClose();', '''#if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
             e2e_input_owner.CancelHeldInput();
@@ -1699,6 +1700,14 @@ void CloseVorbisStream(TOggWorker* worker) {
         draw = draw.replace(advance, "", 1)
         text = text[:draw_start] + draw + text[draw_end:]
         text = ('#include "e2e5_stage_profiler.hpp"\n' if e2e5_profile else '') + '#include "continuous_time.hpp"\n#include "renderer_platform.hpp"\n#include "e2e_stage.hpp"\n#include <cstdio>\n#include <vector>\n' + text
+        text = _replace_exact(text, '''        std::int32_t Stage = 0;
+        try {
+            if (Message == MessagesSdk::WM_MOUSEMOVE) {''', '''        std::int32_t Stage = 0;
+        try {
+            if (srhd_awa::platform::controller_ui::Process(this, Message, WParam, LParam)) return;
+            if (Message == MessagesSdk::WM_MOUSEMOVE) {''', 1, source.name)
+        text = _replace_exact(text, '    void TMessageLoopGI::FinishQueuedDraw() {\n        RegionDrawPending = false;',
+            '    void TMessageLoopGI::FinishQueuedDraw() {\n        RegionDrawPending = false;\n        srhd_awa::platform::controller_ui::Draw(this);', 1, source.name)
         # Publish the actual nested loop identity, not just the outer dispatch ID.
         gi_namespace = "namespace GI_MessageLoop {"
         if text.count(gi_namespace) != 1:

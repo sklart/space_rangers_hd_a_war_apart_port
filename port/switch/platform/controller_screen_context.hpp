@@ -7,6 +7,7 @@
 #include "types/GI_GraphButton.hpp"
 #include "types/GI_Panel.hpp"
 #include "types/ab_MainForm.hpp"
+#include "controller_ui.hpp"
 
 namespace srhd_awa::platform::controller_screen_context {
 // Original Run pops on its normal return only. An exception must remove the
@@ -64,6 +65,7 @@ inline controller_actions::Context ForLoop(const GI_MessageLoop::TMessageLoopGI*
 }
 inline void Refresh(GI_MessageLoop::TMessageLoopGI* loop) {
   win32_compat::UpdateActiveInputContext(loop, ForLoop(loop));
+  controller_ui::Refresh(loop);
 }
 
 inline void CancelMomentaryButtons(GI_MessageLoop::TObjectGI* object) {

@@ -25,6 +25,7 @@ public:
   ~InputContextScope();
   void CancelHeldInput(); // Call before OnClose destroys gameplay resources.
   bool UpdateContext(void* owner, controller_actions::Context context);
+  void CancelPointerForMode(void* owner);
   InputContextScope(const InputContextScope&) = delete;
   InputContextScope& operator=(const InputContextScope&) = delete;
 private:
@@ -34,6 +35,7 @@ private:
   ReleaseInputOwner release_{};
 };
 bool UpdateActiveInputContext(void* owner, controller_actions::Context context);
+void CancelActivePointerForMode(void* owner);
 #if defined(E2E5_HOST_SDL_WINDOW)
 bool PostHostKey(std::uint32_t window, std::uint32_t virtual_key);
 bool PostHostText(std::uint32_t window, std::u16string_view text);

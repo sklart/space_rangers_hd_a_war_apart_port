@@ -12,7 +12,8 @@ struct Config {
   double stick_pixels_per_second{600.0};
   double dpad_pixels_per_second{180.0};
   std::uint64_t max_delta_us{50000};  // Motion after an actual stall.
-  std::uint64_t stall_threshold_us{500000};
+  std::uint64_t stall_threshold_us{200000};
+  bool invert_x{}, invert_y{}, pointer_acceleration{};
 };
 enum class ControllerStyle : std::uint8_t { Host, Handheld, JoyDual, FullKey, Unsupported };
 struct RawInput {
@@ -21,6 +22,7 @@ struct RawInput {
   bool a{}, b{}, x{}, y{}, plus{};
   bool zl{}, zr{}, minus{};
   bool l{}, r{};
+  bool l3{}, r3{};
   bool touch{};
   std::int32_t touch_x{}, touch_y{}; // HID coordinates in the 1280x720 panel.
   std::int32_t right_stick_x{}, right_stick_y{};
@@ -42,6 +44,7 @@ struct Snapshot {
   bool plus_down{};
   bool pause_down{}, pause_up{}, pause_held{};
   bool result_confirm_held{};
+  bool ui_focus{}, ui_mode_changed{};
   bool quicksave_down{}, quicksave_up{}, quicksave_held{};
 };
 // libnx retains at most 17 recent Npad samples. An extra slot is kept for
@@ -74,6 +77,10 @@ struct State {
   bool touch_was_active{};
   bool left_stick_blocked{}, right_stick_blocked{};
   std::uint64_t history_owner_token{};
+  bool focus_initialized{}, ui_focus{}, last_l3{};
+  bool ui_available{}, ui_preferred_focus{};
+  std::uint64_t ui_owner_token{}, ui_profile_revision{}, previous_buttons{}, pointer_hold_us{};
+  std::int32_t pointer_sign_x{}, pointer_sign_y{};
 };
 
 Snapshot NormalizeAt(State* state, RawInput raw, std::int32_t width,
@@ -84,6 +91,9 @@ void SuppressUntilReleased();
 void SetArcadeControls(bool enabled);
 void SetInputContext(controller_actions::Context context);
 controller_actions::Context GetInputContext();
+void SetUiFocusPolicy(bool available, bool prefer_focus);
+bool UiFocusMode();
+void SyncControllerSettings(State* state);
 struct FlightStick { std::int32_t x{}, y{}; };
 FlightStick GetFlightStick();
 void Warp(State* state, std::int32_t x, std::int32_t y,
