@@ -148,6 +148,7 @@ def source_map() -> tuple[list[tuple[Path, Path]], dict[str, str]]:
                   ROOT / "tools/e2e56_geometry_overrides.py",
                   ROOT / "tools/e2e5_ui_width_overrides.py",
                   ROOT / "tools/e2e5_cachegi_trace.py")
+    generators += (ROOT / 'tools/e2e516_stop_overrides.py',)
     generator_hashes = {path.name: hashlib.sha256(path.read_bytes()).hexdigest()
                         for path in generators}
     try:
@@ -237,6 +238,8 @@ def main() -> int:
     global BUILD
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--jobs", type=int, default=4)
+    parser.add_argument("--switch-effective", action="store_true",
+                        help="Compile the existing perf515 ARM64 effective game sources verbatim in an isolated host build")
     parser.add_argument("--profile", choices=("functional", "debug", "optimized"),
                         default="functional")
     args = parser.parse_args()
@@ -244,12 +247,37 @@ def main() -> int:
         parser.error("--jobs must be positive")
     if args.profile != "functional":
         BUILD = SWITCH / "build/e2e5-host-game" / args.profile
+    if args.switch_effective:
+        BUILD = SWITCH / "build/e2e5-host-game/switch-effective"
     BUILD.mkdir(parents=True, exist_ok=True)
     git = native_git()
     build_git = command([git, "rev-parse", "HEAD"])
     dirty = bool(command([git, "status", "--porcelain", "--untracked-files=all"]))
     library = build_okgf(args.profile)
-    mapping, manifest = source_map()
+    if args.switch_effective:
+        arm = SWITCH / "build/e2e-game-perf515"
+        arm_map = json.loads((arm / "effective-source-map.json").read_text())
+        arm_links = [(line.strip().strip('"').replace('\\', '/'))
+                     for line in (arm / 'link-objects.rsp').read_text().splitlines()]
+        linked_game = {Path(line).stem for line in arm_links if '/upstream/' in line}
+        mapping = [(ROOT / original, ROOT / effective) for original, effective in arm_map.items()
+                   if Path(original).stem in linked_game and Path(original).stem != 'program']
+        # The ARM map lists original game units only. Platform units and the
+        # host entrypoint are explicit, with the same portable renderer/audio/save.
+        mapping += [(SWITCH / "platform" / name, SWITCH / "platform" / name)
+                    for name in (*PLATFORM_NAMES, "e2e515_perf.cpp")]
+        main_source = ROOT / "tools/e2e5_host_game_main.cpp"
+        mapping.append((main_source, main_source))
+        manifest = {a.relative_to(ROOT).as_posix(): b.relative_to(ROOT).as_posix()
+                    for a, b in mapping}
+        # ARM headers must accompany ARM effective cpp files, not independently
+        # regenerated host headers. Runtime headers have portable imports too.
+        overlay_headers = arm / "source-overlay"
+        runtime_headers = arm / "runtime-overlay"
+    else:
+        mapping, manifest = source_map()
+        overlay_headers = BUILD / "source-overlay"
+        runtime_headers = BUILD / "runtime-overlay"
     profile_flags = {"functional": ("-O0", "-g0"),
                      "debug": ("-O0", "-g1"),
                      "optimized": ("-O2", "-g1", "-fno-strict-aliasing")}
@@ -259,9 +287,11 @@ def main() -> int:
              "-DE2E4_AUDIO_ON=1", "-DE2E4_QUICKSAVE_EXPERIMENT=1",
              "-ffunction-sections", "-fdata-sections", "-Wno-invalid-offsetof",
              *["-I" + str(path) for path in
-               (SWITCH / "platform", BUILD / "source-overlay", GAME / "src",
-                BUILD / "runtime-overlay", GAME / "runtime",
+               (SWITCH / "platform", overlay_headers, GAME / "src",
+                runtime_headers, GAME / "runtime",
                 ROOT / "upstream/okgf/include")]]
+    if args.switch_effective:
+        flags += ["-DE2E515_PERF_DIAGNOSTICS=1"]
     flags_stamp = BUILD / "compile-flags.json"
     rendered_flags = json.dumps({"compiler": command(["g++", "--version"]).splitlines()[0],
                                  "flags": flags}, sort_keys=True) + "\n"
@@ -331,14 +361,28 @@ def main() -> int:
         "original_units_replaced": ["program.cpp", "EC_HsFile.cpp"],
         "compiled_effective_original_units": sum(1 for source, _ in mapping
                                                   if source.parent in (GAME / "src", GAME / "runtime")),
-        "platform_units": len(PLATFORM_NAMES),
+        "platform_units": len(PLATFORM_NAMES) + int(args.switch_effective),
         "compiled_this_run": len(work), "linked_this_run": need_link,
         "link_objects": len(objects),
         "binary": str(binary), "binary_sha256": hashlib.sha256(binary.read_bytes()).hexdigest(),
         "source_map": manifest,
+        "switch_effective": args.switch_effective,
+        "compiled_sources_sha256": {str(effective.relative_to(ROOT)): hashlib.sha256(effective.read_bytes()).hexdigest()
+                                    for _, effective in mapping},
     }
+    compiled_units = []
+    for (original, effective), obj in zip(mapping, objects, strict=True):
+        deptext = obj.with_suffix('.d').read_text().replace('\\\n', ' ').replace('\\ ', ' ')
+        if str(effective) not in deptext:
+            raise RuntimeError('Compiler dependency does not name effective source: ' + str(obj))
+        compiled_units.append({'original': original.relative_to(ROOT).as_posix(),
+                               'effective': effective.relative_to(ROOT).as_posix(),
+                               'object': obj.relative_to(ROOT).as_posix(),
+                               'object_sha256': hashlib.sha256(obj.read_bytes()).hexdigest()})
+    report['compiled_units'] = compiled_units
     (BUILD / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({key: value for key, value in report.items() if key != "source_map"}, indent=2))
+    print(json.dumps({key: value for key, value in report.items()
+                     if key not in ("source_map", "compiled_units", "compiled_sources_sha256")}, indent=2))
     return 0
 
 

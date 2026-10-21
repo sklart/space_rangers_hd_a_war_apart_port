@@ -8,6 +8,7 @@
 #if defined(E2E5_HOST_SDL_WINDOW)
 #include "e2e3_generation_state.hpp"
 #include "e2e515_host_frame_capture.hpp"
+#include "e2e516_map_probe.hpp"
 #include <array>
 #include <cstdlib>
 #endif
@@ -577,6 +578,9 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   if (!g_initialized) return PresentationFailure("renderer not initialized");
   if (!pixels) return PresentationFailure("pixels missing");
   if (!ValidDimensions(width, height, pitch)) return PresentationFailure("invalid dimensions");
+#if defined(E2E5_HOST_SDL_WINDOW)
+  if(GlobalsV::CurrentScreenId==16)map516::Present(pixels,pitch,width,height);
+#endif
 #if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
   if(perf515::SceneEnabled() && g_active_canvas && g_active_canvas->sample_frame_) {
     auto& c=*g_active_canvas;

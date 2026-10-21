@@ -7,6 +7,9 @@
 #include "win32_compat_messages.hpp"
 #include "win32_compat_window.hpp"
 #include "e2e5_text_input.hpp"
+#if defined(E2E515_PERF_DIAGNOSTICS)
+#include "e2e515_perf.hpp"
+#endif
 
 #include <atomic>
 #include <algorithm>
@@ -85,6 +88,18 @@ void DriveRawPadMailbox(const std::filesystem::path& stage, const std::atomic<bo
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
       if (!running.load()) break;
       previous = sequence;
+      // Host input protocol acknowledgement must not wait for the asynchronous
+      // diagnostic writer: that would turn a short press into a held repeat.
+      {
+        const auto temporary = stage / "pad-ack.tmp";
+        std::ofstream ack(temporary);
+        ack << sequence << ' ' << mask << '\n';
+        ack.close();
+        std::error_code error;
+        if (ack) std::filesystem::rename(temporary, stage / "pad-ack.txt", error);
+        if (!ack || error)
+          srhd_awa::platform::e2e_stage::Log("FAIL HOST raw pad acknowledgement");
+      }
       char marker[96]{};
       std::snprintf(marker, sizeof(marker), "HOST raw pad sequence=%llu mask=%llu",
           static_cast<unsigned long long>(sequence), static_cast<unsigned long long>(mask));
@@ -768,6 +783,9 @@ void DriveOriginalGameLoad(const std::filesystem::path& stage,
 // Test-only entrypoint. The original ProgramMain still performs startup and
 // runs the game; only its game and user roots are supplied by the host rig.
 int main() {
+#if defined(E2E515_PERF_DIAGNOSTICS)
+  srhd_awa::platform::perf515::Session perf_session(srhd_awa::platform::e2e_stage::kRoot);
+#endif
   const auto stage = std::filesystem::current_path();
   const char* installed = std::getenv("E2E5_GAME_ROOT");
   const auto game = installed && *installed

@@ -20,12 +20,15 @@ OUTPUT = ROOT / 'build/e2e515/controller-route'
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--game-root', type=Path, required=True)
+    parser.add_argument('--host-build', type=Path, help='Use an explicitly selected complete host build')
     parser.add_argument('--config-root', type=Path, required=True)
     parser.add_argument('--campaign', action='store_true', help='Continue via native focus, OSK and world generation')
     parser.add_argument('--save', action='store_true', help='After takeoff, save from the original UI using Unicode OSK')
     parser.add_argument('--fail-save-once', action='store_true', help='Refuse the first UI save with a private occupied temp directory, then retry')
     parser.add_argument('--load-save', type=Path, help='Load a copied build fixture in a separate fresh process')
     parser.add_argument('--advance-turns', type=int, default=0)
+    parser.add_argument('--map-move',type=int,nargs=2,metavar=('X','Y'),
+                        help='Issue a real map tap before advancing a loaded map fixture')
     parser.add_argument('--resave-name', help='After loading, write a new slot using host OSK')
     parser.add_argument('--expect-checkpoint', type=Path, help='Compare the loaded state to a prior route result')
     parser.add_argument('--label', help='Separate result folder under build/e2e515')
@@ -57,12 +60,17 @@ def main():
         parser.error('turns/resave/checkpoint require --load-save')
     if not 0 <= args.advance_turns <= 10:
         parser.error('--advance-turns must be between 0 and 10')
+    if args.map_move and (not args.load_save or not args.advance_turns or not
+                         (0<=args.map_move[0]<1280 and 0<=args.map_move[1]<720)):
+        parser.error('--map-move requires a loaded map, turn advancement and in-bounds coordinates')
     if args.resave_name and (any(c in args.resave_name for c in '<>"/\\:') or
                             not 1 <= len(args.resave_name.encode('utf-16-le')) // 2 <= 55):
         parser.error('invalid fixture save name')
     if args.label and not re.fullmatch(r'[a-zA-Z0-9_-]{1,40}', args.label):
         parser.error('invalid result folder label')
-    global OUTPUT
+    global OUTPUT, BUILD
+    if args.host_build:
+        BUILD = args.host_build.resolve(strict=True)
     if args.campaign:
         OUTPUT = ROOT / 'build/e2e515/controller-campaign'
     if args.save:
@@ -102,6 +110,13 @@ def main():
             del env[name]
     frames = stage / 'frames'
     frames.mkdir()
+    switch_effective = json.loads((BUILD / 'report.json').read_text()).get('switch_effective',False)
+    if switch_effective:
+        env['E2E516_MAP_PROBE'] = '1'
+        diagnostic_root = stage / 'sdmc:/switch/space-rangers-hd-a-war-apart'
+        diagnostic_root.mkdir(parents=True, exist_ok=True)
+        (diagnostic_root / 'perf-mode.txt').write_text('basic\n')
+        (diagnostic_root / 'scene-mode.txt').write_text('on\n')
     env.update(E2E5_GAME_ROOT=str(args.game_root.resolve()), SDL_VIDEODRIVER='dummy',
                SDL_AUDIODRIVER='dummy', LD_LIBRARY_PATH=str((BUILD / 'okgf').resolve()),
                E2E515_HOST_PAD_MAILBOX='1', E2E515_FOCUS_TRACE='1',
@@ -117,7 +132,8 @@ def main():
         env.update(E2E515_HOST_ROUTE_OSK='1', E2E515_HOST_SAVE_NAME=args.resave_name)
     if args.save or args.load_save:
         env['E2E515_SAVE_CHECKPOINTS'] = '1'
-    log = stage / 'sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log'
+    log = stage / ('sdmc:/switch/space-rangers-hd-a-war-apart/logs/perf515-stage.log'
+                   if switch_effective else 'sdmc:/switch/space-rangers-hd-a-war-apart/logs/e2e.log')
     game_log = config / '########.log'
     sequence = 0
     last_log = ''
@@ -213,10 +229,26 @@ def main():
         def raw(mask, duration=.17, touch=None):
             nonlocal sequence
             sequence += 1
-            at = len(lines())
+            at = 0 if switch_effective else len(lines())
             temporary = stage / 'pad-input.tmp'
             temporary.write_text(f'{sequence} {mask}' + (f' {touch[0]} {touch[1]}' if touch else '') + '\n')
             temporary.replace(stage / 'pad-input.txt')
+            if switch_effective:
+                def acknowledged(text):
+                    try:
+                        return (stage/'pad-ack.txt').read_text().strip()==f'{sequence} {mask}'
+                    except OSError as error:
+                        if error.errno not in (errno.ENODATA,errno.ENOENT):raise
+                        return False
+                # Do not read the potentially multi-MiB asynchronous journal
+                # while a navigation key is held; even reads can exceed repeat delay.
+                deadline=time.monotonic()+10
+                while not acknowledged(''):
+                    if process.poll() is not None or time.monotonic()>deadline:
+                        raise RuntimeError('raw HID consumption acknowledgement failed')
+                    time.sleep(.005)
+                time.sleep(duration)
+                return
             wait(lambda text: f'HOST raw pad sequence={sequence} mask={mask}' in text, 'raw HID delivery')
             action = {1: 'Confirm', 2: 'Cancel', 4: 'NavigateUp', 8: 'NavigateDown',
                       16: 'NavigateLeft', 32: 'NavigateRight',
@@ -726,6 +758,16 @@ def main():
                     if map_mode:
                         capture(16,'command-map-before')
                         report['map_command_before'] = observed_map_turns()[-1]
+                        if args.map_move:
+                            at=len(lines())
+                            raw(1024,touch=args.map_move);raw(0)
+                            raw(1024,touch=args.map_move);raw(0)
+                            wait(lambda text:'HOST native map tap committed' in text[at:] and
+                                 re.search(r'event=map-state .*order=1 ',text[at:]),'original move order accepted')
+                            capture(16,'command-map-move-accepted')
+                            report['map_move_tap']=args.map_move
+                    elif args.map_move:
+                        raise RuntimeError('--map-move fixture did not restore the map')
                     for turn in range(loaded['turn'] + 1, loaded['turn'] + args.advance_turns + 1):
                         callbacks = lines().count('turn operation=end-turn-ui')
                         select('PM_EndTurn'); pulse(1)

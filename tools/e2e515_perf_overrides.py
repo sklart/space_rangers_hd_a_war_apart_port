@@ -33,6 +33,11 @@ def apply(name: str, text: str) -> str:
                  '                if (Health <= 0) {\n                    srhd_awa::platform::perf515::Record("explosion_start",0,-1,this==ab_Ship::PlayerArcadeShip,Health);\n                    srhd_awa::platform::perf515::Scope perf515_explosion("explosion_setup");')
         text='#include "e2e515_perf.hpp"\n'+text
     if name=='GI_MessageLoop.cpp':
+        text='#if defined(E2E5_HOST_SDL_WINDOW)\n#include "e2e516_map_probe.hpp"\n#endif\n'+text
+        once('                            Draw(DrawRect);', '''#if defined(E2E5_HOST_SDL_WINDOW)
+                            srhd_awa::platform::map516::Draw map_draw(this,{DrawRect.Left,DrawRect.Top,DrawRect.Right,DrawRect.Bottom});
+#endif
+                            Draw(DrawRect);''')
         marker='                    if (e2e_arcade && MMSystem::timeGetTime() - e2e_debt_log_tick >= 5000u) {'
         once(marker,'                    if (e2e_arcade) srhd_awa::platform::perf515::TickBatch(e2e_timer_debt.Pending(), e2e_delivered_ms);\n'+marker)
         start=text.index('    void TMessageLoopGI::DrawQueuedUpdateRects() {')
@@ -44,6 +49,41 @@ def apply(name: str, text: str) -> str:
         part=part[:at]+'        srhd_awa::platform::renderer_platform::SceneFrameEnd(this);\n'+part[at:]
         text=text[:start]+part+text[end:]
     if name=='fStarMap.cpp':
+        text='#if defined(E2E5_HOST_SDL_WINDOW)\n#include "e2e516_map_probe.hpp"\n#include "types/GI_RotateImage5.hpp"\n#endif\n'+text
+        def draw_once(old,new):
+            nonlocal text
+            start=text.index('    void TfStarMap::DrawFrame() {')
+            end=text.index('\n    void TfStarMap::RunTalkDialogs()',start)
+            part=text[start:end]
+            if part.count(old)!=1:raise RuntimeError('map draw hook: '+old)
+            text=text[:start]+part.replace(old,new,1)+text[end:]
+        draw_once('            Stage = 5;', '''            Stage = 5;
+#if defined(E2E5_HOST_SDL_WINDOW)
+            using namespace srhd_awa::platform;
+            map516::Begin(aGalaxy::Galaxy->CurrentTurn,FilmStepIndex,int(Mode),GR_Main::ScreenRenderBuffer->GetPixels(),GR_Main::ScreenRenderBuffer->PitchBytes,GR_Main::GameScreenWidth,GR_Main::GameScreenHeight);
+            if(map516::enabled && map516::sample && aPlayer::GetPlayer()->CurrentStar) {
+                auto* ships=aPlayer::GetPlayer()->CurrentStar->Ships;
+                for(int i=0;i<pas::list_count(ships);++i) {
+                    auto* ship=pas::list_at<aShip::TShip>(ships,i);
+                    auto* graphic=pas::class_cast_if<SE_Ship2::TShip2SE*>(ship->Graphic);
+                    if(!graphic || !graphic->Image || !graphic->Image->Active)continue;
+                    const auto r=graphic->Image->HitTestBounds;int dirty=0;
+                    for(auto* n=UpdateRects->FirstRect;n;n=n->Next) {
+                        const auto d=n->Bounds;
+                        if(r.Left<d.Right && r.Right>d.Left && r.Top<d.Bottom && r.Bottom>d.Top)++dirty;
+                    }
+                    map516::Add(ship->Id,double(ship->Position.X),double(ship->Position.Y),graphic->Image,{r.Left,r.Top,r.Right,r.Bottom},dirty);
+                }
+            }
+#endif''')
+        draw_once('            Stage = 9;', '''#if defined(E2E5_HOST_SDL_WINDOW)
+            srhd_awa::platform::map516::Phase("background");
+#endif
+            Stage = 9;''')
+        draw_once('            DrawQueuedControlRects();', '''            DrawQueuedControlRects();
+#if defined(E2E5_HOST_SDL_WINDOW)
+            srhd_awa::platform::map516::Phase("world-ui-composed");
+#endif''')
         text='#include "renderer_platform.hpp"\n#include "e2e_clock.hpp"\n#include "e2e515_perf.hpp"\n#include <cstdio>\n'+text
         once('    void TfStarMap::DrawFrame() {',
              '''    void TfStarMap::DrawFrame() {

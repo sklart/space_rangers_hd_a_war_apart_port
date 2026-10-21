@@ -16,6 +16,7 @@ def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--milestone',choices=('515','516'),default='515')
     args=parser.parse_args()
     out=args.output.resolve();archive=out.with_suffix('.zip')
     if out.exists() or archive.exists():parser.error('Use a fresh output; immutable bundles are never replaced')
@@ -47,9 +48,9 @@ def main():
     assert '/port/matrixgame/' not in links
     install=out/'switch/space-rangers-hd-a-war-apart';install.mkdir(parents=True)
     debug=out/'debug';debug.mkdir()
-    elf=debug/'SpaceRangersHD-perf515.elf';shutil.copyfile(original_elf,elf)
-    nacp=out/'diagnostics.nacp';nro=install/'SpaceRangersHD-perf515.nro'
-    subprocess.run([str(sdk/('tools/bin/nacptool'+suffix)),'--create','Space Rangers HD E2E515 diagnostics','sklart','0.0.1',str(nacp)],check=True)
+    elf=debug/f'SpaceRangersHD-perf{args.milestone}.elf';shutil.copyfile(original_elf,elf)
+    nacp=out/'diagnostics.nacp';nro=install/f'SpaceRangersHD-perf{args.milestone}.nro'
+    subprocess.run([str(sdk/('tools/bin/nacptool'+suffix)),'--create',f'Space Rangers HD E2E{args.milestone} diagnostics','sklart','0.0.1',str(nacp)],check=True)
     subprocess.run([str(sdk/('tools/bin/elf2nro'+suffix)),str(elf),str(nro),'--nacp='+str(nacp),'--icon='+str(ROOT/'port/switch/assets/icon.jpg')],check=True)
     # Only hbmenu title/assets changed: every loaded NRO segment remains exact.
     old,new=original.read_bytes(),nro.read_bytes()
@@ -64,7 +65,10 @@ def main():
     (out/'analysis').mkdir()
     shutil.copyfile(ROOT/'tools/e2e515_perf_analyze.py',out/'analysis/e2e515_perf_analyze.py')
     shutil.copyfile(ROOT/'docs/e2e515-performance-diagnostics.md',out/'README-RU.md')
-    shutil.copyfile(ROOT/'docs/e2e515-hardware-followup-test.md',out/'README-test.md')
+    guide='docs/e2e516-next-hardware-test.md' if args.milestone=='516' else 'docs/e2e515-hardware-followup-test.md'
+    shutil.copyfile(ROOT/guide,out/'README-test.md')
+    if args.milestone=='516':
+        shutil.copyfile(ROOT/'reports/e2e5/e2e516-offline-stabilization.md',out/'README-offline.md')
     shutil.copyfile(ROOT/'tools/e2e515_scene_analyze.py',out/'analysis/e2e515_scene_analyze.py')
     for mode in ['basic','detail','off']:
         d=out/'mode-examples'/mode;d.mkdir(parents=True)
@@ -80,8 +84,12 @@ def main():
         dependencies=dependency_paths(path);assert dependencies,path
         inputs.update(dependencies)
     local={p.relative_to(ROOT).as_posix():sha(p) for p in inputs if p.is_relative_to(ROOT) and p.is_file()}
+    if args.milestone=='516':
+        assert local['port/switch/platform/e2e516_stop_projection.hpp']==sha(ROOT/'port/switch/platform/e2e516_stop_projection.hpp')
+        effective=json.loads((build/'effective-source-map.json').read_text())
+        assert 'endpoint_memo.Get(Line->First)' in (ROOT/effective['upstream/cpp/src/ab_StopLine.cpp']).read_text()
     (out/'source-sha256.json').write_text(json.dumps(local,indent=2)+'\n')
-    summary=dict(source_commit=r['build_git'],packaging_commit=subprocess.check_output([str(git),'rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
+    summary=dict(milestone=args.milestone,source_commit=r['build_git'],packaging_commit=subprocess.check_output([str(git),'rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
         build_id=r['build_id'],build_dirty=r['build_dirty'],hardware='PENDING; no Switch run received',
         profile='Release Save ON Audio ON; performance diagnostics; E2E3/legacy PPM OFF; scene snapshots opt-in',
         scene_diagnostics=dict(setting='scene-mode.txt=on',default='off',images_per_run=48,
