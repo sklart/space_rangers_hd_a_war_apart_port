@@ -1,0 +1,56 @@
+{
+  "milestone": "516",
+  "source_commit": "03651ced28ecf0125f0b62c4f8129bd71e27f5c8",
+  "packaging_commit": "03651ced28ecf0125f0b62c4f8129bd71e27f5c8",
+  "build_id": "b6c18a13cef88fe757d683e18cf48fc667067bda",
+  "build_dirty": true,
+  "hardware": "PENDING; no Switch run received",
+  "profile": "Release Save ON Audio ON; performance diagnostics; E2E3/legacy PPM OFF; scene snapshots opt-in",
+  "scene_diagnostics": {
+    "setting": "scene-mode.txt=on",
+    "default": "off",
+    "images_per_run": 48,
+    "image_size": [
+      640,
+      360
+    ],
+    "rgb565_queue_slots": 4,
+    "filesystem_writer": "background thread",
+    "gpu_readback": false
+  },
+  "game_units": 298,
+  "link_objects": 380,
+  "source_inputs_hashed": 1423,
+  "packaging": "hbmenu diagnostic title changed; loaded text/ro/data segments verified byte-identical to built NRO",
+  "artifacts": {
+    "switch/space-rangers-hd-a-war-apart/SpaceRangersHD-perf516.nro": {
+      "bytes": 16570672,
+      "sha256": "9f654daab36c71cb51940871d4a93bdcceb09edd7da8dde127ab023bfb21e789"
+    },
+    "debug/SpaceRangersHD-perf516.elf": {
+      "bytes": 56423224,
+      "sha256": "0ca47fa95e614167da814cf63e1bc19e0bd005e94b34763287d713d5c9989ab5"
+    }
+  },
+  "original_build_nro": {
+    "path": "port/switch/build/e2e-game-perf515/SpaceRangersHD-perf515-v168-03651ce-dirty-2c64a2388489.nro",
+    "working_path": "port/switch/build/e2e-game-perf515/SpaceRangersHD-perf515-v168.nro",
+    "bytes": 16570672,
+    "sha256": "2C64A23884899F55523C2973F52658854948354B0A24DB34D593D7556CE9FDCB",
+    "status": "SOFTWARE AUDIT PASS; hardware not tested"
+  },
+  "analyzer_sha256": "42e93c36da0b4ff7d3e6fc8350f24ec1afec1ebf8e9b60bdd07d29db506f2d01",
+  "bundle": {
+    "path": "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce.zip",
+    "bytes": 26361684,
+    "sha256": "e1a1dec5f410b983d629ae538ad9b4ba063f89a8101af43d27ea00c6ce6a08a4"
+  },
+  "save_copy_arm64_audit": {
+    "path": "build/e2e516/save-copy-final-arm64.asm.txt",
+    "sha256": "33fe17081dc5e8a46edd80891cf151c0ee964ef331063a070c4ba28fd1459c0f",
+    "address": "0x6636a0",
+    "size": 728,
+    "permission_copy_calls": false
+  },
+  "validation_scope": "Release ARM64 artifact and host checks; all Switch hardware gates pending"
+}

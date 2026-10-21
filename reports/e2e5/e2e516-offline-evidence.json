@@ -1,0 +1,325 @@
+{
+  "schema": 1,
+  "hardware_executed": false,
+  "first_documented_bad": {
+    "git": "0c900810af7260bff7ef62610ff6129373ee8897",
+    "date": "2026-10-18",
+    "source": "reports/e2e5/e2e511-followup.md",
+    "historical_archive_no_longer_at_original_path": true
+  },
+  "last_confirmed_good": null,
+  "host": {
+    "binary_sha256": "4e826f1076dadeba796ec89dee7750190b4caa110862ae5f04a7a77eed18fb81",
+    "game_units": 296,
+    "link_objects": 332,
+    "identical_final_game_sources": 295,
+    "final_source_differences": [
+      {
+        "original": "upstream/cpp/src/ab_StopLine.cpp",
+        "tested_sha256": "c200c3932161176223689fda9e5296321db26e83909677eb04bd560552a2fa6e",
+        "final_sha256": "c55380555332f6eb31cb62523192bae065bd2f30cda4e87c3b68e47c03270853"
+      }
+    ],
+    "composition_file": "build/e2e516/tested-host-composition.json",
+    "composition_sha256": "eb6973052ee2cef46ef6276e55fedb377161828603c841718e4adeec3e6bb1e0"
+  },
+  "scenes": {
+    "route": "build/e2e515/e2e516-scenes-effective-fast/result.json",
+    "status": "PASS",
+    "frames": 16,
+    "generation_controls": {
+      "raw": true,
+      "shade": true,
+      "grayscale": true,
+      "shade_grayscale": true
+    },
+    "suspicious_generation_frames": [],
+    "restoration": [
+      {
+        "cycle": 1,
+        "changed_pixels": [
+          0,
+          0
+        ],
+        "nested_owner_verified": true
+      },
+      {
+        "cycle": 2,
+        "changed_pixels": [
+          0,
+          0
+        ],
+        "nested_owner_verified": true
+      }
+    ]
+  },
+  "map": {
+    "status": "HOST_MAP_CONTENT_VERIFIED",
+    "hardware_executed": false,
+    "gpu_readback": false,
+    "turns": [
+      360,
+      361
+    ],
+    "records": 1490,
+    "moving_model_ships": [
+      {
+        "id": 1268,
+        "before": [
+          -420.410308838,
+          190.777801514
+        ],
+        "after": [
+          -511.589019775,
+          332.229858398
+        ],
+        "dirty_rectangles": 0
+      },
+      {
+        "id": 65,
+        "before": [
+          -595.785705566,
+          79.948806763
+        ],
+        "after": [
+          -480.686553955,
+          375.553527832
+        ],
+        "dirty_rectangles": 0
+      },
+      {
+        "id": 61,
+        "before": [
+          -423.741607666,
+          438.797271729
+        ],
+        "after": [
+          -569.319152832,
+          234.804351807
+        ],
+        "dirty_rectangles": 0
+      },
+      {
+        "id": 644,
+        "before": [
+          1086.848388672,
+          894.156860352
+        ],
+        "after": [
+          698.609191895,
+          986.194030762
+        ],
+        "dirty_rectangles": 0
+      },
+      {
+        "id": 57,
+        "before": [
+          -147.676544189,
+          273.371337891
+        ],
+        "after": [
+          10.645999908,
+          609.907104492
+        ],
+        "dirty_rectangles": 0
+      },
+      {
+        "id": 367,
+        "before": [
+          218.112670898,
+          921.492431641
+        ],
+        "after": [
+          334.974121094,
+          1278.871459961
+        ],
+        "dirty_rectangles": 0
+      },
+      {
+        "id": 851,
+        "before": [
+          604.063537598,
+          -84.895591736
+        ],
+        "after": [
+          411.008239746,
+          -262.464172363
+        ],
+        "dirty_rectangles": 0
+      },
+      {
+        "id": 107,
+        "before": [
+          -395.435943604,
+          -868.259277344
+        ],
+        "after": [
+          -334.380249023,
+          -495.221893311
+        ],
+        "dirty_rectangles": 0
+      },
+      {
+        "id": 55,
+        "before": [
+          -544.957519531,
+          -3141.609375
+        ],
+        "after": [
+          -450.111907959,
+          -2770.538574219
+        ],
+        "dirty_rectangles": 0
+      },
+      {
+        "id": 3,
+        "before": [
+          1139.374023438,
+          3383.829833984
+        ],
+        "after": [
+          1349.0,
+          3383.0
+        ],
+        "dirty_rectangles": 1
+      },
+      {
+        "id": 481,
+        "before": [
+          -606.601074219,
+          -3518.574951172
+        ],
+        "after": [
+          -471.363372803,
+          -3145.361572266
+        ],
+        "dirty_rectangles": 0
+      }
+    ],
+    "ship_draw_calls": 29,
+    "ship_draws_with_pixel_changes": 29,
+    "composition_present_roi_pairs": 29,
+    "exact_roi_pairs": 29,
+    "roi_pairs_changed_after_composition": 0,
+    "moving_ships_witnessed_through_all_phases": [
+      3
+    ],
+    "scope": "Real ship-control rectangles; UI can overlap final ROIs. Drawing evidence is taken directly around each ship draw. CPU upload input only."
+  },
+  "arcade": [
+    {
+      "baseline": "build/e2e515/arcade/runs/7b005f91bdc34d539e9ca4fea1b096cd/result.json",
+      "candidate": "build/e2e515/arcade/runs/c3283893fb694e5ca1e30b2d71ad2e2f/result.json",
+      "baseline_binary_sha256": "03c3b528ed20523f1340ba3001c425773930850d749760be45389cab79d66f33",
+      "candidate_binary_sha256": "81cdbaa5032926c4ecc4d8865caaf42522a7b860ff35d05a909b59e60c91dc61",
+      "active_ticks": 500,
+      "rng_samples": 501,
+      "frames": 500,
+      "timer_cpu_ns": [
+        508149160,
+        467444657
+      ],
+      "thread_cpu_ns": [
+        2496802056,
+        2431992383
+      ],
+      "timer_cpu_change_percent": -8.010345426921495
+    },
+    {
+      "baseline": "build/e2e515/arcade/runs/ffbb392839ee4695a6505555b5cf04a7/result.json",
+      "candidate": "build/e2e515/arcade/runs/fecbb4ee3aa642afbd33e8bdb45bdd94/result.json",
+      "baseline_binary_sha256": "03c3b528ed20523f1340ba3001c425773930850d749760be45389cab79d66f33",
+      "candidate_binary_sha256": "81cdbaa5032926c4ecc4d8865caaf42522a7b860ff35d05a909b59e60c91dc61",
+      "active_ticks": 500,
+      "rng_samples": 501,
+      "frames": 500,
+      "timer_cpu_ns": [
+        409482738,
+        388103962
+      ],
+      "thread_cpu_ns": [
+        2112552498,
+        2086317836
+      ],
+      "timer_cpu_change_percent": -5.220922401862027
+    }
+  ],
+  "comparisons": [
+    {
+      "status": "PARITY_PASS",
+      "reference": "build/e2e515/arcade/runs/7b005f91bdc34d539e9ca4fea1b096cd/result.json",
+      "other": "build/e2e515/arcade/runs/c3283893fb694e5ca1e30b2d71ad2e2f/result.json",
+      "raw_csv_and_stderr_verified": true,
+      "required_traces_present": true,
+      "scenario_diff": {},
+      "state_equal": true,
+      "geometry_equal": true,
+      "rng_recorded_ticks": [
+        501,
+        501
+      ],
+      "rng_differences": 0,
+      "first_rng_difference": null,
+      "image_recorded_ticks": [
+        500,
+        500
+      ],
+      "image_differences": 0,
+      "first_image_difference": null,
+      "random_sound_events_equal": true,
+      "random_sound_event_counts": [
+        0,
+        0
+      ],
+      "main_thread_cpu_ns": [
+        2496802056,
+        2431992383
+      ],
+      "observed_cpu_change_percent": -2.5957072906223178,
+      "three_paired_series_complete": false,
+      "hardware_executed": false,
+      "parity_scope": "recorded object scalars, RNG, geometry and software frames; not full world serialization or input latency",
+      "comparison_report": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/arcade/comparisons/d574e3819a7347cba4697e08a62608ce.json"
+    },
+    {
+      "status": "PARITY_PASS",
+      "reference": "build/e2e515/arcade/runs/ffbb392839ee4695a6505555b5cf04a7/result.json",
+      "other": "build/e2e515/arcade/runs/fecbb4ee3aa642afbd33e8bdb45bdd94/result.json",
+      "raw_csv_and_stderr_verified": true,
+      "required_traces_present": true,
+      "scenario_diff": {},
+      "state_equal": true,
+      "geometry_equal": true,
+      "rng_recorded_ticks": [
+        501,
+        501
+      ],
+      "rng_differences": 0,
+      "first_rng_difference": null,
+      "image_recorded_ticks": [
+        500,
+        500
+      ],
+      "image_differences": 0,
+      "first_image_difference": null,
+      "random_sound_events_equal": true,
+      "random_sound_event_counts": [
+        0,
+        0
+      ],
+      "main_thread_cpu_ns": [
+        2112552498,
+        2086317836
+      ],
+      "observed_cpu_change_percent": -1.2418466298393493,
+      "three_paired_series_complete": false,
+      "hardware_executed": false,
+      "parity_scope": "recorded object scalars, RNG, geometry and software frames; not full world serialization or input latency",
+      "comparison_report": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/arcade/comparisons/fb51515b607e4b37810d95672991f7a7.json"
+    }
+  ],
+  "save_test_log": "build/e2e516/save-copy-recovery-asan.log",
+  "save_test_log_sha256": "47c51e76ab6629b083186fdd2521e2d9a432e0a42e9dfad85572a8799b4cc3c6",
+  "projection_test_log": "build/e2e516/stop-projection-contract.log",
+  "projection_test_log_sha256": "218892bcd7d24dd46d6ef6035a11909367a9fcb919b59bd6c2f7379c4d3faeb4"
+}

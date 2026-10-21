@@ -200,5 +200,51 @@ Baseline восьми оригинальных файлов пройден. По
 несовместимый старый путь журнала и чрезмерное удержание из-за чтения
 асинхронного лога, затем исправленный mailbox. Они не засчитаны как PASS.
 
-Новая сборка, её Git SHA и хэши будут зафиксированы в артефактном паспорте
-этого этапа. Инструкция на будущее: [e2e516-next-hardware-test.md](../../docs/e2e516-next-hardware-test.md).
+Инструкция на будущее: [e2e516-next-hardware-test.md](../../docs/e2e516-next-hardware-test.md).
+
+## Итоговые артефакты
+
+**Git SHA исходников и упаковки:** `03651ced28ecf0125f0b62c4f8129bd71e27f5c8`.
+Оптимизация — отдельный локальный `201c6ff04cc0959ba8feb60dc606ad613abb48f2`.
+Последующий commit этого отчёта не меняет исходники собранного NRO.
+
+Полный Release-target: 298 игровых translation units, 380 link objects,
+0 undefined, `ARM64 LINK PASS`; 5 объектов пересобраны, 376 проверенных
+актуальных объектов переиспользованы, один исходный EC_HsFile исключён
+из линковки в пользу адаптера. Учтены 1423 фактических dependency inputs.
+`build_dirty=true` связан с двумя сохранёнными исходными untracked путями;
+compiled-source diff относительно указанного SHA пуст.
+
+Флаги: `-O2 -fno-strict-aliasing`, Save ON, Audio ON,
+`E2E3_TRACE=0`, performance diagnostics ON, scene snapshots opt-in/OFF
+по умолчанию. MatrixGame отсутствует в link response. Настроек частот
+и программного управления разгоном пакет не содержит.
+
+**Matching Build ID:** `b6c18a13cef88fe757d683e18cf48fc667067bda`.
+
+| Файл итогового пакета | Байты | SHA-256 |
+| --- | ---: | --- |
+| `switch/space-rangers-hd-a-war-apart/SpaceRangersHD-perf516.nro` | 16570672 | `9f654daab36c71cb51940871d4a93bdcceb09edd7da8dde127ab023bfb21e789` |
+| `debug/SpaceRangersHD-perf516.elf` | 56423224 | `0ca47fa95e614167da814cf63e1bc19e0bd005e94b34763287d713d5c9989ab5` |
+| `build/e2e516/hardware-e2e516-03651ce.zip` | 26361684 | `e1a1dec5f410b983d629ae538ad9b4ba063f89a8101af43d27ea00c6ce6a08a4` |
+
+В ZIP — NRO, ELF, manifest/SHA256SUMS, build-report, effective map,
+source hashes, анализаторы, режимы диагностики и инструкция.
+CRC всех ZIP entries и все member SHA-256 проверены. Сегменты text/ro/data
+упакованного NRO идентичны результату сборки: изменён только заголовок
+hbmenu на E2E516. ELF Build ID совпадает с NRO. `build_git=03651ce`
+проверен в настоящем бинарнике; это не прежняя NRO `e594e5d`.
+
+В matching ARM64 ELF операция `CopyBytesExclusive` по адресу `0x6636a0`,
+размер 728 байт, вызывает fopen/open/fdopen/fread/fwrite/fflush/fclose,
+не вызывает fchmod или copy_file. Header кэша StopLine входит в compiler
+dependencies и source hash manifest; effective StopLine содержит новый
+query-local endpoint memo. Все 295 остальных игровых effective sources
+host-проверки побайтно совпадают с финальными ARM sources.
+
+Паспорт: [e2e516-artifact-provenance.json](e2e516-artifact-provenance.json).
+Числа, состав host и результаты сравнений:
+[e2e516-offline-evidence.json](e2e516-offline-evidence.json).
+В ZIP сохранён снимок офлайн-отчёта до добавления этой итоговой таблицы;
+актуальные сведения об артефактах внутри ZIP находятся в `manifest.json`
+и `SHA256SUMS`. Повторный ZIP ради изменения отчёта не создавался.
