@@ -35,6 +35,7 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${PORT_ROOT}/tools/matrixgame_random_overrides.py"
     "${PORT_ROOT}/tools/matrixgame_engine_api_overrides.py"
     "${PORT_ROOT}/tools/matrixgame_vector_overrides.py"
+    "${PORT_ROOT}/tools/matrixgame_vector_object_overrides.py"
     "${PORT_ROOT}/tools/matrixgame_reminder_overrides.py"
     "${PORT_ROOT}/tools/matrixgame_bitmap_overrides.py"
     "${CMAKE_CURRENT_LIST_DIR}/bitmap_limits.hpp"

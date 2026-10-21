@@ -16,6 +16,7 @@ from matrixgame_bc_prepare import prepare_bc
 from matrixgame_lifecycle_overrides import INPUTS as LIFECYCLE_INPUTS, SUBDIRS as LIFECYCLE_SUBDIRS, patch_lifecycle
 from matrixgame_big_buffer_overrides import INPUTS as BIG_BUFFER_INPUTS, SUBDIRS as BIG_BUFFER_SUBDIRS, patch_big_buffers
 from matrixgame_list_overrides import INPUTS as LIST_INPUTS, patch_list
+from matrixgame_vector_object_overrides import INPUTS as VO_OBJECT_INPUTS, SUBDIRS as VO_OBJECT_SUBDIRS, patch_vector_object
 
 INPUTS = {
     'CFile.cpp': '09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49',
@@ -41,7 +42,9 @@ INPUTS.update(TEXTURE_INPUTS)
 INPUTS.update(LIFECYCLE_INPUTS)
 INPUTS.update(BIG_BUFFER_INPUTS)
 INPUTS.update(LIST_INPUTS)
+INPUTS.update(VO_OBJECT_INPUTS)
 SOURCE_SUBDIRS={**MATH_SUBDIRS, **ENGINE_SUBDIRS, **VECTOR_SUBDIRS, **BITMAP_SUBDIRS, **TEXTURE_SUBDIRS, **LIFECYCLE_SUBDIRS, **BIG_BUFFER_SUBDIRS}
+SOURCE_SUBDIRS.update(VO_OBJECT_SUBDIRS)
 
 def replace_body(text, signature, replacement):
     if text.count(signature) != 1:
@@ -166,6 +169,7 @@ inline constexpr int FileBegin = 0, FileCurrent = 1, FileEnd = 2;
     patch_reminder(files, replace_body)
     patch_bitmap(files, root, replace_body)
     patch_texture_requests(files)
+    patch_vector_object(files)
     bc_provenance=prepare_bc(root,files)
     output.mkdir(parents=True, exist_ok=True)
     for name, data in files.items():

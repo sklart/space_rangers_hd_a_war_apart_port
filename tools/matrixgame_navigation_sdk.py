@@ -13,7 +13,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--sdk', type=Path, default=Path('C:/devkitPro') if os.name == 'nt' else Path('/opt/devkitpro'))
     parser.add_argument('--output', type=Path, default=ROOT/'build/e2e515/mg-navigation-sdk')
-    parser.add_argument('--contract',choices=('navigation','lifecycle','big-buffers'),default='navigation')
+    parser.add_argument('--contract',choices=('navigation','lifecycle','big-buffers','vector-object'),default='navigation')
     args = parser.parse_args()
     out = args.output.resolve()
     if not out.is_relative_to(ROOT/'build') or (out.exists() and any(out.iterdir())):
@@ -37,15 +37,18 @@ def main():
         provenance = prepare_engine(out/'source')
         report['source_commit'] = provenance['source_commit']
         core = out/'source/portable-core'
-        test={'navigation':'test_matrixgame_navigation.cpp','lifecycle':'test_matrixgame_native_lifecycle.cpp','big-buffers':'test_matrixgame_big_buffers.cpp'}[args.contract]
+        test={'navigation':'test_matrixgame_navigation.cpp','lifecycle':'test_matrixgame_native_lifecycle.cpp','big-buffers':'test_matrixgame_big_buffers.cpp','vector-object':'test_matrixgame_vector_object.cpp'}[args.contract]
         sources = [ROOT/'tests'/test,
                    out/'source/MatrixGame/src/Logic/MatrixRoadNetwork.cpp']
         sources += [core/name for name in ('CBuf.cpp','CBuf_file.cpp','CStorage.cpp','CRC32.cpp','CMain.cpp','Form.cpp','CReminder.cpp')]
         sources += [ROOT/'port/matrixgame/native-core'/name for name in
                     ('cbuf_utf16.cpp','exception_native.cpp','file_native.cpp','heap_native.cpp')]
         sources += [ROOT/'port/switch/platform/package.cpp']
-        if args.contract=='big-buffers':
+        if args.contract in ('big-buffers','vector-object'):
             sources += [ROOT/'port/matrixgame/native-core'/name for name in ('buffer_resources.cpp','buffer_geometry.cpp','vector_geometry.cpp')]
+        if args.contract=='vector-object':
+            sources.remove(out/'source/MatrixGame/src/Logic/MatrixRoadNetwork.cpp')
+            sources += [core/'VectorObjectCpu.cpp',core/'CBlockPar.cpp']
         elf = out/(args.contract+'-contract.elf')
         report['contract']=args.contract
         command = [compiler,'-std=c++20','-O2','-g','-UNDEBUG','-D_RELDEBUG','-D__SWITCH__',
@@ -68,7 +71,8 @@ def main():
         if undefined: raise RuntimeError('Unresolved strong symbols: '+str(undefined))
         required_symbols={'navigation':('FindPathInRegionRun','CMatrixRoadNetwork4Load','CMatrixRoadNetwork4Save','BaseInit'),
                           'lifecycle':('FormChange','BaseInit','CForm10StaticInit'),
-                          'big-buffers':('CaptureBoundVO','ValidateBoundVO','BindVertex','CreateVertex')}[args.contract]
+                          'big-buffers':('CaptureBoundVO','ValidateBoundVO','BindVertex','CreateVertex'),
+                          'vector-object':('CVectorObject11LoadSpecial','CVectorObject6Unload','CVectorObject14EnumFrameVerts','CVectorObject8GetBound')}[args.contract]
         for required in required_symbols:
             if required not in symbols: raise RuntimeError('Missing real implementation: '+required)
         notes = run([readelf,'-n',elf],'elf-notes.log')
