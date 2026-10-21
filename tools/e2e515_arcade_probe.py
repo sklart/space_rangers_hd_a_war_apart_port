@@ -27,7 +27,7 @@ def build(variant):
     flags = [*flags, '-I' + str(ROOT / 'tests')]
     header = ROOT / 'tests/e2e515_arcade_observer.hpp'
     sources = {}
-    for name in ('ab_MainForm', 'ab_Hit', 'ab_Global', 'ab_Object', 'ab_ShipAI', 'ab_Polygon', 'GI_MessageLoop', 'SE_Space', 'MMSystem'):
+    for name in ('ab_MainForm', 'ab_Hit', 'ab_Global', 'ab_Object', 'ab_Ship', 'ab_StopLine', 'ab_ShipAI', 'ab_Polygon', 'GI_MessageLoop', 'SE_Space', 'MMSystem'):
         sources[name] = ROOT / mapping[f'upstream/cpp/src/{name}.cpp']
     sources['renderer_platform'] = ROOT / 'port/switch/platform/renderer_platform.cpp'
     objects = [Path(p) for p in (BUILD / 'link-objects.rsp').read_text().splitlines()
@@ -43,6 +43,9 @@ def build(variant):
             target = temp / f'base-{i}.o'; shutil.copyfile(obj, target); staged.append(str(target))
         for name, source in sources.items():
             text = source.read_text()
+            if name == 'ab_StopLine' and variant != 'stop-point-memo':
+                from e2e516_stop_overrides import reference
+                text = reference(text)
             def replace(old, new):
                 nonlocal text
                 if text.count(old) != 1:
@@ -68,6 +71,9 @@ def build(variant):
             elif name == 'SE_Space':
                 anchor = '                        if (NextSoundTime < Now) {'
                 replace(anchor, anchor + '\n                            e2e515_arcade_observer::Row("random-sound", System::RandSeed, Now);')
+            if name == 'ab_StopLine' and variant == 'stop-point-memo':
+                from e2e516_stop_overrides import apply
+                text = apply(text)
             if name == 'ab_Polygon' and variant == 'polygon-memo':
                 from e2e515_polygon_overrides import apply
                 text = apply(text)
@@ -78,7 +84,9 @@ def build(variant):
                     '    EC_Struct::TVector3D ProjectPointByMatrix(const TMatrix4D& Matrix, pas::ConstRef<EC_Struct::TVector3D> Source) {\n        e2e515_arcade_observer::Scope e2e_inline_scope(7);')
                 text = (apply_prepared if variant == 'projection-prepared' else apply_inline)(text, projector)
             scopes = {'ab_Global': (('ComputeSphericalBearingAndDistance', 1), ('ProjectPointByMatrix', 7)),
-                      'ab_Object': (('TabObject::DistanceTo', 2), ('TabObject::Advance', 3)),
+                      'ab_Object': (('TabObject::DistanceTo', 2), ('TabObject::Advance', 3), ('TabObject::FindCollision', 8)),
+                      'ab_Ship': (('TabShip::Advance', 9), ('TabShip::UpdateState', 10), ('TabShip::FindNearestEnemy', 11)),
+                      'ab_StopLine': (('ab_StopLine_GetDistances', 12),),
                       'ab_ShipAI': (('TabShipAI::Advance', 4), ('TabShipAI::DecideActions', 5),
                                     ('TabShipAI::AvoidImmediateObstacle', 6))}
             for function, number in scopes.get(name, ()):
@@ -90,7 +98,8 @@ def build(variant):
             generated = temp / (name + '.cpp'); generated.write_text(text)
             cache = OUTPUT / 'objects'; cache.mkdir(exist_ok=True)
             memo_header = ROOT / 'tests/e2e515_polygon_projection.hpp'
-            key = hashlib.sha256((text + sha(header) + sha(ROOT / 'tests/e2e515_arcade_clock.hpp') + sha(memo_header) + provenance['prepared_header_sha256'] + repr(flags) + report['binary_sha256']).encode()).hexdigest()
+            extra = sha(ROOT / 'port/switch/platform/e2e516_stop_projection.hpp') if name == 'ab_StopLine' and variant == 'stop-point-memo' else ''
+            key = hashlib.sha256((text + extra + sha(header) + sha(ROOT / 'tests/e2e515_arcade_clock.hpp') + sha(memo_header) + provenance['prepared_header_sha256'] + repr(flags) + report['binary_sha256']).encode()).hexdigest()
             obj = cache / (name + '-' + key + '.o')
             if not obj.exists():
                 temporary_obj = temp / (name + '.o')
@@ -126,7 +135,7 @@ def percentile(values, fraction):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--build', action='store_true')
-    parser.add_argument('--variant', choices=('baseline', 'polygon-memo', 'projection-inline', 'projection-prepared'), default='baseline',
+    parser.add_argument('--variant', choices=('baseline', 'polygon-memo', 'projection-inline', 'projection-prepared', 'stop-point-memo'), default='baseline',
                         help='Diagnostic comparisons only; none enables a shipping feature')
     parser.add_argument('--game-root', type=Path, required=True)
     parser.add_argument('--config-root', type=Path, required=True)

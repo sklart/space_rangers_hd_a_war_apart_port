@@ -39,9 +39,10 @@ inline unsigned presents{};
 inline std::uint64_t start{}, start_cpu{};
 struct Hotspot { std::uint64_t calls{}, samples{}, cpu{}, maximum{}; };
 inline thread_local bool measuring{};
-inline thread_local std::array<Hotspot, 8> hotspots{};
+inline thread_local std::array<Hotspot, 13> hotspots{};
 inline constexpr const char* names[] = {"unused", "bearing-distance", "object-distance",
-    "object-advance", "ship-ai-advance", "decide-actions", "avoid-obstacle", "matrix-projection"};
+    "object-advance", "ship-ai-advance", "decide-actions", "avoid-obstacle", "matrix-projection",
+    "collision-search", "ship-advance", "ship-update", "nearest-enemy", "stop-line-distances"};
 struct Scope {
     unsigned id;
     bool enabled{measuring};

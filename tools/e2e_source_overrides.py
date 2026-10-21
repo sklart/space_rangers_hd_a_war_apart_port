@@ -414,6 +414,13 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
                      audio_on: bool = False, e2e5_profile: bool = False,
                      script_width: bool = False) -> Path:
     overrides = dict(FUNCTIONS.get(source.name, {}))
+    if source.name == 'ab_StopLine.cpp':
+        from e2e516_stop_overrides import apply
+        text = apply(source.read_text(encoding='utf-8'))
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if not destination.is_file() or destination.read_text(encoding='utf-8') != text:
+            destination.write_text(text, encoding='utf-8')
+        return destination
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
     if not overrides and source.name not in ('fGameMenu.cpp', 'ab_WorldLine.cpp', 'ThreadCalc.cpp', 'aEFilm.cpp', 'aCalc.cpp', 'fPanelMain.cpp', 'fFilmFile.cpp', 'fGov.cpp', 'fStarMap.cpp', 'EC_File.cpp', 'ab_Global.cpp', 'EC_Cache.cpp', 'EC_CacheBuf.cpp', 'fGalaxy2.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_Edit.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameLoad.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
