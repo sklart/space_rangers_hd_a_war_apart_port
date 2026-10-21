@@ -1,4 +1,26 @@
-# MatrixGame: отдельная Windows x86 проверка
+# MatrixGame: нативный перенос и Windows x86 reference
+
+## Текущий статус на 21.10.2026
+
+Перенос остаётся частичным. Реальные CPU-компоненты MatrixLib, ресурсная
+цепочка, навигация, Base/Form lifecycle и BigVB/BigIB проверяются отдельно
+от полной игры. Последний шаг — включение исходного CList.cpp в native-core
+и исправление трёх ошибок компиляции его шаблонного интерфейса.
+ASan/UBSan, CTest и ARM64/QEMU прошли; devkitA64 ELF скомпонован, но не
+запускался на Switch. Исходное ограничение вставки перед внутренним узлом
+CList сохранено и задокументировано.
+
+- [Сводка MatrixGame и открытые барьеры](../../reports/matrixgame-e2e515-status.md)
+- [BigVB/BigIB: CPU staging и отдельный deko adapter](../../reports/matrixgame-e2e515-buffers.md)
+- [CList: выполненные проверки и ограничения](../../reports/matrixgame-e2e5161-list.md)
+- [CPU-библиотека и команды сборки](native-core/README.md)
+- [Отдельный deko3d smoke test](deko/README.md)
+
+MatrixGame не входит в основную NRO E2E-5.16. Полный CGame Init/Run,
+графический backend и возврат результата боя в кампанию остаются открытыми.
+Компиляция ARM64, QEMU и GPU smoke test не подтверждают планетарный бой.
+
+## Отдельная Windows x86 проверка
 
 Switch backend и возврат результата боя в кампанию ещё не реализованы.
 Pinned submodule не редактируется. Адресная адаптация головы находится в
