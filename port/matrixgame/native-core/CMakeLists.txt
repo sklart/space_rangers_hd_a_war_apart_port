@@ -12,6 +12,9 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${PORT_ROOT}/tools/matrixgame_core_prepare.py"
     "${PORT_ROOT}/tools/matrixgame_lifecycle_overrides.py"
     "${PORT_ROOT}/tools/matrixgame_big_buffer_overrides.py"
+    "${PORT_ROOT}/tools/matrixgame_list_overrides.py"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CList.cpp"
+    "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CList.hpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/BigVB.hpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/BigIB.hpp"
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/Base/CMain.cpp"
@@ -72,6 +75,7 @@ add_library(matrixgame-native-core STATIC texture_asset.cpp vector_geometry.cpp 
     "${CORE_SOURCE}/CBuf.cpp" "${CORE_SOURCE}/CBuf_file.cpp"
     "${CORE_SOURCE}/random.cpp" "${CORE_SOURCE}/Math3D.cpp" "${CORE_SOURCE}/CStorage.cpp" "${CORE_SOURCE}/CStorage_blockpar.cpp" "${CORE_SOURCE}/CBlockPar.cpp" heap_native.cpp cbuf_utf16.cpp exception_native.cpp file_native.cpp "${PORT_ROOT}/port/switch/platform/package.cpp")
 target_include_directories(matrixgame-native-core PUBLIC "${CORE_SOURCE}" "${CMAKE_CURRENT_LIST_DIR}")
+target_sources(matrixgame-native-core PRIVATE "${CORE_SOURCE}/CList.cpp")
 target_sources(matrixgame-native-core PRIVATE texture_request.cpp "${CORE_SOURCE}/TextureFlags.cpp")
 target_sources(matrixgame-native-core PRIVATE jpeg_texture.cpp)
 target_sources(matrixgame-native-core PRIVATE texture_mips.cpp "${CORE_SOURCE}/BC.cpp")
@@ -120,6 +124,10 @@ if(CORE_THREAD_SANITIZER)
 endif()
 include(CTest)
 if(BUILD_TESTING)
+    add_executable(matrixgame-native-list-test "${PORT_ROOT}/tests/test_matrixgame_native_list.cpp")
+    target_link_libraries(matrixgame-native-list-test PRIVATE matrixgame-native-core)
+    target_compile_options(matrixgame-native-list-test PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
+    add_test(NAME matrixgame-native-list-compatibility COMMAND matrixgame-native-list-test)
     add_executable(matrixgame-native-big-buffer-test "${PORT_ROOT}/tests/test_matrixgame_big_buffers.cpp")
     target_link_libraries(matrixgame-native-big-buffer-test PRIVATE matrixgame-native-core)
     target_compile_options(matrixgame-native-big-buffer-test PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)

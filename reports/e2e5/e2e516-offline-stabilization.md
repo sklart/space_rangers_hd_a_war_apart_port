@@ -436,3 +436,10 @@ full SDL upload/copy/present; добавлялись host-only capture и мет
 `build/e2e5161/final-audit.json`, function diff/preprocessed inputs рядом.
 Следующий самостоятельный этап — MatrixGame CPU-компоненты; основная
 игра и её неизменяемый ZIP остаются зафиксированными отдельно.
+
+После аудита выполнен первый независимый шаг: реальный MatrixLib CList
+включён в native-core, сняты три ошибки компиляции интерфейса. Адресные
+ASan/UBSan, CTest и ARM64/QEMU проверки пройдены; devkitA64 ELF скомпонован.
+Границы проверки и сохранённое ограничение исходного Insert описаны в
+`reports/matrixgame-e2e5161-list.md`. Это не подтверждение запуска MatrixGame
+на Switch и не изменение состава основной NRO.

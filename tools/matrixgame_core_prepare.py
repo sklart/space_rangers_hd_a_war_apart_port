@@ -15,6 +15,7 @@ from matrixgame_texture_request_overrides import INPUTS as TEXTURE_INPUTS, SUBDI
 from matrixgame_bc_prepare import prepare_bc
 from matrixgame_lifecycle_overrides import INPUTS as LIFECYCLE_INPUTS, SUBDIRS as LIFECYCLE_SUBDIRS, patch_lifecycle
 from matrixgame_big_buffer_overrides import INPUTS as BIG_BUFFER_INPUTS, SUBDIRS as BIG_BUFFER_SUBDIRS, patch_big_buffers
+from matrixgame_list_overrides import INPUTS as LIST_INPUTS, patch_list
 
 INPUTS = {
     'CFile.cpp': '09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49',
@@ -39,6 +40,7 @@ INPUTS.update(BITMAP_INPUTS)
 INPUTS.update(TEXTURE_INPUTS)
 INPUTS.update(LIFECYCLE_INPUTS)
 INPUTS.update(BIG_BUFFER_INPUTS)
+INPUTS.update(LIST_INPUTS)
 SOURCE_SUBDIRS={**MATH_SUBDIRS, **ENGINE_SUBDIRS, **VECTOR_SUBDIRS, **BITMAP_SUBDIRS, **TEXTURE_SUBDIRS, **LIFECYCLE_SUBDIRS, **BIG_BUFFER_SUBDIRS}
 
 def replace_body(text, signature, replacement):
@@ -66,6 +68,7 @@ def prepare(output: Path):
             raise ValueError("Pinned MatrixLib input changed: " + name)
     patch_lifecycle(files)
     patch_big_buffers(files)
+    patch_list(files)
     text = files["BaseDef.hpp"].decode("utf-8")
     for old, new in [
         ("using dword = unsigned long;", "using dword = std::uint32_t;"),
