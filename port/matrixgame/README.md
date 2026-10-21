@@ -4,13 +4,18 @@
 
 Перенос остаётся частичным. Реальные CPU-компоненты MatrixLib, ресурсная
 цепочка, навигация, Base/Form lifecycle и BigVB/BigIB проверяются отдельно
-от полной игры. Последний шаг — включение исходного CList.cpp в native-core
-и исправление трёх ошибок компиляции его шаблонного интерфейса.
-ASan/UBSan, CTest и ARM64/QEMU прошли; devkitA64 ELF скомпонован, но не
-запускался на Switch. Исходное ограничение вставки перед внутренним узлом
-CList сохранено и задокументировано.
+от полной игры. Новый шаг E2E-5.17 — явный CPU-срез исходного CVectorObject:
+StaticInit → конструктор → Load/LoadSpecial(OLF_NO_TEX) → обход вершин,
+анимаций/матриц и GetBound → Unload/повторная загрузка → деструктор.
+На трёх настоящих моделях проверены 208 кадров за два lifecycle-цикла,
+ASan/UBSan и ARM64/QEMU PASS; devkitA64 ELF скомпонован без undefined strong
+symbols, на Switch не запускался. Найден и исправлен в CPU overlay null shared
+buffer при повторной загрузке. Полный CGame Init/Run блокируется cache/material
+и L3G device lifecycle. Предыдущий CList и его ограничение Insert не менялись.
 
 - [Сводка MatrixGame и открытые барьеры](../../reports/matrixgame-e2e515-status.md)
+- [E2E-5.17: оригинальный CVectorObject CPU runtime и следующий blocker](../../reports/matrixgame-e2e517-engine-slice.md)
+- [Вечерний тест основной игры и отдельного GPU smoke](../../docs/e2e517-evening-switch-check.md)
 - [BigVB/BigIB: CPU staging и отдельный deko adapter](../../reports/matrixgame-e2e515-buffers.md)
 - [CList: выполненные проверки и ограничения](../../reports/matrixgame-e2e5161-list.md)
 - [CPU-библиотека и команды сборки](native-core/README.md)

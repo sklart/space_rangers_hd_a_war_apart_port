@@ -1,0 +1,1278 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "base_git": "df48ae6eb77eff72cccedf9a23e2264fc0e28cff",
+  "implementation_git": "b21d6eb1ad6d1160010a8ea3f1c9982dfaa68dab",
+  "upstream_pin": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
+  "hardware_pending": true,
+  "gates": {
+    "host_asan_ubsan": "HOST_RUNTIME_PASS",
+    "linux_arm64_qemu": "CPU_RUNTIME_PASS",
+    "devkitA64": "COMPILE_LINK_PASS",
+    "full_CGame_Init_Run": "BLOCKED_NOT_CALLED",
+    "switch_gpu": "HARDWARE_PENDING"
+  },
+  "baseline": {
+    "command": "python3 tools/matrixgame_engine_compile_audit.py --build-root build/matrixgame/e2e517/host --output build/matrixgame/e2e517/baseline --target matrixgame-native-engine --target matrixgame-native-matrixlib-audit --jobs 4",
+    "selected_units": 106,
+    "compile_pass": 13,
+    "compile_fail": 93,
+    "navigation_retested": false,
+    "manifest_sha256": "a293e94db99b5fbb36d9c3819742902025b989f12b1b90eead22da1692eba59a",
+    "logs": "build/matrixgame/e2e517/baseline",
+    "units": [
+      {
+        "source": "MatrixGame/src/DevConsole.cpp",
+        "source_sha256": "e4d1bd21e5dfd33640279126afee8e1e0f191d6f73ed3924447113198a41302c",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "0.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffect.cpp",
+        "source_sha256": "c171c057bffb51eedbbf866f294d5b9e2b17c3d2dd12ba24a3bc1e1634e2bf42",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "1.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectBigBoom.cpp",
+        "source_sha256": "37bdffaa16f995c801f0923bcb3f19c32617c97d87cfbd9895e1998173d13aa1",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "2.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectBillboard.cpp",
+        "source_sha256": "f75157e357bdfb1f568b23c63a86c57dfde204f9c2cdbd1538fbfb09cb9468f2",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "3.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectDust.cpp",
+        "source_sha256": "5c0a097f14078118a0122600d6f1764e132ca4e5edb5f5ee19aa2b6f30d89ab5",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "4.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectElevatorField.cpp",
+        "source_sha256": "7a1db4636c51e0dfeae99ef3071c7af898fc3f5c7e1f9a9e1cb134c964da957b",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "5.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectExplosion.cpp",
+        "source_sha256": "9b728a6d1076c43e83f3197c4704065d49c172ae395dc4c32b2daf0452731cfb",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "6.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectFirePlasma.cpp",
+        "source_sha256": "b1da9d4fd98625357d5e5b29607316d67ab255a1d10f87f2e6c3ded7d39c5cb4",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "7.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectFlame.cpp",
+        "source_sha256": "0463ea60efd02b5459cd2f07bf33bab6d4ba431478f0239adafa29504ce3e34d",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "8.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectKonus.cpp",
+        "source_sha256": "355ad62b533a893a489059200b94b928f9d616dd28b1bfc758cd423fc6de346e",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "9.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectLandscapeSpot.cpp",
+        "source_sha256": "8a5eb8ccbf9ed17b621d42b1fedd8ff5fe545de9522e7623a20583cbfbd497bf",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "10.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectLightening.cpp",
+        "source_sha256": "fd1122a3afd25f1d57613b34ae3daf22b41130c200d10f7077d324c330ef5e58",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "11.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectMoveTo.cpp",
+        "source_sha256": "96311287d1d61d60e9f64f30ea1a8a97502a8f98b4ad75b076b9b5f0addcfa42",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "12.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectMovingObject.cpp",
+        "source_sha256": "7770dcd3897a4665302bcd88c3a483f60bdac4743fea1d0f42662e1bcd90c818",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "13.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectPath.cpp",
+        "source_sha256": "b70dab3cfa4681033399f4986008e45263d0c577076cf63861dcf7857de482ee",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "14.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectPointLight.cpp",
+        "source_sha256": "fd9c866edb3deeeab0286e70842a36e3b0f4730edd272ee0c3706e5035aa535b",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "15.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectRepair.cpp",
+        "source_sha256": "c794128b742c3ed503f364511843130fe258e7888496e36c78eb2159b99b23da",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "16.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectSelection.cpp",
+        "source_sha256": "a41f3030e56c7d3a673c5f4f2507852bfcd467fc13428f83f87a47d031bc587c",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "17.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectShleif.cpp",
+        "source_sha256": "b74b5f90697b71e00f7adf2be704e6e1a9e2b6bc871503d03ac1402102735345",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "18.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectSmokeAndFire.cpp",
+        "source_sha256": "1fb28aaec035ec311d6aa25bf3f533875a1f5d9e571d3eacc1a5caf12d6b9dfc",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "19.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectWeapon.cpp",
+        "source_sha256": "6edbe5ac3619d4c2c77bcb24008d3682676b3cbd39cea264acf7904e28ed1395",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "20.log"
+      },
+      {
+        "source": "MatrixGame/src/Effects/MatrixEffectZahvat.cpp",
+        "source_sha256": "106ac74bdc9ca1d35307a339df34551d6e559b85b7b2fb8b843574226aadf0e8",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "21.log"
+      },
+      {
+        "source": "MatrixGame/src/Interface/CAnimation.cpp",
+        "source_sha256": "b231a791a7c1df1c5ca9e137141204d79d7a8c6d7cb3639beefc8ed2d8086e79",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "22.log"
+      },
+      {
+        "source": "MatrixGame/src/Interface/CConstructor.cpp",
+        "source_sha256": "2e57bf659b0021e8e475d659850b978c23bee34f9a2e8751ace33703271e86c0",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "23.log"
+      },
+      {
+        "source": "MatrixGame/src/Interface/CCounter.cpp",
+        "source_sha256": "08c02a061fd2ecdae0206a3c3d0770932757548b3c8ea7e33acf5ca36492a5a7",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "24.log"
+      },
+      {
+        "source": "MatrixGame/src/Interface/CHistory.cpp",
+        "source_sha256": "4794b988111692944505ad673443cebf3a4c0e3839164cc58f4e9294dd538ddb",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "25.log"
+      },
+      {
+        "source": "MatrixGame/src/Interface/CIFaceButton.cpp",
+        "source_sha256": "f2240d0a4bffb37097d1a835a93123f07dbea8860e27b61804a2b64e03e04d70",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "26.log"
+      },
+      {
+        "source": "MatrixGame/src/Interface/CIFaceElement.cpp",
+        "source_sha256": "288669c8ad3e3c709cb3c70bcff453b1607fbfdf63d7dfad42d7dd6caf70c251",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "27.log"
+      },
+      {
+        "source": "MatrixGame/src/Interface/CIFaceImage.cpp",
+        "source_sha256": "ca25f25d9408331b415ae98f1ebebc97ac7b53e3fb5b1e942656d9afc5ebae32",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "28.log"
+      },
+      {
+        "source": "MatrixGame/src/Interface/CIFaceMenu.cpp",
+        "source_sha256": "c067475bca162787ecde4b7289225e0e5856655c5a8e94d82ae41fd7659c0f2b",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "29.log"
+      },
+      {
+        "source": "MatrixGame/src/Interface/CIFaceStatic.cpp",
+        "source_sha256": "ffed3bb4646be5ddf949eef349d784cf83945aa43e86cf94a9322b8f701d36c1",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "30.log"
+      },
+      {
+        "source": "MatrixGame/src/Interface/CInterface.cpp",
+        "source_sha256": "f4be68c77e9aeb5f1b3a0410b3b014b24a8758a5f60429dcd24ac5b2ddef0682",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "31.log"
+      },
+      {
+        "source": "MatrixGame/src/Interface/MatrixHint.cpp",
+        "source_sha256": "032e62e2687508c159202fed0b335c708c36df59b290cdcd31bc34763898ba7b",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "32.log"
+      },
+      {
+        "source": "MatrixGame/src/Logic/MatrixAIGroup.cpp",
+        "source_sha256": "3bcc337d02f0d0d94bede02dae3510d33726a57010761bfdf438d30f3bbd9a00",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "33.log"
+      },
+      {
+        "source": "MatrixGame/src/Logic/MatrixEnvironment.cpp",
+        "source_sha256": "4f9e63193ebe4dd4d0f39317836151f8eec3a8a6b56754ab5072815048153fe8",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "34.log"
+      },
+      {
+        "source": "MatrixGame/src/Logic/MatrixLogicSlot.cpp",
+        "source_sha256": "323ae9c11470903a422ad23d3dc0d775b57dd89c7457b9670d46458e86fcf3ca",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "35.log"
+      },
+      {
+        "source": "MatrixGame/src/Logic/MatrixRule.cpp",
+        "source_sha256": "e8986111d1570997bcd1769f3ffc790332265fa0cf207b6ca7e36b775c89f524",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "36.log"
+      },
+      {
+        "source": "MatrixGame/src/Logic/MatrixState.cpp",
+        "source_sha256": "162b1ffcbe65bb324edcc21c2054c8d4c075779b00abf0f5b397e5a3ac17df1c",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "37.log"
+      },
+      {
+        "source": "MatrixGame/src/Logic/MatrixTactics.cpp",
+        "source_sha256": "f3339e3cab5ffe60c192af74ad6fcea2acca8eb43e6ba2128c184c24c6660bf3",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "38.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixCamera.cpp",
+        "source_sha256": "86e917b51ff93adba3afe4b83730daf7ba08ffb93dd9b914013fc7fdbb17f592",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "39.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixConfig.cpp",
+        "source_sha256": "387fb70bb9531ebc2085455e474cd4e7ff24413a406b83125c1b03b920719f6d",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "40.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixCursor.cpp",
+        "source_sha256": "48f831ea968898bfa41fd1f98845d9f80fc02b4e378a6f729077860737acd8d4",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "41.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixDebugInfo.cpp",
+        "source_sha256": "1b7652b2e4127f5dd78a71cb855c0c68a5fd554ea0d16bdb58e4147c7fcccdbf",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixGame/src/MatrixDebugInfo.hpp:10:10: fatal error: d3dx9core.h: No such file or directory",
+        "log": "42.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixFlyer.cpp",
+        "source_sha256": "238ab4f5880f9d6620818a69480520a373036a7b0991eb31b8263e3613dacff8",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "43.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixFormGame.cpp",
+        "source_sha256": "db9f848f6d49d6b4617195b7dfb2981cfd85e59318b8162a87e1b91cf95b0d35",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "44.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixGame.cpp",
+        "source_sha256": "19c1485c608202ff088c4b37a62ca2508ee9b064f655017799e6bae27fae672b",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "45.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixGamePathUtils.cpp",
+        "source_sha256": "5f2ca2e2c01dc628eed0a10055af7e2b8a36782ed7a672b2ccc5b25c034d1ebc",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixGame/src/MatrixGamePathUtils.cpp:7:10: fatal error: windows.h: No such file or directory",
+        "log": "46.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixInstantDraw.cpp",
+        "source_sha256": "ee912ec13598cb2fe52d6e1c9e76e787081fb83d187a46e8c8b74180a961be5c",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "47.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixLoadProgress.cpp",
+        "source_sha256": "b13bfcf5c2c0cf1574e9b3bb84d2d83b82caa1762f1a7ea2f8485949df9d86fc",
+        "status": "COMPILE_PASS",
+        "returncode": 0,
+        "first_error": "",
+        "log": "48.log",
+        "object_sha256": "f982741f7025f1599e964b2393f4f4b690dbb2f6a5de7556c5187c06888f0667"
+      },
+      {
+        "source": "MatrixGame/src/MatrixLogic.cpp",
+        "source_sha256": "9fc152a3ccaa1f5a516c240f3eeb3b06f987b1d352c651ad2e392f0563190277",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "49.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixMap.cpp",
+        "source_sha256": "dcdc7f878c186741897f158894de353e4bec190b64dd6236857179b665ce1696",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixGame/src/MatrixMap.cpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "50.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixMapGroup.cpp",
+        "source_sha256": "da4f5604ce5334abc70f27fca3a4982c0668b03516f5ab253e5e077780cfe81f",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "51.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixMapPrepare.cpp",
+        "source_sha256": "5564eb55e9262fe4511aa109c9dc4c1437e1202b9707c657bf8bfca06762aaf7",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "52.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixMapStatic.cpp",
+        "source_sha256": "a9d4024e05c1d6cae524205240dc1deae128daaca1de0e7f614f37f26ac77efb",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "53.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixMapTexture.cpp",
+        "source_sha256": "29d08f3717eb07c749cd89a5ca6224d41123c1c33827e57c3c528caaac40a0d1",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "54.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixMapTrace.cpp",
+        "source_sha256": "2f7edaf149ff000c7c4235806313f9df2b793163770e0a0dacc765033b742fdf",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "55.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixMinimap.cpp",
+        "source_sha256": "60c7d54235945162aa6fbf006abac16eaf9d2cb2593c5fb835e32685a5455696",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "56.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixMultiSelection.cpp",
+        "source_sha256": "653c70880bef1266a329af81a9d0683480dd0cbdd246c3c87e2fc885b921c66f",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "57.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixObject.cpp",
+        "source_sha256": "a846b67e10821e7adadb34129da4efe79964e61b819d31b69e22e83b7d9d0559",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "58.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixObjectBuilding.cpp",
+        "source_sha256": "7d69ad84604aaeb9e2e575d58c51307980a15468f22ccea4b316bbe2f4a41e55",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "59.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixObjectCannon.cpp",
+        "source_sha256": "bc2b06e74d16dd1a593b426c12b4cb3a4c748a4d63ad834a59df528b467f7320",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "60.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixObjectRobot.cpp",
+        "source_sha256": "190fd4a0c064985302f7326d4a22e8dd43d727b9ac12afb0bc83441d22235161",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "61.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixProgressBar.cpp",
+        "source_sha256": "8af78d1cfbcdd7af3b46b174b838c9207e8e1160d4cb616dddf403e1718b2398",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "62.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixRenderPipeline.cpp",
+        "source_sha256": "9b48e8c7670abd802b5c14b841c0770131e7ac6b99fa2052faa554daecf91afe",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "63.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixRobot.cpp",
+        "source_sha256": "e4714692c73294a66de6038a22ab82a2bb7d6d879bf09dbd653853a2bc2b672a",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "64.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixSampleStateManager.cpp",
+        "source_sha256": "6d2562c1ba84c166023efbdff1b16b92a7e0904bd5a22474d17037f8702b9b1e",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixGame/src/MatrixSampleStateManager.cpp:6:10: fatal error: windows.h: No such file or directory",
+        "log": "65.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixShadowManager.cpp",
+        "source_sha256": "fc84d41999879165f6e64670c47c946c26f556d087ccf0dd2bdebb476571746a",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "66.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixSide.cpp",
+        "source_sha256": "99d50fe2115990b1ea7e30e6900e0873f27408351752648efad126f9d85ce867",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "67.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixSkinManager.cpp",
+        "source_sha256": "d9d565af29522397011903bf6e3d730575092d0eb8ad540506740ff8f03f4778",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "68.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixSoundManager.cpp",
+        "source_sha256": "d935b7ba9f907e88b827cd98f45d6e060c5576640027e84ff8191661aa2fdf25",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixGame/src/MatrixSoundManager.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "69.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixTerSurface.cpp",
+        "source_sha256": "d47c8b571355431f8fa50bd0c8de264c8c10dafc5424a50ee679fc7ab7fedfd4",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "70.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixTransition.cpp",
+        "source_sha256": "2fb2bb07e5b91fb90483605f124e78b145cac0667dea230a274e9fa8a39389b0",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "71.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixVisiCalc.cpp",
+        "source_sha256": "c8cb65b0c508665de503ad0dbbc08fc7f76a22b537e98f3d9eba8322da5b743d",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "72.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixWater.cpp",
+        "source_sha256": "bc483da19aefea66dde97056a1e559225040d7390cdd58370acf6e4c7d64a2f6",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "73.log"
+      },
+      {
+        "source": "MatrixGame/src/Text/Font.cpp",
+        "source_sha256": "e4ef3a4e9fc712169e33f019edb05d956cfc3da5a16d7b75b374c12e6e357b0b",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixGame/src/Text/Font.hpp:3:10: fatal error: d3dx9core.h: No such file or directory",
+        "log": "74.log"
+      },
+      {
+        "source": "MatrixGame/src/Text/Parser.cpp",
+        "source_sha256": "a89ebd41a4ae416de170835c6e0daa7456f2d1cecdca8fa9ae0da8ef71e2c4ac",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixGame/src/Text/Font.hpp:3:10: fatal error: d3dx9core.h: No such file or directory",
+        "log": "75.log"
+      },
+      {
+        "source": "MatrixGame/src/Text/Render.cpp",
+        "source_sha256": "76a8683156dedb7783c6cf432f36e7c8286a564d301bec61cec2cfca64a7c542",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixGame/src/Text/Font.hpp:3:10: fatal error: d3dx9core.h: No such file or directory",
+        "log": "76.log"
+      },
+      {
+        "source": "MatrixGame/src/cheats.cpp",
+        "source_sha256": "64fff7268b3da085e2543cba7239cf76b5f0900267c45b3f43bb0cbea4f30e36",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "77.log"
+      },
+      {
+        "source": "MatrixGame/src/input.cpp",
+        "source_sha256": "fa237ded3e940dac71f68531f5d3ed8fbbdfd071bdae713f8ff286c540330e0b",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixGame/src/input.hpp:4:10: fatal error: windows.h: No such file or directory",
+        "log": "78.log"
+      },
+      {
+        "source": "MatrixLib/3G/3g.cpp",
+        "source_sha256": "e02ae38d13e88a6b83d893f974cbfeebf936938e01c7f03097cd8be32a29605f",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "79.log"
+      },
+      {
+        "source": "MatrixLib/3G/CBillboard.cpp",
+        "source_sha256": "effd92688b81dff37bd2d86638c97a154fe26b530d9c902f15406633d3e37f95",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "80.log"
+      },
+      {
+        "source": "MatrixLib/3G/Cache.cpp",
+        "source_sha256": "568f108f4578e8fb53a5b08bf2561189d4d3426402275deabeccd17a1e82fa9a",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "81.log"
+      },
+      {
+        "source": "MatrixLib/3G/DeviceState.cpp",
+        "source_sha256": "f627dbaa15a1e2a75304469ccbb0cea13f0f10a13810bd30d13fbb3b915aefa3",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "82.log"
+      },
+      {
+        "source": "MatrixLib/3G/Form.cpp",
+        "source_sha256": "574623bd04c5e7a56dd82a2d34a0b2717da839e19afd4ba038bd8e32d02cb660",
+        "status": "COMPILE_PASS",
+        "returncode": 0,
+        "first_error": "",
+        "log": "83.log",
+        "object_sha256": "cba0ab72aa47dd07662cdd73127ce1d69964767f2c88efa9ccbc0112ca6f008d"
+      },
+      {
+        "source": "MatrixLib/3G/Helper.cpp",
+        "source_sha256": "2268389c6a6b4cf3ee9b424e350affc11fcc55ac7eec0d2c74994987ff6c96e7",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "84.log"
+      },
+      {
+        "source": "MatrixLib/3G/Math3D.cpp",
+        "source_sha256": "40b7a76bbdab727693c047339cdcea94091e2c773a168c3c2434e9c4d3c0309a",
+        "status": "COMPILE_PASS",
+        "returncode": 0,
+        "first_error": "",
+        "log": "85.log",
+        "object_sha256": "187ffc1715432582d0f453b0295b37fc006d027366480656255377f91a2c5d1c"
+      },
+      {
+        "source": "MatrixLib/3G/ShadowProj.cpp",
+        "source_sha256": "510bee9b58f66fdedd4b4f08e239d1c1289358508dbfef12b222745a4b55de56",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "86.log"
+      },
+      {
+        "source": "MatrixLib/3G/ShadowStencil.cpp",
+        "source_sha256": "580128fe26f8e7f94c3356d26d23062c8fcfcf6c74a8677ab5a4af2472016d20",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "87.log"
+      },
+      {
+        "source": "MatrixLib/3G/Texture.cpp",
+        "source_sha256": "11535b4750ea94de8b97831636b044a781e785be8ecb9bffbe16358df72b0901",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "88.log"
+      },
+      {
+        "source": "MatrixLib/3G/VectorObject.cpp",
+        "source_sha256": "11ffb4eb842b5cdf6041d0ddc3bf25a124b06bdd8ac36f090b4c2ac6d9586303",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/3G/VectorObject.hpp:8:10: fatal error: d3d9.h: No such file or directory",
+        "log": "89.log"
+      },
+      {
+        "source": "MatrixLib/Base/CBlockPar.cpp",
+        "source_sha256": "aaa2e9264cb2f9a602652b156a1c2fdf6a0d14e76c3a52c8c2d9adc6ad214ce8",
+        "status": "COMPILE_PASS",
+        "returncode": 0,
+        "first_error": "",
+        "log": "90.log",
+        "object_sha256": "6052173edf47178827adfdebecf13154b1a4f72986b57a6c2f2df64d00df8588"
+      },
+      {
+        "source": "MatrixLib/Base/CBuf.cpp",
+        "source_sha256": "7ec4bdfc25188dae6ec0bba85f069baab663a181bd1e20774a9972254de0dc60",
+        "status": "COMPILE_PASS",
+        "returncode": 0,
+        "first_error": "",
+        "log": "91.log",
+        "object_sha256": "383faf21c1c4891240b9924508d4aebedfc132337a6bdda59f35d43420832b01"
+      },
+      {
+        "source": "MatrixLib/Base/CException.cpp",
+        "source_sha256": "7cbcbd369ca8d279236dcc07de1f020e6e38acca83205f48424baabbda77c395",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/Base/Tracer.hpp:13:10: fatal error: windows.h: No such file or directory",
+        "log": "92.log"
+      },
+      {
+        "source": "MatrixLib/Base/CFile.cpp",
+        "source_sha256": "09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/Base/Pack.hpp:39:5: error: ‘DWORD’ does not name a type",
+        "log": "93.log"
+      },
+      {
+        "source": "MatrixLib/Base/CHeap.cpp",
+        "source_sha256": "50d9f35455bf4c9c10f77bdbee02ffbc471e9cb2dc07ada47566e03214faa660",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/Base/CHeap.cpp:9:10: fatal error: windows.h: No such file or directory",
+        "log": "94.log"
+      },
+      {
+        "source": "MatrixLib/Base/CList.cpp",
+        "source_sha256": "4e6e9cc167e6f7f996b6d77d273900ca38dea10584f93214a29769f5d5d953dd",
+        "status": "COMPILE_PASS",
+        "returncode": 0,
+        "first_error": "",
+        "log": "95.log",
+        "object_sha256": "e173894318a84289c2d3c046146b76537c77356843ac77d70bb1a55fbca22fc1"
+      },
+      {
+        "source": "MatrixLib/Base/CMain.cpp",
+        "source_sha256": "a6880229e03d0c249ecbfcd6ba726d920f7115c510dc3c50b51eecc399f4f7ef",
+        "status": "COMPILE_PASS",
+        "returncode": 0,
+        "first_error": "",
+        "log": "96.log",
+        "object_sha256": "5018c154b9c4eaf92b38db3530543c76a1ec7ebc8855fc4351d632d63bec73e7"
+      },
+      {
+        "source": "MatrixLib/Base/CRC32.cpp",
+        "source_sha256": "f6bf4e86be9ae18dc836e0e5dc87536e36af09c7bf33705064e4a493fafe3c76",
+        "status": "COMPILE_PASS",
+        "returncode": 0,
+        "first_error": "",
+        "log": "97.log",
+        "object_sha256": "51b5c5b4426ca23f050be2fdaa8d2bbc8de1cd76ea1d1851b9aadd64ef0496d2"
+      },
+      {
+        "source": "MatrixLib/Base/CReminder.cpp",
+        "source_sha256": "6bff3d934168fb0635ddb06df703d05b9607ff53186b656a9b92817009a03a10",
+        "status": "COMPILE_PASS",
+        "returncode": 0,
+        "first_error": "",
+        "log": "98.log",
+        "object_sha256": "2b0a4eac5c4b3554841566a995aea0e7490c604f8efe014ca5d6863cb83b54e9"
+      },
+      {
+        "source": "MatrixLib/Base/CStorage.cpp",
+        "source_sha256": "63bb70f40a36a1780c2b6503b27f62f15e4e5d00e3ea6108bd261ad0c03c8545",
+        "status": "COMPILE_PASS",
+        "returncode": 0,
+        "first_error": "",
+        "log": "99.log",
+        "object_sha256": "6031b9322e77c02efeb1e6ee2f185011271e6519d249302034f47762f99508db"
+      },
+      {
+        "source": "MatrixLib/Base/Pack.cpp",
+        "source_sha256": "268be27e628732d79ca32cee60f255370fcfa65a51e01a33bb57388cdea20341",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/Base/Pack.hpp:39:5: error: ‘DWORD’ does not name a type",
+        "log": "100.log"
+      },
+      {
+        "source": "MatrixLib/Base/Registry.cpp",
+        "source_sha256": "65ff065bd3c2eacf96e54628d7bf13808c3f2a2f862a1754e859f86f081fd9e6",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/Base/Registry.hpp:11:10: fatal error: windows.h: No such file or directory",
+        "log": "101.log"
+      },
+      {
+        "source": "MatrixLib/Base/Tracer.cpp",
+        "source_sha256": "9f9813468c45375649e9164b11b33210a4f431b57d6e8d03fb6afd3d821dcb44",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "$REPO/build/matrixgame/e2e517/host/source/MatrixLib/Base/Tracer.hpp:13:10: fatal error: windows.h: No such file or directory",
+        "log": "102.log"
+      },
+      {
+        "source": "MatrixLib/Base/random.cpp",
+        "source_sha256": "78e44218dfc7f9ad85ff783f6bb32c80f81d07097ffaa38fcf39b3f7752866c4",
+        "status": "COMPILE_PASS",
+        "returncode": 0,
+        "first_error": "",
+        "log": "103.log",
+        "object_sha256": "0657efcca0db5b3d29f9a6a8af4aec1696aa2ca17fe6d3a08ca580306783df34"
+      },
+      {
+        "source": "MatrixLib/Bitmap/CBitmap.cpp",
+        "source_sha256": "c193188e5b2e7820fd3d0a0cda69d2b5656b0f1070bafd7d0cb3f49942e3d576",
+        "status": "COMPILE_PASS",
+        "returncode": 0,
+        "first_error": "",
+        "log": "104.log",
+        "object_sha256": "3e51b5fcc07c8388eb65aafbbe99730e600096b4a3dcc7f3beabb820d6a38706"
+      },
+      {
+        "source": "MatrixLib/Bitmap/FilePNG.cpp",
+        "source_sha256": "32096ab48a8816f122a27086e63d3d963f467fe011b7af5992ff3bac03d1e7ad",
+        "status": "COMPILE_PASS",
+        "returncode": 0,
+        "first_error": "",
+        "log": "105.log",
+        "object_sha256": "bbd15b911edecdf0f0a94eaf72d327afd6bdd3b70544ad6a3a19dc8e77dbf766"
+      }
+    ],
+    "previous_snapshot_comparison": {
+      "path": "build/e2e515/mg-compile-big-buffers/result.json",
+      "removed_from_selection": [
+        "MatrixGame/src/Logic/MatrixRoadNetwork.cpp"
+      ],
+      "changed_statuses": [
+        {
+          "source": "MatrixLib/Base/CList.cpp",
+          "before": "COMPILE_FAIL",
+          "after": "COMPILE_PASS",
+          "reason": "prior E2E-5.16.1 change, not new E2E-5.17 work"
+        }
+      ]
+    }
+  },
+  "compile_delta": {
+    "new_target": "matrixgame-native-vector-object",
+    "original_file": "MatrixLib/3G/VectorObject.cpp",
+    "effective_source": "VectorObjectCpu.cpp",
+    "scope": "Explicit pinned original CPU method subset; not the complete VectorObject.cpp",
+    "whole_engine_inventory_after": "not rerun; no new full-unit PASS claimed",
+    "added_runtime_methods": [
+      "CVectorObject::StaticInit",
+      "CVectorObject::CVectorObject",
+      "Load",
+      "LoadSpecial(OLF_NO_TEX)",
+      "EnumFrameVerts",
+      "GetBound",
+      "GetAnimById/Name",
+      "GetMatrixById/Name",
+      "Unload",
+      "~CVectorObject"
+    ],
+    "commands": [
+      {
+        "directory": "$REPO/build/matrixgame/e2e517/host",
+        "command": "/usr/bin/c++ -D_POSIX_C_SOURCE=200809L -I$REPO/build/matrixgame/e2e517/host/core/source -I$REPO/port/matrixgame/native-core -I$REPO/port/matrixgame/third_party/directxmath/Inc -I$REPO/port/matrixgame/third_party/sal -fsanitize=address,undefined -fno-omit-frame-pointer -O2 -g -DNDEBUG -std=gnu++20 -ffp-contract=off -o CMakeFiles/matrixgame-native-vector-object.dir/core/source/VectorObjectCpu.cpp.o -c $REPO/build/matrixgame/e2e517/host/core/source/VectorObjectCpu.cpp",
+        "file": "$REPO/build/matrixgame/e2e517/host/core/source/VectorObjectCpu.cpp",
+        "output": "CMakeFiles/matrixgame-native-vector-object.dir/core/source/VectorObjectCpu.cpp.o"
+      },
+      {
+        "directory": "$REPO/build/matrixgame/e2e517/host",
+        "command": "/usr/bin/c++ -D_POSIX_C_SOURCE=200809L -I$REPO/build/matrixgame/e2e517/host/core/source -I$REPO/port/matrixgame/native-core -I$REPO/port/matrixgame/third_party/directxmath/Inc -I$REPO/port/matrixgame/third_party/sal -fsanitize=address,undefined -fno-omit-frame-pointer -O2 -g -DNDEBUG -std=gnu++20 -UNDEBUG -ffp-contract=off -o CMakeFiles/matrixgame-native-vector-object-probe.dir$REPO/tests/test_matrixgame_vector_object.cpp.o -c $REPO/tests/test_matrixgame_vector_object.cpp",
+        "file": "$REPO/tests/test_matrixgame_vector_object.cpp",
+        "output": "CMakeFiles/matrixgame-native-vector-object-probe.dir$REPO/tests/test_matrixgame_vector_object.cpp.o"
+      }
+    ]
+  },
+  "source_provenance": {
+    "lf_normalized_inputs": {
+      "CFile.cpp": "09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49",
+      "CFile.hpp": "20ff28cc056a6754ea8866a250f0dd866b4d823e90af18938699a736147d0abc",
+      "CMain.hpp": "fa22e13fe14e0484598320601203ed5289176d8a4926a2bb3fbbd51f86805d1b",
+      "CException.hpp": "b07668359bd5c9e383d5dbd652a727389faecfddc500d3d92584c32052d08303",
+      "CBuf.cpp": "7a404ddcd08c96f985c07e67ed44915dae83c768e9b39617361df24891670eac",
+      "CBuf.hpp": "37beddebc23e07e50a35171782a581c5901a8b27a292c5bc864f293466d9b1a0",
+      "BaseDef.hpp": "087fec96990f3e14a9988e8f1dec9c9a22ab14f2e1cc38fa68f5b3970d00f1e6",
+      "CRC32.hpp": "287fb8f9b67853c487beb3b6ce96c45aa0bcdf617b348407c8bc0caed4ce69fe",
+      "CRC32.cpp": "f6bf4e86be9ae18dc836e0e5dc87536e36af09c7bf33705064e4a493fafe3c76",
+      "utils.hpp": "fc7432bf0828efcb3e11bfd930e5107058a4571672abab3929af7b5f4c556f63",
+      "CStorage.hpp": "6aafd8b3858ac39e2654cc709666c8c59bc40876dcab139d9a0aea0019c6aa95",
+      "CStorage.cpp": "80309d945c6d1922aacd579a8d1af3aaa78f1c3a22e377fee9ec2b448a3940fb",
+      "CHeap.hpp": "fb6fcb64d4bd8254689fe46bb9d64a1407050a92c6a7ec2820493b34692e6ad8",
+      "CBlockPar.hpp": "c746f291ba45996c4150b0543b81f2cd7226cff5b618c7af48394947e4371cde",
+      "CBlockPar.cpp": "bc2c55bddd62709bad774569f267c34b9e0c08b910d1be5a40924a62fa83ce0a",
+      "Math3D.hpp": "f444325e3bfea812f94c8b2c1e8d06670686af65675c9ba6cad762b2278c7b14",
+      "Math3D.cpp": "ce5c5be94a6cbce29ee766922c43d70940590541a639b0268638a6aa3fe21804",
+      "random.cpp": "9c5ef914ad896f214be468babd49304548613743b7c533c200fb64cbf0b1cdfd",
+      "random.hpp": "b169672fd41650a3d8d090e34a31a64aa5fd7607bb22406f496808fb704901a8",
+      "MatrixGameDll.hpp": "f3ae60f5b1945b8ecae9e99749ee35ea3ce61a9112f4f7c8c90ffddf904147b0",
+      "MatrixGame.h": "65b42d2d1f647cc328ec7d50ba983ad8e7fd60daccf82756796c3657117d018e",
+      "VectorObject.hpp": "41af7cf50ab96af88b57ca5101cdf1b27d25ce6326517d532056142912ee0b72",
+      "VectorObject.cpp": "11ffb4eb842b5cdf6041d0ddc3bf25a124b06bdd8ac36f090b4c2ac6d9586303",
+      "CReminder.hpp": "c02ad3ecad355dd1daa170faa384773cf924a13be27fb83d41855fd1f3a5b0c5",
+      "CReminder.cpp": "12294822e2c4bbed8dcef7dbc648151b0244ef550addaef82a71137b349f1a22",
+      "CBitmap.hpp": "7638f74743d26c427ec5f0f17626aaca6f1dd6879877370db8c3d4c7fe71d6c5",
+      "CBitmap.cpp": "ee8e9f8da05306c7b33a3bc706b4953daf0cdf4181121f7819a3a003912a3437",
+      "FilePNG.hpp": "390d96acc19fbc1522751bbf3b4e909ecbb96a81fdb829ad031b25811b330cd3",
+      "FilePNG.cpp": "8af367f028492df51f3089aafa5eab5ea732cfea0b45f5de9318dfb5cb543397",
+      "Texture.hpp": "2eaf5916cc9a2b406e886617a156a33ab39682ed6196011bb0ec873295f575a1",
+      "Texture.cpp": "11535b4750ea94de8b97831636b044a781e785be8ecb9bffbe16358df72b0901",
+      "Cache.cpp": "568f108f4578e8fb53a5b08bf2561189d4d3426402275deabeccd17a1e82fa9a",
+      "CMain.cpp": "442f6b5a6218c6d2c3423dd80d133e80ff6186471642492e6951fddd2a094a9f",
+      "Form.cpp": "a2fec34d9ed1d24e4014ed93f333148477ca3e5fd80acff6d84fa79918782195",
+      "Form.hpp": "e55f462a1e28261837f3194c08ba40f163db7f7493b94d8a81a27038b2220663",
+      "BigVB.hpp": "6353b2587de9c06050ee23785977fc7b14f4d91184ebc056d2d55ff7a9d4646f",
+      "BigIB.hpp": "1be8a0dea336834fce0e040ca27cd924e66feed31e5a040ccec818e95b629d24",
+      "CList.cpp": "4e6e9cc167e6f7f996b6d77d273900ca38dea10584f93214a29769f5d5d953dd",
+      "CList.hpp": "26c89e0c65a8c5cb493315431cf1360567328f3ed89afd0f9a8c478dfc57e19d",
+      "Cache.hpp": "e1f9ccc07faa08d5182e52ec45516b800962326ce8ca08809935ac75a364e62b"
+    },
+    "generated_outputs": {
+      "VectorObjectCpu.hpp": "2a624f6dfe79aa19aa358e98d85829987a2dd24a90722cdc90cef4d176c18999",
+      "VectorObjectCpu.cpp": "2a13fbafee357f329c59ca0559015c3c78770d7999b45e59da70c1fe6a673ee8",
+      "Cache.hpp": "e1f9ccc07faa08d5182e52ec45516b800962326ce8ca08809935ac75a364e62b"
+    },
+    "all_core_outputs_manifest": "build/matrixgame/e2e517/host/core/source/source-provenance.json"
+  },
+  "host": {
+    "status": "HOST_RUNTIME_PASS",
+    "returncode": 0,
+    "command": [
+      "$REPO/build/matrixgame/e2e517/host/matrixgame-native-vector-object-probe",
+      "$REPO/build/matrixgame/e2e517/runtime-verified/model-0.vo",
+      "$REPO/build/matrixgame/e2e517/runtime-verified/model-1.vo",
+      "$REPO/build/matrixgame/e2e517/runtime-verified/model-2.vo",
+      "$REPO/build/matrixgame/e2e517/runtime-verified/short.vo"
+    ],
+    "inputs": [
+      {
+        "source": "$REPO/build/e2e515/big-buffer-models/model-0.vo",
+        "sha256": "7b72b1fd40aa1df5f2ee42ebe6b84035ea7eadf0637cc658046d09ab67c25fc4",
+        "bytes": 3114
+      },
+      {
+        "source": "$REPO/build/e2e515/big-buffer-models/model-1.vo",
+        "sha256": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+        "bytes": 5422
+      },
+      {
+        "source": "$REPO/build/e2e515/big-buffer-models/model-2.vo",
+        "sha256": "b7cba8a78faf0c8cf32cf942288d2fdb0d5d21b047d0e9abaa212092c11d9ccd",
+        "bytes": 10110440
+      }
+    ],
+    "inputs_unchanged": true,
+    "executable_sha256": "814d9611fe6416a8226cc0986559bfe1ed98638e864312e20c8a73a3862d8055",
+    "hardware_pending": true,
+    "cgame_init_called": false,
+    "game_loop_called": false,
+    "gpu_executed": false,
+    "observed_call_log": [
+      "CALL CVectorObject::StaticInit (original inline CPU reset)",
+      "CALL Load/LoadSpecial/EnumFrameVerts/GetBound frames=1 animations=1 matrices=0",
+      "CALL CVectorObject::Unload",
+      "CALL Load/LoadSpecial/EnumFrameVerts/GetBound frames=1 animations=1 matrices=0",
+      "CALL CVectorObject::Unload",
+      "CALL Load/LoadSpecial/EnumFrameVerts/GetBound frames=102 animations=3 matrices=3",
+      "CALL CVectorObject::Unload",
+      "CALL ~CVectorObject; PASS cycle cleanup",
+      "CALL CVectorObject::StaticInit (original inline CPU reset)",
+      "CALL Load/LoadSpecial/EnumFrameVerts/GetBound frames=1 animations=1 matrices=0",
+      "CALL CVectorObject::Unload",
+      "CALL Load/LoadSpecial/EnumFrameVerts/GetBound frames=1 animations=1 matrices=0",
+      "CALL CVectorObject::Unload",
+      "CALL Load/LoadSpecial/EnumFrameVerts/GetBound frames=102 animations=3 matrices=3",
+      "CALL CVectorObject::Unload",
+      "CALL ~CVectorObject; PASS cycle cleanup"
+    ],
+    "reached_methods": [
+      "CVectorObject::StaticInit",
+      "CVectorObject::CVectorObject",
+      "Load",
+      "LoadSpecial(OLF_NO_TEX)",
+      "EnumFrameVerts",
+      "GetBound",
+      "GetAnimById/Name",
+      "GetMatrixById/Name",
+      "Unload",
+      "~CVectorObject"
+    ]
+  },
+  "linux_arm64_qemu": {
+    "status": "HOST_RUNTIME_PASS",
+    "returncode": 0,
+    "command": [
+      "qemu-aarch64",
+      "-L",
+      "/usr/aarch64-linux-gnu",
+      "$REPO/build/matrixgame/e2e517/arm64/vector-object-contract",
+      "$REPO/build/matrixgame/e2e517/arm64/runtime/model-0.vo",
+      "$REPO/build/matrixgame/e2e517/arm64/runtime/model-1.vo",
+      "$REPO/build/matrixgame/e2e517/arm64/runtime/model-2.vo",
+      "$REPO/build/matrixgame/e2e517/arm64/runtime/short.vo"
+    ],
+    "inputs": [
+      {
+        "source": "$REPO/build/e2e515/big-buffer-models/model-0.vo",
+        "sha256": "7b72b1fd40aa1df5f2ee42ebe6b84035ea7eadf0637cc658046d09ab67c25fc4",
+        "bytes": 3114
+      },
+      {
+        "source": "$REPO/build/e2e515/big-buffer-models/model-1.vo",
+        "sha256": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+        "bytes": 5422
+      },
+      {
+        "source": "$REPO/build/e2e515/big-buffer-models/model-2.vo",
+        "sha256": "b7cba8a78faf0c8cf32cf942288d2fdb0d5d21b047d0e9abaa212092c11d9ccd",
+        "bytes": 10110440
+      }
+    ],
+    "inputs_unchanged": true,
+    "executable_sha256": "6b131b5524d3800d5d9fdf04cc56917350c7b9d31585866b425013e6050d91b0",
+    "hardware_pending": true,
+    "cgame_init_called": false,
+    "game_loop_called": false,
+    "gpu_executed": false,
+    "observed_call_log": [
+      "CALL CVectorObject::StaticInit (original inline CPU reset)",
+      "CALL Load/LoadSpecial/EnumFrameVerts/GetBound frames=1 animations=1 matrices=0",
+      "CALL CVectorObject::Unload",
+      "CALL Load/LoadSpecial/EnumFrameVerts/GetBound frames=1 animations=1 matrices=0",
+      "CALL CVectorObject::Unload",
+      "CALL Load/LoadSpecial/EnumFrameVerts/GetBound frames=102 animations=3 matrices=3",
+      "CALL CVectorObject::Unload",
+      "CALL ~CVectorObject; PASS cycle cleanup",
+      "CALL CVectorObject::StaticInit (original inline CPU reset)",
+      "CALL Load/LoadSpecial/EnumFrameVerts/GetBound frames=1 animations=1 matrices=0",
+      "CALL CVectorObject::Unload",
+      "CALL Load/LoadSpecial/EnumFrameVerts/GetBound frames=1 animations=1 matrices=0",
+      "CALL CVectorObject::Unload",
+      "CALL Load/LoadSpecial/EnumFrameVerts/GetBound frames=102 animations=3 matrices=3",
+      "CALL CVectorObject::Unload",
+      "CALL ~CVectorObject; PASS cycle cleanup"
+    ],
+    "reached_methods": [
+      "CVectorObject::StaticInit",
+      "CVectorObject::CVectorObject",
+      "Load",
+      "LoadSpecial(OLF_NO_TEX)",
+      "EnumFrameVerts",
+      "GetBound",
+      "GetAnimById/Name",
+      "GetMatrixById/Name",
+      "Unload",
+      "~CVectorObject"
+    ]
+  },
+  "devkitA64": {
+    "status": "PASS",
+    "scope": "devkitA64 compile/link only",
+    "runtime_executed": false,
+    "battle_executed": false,
+    "hardware_executed": false,
+    "source_commit": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
+    "contract": "vector-object",
+    "command": [
+      "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-g++.exe",
+      "-std=c++20",
+      "-O2",
+      "-g",
+      "-UNDEBUG",
+      "-D_RELDEBUG",
+      "-D__SWITCH__",
+      "-D_POSIX_C_SOURCE=200809L",
+      "-march=armv8-a+crc+crypto",
+      "-mtune=cortex-a57",
+      "-mtp=soft",
+      "-fPIE",
+      "-ffunction-sections",
+      "-fdata-sections",
+      "-ffp-contract=off",
+      "-I$REPO/build/matrixgame/e2e517/sdk-final/source/portable-core",
+      "-I$REPO/build/matrixgame/e2e517/sdk-final/source/MatrixGame/src/Logic",
+      "-I$REPO/port/matrixgame/native-core",
+      "-I$REPO/port/switch/platform",
+      "-IC:/devkitPro/portlibs/switch/include",
+      "-IC:/devkitPro/libnx/include",
+      "-I$REPO/port/matrixgame/third_party/directxmath/Inc",
+      "-I$REPO/port/matrixgame/third_party/sal",
+      "$REPO\\tests\\test_matrixgame_vector_object.cpp",
+      "$REPO\\build\\matrixgame\\e2e517\\sdk-final\\source\\portable-core\\CBuf.cpp",
+      "$REPO\\build\\matrixgame\\e2e517\\sdk-final\\source\\portable-core\\CBuf_file.cpp",
+      "$REPO\\build\\matrixgame\\e2e517\\sdk-final\\source\\portable-core\\CStorage.cpp",
+      "$REPO\\build\\matrixgame\\e2e517\\sdk-final\\source\\portable-core\\CRC32.cpp",
+      "$REPO\\build\\matrixgame\\e2e517\\sdk-final\\source\\portable-core\\CMain.cpp",
+      "$REPO\\build\\matrixgame\\e2e517\\sdk-final\\source\\portable-core\\Form.cpp",
+      "$REPO\\build\\matrixgame\\e2e517\\sdk-final\\source\\portable-core\\CReminder.cpp",
+      "$REPO\\port\\matrixgame\\native-core\\cbuf_utf16.cpp",
+      "$REPO\\port\\matrixgame\\native-core\\exception_native.cpp",
+      "$REPO\\port\\matrixgame\\native-core\\file_native.cpp",
+      "$REPO\\port\\matrixgame\\native-core\\heap_native.cpp",
+      "$REPO\\port\\switch\\platform\\package.cpp",
+      "$REPO\\port\\matrixgame\\native-core\\buffer_resources.cpp",
+      "$REPO\\port\\matrixgame\\native-core\\buffer_geometry.cpp",
+      "$REPO\\port\\matrixgame\\native-core\\vector_geometry.cpp",
+      "$REPO\\build\\matrixgame\\e2e517\\sdk-final\\source\\portable-core\\VectorObjectCpu.cpp",
+      "$REPO\\build\\matrixgame\\e2e517\\sdk-final\\source\\portable-core\\CBlockPar.cpp",
+      "-LC:/devkitPro/portlibs/switch/lib",
+      "-LC:/devkitPro/libnx/lib",
+      "-lz",
+      "-lnx",
+      "-specs=C:/devkitPro/libnx/switch.specs",
+      "-Wl,--gc-sections",
+      "-Wl,--build-id=sha1",
+      "-o",
+      "$REPO\\build\\matrixgame\\e2e517\\sdk-final\\vector-object-contract.elf"
+    ],
+    "sha256": "e9c0613568db9864efe6b9c3bef2de11225e006db1071b552a312802213da924",
+    "bytes": 9330000,
+    "undefined_strong": [],
+    "build_id": "Build ID: 8fdd0215544bb0acc62fc99f924f07bbe41d4114",
+    "inputs_sha256": {
+      "tests/test_matrixgame_vector_object.cpp": "fd4f0ff71b783b0a5b27565fc62f31584c9d0fbe5e35c71b2ad43d7af1fac239",
+      "build/matrixgame/e2e517/sdk-final/source/portable-core/CBuf.cpp": "7ec4bdfc25188dae6ec0bba85f069baab663a181bd1e20774a9972254de0dc60",
+      "build/matrixgame/e2e517/sdk-final/source/portable-core/CBuf_file.cpp": "7a110674826bd270d985433bf26cb84eda922143fe680aff4f9b5c38ef6cf027",
+      "build/matrixgame/e2e517/sdk-final/source/portable-core/CStorage.cpp": "63bb70f40a36a1780c2b6503b27f62f15e4e5d00e3ea6108bd261ad0c03c8545",
+      "build/matrixgame/e2e517/sdk-final/source/portable-core/CRC32.cpp": "f6bf4e86be9ae18dc836e0e5dc87536e36af09c7bf33705064e4a493fafe3c76",
+      "build/matrixgame/e2e517/sdk-final/source/portable-core/CMain.cpp": "a6880229e03d0c249ecbfcd6ba726d920f7115c510dc3c50b51eecc399f4f7ef",
+      "build/matrixgame/e2e517/sdk-final/source/portable-core/Form.cpp": "574623bd04c5e7a56dd82a2d34a0b2717da839e19afd4ba038bd8e32d02cb660",
+      "build/matrixgame/e2e517/sdk-final/source/portable-core/CReminder.cpp": "6bff3d934168fb0635ddb06df703d05b9607ff53186b656a9b92817009a03a10",
+      "port/matrixgame/native-core/cbuf_utf16.cpp": "48c00c0ecee57b2ff3e5f57041ecb94abae9813b5796f16da75c6880219ca235",
+      "port/matrixgame/native-core/exception_native.cpp": "9795d8f5864bf54739414991b77518ad83d2e9b13aedc738cc191dd13ba4ae82",
+      "port/matrixgame/native-core/file_native.cpp": "11438173fe8b0a6d0c279bde31d4cc1404c7d92f589050cbeb2c58f41535c086",
+      "port/matrixgame/native-core/heap_native.cpp": "45576fa3fab740c7f37022e452b5761fe535915f5881cdc121275ff47eb86d93",
+      "port/switch/platform/package.cpp": "a8e58edaecefd81626dde32fc0d57ce1c005b9a34cc6b5f61cd860142a58a279",
+      "port/matrixgame/native-core/buffer_resources.cpp": "40b6539c3b69225cb1cfa5d2f59ff2cd64e8ddca3b0ae5608cdfa4f528f0b511",
+      "port/matrixgame/native-core/buffer_geometry.cpp": "ee7db5eab5bbc0f468bd492429b9b81978b6375edb675d489003524148345767",
+      "port/matrixgame/native-core/vector_geometry.cpp": "3dec01d7ca8e0f95579a5eb28e8d2589946190d6e42b895e1ed2cca32e684aae",
+      "build/matrixgame/e2e517/sdk-final/source/portable-core/VectorObjectCpu.cpp": "2a13fbafee357f329c59ca0559015c3c78770d7999b45e59da70c1fe6a673ee8",
+      "build/matrixgame/e2e517/sdk-final/source/portable-core/CBlockPar.cpp": "aaa2e9264cb2f9a602652b156a1c2fdf6a0d14e76c3a52c8c2d9adc6ad214ce8"
+    }
+  },
+  "quality": {
+    "compilers": [
+      "GNU C++ 15.2.0 Ubuntu",
+      "aarch64-linux-gnu-g++-15 15.2.0",
+      "devkitA64 GCC 16.1.0"
+    ],
+    "host_sanitizers": "address,undefined; -O2 -g -fno-omit-frame-pointer; probe -UNDEBUG after -DNDEBUG",
+    "resource_cycles": 2,
+    "models": 3,
+    "frames_checked": 208,
+    "float_bound_tolerance": 0.002,
+    "windows_x86_reference": "NOT_RUN in this step",
+    "failed_attempts": [
+      "compile-vo.log: missing coordinate-array transform helper, implemented via DirectXMath",
+      "runtime-candidate-1/runtime.log: UBSan null shared VB on reload; fixed CPU allocation lifecycle",
+      "runtime-final/runtime.log: incorrect test assumption of unique matrix names; corrected to original first-match semantics",
+      "qemu-run initial script: executable path quoting corrected before compilation"
+    ]
+  },
+  "asset_provenance": {
+    "scope": "Private original resources; do not commit payloads",
+    "models": [
+      {
+        "name": "model-0",
+        "source": "Matrix/Obj/grass/dagger00.vo",
+        "source_sha256": "7b72b1fd40aa1df5f2ee42ebe6b84035ea7eadf0637cc658046d09ab67c25fc4",
+        "oracle_sha256": "8ccfb53589827aa022caba8a95d3d935f8137a939485fe2a0d379a4481f2c790",
+        "vertices": 53,
+        "indices": 147,
+        "frames": 1,
+        "draws": 1
+      },
+      {
+        "name": "model-1",
+        "source": "Matrix/Obj/tree/wood05.vo",
+        "source_sha256": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+        "oracle_sha256": "38b1bf272e66e2681e90469b164eacc92eb3b9c0e5d50019d4bbf68face111ee",
+        "vertices": 103,
+        "indices": 240,
+        "frames": 1,
+        "draws": 1
+      },
+      {
+        "name": "model-2",
+        "source": "Matrix/Obj/detail/Terron.vo",
+        "source_sha256": "b7cba8a78faf0c8cf32cf942288d2fdb0d5d21b047d0e9abaa212092c11d9ccd",
+        "oracle_sha256": "42d73acfd79f2f398d2e9fc756a53ad30c0dab9093ca9196c7d51163cb05b1db",
+        "vertices": 108008,
+        "indices": 244392,
+        "frames": 102,
+        "draws": 336
+      }
+    ]
+  },
+  "preservation": {
+    "protected_file_count": 13,
+    "all_sha256_equal_before_after": true,
+    "matrixgame_submodule_clean": true,
+    "main_game_tracked_code_changed": false,
+    "nro_rebuilt": false,
+    "frozen_zip_sha256": "e1a1dec5f410b983d629ae538ad9b4ba063f89a8101af43d27ea00c6ce6a08a4",
+    "gpu_zip_sha256": "1c5cfebb2696bbf6db98bd2cd598956f468ef1ca8183bbf31271148c30103429",
+    "gpu_artifacts": {
+      "debug/matrixgame-gpu-smoke.elf": "1bcb7a2977a28555aad13f2e7ac14db6bbd1aec0cfa436b4989b91c25fb939af",
+      "switch/matrixgame-deko-smoke/matrixgame-gpu-smoke.nro": "e984feaeee119e2599419210f9e3840980a510ec7e671629fcf361f694d01432"
+    }
+  },
+  "first_next_blocker": {
+    "file": "upstream/matrixgame/MatrixLib/3G/Cache.cpp; upstream/matrixgame/MatrixLib/3G/3g.cpp:346",
+    "contract": "Native Cache/material ownership and L3GInitAsDLL device/window lifecycle before a real CGame::Init; full VectorObject.hpp still includes d3d9.h",
+    "not_implemented": [
+      "full StaticInit sequence",
+      "CGame::Init",
+      "RunGameLoop/L3GRun",
+      "CFormMatrixGame Enter/Draw/Takt",
+      "campaign result"
+    ]
+  }
+}
