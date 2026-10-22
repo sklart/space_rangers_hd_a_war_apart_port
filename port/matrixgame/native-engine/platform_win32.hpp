@@ -17,12 +17,24 @@ private:void* hwnd_;
 class D3D9Device final:public Device {
 public:
     explicit D3D9Device(void* device):device_(device){}
+    D3D9Device(const D3D9Device&)=delete;
+    D3D9Device& operator=(const D3D9Device&)=delete;
     DeviceCaps ReadCaps() override;
     GammaRamp ReadGamma(std::uint32_t) override;
     void RestoreGamma(std::uint32_t,const GammaRamp&)noexcept override;
     std::uint64_t AvailableTextureBytes() override;
     DeviceResult SetSamplerState(std::uint32_t,SamplerRegister,std::uint32_t) override;
     std::uint32_t ReadSamplerState(std::uint32_t,SamplerRegister) override;
-private:void* device_;
+    std::unique_ptr<DeviceStateLease> CaptureState()override;
+    std::size_t OutstandingStateLeases()const override{return leases_;}
+    DeviceResult SetWorldTransform(const WorldMatrix&)override;
+    WorldMatrix ReadWorldTransform()override;
+    DeviceResult SetRenderState(RasterRegister,std::uint32_t)override;
+    std::uint32_t ReadRenderState(RasterRegister)override;
+    DeviceResult ClearTexture(std::uint32_t)override;
+    bool TextureBound(std::uint32_t)override;
+    DeviceResult SetTextureStageState(std::uint32_t,TextureStageRegister,std::uint32_t)override;
+    std::uint32_t ReadTextureStageState(std::uint32_t,TextureStageRegister)override;
+private:void* device_;std::size_t leases_{};
 };
 }

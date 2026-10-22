@@ -5,6 +5,8 @@
 #include <d3d9.h>
 #include "platform_win32.hpp"
 #include <algorithm>
+#include <cstring>
+#include <iterator>
 namespace srhd_awa::matrixgame::platform3g {
 namespace {
 constexpr wchar_t property[]=L"SRHD.MatrixGame.Native3G.Attachment";
@@ -38,6 +40,50 @@ IDirect3DDevice9& DeviceRef(void* p) {
     if(!p)throw std::invalid_argument("null borrowed D3D9 device");
     return *static_cast<IDirect3DDevice9*>(p);
 }
+struct StateLease final:DeviceStateLease {
+    IDirect3DStateBlock9* block{};IDirect3DDevice9* device{};std::size_t& live;bool counted{};
+    D3DMATRIX world{};
+    static constexpr D3DRENDERSTATETYPE render_keys[]{D3DRS_ZENABLE,D3DRS_SHADEMODE,D3DRS_ZWRITEENABLE,D3DRS_ALPHATESTENABLE,
+        D3DRS_SRCBLEND,D3DRS_DESTBLEND,D3DRS_CULLMODE,D3DRS_ZFUNC,D3DRS_ALPHAREF,D3DRS_ALPHAFUNC,D3DRS_ALPHABLENDENABLE,
+        D3DRS_LIGHTING,D3DRS_COLORWRITEENABLE,D3DRS_BLENDOP};
+    static constexpr D3DSAMPLERSTATETYPE sampler_keys[]{D3DSAMP_ADDRESSU,D3DSAMP_ADDRESSV,D3DSAMP_ADDRESSW,D3DSAMP_MAGFILTER,
+        D3DSAMP_MINFILTER,D3DSAMP_MIPFILTER,D3DSAMP_MIPMAPLODBIAS,D3DSAMP_MAXANISOTROPY};
+    DWORD renders[14]{},samplers[8][8]{},texcoords[8]{};
+    IDirect3DBaseTexture9* textures[8]{};
+    explicit StateLease(std::size_t& count):live(count){}
+    ~StateLease(){for(auto* texture:textures)if(texture)texture->Release();if(block)block->Release();if(counted)--live;}
+    void CaptureContract() {
+        CheckDeviceResult(static_cast<DeviceResult>(device->GetTransform(D3DTS_WORLD,&world)),"capture world");
+        for(unsigned i=0;i<14;++i)CheckDeviceResult(static_cast<DeviceResult>(device->GetRenderState(render_keys[i],&renders[i])),"capture render");
+        for(unsigned stage=0;stage<8;++stage) {
+            for(unsigned i=0;i<8;++i)CheckDeviceResult(static_cast<DeviceResult>(device->GetSamplerState(stage,sampler_keys[i],&samplers[stage][i])),"capture sampler");
+            CheckDeviceResult(static_cast<DeviceResult>(device->GetTextureStageState(stage,D3DTSS_TEXCOORDINDEX,&texcoords[stage])),"capture texcoord");
+            CheckDeviceResult(static_cast<DeviceResult>(device->GetTexture(stage,&textures[stage])),"capture texture lease");
+        }
+    }
+    DeviceResult Restore()noexcept override {
+        // NULLREF returned success from Apply without restoring observable
+        // world/render values. Explicit Get/Set covers every state this native
+        // contract can mutate; never treat the block's HRESULT alone as proof.
+        DeviceResult result=static_cast<DeviceResult>(block->Apply());
+        const auto record=[&](HRESULT hr){if(result==DeviceSuccess && hr!=D3D_OK)result=static_cast<DeviceResult>(hr);};
+        record(device->SetTransform(D3DTS_WORLD,&world));
+        for(unsigned i=0;i<14;++i)record(device->SetRenderState(render_keys[i],renders[i]));
+        for(unsigned stage=0;stage<8;++stage) {
+            for(unsigned i=0;i<8;++i)record(device->SetSamplerState(stage,sampler_keys[i],samplers[stage][i]));
+            record(device->SetTextureStageState(stage,D3DTSS_TEXCOORDINDEX,texcoords[stage]));
+            record(device->SetTexture(stage,textures[stage]));
+        }
+        return result;
+    }
+};
+void RequireStage(std::uint32_t stage) {
+    if(stage>=8)throw Unsupported("native fixed-function state lease covers stages 0..7");
+}
+template<class T,std::size_t N> void RequireRegister(T value,const T(&supported)[N]) {
+    if(std::find(std::begin(supported),std::end(supported),value)==std::end(supported))
+        throw Unsupported("device register outside captured native state contract");
+}
 }
 std::unique_ptr<WindowAttachment> Win32Window::Attach(MessageHandler handler) {
     if(!handler)throw std::invalid_argument("null window handler");
@@ -69,12 +115,57 @@ void D3D9Device::RestoreGamma(std::uint32_t index,const GammaRamp& saved)noexcep
 }
 std::uint64_t D3D9Device::AvailableTextureBytes(){return DeviceRef(device_).GetAvailableTextureMem();}
 DeviceResult D3D9Device::SetSamplerState(std::uint32_t sampler,SamplerRegister type,std::uint32_t value) {
+    RequireStage(sampler);RequireRegister(static_cast<D3DSAMPLERSTATETYPE>(type),StateLease::sampler_keys);
     return static_cast<DeviceResult>(DeviceRef(device_).SetSamplerState(sampler,static_cast<D3DSAMPLERSTATETYPE>(type),value));
 }
 std::uint32_t D3D9Device::ReadSamplerState(std::uint32_t sampler,SamplerRegister type) {
+    RequireStage(sampler);RequireRegister(static_cast<D3DSAMPLERSTATETYPE>(type),StateLease::sampler_keys);
     DWORD value{};
     if(FAILED(DeviceRef(device_).GetSamplerState(sampler,static_cast<D3DSAMPLERSTATETYPE>(type),&value)))
         throw std::runtime_error("IDirect3DDevice9::GetSamplerState failed");
     return value;
 }
+std::unique_ptr<DeviceStateLease> D3D9Device::CaptureState() {
+    auto state=std::make_unique<StateLease>(leases_);
+    state->device=&DeviceRef(device_);
+    CheckDeviceResult(static_cast<DeviceResult>(DeviceRef(device_).CreateStateBlock(D3DSBT_ALL,&state->block)),"CreateStateBlock");
+    if(!state->block)throw std::runtime_error("CreateStateBlock returned no state block");
+    ++leases_;state->counted=true;
+    CheckDeviceResult(static_cast<DeviceResult>(state->block->Capture()),"StateBlock Capture");
+    state->CaptureContract();
+    return state;
+}
+DeviceResult D3D9Device::SetWorldTransform(const WorldMatrix& world) {
+    D3DMATRIX matrix;static_assert(sizeof(matrix)==sizeof(world));std::memcpy(&matrix,world.data(),sizeof(matrix));
+    return static_cast<DeviceResult>(DeviceRef(device_).SetTransform(D3DTS_WORLD,&matrix));
+}
+WorldMatrix D3D9Device::ReadWorldTransform() {
+    D3DMATRIX matrix{};CheckDeviceResult(static_cast<DeviceResult>(DeviceRef(device_).GetTransform(D3DTS_WORLD,&matrix)),"GetTransform");
+    WorldMatrix out;std::memcpy(out.data(),&matrix,sizeof(matrix));return out;
+}
+DeviceResult D3D9Device::SetRenderState(RasterRegister type,std::uint32_t value) {
+    RequireRegister(static_cast<D3DRENDERSTATETYPE>(type),StateLease::render_keys);
+    return static_cast<DeviceResult>(DeviceRef(device_).SetRenderState(static_cast<D3DRENDERSTATETYPE>(type),value));
+}
+std::uint32_t D3D9Device::ReadRenderState(RasterRegister type) {
+    RequireRegister(static_cast<D3DRENDERSTATETYPE>(type),StateLease::render_keys);
+    DWORD value{};CheckDeviceResult(static_cast<DeviceResult>(DeviceRef(device_).GetRenderState(static_cast<D3DRENDERSTATETYPE>(type),&value)),"GetRenderState");return value;
+}
+DeviceResult D3D9Device::ClearTexture(std::uint32_t stage) {RequireStage(stage);return static_cast<DeviceResult>(DeviceRef(device_).SetTexture(stage,nullptr));}
+bool D3D9Device::TextureBound(std::uint32_t stage) {
+    RequireStage(stage);
+    IDirect3DBaseTexture9* texture{};CheckDeviceResult(static_cast<DeviceResult>(DeviceRef(device_).GetTexture(stage,&texture)),"GetTexture");
+    const bool bound=texture!=nullptr;if(texture)texture->Release();return bound;
+}
+DeviceResult D3D9Device::SetTextureStageState(std::uint32_t stage,TextureStageRegister type,std::uint32_t value) {
+    RequireStage(stage);if(type!=TextureStageRegister::TexcoordIndex)throw Unsupported("uncaptured texture-stage register");
+    return static_cast<DeviceResult>(DeviceRef(device_).SetTextureStageState(stage,static_cast<D3DTEXTURESTAGESTATETYPE>(type),value));
+}
+std::uint32_t D3D9Device::ReadTextureStageState(std::uint32_t stage,TextureStageRegister type) {
+    RequireStage(stage);if(type!=TextureStageRegister::TexcoordIndex)throw Unsupported("uncaptured texture-stage register");
+    DWORD value{};CheckDeviceResult(static_cast<DeviceResult>(DeviceRef(device_).GetTextureStageState(stage,static_cast<D3DTEXTURESTAGESTATETYPE>(type),&value)),"GetTextureStageState");return value;
+}
+static_assert(static_cast<unsigned>(RasterRegister::ShadeMode)==D3DRS_SHADEMODE && static_cast<unsigned>(RasterRegister::CullMode)==D3DRS_CULLMODE && static_cast<unsigned>(RasterRegister::Lighting)==D3DRS_LIGHTING);
+static_assert(static_cast<unsigned>(TextureStageRegister::TexcoordIndex)==D3DTSS_TEXCOORDINDEX);
+static_assert(D3DSHADE_GOURAUD==2 && D3DCULL_CCW==3 && D3DZB_TRUE==1);
 }

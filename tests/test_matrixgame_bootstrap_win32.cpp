@@ -22,6 +22,10 @@ int RunWindowsBootstrap(int argc,char**argv,int(*run)(int,char**,void*,p::Window
     if(FAILED(hr)){std::fprintf(stderr,"D3D9 NULLREF unavailable hr=%08lx\n",hr);return 77;}
     std::puts("Windows SDK: actual D3D9 NULLREF created");
     struct DeviceOwner {IDirect3DDevice9*p;~DeviceOwner(){p->Release();}} own_device{raw};
+    IDirect3DTexture9* texture=nullptr;
+    if(FAILED(raw->CreateTexture(2,2,1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,&texture,nullptr)))return 77;
+    struct TextureOwner {IDirect3DTexture9*p;~TextureOwner(){p->Release();}} own_texture{texture};
+    if(FAILED(raw->SetTexture(0,texture)))return 77; // Real borrowed binding must survive native ClearTexture/Deinit.
     p::Win32Window window(hwnd);p::D3D9Device device(raw);
     return run(argc,argv,module,window,device);
 }

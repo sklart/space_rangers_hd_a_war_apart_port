@@ -4,7 +4,9 @@
 #include <cstdint>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include "../deko/sampler_state.hpp"
+#include "../deko/raster_state.hpp"
 namespace srhd_awa::matrixgame::platform3g {
 struct Unsupported:std::runtime_error {using std::runtime_error::runtime_error;};
 // Only facts actually supplied by a backend. No D3DCAPS9 impersonation or
@@ -16,6 +18,20 @@ struct DeviceCaps {
 struct GammaRamp {std::array<std::uint16_t,256> red{},green{},blue{};};
 using DeviceResult=std::int32_t; // Actual signed 32-bit device result; never a fake success.
 inline constexpr DeviceResult DeviceSuccess=0;
+struct DeviceError:std::runtime_error {
+    DeviceResult result;
+    DeviceError(const char* call,DeviceResult value):std::runtime_error(std::string(call)+" failed: "+std::to_string(value)),result(value){}
+};
+inline void CheckDeviceResult(DeviceResult result,const char* call) {
+    if(result!=DeviceSuccess)throw DeviceError(call,result);
+}
+using WorldMatrix=std::array<float,16>; // Original row-major world transform, no transpose.
+enum class TextureStageRegister:std::uint32_t {TexcoordIndex=11};
+class DeviceStateLease {
+public:
+    virtual ~DeviceStateLease()=default;
+    virtual DeviceResult Restore()noexcept=0;
+};
 class Device {
 public:
     virtual ~Device()=default;
@@ -29,6 +45,16 @@ public:
     virtual std::uint32_t ReadSamplerState(std::uint32_t,SamplerRegister) {
         throw Unsupported("backend sampler state query unsupported");
     }
+    virtual std::unique_ptr<DeviceStateLease> CaptureState(){throw Unsupported("backend state capture unsupported");}
+    virtual std::size_t OutstandingStateLeases()const {throw Unsupported("backend state lease query unsupported");}
+    virtual DeviceResult SetWorldTransform(const WorldMatrix&){throw Unsupported("backend world transform unsupported");}
+    virtual WorldMatrix ReadWorldTransform(){throw Unsupported("backend world query unsupported");}
+    virtual DeviceResult SetRenderState(RasterRegister,std::uint32_t){throw Unsupported("backend render state unsupported");}
+    virtual std::uint32_t ReadRenderState(RasterRegister){throw Unsupported("backend render query unsupported");}
+    virtual DeviceResult ClearTexture(std::uint32_t){throw Unsupported("backend texture binding unsupported");}
+    virtual bool TextureBound(std::uint32_t){throw Unsupported("backend texture query unsupported");}
+    virtual DeviceResult SetTextureStageState(std::uint32_t,TextureStageRegister,std::uint32_t){throw Unsupported("backend texture-stage state unsupported");}
+    virtual std::uint32_t ReadTextureStageState(std::uint32_t,TextureStageRegister){throw Unsupported("backend texture-stage query unsupported");}
 };
 enum class Visibility {Maximized,Restored,Minimized};
 class Window;

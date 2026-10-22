@@ -6,8 +6,8 @@
 namespace srhd_awa::matrixgame {
 // These are serialized legacy register/enum IDs, never pointers or fake D3D APIs.
 enum class RasterRegister : std::uint32_t {
-  DepthTest=7,DepthWrite=14,AlphaTest=15,SourceBlend=19,DestinationBlend=20,
-  DepthCompare=23,AlphaReference=24,AlphaCompare=25,BlendEnable=27,ColorWrite=168,BlendOperation=171
+  DepthTest=7,ShadeMode=9,DepthWrite=14,AlphaTest=15,SourceBlend=19,DestinationBlend=20,CullMode=22,
+  DepthCompare=23,AlphaReference=24,AlphaCompare=25,BlendEnable=27,Lighting=137,ColorWrite=168,BlendOperation=171
 };
 enum class RasterCompare : std::uint32_t { Never=1,Less,Equal,LessEqual,Greater,NotEqual,GreaterEqual,Always };
 enum class RasterBlendFactor : std::uint32_t {
