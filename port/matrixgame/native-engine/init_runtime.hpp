@@ -4,6 +4,7 @@
 #include "buffer_resources.hpp"
 #include "platform_3g.hpp"
 #include <memory>
+struct SRobotsSettings;
 namespace srhd_awa::matrixgame {
 struct Cpu3GState {void* module;void* window;bool bound;};
 void L3GInitAsDLLCpuPhase(void* module,void* window);
@@ -20,6 +21,7 @@ public:
     void Begin(void* module,void* window);
     void AttachDevice(platform3g::Window&,platform3g::Device&);
     void DetachDevice() noexcept;
+    void ApplySamplerSettings(SRobotsSettings&);
     void Deinit() noexcept;
     bool CpuReady() const noexcept {return cpu_owned_;}
     // Device negotiation completed; does not imply a game draw/map is supported.

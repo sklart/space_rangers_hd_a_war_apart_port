@@ -22,6 +22,7 @@ from matrixgame_3g_lifecycle_overrides import INPUTS as G3_INPUTS, SUBDIRS as G3
 from matrixgame_skin_overrides import INPUTS as SKIN_INPUTS, SUBDIRS as SKIN_SUBDIRS, patch_skin_resources
 from matrixgame_animation_overrides import patch_animation
 from matrixgame_platform_3g_overrides import patch_platform_3g
+from matrixgame_engine_sampler_overrides import INPUTS as SAMPLER_INPUTS, SUBDIRS as SAMPLER_SUBDIRS, patch_engine_sampler
 
 INPUTS = {
     'CFile.cpp': '09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49',
@@ -50,10 +51,12 @@ INPUTS.update(LIST_INPUTS)
 INPUTS.update(VO_OBJECT_INPUTS)
 INPUTS.update(G3_INPUTS)
 INPUTS.update(SKIN_INPUTS)
+INPUTS.update(SAMPLER_INPUTS)
 SOURCE_SUBDIRS={**MATH_SUBDIRS, **ENGINE_SUBDIRS, **VECTOR_SUBDIRS, **BITMAP_SUBDIRS, **TEXTURE_SUBDIRS, **LIFECYCLE_SUBDIRS, **BIG_BUFFER_SUBDIRS}
 SOURCE_SUBDIRS.update(VO_OBJECT_SUBDIRS)
 SOURCE_SUBDIRS.update(G3_SUBDIRS)
 SOURCE_SUBDIRS.update(SKIN_SUBDIRS)
+SOURCE_SUBDIRS.update(SAMPLER_SUBDIRS)
 
 def replace_body(text, signature, replacement):
     if text.count(signature) != 1:
@@ -184,6 +187,7 @@ inline constexpr int FileBegin = 0, FileCurrent = 1, FileEnd = 2;
     patch_skin_resources(files)
     patch_animation(files)
     patch_platform_3g(files)
+    patch_engine_sampler(files)
     bc_provenance=prepare_bc(root,files)
     output.mkdir(parents=True, exist_ok=True)
     for name, data in files.items():

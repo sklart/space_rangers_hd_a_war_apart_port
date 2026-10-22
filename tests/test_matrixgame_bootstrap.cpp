@@ -12,6 +12,8 @@
 #include <filesystem>
 using namespace srhd_awa::matrixgame;
 namespace p=srhd_awa::matrixgame::platform3g;
+extern void VerifyBootstrapSampling(NativeInitRuntime&,p::Window&,p::Device&,unsigned,bool);
+extern void VerifyBootstrapSamplerCold();
 struct UnavailableDevice final:p::Device {
     p::DeviceCaps ReadCaps()override{throw p::Unsupported("backend has no verified legacy device caps");}
     p::GammaRamp ReadGamma(std::uint32_t)override{throw p::Unsupported("gamma unsupported");}
@@ -33,7 +35,7 @@ struct Form final:CForm {
     void Keyboard(bool down,std::uint8_t key)override{assert(down && key==65);++keys;}
     void SystemEvent(ESysEvent)override{++events;}
 };
-void cold(){assert(!g_Cache && !g_CacheHeap && !InspectCpu3GState().bound && !p::Current().ready && !p::Current().attachment);assert(!CachedTextureBytes());}
+void cold(){assert(!g_Cache && !g_CacheHeap && !InspectCpu3GState().bound && !p::Current().ready && !p::Current().attachment);assert(!CachedTextureBytes());VerifyBootstrapSamplerCold();}
 int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Device& bound_device) {
     if(argc!=3)return 2;
     std::setvbuf(stdout,nullptr,_IONBF,0);
@@ -65,6 +67,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
                 std::printf("cycle=%u original Cache/VO/SSkin ready submissions=%zu\n",cycle,batch.submissions.size());
 #ifdef _WIN32
                 runtime.AttachDevice(*window,*device);assert(runtime.GpuReady());
+                VerifyBootstrapSampling(runtime,*window,*device,cycle,true);
                 assert(GetWindowLongPtrW(hwnd,GWLP_WNDPROC)!=original_proc);
                 const auto actual=device->ReadCaps();
                 assert(actual.swapchain_count==p::Current().caps.swapchain_count);
@@ -93,6 +96,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
                 bool rejected=false;
                 try{runtime.AttachDevice(*window,*device);}catch(const p::Unsupported& e){rejected=true;std::printf("GPU prefix UNSUPPORTED: %s\n",e.what());}
                 assert(rejected && runtime.CpuReady() && InspectCpu3GState().bound && !runtime.GpuReady() && !p::Current().attachment);
+                VerifyBootstrapSampling(runtime,*window,*device,cycle,false);
 #endif
             }
             runtime.Deinit();runtime.Deinit();cold();

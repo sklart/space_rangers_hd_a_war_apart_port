@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "init_runtime.hpp"
+#include "MatrixSampleStateManager.hpp"
 #include <stdexcept>
 namespace srhd_awa::matrixgame {
 namespace {NativeInitRuntime* active{};}
@@ -28,10 +29,14 @@ void NativeInitRuntime::AttachDevice(platform3g::Window& window,platform3g::Devi
     }
 }
 void NativeInitRuntime::Deinit() noexcept {
-    if(cpu_owned_){L3GDeinitCpuPhase();cpu_owned_=false;}
+    if(cpu_owned_){L3GDeinitCpuPhase();g_Sampler.m_AFDegree=0;cpu_owned_=false;}
     if(cache_owned_){CacheDeinit();cache_owned_=false;}
     scope_.reset();buffers_.reset();
     if(active==this)active=nullptr;
+}
+void NativeInitRuntime::ApplySamplerSettings(SRobotsSettings& settings) {
+    if(active!=this || !GpuReady())throw platform3g::Unsupported("sampler settings require this live negotiated device");
+    g_Sampler.ApplySettings(&settings); // Same original call as CGame::Init:323.
 }
 void NativeInitRuntime::DetachDevice() noexcept {
     if(active!=this || !GpuReady())return;

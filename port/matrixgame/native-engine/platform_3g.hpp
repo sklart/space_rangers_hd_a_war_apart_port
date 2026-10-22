@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <memory>
 #include <stdexcept>
+#include "../deko/sampler_state.hpp"
 namespace srhd_awa::matrixgame::platform3g {
 struct Unsupported:std::runtime_error {using std::runtime_error::runtime_error;};
 // Only facts actually supplied by a backend. No D3DCAPS9 impersonation or
@@ -13,6 +14,8 @@ struct DeviceCaps {
     std::uint32_t max_texture_stages{},max_anisotropy{},swapchain_count{};
 };
 struct GammaRamp {std::array<std::uint16_t,256> red{},green{},blue{};};
+using DeviceResult=std::int32_t; // Actual signed 32-bit device result; never a fake success.
+inline constexpr DeviceResult DeviceSuccess=0;
 class Device {
 public:
     virtual ~Device()=default;
@@ -20,6 +23,12 @@ public:
     virtual GammaRamp ReadGamma(std::uint32_t swapchain)=0;
     virtual void RestoreGamma(std::uint32_t swapchain,const GammaRamp&) noexcept=0;
     virtual std::uint64_t AvailableTextureBytes()=0;
+    virtual DeviceResult SetSamplerState(std::uint32_t,SamplerRegister,std::uint32_t) {
+        throw Unsupported("backend sampler state calls unsupported");
+    }
+    virtual std::uint32_t ReadSamplerState(std::uint32_t,SamplerRegister) {
+        throw Unsupported("backend sampler state query unsupported");
+    }
 };
 enum class Visibility {Maximized,Restored,Minimized};
 class Window;
@@ -50,6 +59,7 @@ struct State {
     bool ready{};
 };
 State& Current() noexcept;
+Device& ReadyDevice();
 // Original DLL bootstrap and WndProc/input algorithms via typed backend calls.
 // Only external/borrowed device/window mode is supported; no fake owned EXE.
 void InitAsDLL(void* module,Window&,Device&);

@@ -21,6 +21,8 @@ public:
     GammaRamp ReadGamma(std::uint32_t) override;
     void RestoreGamma(std::uint32_t,const GammaRamp&)noexcept override;
     std::uint64_t AvailableTextureBytes() override;
+    DeviceResult SetSamplerState(std::uint32_t,SamplerRegister,std::uint32_t) override;
+    std::uint32_t ReadSamplerState(std::uint32_t,SamplerRegister) override;
 private:void* device_;
 };
 }

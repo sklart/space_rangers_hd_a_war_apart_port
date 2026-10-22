@@ -68,4 +68,13 @@ void D3D9Device::RestoreGamma(std::uint32_t index,const GammaRamp& saved)noexcep
     device.SetGammaRamp(index,0,&ramp);
 }
 std::uint64_t D3D9Device::AvailableTextureBytes(){return DeviceRef(device_).GetAvailableTextureMem();}
+DeviceResult D3D9Device::SetSamplerState(std::uint32_t sampler,SamplerRegister type,std::uint32_t value) {
+    return static_cast<DeviceResult>(DeviceRef(device_).SetSamplerState(sampler,static_cast<D3DSAMPLERSTATETYPE>(type),value));
+}
+std::uint32_t D3D9Device::ReadSamplerState(std::uint32_t sampler,SamplerRegister type) {
+    DWORD value{};
+    if(FAILED(DeviceRef(device_).GetSamplerState(sampler,static_cast<D3DSAMPLERSTATETYPE>(type),&value)))
+        throw std::runtime_error("IDirect3DDevice9::GetSamplerState failed");
+    return value;
+}
 }
