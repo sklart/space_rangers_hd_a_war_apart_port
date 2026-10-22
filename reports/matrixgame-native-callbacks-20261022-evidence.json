@@ -1,0 +1,444 @@
+{
+  "date": "2026-10-22",
+  "baseline_git": "c1fc06376ab992b3c88a904b114abcdff3b739a8",
+  "source_git": "34e84ff816b510e796630d17012a1cf9074e1810",
+  "scope": "original skinned LoadSpecial/BeforeDraw/Draw; actual SSkin ABI; native ordinal submission linked with real deko",
+  "build_dirty": true,
+  "build_dirty_note": "Built before commit; changed sources checked against committed blobs after LF normalization; later commit contains docs only.",
+  "changed_sources_sha256_lf": {
+    "port/matrixgame/deko/native_session.cpp": "fe8c8360ea1511fca22c0e3e18bd405e54b704b9ff3d69b8ec084ce93f059dbc",
+    "port/matrixgame/deko/native_session.hpp": "d5cd6afb4810ddfad50297ad8b3ff90df23a3b715a05cb9204c8de16b2046c1b",
+    "port/matrixgame/native-core/CMakeLists.txt": "8bc9c5861766b04e2de376371c9c79769f6f07769f4cbc780e6c2f4304fd9951",
+    "port/matrixgame/native-core/skin_callbacks.cpp": "3572ed99345e8adfcadc184b11dec2bf9660931be673e19d812509330bf322d0",
+    "port/matrixgame/native-core/skin_callbacks.hpp": "3df2e57ff18c25ff7a187388cd9ec9e274c6b0d0a597bfd9646c6f7ebfb78915",
+    "port/matrixgame/native-engine/CMakeLists.txt": "a40bc87c00116c09e60c22f18b860af17923b933b579985368a115f61d561d7d",
+    "port/matrixgame/native-engine/skin_pipeline.cpp": "9e6ec012bc28c34fae4c0d6c1c653ba612efea7870f715a0e489be1dbd2bd0eb",
+    "port/matrixgame/native-engine/skin_pipeline.hpp": "8e1a659c2da0c485e0a2d149d276692a49121736eb831e6e6b842a63a3cadfe3",
+    "tests/probe_matrixgame_cached_frame.py": "5d7ee4ec9b6b6e6eed900f7bbd3eaa8b94ce113ebae6899b8012d33746b7334c",
+    "tests/probe_matrixgame_native_session_link.cpp": "285fb00f0cb002682c091bd1555400d8556416d9fa42ffadfad28fd191a3fe0b",
+    "tests/test_matrixgame_skin_callbacks.cpp": "a51b5e0213cc5db1677f7a4c823a4f37f1e51b1bb832de6aac943282a948017a",
+    "tools/matrixgame_init_sdk.py": "0d58996366291a6cdd36f9ea7659f0fc8e3e33cbba14049e3ed91e4fadcc6ada",
+    "tools/matrixgame_vector_object_overrides.py": "d1435b4baeee66516b6280b1aced1212019b7a2814f5bfaf12df1746fbf68117"
+  },
+  "effective_sources_equal_across_builds": true,
+  "source_provenance": {
+    "scope": "Original MatrixLib CRC/CBuf core and native CFile API; not a full engine build",
+    "upstream_pin": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
+    "patch": "Fixed-width dword, explicit CBuf UTF-16LE, aligned scalar copies, checked sizes; CRC unchanged",
+    "utf16_port": "CBuf explicit UTF-16LE; CStorage name hashing remains OPEN",
+    "file_io": "Original CBuf_file.cpp connected to native CFile with existing bounded Package reader",
+    "input_hash_format": "SHA256 of LF-normalized UTF-8 source",
+    "inputs_sha256": {
+      "CFile.cpp": "09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49",
+      "CFile.hpp": "20ff28cc056a6754ea8866a250f0dd866b4d823e90af18938699a736147d0abc",
+      "CMain.hpp": "fa22e13fe14e0484598320601203ed5289176d8a4926a2bb3fbbd51f86805d1b",
+      "CException.hpp": "b07668359bd5c9e383d5dbd652a727389faecfddc500d3d92584c32052d08303",
+      "CBuf.cpp": "7a404ddcd08c96f985c07e67ed44915dae83c768e9b39617361df24891670eac",
+      "CBuf.hpp": "37beddebc23e07e50a35171782a581c5901a8b27a292c5bc864f293466d9b1a0",
+      "BaseDef.hpp": "087fec96990f3e14a9988e8f1dec9c9a22ab14f2e1cc38fa68f5b3970d00f1e6",
+      "CRC32.hpp": "287fb8f9b67853c487beb3b6ce96c45aa0bcdf617b348407c8bc0caed4ce69fe",
+      "CRC32.cpp": "f6bf4e86be9ae18dc836e0e5dc87536e36af09c7bf33705064e4a493fafe3c76",
+      "utils.hpp": "fc7432bf0828efcb3e11bfd930e5107058a4571672abab3929af7b5f4c556f63",
+      "CStorage.hpp": "6aafd8b3858ac39e2654cc709666c8c59bc40876dcab139d9a0aea0019c6aa95",
+      "CStorage.cpp": "80309d945c6d1922aacd579a8d1af3aaa78f1c3a22e377fee9ec2b448a3940fb",
+      "CHeap.hpp": "fb6fcb64d4bd8254689fe46bb9d64a1407050a92c6a7ec2820493b34692e6ad8",
+      "CBlockPar.hpp": "c746f291ba45996c4150b0543b81f2cd7226cff5b618c7af48394947e4371cde",
+      "CBlockPar.cpp": "bc2c55bddd62709bad774569f267c34b9e0c08b910d1be5a40924a62fa83ce0a",
+      "Math3D.hpp": "f444325e3bfea812f94c8b2c1e8d06670686af65675c9ba6cad762b2278c7b14",
+      "Math3D.cpp": "ce5c5be94a6cbce29ee766922c43d70940590541a639b0268638a6aa3fe21804",
+      "random.cpp": "9c5ef914ad896f214be468babd49304548613743b7c533c200fb64cbf0b1cdfd",
+      "random.hpp": "b169672fd41650a3d8d090e34a31a64aa5fd7607bb22406f496808fb704901a8",
+      "MatrixGameDll.hpp": "f3ae60f5b1945b8ecae9e99749ee35ea3ce61a9112f4f7c8c90ffddf904147b0",
+      "MatrixGame.h": "65b42d2d1f647cc328ec7d50ba983ad8e7fd60daccf82756796c3657117d018e",
+      "VectorObject.hpp": "41af7cf50ab96af88b57ca5101cdf1b27d25ce6326517d532056142912ee0b72",
+      "VectorObject.cpp": "11ffb4eb842b5cdf6041d0ddc3bf25a124b06bdd8ac36f090b4c2ac6d9586303",
+      "CReminder.hpp": "c02ad3ecad355dd1daa170faa384773cf924a13be27fb83d41855fd1f3a5b0c5",
+      "CReminder.cpp": "12294822e2c4bbed8dcef7dbc648151b0244ef550addaef82a71137b349f1a22",
+      "CBitmap.hpp": "7638f74743d26c427ec5f0f17626aaca6f1dd6879877370db8c3d4c7fe71d6c5",
+      "CBitmap.cpp": "ee8e9f8da05306c7b33a3bc706b4953daf0cdf4181121f7819a3a003912a3437",
+      "FilePNG.hpp": "390d96acc19fbc1522751bbf3b4e909ecbb96a81fdb829ad031b25811b330cd3",
+      "FilePNG.cpp": "8af367f028492df51f3089aafa5eab5ea732cfea0b45f5de9318dfb5cb543397",
+      "Texture.hpp": "2eaf5916cc9a2b406e886617a156a33ab39682ed6196011bb0ec873295f575a1",
+      "Texture.cpp": "11535b4750ea94de8b97831636b044a781e785be8ecb9bffbe16358df72b0901",
+      "Cache.cpp": "568f108f4578e8fb53a5b08bf2561189d4d3426402275deabeccd17a1e82fa9a",
+      "CMain.cpp": "442f6b5a6218c6d2c3423dd80d133e80ff6186471642492e6951fddd2a094a9f",
+      "Form.cpp": "a2fec34d9ed1d24e4014ed93f333148477ca3e5fd80acff6d84fa79918782195",
+      "Form.hpp": "e55f462a1e28261837f3194c08ba40f163db7f7493b94d8a81a27038b2220663",
+      "BigVB.hpp": "6353b2587de9c06050ee23785977fc7b14f4d91184ebc056d2d55ff7a9d4646f",
+      "BigIB.hpp": "1be8a0dea336834fce0e040ca27cd924e66feed31e5a040ccec818e95b629d24",
+      "CList.cpp": "4e6e9cc167e6f7f996b6d77d273900ca38dea10584f93214a29769f5d5d953dd",
+      "CList.hpp": "26c89e0c65a8c5cb493315431cf1360567328f3ed89afd0f9a8c478dfc57e19d",
+      "Cache.hpp": "e1f9ccc07faa08d5182e52ec45516b800962326ce8ca08809935ac75a364e62b",
+      "3g.cpp": "e02ae38d13e88a6b83d893f974cbfeebf936938e01c7f03097cd8be32a29605f",
+      "MatrixSkinManager.cpp": "d9d565af29522397011903bf6e3d730575092d0eb8ad540506740ff8f03f4778",
+      "MatrixSkinManager.hpp": "734500a6c2aa6d75665ed18c52243222b1842bcc514941c7c2cad7bdf8297fef"
+    },
+    "bc_codec": {
+      "repository": "https://github.com/microsoft/DirectXTex",
+      "commit": "4234f77df9c6c8bb2880607b82d5d597b54d1fa9",
+      "scope": "Original BC1/2/3 CPU codec only; no DirectX device shim",
+      "sha256": {
+        "BC.cpp": "7554b64224f39e68ff99f9b070394dfddee811593a1b3d7c8004c5c2f94a47b0",
+        "BC.h": "498e86defa9e46f207a54aff2fbda814467c2d6d608e9d678ffff5e1cd142a49",
+        "LICENSE": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+      }
+    },
+    "outputs_sha256": {
+      "CFile.cpp": "09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49",
+      "CFile.hpp": "a2a01d1362dd4fb2ab5c64037fc348c3d59a15420738017714b31e54b66452b5",
+      "CMain.hpp": "fa22e13fe14e0484598320601203ed5289176d8a4926a2bb3fbbd51f86805d1b",
+      "CException.hpp": "b07668359bd5c9e383d5dbd652a727389faecfddc500d3d92584c32052d08303",
+      "CBuf.cpp": "7ec4bdfc25188dae6ec0bba85f069baab663a181bd1e20774a9972254de0dc60",
+      "CBuf.hpp": "4e4bebc93f548c3af50b138f9430a96e8aea30f5b5ab29a39a39e133a442f6d0",
+      "BaseDef.hpp": "e2cab06dd0a3f999e7d363f6d87f3b2397c483b6a08c9cfca5915cf18c275d7b",
+      "CRC32.hpp": "287fb8f9b67853c487beb3b6ce96c45aa0bcdf617b348407c8bc0caed4ce69fe",
+      "CRC32.cpp": "f6bf4e86be9ae18dc836e0e5dc87536e36af09c7bf33705064e4a493fafe3c76",
+      "utils.hpp": "d8ab7461863ec47066f57919303f436f5d5f32267a6223f5b6e02ee92cc4eb06",
+      "CStorage.hpp": "baabf1efeedad44647a3e1c65e454b8fa4b3b1de259c8ed0745851ddc6c66fef",
+      "CStorage.cpp": "63bb70f40a36a1780c2b6503b27f62f15e4e5d00e3ea6108bd261ad0c03c8545",
+      "CHeap.hpp": "b119d29c87b64d0a39131ef9fdd6ca039e1a2366dbdc3d28b33690096812f46d",
+      "CBlockPar.hpp": "e1ab8a0e9996fb8c63a1285aba53b7e6a61a38b70dbd3a9d4830a5e7736163ca",
+      "CBlockPar.cpp": "aaa2e9264cb2f9a602652b156a1c2fdf6a0d14e76c3a52c8c2d9adc6ad214ce8",
+      "Math3D.hpp": "43a1753984e789a5e4b0be8c4d7e67634961ab784f21498112aaeb30310a4b8a",
+      "Math3D.cpp": "40b7a76bbdab727693c047339cdcea94091e2c773a168c3c2434e9c4d3c0309a",
+      "random.cpp": "78e44218dfc7f9ad85ff783f6bb32c80f81d07097ffaa38fcf39b3f7752866c4",
+      "random.hpp": "00552ee9fa2784ec343db44f7e88d0f95e8fac1c712b92bdea050dea357df310",
+      "MatrixGameDll.hpp": "263b0cccc04c170354d87b6da048d1fcd709d939fa55a7fa4caf1888fa3619e2",
+      "MatrixGame.h": "b6600ccdea2d79a4eb0e2a52cbee99cdc2e36a2a58e035d2a9b8559d6ea4f42e",
+      "VectorObject.hpp": "41af7cf50ab96af88b57ca5101cdf1b27d25ce6326517d532056142912ee0b72",
+      "VectorObject.cpp": "11ffb4eb842b5cdf6041d0ddc3bf25a124b06bdd8ac36f090b4c2ac6d9586303",
+      "CReminder.hpp": "c3d0a2e45c8270e1178675d52bfe99dabddaadd270c33855f9a38519087198df",
+      "CReminder.cpp": "6bff3d934168fb0635ddb06df703d05b9607ff53186b656a9b92817009a03a10",
+      "CBitmap.hpp": "c22045ba3c0178a76c1655369125a750d0600283ebda089523de040948e320c9",
+      "CBitmap.cpp": "c193188e5b2e7820fd3d0a0cda69d2b5656b0f1070bafd7d0cb3f49942e3d576",
+      "FilePNG.hpp": "e9d0a539f00b064b1d89864c07d703241f6d336e0c01ccc16f82e038949a9dfd",
+      "FilePNG.cpp": "32096ab48a8816f122a27086e63d3d963f467fe011b7af5992ff3bac03d1e7ad",
+      "Texture.hpp": "2eaf5916cc9a2b406e886617a156a33ab39682ed6196011bb0ec873295f575a1",
+      "Texture.cpp": "11535b4750ea94de8b97831636b044a781e785be8ecb9bffbe16358df72b0901",
+      "Cache.cpp": "568f108f4578e8fb53a5b08bf2561189d4d3426402275deabeccd17a1e82fa9a",
+      "CMain.cpp": "a6880229e03d0c249ecbfcd6ba726d920f7115c510dc3c50b51eecc399f4f7ef",
+      "Form.cpp": "574623bd04c5e7a56dd82a2d34a0b2717da839e19afd4ba038bd8e32d02cb660",
+      "Form.hpp": "e55f462a1e28261837f3194c08ba40f163db7f7493b94d8a81a27038b2220663",
+      "BigVB.hpp": "08bebb249cdc81ab787dcb019fd35a355bcc657da1838140c209bb45df7829a8",
+      "BigIB.hpp": "b62ad69bb5320cd2d151e4402dee80cbf5b49ac8ea663a0bd91e3b9caff85bec",
+      "CList.cpp": "4e6e9cc167e6f7f996b6d77d273900ca38dea10584f93214a29769f5d5d953dd",
+      "CList.hpp": "e18d2411124f10d4d043a991e5c76d66ac970c1985b9274c606e1ca63dfee587",
+      "Cache.hpp": "e1f9ccc07faa08d5182e52ec45516b800962326ce8ca08809935ac75a364e62b",
+      "3g.cpp": "e02ae38d13e88a6b83d893f974cbfeebf936938e01c7f03097cd8be32a29605f",
+      "MatrixSkinManager.cpp": "d9d565af29522397011903bf6e3d730575092d0eb8ad540506740ff8f03f4778",
+      "MatrixSkinManager.hpp": "734500a6c2aa6d75665ed18c52243222b1842bcc514941c7c2cad7bdf8297fef",
+      "CBuf_file.cpp": "7a110674826bd270d985433bf26cb84eda922143fe680aff4f9b5c38ef6cf027",
+      "CStorage_blockpar.cpp": "340a2b93112f68f2007436d45b878acbf9c920939a827684592d67a548b60562",
+      "VectorLayout.hpp": "eaa965929d9c17a8ee315304e9fa57e53e1b39cbc3e3d0779f69a9726f5591c1",
+      "TextureFlags.hpp": "b81fe0cf16be8def557e4ab3d94d3536b59692e58cb1ef6c5d5ff8fb10bfb57e",
+      "TextureFlags.cpp": "1892cb9550f2369f42a39fbaa9f615ea74bd0a112575d767d7d7b23d83511996",
+      "VectorObjectCpu.hpp": "218965084ae3f5648d8d8e5727faf2b44e7340e471fd9640ddaad5c2a45c3034",
+      "VectorObjectCpu.cpp": "7efe5b22d6e24a4d62484835c811da147b91bd9edd2842b3bb58065934bdd31a",
+      "CacheNative.cpp": "3721c286af9c7a5ddc1b277962243aef6ecc62d18e8203a35e24516e924542bc",
+      "L3GCpuPhase.cpp": "d06315a20629f2c9e2f11bb30b30cc64264f181c69e59cf1a74d6666587af7ad",
+      "SkinResourcesNative.cpp": "cf0a6d57ffaa84da8ee7456cfdae63f258287e6cf9686c56ea5ad172d775a55e",
+      "BC.cpp": "ca40cbb52988ac257d451bf508a12962ad35aa1029dfea395ce5595a82650354",
+      "BC.h": "f0bea20834ce24dc84a55516b1a6057122fa2e72bb60ba6a6626650eb8cba2d8"
+    }
+  },
+  "compiler_configuration": {
+    "host": [
+      "CMAKE_BUILD_TYPE:STRING=RelWithDebInfo",
+      "CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/c++",
+      "CMAKE_CXX_FLAGS:STRING=-fsanitize=address,undefined -fno-omit-frame-pointer",
+      "JPEG_INCLUDE_DIR:PATH=/usr/include",
+      "JPEG_LIBRARY_DEBUG:FILEPATH=JPEG_LIBRARY_DEBUG-NOTFOUND",
+      "JPEG_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libjpeg.so",
+      "PNG_LIBRARY_DEBUG:FILEPATH=PNG_LIBRARY_DEBUG-NOTFOUND",
+      "PNG_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libpng.so",
+      "PNG_PNG_INCLUDE_DIR:PATH=/usr/include",
+      "ZLIB_INCLUDE_DIR:PATH=/usr/include",
+      "ZLIB_LIBRARY_DEBUG:FILEPATH=ZLIB_LIBRARY_DEBUG-NOTFOUND",
+      "ZLIB_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libz.so",
+      "JPEG_INCLUDE_DIR-ADVANCED:INTERNAL=1",
+      "JPEG_LIBRARY_DEBUG-ADVANCED:INTERNAL=1",
+      "JPEG_LIBRARY_RELEASE-ADVANCED:INTERNAL=1",
+      "PNG_LIBRARY_DEBUG-ADVANCED:INTERNAL=1",
+      "PNG_LIBRARY_RELEASE-ADVANCED:INTERNAL=1",
+      "PNG_PNG_INCLUDE_DIR-ADVANCED:INTERNAL=1",
+      "ZLIB_INCLUDE_DIR-ADVANCED:INTERNAL=1",
+      "ZLIB_LIBRARY_DEBUG-ADVANCED:INTERNAL=1",
+      "ZLIB_LIBRARY_RELEASE-ADVANCED:INTERNAL=1"
+    ],
+    "arm64": [
+      "CMAKE_BUILD_TYPE:STRING=Release",
+      "CMAKE_CXX_COMPILER:STRING=/usr/bin/aarch64-linux-gnu-g++-15",
+      "CMAKE_CXX_FLAGS:STRING=-pthread -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+      "CMAKE_SYSTEM_NAME:UNINITIALIZED=Linux",
+      "CMAKE_SYSTEM_PROCESSOR:UNINITIALIZED=aarch64",
+      "JPEG_INCLUDE_DIR:PATH=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source",
+      "JPEG_LIBRARY_DEBUG:FILEPATH=JPEG_LIBRARY_DEBUG-NOTFOUND",
+      "JPEG_LIBRARY_RELEASE:FILEPATH=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg/libjpeg.a",
+      "PNG_LIBRARY_DEBUG:FILEPATH=PNG_LIBRARY_DEBUG-NOTFOUND",
+      "PNG_LIBRARY_RELEASE:FILEPATH=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png/libpng16.a",
+      "PNG_PNG_INCLUDE_DIR:PATH=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+      "ZLIB_INCLUDE_DIR:PATH=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+      "ZLIB_LIBRARY:UNINITIALIZED=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/mg-navigation-arm64/zlib/libz.a",
+      "JPEG_INCLUDE_DIR-ADVANCED:INTERNAL=1",
+      "JPEG_LIBRARY_DEBUG-ADVANCED:INTERNAL=1",
+      "JPEG_LIBRARY_RELEASE-ADVANCED:INTERNAL=1",
+      "PNG_LIBRARY_DEBUG-ADVANCED:INTERNAL=1",
+      "PNG_LIBRARY_RELEASE-ADVANCED:INTERNAL=1",
+      "PNG_PNG_INCLUDE_DIR-ADVANCED:INTERNAL=1",
+      "ZLIB_INCLUDE_DIR-ADVANCED:INTERNAL=1"
+    ],
+    "sdk": [
+      "CMAKE_BUILD_TYPE:STRING=Release",
+      "CMAKE_CXX_FLAGS:STRING=-march=armv8-a+crc+crypto -mtune=cortex-a57 -mtp=soft -fPIE -D__SWITCH__ -ffunction-sections -fdata-sections",
+      "JPEG_INCLUDE_DIR:PATH=C:/devkitPro/portlibs/switch/include",
+      "JPEG_LIBRARY_DEBUG:FILEPATH=JPEG_LIBRARY_DEBUG-NOTFOUND",
+      "JPEG_LIBRARY_RELEASE:FILEPATH=C:/devkitPro/portlibs/switch/lib/libjpeg.a",
+      "PNG_LIBRARY_DEBUG:FILEPATH=PNG_LIBRARY_DEBUG-NOTFOUND",
+      "PNG_LIBRARY_RELEASE:FILEPATH=C:/devkitPro/portlibs/switch/lib/libpng.a",
+      "PNG_PNG_INCLUDE_DIR:PATH=C:/devkitPro/portlibs/switch/include",
+      "ZLIB_INCLUDE_DIR:PATH=C:/devkitPro/portlibs/switch/include",
+      "ZLIB_LIBRARY_DEBUG:FILEPATH=ZLIB_LIBRARY_DEBUG-NOTFOUND",
+      "ZLIB_LIBRARY_RELEASE:FILEPATH=C:/devkitPro/portlibs/switch/lib/libz.a",
+      "JPEG_INCLUDE_DIR-ADVANCED:INTERNAL=1",
+      "JPEG_LIBRARY_DEBUG-ADVANCED:INTERNAL=1",
+      "JPEG_LIBRARY_RELEASE-ADVANCED:INTERNAL=1",
+      "PNG_LIBRARY_DEBUG-ADVANCED:INTERNAL=1",
+      "PNG_LIBRARY_RELEASE-ADVANCED:INTERNAL=1",
+      "PNG_PNG_INCLUDE_DIR-ADVANCED:INTERNAL=1",
+      "ZLIB_INCLUDE_DIR-ADVANCED:INTERNAL=1",
+      "ZLIB_LIBRARY_DEBUG-ADVANCED:INTERNAL=1",
+      "ZLIB_LIBRARY_RELEASE-ADVANCED:INTERNAL=1"
+    ]
+  },
+  "host": {
+    "status": "SKIN_CALLBACK_RUNTIME_PASS",
+    "architecture": "host ASan/UBSan",
+    "returncode": 0,
+    "command": [
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/native-callbacks/host/matrixgame-native-callbacks-probe",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/native-callbacks/host-final-metadata/original.vo",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/native-callbacks/host-final-metadata/material.png",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/native-callbacks/host-final-metadata/second.vo"
+    ],
+    "executable_sha256": "fe706a63fdef6215296c1b118224a33b37219ab46bf2fb4700d3b3d9a0f1773a",
+    "inputs": [
+      {
+        "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/big-buffer-models/model-1.vo",
+        "sha256": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e"
+      },
+      {
+        "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/mg-merge-host/core/texture-request-fixtures/assets/plain.png",
+        "sha256": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210"
+      },
+      {
+        "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/big-buffer-models/model-1.vo",
+        "sha256": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e"
+      }
+    ],
+    "inputs_unchanged": true,
+    "original_vo": true,
+    "texture": "controlled PNG fixture",
+    "gpu_executed": false,
+    "cgame_init_called": false,
+    "hardware_pending": true,
+    "derived_vo_surface_names_replaced": true,
+    "cpp_allocation_fault_cases": 2
+  },
+  "arm64_qemu": {
+    "status": "SKIN_CALLBACK_RUNTIME_PASS",
+    "architecture": "ARM64/QEMU",
+    "returncode": 0,
+    "command": [
+      "qemu-aarch64",
+      "-L",
+      "/usr/aarch64-linux-gnu",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/native-callbacks/arm64/matrixgame-native-callbacks-probe",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/native-callbacks/arm64-final-metadata/original.vo",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/native-callbacks/arm64-final-metadata/material.png",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/native-callbacks/arm64-final-metadata/second.vo"
+    ],
+    "executable_sha256": "c8c12828299309ba8f2a9f85f47f71576b83d4069b191c570e783d84ff522f7d",
+    "inputs": [
+      {
+        "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/big-buffer-models/model-1.vo",
+        "sha256": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e"
+      },
+      {
+        "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/mg-merge-host/core/texture-request-fixtures/assets/plain.png",
+        "sha256": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210"
+      },
+      {
+        "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/big-buffer-models/model-1.vo",
+        "sha256": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e"
+      }
+    ],
+    "inputs_unchanged": true,
+    "original_vo": true,
+    "texture": "controlled PNG fixture",
+    "gpu_executed": false,
+    "cgame_init_called": false,
+    "hardware_pending": true,
+    "derived_vo_surface_names_replaced": true,
+    "cpp_allocation_fault_cases": 2
+  },
+  "devkitA64": {
+    "status": "SDK_LINK_PASS",
+    "hardware_pending": true,
+    "runtime_executed": false,
+    "nro_packaged": false,
+    "commands": [
+      [
+        "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+        "-S",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-engine",
+        "-B",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\native-callbacks\\sdk\\cmake",
+        "-G",
+        "Ninja",
+        "-DCMAKE_MAKE_PROGRAM=C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\Ninja\\ninja.exe",
+        "-DCMAKE_TOOLCHAIN_FILE=D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core\\switch-toolchain.cmake",
+        "-DMATRIXGAME_DEVKITPRO=C:/devkitPro",
+        "-DBUILD_TESTING=OFF",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DPython3_EXECUTABLE=C:\\Users\\Sklyarov\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-DMATRIXGAME_INIT_BUILD_LINK_PROBE=ON",
+        "-DMATRIXGAME_SHADER_DIR=D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\deko",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+      ],
+      [
+        "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+        "--build",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\native-callbacks\\sdk\\cmake",
+        "--target",
+        "matrixgame-native-callbacks-probe",
+        "--parallel",
+        "4"
+      ],
+      [
+        "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-readelf.exe",
+        "-h",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\native-callbacks\\sdk\\cmake\\matrixgame-native-callbacks-probe.elf"
+      ],
+      [
+        "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-readelf.exe",
+        "-sW",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\native-callbacks\\sdk\\cmake\\matrixgame-native-callbacks-probe.elf"
+      ],
+      [
+        "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-readelf.exe",
+        "-n",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\native-callbacks\\sdk\\cmake\\matrixgame-native-callbacks-probe.elf"
+      ]
+    ],
+    "undefined_strong": [],
+    "elf": "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\native-callbacks\\sdk\\cmake\\matrixgame-native-callbacks-probe.elf",
+    "sha256": "fec2af1968747704b3f46d2ceb231c7ec0ae6a8276faac70c543ebb6182ce70b",
+    "bytes": 5728592,
+    "build_id": "Build ID: de4399e330ed9a9cfdc3c8f47fee532a218227f5"
+  },
+  "original_methods": [
+    "LoadSpecial SIMPLE/AUTO/MULTIMATERIAL_ONLY skin assignment loop",
+    "BeforeDraw preload loop",
+    "DrawBegin buffer reset and explicit native vertex layout",
+    "Draw original surface/pass/union traversal through typed native indexed emission"
+  ],
+  "ownership": "VO holds shared leases for raw SSkin fields; scoped provider pending lease moved after each assignment; callback failures Unload and rethrow",
+  "gpu_entry": "MatrixGameNativeCallbackDraw",
+  "gpu_entry_executed": false,
+  "nro_packaged": false,
+  "cgame_init_called": false,
+  "failed_attempts": [
+    {
+      "result": {
+        "status": "FAIL",
+        "architecture": "host ASan/UBSan",
+        "returncode": -6,
+        "command": [
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/native-callbacks/host/matrixgame-native-callbacks-probe",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/native-callbacks/host-runtime/original.vo",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/native-callbacks/host-runtime/material.png",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/native-callbacks/host-runtime/second.vo"
+        ],
+        "executable_sha256": "3e5f89be6be1f4dd298260003760ce8f5505a905b2b475951805c04d8c496c00",
+        "inputs": [
+          {
+            "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/big-buffer-models/model-1.vo",
+            "sha256": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e"
+          },
+          {
+            "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/mg-merge-host/core/texture-request-fixtures/assets/plain.png",
+            "sha256": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210"
+          },
+          {
+            "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/big-buffer-models/model-1.vo",
+            "sha256": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e"
+          }
+        ],
+        "inputs_unchanged": true,
+        "original_vo": true,
+        "texture": "controlled PNG fixture",
+        "gpu_executed": false,
+        "cgame_init_called": false,
+        "hardware_pending": true,
+        "derived_vo_surface_names_replaced": true,
+        "cpp_allocation_fault_cases": 0
+      },
+      "reason": "Test asserted 480 from previous allocated index staging capacity; independent STRG reader and original Draw agree on 240 actual frame indices. Implementation not changed to force this result."
+    }
+  ],
+  "frame_oracle": {
+    "draw_index_count": 240,
+    "independent_strg_index_count": 240,
+    "previous_allocated_index_capacity": 480
+  },
+  "gates": {
+    "host_asan_ubsan": "PASS",
+    "arm64_qemu": "PASS",
+    "devkitA64_compile_link": "PASS",
+    "gpu_horizon": "HARDWARE_PENDING",
+    "full_engine": "BLOCKED"
+  },
+  "preservation": {
+    "protected_before": {
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\mg-merge-host\\core\\texture-request-fixtures\\assets\\plain.png": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\reports\\e2e5\\e2e510-artifact-provenance.json": "eaac3d9181b12566492bda774933af6469f2b0b26104bcc83a8d266fee7759ec",
+      "G:\\pack.zip": "f2ea785ad8f1ca35288132a2fee211ac0e6e7bd2db00cff35f4a1fbc2cfed51f",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce.zip": "e1a1dec5f410b983d629ae538ad9b4ba063f89a8101af43d27ea00c6ce6a08a4",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-1.vo": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\newgame.txt": "edebec1fbe596bfdb856719310372b9bf69ce7989394b86ae13377db847ec65c",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Medical Center Autoclave.sav": "d6e238a00e514712ab9eed796c40c39dd1cddc20f7036de1a7b8d25fee34e622",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\AutoSave.sav": "739c428d9a7f13e88e7e2fe65d6435dbf297270be35c672020b9fa7d097ac601",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\QuickSave.sav": "84509d9ab5411555c0a361d5616c94aae6ef3a5c00fa81782ea64192b5c7bd73",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\CFG.TXT": "6b63a47bba893e4a33c4f92d3aaa19adf3c45c4032da7a302b140e03ab166180",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\hardware-gpu-a224fa4.zip": "1c5cfebb2696bbf6db98bd2cd598956f468ef1ca8183bbf31271148c30103429",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Sol System.sav": "62c35d050b256e13326ce904123c44bad3756deeb66e269dbae2a66b4f903cc0",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\########.log": "fef05715d095d39568aee8d9c121c1cb232a80a84e0c6e2a56712070d2f505b3"
+    },
+    "protected_after": {
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Sol System.sav": "62c35d050b256e13326ce904123c44bad3756deeb66e269dbae2a66b4f903cc0",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\hardware-gpu-a224fa4.zip": "1c5cfebb2696bbf6db98bd2cd598956f468ef1ca8183bbf31271148c30103429",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Medical Center Autoclave.sav": "d6e238a00e514712ab9eed796c40c39dd1cddc20f7036de1a7b8d25fee34e622",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\mg-merge-host\\core\\texture-request-fixtures\\assets\\plain.png": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210",
+      "G:\\pack.zip": "f2ea785ad8f1ca35288132a2fee211ac0e6e7bd2db00cff35f4a1fbc2cfed51f",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\QuickSave.sav": "84509d9ab5411555c0a361d5616c94aae6ef3a5c00fa81782ea64192b5c7bd73",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\CFG.TXT": "6b63a47bba893e4a33c4f92d3aaa19adf3c45c4032da7a302b140e03ab166180",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\########.log": "fef05715d095d39568aee8d9c121c1cb232a80a84e0c6e2a56712070d2f505b3",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\newgame.txt": "edebec1fbe596bfdb856719310372b9bf69ce7989394b86ae13377db847ec65c",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce.zip": "e1a1dec5f410b983d629ae538ad9b4ba063f89a8101af43d27ea00c6ce6a08a4",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\AutoSave.sav": "739c428d9a7f13e88e7e2fe65d6435dbf297270be35c672020b9fa7d097ac601",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-1.vo": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\reports\\e2e5\\e2e510-artifact-provenance.json": "eaac3d9181b12566492bda774933af6469f2b0b26104bcc83a8d266fee7759ec"
+    },
+    "unchanged": true,
+    "upstream_gitlink_changed": false,
+    "push": false
+  },
+  "limits": [
+    "native ordinal/base callback shader contract; not full original SMatrixSkin::Prepare/combiners parity",
+    "side/gloss/mask/back, burn/object user parameter, projected shadows explicitly unsupported",
+    "exception rollback tested at material callback phase, not arbitrary pre-material geometry allocation failures",
+    "derived VO surface names target a controlled PNG; a two-surface fixture adds an empty material surface, no fake geometry",
+    "full VectorObject.cpp TU, VectorObjectAnim, CGame init/loop and battle remain unported/unexecuted",
+    "no GPU execution or image parity; old NRO kits do not contain this new path"
+  ]
+}

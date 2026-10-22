@@ -1,5 +1,8 @@
 # E2E-5.18 — оригинальный Cache и CPU-фаза нативного входа 3G
 
+Новое продолжение: [оригинальные LoadSpecial/BeforeDraw/Draw и SSkin callbacks](matrixgame-native-callbacks-20261022.md).
+Host/ARM64-QEMU runtime PASS, SDK LINK PASS; GPU и полный CGame::Init остаются pending.
+
 Продолжение: [skin resources и UV lifecycle → VO surface draw](matrixgame-native-skin-20261022.md).
 Новый CPU runtime/ARM64-QEMU PASS и SDK LINK PASS; GPU execution и полный CGame::Init
 по-прежнему не подтверждены. Ниже сохранены результаты исходного этапа E2E-5.18.

@@ -2,7 +2,14 @@
 
 ## Текущий статус на 22.10.2026
 
-Следующий шаг: перенесены исходный разбор skin resources и UV lifecycle Takt,
+Новое: исполняются оригинальные skinned LoadSpecial → BeforeDraw → Draw через
+настоящую таблицу SSkin callbacks и native indexed submission. Host ASan/UBSan
+и ARM64/QEMU PASS, включая частичный отказ второго материала и bad_alloc.
+SDK link с настоящим deko draw PASS; GPU execution HARDWARE_PENDING.
+Поддерживается native ordinal/base pass, полный CGame::Init ещё не запущен.
+[SSkin callbacks: методы, ownership и граница](../../reports/matrixgame-native-callbacks-20261022.md).
+
+Предыдущий шаг: перенесены исходный разбор skin resources и UV lifecycle Takt,
 подключена загрузка текстур по именам поверхностей VO. Host ASan/UBSan и
 ARM64/QEMU PASS, включая отказы ресурсов/аллокации и очистку. SDK link PASS;
 GPU execution HARDWARE_PENDING. Render path пока ordinal single-pass, без
