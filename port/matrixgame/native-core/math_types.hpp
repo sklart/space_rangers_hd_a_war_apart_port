@@ -109,6 +109,9 @@ inline D3DXMATRIX* D3DXMatrixInverse(D3DXMATRIX* out,float* determinant,const D3
     if(scalar==0) return nullptr;
     DirectX::XMStoreFloat4x4(out,value); return out;
 }
+inline D3DXMATRIX* D3DXMatrixRotationZ(D3DXMATRIX* out,float angle) {
+    DirectX::XMStoreFloat4x4(out,DirectX::XMMatrixRotationZ(angle));return out;
+}
 inline D3DXPLANE* StorePlane(D3DXPLANE* out,DirectX::FXMVECTOR value) {
     DirectX::XMFLOAT4 plane; DirectX::XMStoreFloat4(&plane,value);
     *out={plane.x,plane.y,plane.z,plane.w}; return out;

@@ -44,7 +44,7 @@ def prepare_engine(output):
     # The standalone Windows entry is not the native launcher. Game methods remain intact.
     from matrixgame_core_prepare import replace_body
     main=output/'MatrixGame/src/MatrixGame.cpp'
-    text=main.read_text();text=replace_body(text,'int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPTSTR, int)','')
+    text=main.read_text(encoding='utf-8');text=replace_body(text,'int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE, LPTSTR, int)','')
     main.write_bytes(text.encode());paths['MatrixGame/src/MatrixGame.cpp']=hashlib.sha256(main.read_bytes()).hexdigest()
     from matrixgame_navigation_overrides import patch_navigation
     paths.update(patch_navigation(output))
@@ -57,6 +57,11 @@ def prepare_engine(output):
     cpu_header=(output/'portable-core/VectorObjectCpu.hpp').read_bytes()
     (output/'MatrixLib/3G/VectorObjectCpu.hpp').write_bytes(cpu_header)
     paths['MatrixLib/3G/VectorObjectCpu.hpp']=hashlib.sha256(cpu_header).hexdigest()
+    shared_header=(output/'portable-core/VectorObjectShared.hpp').read_bytes()
+    (output/'MatrixLib/3G/VectorObjectShared.hpp').write_bytes(shared_header)
+    paths['MatrixLib/3G/VectorObjectShared.hpp']=hashlib.sha256(shared_header).hexdigest()
+    from matrixgame_engine_header_overrides import patch_engine_headers
+    paths.update(patch_engine_headers(output))
     result={'schema':1,'source_commit':revision,'scope':'full engine compilation input; runtime/backend not implemented here',
         'files_sha256':paths,'portable_inputs':report['inputs_sha256'],
         'excluded_platform_launcher':'MatrixGameDll.cpp; native entry remains to implement'}

@@ -40,6 +40,9 @@ if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
     add_executable(matrixgame-native-bootstrap "${PORT_ROOT}/tests/test_matrixgame_bootstrap.cpp"
         "${PORT_ROOT}/tests/matrixgame_bootstrap_sampling.cpp")
     target_link_libraries(matrixgame-native-bootstrap PRIVATE matrixgame-native-cache)
+    target_compile_definitions(matrixgame-native-bootstrap PRIVATE
+        MATRIXGAME_FULL_VECTOR_HEADER="${ENGINE_SOURCE}/MatrixLib/3G/VectorObject.hpp"
+        MATRIXGAME_FULL_BILLBOARD_HEADER="${ENGINE_SOURCE}/MatrixLib/3G/CBillboard.hpp")
     if(WIN32)
         target_sources(matrixgame-native-bootstrap PRIVATE "${PORT_ROOT}/tests/test_matrixgame_bootstrap_win32.cpp")
         target_compile_options(matrixgame-native-bootstrap PRIVATE /EHsc)

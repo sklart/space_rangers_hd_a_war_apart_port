@@ -167,7 +167,13 @@ std::vector<srhd_awa::matrixgame::MeshRange> CVectorObject::PrepareNativeFrame(i
         '            if(!ss || !ss->m_SetupStages || !ss->m_SetupTex || !ss->m_SetupClear)\n                throw std::logic_error("VO draw has no complete skin callbacks");\n            again |=',1)
     actual_draw=actual_draw.replace('DTRACE();','').replace('DWORD','std::uint32_t')
     selected+='\n'+before_draw+'\n'+actual_draw+'\n'
-    files['VectorObjectCpu.hpp'] = header.encode()
+    # One identical CVectorObject declaration for cache/CPU implementation and
+    # the full engine header. A macro guard also covers independent generated
+    # copies; pragma-once alone cannot prevent cross-view ODR redefinitions.
+    files['VectorObjectShared.hpp'] = ('''#ifndef MATRIXGAME_NATIVE_VECTOR_OBJECT_SHARED_HPP
+#define MATRIXGAME_NATIVE_VECTOR_OBJECT_SHARED_HPP
+'''+header+'\n#endif\n').encode()
+    files['VectorObjectCpu.hpp'] = b'#pragma once\n#include "VectorObjectShared.hpp"\n'
     files['VectorObjectCpu.cpp'] = (c[:c.index('#include <new>')] + '''
 #include "VectorObjectCpu.hpp"
 #include "CStorage.hpp"

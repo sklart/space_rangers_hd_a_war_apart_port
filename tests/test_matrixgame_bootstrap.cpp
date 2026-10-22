@@ -6,12 +6,20 @@
 #include <windows.h>
 #endif
 #include "skin_pipeline.hpp"
+#include MATRIXGAME_FULL_VECTOR_HEADER // Full declaration must agree with cache/CPU class.
+#include MATRIXGAME_FULL_BILLBOARD_HEADER
+#include "VectorObjectAnimNative.hpp"
 #include "Form.hpp"
 #include <cassert>
 #include <cstdio>
 #include <filesystem>
 using namespace srhd_awa::matrixgame;
 namespace p=srhd_awa::matrixgame::platform3g;
+// Original full animator retains its light pointer/count. The accepted native
+// no-light variant remains a separate class, never substituted for this type.
+constexpr auto full_light_extent=(sizeof(void*)+sizeof(int)+alignof(CVectorObjectAnim)-1)/alignof(CVectorObjectAnim)*alignof(CVectorObjectAnim);
+static_assert(sizeof(CVectorObjectAnim)==sizeof(NativeVectorObjectAnim)+full_light_extent);
+static_assert(sizeof(SBillboardVertex)==24); // Original XYZ/diffuse/UV payload, not MeshVertex.
 extern void VerifyBootstrapSampling(NativeInitRuntime&,p::Window&,p::Device&,unsigned,bool);
 extern void VerifyBootstrapSamplerCold();
 struct UnavailableDevice final:p::Device {
@@ -40,6 +48,10 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
     if(argc!=3)return 2;
     std::setvbuf(stdout,nullptr,_IONBF,0);
     try {
+        D3DXMATRIX billboard_rotation;
+        assert(D3DXMatrixRotationZ(&billboard_rotation,1.57079632679f)==&billboard_rotation);
+        assert(std::fabs(billboard_rotation._11)<1e-6f && std::fabs(billboard_rotation._12-1.f)<1e-6f);
+        assert(std::fabs(billboard_rotation._21+1.f)<1e-6f && billboard_rotation._33==1.f && billboard_rotation._44==1.f);
         const auto model=std::filesystem::path(argv[1]).wstring();
         const auto texture=std::filesystem::path(argv[2]).wstring();
         UnavailableDevice unavailable;
