@@ -2,7 +2,14 @@
 
 ## Текущий статус на 22.10.2026
 
-Новое: исполняются оригинальные skinned LoadSpecial → BeforeDraw → Draw через
+Новое: исходный frame/timing-путь CVectorObjectAnim подключён к skinned Draw.
+Явный no-billboard вариант сохраняет Takt/NextFrame/BeforeDraw/Draw; проверен
+реальный цикл Terron из 41 кадра, 4100 мс, с выдачей четырёх draw-групп.
+Host ASan/UBSan и ARM64/QEMU PASS, SDK link PASS; GPU HARDWARE_PENDING.
+Это не полный animator с lights/shadows и не запуск CGame::Init.
+[Анимация: выполненные методы и граница](../../reports/matrixgame-native-animation-20261022.md).
+
+Предыдущий срез: исполняются оригинальные skinned LoadSpecial → BeforeDraw → Draw через
 настоящую таблицу SSkin callbacks и native indexed submission. Host ASan/UBSan
 и ARM64/QEMU PASS, включая частичный отказ второго материала и bad_alloc.
 SDK link с настоящим deko draw PASS; GPU execution HARDWARE_PENDING.

@@ -1,5 +1,8 @@
 # E2E-5.18 — оригинальный Cache и CPU-фаза нативного входа 3G
 
+Продолжение: [оригинальная no-billboard анимация → skinned Draw](matrixgame-native-animation-20261022.md).
+Host/ARM64-QEMU PASS, SDK LINK PASS. Полный Init/Run и GPU execution не подтверждены.
+
 Новое продолжение: [оригинальные LoadSpecial/BeforeDraw/Draw и SSkin callbacks](matrixgame-native-callbacks-20261022.md).
 Host/ARM64-QEMU runtime PASS, SDK LINK PASS; GPU и полный CGame::Init остаются pending.
 
