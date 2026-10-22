@@ -26,11 +26,14 @@ target_link_libraries(matrixgame-native-vector-object PUBLIC matrixgame-native-c
 add_library(matrixgame-native-cache STATIC
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/CacheNative.cpp" cache_resources.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/L3GCpuPhase.cpp" init_runtime.cpp cached_frame.cpp
-    "${CMAKE_CURRENT_BINARY_DIR}/core/source/SkinResourcesNative.cpp" native_skin.cpp)
+    "${CMAKE_CURRENT_BINARY_DIR}/core/source/SkinResourcesNative.cpp" native_skin.cpp skin_pipeline.cpp)
 target_link_libraries(matrixgame-native-cache PUBLIC matrixgame-native-vector-object)
 target_include_directories(matrixgame-native-cache PUBLIC "${CMAKE_CURRENT_LIST_DIR}")
 option(MATRIXGAME_INIT_BUILD_LINK_PROBE "Link the native init/cache contract and real deko upload; no NRO/runtime claim" OFF)
 if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
+    add_executable(matrixgame-native-callbacks-probe "${PORT_ROOT}/tests/test_matrixgame_skin_callbacks.cpp")
+    target_link_libraries(matrixgame-native-callbacks-probe PRIVATE matrixgame-native-cache)
+    target_compile_options(matrixgame-native-callbacks-probe PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
     add_executable(matrixgame-native-skin-probe "${PORT_ROOT}/tests/test_matrixgame_native_skin.cpp")
     target_link_libraries(matrixgame-native-skin-probe PRIVATE matrixgame-native-cache)
     target_compile_options(matrixgame-native-skin-probe PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
@@ -41,6 +44,8 @@ if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
     target_link_libraries(matrixgame-native-init-probe PRIVATE matrixgame-native-cache)
     target_compile_options(matrixgame-native-init-probe PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
     if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND (NOT CMAKE_CROSSCOMPILING OR CMAKE_SYSTEM_NAME STREQUAL "Linux"))
+        target_compile_definitions(matrixgame-native-callbacks-probe PRIVATE MATRIXGAME_CALLBACK_ALLOC_FAULTS)
+        target_link_options(matrixgame-native-callbacks-probe PRIVATE -Wl,--wrap=_Znwm)
         target_compile_definitions(matrixgame-native-skin-probe PRIVATE MATRIXGAME_SKIN_ALLOC_FAULTS)
         target_link_options(matrixgame-native-skin-probe PRIVATE -Wl,--wrap=_Znwm)
         target_compile_definitions(matrixgame-native-init-probe PRIVATE MATRIXGAME_INIT_ALLOC_FAULTS)
@@ -62,7 +67,7 @@ if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
         target_link_options(matrixgame-native-init-probe PRIVATE
             "-specs=${MATRIXGAME_DEVKITPRO}/libnx/switch.specs" -Wl,--gc-sections -Wl,--build-id=sha1)
         set_target_properties(matrixgame-native-init-probe PROPERTIES SUFFIX ".elf")
-        foreach(SESSION_TARGET matrixgame-native-frame-probe matrixgame-native-skin-probe)
+        foreach(SESSION_TARGET matrixgame-native-frame-probe matrixgame-native-skin-probe matrixgame-native-callbacks-probe)
         target_sources(${SESSION_TARGET} PRIVATE
             "${PORT_ROOT}/tests/probe_matrixgame_native_session_link.cpp"
             "${PORT_ROOT}/port/matrixgame/deko/native_session.cpp"

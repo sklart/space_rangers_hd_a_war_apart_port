@@ -74,7 +74,7 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     "${PORT_ROOT}/upstream/matrixgame/MatrixLib/3G/Cache.cpp")
 add_library(matrixgame-native-core STATIC texture_asset.cpp vector_geometry.cpp "${CORE_SOURCE}/CBitmap.cpp" "${CORE_SOURCE}/FilePNG.cpp" "${CORE_SOURCE}/CReminder.cpp" "${CORE_SOURCE}/CRC32.cpp"
     "${CORE_SOURCE}/CMain.cpp" "${CORE_SOURCE}/Form.cpp"
-    buffer_resources.cpp buffer_geometry.cpp
+    buffer_resources.cpp buffer_geometry.cpp skin_callbacks.cpp
     "${CORE_SOURCE}/CBuf.cpp" "${CORE_SOURCE}/CBuf_file.cpp"
     "${CORE_SOURCE}/random.cpp" "${CORE_SOURCE}/Math3D.cpp" "${CORE_SOURCE}/CStorage.cpp" "${CORE_SOURCE}/CStorage_blockpar.cpp" "${CORE_SOURCE}/CBlockPar.cpp" heap_native.cpp cbuf_utf16.cpp exception_native.cpp file_native.cpp "${PORT_ROOT}/port/switch/platform/package.cpp")
 target_include_directories(matrixgame-native-core PUBLIC "${CORE_SOURCE}" "${CMAKE_CURRENT_LIST_DIR}")

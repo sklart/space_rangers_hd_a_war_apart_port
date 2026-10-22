@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
-#include "../native-engine/native_skin.hpp"
+#include "../native-engine/skin_pipeline.hpp"
 #include "buffer_renderer.hpp"
 namespace srhd_awa::matrixgame {
 // Owns an actual offscreen deko device, not the original borrowed D3D9 device.
@@ -15,6 +15,8 @@ public:
     void Draw(CVectorObject&,int frame,std::span<const CachedFrameMaterial>,std::span<std::byte> output);
     void DrawSurfaceTextures(CVectorObject&,int frame,const MeshDraw&,std::span<std::byte> output);
     void TaktSkins(float cms);
+    CVectorObject& LoadSkinnedObject(std::wstring_view name,EObjectLoad flags=OLF_AUTO,std::uint32_t group=GSP_ORDINAL);
+    void DrawSkinned(CVectorObject&,int frame,const MeshDraw&,std::span<std::byte> output);
     CVectorObject& LoadObject(std::wstring_view name);
     MaterialTexture LoadTexture(std::wstring_view name);
 private:
@@ -22,5 +24,6 @@ private:
     std::unique_ptr<DekoMeshRenderer> renderer_;
     std::unique_ptr<DekoBufferRenderer> buffers_;
     std::unique_ptr<NativeSkinLibrary> skins_;
+    std::unique_ptr<NativeSkinPipeline> pipeline_;
 };
 }

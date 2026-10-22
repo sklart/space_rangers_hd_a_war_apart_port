@@ -1,7 +1,8 @@
-"""Reach the pinned CVectorObject CPU lifecycle; GPU methods stay unimplemented.
+"""Pinned CVectorObject lifecycle and selected Draw via typed native callbacks.
 
 This is an explicit subset of the actual class/TU, not a replacement loader.
-The full engine continues to see the original GPU-dependent header.
+The full engine continues to see the original GPU-dependent header. Other GPU
+methods, shadow/animation rendering and full legacy material parity stay open.
 """
 import re
 
@@ -27,7 +28,7 @@ def patch_vector_object(files):
     h = files['VectorObject.hpp'].decode()
     c = files['VectorObject.cpp'].decode()
     end = h.index('\nstruct SSkin {')
-    header = h[:end]
+    header = h[:end] + '\n' + h[end+1:h.index('\nstruct SColorInterval',end)]
     for include in ('d3d9.h', 'd3dx9tex.h', 'D3DControl.hpp', 'ShadowProj.hpp', 'CBillboard.hpp'):
         header = header.replace('#include "' + include + '"', '')
     header = header.replace('extern IDirect3DDevice9 *g_D3DD;', '''#include "Math3D.hpp"
@@ -41,7 +42,13 @@ struct SProjData;''')
     header = header.replace('#define VO_FVF (D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1)',
                             '#define VO_FVF 0x112u // original XYZ | NORMAL | TEX1 layout')
     original = function(header, 'static void DrawBegin(void)')
-    header = header.replace(original, 'static void DrawBegin(void); // GPU prerequisite: no CPU definition')
+    native_begin=original.replace('ASSERT_DX(g_D3DD->SetFVF(VO_FVF));',
+        'srhd_awa::matrixgame::CurrentNativeDrawSink().SetVertexLayout(VO_FVF);')
+    native_begin=native_begin.replace('        m_IB->BeforeDraw();',
+        '        if(!m_IB || !m_VB)throw std::logic_error("VO buffers not loaded");\n        m_IB->BeforeDraw();')
+    header = header.replace(original,native_begin)
+    header = header.replace('    CBlockPar m_Props;',
+        '    CBlockPar m_Props;\n    std::vector<std::shared_ptr<const SSkin>> m_NativeSkinOwners;')
     selected = c[c.index('CBigVB<SVOVertex> *CVectorObject::m_VB;'):c.index('bool CVectorObject::PickSimple(')]
     selected += '\n' + function(c, 'void CVectorObject::GetBound(') + '\n'
     selected = re.sub(r'^#pragma warning.*$', '', selected, flags=re.M)
@@ -59,11 +66,28 @@ struct SProjData;''')
     selected = selected.replace(allocation, '')
     selected = selected.replace('''    Unload();
 
-    CStorage stor(g_CacheHeap);''', '''    if (olf != OLF_NO_TEX)
-        throw std::runtime_error("UNSUPPORTED: CVectorObject material/GPU lifecycle");
+    CStorage stor(g_CacheHeap);''', '''    if (olf<OLF_NO_TEX || olf>OLF_SIMPLE)
+        throw std::invalid_argument("VO load flags");
+    if ((olf==OLF_SIMPLE || olf==OLF_AUTO) && !sg)
+        throw std::invalid_argument("VO skin provider required");
+    if (olf!=OLF_NO_TEX && sg && (sg!=srhd_awa::matrixgame::AcquireOwnedSkin || !srhd_awa::matrixgame::SkinProviderBound()))
+        throw std::logic_error("UNSUPPORTED: unowned skin provider");
     Unload();
 
     CStorage stor(g_CacheHeap);''')
+    selected=selected.replace('void CVectorObject::Unload() {',
+        'void CVectorObject::Unload() {\n    m_NativeSkinOwners.clear();')
+    old_skin='''    for (int i = 0; i < m_Geometry.m_SurfacesCnt; ++i) {
+        SVOSurface *s = m_Geometry.m_Surfaces + i;
+        s->skin = sg(s->texname.c_str(), gsp);
+    }'''
+    if selected.count(old_skin)!=1:raise ValueError('Pinned skin assignment changed')
+    selected=selected.replace(old_skin,'''    try {
+        if(!sg)throw std::invalid_argument("VO skin provider required");
+'''+old_skin.replace('        s->skin = sg(s->texname.c_str(), gsp);',
+        '        s->skin = sg(s->texname.c_str(), gsp);\n        m_NativeSkinOwners.push_back(srhd_awa::matrixgame::TakeOwnedSkin(s->skin));')+'''
+    } catch(...) {Unload();throw;}
+''')
     selected = selected.replace('''#ifdef _DEBUG
     bool ok =
 #endif
@@ -90,7 +114,7 @@ struct SProjData;''')
     # Bridge only geometry submission, without claiming the unported skin/pass
     # callbacks of Draw. Keep the original surface-first union traversal and
     # original source Select calls; both bases belong to the shared Big buffers.
-    header = header.replace('#include "vector_object_cpu_math.hpp"', '#include "vector_object_cpu_math.hpp"\n#include "buffer_geometry.hpp"')
+    header = header.replace('#include "vector_object_cpu_math.hpp"', '#include "vector_object_cpu_math.hpp"\n#include "skin_callbacks.hpp"')
     header = header.replace('    void BeforeDraw(void);', '''    // Explicit geometry bridge, not the legacy skin-driven Draw implementation.
     std::vector<srhd_awa::matrixgame::MeshRange> PrepareNativeFrame(int frame);
     int NativeSurfaceCount() const noexcept { return m_Geometry.m_SurfacesCnt; }
@@ -124,6 +148,25 @@ std::vector<srhd_awa::matrixgame::MeshRange> CVectorObject::PrepareNativeFrame(i
     return ranges;
 }
 '''
+    before_draw=function(c,'void CVectorObject::BeforeDraw(').replace('DTRACE();','')
+    actual_draw=function(c,'void CVectorObject::Draw(int noframe,')
+    actual_draw=re.sub(r'#ifdef SHOW_PICK_OBJECTS.*?#endif', '',actual_draw,flags=re.S)
+    begin=actual_draw.index('#ifdef _DEBUG')
+    end=actual_draw.index('#endif',begin)+len('#endif')
+    actual_draw=actual_draw[:begin]+'''                srhd_awa::matrixgame::CurrentNativeDrawSink().Emit(
+                    srhd_awa::matrixgame::VectorObjectRange(*gr,vbase,ibase));'''+actual_draw[end:]
+    actual_draw=actual_draw.replace('bool *nextpass = (bool *)_alloca(m_Geometry.m_SurfacesCnt);',
+        'std::vector<bool> nextpass(m_Geometry.m_SurfacesCnt);')
+    actual_draw=actual_draw.replace('    int vbase =',
+        '    if(!IsLoaded() || noframe>=GetFramesCnt())throw std::out_of_range("VO draw frame");\n    int vbase =',1)
+    actual_draw=actual_draw.replace('    if (vbase < 0)\n        return;',
+        '    if (vbase < 0)throw std::runtime_error("VO vertex preparation failed");')
+    actual_draw=actual_draw.replace('    if (ibase < 0)\n        return;',
+        '    if (ibase < 0)throw std::runtime_error("VO index preparation failed");')
+    actual_draw=actual_draw.replace('            again |=',
+        '            if(!ss || !ss->m_SetupStages || !ss->m_SetupTex || !ss->m_SetupClear)\n                throw std::logic_error("VO draw has no complete skin callbacks");\n            again |=',1)
+    actual_draw=actual_draw.replace('DTRACE();','').replace('DWORD','std::uint32_t')
+    selected+='\n'+before_draw+'\n'+actual_draw+'\n'
     files['VectorObjectCpu.hpp'] = header.encode()
     files['VectorObjectCpu.cpp'] = (c[:c.index('#include <new>')] + '''
 #include "VectorObjectCpu.hpp"

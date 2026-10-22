@@ -10,13 +10,14 @@ void NativeDekoSession::Begin(std::uint32_t width,std::uint32_t height,
     runtime_.Begin(nullptr,nullptr);
     try {
         skins_=std::make_unique<NativeSkinLibrary>(runtime_,gloss_enabled);
+        pipeline_=std::make_unique<NativeSkinPipeline>(runtime_,*skins_);
         renderer_=std::make_unique<DekoMeshRenderer>(width,height,vertex_shader,fragment_shader);
         buffers_=std::make_unique<DekoBufferRenderer>(*renderer_);
     } catch(...) {Deinit();throw;}
 }
 void NativeDekoSession::Deinit() noexcept {
     buffers_.reset();renderer_.reset(); // Renderer waits for the real GPU queue.
-    skins_.reset();runtime_.Deinit(); // Only then destroy cached VO/texture staging.
+    pipeline_.reset();skins_.reset();runtime_.Deinit(); // Only then destroy cached VO/texture staging.
 }
 CVectorObject& NativeDekoSession::LoadObject(std::wstring_view name) {
     if(!GpuReady())throw std::logic_error("native GPU session not active");
@@ -44,5 +45,16 @@ void NativeDekoSession::DrawSurfaceTextures(CVectorObject& object,int frame,cons
 void NativeDekoSession::TaktSkins(float cms) {
     if(!GpuReady())throw std::logic_error("native GPU session not active");
     skins_->Takt(cms);
+}
+CVectorObject& NativeDekoSession::LoadSkinnedObject(std::wstring_view name,EObjectLoad flags,std::uint32_t group) {
+    if(!GpuReady())throw std::logic_error("native GPU session not active");
+    auto* object=static_cast<CVectorObject*>(g_Cache->Get(CacheClass::VO,std::wstring(name)));
+    pipeline_->Load(*object,flags,group);return *object;
+}
+void NativeDekoSession::DrawSkinned(CVectorObject& object,int frame,const MeshDraw& draw,std::span<std::byte> output) {
+    if(!GpuReady())throw std::logic_error("native GPU session not active");
+    const auto batch=pipeline_->Prepare(object,frame,draw);
+    for(const auto& texture:batch.textures)renderer_->SetTextureAsset(texture.slot,*texture.asset);
+    buffers_->Draw(buffers::Current(),batch.submissions,output);
 }
 }
