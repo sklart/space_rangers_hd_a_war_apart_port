@@ -15,16 +15,21 @@ def patch_3g_cpu_phase(files):
     # explicitly unsupported until the full platform/device boundary is ported.
     files['L3GCpuPhase.cpp']=('''// Original 3g.cpp prefix; GPL-2.0-or-later.
 #include "init_runtime.hpp"
+#include "platform_3g.hpp"
 #include <stdexcept>
 namespace srhd_awa::matrixgame {
-namespace { void* g_HInst{}; void* g_Wnd{}; bool g_WndExtern{}; }
+namespace {
+auto& g_HInst=platform3g::Current().module;
+auto& g_Wnd=platform3g::Current().window_identity;
+auto& g_WndExtern=platform3g::Current().external;
+}
 void L3GInitAsDLLCpuPhase(void* hinst,void* hwnd) {
     if(g_WndExtern)throw std::logic_error("live borrowed 3G context already bound");
 '''+prefix+'''}
 void L3GDeinitCpuPhase() noexcept {
     // CPU prefix borrowed only these identities; it installed no WndProc and
     // created no D3D/deko device, window or gamma state to release.
-    g_WndExtern=false;g_Wnd=nullptr;g_HInst=nullptr;
+    platform3g::Deinit();
 }
 Cpu3GState InspectCpu3GState() noexcept {return {g_HInst,g_Wnd,g_WndExtern};}
 }

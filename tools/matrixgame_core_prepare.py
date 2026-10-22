@@ -21,6 +21,7 @@ from matrixgame_cache_overrides import patch_cache
 from matrixgame_3g_lifecycle_overrides import INPUTS as G3_INPUTS, SUBDIRS as G3_SUBDIRS, patch_3g_cpu_phase
 from matrixgame_skin_overrides import INPUTS as SKIN_INPUTS, SUBDIRS as SKIN_SUBDIRS, patch_skin_resources
 from matrixgame_animation_overrides import patch_animation
+from matrixgame_platform_3g_overrides import patch_platform_3g
 
 INPUTS = {
     'CFile.cpp': '09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49',
@@ -182,6 +183,7 @@ inline constexpr int FileBegin = 0, FileCurrent = 1, FileEnd = 2;
     patch_3g_cpu_phase(files)
     patch_skin_resources(files)
     patch_animation(files)
+    patch_platform_3g(files)
     bc_provenance=prepare_bc(root,files)
     output.mkdir(parents=True, exist_ok=True)
     for name, data in files.items():

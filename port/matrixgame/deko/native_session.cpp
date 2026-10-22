@@ -16,6 +16,7 @@ void NativeDekoSession::Begin(std::uint32_t width,std::uint32_t height,
     } catch(...) {Deinit();throw;}
 }
 void NativeDekoSession::Deinit() noexcept {
+    runtime_.DetachDevice(); // Restore borrowed platform state before its device can disappear.
     buffers_.reset();renderer_.reset(); // Renderer waits for the real GPU queue.
     pipeline_.reset();skins_.reset();runtime_.Deinit(); // Only then destroy cached VO/texture staging.
 }

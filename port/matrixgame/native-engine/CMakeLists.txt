@@ -27,9 +27,23 @@ target_link_libraries(matrixgame-native-vector-object PUBLIC matrixgame-native-c
 add_library(matrixgame-native-cache STATIC
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/CacheNative.cpp" cache_resources.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/L3GCpuPhase.cpp" init_runtime.cpp cached_frame.cpp
+    "${CMAKE_CURRENT_BINARY_DIR}/core/source/3GPlatformNative.cpp" platform_3g.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/SkinResourcesNative.cpp" native_skin.cpp skin_pipeline.cpp)
 target_link_libraries(matrixgame-native-cache PUBLIC matrixgame-native-vector-object)
 target_include_directories(matrixgame-native-cache PUBLIC "${CMAKE_CURRENT_LIST_DIR}")
+if(WIN32)
+    target_sources(matrixgame-native-cache PRIVATE platform_win32.cpp)
+    target_link_libraries(matrixgame-native-cache PUBLIC d3d9 user32)
+endif()
+if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
+    add_executable(matrixgame-native-bootstrap "${PORT_ROOT}/tests/test_matrixgame_bootstrap.cpp")
+    target_link_libraries(matrixgame-native-bootstrap PRIVATE matrixgame-native-cache)
+    if(WIN32)
+        target_sources(matrixgame-native-bootstrap PRIVATE "${PORT_ROOT}/tests/test_matrixgame_bootstrap_win32.cpp")
+        target_compile_options(matrixgame-native-bootstrap PRIVATE /EHsc)
+    endif()
+    target_compile_options(matrixgame-native-bootstrap PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
+endif()
 option(MATRIXGAME_INIT_BUILD_LINK_PROBE "Link the native init/cache contract and real deko upload; no NRO/runtime claim" OFF)
 if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
     add_executable(matrixgame-native-animation-probe "${PORT_ROOT}/tests/test_matrixgame_animation.cpp")
@@ -71,6 +85,11 @@ if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
         target_link_options(matrixgame-native-init-probe PRIVATE
             "-specs=${MATRIXGAME_DEVKITPRO}/libnx/switch.specs" -Wl,--gc-sections -Wl,--build-id=sha1)
         set_target_properties(matrixgame-native-init-probe PROPERTIES SUFFIX ".elf")
+        target_include_directories(matrixgame-native-bootstrap PRIVATE "${MATRIXGAME_DEVKITPRO}/libnx/include")
+        target_link_directories(matrixgame-native-bootstrap PRIVATE "${MATRIXGAME_DEVKITPRO}/libnx/lib")
+        target_link_libraries(matrixgame-native-bootstrap PRIVATE nx)
+        target_link_options(matrixgame-native-bootstrap PRIVATE "-specs=${MATRIXGAME_DEVKITPRO}/libnx/switch.specs" -Wl,--gc-sections -Wl,--build-id=sha1)
+        set_target_properties(matrixgame-native-bootstrap PROPERTIES SUFFIX ".elf")
         foreach(SESSION_TARGET matrixgame-native-frame-probe matrixgame-native-skin-probe matrixgame-native-callbacks-probe matrixgame-native-animation-probe)
         target_sources(${SESSION_TARGET} PRIVATE
             "${PORT_ROOT}/tests/probe_matrixgame_native_session_link.cpp"
