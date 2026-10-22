@@ -1,5 +1,13 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
+Актуальное продолжение: **полная `MatrixSampleStateManager.cpp` переведена
+из COMPILE_FAIL в COMPILE_PASS и исполняется в общем bootstrap**; подробности
+в дополнении в конце. Коммит `246c6efedd1ed485d0803c63a60ec6f6be023db5`,
+актуальные хэши — `matrixgame-e2e519-sampler-device-evidence.json`.
+Ниже сохранён исторический снимок первого DLL-этапа: его экспериментальные
+бинарники в общем build directory заменены новым кандидатом. Замороженные
+основная NRO/ELF и аппаратные ZIP этим не затронуты.
+
 Дата: 23.10.2026. Ветка `master`, исходный SHA
 `0e81c2f45762d6088b53df1b4a54899ccd1d715b`.
 Коммит реализации: `ba7d797b5490b113c56672210e1346775d7fee9b`.
@@ -82,7 +90,7 @@ SetWindowLongPtrW на этой системе оказался другим. Т
 - Никакой device reset/lost-device, physical GPU parity или полной Windows x86
   CGame parity не заявляется. NULLREF query runtime не означает draw runtime.
 
-## Проверки окончательного кандидата
+## Проверки кандидата первого DLL-этапа (исторический снимок)
 
 | Проверка | Результат и предел доказательства |
 |---|---|
@@ -157,3 +165,90 @@ Upstream clean/pin и gitlink сохранены. Основная E2E-5.16 и �
 3. Реализовать подтверждаемый deko platform/device-state contract для
    `S3D_Default`/render pipeline. До него Keep Unsupported для неизвестных caps,
    затем отдельная физическая GPU проверка; `CFormMatrixGame/RunGameLoop` ещё pending.
+
+## Продолжение: полный sampler-manager и действующие device calls
+
+База продолжения: `2a3b4000721ad995c22a6b11d347e83d3c20269f`.
+Реализация: `246c6efedd1ed485d0803c63a60ec6f6be023db5`, локальный `master`,
+без push/fetch. Полная исходная единица
+`MatrixGame/src/MatrixSampleStateManager.cpp` сохранена целиком, включая
+конструктор, деструктор, `ApplySettings:16`, `SetState:20`,
+`EligibleForAnisotropy:31` и единственный глобальный `g_Sampler:35`.
+Это **не** новая выборка переименованных CPU-функций.
+
+`tools/matrixgame_engine_sampler_overrides.py` заменяет Windows/D3D типы
+на существующий typed sampler register и signed 32-bit DeviceResult.
+Исходные ветвления и порядок двух вызовов при AF сохранены:
+SetSamplerState(filter, ANISOTROPIC), проверка результата, затем MAXANISOTROPY.
+Глобальные device/caps обращения направлены к тому же negotiated device,
+которым владеет NativeInitRuntime; новый manager/session не создавался.
+Windows provider вызывает настоящие `IDirect3DDevice9::SetSamplerState` и
+`GetSamplerState`. Unsupported backend не возвращает фиктивный успех.
+
+Текущая исполненная цепь driver:
+
+```text
+NativeInitRuntime.Begin -> Cache/VO/SSkin -> AttachDevice -> реальные caps
+  -> ApplySamplerSettings -> оригинальный g_Sampler.ApplySettings
+  -> оригинальный g_Sampler.SetState/EligibleForAnisotropy
+  -> Device.SetSamplerState -> настоящий D3D9 Set/GetSamplerState
+  -> Detach/отказ backend/повторный Attach -> Deinit
+```
+
+`ApplySamplerSettings` вызывает тот же исходный метод, что строка 323
+`CGame::Init`; это не вызов всего CGame Init. На Windows запрос AF=64
+ограничился реальным caps=16; чтение MAG/MIN/MIP и MAXANISOTROPY из SDK device
+подтвердило значения. Второй вход применил AF=0 и вернул linear filters.
+AddressU прошёл через неизменённую ветвь без AF. После Deinit логическое
+`g_Sampler.m_AFDegree` равно 0, SetState без negotiated device отвергается.
+Само borrowed device, как в оригинале, остаётся живым; общего восстановления
+всех его sampler registers не добавлялось.
+
+Проверен адресный отказ backend sampler operation после получения настоящих
+caps и установки настоящего hook: операция выбрасывает Unsupported, hook
+снимается, затем тот же owner повторно подключает исходный device и успешно
+применяет состояние. Тестовый отказ не создаёт фиктивных capabilities/HRESULT.
+**Отрицательная HRESULT-ветвь не проверена**: NULLREF вернул успех даже для
+некорректного enum; такой вызов не считается доказательством обработки ошибки.
+
+Адресная компиляция на одном recipe (ASan/UBSan, те же include/flags):
+
+| Полная TU | Сохранённое старое source view | Кандидат |
+|---|---|---|
+| `MatrixSampleStateManager.cpp` | COMPILE_FAIL, `windows.h` в строке 6 | **COMPILE_PASS**, object SHA `c2aa72ea70c8d472d93ff35ae4bc1f66e1324b7bfd6e3431130d89fb06198f45` |
+| `MatrixGame.cpp` | прежний full inventory | Адресно перепроверена: COMPILE_FAIL, `VectorObject.hpp:8:10: d3d9.h` |
+
+Full sampler source SHA после overlay:
+`ebbb4acbcb1c2ff9fd80919a9eb31d393b6e88ebdf747bef03416523e3f01806`.
+Полный inventory 106 единиц повторно не запускался. Числа 14/92 выше относятся
+к предыдущему снимку; новое точное доказательство — **одна полная TU FAIL→PASS**.
+Суммарный актуальный full inventory заново не измерялся.
+
+Windows runtime PASS; host ASan/UBSan и ARM64/QEMU PASS в доступной им
+CPU/Unsupported-фазе; devkitA64 bootstrap и существующий deko session target
+COMPILE/LINK PASS, undefined strong=0. Сгенерированные core sources совпадают
+по всем output hashes на четырёх платформах. Тот же driver дополнен проверкой
+sampler; отдельного исполняемого smoke не создано. Старые большие suites не
+повторялись. Сборки сделаны до коммита из dirty worktree; соответствие коммиту
+подтверждено source hashes, embedded Git SHA в этих экспериментальных бинарниках нет.
+
+Воспроизведение — прежний target `matrixgame-native-bootstrap` и те же VO/PNG.
+Новый sampler helper не пишет файлы. Точечный audit:
+
+```sh
+python3 tools/matrixgame_engine_compile_audit.py \
+  --build-root build/matrixgame/e2e519/host --output <fresh-build-dir> \
+  --target matrixgame-native-engine --source MatrixSampleStateManager.cpp --jobs 1
+```
+
+Для сравнения старого source добавляется
+`--source-view build/matrixgame/e2e519/sampler-before/source`; валидные результаты
+этого этапа — `sampler-verified-before` и `sampler-verified-after`.
+Новый SDK ELF SHA:
+`064907599d6508ac357b0c52fa40d712b05bebf4806740d22f1e98a1fab76fbe`.
+Точные recipes, логи, остальные хэши и ограничения — в отдельном sampler evidence JSON.
+
+Повторная проверка всех 14 защищённых SHA прошла; upstream clean, pinned commit
+и gitlink прежние. Игра и сохранения не изменены. CGame Init, S3D_Default,
+планетарная форма, draw и физическая Switch остаются NOT RUN/HARDWARE_PENDING.
+Общая цель запуска MatrixGame остаётся открытой; три приоритета выше сохраняются.
