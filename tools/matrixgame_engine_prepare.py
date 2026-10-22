@@ -48,6 +48,15 @@ def prepare_engine(output):
     main.write_bytes(text.encode());paths['MatrixGame/src/MatrixGame.cpp']=hashlib.sha256(main.read_bytes()).hexdigest()
     from matrixgame_navigation_overrides import patch_navigation
     paths.update(patch_navigation(output))
+    # The complete release cache TU now uses explicit portable resource
+    # factories. Other engine units still see the original GPU headers; this
+    # does not hide their D3D dependencies or replace VectorObject.cpp.
+    cache_data=(output/'portable-core/CacheNative.cpp').read_bytes()
+    (output/'MatrixLib/3G/Cache.cpp').write_bytes(cache_data)
+    paths['MatrixLib/3G/Cache.cpp']=hashlib.sha256(cache_data).hexdigest()
+    cpu_header=(output/'portable-core/VectorObjectCpu.hpp').read_bytes()
+    (output/'MatrixLib/3G/VectorObjectCpu.hpp').write_bytes(cpu_header)
+    paths['MatrixLib/3G/VectorObjectCpu.hpp']=hashlib.sha256(cpu_header).hexdigest()
     result={'schema':1,'source_commit':revision,'scope':'full engine compilation input; runtime/backend not implemented here',
         'files_sha256':paths,'portable_inputs':report['inputs_sha256'],
         'excluded_platform_launcher':'MatrixGameDll.cpp; native entry remains to implement'}

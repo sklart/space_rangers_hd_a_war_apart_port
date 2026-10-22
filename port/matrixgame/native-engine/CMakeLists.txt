@@ -23,7 +23,37 @@ add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../native-core" "${CMAKE_CURRENT_BIN
 # Explicit original VectorObject CPU subset, not a full engine/GPU target.
 add_library(matrixgame-native-vector-object STATIC "${CMAKE_CURRENT_BINARY_DIR}/core/source/VectorObjectCpu.cpp")
 target_link_libraries(matrixgame-native-vector-object PUBLIC matrixgame-native-core)
-if(BUILD_TESTING)
+add_library(matrixgame-native-cache STATIC
+    "${CMAKE_CURRENT_BINARY_DIR}/core/source/CacheNative.cpp" cache_resources.cpp
+    "${CMAKE_CURRENT_BINARY_DIR}/core/source/L3GCpuPhase.cpp" init_runtime.cpp)
+target_link_libraries(matrixgame-native-cache PUBLIC matrixgame-native-vector-object)
+target_include_directories(matrixgame-native-cache PUBLIC "${CMAKE_CURRENT_LIST_DIR}")
+option(MATRIXGAME_INIT_BUILD_LINK_PROBE "Link the native init/cache contract and real deko upload; no NRO/runtime claim" OFF)
+if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
+    add_executable(matrixgame-native-init-probe "${PORT_ROOT}/tests/test_matrixgame_native_init.cpp")
+    target_link_libraries(matrixgame-native-init-probe PRIVATE matrixgame-native-cache)
+    target_compile_options(matrixgame-native-init-probe PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND (NOT CMAKE_CROSSCOMPILING OR CMAKE_SYSTEM_NAME STREQUAL "Linux"))
+        target_compile_definitions(matrixgame-native-init-probe PRIVATE MATRIXGAME_INIT_ALLOC_FAULTS)
+        target_link_options(matrixgame-native-init-probe PRIVATE -Wl,--wrap=calloc)
+    endif()
+    if(MATRIXGAME_INIT_BUILD_LINK_PROBE)
+        if(NOT CMAKE_CROSSCOMPILING OR NOT MATRIXGAME_DEVKITPRO)
+            message(FATAL_ERROR "Init GPU link probe requires devkitA64")
+        endif()
+        target_sources(matrixgame-native-init-probe PRIVATE
+            "${PORT_ROOT}/tests/probe_matrixgame_cache_upload_link.cpp"
+            "${PORT_ROOT}/port/matrixgame/deko/mesh_renderer.cpp")
+        target_compile_definitions(matrixgame-native-init-probe PRIVATE MATRIXGAME_INIT_GPU_LINK)
+        target_include_directories(matrixgame-native-init-probe PRIVATE
+            "${PORT_ROOT}/port/matrixgame/deko" "${MATRIXGAME_SHADER_DIR}"
+            "${MATRIXGAME_DEVKITPRO}/libnx/include")
+        target_link_directories(matrixgame-native-init-probe PRIVATE "${MATRIXGAME_DEVKITPRO}/libnx/lib")
+        target_link_libraries(matrixgame-native-init-probe PRIVATE deko3d nx)
+        target_link_options(matrixgame-native-init-probe PRIVATE
+            "-specs=${MATRIXGAME_DEVKITPRO}/libnx/switch.specs" -Wl,--gc-sections -Wl,--build-id=sha1)
+        set_target_properties(matrixgame-native-init-probe PROPERTIES SUFFIX ".elf")
+    endif()
     add_executable(matrixgame-native-vector-object-probe "${PORT_ROOT}/tests/test_matrixgame_vector_object.cpp")
     target_link_libraries(matrixgame-native-vector-object-probe PRIVATE matrixgame-native-vector-object)
     target_compile_options(matrixgame-native-vector-object-probe PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
@@ -61,6 +91,7 @@ target_compile_features(matrixgame-native-engine PUBLIC cxx_std_20)
 file(GLOB_RECURSE MATRIXLIB_AUDIT_UNITS CONFIGURE_DEPENDS "${ENGINE_SOURCE}/MatrixLib/*.cpp")
 add_library(matrixgame-native-matrixlib-audit STATIC EXCLUDE_FROM_ALL ${MATRIXLIB_AUDIT_UNITS})
 target_include_directories(matrixgame-native-matrixlib-audit PRIVATE
+    "${CMAKE_CURRENT_LIST_DIR}"
     "${ENGINE_SOURCE}/MatrixLib/Base" "${ENGINE_SOURCE}/MatrixLib/3G" "${ENGINE_SOURCE}/MatrixLib/Bitmap"
     "${CMAKE_CURRENT_LIST_DIR}/../native-core" "${PORT_ROOT}/port/switch/platform"
     "${PORT_ROOT}/port/matrixgame/third_party/directxmath/Inc" "${PORT_ROOT}/port/matrixgame/third_party/sal")

@@ -15,6 +15,7 @@ def main():
     p.add_argument('--build-root', type=Path, required=True)
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--target', action='append')
+    p.add_argument('--source', action='append', help='Retry only matching source suffixes, preserving the original recipe/flags')
     p.add_argument('--source-view', type=Path, help='Compile the same recipe against a preserved prepared source view')
     p.add_argument('--jobs', type=int, default=2, choices=(1, 2, 3, 4))
     a = p.parse_args()
@@ -27,8 +28,11 @@ def main():
     commands = json.loads((build / 'compile_commands.json').read_text())
     targets = a.target or ['matrixgame-native-engine']
     commands = [c for c in commands if any('/' + t + '.dir/' in c['command'] for t in targets)]
+    if a.source:
+        commands = [c for c in commands if any(Path(c['file']).as_posix().endswith(s) for s in a.source)]
     if not commands: raise ValueError('No matching engine compilation commands')
     report = dict(status='RUNNING', scope='actual objects only; no full link/runtime claim', units=[], targets=targets)
+    if a.source: report['source_filters']=a.source
     source_view = None
     original_view = (build/'source').as_posix()
     if a.source_view:
