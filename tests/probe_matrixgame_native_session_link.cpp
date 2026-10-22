@@ -18,3 +18,15 @@ extern "C" void MatrixGameNativeSessionDraw(const wchar_t* model,const wchar_t* 
         session.Deinit();
     }
 }
+extern "C" void MatrixGameNativeSkinDraw(const wchar_t* model) {
+    using namespace srhd_awa::matrixgame;
+    NativeDekoSession session;
+    session.Begin(64,64,std::as_bytes(std::span(vertex_dksh)),std::as_bytes(std::span(fragment_dksh)));
+    auto& object=session.LoadObject(model);
+    MeshDraw draw;draw.clip_from_model={1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
+    draw.normal_from_model=draw.clip_from_model;
+    std::vector<std::byte> output(64*64*4);
+    session.TaktSkins(16);
+    session.DrawSurfaceTextures(object,0,draw,output);
+    session.Deinit();
+}

@@ -17,6 +17,7 @@ def main():
     p.add_argument('--sdk',type=Path,default=Path('C:/devkitPro'))
     p.add_argument('--resume',action='store_true',help='Incremental rebuild of this tool\'s existing managed SDK output')
     p.add_argument('--cached-frame',action='store_true',help='Link the actual owned deko session/cache/VO/draw path instead of the earlier upload-only probe')
+    p.add_argument('--skin-resources',action='store_true',help='Link original skin resource selection/Takt and automatic VO surface texture draw')
     a=p.parse_args();out=a.output.resolve();sdk=a.sdk.resolve()
     if not out.is_relative_to(ROOT/'build'):raise ValueError('Use a build/ output')
     if out.exists():
@@ -49,7 +50,7 @@ def main():
             '-DPython3_EXECUTABLE='+sys.executable,
             '-DMATRIXGAME_INIT_BUILD_LINK_PROBE=ON','-DMATRIXGAME_SHADER_DIR='+str(ROOT/'build/matrixgame/deko'),
             '-DCMAKE_EXPORT_COMPILE_COMMANDS=ON'],'configure.log')
-        target='matrixgame-native-frame-probe' if a.cached_frame else 'matrixgame-native-init-probe'
+        target='matrixgame-native-skin-probe' if a.skin_resources else ('matrixgame-native-frame-probe' if a.cached_frame else 'matrixgame-native-init-probe')
         run([cmake,'--build',out/'cmake','--target',target,'--parallel','4'],'build.log')
         elf=out/('cmake/'+target+'.elf')
         readelf=sdk/('devkitA64/bin/aarch64-none-elf-readelf'+suffix)
@@ -57,7 +58,7 @@ def main():
         symbols=run([readelf,'-sW',elf],'symbols.log')
         undefined=[line for line in symbols.splitlines() if ' UND ' in line and ' WEAK ' not in line and len(line.split())>7]
         assert not undefined,undefined
-        required=('MatrixGameNativeSessionDraw','NativeDekoSession','PrepareNativeFrame','DrawFrame') if a.cached_frame else ('MatrixGameCachedMaterialGpuUpload',)
+        required=('MatrixGameNativeSkinDraw','DrawSurfaceTextures','SurfaceMaterials','Takt','Acquire') if a.skin_resources else (('MatrixGameNativeSessionDraw','NativeDekoSession','PrepareNativeFrame','DrawFrame') if a.cached_frame else ('MatrixGameCachedMaterialGpuUpload',))
         for name in (*required,'dkDeviceCreate','SetTextureAsset','CacheInit','L3GInitAsDLLCpuPhase'):
             assert name in symbols,name
         notes=run([readelf,'-n',elf],'notes.log')

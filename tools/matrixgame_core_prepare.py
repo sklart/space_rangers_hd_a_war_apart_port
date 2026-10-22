@@ -19,6 +19,7 @@ from matrixgame_list_overrides import INPUTS as LIST_INPUTS, patch_list
 from matrixgame_vector_object_overrides import INPUTS as VO_OBJECT_INPUTS, SUBDIRS as VO_OBJECT_SUBDIRS, patch_vector_object
 from matrixgame_cache_overrides import patch_cache
 from matrixgame_3g_lifecycle_overrides import INPUTS as G3_INPUTS, SUBDIRS as G3_SUBDIRS, patch_3g_cpu_phase
+from matrixgame_skin_overrides import INPUTS as SKIN_INPUTS, SUBDIRS as SKIN_SUBDIRS, patch_skin_resources
 
 INPUTS = {
     'CFile.cpp': '09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49',
@@ -46,9 +47,11 @@ INPUTS.update(BIG_BUFFER_INPUTS)
 INPUTS.update(LIST_INPUTS)
 INPUTS.update(VO_OBJECT_INPUTS)
 INPUTS.update(G3_INPUTS)
+INPUTS.update(SKIN_INPUTS)
 SOURCE_SUBDIRS={**MATH_SUBDIRS, **ENGINE_SUBDIRS, **VECTOR_SUBDIRS, **BITMAP_SUBDIRS, **TEXTURE_SUBDIRS, **LIFECYCLE_SUBDIRS, **BIG_BUFFER_SUBDIRS}
 SOURCE_SUBDIRS.update(VO_OBJECT_SUBDIRS)
 SOURCE_SUBDIRS.update(G3_SUBDIRS)
+SOURCE_SUBDIRS.update(SKIN_SUBDIRS)
 
 def replace_body(text, signature, replacement):
     if text.count(signature) != 1:
@@ -176,6 +179,7 @@ inline constexpr int FileBegin = 0, FileCurrent = 1, FileEnd = 2;
     patch_vector_object(files)
     patch_cache(files)
     patch_3g_cpu_phase(files)
+    patch_skin_resources(files)
     bc_provenance=prepare_bc(root,files)
     output.mkdir(parents=True, exist_ok=True)
     for name, data in files.items():
