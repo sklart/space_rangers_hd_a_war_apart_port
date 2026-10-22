@@ -25,11 +25,14 @@ add_library(matrixgame-native-vector-object STATIC "${CMAKE_CURRENT_BINARY_DIR}/
 target_link_libraries(matrixgame-native-vector-object PUBLIC matrixgame-native-core)
 add_library(matrixgame-native-cache STATIC
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/CacheNative.cpp" cache_resources.cpp
-    "${CMAKE_CURRENT_BINARY_DIR}/core/source/L3GCpuPhase.cpp" init_runtime.cpp)
+    "${CMAKE_CURRENT_BINARY_DIR}/core/source/L3GCpuPhase.cpp" init_runtime.cpp cached_frame.cpp)
 target_link_libraries(matrixgame-native-cache PUBLIC matrixgame-native-vector-object)
 target_include_directories(matrixgame-native-cache PUBLIC "${CMAKE_CURRENT_LIST_DIR}")
 option(MATRIXGAME_INIT_BUILD_LINK_PROBE "Link the native init/cache contract and real deko upload; no NRO/runtime claim" OFF)
 if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
+    add_executable(matrixgame-native-frame-probe "${PORT_ROOT}/tests/test_matrixgame_cached_frame.cpp")
+    target_link_libraries(matrixgame-native-frame-probe PRIVATE matrixgame-native-cache)
+    target_compile_options(matrixgame-native-frame-probe PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
     add_executable(matrixgame-native-init-probe "${PORT_ROOT}/tests/test_matrixgame_native_init.cpp")
     target_link_libraries(matrixgame-native-init-probe PRIVATE matrixgame-native-cache)
     target_compile_options(matrixgame-native-init-probe PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
@@ -53,6 +56,19 @@ if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
         target_link_options(matrixgame-native-init-probe PRIVATE
             "-specs=${MATRIXGAME_DEVKITPRO}/libnx/switch.specs" -Wl,--gc-sections -Wl,--build-id=sha1)
         set_target_properties(matrixgame-native-init-probe PROPERTIES SUFFIX ".elf")
+        target_sources(matrixgame-native-frame-probe PRIVATE
+            "${PORT_ROOT}/tests/probe_matrixgame_native_session_link.cpp"
+            "${PORT_ROOT}/port/matrixgame/deko/native_session.cpp"
+            "${PORT_ROOT}/port/matrixgame/deko/buffer_renderer.cpp"
+            "${PORT_ROOT}/port/matrixgame/deko/mesh_renderer.cpp")
+        target_compile_definitions(matrixgame-native-frame-probe PRIVATE MATRIXGAME_SESSION_GPU_LINK)
+        target_include_directories(matrixgame-native-frame-probe PRIVATE
+            "${MATRIXGAME_SHADER_DIR}" "${MATRIXGAME_DEVKITPRO}/libnx/include")
+        target_link_directories(matrixgame-native-frame-probe PRIVATE "${MATRIXGAME_DEVKITPRO}/libnx/lib")
+        target_link_libraries(matrixgame-native-frame-probe PRIVATE deko3d nx)
+        target_link_options(matrixgame-native-frame-probe PRIVATE
+            "-specs=${MATRIXGAME_DEVKITPRO}/libnx/switch.specs" -Wl,--gc-sections -Wl,--build-id=sha1)
+        set_target_properties(matrixgame-native-frame-probe PROPERTIES SUFFIX ".elf")
     endif()
     add_executable(matrixgame-native-vector-object-probe "${PORT_ROOT}/tests/test_matrixgame_vector_object.cpp")
     target_link_libraries(matrixgame-native-vector-object-probe PRIVATE matrixgame-native-vector-object)

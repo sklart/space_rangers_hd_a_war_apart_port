@@ -87,6 +87,43 @@ struct SProjData;''')
 #if defined(_DEBUG) || defined(_TRACE) || defined(MEM_SPY_ENABLE)
 #error CVectorObject CPU slice supports the pinned release lifecycle only
 #endif''', 1)
+    # Bridge only geometry submission, without claiming the unported skin/pass
+    # callbacks of Draw. Keep the original surface-first union traversal and
+    # original source Select calls; both bases belong to the shared Big buffers.
+    header = header.replace('#include "vector_object_cpu_math.hpp"', '#include "vector_object_cpu_math.hpp"\n#include "buffer_geometry.hpp"')
+    header = header.replace('    void BeforeDraw(void);', '''    // Explicit geometry bridge, not the legacy skin-driven Draw implementation.
+    std::vector<srhd_awa::matrixgame::MeshRange> PrepareNativeFrame(int frame);
+    int NativeSurfaceCount() const noexcept { return m_Geometry.m_SurfacesCnt; }
+    void BeforeDraw(void);''')
+    draw = function(c, 'void CVectorObject::Draw(int noframe,')
+    begin = draw.index('    int vbase =')
+    end = draw.index('    int pass =', begin)
+    selects = draw[begin:end].replace('return;', 'throw std::runtime_error("VO buffer preparation failed");')
+    begin = draw.index('            SVOKadr *k =')
+    end = draw.index('#ifdef _DEBUG', begin)
+    traversal = draw[begin:end]
+    selected += '''
+std::vector<srhd_awa::matrixgame::MeshRange> CVectorObject::PrepareNativeFrame(int noframe) {
+    if (!IsLoaded() || noframe < 0 || noframe >= GetFramesCnt())
+        throw std::out_of_range("VO native frame");
+    // This entry accepts only the OLF_NO_TEX slice. Skin callbacks are not
+    // bypassed for a skinned object; that contract still requires porting.
+    for (int i=0;i<m_Geometry.m_SurfacesCnt;++i)
+        if (m_Geometry.m_Surfaces[i].skin) throw std::logic_error("UNSUPPORTED: legacy skin callbacks");
+    DX_Prepare();
+    m_RemindCore.Use(FREE_VO_TIME_PERIOD);
+    m_VB->BeforeDraw();
+    m_IB->BeforeDraw();
+''' + selects + '''
+    std::vector<srhd_awa::matrixgame::MeshRange> ranges;
+    for (int surf=0;surf<m_Geometry.m_SurfacesCnt;++surf) {
+''' + traversal + '''
+                ranges.push_back(srhd_awa::matrixgame::VectorObjectRange(*gr,vbase,ibase));
+            }
+    }
+    return ranges;
+}
+'''
     files['VectorObjectCpu.hpp'] = header.encode()
     files['VectorObjectCpu.cpp'] = (c[:c.index('#include <new>')] + '''
 #include "VectorObjectCpu.hpp"
