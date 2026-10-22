@@ -21,7 +21,8 @@ if(NOT SOURCE_RESULT EQUAL 0)
 endif()
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../native-core" "${CMAKE_CURRENT_BINARY_DIR}/core")
 # Explicit original VectorObject CPU subset, not a full engine/GPU target.
-add_library(matrixgame-native-vector-object STATIC "${CMAKE_CURRENT_BINARY_DIR}/core/source/VectorObjectCpu.cpp")
+add_library(matrixgame-native-vector-object STATIC "${CMAKE_CURRENT_BINARY_DIR}/core/source/VectorObjectCpu.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/core/source/VectorObjectAnimNative.cpp")
 target_link_libraries(matrixgame-native-vector-object PUBLIC matrixgame-native-core)
 add_library(matrixgame-native-cache STATIC
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/CacheNative.cpp" cache_resources.cpp
@@ -31,6 +32,9 @@ target_link_libraries(matrixgame-native-cache PUBLIC matrixgame-native-vector-ob
 target_include_directories(matrixgame-native-cache PUBLIC "${CMAKE_CURRENT_LIST_DIR}")
 option(MATRIXGAME_INIT_BUILD_LINK_PROBE "Link the native init/cache contract and real deko upload; no NRO/runtime claim" OFF)
 if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
+    add_executable(matrixgame-native-animation-probe "${PORT_ROOT}/tests/test_matrixgame_animation.cpp")
+    target_link_libraries(matrixgame-native-animation-probe PRIVATE matrixgame-native-cache)
+    target_compile_options(matrixgame-native-animation-probe PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
     add_executable(matrixgame-native-callbacks-probe "${PORT_ROOT}/tests/test_matrixgame_skin_callbacks.cpp")
     target_link_libraries(matrixgame-native-callbacks-probe PRIVATE matrixgame-native-cache)
     target_compile_options(matrixgame-native-callbacks-probe PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
@@ -67,7 +71,7 @@ if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
         target_link_options(matrixgame-native-init-probe PRIVATE
             "-specs=${MATRIXGAME_DEVKITPRO}/libnx/switch.specs" -Wl,--gc-sections -Wl,--build-id=sha1)
         set_target_properties(matrixgame-native-init-probe PROPERTIES SUFFIX ".elf")
-        foreach(SESSION_TARGET matrixgame-native-frame-probe matrixgame-native-skin-probe matrixgame-native-callbacks-probe)
+        foreach(SESSION_TARGET matrixgame-native-frame-probe matrixgame-native-skin-probe matrixgame-native-callbacks-probe matrixgame-native-animation-probe)
         target_sources(${SESSION_TARGET} PRIVATE
             "${PORT_ROOT}/tests/probe_matrixgame_native_session_link.cpp"
             "${PORT_ROOT}/port/matrixgame/deko/native_session.cpp"

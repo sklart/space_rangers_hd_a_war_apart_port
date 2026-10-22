@@ -17,6 +17,7 @@ public:
     void TaktSkins(float cms);
     CVectorObject& LoadSkinnedObject(std::wstring_view name,EObjectLoad flags=OLF_AUTO,std::uint32_t group=GSP_ORDINAL);
     void DrawSkinned(CVectorObject&,int frame,const MeshDraw&,std::span<std::byte> output);
+    void DrawAnimated(NativeVectorObjectAnim&,const MeshDraw&,std::span<std::byte> output);
     CVectorObject& LoadObject(std::wstring_view name);
     MaterialTexture LoadTexture(std::wstring_view name);
 private:

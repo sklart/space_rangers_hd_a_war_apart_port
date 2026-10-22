@@ -57,4 +57,10 @@ void NativeDekoSession::DrawSkinned(CVectorObject& object,int frame,const MeshDr
     for(const auto& texture:batch.textures)renderer_->SetTextureAsset(texture.slot,*texture.asset);
     buffers_->Draw(buffers::Current(),batch.submissions,output);
 }
+void NativeDekoSession::DrawAnimated(NativeVectorObjectAnim& animation,const MeshDraw& draw,std::span<std::byte> output) {
+    if(!GpuReady())throw std::logic_error("native GPU session not active");
+    const auto batch=pipeline_->PrepareAnimated(animation,draw);
+    for(const auto& texture:batch.textures)renderer_->SetTextureAsset(texture.slot,*texture.asset);
+    buffers_->Draw(buffers::Current(),batch.submissions,output);
+}
 }

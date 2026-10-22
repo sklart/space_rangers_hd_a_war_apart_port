@@ -88,4 +88,18 @@ SkinDrawBatch NativeSkinPipeline::Prepare(CVectorObject& object,int frame,const 
     (void)buffers::ValidateBoundVO(buffers::Current(),ranges);
     return std::move(recorder.batch);
 }
+SkinDrawBatch NativeSkinPipeline::PrepareAnimated(NativeVectorObjectAnim& animation,const MeshDraw& draw) {
+    auto* object=animation.VO();
+    if(!runtime_.CpuReady() || !object || object->m_Cache!=g_Cache || !object->IsLoaded())
+        throw std::logic_error("animated VO not loaded in this cache");
+    if(animation.GetVOFrame()<0 || animation.GetVOFrame()>=object->GetFramesCnt())
+        throw std::out_of_range("animated VO frame");
+    Recorder recorder(draw);NativeDrawScope scope(recorder);
+    animation.BeforeDraw();
+    CVectorObject::DrawBegin();animation.Draw(0);CVectorObject::DrawEnd();
+    if(recorder.active)throw std::logic_error("uncleared animation skin state");
+    std::vector<MeshRange> ranges;for(const auto& s:recorder.batch.submissions)ranges.push_back(s.range);
+    (void)buffers::ValidateBoundVO(buffers::Current(),ranges);
+    return std::move(recorder.batch);
+}
 }

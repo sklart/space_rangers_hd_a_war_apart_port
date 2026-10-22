@@ -15,6 +15,7 @@ def main():
     p.add_argument('--qemu',action='store_true')
     p.add_argument('--skin-resources',action='store_true',help='Run new original skin resource/Takt integration, not the older frame contract')
     p.add_argument('--skin-callbacks',action='store_true',help='Run original skinned LoadSpecial/BeforeDraw/Draw integration')
+    p.add_argument('--animation',action='store_true',help='Run original no-light animation Takt -> skinned Draw integration')
     a=p.parse_args();root=Path(__file__).resolve().parents[1];out=a.output.resolve()
     if not out.is_relative_to(root/'build') or out.exists():raise ValueError('Use a fresh build/ output')
     binary=a.binary.resolve(strict=True);out.mkdir(parents=True)
@@ -33,11 +34,12 @@ def main():
         'UBSAN_OPTIONS':'halt_on_error=1:print_stacktrace=1'},text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,timeout=90)
     (out/'runtime.log').write_text(run.stdout)
     unchanged=all(sha(Path(i['source']))==i['sha256']==sha(c) for i,c in zip(inputs,copies))
-    result=dict(status=('SKIN_CALLBACK_RUNTIME_PASS' if a.skin_callbacks else ('SKIN_RESOURCE_RUNTIME_PASS' if a.skin_resources else 'CACHED_FRAME_RUNTIME_PASS')) if run.returncode==0 and unchanged else 'FAIL',
+    status='ANIMATION_RUNTIME_PASS' if a.animation else ('SKIN_CALLBACK_RUNTIME_PASS' if a.skin_callbacks else ('SKIN_RESOURCE_RUNTIME_PASS' if a.skin_resources else 'CACHED_FRAME_RUNTIME_PASS'))
+    result=dict(status=status if run.returncode==0 and unchanged else 'FAIL',
         architecture='ARM64/QEMU' if a.qemu else 'host ASan/UBSan',returncode=run.returncode,
         command=command,executable_sha256=sha(binary),inputs=inputs,inputs_unchanged=unchanged,
         original_vo=True,texture='controlled PNG fixture',gpu_executed=False,cgame_init_called=False,hardware_pending=True,
-        derived_vo_surface_names_replaced=a.skin_resources or a.skin_callbacks,
+        derived_vo_surface_names_replaced=a.skin_resources or a.skin_callbacks or a.animation,
         cpp_allocation_fault_cases=run.stdout.count('PASS actual C++ allocation failure=')+
             run.stdout.count('PASS actual allocation failure at second skin callback;'))
     (out/'result.json').write_text(json.dumps(result,indent=2)+'\n')

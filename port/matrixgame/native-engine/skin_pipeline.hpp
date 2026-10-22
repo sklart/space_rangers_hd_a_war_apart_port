@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 #include "native_skin.hpp"
+#include "VectorObjectAnimNative.hpp"
 namespace srhd_awa::matrixgame {
 struct SkinDrawBatch {
     struct Texture {std::uint32_t slot;std::shared_ptr<const TextureAsset> asset;};
@@ -17,6 +18,7 @@ public:
     void Load(CVectorObject&,EObjectLoad,std::uint32_t group);
     SkinDrawBatch Prepare(CVectorObject&,int frame,const MeshDraw&,
         std::shared_ptr<const SSkin> default_skin={});
+    SkinDrawBatch PrepareAnimated(NativeVectorObjectAnim&,const MeshDraw&);
 private:
     NativeInitRuntime& runtime_;
     NativeSkinLibrary& skins_;
