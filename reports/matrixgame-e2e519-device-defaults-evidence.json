@@ -1,0 +1,247 @@
+{
+  "stage": "E2E-5.19 original S3D_Default and borrowed state ownership",
+  "status": "ORIGINAL_DEVICE_DEFAULTS_WINDOWS_RUNTIME_PASS_ENGINE_PARTIAL",
+  "base_sha": "f0a1d3bd16de7035a2251a1c38602a8574d224c2",
+  "implementation_sha": "8fda1d4b7d5b1074e95dfc7ba005697f4b51b9ec",
+  "branch": "master",
+  "push_performed": false,
+  "remote_fetched": false,
+  "upstream_pin": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
+  "upstream_clean": true,
+  "original_function": {
+    "source": "MatrixLib/3G/3g.cpp:656",
+    "called_by": "MatrixGame/src/MatrixGame.cpp:620 CGame::ApplyVideoParams",
+    "input_sha256": "e02ae38d13e88a6b83d893f974cbfeebf936938e01c7f03097cd8be32a29605f",
+    "generated": "3GDeviceDefaults.cpp",
+    "generated_sha256": "929b194a459cef4cd8262827ad5d7ca800cbd5342114d123c08581b2951d7901",
+    "selected_function_not_full_tu": true,
+    "loop_stages": 8,
+    "render_registers_set": 12,
+    "strict_result_checks": true,
+    "lod_bias_aliasing_fix": "std::bit_cast<uint32_t> replaces original pointer punning"
+  },
+  "source_hashes": {
+    "port/matrixgame/deko/raster_state.hpp": "00ff364472997bb607b26ab2d35f7615e6c12f6490fff509388cee69d1d9be90",
+    "port/matrixgame/native-core/CMakeLists.txt": "f8474dce011521c5b787f6e7ed8441f26bdf48547be6068f0a4dbba99716c0e6",
+    "port/matrixgame/native-core/math_types.hpp": "f1f7037b382a25aa784a4e7233f9b6748b04713a39f14d56479bc2689d0c5597",
+    "port/matrixgame/native-engine/CMakeLists.txt": "548b7475d1abc0b90ff6561f884060b698250ed4db8e771738b04568ee833651",
+    "port/matrixgame/native-engine/device_defaults.hpp": "45847c74082a1b612fe178fe5bf76b800813b88bdc2be8a2febd273ded27df2a",
+    "port/matrixgame/native-engine/init_runtime.cpp": "0a788aec28fc6da049ba48978b51100a53732c2ba5b8fcc794e147c355c21314",
+    "port/matrixgame/native-engine/init_runtime.hpp": "9ec3842e0cb8d742b52f8c3e4647ee1439d7f4da042a04d03b118e556eae209a",
+    "port/matrixgame/native-engine/platform_3g.hpp": "0a2a88924b9215f1fbfb5746fc9c99ece0c0f95f427400fb0ff94e09ed74f459",
+    "port/matrixgame/native-engine/platform_win32.cpp": "261be938a47bd433dbf62f52103e01c36a595779f0aef436498aec05ba27b76d",
+    "port/matrixgame/native-engine/platform_win32.hpp": "3bab6be1d58ed8a0574c0b4fef33def0e6284bfb70e37538acbbe23cf809e011",
+    "tests/matrixgame_bootstrap_sampling.cpp": "7982bf2e3e0e728d55190f91ca0741866b5d69479fd31f0c5da6903eba73b16e",
+    "tests/test_matrixgame_bootstrap.cpp": "785451d8373ffb1eaafc6d0f9a8997a387926dc68917e6f1c96a402521070a6e",
+    "tests/test_matrixgame_bootstrap_win32.cpp": "5dd63dc3c60f7f26e2c50e911ded26fd0d85df996457f48c717ee242f70cd420",
+    "tools/matrixgame_core_prepare.py": "b86b02590876ac5b8ea3d0ee5d187b7443523e98879a04ecfd1a0ac725d98480",
+    "tools/matrixgame_device_defaults_overrides.py": "4714364eab37819e81ee2086ca5573b6581420e23e420e8f860688c94242ffec",
+    "tools/matrixgame_init_sdk.py": "f2716351a336e9f15810479b149b98a02ea7b7b3d6b06d845fc20dae52948258"
+  },
+  "all_generated_core_outputs_equal_and_byte_verified": true,
+  "runtime_logs": {
+    "host": {
+      "path": "build/matrixgame/e2e519/defaults-host-runtime.log",
+      "sha256": "de3e630c791fbef5ec4f2d7311b574a3ef3a9421b0847d819b0411c446d358fc",
+      "text": "cycle=0 entering original cache/CPU bootstrap\nCacheInit + L3G CPU prefix EXECUTED\nCache Get(VO) EXECUTED; entering original LoadSpecial\ncycle=0 original Cache/VO/SSkin ready submissions=1\nGPU prefix UNSUPPORTED: this platform has no native window attachment\noriginal sampler blocked before device negotiation\ncycle=1 entering original cache/CPU bootstrap\nCacheInit + L3G CPU prefix EXECUTED\nCache Get(VO) EXECUTED; entering original LoadSpecial\ncycle=1 original Cache/VO/SSkin ready submissions=1\nGPU prefix UNSUPPORTED: this platform has no native window attachment\noriginal sampler blocked before device negotiation\nBOOTSTRAP owner cleanup/reentry PASS; CGame::Init NOT CALLED; draw_executed=false\n"
+    },
+    "arm64": {
+      "path": "build/matrixgame/e2e519/defaults-qemu-runtime.log",
+      "sha256": "de3e630c791fbef5ec4f2d7311b574a3ef3a9421b0847d819b0411c446d358fc",
+      "text": "cycle=0 entering original cache/CPU bootstrap\nCacheInit + L3G CPU prefix EXECUTED\nCache Get(VO) EXECUTED; entering original LoadSpecial\ncycle=0 original Cache/VO/SSkin ready submissions=1\nGPU prefix UNSUPPORTED: this platform has no native window attachment\noriginal sampler blocked before device negotiation\ncycle=1 entering original cache/CPU bootstrap\nCacheInit + L3G CPU prefix EXECUTED\nCache Get(VO) EXECUTED; entering original LoadSpecial\ncycle=1 original Cache/VO/SSkin ready submissions=1\nGPU prefix UNSUPPORTED: this platform has no native window attachment\noriginal sampler blocked before device negotiation\nBOOTSTRAP owner cleanup/reentry PASS; CGame::Init NOT CALLED; draw_executed=false\n"
+    },
+    "windows": {
+      "path": "build/matrixgame/e2e519/defaults-windows-runtime.log",
+      "sha256": "0229381954dfa89e712fa9aaf229153aa7459d5e96f9f40c1191be2b7721e243",
+      "text": "Windows SDK: creating borrowed host window/device\nWindows SDK: actual D3D9 NULLREF created\ncycle=0 entering original cache/CPU bootstrap\nCacheInit + L3G CPU prefix EXECUTED\nCache Get(VO) EXECUTED; entering original LoadSpecial\ncycle=0 original Cache/VO/SSkin ready submissions=1\noriginal full sampler TU EXECUTED AF=16; real SDK readback + explicit rejection/reentry PASS\nrestore readback world.x=137.5 expected=137.5 blend=1 expected=1\noriginal S3D_Default EXECUTED: world + 8 sampler/texture stages + 12 render states; actual stateblock restore/fault/reentry PASS\noriginal L3GInitAsDLL EXECUTED SDK caps stages=8 anisotropy=16 swapchains=0 texMiB=4095\noriginal WndProc -> CForm keys=1 mouse=1 events=2\ncycle=1 entering original cache/CPU bootstrap\nCacheInit + L3G CPU prefix EXECUTED\nCache Get(VO) EXECUTED; entering original LoadSpecial\ncycle=1 original Cache/VO/SSkin ready submissions=1\noriginal full sampler TU EXECUTED AF=0; real SDK readback + explicit rejection/reentry PASS\nrestore readback world.x=137.5 expected=137.5 blend=1 expected=1\noriginal S3D_Default EXECUTED: world + 8 sampler/texture stages + 12 render states; actual stateblock restore/fault/reentry PASS\noriginal L3GInitAsDLL EXECUTED SDK caps stages=8 anisotropy=16 swapchains=0 texMiB=4095\noriginal WndProc -> CForm keys=1 mouse=1 events=2\nBOOTSTRAP owner cleanup/reentry PASS; CGame::Init NOT CALLED; draw_executed=false\n"
+    }
+  },
+  "stateblock_failed_readback": {
+    "path": "build/matrixgame/e2e519/defaults-stateblock-failed-readback.log",
+    "sha256": "9f8f9913c626eb3c04882bdbe19c406b0cd05a323672224c2a978f7c7c32c8db",
+    "text": "Windows SDK: creating borrowed host window/device\nWindows SDK: actual D3D9 NULLREF created\ncycle=0 entering original cache/CPU bootstrap\nCacheInit + L3G CPU prefix EXECUTED\nCache Get(VO) EXECUTED; entering original LoadSpecial\ncycle=0 original Cache/VO/SSkin ready submissions=1\noriginal full sampler TU EXECUTED AF=16; real SDK readback + explicit rejection/reentry PASS\nrestore readback world.x=0 expected=137.5 blend=0 expected=1\nAssertion failed: device.ReadWorldTransform()==original_world && device.ReadRenderState(RasterRegister::BlendEnable)==original_blend, file D:\\repos\\space_rangers_hd_a_war_apart_port\\tests\\matrixgame_bootstrap_sampling.cpp, line 124\n",
+    "resolved_by": "explicit actual Get/Set snapshot of all states exposed by this contract, plus retained COM texture references"
+  },
+  "captured_contract": {
+    "world_transform": true,
+    "render_registers": 14,
+    "sampler_registers_per_stage": 8,
+    "stages": 8,
+    "texture_stage_register": "TEXCOORDINDEX",
+    "texture_bindings": 8,
+    "unknown_registers_and_stages": "Unsupported",
+    "actual_com_stateblock_supplementary": true,
+    "restore_hresult_retained": true,
+    "ready_requires_owned_state_lease": true
+  },
+  "faults_verified": [
+    "sampler backend refusal",
+    "S3D_Default render refusal after actual world + 8 sampler/texture stage writes",
+    "capture refusal after real caps and window hook",
+    "reentry after restore with zero outstanding adapter state leases"
+  ],
+  "nondefault_foreign_state_restore_verified": [
+    "world translation x=137.5,y=-11",
+    "blend enabled",
+    "sampler AddressU clamp, all 8 stages",
+    "texcoord index 1, all 8 stages",
+    "real nonnull managed 2x2 D3D9 texture binding at stage 0"
+  ],
+  "binaries": {
+    "host": {
+      "path": "build/matrixgame/e2e519/host/matrixgame-native-bootstrap",
+      "sha256": "9ed5d4b5c0554d1db3971cbc49bcb094a815608f83fd6b1db54c94b7e12a6a20"
+    },
+    "arm64": {
+      "path": "build/matrixgame/e2e519/arm64/matrixgame-native-bootstrap",
+      "sha256": "3c2ac5052c7cbfe463fca9f5ea0421d6e15d35bcea2ff0aef5ba939ce87e1376"
+    },
+    "windows": {
+      "path": "build/matrixgame/e2e519/windows/engine/Release/matrixgame-native-bootstrap.exe",
+      "sha256": "7bf78d8d631ce0f9430879e58890da66f1dd0a665208e7b711edb796fea4c625"
+    },
+    "sdk": {
+      "path": "build/matrixgame/e2e519/sdk/cmake/matrixgame-native-bootstrap.elf",
+      "sha256": "2f737751326dc145d19412318511043fa7f4b1c505426c419952ca578af1733f"
+    }
+  },
+  "sdk": {
+    "status": "SDK_LINK_PASS",
+    "hardware_pending": true,
+    "runtime_executed": false,
+    "nro_packaged": false,
+    "commands": [
+      [
+        "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+        "-S",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-engine",
+        "-B",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\sdk\\cmake",
+        "-G",
+        "Ninja",
+        "-DCMAKE_MAKE_PROGRAM=C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\Ninja\\ninja.exe",
+        "-DCMAKE_TOOLCHAIN_FILE=D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core\\switch-toolchain.cmake",
+        "-DMATRIXGAME_DEVKITPRO=C:/devkitPro",
+        "-DBUILD_TESTING=OFF",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DPython3_EXECUTABLE=C:\\Users\\Sklyarov\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-DMATRIXGAME_INIT_BUILD_LINK_PROBE=ON",
+        "-DMATRIXGAME_SHADER_DIR=D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\deko",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+      ],
+      [
+        "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+        "--build",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\sdk\\cmake",
+        "--target",
+        "matrixgame-native-bootstrap",
+        "--parallel",
+        "4"
+      ],
+      [
+        "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-readelf.exe",
+        "-h",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\sdk\\cmake\\matrixgame-native-bootstrap.elf"
+      ],
+      [
+        "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-readelf.exe",
+        "-sW",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\sdk\\cmake\\matrixgame-native-bootstrap.elf"
+      ],
+      [
+        "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-readelf.exe",
+        "-n",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\sdk\\cmake\\matrixgame-native-bootstrap.elf"
+      ]
+    ],
+    "undefined_strong": [],
+    "elf": "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\sdk\\cmake\\matrixgame-native-bootstrap.elf",
+    "sha256": "2f737751326dc145d19412318511043fa7f4b1c505426c419952ca578af1733f",
+    "bytes": 4391568,
+    "build_id": "Build ID: 756fa8a387fbc7ef93dbb84c4b67fa5f17adb53f"
+  },
+  "deko_session_link": {
+    "undefined_strong": [],
+    "runtime_executed": false,
+    "sha256": "2cd200566b1f45b8314ac6915d860dd2d07d0058ab2e48e05d5e89b5925384d3"
+  },
+  "first_remaining_cgame_blocker": {
+    "status": "COMPLETE",
+    "scope": "actual objects only; no full link/runtime claim",
+    "units": [
+      {
+        "source": "MatrixGame/src/MatrixGame.cpp",
+        "source_sha256": "19c1485c608202ff088c4b37a62ca2508ee9b064f655017799e6bae27fae672b",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/host/source/MatrixLib/3G/3g.hpp:16:10: fatal error: d3d9.h: No such file or directory",
+        "log": "0.log"
+      }
+    ],
+    "targets": [
+      "matrixgame-native-engine"
+    ],
+    "source_filters": [
+      "/MatrixGame.cpp"
+    ],
+    "source_manifest_sha256": "c58961aebd518e97626b27a6f23430a0c2f4cb59ef88628b39440d3c0ccaa84d",
+    "compile_pass": 0,
+    "compile_fail": 1,
+    "linked": false,
+    "runtime_executed": false,
+    "hardware_executed": false
+  },
+  "full_inventory_rerun": false,
+  "full_3g_tu_compiled": false,
+  "full_engine_linked": false,
+  "cgame_init_called": false,
+  "apply_video_params_called": false,
+  "s3d_default_executed_on_windows": true,
+  "s3d_default_executed_on_linux_or_switch": false,
+  "gpu_draw_executed": false,
+  "switch_executed": false,
+  "hardware_status": "HARDWARE_PENDING",
+  "limitations": [
+    "Reset, device loss, presentation and viewport lifecycle remain unsupported",
+    "Capture/restore covers the currently exposed fixed-function native contract; not a proof of all D3D9 state",
+    "NULLREF state/query execution is not physical GPU draw",
+    "negative real HRESULT/device-loss branch not exercised",
+    "strict native result checking is stronger than original ASSERT_OFF branch"
+  ],
+  "build_dirty_before_commit": true,
+  "embedded_git_sha": false,
+  "protected_before": {
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\newgame.txt": "edebec1fbe596bfdb856719310372b9bf69ce7989394b86ae13377db847ec65c",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\QuickSave.sav": "84509d9ab5411555c0a361d5616c94aae6ef3a5c00fa81782ea64192b5c7bd73",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Medical Center Autoclave.sav": "d6e238a00e514712ab9eed796c40c39dd1cddc20f7036de1a7b8d25fee34e622",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\hardware-gpu-a224fa4.zip": "1c5cfebb2696bbf6db98bd2cd598956f468ef1ca8183bbf31271148c30103429",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Sol System.sav": "62c35d050b256e13326ce904123c44bad3756deeb66e269dbae2a66b4f903cc0",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-2.vo": "b7cba8a78faf0c8cf32cf942288d2fdb0d5d21b047d0e9abaa212092c11d9ccd",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\reports\\e2e5\\e2e510-artifact-provenance.json": "eaac3d9181b12566492bda774933af6469f2b0b26104bcc83a8d266fee7759ec",
+    "G:\\pack.zip": "f2ea785ad8f1ca35288132a2fee211ac0e6e7bd2db00cff35f4a1fbc2cfed51f",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-1.vo": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\CFG.TXT": "6b63a47bba893e4a33c4f92d3aaa19adf3c45c4032da7a302b140e03ab166180",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\mg-merge-host\\core\\texture-request-fixtures\\assets\\plain.png": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\########.log": "fef05715d095d39568aee8d9c121c1cb232a80a84e0c6e2a56712070d2f505b3",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\AutoSave.sav": "739c428d9a7f13e88e7e2fe65d6435dbf297270be35c672020b9fa7d097ac601",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce.zip": "e1a1dec5f410b983d629ae538ad9b4ba063f89a8101af43d27ea00c6ce6a08a4"
+  },
+  "protected_after": {
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\newgame.txt": "edebec1fbe596bfdb856719310372b9bf69ce7989394b86ae13377db847ec65c",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\QuickSave.sav": "84509d9ab5411555c0a361d5616c94aae6ef3a5c00fa81782ea64192b5c7bd73",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Medical Center Autoclave.sav": "d6e238a00e514712ab9eed796c40c39dd1cddc20f7036de1a7b8d25fee34e622",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\hardware-gpu-a224fa4.zip": "1c5cfebb2696bbf6db98bd2cd598956f468ef1ca8183bbf31271148c30103429",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Sol System.sav": "62c35d050b256e13326ce904123c44bad3756deeb66e269dbae2a66b4f903cc0",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-2.vo": "b7cba8a78faf0c8cf32cf942288d2fdb0d5d21b047d0e9abaa212092c11d9ccd",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\reports\\e2e5\\e2e510-artifact-provenance.json": "eaac3d9181b12566492bda774933af6469f2b0b26104bcc83a8d266fee7759ec",
+    "G:\\pack.zip": "f2ea785ad8f1ca35288132a2fee211ac0e6e7bd2db00cff35f4a1fbc2cfed51f",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-1.vo": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\CFG.TXT": "6b63a47bba893e4a33c4f92d3aaa19adf3c45c4032da7a302b140e03ab166180",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\mg-merge-host\\core\\texture-request-fixtures\\assets\\plain.png": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\########.log": "fef05715d095d39568aee8d9c121c1cb232a80a84e0c6e2a56712070d2f505b3",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\AutoSave.sav": "739c428d9a7f13e88e7e2fe65d6435dbf297270be35c672020b9fa7d097ac601",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce.zip": "e1a1dec5f410b983d629ae538ad9b4ba063f89a8101af43d27ea00c6ce6a08a4"
+  },
+  "protected_unchanged": true,
+  "earlier_experimental_binary_paths_superseded": true
+}

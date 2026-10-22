@@ -1,10 +1,11 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение: **общие полные VO/billboard declarations проверены
-в existing bootstrap; первый compile blocker MatrixGame.cpp переместился
-из VectorObject.hpp в обязательный device API `3g.hpp:16`**. Коммит
-`35ac1ab6da1fbb00fa05e31762cb396b3083eadc`, актуальные хэши —
-`matrixgame-e2e519-types-boundary-evidence.json`; подробности в последнем разделе.
+Актуальное продолжение: **оригинальный `S3D_Default` исполняется через настоящий
+D3D9 backend в том же cache/device owner; недефолтное состояние и COM texture
+bindings восстанавливаются при Detach/ошибке**. Коммит
+`8fda1d4b7d5b1074e95dfc7ba005697f4b51b9ec`, актуальные хэши —
+`matrixgame-e2e519-device-defaults-evidence.json`; подробности в последнем разделе.
+Предыдущий type-boundary этап (`35ac1ab`) сохранён ниже как история.
 Ранее полная `MatrixSampleStateManager.cpp` переведена из COMPILE_FAIL в PASS
 и исполняется в bootstrap (`246c6ef`, sampler evidence сохранён как история).
 Ниже сохранён исторический снимок первого DLL-этапа: его экспериментальные
@@ -338,3 +339,100 @@ SDK ELF SHA: `3bc17a4b58d88183e1d6de50fdf969c6795928ea4b23ea4ba2aef4072535f633`.
    после которых возможен настоящий CGame::Init в исходном порядке.
 3. CFormMatrixGame/RunGameLoop и физический deko draw после выполнения prerequisites;
    до этого не заявлять работающий планетарный бой.
+
+## Продолжение: оригинальный S3D_Default и сохранность borrowed device state
+
+База: `f0a1d3bd16de7035a2251a1c38602a8574d224c2`.
+Коммит реализации: `8fda1d4b7d5b1074e95dfc7ba005697f4b51b9ec`, локально, без push.
+
+**Новая исполненная исходная стадия:** полное тело `S3D_Default`
+из `MatrixLib/3G/3g.cpp:656`, которое оригинальный
+`CGame::ApplyVideoParams` вызывает в `MatrixGame.cpp:620`.
+`tools/matrixgame_device_defaults_overrides.py` извлекает именно эту функцию
+из pinned source и направляет вызовы в тот же typed Device. Имя исходной
+функции сохранено; нового самостоятельного test executable не создано.
+Это выбранная функция, **не compile PASS полной 3g.cpp**.
+
+Сохранены исходный порядок и все операции: identity world matrix;
+восемь итераций sampler/texture/TSS; двенадцать render registers.
+Настройки AF применяет ранее перенесённый полный g_Sampler.
+Преобразование LOD bias из float в DWORD заменено на std::bit_cast без aliasing UB.
+Identity вычисляет настоящая DirectXMath XMMatrixIdentity. Native result checking
+явно выбрасывает DeviceError при неуспехе; это строже исходного ASSERT_OFF режима,
+успешная последовательность не сокращена.
+
+Device contract расширен world transform, render state, ClearTexture и TSS.
+Windows provider вызывает настоящие Set/Get методы IDirect3DDevice9.
+Сериализованные IDs проверены настоящим SDK; MeshRasterState не стал молча
+принимать Lighting/ShadeMode/CullMode — отсутствующая shader поддержка всё ещё
+отвергается. Deko provider для этих legacy операций не придумывался.
+
+NativeInitRuntime теперь считает устройство готовым только после получения
+owned state lease. Lease захватывается после фактического caps negotiation,
+до применения sampler/defaults; настройки sampler обязательны до S3D_Default.
+Detach/Deinit сначала восстанавливают состояние и освобождают lease, затем
+возвращают gamma/window hook и освобождают cache/buffer context в прежнем порядке.
+Результат Restore хранится как реальный signed device result; failure не выдаётся
+за подтверждённое восстановление. CPU cache может пережить отказ GPU-фазы для
+повторного входа, но GPU/default readiness сбрасывается.
+
+### Выявленный реальный дефект restore и исправление
+
+Усиленный readback показал: NULLREF вернул success из StateBlock::Apply,
+однако world.x остался 0 вместо 137.5, blend — 0 вместо 1.
+Лог сохранён как `defaults-stateblock-failed-readback.log` и включён в evidence.
+Прежняя проверка identity/default blend могла бы этого не заметить.
+
+State lease поэтому дополнительно сохраняет реальные GetTransform/GetRenderState/
+GetSamplerState/GetTextureStageState и COM-ссылки GetTexture. Restore явно
+применяет сохранённые значения через Set API; StateBlock оставлен дополнительным
+механизмом, его HRESULT не считается достаточным доказательством.
+Точная поддержанная область: world, 14 render registers, 8 sampler registers
+на стадиях 0..7, TEXCOORDINDEX и восемь texture bindings. Операции вне этой
+области отвергаются Unsupported. Это не универсальная реализация всех D3D9 states.
+
+Windows helper создал настоящую managed 2x2 SDK texture и привязал её к stage 0.
+Перед захватом заданы world translation (137.5,-11), blend enabled,
+AddressU clamp и texcoord=1 на всех восьми стадиях. После S3D_Default readback
+подтвердил identity, ожидаемые AF/linear filters, wrap, LOD=-1 bits, отсутствие
+texture bindings, texcoord=0 и все двенадцать render values. После Detach
+восстановлены недефолтные caller values и исходная ненулевая texture binding.
+Owned state leases после освобождения равны нулю.
+
+Адресные ошибки: отказ render backend после настоящего world и восьми
+sampler/texture-stage записей; отказ CaptureState после настоящих caps и hook.
+Оба отказа очищают частичный GPU state, сохраняют CPU owner и допускают новый
+Attach/ApplySampler/S3D_Default. Restore на частичном отказе также проверен
+реальным readback; фиктивные HRESULT/caps в этих fault providers не возвращаются.
+
+| Проверка | Фактический результат |
+|---|---|
+| Windows x86/D3D9 NULLREF | PASS, exit 0; два входа с AF=16 и AF=0, S3D_Default, state readback, реальные COM leases и восстановление после отказов |
+| Host ASan/UBSan + leak detection | PASS в CPU/Unsupported scope; S3D_Default на device не исполнялся |
+| ARM64/QEMU | PASS того же CPU/Unsupported scope; не Switch runtime |
+| devkitA64 bootstrap | COMPILE/LINK PASS, символ S3D_Default присутствует, undefined strong=0 |
+| Существующий deko session link target | COMPILE/LINK PASS, undefined strong=0; GPU runtime NOT RUN |
+| Адресный MatrixGame.cpp audit | COMPILE_FAIL: прежний `3g.hpp:16:10: d3d9.h`; общий inventory не повторялся |
+
+Generated S3D_Default SHA:
+`929b194a459cef4cd8262827ad5d7ca800cbd5342114d123c08581b2951d7901`;
+core outputs проверены по фактическим байтам и совпадают на всех четырёх платформах.
+Новый SDK ELF SHA:
+`2f737751326dc145d19412318511043fa7f4b1c505426c419952ca578af1733f`.
+Команды прежние: target matrixgame-native-bootstrap с VO/PNG и
+`tools/matrixgame_init_sdk.py --bootstrap`; точные файлы/логи/хэши — в новом evidence.
+Предыдущие экспериментальные бинарники в общих build paths заменены этим кандидатом.
+
+Точная граница теперь: Cache/VO/SSkin → DLL bootstrap/caps/state lease →
+оригинальный sampler → **оригинальный S3D_Default с настоящими Windows state calls**
+→ CForm callbacks → Restore/Deinit. Сам CGame::Init и ApplyVideoParams не вызваны;
+Reset, presentation/viewport, lost-device, полный render pipeline и CFormMatrixGame
+пока не реализованы/не исполнены. Взаимодействие state lease с будущим Reset
+потребует отдельного решения. State/query runtime NULLREF не означает GPU draw.
+
+Все 14 защищённых SHA снова совпали; upstream clean/pin/gitlink прежние,
+основная NRO и hardware ZIP не изменялись, saves/resources не коммитились.
+Физическая Switch и deko drawing остаются HARDWARE_PENDING. Общая цель активна.
+Следующие три узла: полный 3g.hpp contract для caps/presentation/Reset;
+затем обязательные Texture/DeviceState/static_init/map зависимости настоящего
+CGame::Init; затем CFormMatrixGame/RunGameLoop и физический draw.
