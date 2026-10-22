@@ -1,5 +1,9 @@
 # E2E-5.18 — оригинальный Cache и CPU-фаза нативного входа 3G
 
+Продолжение: [skin resources и UV lifecycle → VO surface draw](matrixgame-native-skin-20261022.md).
+Новый CPU runtime/ARM64-QEMU PASS и SDK LINK PASS; GPU execution и полный CGame::Init
+по-прежнему не подтверждены. Ниже сохранены результаты исходного этапа E2E-5.18.
+
 22.10.2026. Локальный `master`, база `3ab96a02efa3341748c0ab34e91a659b8d81559d`.
 Код: `5db150fdc3344653e7777fe493382ab2cce7b445`. Push не выполнялся.
 MatrixGame pin прежний: `218115a72fa9c5d43269f4ca84a8596a0bcb82f1`, upstream чист.

@@ -2,6 +2,13 @@
 
 ## Текущий статус на 22.10.2026
 
+Следующий шаг: перенесены исходный разбор skin resources и UV lifecycle Takt,
+подключена загрузка текстур по именам поверхностей VO. Host ASan/UBSan и
+ARM64/QEMU PASS, включая отказы ресурсов/аллокации и очистку. SDK link PASS;
+GPU execution HARDWARE_PENDING. Render path пока ordinal single-pass, без
+полных SSkin callbacks, side/gloss/mask effects и CGame::Init.
+[Skin resources: новый срез и граница](../../reports/matrixgame-native-skin-20261022.md).
+
 Продолжение E2E-5.18: кэш и оригинальный VO теперь соединены с подготовкой
 кадра и реальным deko draw через общий owning lifecycle. Новый сценарий с двумя
 объектами в общих буферах прошёл host ASan/UBSan и ARM64/QEMU. SDK ELF включает
