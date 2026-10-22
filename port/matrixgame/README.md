@@ -1,6 +1,18 @@
 # MatrixGame: нативный перенос и Windows x86 reference
 
-## Текущий статус на 21.10.2026
+## Текущий статус на 22.10.2026
+
+Обновление 22.10, E2E-5.18: полный release Cache.cpp перенесён на явные portable
+factories; compile inventory — 14 PASS / 92 FAIL из того же набора 106 units.
+Новый Init/cache/CPU-3G-prefix → resource load → Deinit/reentry прошёл host
+ASan/UBSan и ARM64/QEMU, включая два настоящих calloc failure. SDK связал
+Cache/material lease с настоящим deko upload, GPU execution PENDING.
+Managed Unload сохраняет storage до уничтожения; default освобождает его сразу.
+Полные L3GInitAsDLL/CGame Init/Run не выполнялись: первый compile blocker —
+VectorObject.hpp/d3d9.h, следующий runtime contract — platform/device binding.
+[Отчёт и точная граница](../../reports/matrixgame-e2e518-native-init.md).
+
+Ниже — предыдущая граница E2E-5.17:
 
 Перенос остаётся частичным. Реальные CPU-компоненты MatrixLib, ресурсная
 цепочка, навигация, Base/Form lifecycle и BigVB/BigIB проверяются отдельно

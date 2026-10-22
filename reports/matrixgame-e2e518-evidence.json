@@ -1,0 +1,346 @@
+{
+  "schema": 1,
+  "date": "2026-10-22",
+  "base_git": "3ab96a02efa3341748c0ab34e91a659b8d81559d",
+  "implementation_git": "5db150fdc3344653e7777fe493382ab2cce7b445",
+  "upstream_pin": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
+  "hardware_pending": true,
+  "gates": {
+    "host": "ASAN_UBSAN_INIT_CACHE_PASS",
+    "linux_arm64_qemu": "INIT_CACHE_PASS",
+    "devkitA64": "SDK_LINK_PASS",
+    "switch": "HARDWARE_PENDING",
+    "CGame_Init_RunGameLoop": "BLOCKED_NOT_CALLED"
+  },
+  "compile_inventory": {
+    "baseline": {
+      "pass": 13,
+      "fail": 93,
+      "selected": 106,
+      "path": "build/matrixgame/e2e518/baseline/result.json",
+      "source_manifest_sha256": "84d7555b688de02b3e32f8e7985b40a43fef3f984361270ac625a9241bd90a94"
+    },
+    "raw_candidate": {
+      "pass": 13,
+      "fail": 93,
+      "path": "build/matrixgame/e2e518/candidate/result.json"
+    },
+    "targeted_retry": "build/matrixgame/e2e518/cache-final/result.json",
+    "final": {
+      "pass": 14,
+      "fail": 92,
+      "selected": 106
+    },
+    "changed_statuses": [
+      {
+        "source": "MatrixLib/3G/Cache.cpp",
+        "before": {
+          "source": "MatrixLib/3G/Cache.cpp",
+          "source_sha256": "568f108f4578e8fb53a5b08bf2561189d4d3426402275deabeccd17a1e82fa9a",
+          "status": "COMPILE_FAIL",
+          "returncode": 1,
+          "first_error": "$REPO/build/matrixgame/e2e518/host/source/MatrixLib/3G/Helper.hpp:9:10: fatal error: windows.h: No such file or directory",
+          "log": "81.log"
+        },
+        "after": {
+          "source": "MatrixLib/3G/Cache.cpp",
+          "source_sha256": "3721c286af9c7a5ddc1b277962243aef6ecc62d18e8203a35e24516e924542bc",
+          "status": "COMPILE_PASS",
+          "returncode": 0,
+          "first_error": "",
+          "log": "0.log",
+          "object_sha256": "eaa387cbabfe22f7810b1fcb73276a82d3a324cd29eb5567a178f753777b68e4"
+        }
+      }
+    ],
+    "profile": "same host CMake target recipes and flags; only selected Cache.cpp retried after missing effective header/include fixes",
+    "all_other_unit_source_hashes_still_match": true
+  },
+  "source_provenance": {
+    "lf_normalized_inputs": {
+      "CFile.cpp": "09987398ba4a3805bee5a7a8595ec19a674f3a09d98a4fd318b4711ea9348a49",
+      "CFile.hpp": "20ff28cc056a6754ea8866a250f0dd866b4d823e90af18938699a736147d0abc",
+      "CMain.hpp": "fa22e13fe14e0484598320601203ed5289176d8a4926a2bb3fbbd51f86805d1b",
+      "CException.hpp": "b07668359bd5c9e383d5dbd652a727389faecfddc500d3d92584c32052d08303",
+      "CBuf.cpp": "7a404ddcd08c96f985c07e67ed44915dae83c768e9b39617361df24891670eac",
+      "CBuf.hpp": "37beddebc23e07e50a35171782a581c5901a8b27a292c5bc864f293466d9b1a0",
+      "BaseDef.hpp": "087fec96990f3e14a9988e8f1dec9c9a22ab14f2e1cc38fa68f5b3970d00f1e6",
+      "CRC32.hpp": "287fb8f9b67853c487beb3b6ce96c45aa0bcdf617b348407c8bc0caed4ce69fe",
+      "CRC32.cpp": "f6bf4e86be9ae18dc836e0e5dc87536e36af09c7bf33705064e4a493fafe3c76",
+      "utils.hpp": "fc7432bf0828efcb3e11bfd930e5107058a4571672abab3929af7b5f4c556f63",
+      "CStorage.hpp": "6aafd8b3858ac39e2654cc709666c8c59bc40876dcab139d9a0aea0019c6aa95",
+      "CStorage.cpp": "80309d945c6d1922aacd579a8d1af3aaa78f1c3a22e377fee9ec2b448a3940fb",
+      "CHeap.hpp": "fb6fcb64d4bd8254689fe46bb9d64a1407050a92c6a7ec2820493b34692e6ad8",
+      "CBlockPar.hpp": "c746f291ba45996c4150b0543b81f2cd7226cff5b618c7af48394947e4371cde",
+      "CBlockPar.cpp": "bc2c55bddd62709bad774569f267c34b9e0c08b910d1be5a40924a62fa83ce0a",
+      "Math3D.hpp": "f444325e3bfea812f94c8b2c1e8d06670686af65675c9ba6cad762b2278c7b14",
+      "Math3D.cpp": "ce5c5be94a6cbce29ee766922c43d70940590541a639b0268638a6aa3fe21804",
+      "random.cpp": "9c5ef914ad896f214be468babd49304548613743b7c533c200fb64cbf0b1cdfd",
+      "random.hpp": "b169672fd41650a3d8d090e34a31a64aa5fd7607bb22406f496808fb704901a8",
+      "MatrixGameDll.hpp": "f3ae60f5b1945b8ecae9e99749ee35ea3ce61a9112f4f7c8c90ffddf904147b0",
+      "MatrixGame.h": "65b42d2d1f647cc328ec7d50ba983ad8e7fd60daccf82756796c3657117d018e",
+      "VectorObject.hpp": "41af7cf50ab96af88b57ca5101cdf1b27d25ce6326517d532056142912ee0b72",
+      "VectorObject.cpp": "11ffb4eb842b5cdf6041d0ddc3bf25a124b06bdd8ac36f090b4c2ac6d9586303",
+      "CReminder.hpp": "c02ad3ecad355dd1daa170faa384773cf924a13be27fb83d41855fd1f3a5b0c5",
+      "CReminder.cpp": "12294822e2c4bbed8dcef7dbc648151b0244ef550addaef82a71137b349f1a22",
+      "CBitmap.hpp": "7638f74743d26c427ec5f0f17626aaca6f1dd6879877370db8c3d4c7fe71d6c5",
+      "CBitmap.cpp": "ee8e9f8da05306c7b33a3bc706b4953daf0cdf4181121f7819a3a003912a3437",
+      "FilePNG.hpp": "390d96acc19fbc1522751bbf3b4e909ecbb96a81fdb829ad031b25811b330cd3",
+      "FilePNG.cpp": "8af367f028492df51f3089aafa5eab5ea732cfea0b45f5de9318dfb5cb543397",
+      "Texture.hpp": "2eaf5916cc9a2b406e886617a156a33ab39682ed6196011bb0ec873295f575a1",
+      "Texture.cpp": "11535b4750ea94de8b97831636b044a781e785be8ecb9bffbe16358df72b0901",
+      "Cache.cpp": "568f108f4578e8fb53a5b08bf2561189d4d3426402275deabeccd17a1e82fa9a",
+      "CMain.cpp": "442f6b5a6218c6d2c3423dd80d133e80ff6186471642492e6951fddd2a094a9f",
+      "Form.cpp": "a2fec34d9ed1d24e4014ed93f333148477ca3e5fd80acff6d84fa79918782195",
+      "Form.hpp": "e55f462a1e28261837f3194c08ba40f163db7f7493b94d8a81a27038b2220663",
+      "BigVB.hpp": "6353b2587de9c06050ee23785977fc7b14f4d91184ebc056d2d55ff7a9d4646f",
+      "BigIB.hpp": "1be8a0dea336834fce0e040ca27cd924e66feed31e5a040ccec818e95b629d24",
+      "CList.cpp": "4e6e9cc167e6f7f996b6d77d273900ca38dea10584f93214a29769f5d5d953dd",
+      "CList.hpp": "26c89e0c65a8c5cb493315431cf1360567328f3ed89afd0f9a8c478dfc57e19d",
+      "Cache.hpp": "e1f9ccc07faa08d5182e52ec45516b800962326ce8ca08809935ac75a364e62b",
+      "3g.cpp": "e02ae38d13e88a6b83d893f974cbfeebf936938e01c7f03097cd8be32a29605f"
+    },
+    "effective": {
+      "CacheNative.cpp": "3721c286af9c7a5ddc1b277962243aef6ecc62d18e8203a35e24516e924542bc",
+      "L3GCpuPhase.cpp": "d06315a20629f2c9e2f11bb30b30cc64264f181c69e59cf1a74d6666587af7ad",
+      "VectorObjectCpu.cpp": "2a13fbafee357f329c59ca0559015c3c78770d7999b45e59da70c1fe6a673ee8",
+      "VectorObjectCpu.hpp": "2a624f6dfe79aa19aa358e98d85829987a2dd24a90722cdc90cef4d176c18999"
+    },
+    "same_effective_hashes_host_qemu_sdk": true,
+    "implementation_files": {
+      "port/matrixgame/deko/cache_texture_upload.hpp": "a95f1e9d13bc9974af0c530024a589b4d2c7e2a998135b5b2d7216bc0c963ae4",
+      "port/matrixgame/native-core/CMakeLists.txt": "85b51fd1195dad5f998a66e2cd7f4dd6c5f9a0b462425dc168447ef4f46757af",
+      "port/matrixgame/native-engine/CMakeLists.txt": "fad4df1c2f2484f7c0edb7f627678cc01be4bcbd4740ef8adb765808cae9c60a",
+      "port/matrixgame/native-engine/cache_resources.cpp": "f8da31a6ea8d994ba88eef6a718a896deb767bf28507ab1ebbff547fcc443105",
+      "port/matrixgame/native-engine/cache_resources.hpp": "7d03078984f591b99487bd1c094f971b62eb3e627dbee20c7e4c7b2fd9b44c22",
+      "port/matrixgame/native-engine/init_runtime.cpp": "c0213896b1be76b53aeebd800f484d41aae804fb0b6fac835e70861af5edfcc0",
+      "port/matrixgame/native-engine/init_runtime.hpp": "633b602fdb82442f95424ec632eaadd91009ab4dbb5ea30454550382bed7c3ab",
+      "tests/probe_matrixgame_cache_upload_link.cpp": "6c49b9ce4fbb93709457274c0025aaeed0c018993ec29bf926067f32afb5284a",
+      "tests/probe_matrixgame_native_init.py": "fde9a8903f32c92fcfb0d41b6a944f2e181c369703e6367b0e5ff06982d58bd5",
+      "tests/test_matrixgame_native_init.cpp": "211cf389fff913e1a61382fff1599c04c8ffb53bff3202463c436f3ad5940584",
+      "tools/matrixgame_3g_lifecycle_overrides.py": "7e3c8c719f0e7d253643e316169f5ec518cdf8631c91d312d01618d53e062253",
+      "tools/matrixgame_cache_overrides.py": "374d8ecf1b95f3d1d31beb2fd2097a9b8bec7b3259aa97afcf96626c31ffcb1e",
+      "tools/matrixgame_core_prepare.py": "274c033672bbec70536aac5fef1cd475022cfdc84105519fffda915dd73adaf5",
+      "tools/matrixgame_engine_compile_audit.py": "f77b941c47ea263c627a2a3ae8025832fb6d96cfb239f49e3be91bb965971b4e",
+      "tools/matrixgame_engine_prepare.py": "7393ea4528d16ff47c999eb820dd1b90bba5da66706a4f64ac8c257c71ac8376",
+      "tools/matrixgame_init_arm64.sh": "d7ca422f65546e7a7796d35eb42fbaef2c103adb3a4185c8aaae9bc71384bbae",
+      "tools/matrixgame_init_sdk.py": "08c6ad33812d532865dc6ec2ad71c5702d65d586f93ccaf27b7c65e119af8ae4"
+    },
+    "host_commands": [
+      {
+        "directory": "$REPO/build/matrixgame/e2e518/host",
+        "command": "/usr/bin/c++ -D_POSIX_C_SOURCE=200809L -I$REPO/port/matrixgame/native-engine -I$REPO/build/matrixgame/e2e518/host/core/source -I$REPO/port/matrixgame/native-core -I$REPO/port/matrixgame/third_party/directxmath/Inc -I$REPO/port/matrixgame/third_party/sal -fsanitize=address,undefined -fno-omit-frame-pointer -O2 -g -DNDEBUG -std=gnu++20 -ffp-contract=off -o CMakeFiles/matrixgame-native-cache.dir/core/source/CacheNative.cpp.o -c $REPO/build/matrixgame/e2e518/host/core/source/CacheNative.cpp",
+        "file": "$REPO/build/matrixgame/e2e518/host/core/source/CacheNative.cpp",
+        "output": "CMakeFiles/matrixgame-native-cache.dir/core/source/CacheNative.cpp.o"
+      },
+      {
+        "directory": "$REPO/build/matrixgame/e2e518/host",
+        "command": "/usr/bin/c++ -D_POSIX_C_SOURCE=200809L -I$REPO/port/matrixgame/native-engine -I$REPO/build/matrixgame/e2e518/host/core/source -I$REPO/port/matrixgame/native-core -I$REPO/port/matrixgame/third_party/directxmath/Inc -I$REPO/port/matrixgame/third_party/sal -fsanitize=address,undefined -fno-omit-frame-pointer -O2 -g -DNDEBUG -std=gnu++20 -ffp-contract=off -o CMakeFiles/matrixgame-native-cache.dir/cache_resources.cpp.o -c $REPO/port/matrixgame/native-engine/cache_resources.cpp",
+        "file": "$REPO/port/matrixgame/native-engine/cache_resources.cpp",
+        "output": "CMakeFiles/matrixgame-native-cache.dir/cache_resources.cpp.o"
+      },
+      {
+        "directory": "$REPO/build/matrixgame/e2e518/host",
+        "command": "/usr/bin/c++ -D_POSIX_C_SOURCE=200809L -I$REPO/port/matrixgame/native-engine -I$REPO/build/matrixgame/e2e518/host/core/source -I$REPO/port/matrixgame/native-core -I$REPO/port/matrixgame/third_party/directxmath/Inc -I$REPO/port/matrixgame/third_party/sal -fsanitize=address,undefined -fno-omit-frame-pointer -O2 -g -DNDEBUG -std=gnu++20 -ffp-contract=off -o CMakeFiles/matrixgame-native-cache.dir/core/source/L3GCpuPhase.cpp.o -c $REPO/build/matrixgame/e2e518/host/core/source/L3GCpuPhase.cpp",
+        "file": "$REPO/build/matrixgame/e2e518/host/core/source/L3GCpuPhase.cpp",
+        "output": "CMakeFiles/matrixgame-native-cache.dir/core/source/L3GCpuPhase.cpp.o"
+      },
+      {
+        "directory": "$REPO/build/matrixgame/e2e518/host",
+        "command": "/usr/bin/c++ -D_POSIX_C_SOURCE=200809L -I$REPO/port/matrixgame/native-engine -I$REPO/build/matrixgame/e2e518/host/core/source -I$REPO/port/matrixgame/native-core -I$REPO/port/matrixgame/third_party/directxmath/Inc -I$REPO/port/matrixgame/third_party/sal -fsanitize=address,undefined -fno-omit-frame-pointer -O2 -g -DNDEBUG -std=gnu++20 -ffp-contract=off -o CMakeFiles/matrixgame-native-cache.dir/init_runtime.cpp.o -c $REPO/port/matrixgame/native-engine/init_runtime.cpp",
+        "file": "$REPO/port/matrixgame/native-engine/init_runtime.cpp",
+        "output": "CMakeFiles/matrixgame-native-cache.dir/init_runtime.cpp.o"
+      },
+      {
+        "directory": "$REPO/build/matrixgame/e2e518/host",
+        "command": "/usr/bin/c++ -DMATRIXGAME_INIT_ALLOC_FAULTS -D_POSIX_C_SOURCE=200809L -I$REPO/port/matrixgame/native-engine -I$REPO/build/matrixgame/e2e518/host/core/source -I$REPO/port/matrixgame/native-core -I$REPO/port/matrixgame/third_party/directxmath/Inc -I$REPO/port/matrixgame/third_party/sal -fsanitize=address,undefined -fno-omit-frame-pointer -O2 -g -DNDEBUG -std=gnu++20 -UNDEBUG -ffp-contract=off -o CMakeFiles/matrixgame-native-init-probe.dir$REPO/tests/test_matrixgame_native_init.cpp.o -c $REPO/tests/test_matrixgame_native_init.cpp",
+        "file": "$REPO/tests/test_matrixgame_native_init.cpp",
+        "output": "CMakeFiles/matrixgame-native-init-probe.dir$REPO/tests/test_matrixgame_native_init.cpp.o"
+      }
+    ]
+  },
+  "host": {
+    "status": "CPU_INIT_CACHE_PASS",
+    "returncode": 0,
+    "command": [
+      "$REPO/build/matrixgame/e2e518/host/matrixgame-native-init-probe",
+      "$REPO/build/matrixgame/e2e518/runtime-managed/original.vo",
+      "$REPO/build/matrixgame/e2e518/runtime-managed/material.png",
+      "$REPO/build/matrixgame/e2e518/runtime-managed/short.vo",
+      "7",
+      "5"
+    ],
+    "executable_sha256": "33670079b1969464b1a0dd496321a33d64f6979407121fabc7008bc7b5de92c7",
+    "inputs": [
+      {
+        "source": "$REPO/build/e2e515/big-buffer-models/model-1.vo",
+        "sha256": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+        "bytes": 5422
+      },
+      {
+        "source": "$REPO/build/mg-merge-host/core/texture-request-fixtures/assets/plain.png",
+        "sha256": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210",
+        "bytes": 213
+      }
+    ],
+    "original_vo_resource": true,
+    "texture_scope": "controlled PNG fixture; not full CSkinManager/GPU",
+    "inputs_unchanged": true,
+    "hardware_pending": true,
+    "cgame_init_called": false,
+    "gpu_executed": false,
+    "allocation_fault_cases": 2
+  },
+  "linux_arm64_qemu": {
+    "status": "CPU_INIT_CACHE_PASS",
+    "returncode": 0,
+    "command": [
+      "qemu-aarch64",
+      "-L",
+      "/usr/aarch64-linux-gnu",
+      "$REPO/build/matrixgame/e2e518/arm64-normalized/engine/matrixgame-native-init-probe",
+      "$REPO/build/matrixgame/e2e518/arm64-normalized/runtime-managed/original.vo",
+      "$REPO/build/matrixgame/e2e518/arm64-normalized/runtime-managed/material.png",
+      "$REPO/build/matrixgame/e2e518/arm64-normalized/runtime-managed/short.vo",
+      "7",
+      "5"
+    ],
+    "executable_sha256": "ec7860ff6d6a3f515cc6c6fc7de5c1bc471f6ba9a6fdb61b99a4fe1bd6bd66cd",
+    "inputs": [
+      {
+        "source": "$REPO/build/e2e515/big-buffer-models/model-1.vo",
+        "sha256": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+        "bytes": 5422
+      },
+      {
+        "source": "$REPO/build/mg-merge-host/core/texture-request-fixtures/assets/plain.png",
+        "sha256": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210",
+        "bytes": 213
+      }
+    ],
+    "original_vo_resource": true,
+    "texture_scope": "controlled PNG fixture; not full CSkinManager/GPU",
+    "inputs_unchanged": true,
+    "hardware_pending": true,
+    "cgame_init_called": false,
+    "gpu_executed": false,
+    "allocation_fault_cases": 2
+  },
+  "sdk": {
+    "status": "SDK_LINK_PASS",
+    "hardware_pending": true,
+    "runtime_executed": false,
+    "nro_packaged": false,
+    "commands": [
+      [
+        "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+        "-S",
+        "$REPO\\port\\matrixgame\\native-engine",
+        "-B",
+        "$REPO\\build\\matrixgame\\e2e518\\sdk-approved\\cmake",
+        "-G",
+        "Ninja",
+        "-DCMAKE_MAKE_PROGRAM=C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\Ninja\\ninja.exe",
+        "-DCMAKE_TOOLCHAIN_FILE=$REPO\\port\\matrixgame\\native-core\\switch-toolchain.cmake",
+        "-DMATRIXGAME_DEVKITPRO=C:/devkitPro",
+        "-DBUILD_TESTING=OFF",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DPython3_EXECUTABLE=C:\\Users\\Sklyarov\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-DMATRIXGAME_INIT_BUILD_LINK_PROBE=ON",
+        "-DMATRIXGAME_SHADER_DIR=$REPO\\build\\matrixgame\\deko",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+      ],
+      [
+        "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+        "--build",
+        "$REPO\\build\\matrixgame\\e2e518\\sdk-approved\\cmake",
+        "--target",
+        "matrixgame-native-init-probe",
+        "--parallel",
+        "4"
+      ],
+      [
+        "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-readelf.exe",
+        "-h",
+        "$REPO\\build\\matrixgame\\e2e518\\sdk-approved\\cmake\\matrixgame-native-init-probe.elf"
+      ],
+      [
+        "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-readelf.exe",
+        "-sW",
+        "$REPO\\build\\matrixgame\\e2e518\\sdk-approved\\cmake\\matrixgame-native-init-probe.elf"
+      ],
+      [
+        "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-readelf.exe",
+        "-n",
+        "$REPO\\build\\matrixgame\\e2e518\\sdk-approved\\cmake\\matrixgame-native-init-probe.elf"
+      ]
+    ],
+    "undefined_strong": [],
+    "elf": "$REPO\\build\\matrixgame\\e2e518\\sdk-approved\\cmake\\matrixgame-native-init-probe.elf",
+    "sha256": "43072e3989460c30578bae1868efedd37f053b769f5ac140117f6da635dcb0a0",
+    "bytes": 5557160,
+    "build_id": "Build ID: af37e330c650ace84f7183565e94959949d0d16b"
+  },
+  "contracts": {
+    "cache_methods": [
+      "CacheInit",
+      "CCache::Create/Get/Find/Add/Up/Delete/PreLoad/Clear/Destroy",
+      "CCacheData::Prepare/RefDecUnload",
+      "CacheDeinit"
+    ],
+    "three_g_cpu_methods": [
+      "L3GInitAsDLLCpuPhase: original L3GDeinit/context-assignment prefix",
+      "L3GDeinitCpuPhase: release only borrowed CPU identities"
+    ],
+    "managed_unload": "retains cache payload until destruction, as pinned USE_DX_MANAGED_TEXTURES branch",
+    "default_unload": "releases decoded cache payload, next Prepare reloads",
+    "material_owner": "weak cache-entry token; immutable shared payload lease through upload; stale owner rejected",
+    "foreign_contexts": "live cache/CPU owner survives failed entry; no global CVectorObject StaticInit/reset",
+    "CGame": "no function body replaced or synthesized",
+    "GPU_upload": "real DekoMeshRenderer constructor/SetTextureAsset/destructor linked, not executed"
+  },
+  "raw_logs": {
+    "host": "build/matrixgame/e2e518/runtime-managed/runtime.log",
+    "qemu": "build/matrixgame/e2e518/arm64-normalized/runtime-managed/runtime.log",
+    "sdk": "build/matrixgame/e2e518/sdk-approved/build.log",
+    "compile_baseline": "build/matrixgame/e2e518/baseline",
+    "compile_candidate": "build/matrixgame/e2e518/candidate",
+    "compile_cache_final": "build/matrixgame/e2e518/cache-final"
+  },
+  "failures_and_limits": [
+    "initial Cache path->wstring Windows implicit conversion ported explicitly",
+    "initial test expected 7x5 PNG; existing CompleteBox policy correctly returns POT 8x8; decoder unchanged",
+    "candidate Cache.cpp needed generated VectorObjectCpu.hpp and removal of a private TextureFlags include dependency",
+    "explicit TextureFlags include added to probe after header cleanup",
+    "WSL/SDK sandbox metadata access required approved execution; no OS/SDK settings changed",
+    "libpng CRLF scripts rejected on Linux; verified dependency exports LF-normalized in isolated build only",
+    "managed retention requirement reviewed against original Texture.cpp and tested",
+    "no fresh Windows x86 cache/device reference runtime; previous layout/asset proofs do not establish this lifecycle",
+    "no GPU residency, full managed/default device-loss/reset, CSkinManager draw or CGame Init/Run claim"
+  ],
+  "preservation": {
+    "protected_inputs": 12,
+    "sha256_before_after_equal": true,
+    "snapshot_path": "build/matrixgame/e2e518/protected-before.json",
+    "snapshot_sha256": "5681ac763826ea866409b56190fc4f8d7902437642421a096c98b085d632481e",
+    "upstream_clean": true,
+    "main_game_tracked_code_changed": false,
+    "evening_scenario_changed": false,
+    "main_zip_sha256": "e1a1dec5f410b983d629ae538ad9b4ba063f89a8101af43d27ea00c6ce6a08a4",
+    "gpu_zip_sha256": "1c5cfebb2696bbf6db98bd2cd598956f468ef1ca8183bbf31271148c30103429",
+    "frozen_artifacts": {
+      "debug/SpaceRangersHD-perf516.elf": "0ca47fa95e614167da814cf63e1bc19e0bd005e94b34763287d713d5c9989ab5",
+      "switch/space-rangers-hd-a-war-apart/SpaceRangersHD-perf516.nro": "9f654daab36c71cb51940871d4a93bdcceb09edd7da8dde127ab023bfb21e789",
+      "debug/matrixgame-gpu-smoke.elf": "1bcb7a2977a28555aad13f2e7ac14db6bbd1aec0cfa436b4989b91c25fb939af",
+      "switch/matrixgame-deko-smoke/matrixgame-gpu-smoke.nro": "e984feaeee119e2599419210f9e3840980a510ec7e671629fcf361f694d01432"
+    },
+    "nro_rebuilt": false,
+    "source_resources_embedded_in_git": false
+  },
+  "next_blockers": {
+    "compile": "MatrixGame.cpp / VectorObject.hpp:8 d3d9.h; full VectorObject still blocked",
+    "original_3g_runtime": "3g.cpp L3GInitAsDLL borrowed IDirect3D9/Device9 binding, Win32 WndProc attach/GetWindowLong, then GetDeviceCaps/gamma/full render state",
+    "materials": "legacy CSkinManager/CTextureManaged consumers are not the typed native CPU material adapter; explicit UNSUPPORTED outside native session",
+    "game_entry": "full static_init shadows/game statics, config/Cache/device/CRenderPipeline/PrepareMap before RunGameLoop/CFormMatrixGame"
+  }
+}
