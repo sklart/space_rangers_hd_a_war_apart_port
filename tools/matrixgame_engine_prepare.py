@@ -49,8 +49,8 @@ def prepare_engine(output):
     from matrixgame_navigation_overrides import patch_navigation
     paths.update(patch_navigation(output))
     # The complete release cache TU now uses explicit portable resource
-    # factories. Other engine units still see the original GPU headers; this
-    # does not hide their D3D dependencies or replace VectorObject.cpp.
+    # factories. The declaration overlay below shares the VO ABI; concrete
+    # graphics implementations keep their explicit SDK dependencies.
     cache_data=(output/'portable-core/CacheNative.cpp').read_bytes()
     (output/'MatrixLib/3G/Cache.cpp').write_bytes(cache_data)
     paths['MatrixLib/3G/Cache.cpp']=hashlib.sha256(cache_data).hexdigest()

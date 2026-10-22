@@ -1,8 +1,8 @@
 """Pinned CVectorObject lifecycle and selected Draw via typed native callbacks.
 
-This is an explicit subset of the actual class/TU, not a replacement loader.
-The full engine continues to see the original GPU-dependent header. Other GPU
-methods, shadow/animation rendering and full legacy material parity stay open.
+This is an explicit implementation subset, not a replacement loader. The full
+engine shares the complete CVectorObject declaration and retains original
+animator/group declarations. Full-TU GPU methods and legacy material parity stay open.
 """
 import re
 

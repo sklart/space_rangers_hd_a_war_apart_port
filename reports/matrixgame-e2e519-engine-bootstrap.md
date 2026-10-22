@@ -1,9 +1,12 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение: **полная `MatrixSampleStateManager.cpp` переведена
-из COMPILE_FAIL в COMPILE_PASS и исполняется в общем bootstrap**; подробности
-в дополнении в конце. Коммит `246c6efedd1ed485d0803c63a60ec6f6be023db5`,
-актуальные хэши — `matrixgame-e2e519-sampler-device-evidence.json`.
+Актуальное продолжение: **общие полные VO/billboard declarations проверены
+в existing bootstrap; первый compile blocker MatrixGame.cpp переместился
+из VectorObject.hpp в обязательный device API `3g.hpp:16`**. Коммит
+`35ac1ab6da1fbb00fa05e31762cb396b3083eadc`, актуальные хэши —
+`matrixgame-e2e519-types-boundary-evidence.json`; подробности в последнем разделе.
+Ранее полная `MatrixSampleStateManager.cpp` переведена из COMPILE_FAIL в PASS
+и исполняется в bootstrap (`246c6ef`, sampler evidence сохранён как история).
 Ниже сохранён исторический снимок первого DLL-этапа: его экспериментальные
 бинарники в общем build directory заменены новым кандидатом. Замороженные
 основная NRO/ELF и аппаратные ZIP этим не затронуты.
@@ -252,3 +255,86 @@ python3 tools/matrixgame_engine_compile_audit.py \
 и gitlink прежние. Игра и сохранения не изменены. CGame Init, S3D_Default,
 планетарная форма, draw и физическая Switch остаются NOT RUN/HARDWARE_PENDING.
 Общая цель запуска MatrixGame остаётся открытой; три приоритета выше сохраняются.
+
+## Продолжение: общая VO ABI и полные декларации без лишнего SDK
+
+База: `0ac922137ae46a87e37569df37468a2a9e5a1fc1`.
+Коммит реализации: `35ac1ab6da1fbb00fa05e31762cb396b3083eadc`, без push/fetch.
+
+Первый барьер полной `MatrixGame.cpp` действительно был в `VectorObject.hpp`,
+но простая подстановка старого CPU subset оставила бы различные определения
+одного CVectorObject в engine и cache. Теперь:
+
+- `VectorObjectShared.hpp` содержит одно полное объявление CVectorObject из
+  уже работающей native реализации. CPU header стал facade; полный engine
+  header использует то же объявление и сохраняет весь исходный animator/group tail.
+  Общий macro guard защищает от повторного определения при двух generated views.
+- Полный `CVectorObjectAnim` сохранил `m_Lights`, `m_LightsCnt`, InitLights,
+  DrawLights и shadow API. Отдельный NativeVectorObjectAnim не подставлен вместо него.
+  SColorInterval/SLightData перенесены в VectorObject.cpp без изменения содержимого;
+  поиск по pinned исходникам показал, что используются они только там.
+- D3DControl/ShadowProj/CBillboard includes перенесены из VO header в cpp.
+  Все прочие тела VectorObject.cpp совпадают со старым source view побайтно.
+- CBillboard header содержит настоящие SDK pointers как неполные типы.
+  Release pointer types и debug D3DResource wrappers сохранены; методы SDK
+  не выдуманы. BeforeDraw с прежним `m_SortableTex->Preload()` перенесён в cpp;
+  прочие тела CBillboard.cpp не изменены. Полная GPU-реализация не портирована.
+- Billboard/sound declarations используют единый math_types, а не дублирующий
+  Math3D из второго generated view. Нужная inline SetAngle операция RotationZ
+  реализована реальной DirectXMath XMMatrixRotationZ; проверен поворот на pi/2.
+- Windows/D3D includes Helper.hpp находятся внутри того же debug guard,
+  что и CHelper. Release не тянет SDK только ради отсутствующего debug-класса.
+  Исходные debug declarations не вырезались. Native VO по-прежнему release-only.
+
+Исправлена конкретно обнаруженная ошибка генератора на Windows: чтение UTF-8
+cpp/hpp через системную CP1251. Теперь чтение явно UTF-8, включая MatrixGame.cpp.
+Это подготовка исходников MatrixGame; основная игра и её рендер не изменялись.
+**Все 234 файла prepared engine tree проверены по фактическим SHA-256 и совпали
+побайтно на host, ARM64/QEMU, devkitA64 и Windows**, как и generated core outputs.
+Это сравнение содержимого всех файлов, а не разрешение различий по именам.
+
+Тот же bootstrap одновременно включает полный VO/billboard header и API cache.
+На x86/x64/ARM64 проверены сохранённые light pointer/count в полном animator,
+24-byte SBillboardVertex и отсутствие повторного определения CVectorObject.
+Его прежний cache загружает настоящую VO через это же объявление класса;
+реальные Windows DLL/sampler/CForm вызовы, ошибки, очистка и повторный вход PASS.
+Host ASan/UBSan и ARM64/QEMU PASS в CPU/Unsupported scope. SDK bootstrap и
+существующий deko session target COMPILE/LINK PASS, undefined strong=0.
+
+Новая адресная проверка полной MatrixGame.cpp остановилась на:
+
+```text
+MatrixLib/3G/3g.hpp:16:10: fatal error: d3d9.h: No such file or directory
+```
+
+Цепочка: MatrixMap → MatrixSide → MatrixFlyer → MatrixProgressBar → Texture → 3g.
+Здесь нужны действительные device/caps/presentation и state APIs, а не только
+векторы или указатели. В процессе были адресно сняты промежуточные лишние
+includes в MatrixSoundManager и debug-only Helper. Тело MatrixGame.cpp не менялось
+относительно предыдущего native view: SHA остаётся
+`19c1485c608202ff088c4b37a62ca2508ee9b064f655017799e6bae27fae672b`.
+
+**Граница исполнения не расширилась до новых игровых методов:** выполняется
+прежняя цепь Cache/VO/SSkin → DLL bootstrap → sampler → CForm callbacks.
+Полные VectorObject.cpp, CBillboard.cpp, CVectorObjectAnim methods,
+CGame::Init/static_init, S3D_Default и бой не исполнялись; full TU/link PASS им
+не приписывается. Продвинуты реальные декларации и совместимость типов на пути
+к Init. Нового standalone CPU/GPU target не создано, inventory 106 TU не повторялся.
+
+Точные исходные/генерируемые хэши, сохранённые тела, actual-source compile error,
+проверки и бинарники — в `matrixgame-e2e519-types-boundary-evidence.json`.
+SDK ELF SHA: `3bc17a4b58d88183e1d6de50fdf969c6795928ea4b23ea4ba2aef4072535f633`.
+В последующем documentation commit два Python комментария/docstring уточнены;
+их executable AST совпадает с проверенным implementation commit.
+
+Все 14 защищённых файлов снова совпали с исходными SHA. Upstream/pin/gitlink,
+сейвы, ресурсы и оба hardware ZIP сохранены, NRO не выпускалась.
+Основная E2E-5.16 и GPU hardware scenario остаются отдельными HARDWARE_PENDING.
+Общая цель активна. Следующие три узла:
+
+1. Полный `3g.hpp` contract: реальные caps/presentation, texture-stage/render-state
+   и transform операции через общий device owner. Не заменять его fake D3D9 header.
+2. Texture/DeviceState и обязательные static_init/map/render-pipeline зависимости,
+   после которых возможен настоящий CGame::Init в исходном порядке.
+3. CFormMatrixGame/RunGameLoop и физический deko draw после выполнения prerequisites;
+   до этого не заявлять работающий планетарный бой.
