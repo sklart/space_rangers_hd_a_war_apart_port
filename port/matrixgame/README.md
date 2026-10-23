@@ -44,8 +44,16 @@ callbacks: их полные тела сохранены с внутренним
 Состояние SDK расширено для FVF/declaration, texture stages и матриц; новые
 проверки реального SDK readback компилируются, но остаются NOT RUN.
 
-Текущие Windows x86/x64 сборки полного объекта — **LINK_BLOCKED: 33 метода**
-Init/Deinit/static_init. Это временная регрессия bootstrap после включения полной
+В общий bootstrap добавлен prerequisite карты: исходный SetMaxCameraDistance и
+настоящий CMatrixCamera constructor/destructor с исходной проекцией и LerpAng/LerpDist.
+Host ASan/UBSan/leaks и ARM64/QEMU PASS: некорректная конфигурация, duplicate owner,
+освобождение и повторный вход. Это выбранные методы MatrixCamera.cpp, не полная TU;
+карта не создавалась, активный autofly не исполнялся. devkitA64 compile/link PASS.
+
+Текущая Windows x86 сборка полного объекта — **LINK_BLOCKED: 32 метода Init/Deinit/static_init**
+после закрытия настоящего SetMaxCameraDistance (было 33). Windows x64 в этом
+адресном шаге не повторялась; последняя проверенная граница — 33.
+Это временная регрессия bootstrap после включения полной
 TU; новые WinMM/gamma runtime-проверки NOT RUN. Полный legacy SDK context, карта и
 reset-safe presentation lifecycle остаются незамкнутыми.
 Полный Init ещё нельзя вызывать поверх уже живого native owner: требуется

@@ -1677,3 +1677,77 @@ Pinned upstream чистый; основная NRO не пересобирала
 E2E-5.19 остаётся активным. Новый результат — полный renderer в общей связке
 и фактический вход в его constructor до первого отсутствующего устройства;
 успешной инициализации рендера и запуска игры ещё нет.
+
+## 23.10.2026 — оригинальная камера как prerequisite карты
+
+Implementation commit: `ae07595c364e78d70709c71dbd83763fb4cf5afd` в локальном
+master, baseline `4ab7cffe602de4fc8b7281fd952a9271b40f581c`. Без push/fetch.
+Evidence: `reports/matrixgame-e2e519-camera-entry-evidence.json`.
+
+В исходном `MatrixGame.cpp:307–329` задаются configured dimensions, затем
+ApplySettings/sampler, SetMaxCameraDistance и создаётся CMatrixMapLogic. В
+`MatrixMap.hpp` камера является настоящим member карты; её constructor находился
+в ещё не замкнутой MatrixCamera.cpp. В существующий общий bootstrap включены
+пять выбранных исходных методов: SetMaxCameraDistance, CMatrixCamera ctor/dtor,
+SAutoFlyData::Release/KillTrajectory как обязательные зависимости destructor.
+Это **не полная Camera TU**. Полная prepared MatrixCamera.cpp сохранена без
+изменений; selected TU исключена из full-engine inventory во избежание дублей.
+Алгоритмы всех пяти методов сверены с pinned original: единственная замена в
+constructor — ZeroMemory/D3DVIEWPORT9 на уже существующие ZeroTrivialBytes/Viewport.
+Новые поведения autofly не добавлялись; его ненулевая ветвь **NOT EXECUTED**.
+
+`NativeInitRuntime::InitializeMapCamera` требует текущего CPU/config owner,
+проверяет положительные configured dimensions и конечный far plane >1 до
+исходных делений. Использует реальные g_ScreenX/Y и SetMaxCameraDistance,
+затем HNew(g_MatrixHeap) CMatrixCamera. При исключении восстанавливает прежние
+глобальные значения; duplicate owner отклоняется. FinishMapCamera вызывает
+исходный destructor и HDelete; Deinit освобождает камеру до config/heap.
+После успеха configured globals сохраняются, как в оригинальном движке.
+Физическое разрешение или device caps этим не измеряются и не имитируются.
+
+Реально исполнено в двух sessions общего driver: реальные SetDefaults →
+SetMaxCameraDistance(25), far=5000 → оригинальный CMatrixCamera ctor → исходные
+LerpAng/LerpDist, обратные размеры и LH projection → исходный destructor с
+m_AFD=null. Проверены аналитические near/far/FOV значения, нулевой размер,
+NaN и неверный far без изменения globals, duplicate refusal, repeated Finish,
+повторное создание и оставление камеры до общего Deinit. **Это независимая
+CPU-предпосылка, не прохождение production Init через gamma/renderer blocker.**
+g_MatrixMap не публикуется; map/form/loop/battle и полный CGame::Init NOT CALLED.
+
+| Gate | Результат |
+|---|---|
+| Host ASan/UBSan + leak detection | PASS оригинальной камеры в общем bootstrap, cleanup/reentry |
+| Linux ARM64/QEMU | PASS того же нового участка |
+| devkitA64 | COMPILE/LINK PASS, strong undefined=0, реальные ctor/dtor retained; runtime NOT RUN |
+| Windows x86 | Новый код компилируется; LINK_BLOCKED **32 вместо 33**; удалён только SetMaxCameraDistance, новых unresolved нет |
+| Windows x64 | NOT REPEATED, последняя граница предыдущего этапа 33 |
+| GPU / Switch / карта / полный Init | HARDWARE_PENDING / NOT EXECUTED |
+
+Один кандидат, адресные существующие bootstrap targets; старые standalone suites
+и общая compile inventory не повторялись. Логи:
+`build/matrixgame/e2e519/camera-{host,arm64}-{build,runtime}.log`,
+`camera-windows-build.log`, `camera-sdk-build.log`. Команды прежние: build target
+matrixgame-native-bootstrap, затем прежние три реальные VO/PNG/data аргумента;
+host ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 и
+UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1. SDK — прежний --bootstrap --resume.
+
+240 effective files и core outputs сверены по фактическим байтам между host,
+ARM64, Windows x86 и devkitA64. Единственный новый generated file —
+MatrixCameraLifecycle.cpp; остальные prepared sources неизменны.
+Manifest SHA-256 `6f932cefe3066c6068de1bc1b595c8376b36670f2fe6077d99af0f701ff241ab`.
+SDK ELF SHA-256 `f9b92340b4de2a84aa33d550983eeaa92138e557d5d2ae701fda2459f191b9bd`,
+4708856 bytes, Build ID `e71d5849a9aef4a95930f23572c1c26e3a638f85`.
+Сборка выполнена с dirty рабочими исходниками до implementation commit;
+входные файлы сверены с ним после нормализации только CRLF/LF. Embedded Git SHA нет.
+
+13 доступных protected hashes совпали; G:\pack.zip по-прежнему CURRENTLY_UNAVAILABLE,
+14/14 PASS не объявляется. Upstream pin чистый. Основная NRO/ELF и оба frozen
+аппаратных ZIP не изменены и не пересобирались; новые NRO не создавались.
+Два коротких аппаратных запуска описаны в `docs/e2e519-two-switch-runs.md`;
+разбор основной игры — после реальных журналов, предположительных правок нет.
+
+Следующие три блокера: (1) оригинальные CMatrixMap/CMatrixMapLogic ctor и полное
+освобождение, включая DevConsole/Minimap/Cursor/Sound и factories; (2) настоящее
+SDK-устройство для gamma/renderer и оставшиеся 32 Windows link dependencies;
+(3) единое владение static-init/heap/cache/data перед полным CGame::Init.
+E2E-5.19 остаётся активным; самостоятельный объект камеры не считается картой.
