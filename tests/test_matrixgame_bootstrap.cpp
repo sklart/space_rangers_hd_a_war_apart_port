@@ -35,6 +35,9 @@ static_assert(!TextureBitmapArgument<LegacyTextureFormatForOverloadCheck>);
 extern void VerifyBootstrapSampling(NativeInitRuntime&,p::Window&,p::Device&,unsigned,bool);
 extern void VerifyBootstrapSamplerCold();
 extern void VerifyBootstrapDefaults(NativeInitRuntime&,p::Window&,p::Device&,unsigned,bool);
+extern void VerifyBootstrapGameCold();
+extern void VerifyBootstrapGameDefaults(NativeInitRuntime&);
+extern void VerifyBootstrapProjection();
 struct UnavailableDevice final:p::Device {
     p::DeviceCaps ReadCaps()override{throw p::Unsupported("backend has no verified legacy device caps");}
     p::GammaRamp ReadGamma(std::uint32_t)override{throw p::Unsupported("gamma unsupported");}
@@ -56,11 +59,12 @@ struct Form final:CForm {
     void Keyboard(bool down,std::uint8_t key)override{assert(down && key==65);++keys;}
     void SystemEvent(ESysEvent)override{++events;}
 };
-void cold(){assert(!g_Cache && !g_CacheHeap && !InspectCpu3GState().bound && !p::Current().ready && !p::Current().attachment);assert(!CachedTextureBytes());VerifyBootstrapSamplerCold();}
+void cold(){assert(!g_Cache && !g_CacheHeap && !InspectCpu3GState().bound && !p::Current().ready && !p::Current().attachment);assert(!CachedTextureBytes());VerifyBootstrapSamplerCold();VerifyBootstrapGameCold();}
 int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Device& bound_device) {
     if(argc!=3)return 2;
     std::setvbuf(stdout,nullptr,_IONBF,0);
     try {
+        VerifyBootstrapProjection();
         D3DXMATRIX billboard_rotation;
         assert(D3DXMatrixRotationZ(&billboard_rotation,1.57079632679f)==&billboard_rotation);
         assert(std::fabs(billboard_rotation._11)<1e-6f && std::fabs(billboard_rotation._12-1.f)<1e-6f);
@@ -92,6 +96,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
                 std::printf("cycle=%u original Cache/VO/SSkin ready submissions=%zu\n",cycle,batch.submissions.size());
 #ifdef _WIN32
                 runtime.AttachDevice(*window,*device);assert(runtime.GpuReady());
+                VerifyBootstrapGameDefaults(runtime);
                 VerifyBootstrapSampling(runtime,*window,*device,cycle,true);
                 VerifyBootstrapDefaults(runtime,*window,*device,cycle,true);
                 assert(GetWindowLongPtrW(hwnd,GWLP_WNDPROC)!=original_proc);
@@ -119,6 +124,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
                 assert(GetWindowLongPtrW(hwnd,GWLP_WNDPROC)==original_proc);
                 runtime.AttachDevice(*window,*device);assert(runtime.GpuReady());
 #else
+                VerifyBootstrapGameDefaults(runtime); // Independent original CPU settings stage; GPU remains unsupported.
                 bool rejected=false;
                 try{runtime.AttachDevice(*window,*device);}catch(const p::Unsupported& e){rejected=true;std::printf("GPU prefix UNSUPPORTED: %s\n",e.what());}
                 assert(rejected && runtime.CpuReady() && InspectCpu3GState().bound && !runtime.GpuReady() && !p::Current().attachment);

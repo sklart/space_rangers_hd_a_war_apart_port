@@ -61,13 +61,26 @@ struct D3DXVECTOR3 : DirectX::XMFLOAT3 {
     bool operator==(const D3DXVECTOR3& r) const { return x==r.x && y==r.y && z==r.z; }
 };
 inline D3DXVECTOR3 operator*(float s,const D3DXVECTOR3& v) { return v*s; }
+struct D3DXVECTOR4:DirectX::XMFLOAT4 {
+    using XMFLOAT4::XMFLOAT4;
+    D3DXVECTOR4()=default;
+};
 using D3DMATRIX = DirectX::XMFLOAT4X4;
 struct D3DXMATRIX : D3DMATRIX {
     using D3DMATRIX::D3DMATRIX;
     D3DXMATRIX() = default;
     operator float*() noexcept { return &_11; }
     operator const float*() const noexcept { return &_11; }
+    D3DXMATRIX operator*(const D3DXMATRIX& other)const {
+        D3DXMATRIX out;DirectX::XMStoreFloat4x4(&out,DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(this),DirectX::XMLoadFloat4x4(&other)));return out;
+    }
+    D3DXMATRIX& operator*=(const D3DXMATRIX& other){return *this=*this*other;}
 };
+namespace srhd_awa::matrixgame {
+// Native viewport value used for CPU projection. No graphics API is emulated.
+struct Viewport {std::uint32_t X,Y,Width,Height;float MinZ,MaxZ;};
+static_assert(sizeof(Viewport)==24 && offsetof(Viewport,MinZ)==16);
+}
 struct D3DXPLANE { float a,b,c,d; };
 static_assert(sizeof(D3DXVECTOR2)==8 && sizeof(D3DXVECTOR3)==12 && sizeof(D3DXMATRIX)==64 && sizeof(D3DXPLANE)==16);
 static_assert(alignof(D3DXVECTOR3)==4 && alignof(D3DXMATRIX)==4 && offsetof(D3DXMATRIX,_41)==48);
@@ -97,6 +110,14 @@ inline D3DXVECTOR3* D3DXVec3Cross(D3DXVECTOR3* out,const D3DXVECTOR3* a,const D3
 inline D3DXVECTOR3* D3DXVec3Normalize(D3DXVECTOR3* out,const D3DXVECTOR3* in) {
     const auto value=DirectX::XMVector3Normalize(LoadVector3(in)); return StoreVector3(out,value);
 }
+inline D3DXVECTOR3* D3DXVec3TransformCoord(D3DXVECTOR3* out,const D3DXVECTOR3* in,const D3DXMATRIX* matrix) {
+    return StoreVector3(out,DirectX::XMVector3TransformCoord(LoadVector3(in),DirectX::XMLoadFloat4x4(matrix)));
+}
+inline D3DXVECTOR3* D3DXVec3Project(D3DXVECTOR3* out,const D3DXVECTOR3* in,const srhd_awa::matrixgame::Viewport* vp,
+    const D3DXMATRIX* projection,const D3DXMATRIX* view,const D3DXMATRIX* world) {
+    return StoreVector3(out,DirectX::XMVector3Project(LoadVector3(in),float(vp->X),float(vp->Y),float(vp->Width),float(vp->Height),vp->MinZ,vp->MaxZ,
+        DirectX::XMLoadFloat4x4(projection),DirectX::XMLoadFloat4x4(view),DirectX::XMLoadFloat4x4(world)));
+}
 inline float D3DXVec2LengthSq(const D3DXVECTOR2* v) { return DirectX::XMVectorGetX(DirectX::XMVector2LengthSq(LoadVector2(v))); }
 inline D3DXVECTOR2* D3DXVec2Normalize(D3DXVECTOR2* out,const D3DXVECTOR2* in) {
     const auto value=DirectX::XMVector2Normalize(LoadVector2(in));
@@ -114,6 +135,9 @@ inline D3DXMATRIX* D3DXMatrixRotationZ(D3DXMATRIX* out,float angle) {
 }
 inline D3DXMATRIX* D3DXMatrixIdentity(D3DXMATRIX* out) {
     DirectX::XMStoreFloat4x4(out,DirectX::XMMatrixIdentity());return out;
+}
+inline D3DXMATRIX* D3DXMatrixPerspectiveFovLH(D3DXMATRIX* out,float fov,float aspect,float near_z,float far_z) {
+    DirectX::XMStoreFloat4x4(out,DirectX::XMMatrixPerspectiveFovLH(fov,aspect,near_z,far_z));return out;
 }
 inline D3DXPLANE* StorePlane(D3DXPLANE* out,DirectX::FXMVECTOR value) {
     DirectX::XMFLOAT4 plane; DirectX::XMStoreFloat4(&plane,value);

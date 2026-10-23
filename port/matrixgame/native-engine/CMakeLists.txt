@@ -30,23 +30,32 @@ add_library(matrixgame-native-cache STATIC
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/3GPlatformNative.cpp" platform_3g.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/3GDeviceDefaults.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixLib/3G/DeviceState.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/GameDefaultsNative.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixSampleStateManager.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/SkinResourcesNative.cpp" native_skin.cpp skin_pipeline.cpp)
 target_link_libraries(matrixgame-native-cache PUBLIC matrixgame-native-vector-object)
 target_include_directories(matrixgame-native-cache PUBLIC "${CMAKE_CURRENT_LIST_DIR}")
+target_include_directories(matrixgame-native-cache BEFORE PUBLIC
+    "${ENGINE_SOURCE}/MatrixLib/3G" "${ENGINE_SOURCE}/MatrixLib/Base"
+    "${ENGINE_SOURCE}/MatrixLib/Bitmap" "${ENGINE_SOURCE}/MatrixGame/src")
 if(WIN32)
     target_sources(matrixgame-native-cache PRIVATE platform_win32.cpp)
     target_link_libraries(matrixgame-native-cache PUBLIC d3d9 user32)
 endif()
 if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
     add_executable(matrixgame-native-bootstrap "${PORT_ROOT}/tests/test_matrixgame_bootstrap.cpp"
-        "${PORT_ROOT}/tests/matrixgame_bootstrap_sampling.cpp")
+        "${PORT_ROOT}/tests/matrixgame_bootstrap_sampling.cpp"
+        "${PORT_ROOT}/tests/matrixgame_bootstrap_game.cpp")
     target_link_libraries(matrixgame-native-bootstrap PRIVATE matrixgame-native-cache)
     target_compile_definitions(matrixgame-native-bootstrap PRIVATE
         MATRIXGAME_FULL_VECTOR_HEADER="${ENGINE_SOURCE}/MatrixLib/3G/VectorObject.hpp"
         MATRIXGAME_FULL_BILLBOARD_HEADER="${ENGINE_SOURCE}/MatrixLib/3G/CBillboard.hpp")
     target_compile_definitions(matrixgame-native-bootstrap PRIVATE
         MATRIXGAME_FULL_3G_HEADER="${ENGINE_SOURCE}/MatrixLib/3G/3g.hpp")
+    target_compile_definitions(matrixgame-native-bootstrap PRIVATE
+        MATRIXGAME_FULL_CONFIG_HEADER="${ENGINE_SOURCE}/MatrixGame/src/MatrixConfig.hpp"
+        MATRIXGAME_FULL_CAMERA_HEADER="${ENGINE_SOURCE}/MatrixGame/src/MatrixCamera.hpp"
+        MATRIXGAME_FULL_KONUS_HEADER="${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectKonus.hpp")
     if(WIN32)
         target_sources(matrixgame-native-bootstrap PRIVATE "${PORT_ROOT}/tests/test_matrixgame_bootstrap_win32.cpp")
         target_compile_options(matrixgame-native-bootstrap PRIVATE /EHsc)
@@ -137,6 +146,7 @@ endif()
 file(GLOB_RECURSE ENGINE_UNITS CONFIGURE_DEPENDS "${ENGINE_SOURCE}/MatrixGame/src/*.cpp")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/MatrixGameDll.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/Logic/MatrixRoadNetwork.cpp$")
+list(FILTER ENGINE_UNITS EXCLUDE REGEX "/GameDefaultsNative.cpp$")
 # Opt-in full compilation target. Remaining Windows/D3D dependencies must be ported;
 # a successful default core build is not evidence that this target compiled.
 add_library(matrixgame-native-engine STATIC EXCLUDE_FROM_ALL ${ENGINE_UNITS})

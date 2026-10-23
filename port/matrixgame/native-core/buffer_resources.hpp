@@ -99,8 +99,8 @@ private:
     Context* previous_;
 };
 std::int64_t IndexBytes(std::int64_t count,IndexWidth);
-template<class T> void MapPart(Resource* resource,std::size_t offset,std::size_t bytes,T** out) {
+template<class T> void MapPart(Resource* resource,std::size_t offset,std::size_t bytes,T** out,MapMode mode=MapMode::Normal) {
     if(!resource || !out) throw std::invalid_argument("buffer mapping target");
-    *out=static_cast<T*>(resource->Map(offset,bytes));
+    *out=static_cast<T*>(resource->Map(offset,bytes,mode));
 }
 }

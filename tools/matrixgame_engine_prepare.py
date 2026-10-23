@@ -71,6 +71,7 @@ def prepare_engine(output):
     (output/registry).write_bytes(data);paths[registry]=hashlib.sha256(data).hexdigest()
     # Normalize after pinned algorithm overlays validate their original input.
     # These are fixed-width data fields, not Windows/device API emulation.
+    from matrixgame_resource_header_overrides import patch_resource_header
     for name in paths:
         path=output/name;data=path.read_bytes();before_scalars=data
         for old,new in [(b'DWORD',b'std::uint32_t'),(b'WORD',b'std::uint16_t'),(b'BYTE',b'std::uint8_t')]:
@@ -78,6 +79,11 @@ def prepare_engine(output):
         if data!=before_scalars:
             data=b'#include <cstdint>\n'+data;path.write_bytes(data)
             paths[name]=hashlib.sha256(data).hexdigest()
+        adapted=patch_resource_header(name,data)
+        if adapted!=data:
+            path.write_bytes(adapted);paths[name]=hashlib.sha256(adapted).hexdigest()
+    from matrixgame_game_defaults_overrides import prepare_game_defaults
+    paths.update(prepare_game_defaults(output))
     result={'schema':1,'source_commit':revision,'scope':'full engine compilation input; runtime/backend not implemented here',
         'files_sha256':paths,'portable_inputs':report['inputs_sha256'],
         'excluded_platform_launcher':'MatrixGameDll.cpp; native entry remains to implement'}

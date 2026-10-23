@@ -2,6 +2,7 @@
 #include "init_runtime.hpp"
 #include "MatrixSampleStateManager.hpp"
 #include "device_defaults.hpp"
+#include "game_defaults.hpp"
 #include <stdexcept>
 namespace srhd_awa::matrixgame {
 namespace {NativeInitRuntime* active{};}
@@ -37,10 +38,16 @@ void NativeInitRuntime::AttachDevice(platform3g::Window& window,platform3g::Devi
     }
 }
 void NativeInitRuntime::Deinit() noexcept {
+    if(game_defaults_){ClearOriginalGameDefaults();game_defaults_=false;}
     if(cpu_owned_){DetachDevice();L3GDeinitCpuPhase();g_Sampler.m_AFDegree=0;cpu_owned_=false;}
     if(cache_owned_){CacheDeinit();cache_owned_=false;}
     scope_.reset();buffers_.reset();
     if(active==this)active=nullptr;
+}
+void NativeInitRuntime::InitializeGameDefaults() {
+    if(active!=this || !CpuReady())throw platform3g::Unsupported("original config defaults require this live CPU/cache owner");
+    if(game_defaults_)throw std::logic_error("game defaults already initialized by this owner");
+    InitializeOriginalGameDefaults();game_defaults_=true;
 }
 void NativeInitRuntime::ApplySamplerSettings(SRobotsSettings& settings) {
     if(active!=this || !GpuReady())throw platform3g::Unsupported("sampler settings require this live negotiated device");

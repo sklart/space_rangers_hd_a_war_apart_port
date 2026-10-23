@@ -63,7 +63,7 @@ def main():
         undefined=[line for line in symbols.splitlines() if ' UND ' in line and ' WEAK ' not in line and len(line.split())>7]
         assert not undefined,undefined
         required=('MatrixGameNativeAnimationDraw','NativeVectorObjectAnim','DrawAnimated','PrepareAnimated') if a.animation else (('MatrixGameNativeCallbackDraw','DrawSkinned','BeforeDraw','LoadSpecial') if a.skin_callbacks else (('MatrixGameNativeSkinDraw','DrawSurfaceTextures','SurfaceMaterials','Takt','Acquire') if a.skin_resources else (('MatrixGameNativeSessionDraw','NativeDekoSession','PrepareNativeFrame','DrawFrame') if a.cached_frame else ('MatrixGameCachedMaterialGpuUpload',))))
-        if a.bootstrap:required=('AttachDevice','WindowProcedure','InitAsDLL','CacheInit','L3GInitAsDLLCpuPhase','CMatrixSampleStateManager','S3D_Default','CDeviceState','StoreState','RestoreState')
+        if a.bootstrap:required=('AttachDevice','WindowProcedure','InitAsDLL','CacheInit','L3GInitAsDLLCpuPhase','CMatrixSampleStateManager','S3D_Default','CDeviceState','StoreState','RestoreState','InitializeGameDefaults','InitializeOriginalGameDefaults','ClearOriginalGameDefaults')
         else:required=(*required,'dkDeviceCreate','SetTextureAsset','CacheInit','L3GInitAsDLLCpuPhase')
         for name in required:
             assert name in symbols,name

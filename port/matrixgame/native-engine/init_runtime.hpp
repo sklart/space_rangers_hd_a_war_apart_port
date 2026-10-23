@@ -24,6 +24,8 @@ public:
     void DetachDevice() noexcept;
     void ApplySamplerSettings(SRobotsSettings&);
     void ApplyDefaultDeviceState();
+    void InitializeGameDefaults();
+    bool GameDefaultsReady()const noexcept{return CpuReady() && game_defaults_;}
     bool DefaultDeviceStateReady()const noexcept {return GpuReady() && defaults_applied_;}
     std::optional<platform3g::DeviceResult> LastStateRestoreResult()const noexcept{return last_restore_;}
     void Deinit() noexcept;
@@ -37,6 +39,7 @@ private:
     std::unique_ptr<platform3g::DeviceStateLease> device_snapshot_;
     std::optional<platform3g::DeviceResult> last_restore_;
     bool sampler_configured_{},defaults_applied_{};
+    bool game_defaults_{};
     bool cache_owned_{},cpu_owned_{};
 };
 }
