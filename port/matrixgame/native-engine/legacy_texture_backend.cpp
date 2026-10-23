@@ -27,6 +27,7 @@ IDirect3DTexture9& Texture(IDirect3DTexture9* texture) {
 }
 void Release(IDirect3DTexture9* texture)noexcept {if(texture)texture->Release();}
 void Preload(IDirect3DTexture9* texture){Texture(texture).PreLoad();}
+std::uint32_t SetPriority(IDirect3DTexture9* texture,std::uint32_t priority){return Texture(texture).SetPriority(priority);}
 std::uint32_t LevelCount(IDirect3DTexture9* texture){return Texture(texture).GetLevelCount();}
 p::DeviceResult Describe(IDirect3DTexture9* texture,std::uint32_t level,LevelDesc* out) {
     D3DSURFACE_DESC desc{};const auto result=Texture(texture).GetLevelDesc(level,&desc);
@@ -97,6 +98,7 @@ namespace {[[noreturn]]void Unsupported(const char* call){
 }}
 void Release(IDirect3DTexture9* texture)noexcept {if(texture)std::terminate();}
 void Preload(IDirect3DTexture9*){Unsupported("PreLoad");}
+std::uint32_t SetPriority(IDirect3DTexture9*,std::uint32_t){Unsupported("SetPriority");}
 std::uint32_t LevelCount(IDirect3DTexture9*){Unsupported("GetLevelCount");}
 p::DeviceResult Describe(IDirect3DTexture9*,std::uint32_t,LevelDesc*){Unsupported("GetLevelDesc");}
 p::DeviceResult Lock(IDirect3DTexture9*,std::uint32_t,LockedRect*,std::nullptr_t,std::uint32_t){Unsupported("LockRect");}

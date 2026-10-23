@@ -12,6 +12,7 @@
 #include "VectorObjectAnimNative.hpp"
 #include "Form.hpp"
 #include "map_logic_backend.hpp"
+#include "legacy_texture_backend.hpp"
 #include <cassert>
 #include <cstdio>
 #include <filesystem>
@@ -90,7 +91,7 @@ struct Form final:CForm {
     void Keyboard(bool down,std::uint8_t key)override{assert(down && key==65);++keys;}
     void SystemEvent(ESysEvent)override{++events;}
 };
-void cold(){assert(!g_Cache && !g_CacheHeap && !InspectCpu3GState().bound && !p::Current().ready && !p::Current().attachment);assert(!CachedTextureBytes());VerifyBootstrapSamplerCold();VerifyBootstrapGameCold();}
+void cold(){assert(!g_Cache && !g_CacheHeap && !InspectCpu3GState().bound && !p::Current().ready && !p::Current().attachment);assert(!CachedTextureBytes() && legacy_texture::RegistrySize()==0);VerifyBootstrapSamplerCold();VerifyBootstrapGameCold();}
 int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Device& bound_device) {
     if(argc!=3 && argc!=4)return 2;
     std::setvbuf(stdout,nullptr,_IONBF,0);

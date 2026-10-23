@@ -14,6 +14,7 @@ void VerifyFormattedBitmapDevice() {
         p::CheckDeviceResult(lt::DecodeFormatted(bytes.Get(),bytes.Len(),6,0x31545844u,1,&texture),"original formatted DXT1 request");
         struct Owner {IDirect3DTexture9* value;~Owner(){lt::Release(value);}} owner{texture};
         assert(texture && lt::LevelCount(texture)==6);
+        lt::SetPriority(texture,0xffffffffu);assert(lt::SetPriority(texture,0)==0xffffffffu);
         for(unsigned level=0;level<6;++level) {
             lt::LevelDesc desc{};p::CheckDeviceResult(lt::Describe(texture,level,&desc),"DXT1 mip descriptor");
             assert(desc.Format==0x31545844u && desc.Width==(32u>>level) && desc.Height==(32u>>level));

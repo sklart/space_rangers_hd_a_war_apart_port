@@ -25,6 +25,7 @@
 #include "Texture.hpp"
 #include "MatrixTerSurface.hpp"
 #include "MatrixMapTexture.hpp"
+#include "MatrixWater.hpp"
 #include "legacy_texture_backend.hpp"
 #include "MatrixRenderPipeline.hpp"
 #ifdef _WIN32
@@ -60,6 +61,28 @@ static void VerifyOriginalPickViewport() {
 }
 void VerifyBootstrapMapCamera(NativeInitRuntime& runtime) {
     assert(runtime.GameDefaultsReady() && !runtime.MapCamera() && !g_MatrixMap);
+    auto& staging=buffers::Current();const auto staging_before=staging.AllocatedBytes();
+    for(int cycle=0;cycle<2;++cycle) {
+        auto* water=HNew(g_MatrixHeap) CMatrixWater();
+        assert(!water->m_VB && !water->m_IB);
+        // Real staging allocations in the original public owned slots. Init
+        // and the map-dependent wave simulation are deliberately not bypassed.
+        water->m_VB=staging.CreateVertex(4*sizeof(SMatrixMapWaterVertex),MATRIX_WATER_VERTEX_FORMAT,buffers::Pool::Default,true);
+        water->m_IB=staging.CreateIndex(12*sizeof(std::uint16_t),buffers::IndexWidth::U16);
+        assert(water->m_VB && water->m_IB && staging.AllocatedBytes()>staging_before);
+        if(!cycle){water->Clear();water->Clear();assert(!water->m_VB && !water->m_IB);}
+        HDelete(CMatrixWater,water,g_MatrixHeap);assert(staging.AllocatedBytes()==staging_before);
+    }
+    assert(!SInshorewave::m_VB && SInshorewave::m_VB_ref==0);
+    assert(SInshorewave::PrepareVB());auto* shore=SInshorewave::m_VB;
+    assert(shore && shore->Initialized(0,4*sizeof(SInshoreVertex)) && !shore->Locked());
+    SInshoreVertex vertices[4];std::memcpy(vertices,shore->Storage().data(),sizeof(vertices));
+    const float xy[4][2]{{-1,-1},{1,-1},{-1,1},{1,1}};
+    for(unsigned i=0;i<4;++i){assert(vertices[i].p.x==xy[i][0] && vertices[i].p.y==xy[i][1] && vertices[i].p.z==0);assert(vertices[i].tu==(xy[i][0]+1)*.5f && vertices[i].tv==(xy[i][1]+1)*.5f);}
+    assert(SInshorewave::PrepareVB() && SInshorewave::m_VB==shore);
+    SInshorewave::MarkAllBuffersNoNeed();SInshorewave::MarkAllBuffersNoNeed();assert(!SInshorewave::m_VB && staging.AllocatedBytes()==staging_before);
+    assert(SInshorewave::PrepareVB());SInshorewave::MarkAllBuffersNoNeed();assert(staging.AllocatedBytes()==staging_before);
+    std::puts("original water ctor/Clear/dtor with real staging ownership and original inshore quad PrepareVB bytes/reentry EXECUTED; map Init/Takt/Draw and GPU upload NOT RUN");
     assert(!CTerSurface::IsSurfacesPresent());CTerSurface::StaticInit();
     CTerSurface::AllocSurfaces(3);assert(CTerSurface::IsSurfacesPresent());
     CTerSurface::ClearSurfaces();
@@ -196,6 +219,18 @@ void VerifyBootstrapOriginalTexture(NativeInitRuntime& runtime,const wchar_t* pa
         assert(rejected && !runtime.OriginalManagedTexture() && lt::RegistrySize()==0 && runtime.CpuReady());
     }
     runtime.FinishOriginalManagedTexture();runtime.FinishOriginalManagedTexture();
+    const auto named_key=std::wstring(path)+L"?Alpha?Trans";
+    assert(!g_Cache->Find(CacheClass::TextureManaged,named_key));
+    auto* named=lt::GetManaged(named_key);
+    assert(named && named->m_Cache==g_Cache && named->m_Name==named_key && !named->IsLoaded() && lt::RegistrySize()==1);
+    assert(lt::GetManaged(named_key)==named);g_Cache->Up(named);assert(lt::GetManaged(named_key)==named);
+    g_Cache->Delete(named);CCache::Destroy(named);assert(!g_Cache->Find(CacheClass::TextureManaged,named_key) && lt::RegistrySize()==0);
+    auto* portable=g_Cache->Get(CacheClass::TextureManaged,named_key);
+    bool conflict=false;try{lt::GetManaged(named_key);}catch(const platform3g::Unsupported& error){conflict=std::string(error.what())=="original named texture conflicts with portable cache entry";}
+    assert(conflict && g_Cache->Find(CacheClass::TextureManaged,named_key)==portable && lt::RegistrySize()==0);
+    g_Cache->Delete(portable);CCache::Destroy(portable);
+    auto* parent_owned=lt::GetManaged(named_key);assert(parent_owned->m_Cache==g_Cache && lt::RegistrySize()==1);
+    std::puts("original named SDK cache Find/Create/Name/Add/Up/reuse/destroy and portable-type collision refusal PASS; final named texture owned until common CacheDeinit");
     std::puts("original CTextureManaged constructor/ParseFlags/Load/Init and real encoded-file prefix EXECUTED; bitmap conversion reaches actual GPU boundary; missing-resource, temporary unwind and registry cleanup PASS; SDK texture creation NOT RUN");
 }
 void VerifyBootstrapOriginalTextureDevice(NativeInitRuntime& runtime,const wchar_t* path) {

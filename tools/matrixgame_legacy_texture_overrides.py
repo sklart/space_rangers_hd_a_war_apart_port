@@ -110,6 +110,18 @@ static std::list<CBaseTexture*> _textures;
 namespace srhd_awa::matrixgame::legacy_texture {
 std::size_t RegistrySize()noexcept{return _textures.size();}
 CTextureManaged* CreateManaged(){return HNew(g_CacheHeap) CTextureManaged;}
+CTextureManaged* GetManaged(std::wstring_view name) {
+    if(!g_Cache)throw std::logic_error("original named texture requires initialized cache");
+    // Original Get: Find, create, assign the exact name, Add. Keep lazy load.
+    if(auto* existing=g_Cache->Find(CacheClass::TextureManaged,name)) {
+        if(auto* managed=dynamic_cast<CTextureManaged*>(existing))return managed;
+        throw tp::Unsupported("original named texture conflicts with portable cache entry");
+    }
+    auto* candidate=CreateManaged();
+    struct Owner {CTextureManaged*& value;~Owner(){if(value)CCache::Destroy(value);}} owner{candidate};
+    candidate->m_Name=name;g_Cache->Add(candidate);
+    auto* result=candidate;candidate=nullptr;return result;
+}
 }
 '''
     generated='MatrixLib/3G/OriginalManagedTexture.cpp'

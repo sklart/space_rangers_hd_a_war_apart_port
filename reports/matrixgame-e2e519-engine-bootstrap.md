@@ -1,5 +1,12 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
+Актуальное продолжение24.10: [water и named SDK cache](matrixgame-e2e519-water.md).
+Полный water TU подключён; original ctor/Clear/dtor и inshore quad PrepareVB
+исполнены в общем host/ARM64 bootstrap. Typed named cache сохраняет original
+Find/Name/Add/Up и parent Deinit, конфликт portable типа отвергается без cast.
+SDK ELF PASS; Windows actual priority resource runtime PASS отдельно.
+Full map owner LINK FAIL16, Water map Init/Draw и CGame::Init не выполнены.
+
 Актуальное продолжение24.10: [bottom texture/DXT1 ownership](matrixgame-e2e519-bottom-texture.md).
 Полный original bottom TU подключён; UBSan доказал неверный CacheTexture→
 CTextureManaged cast, retry baseline — потерю одного материала после Clear.
