@@ -1,6 +1,12 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение24.10: [water и named SDK cache](matrixgame-e2e519-water.md).
+Актуальное продолжение24.10: [полный skin manager](matrixgame-e2e519-skin-manager.md).
+Оригинальный GetSkin исполнен до отказа Prepare без устройства; доказанный
+ASan UAF повторного Clear исправлен сбросом ownership slots. Общий host и
+ARM64/QEMU runtime PASS, devkitA64 compile/link PASS. Full map owner LINK FAIL15;
+успешный материал, skin draw и CGame::Init не выполнены.
+
+Предыдущее продолжение24.10: [water и named SDK cache](matrixgame-e2e519-water.md).
 Полный water TU подключён; original ctor/Clear/dtor и inshore quad PrepareVB
 исполнены в общем host/ARM64 bootstrap. Typed named cache сохраняет original
 Find/Name/Add/Up и parent Deinit, конфликт portable типа отвергается без cast.

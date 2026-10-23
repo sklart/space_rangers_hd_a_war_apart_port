@@ -118,6 +118,8 @@ def prepare_engine(output):
     paths.update(prepare_bottom_texture(output))
     from matrixgame_water_overrides import prepare_water
     paths.update(prepare_water(output))
+    from matrixgame_skin_manager_overrides import prepare_skin_manager
+    paths.update(prepare_skin_manager(output))
     result={'schema':1,'source_commit':revision,'scope':'full engine compilation input; runtime/backend not implemented here',
         'files_sha256':paths,'portable_inputs':report['inputs_sha256'],
         'excluded_platform_launcher':'MatrixGameDll.cpp; native entry remains to implement'}

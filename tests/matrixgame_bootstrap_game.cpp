@@ -26,6 +26,7 @@
 #include "MatrixTerSurface.hpp"
 #include "MatrixMapTexture.hpp"
 #include "MatrixWater.hpp"
+#include "MatrixSkinManager.hpp"
 #include "legacy_texture_backend.hpp"
 #include "MatrixRenderPipeline.hpp"
 #ifdef _WIN32
@@ -613,6 +614,22 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
     assert(rejected && !runtime.GameDefaultsReady() && g_Config.m_Cursors==foreign && foreign->key==L"existing cursor");
     ClearOriginalGameDefaults();
     runtime.InitializeGameDefaults();
+    if(!runtime.GpuReady()) {
+        CSkinManager::StaticInit();
+        for(int attempt=0;attempt<2;++attempt) {
+            for(std::uint32_t group:{std::uint32_t(GSP_ORDINAL),std::uint32_t(GSP_SIDE_NOALPHA)}) {
+                bool denied=false;
+                try { (void)CSkinManager::GetSkin(L"",group); }
+                catch(const platform3g::Unsupported&) { denied=true; }
+                assert(denied);
+            }
+            // Original GetSkin publishes real heap records before Prepare
+            // refuses missing caps. These are not drawable ready materials.
+            // Clear must discard them and allow retry without StaticInit.
+            CSkinManager::Clear();CSkinManager::Clear();CSkinManager::Takt(20);
+        }
+        std::puts("full original skin GetSkin allocated real records then Prepare refused missing device; Clear/Clear/Takt/reentry EXECUTED; skin draw NOT EXECUTED");
+    }
     assert(runtime.GameDefaultsReady() && runtime.GpuReady()==was_gpu && g_MaxFPS==1000);
     {
         // The actual CMatrixMap member type, allocated on its real game heap.
