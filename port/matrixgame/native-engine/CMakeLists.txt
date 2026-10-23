@@ -31,18 +31,27 @@ add_library(matrixgame-native-cache STATIC
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/3GDeviceDefaults.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixLib/3G/DeviceState.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/GameDefaultsNative.cpp"
-    "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/GameVideoNative.cpp"
+    "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixGame.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixCursorLifecycle.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixSampleStateManager.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/SkinResourcesNative.cpp" native_skin.cpp skin_pipeline.cpp)
 target_link_libraries(matrixgame-native-cache PUBLIC matrixgame-native-vector-object)
+# Compile the complete original CGame TU; link only the original methods whose
+# dependencies are actually closed. This is not a full-engine link claim.
+set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp" APPEND PROPERTY COMPILE_OPTIONS
+    "$<$<CXX_COMPILER_ID:MSVC>:/Gy>" "$<$<CXX_COMPILER_ID:MSVC>:/Gw>"
+    "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-ffunction-sections>"
+    "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fdata-sections>")
+target_link_options(matrixgame-native-cache INTERFACE
+    "$<$<CXX_COMPILER_ID:MSVC>:/OPT:REF>"
+    "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wl,--gc-sections>")
 target_include_directories(matrixgame-native-cache PUBLIC "${CMAKE_CURRENT_LIST_DIR}")
 target_include_directories(matrixgame-native-cache BEFORE PUBLIC
     "${ENGINE_SOURCE}/MatrixLib/3G" "${ENGINE_SOURCE}/MatrixLib/Base"
     "${ENGINE_SOURCE}/MatrixLib/Bitmap" "${ENGINE_SOURCE}/MatrixGame/src")
 if(WIN32)
     target_sources(matrixgame-native-cache PRIVATE platform_win32.cpp)
-    target_link_libraries(matrixgame-native-cache PUBLIC d3d9 user32)
+    target_link_libraries(matrixgame-native-cache PUBLIC d3d9 user32 winmm)
 endif()
 if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
     add_executable(matrixgame-native-bootstrap "${PORT_ROOT}/tests/test_matrixgame_bootstrap.cpp"

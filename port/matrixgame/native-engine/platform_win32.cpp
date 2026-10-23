@@ -3,12 +3,34 @@
 #define NOMINMAX
 #include <windows.h>
 #include <d3d9.h>
+#include <mmsystem.h>
 #include "platform_win32.hpp"
 #include "DeviceState.hpp"
 #include <algorithm>
 #include <cstring>
 #include <iterator>
 namespace srhd_awa::matrixgame::platform3g {
+namespace {
+class WinmmTimerLease final:public TimerPeriodLease {
+    std::uint32_t period_;std::size_t& count_;bool active_{};
+public:
+    WinmmTimerLease(std::uint32_t period,std::size_t& count):period_(period),count_(count) {
+        const auto result=timeBeginPeriod(period);
+        if(result!=TIMERR_NOERROR)throw DeviceError("timeBeginPeriod",static_cast<DeviceResult>(result));
+        active_=true;++count_;
+    }
+    ~WinmmTimerLease(){Release();}
+    DeviceResult Release()noexcept override {
+        if(!active_)return DeviceSuccess;
+        const auto result=timeEndPeriod(period_);
+        if(result==TIMERR_NOERROR){active_=false;--count_;}
+        return static_cast<DeviceResult>(result);
+    }
+};
+}
+std::unique_ptr<TimerPeriodLease> Win32Window::AcquireTimerPeriod(std::uint32_t period) {
+    return std::make_unique<WinmmTimerLease>(period,timer_leases_);
+}
 namespace {IDirect3DDevice9& DeviceRef(void*);}
 CreationParameters D3D9Device::ReadCreationParameters() {
     D3DDEVICE_CREATION_PARAMETERS p{};

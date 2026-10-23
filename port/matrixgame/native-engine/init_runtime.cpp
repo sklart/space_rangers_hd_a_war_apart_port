@@ -68,8 +68,10 @@ void NativeInitRuntime::ApplySamplerSettings(SRobotsSettings& settings) {
     sampler_configured_=true;defaults_applied_=false;
 }
 void NativeInitRuntime::ApplyVideoSettings(SRobotsSettings& settings) {
-    if(active!=this || !GpuReady() || !GameDefaultsReady() || !sampler_configured_)
-        throw platform3g::Unsupported("video settings require this owner's device, game defaults and sampler settings");
+    if(active!=this || !CpuReady() || !GameDefaultsReady() || (GpuReady() && !sampler_configured_))
+        throw platform3g::Unsupported("video settings require this CPU/config owner and negotiated sampler when a device is present");
+    // Without a device, the original method itself rejects at ReadyDevice's
+    // first creation-parameter query, before any mode/flag/presentation write.
     auto& state=platform3g::Current();
     const auto flags=state.flags;const auto presentation=state.presentation;
     // Current providers reject every window mutation and Reset before side

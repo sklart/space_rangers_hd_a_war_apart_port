@@ -62,20 +62,20 @@ def prepare_video(output):
         body=body.replace(old,new)
     # The same complete adapted method is used by the full-TU compile audit.
     source=source.replace(original,body)
+    if source.count('timeBeginPeriod(1);')!=1 or source.count('timeEndPeriod(1);')!=1:
+        raise ValueError('Original loop timer call sites changed')
+    source=source.replace('timeBeginPeriod(1);','p::BeginLoopTimerPeriod(1);')
+    source=source.replace('timeEndPeriod(1);','p::EndLoopTimerPeriod(1);')
     # The integrated owner provides these real engine globals once. The full
     # source view must not define a second heap/map when its closure is linked.
     source=source.replace('CHeap *g_MatrixHeap;', 'extern CHeap *g_MatrixHeap;')
     source=source.replace('CMatrixMapLogic *g_MatrixMap;', 'extern CMatrixMapLogic *g_MatrixMap;')
+    if source.count('logger_type lgr{"test.log"};')!=1:raise ValueError('Original game logger changed')
+    source=source.replace('logger_type lgr{"test.log"};','logger_type lgr{std::clog};')
     prelude='#include "platform_3g.hpp"\n#include <iostream>\nnamespace p=srhd_awa::matrixgame::platform3g;\n'
     path.write_bytes((prelude+source).encode())
-    selected='MatrixGame/src/GameVideoNative.cpp'
-    # Genuine original global, initially null, not a synthetic map. No map may
-    # be invented to bypass the real world/lighting prerequisite.
-    data=('''// Original complete CGame::ApplyVideoParams; selected method, NOT full MatrixGame.cpp.
-// GPL-2.0-or-later. Native providers explicitly reject unsupported mutations.
-#include "MatrixGame.h"
-#include "MatrixMap.hpp"
-#include "3g.hpp"
-'''+prelude+body+'\n').encode()
-    (output/selected).write_bytes(data)
-    return {name:hashlib.sha256(path.read_bytes()).hexdigest(),selected:hashlib.sha256(data).hexdigest()}
+    # The full original TU now supplies the called method. Retire only this
+    # previously managed generated file, never a user source or upstream file.
+    selected=output/'MatrixGame/src/GameVideoNative.cpp'
+    if selected.exists():selected.unlink()
+    return {name:hashlib.sha256(path.read_bytes()).hexdigest()}

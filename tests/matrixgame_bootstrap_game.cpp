@@ -10,14 +10,46 @@
 #include <cstdio>
 #include <string>
 #include "MatrixGame.h"
+#ifdef _WIN32
+#include "platform_win32.hpp"
+#endif
 using namespace srhd_awa::matrixgame;
+void VerifyBootstrapTimer(NativeInitRuntime& runtime,platform3g::Window& window,platform3g::Device& device,bool negotiated) {
+    namespace p=platform3g;
+    assert(!p::Current().timer && !p::Current().timer_period);
+    if(!negotiated) {
+        bool refused=false;try{p::BeginLoopTimerPeriod(1);}catch(const p::Unsupported&){refused=true;}
+        assert(refused && !p::Current().timer && runtime.CpuReady());
+        std::puts("original loop timer call contract Unsupported without actual platform; no timer success synthesized");return;
+    }
+#ifdef _WIN32
+    auto& actual=dynamic_cast<p::Win32Window&>(window);
+    assert(actual.OutstandingTimerLeases()==0);
+    bool invalid=false;
+    try{p::BeginLoopTimerPeriod(0xffffffffu);}catch(const p::DeviceError& e){invalid=e.result!=0;}
+    assert(invalid && !p::Current().timer && actual.OutstandingTimerLeases()==0);
+    p::BeginLoopTimerPeriod(1);
+    assert(p::Current().timer && p::Current().timer_period==1 && actual.OutstandingTimerLeases()==1);
+    bool duplicate=false;try{p::BeginLoopTimerPeriod(1);}catch(const std::logic_error&){duplicate=true;}
+    bool mismatch=false;try{p::EndLoopTimerPeriod(2);}catch(const std::logic_error&){mismatch=true;}
+    assert(duplicate && mismatch && actual.OutstandingTimerLeases()==1 && p::Current().timer);
+    assert(p::EndLoopTimerPeriod(1)==p::DeviceSuccess);
+    assert(!p::Current().timer && actual.OutstandingTimerLeases()==0 && !p::Current().timer_period);
+    assert(p::EndLoopTimerPeriod(1)==p::DeviceSuccess); // No unmatched OS release.
+    p::BeginLoopTimerPeriod(1);runtime.DetachDevice();
+    assert(actual.OutstandingTimerLeases()==0 && !p::Current().timer && runtime.CpuReady());
+    runtime.AttachDevice(window,device);
+    p::BeginLoopTimerPeriod(1); // Full owner Deinit will release this request.
+    std::puts("actual WinMM timer begin/end EXECUTED: invalid/duplicate/mismatched requests, release, detach/reentry PASS; pending timer owned by same platform state");
+#endif
+}
 void VerifyBootstrapVideo(NativeInitRuntime& runtime,platform3g::Window& window,platform3g::Device& device,bool negotiated) {
     namespace p=platform3g;
     auto settings=SRobotsSettings::generate_default_settings();
     if(!negotiated) {
-        bool rejected=false;try{runtime.ApplyVideoSettings(settings);}catch(const p::Unsupported&){rejected=true;}
+        bool rejected=false;try{runtime.ApplyVideoSettings(settings);}catch(const p::Unsupported& e){rejected=std::string(e.what())=="3G device negotiation not complete";}
         assert(rejected && runtime.CpuReady() && !runtime.GpuReady() && !g_MatrixMap);
-        std::puts("original CGame video unavailable without actual window/device; no synthetic display");return;
+        std::puts("full original MatrixGame.cpp CGame::ApplyVideoParams ENTERED -> actual device unavailable; no synthetic display; owner preserved");return;
     }
     window.Show(p::Visibility::Normal);window.Update();
     const auto creation=device.ReadCreationParameters();

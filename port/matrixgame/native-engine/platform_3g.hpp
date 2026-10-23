@@ -71,6 +71,11 @@ enum class Visibility {Maximized,Restored,Minimized,Normal};
 struct CursorHandle {std::uintptr_t value{};bool operator==(const CursorHandle&)const=default;};
 struct IconHandle {std::uintptr_t value{};};
 class Window;
+class TimerPeriodLease {
+public:
+    virtual ~TimerPeriodLease()=default;
+    virtual DeviceResult Release()noexcept=0;
+};
 using MessageHandler=std::intptr_t(*)(Window&,std::uint32_t,std::uintptr_t,std::intptr_t);
 class WindowAttachment {
 public:
@@ -89,6 +94,7 @@ public:
     virtual CursorHandle ReadCursor(){throw Unsupported("backend cursor query unsupported");}
     virtual void DestroyCursorIcon(IconHandle){throw Unsupported("backend owned icon destruction unsupported");}
     virtual void Update(){throw Unsupported("backend window update unsupported");}
+    virtual std::unique_ptr<TimerPeriodLease> AcquireTimerPeriod(std::uint32_t){throw Unsupported("backend timer period unsupported");}
     virtual WindowRect ReadClientRect(){throw Unsupported("backend client rectangle unsupported");}
     virtual WindowRect ReadWindowRect(){throw Unsupported("backend window rectangle unsupported");}
     virtual void ResizeOuter(std::int32_t,std::int32_t){throw Unsupported("window resize requires reset-safe presentation ownership");}
@@ -99,6 +105,8 @@ struct State {
     void* module{};void* window_identity{};bool external{};
     Window* window{};Device* device{};
     std::unique_ptr<WindowAttachment> attachment;
+    std::unique_ptr<TimerPeriodLease> timer;
+    std::uint32_t timer_period{};
     DeviceCaps caps{};
     std::array<GammaRamp,2> saved_gamma{};
     std::array<bool,2> gamma_saved{};
@@ -110,6 +118,8 @@ struct State {
 State& Current() noexcept;
 Device& ReadyDevice();
 Window& ReadyWindow();
+void BeginLoopTimerPeriod(std::uint32_t);
+DeviceResult EndLoopTimerPeriod(std::uint32_t);
 // Original DLL bootstrap and WndProc/input algorithms via typed backend calls.
 // Only external/borrowed device/window mode is supported; no fake owned EXE.
 void InitAsDLL(void* module,Window&,Device&);

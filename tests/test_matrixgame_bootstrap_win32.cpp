@@ -52,5 +52,7 @@ int RunWindowsBootstrap(int argc,char**argv,int(*run)(int,char**,void*,p::Window
     if(!arrow)return 77;
     SetCursor(arrow);
     struct CursorOwner {HCURSOR old;~CursorOwner(){SetCursor(old);}} restore_cursor{saved_cursor};
-    return run(argc,argv,module,window,device);
+    const auto result=run(argc,argv,module,window,device);
+    assert(window.OutstandingTimerLeases()==0);
+    return result;
 }

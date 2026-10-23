@@ -19,7 +19,9 @@ public:
     void Update()override;
     WindowRect ReadClientRect()override;
     WindowRect ReadWindowRect()override;
-private:void* hwnd_;
+    std::unique_ptr<TimerPeriodLease> AcquireTimerPeriod(std::uint32_t)override;
+    std::size_t OutstandingTimerLeases()const noexcept{return timer_leases_;}
+private:void* hwnd_;std::size_t timer_leases_{};
 };
 class D3D9Device final:public Device,public StoredStateBackend {
 public:

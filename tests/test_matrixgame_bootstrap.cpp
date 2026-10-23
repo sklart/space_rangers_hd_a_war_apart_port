@@ -39,6 +39,7 @@ extern void VerifyBootstrapGameCold();
 extern void VerifyBootstrapGameDefaults(NativeInitRuntime&);
 extern void VerifyBootstrapProjection();
 extern void VerifyBootstrapVideo(NativeInitRuntime&,p::Window&,p::Device&,bool);
+extern void VerifyBootstrapTimer(NativeInitRuntime&,p::Window&,p::Device&,bool);
 extern void VerifyBootstrapCursor(NativeInitRuntime&,p::Window&,p::Device&,bool);
 struct UnavailableDevice final:p::Device {
     p::DeviceCaps ReadCaps()override{throw p::Unsupported("backend has no verified legacy device caps");}
@@ -103,6 +104,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
                 VerifyBootstrapDefaults(runtime,*window,*device,cycle,true);
                 VerifyBootstrapVideo(runtime,*window,*device,true);
                 VerifyBootstrapCursor(runtime,*window,*device,true);
+                VerifyBootstrapTimer(runtime,*window,*device,true);
                 assert(GetWindowLongPtrW(hwnd,GWLP_WNDPROC)!=original_proc);
                 const auto actual=device->ReadCaps();
                 assert(actual.swapchain_count==p::Current().caps.swapchain_count);
@@ -137,6 +139,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
                 VerifyBootstrapDefaults(runtime,*window,*device,cycle,false);
                 VerifyBootstrapVideo(runtime,*window,*device,false);
                 VerifyBootstrapCursor(runtime,*window,*device,false);
+                VerifyBootstrapTimer(runtime,*window,*device,false);
 #endif
             }
             runtime.Deinit();runtime.Deinit();cold();
