@@ -1344,3 +1344,118 @@ evidence связывает точные source hashes с implementation SHA.
    lifecycle и определить следующую настоящую map/form/loop границу.
 
 E2E-5.19 остаётся активным: полный Init, карта, loop и бой ещё не исполнены.
+
+## Продолжение 23.10.2026: полная TU рендера и SDK state lifecycle
+
+Implementation: `dafcb151bc461d9da7323209a1ec0271dac5589d`, baseline:
+`7d56260c6e0b11698557b5c09b1ce99c07842f2d`. Локальный master, без push/fetch.
+[Renderer evidence](matrixgame-e2e519-render-pipeline-evidence.json) содержит
+полные ошибки Windows, source/object/binary hashes, границы исполнения и логи.
+
+Снят следующий **реальный compile blocker**: полная исходная
+MatrixRenderPipeline.cpp раньше останавливалась на incomplete IDirect3DDevice9
+в первом WaterAlpha_t3/SetRenderState (prepared baseline:103). Теперь TU целиком
+компилируется на host, Linux ARM64 и devkitA64. Сохранены все оригинальные
+water/terrain функции, ветвления, число проходов и assignments callback table
+конструктора. Алгоритмы не заменены указателями на заглушки. Header отличается
+только квалификацией настоящего Base::CMain; полная CGame::Init не менялась.
+
+Оригинальные ordinary SetColorOp/SetAlphaOp helpers взяты из прежнего полного
+3g source view и адаптированы к тому же typed device; это выбранные оригинальные
+inline algorithms, **не** перенос всей 3g.cpp. DO_SMART_COLOROPS явно отклоняется
+при компиляции, а не подменяется ordinary branch. ASSERT_OFF сохраняет прежнюю
+unchecked семантику; обычные ASSERT_DX/FAILED_DX проверяют тот же result !=0.
+Все 45 используемых serialized value/register identifiers сверены с настоящим
+установленным Windows SDK d3d9types.h (точный перечень/количество в JSON).
+
+Конструктор использует отдельное фактическое MaxSimultaneousTextures из SDK
+GetDeviceCaps. Оно не заменяется MaxTextureBlendStages, уже необходимым другим
+стадиям. Для texture binding, FVF и texture matrices Windows provider вызывает
+настоящие SetTexture/SetFVF/SetTransform. CPU staging vertex/index buffers
+остаются typed resources; их загрузка и binding отклоняются явным Unsupported,
+без reinterpret_cast в COM buffer и без фиктивного успешного GPU результата.
+
+Для новых операций расширен существующий StateLease: явное сохранение FVF,
+AddRef vertex declaration, девяти texture-stage registers для восьми stages и
+восьми texture matrices. После stateblock Apply эти значения восстанавливаются
+явно, вместе с прежними 207 stored states, world и texture bindings. COM-ссылки
+texture/declaration освобождаются в destructor, включая частичный capture.
+Новые setters требуют уже захваченную lease; изменение layout/matrix без неё
+не допускается. Reset lifecycle по-прежнему не объявляется поддержанным.
+
+В **существующий** Windows bootstrap добавлены реальные SDK проверки обоих caps,
+отказа без capture, изменения/readback и восстановления FVF/declaration,
+девяти stage values, texture matrix и исходного texture binding за два входа.
+Они компилируются на x86/x64, однако **NOT RUN**: общая компоновка ещё закрыта
+не полностью. Ни state restore, ни выбор renderer callbacks не получили
+нового runtime PASS на основании одной компиляции.
+
+| Gate | Новое доказательство и ограничение |
+|---|---|
+| Host full renderer object | COMPILE_FAIL → COMPILE_PASS под существующими ASan/UBSan flags |
+| Linux ARM64 full renderer object | COMPILE_PASS, отдельный адресный object audit |
+| devkitA64 full renderer object | COMPILE_PASS, CMake/Ninja object target, без runtime |
+| Windows x86/x64 | Полная renderer TU включена в native-cache; LINK_BLOCKED **33 вместо 35** |
+| Host bootstrap ASan/UBSan + leak detection | PASS прежних реально исполняемых стадий, cleanup/reentry; renderer NOT EXECUTED |
+| ARM64/QEMU bootstrap | PASS прежней CPU цепочки; renderer NOT EXECUTED |
+| devkitA64 bootstrap ELF | COMPILE/LINK PASS, strong undefined=0; renderer отсутствует в CPU archive/runtime |
+| Switch/GPU, Windows новый state readback | HARDWARE_PENDING / NOT RUN |
+
+Windows delta — ровно original CRenderPipeline constructor и destructor; новых
+undefined нет. Это реальная интеграция целой TU в общую Windows связку CGame,
+но ещё не исполнение конструктора и не full-engine link. Остались 33 функции
+renderer/map/interface/selection/loop/effects/history/camera dependencies.
+
+**Честная граница host-интеграции:** пробное включение рендера в общий bootstrap
+с вызовом original constructor не прошло link. ASan/UBSan metadata требует
+настоящие `typeinfo for CBaseTexture`, `typeinfo for CTextureManaged` и
+`typeinfo for CMatrixMapObject`; реализации этих исходных классов ещё не
+замкнуты. Уже работающий CacheTexture является отдельным CPU resource contract,
+его нельзя выдать за оригинальный CTextureManaged. Вызов constructor поэтому
+не оставлен в рабочем bootstrap. Кандидат owner/test integration сохранён
+локально в `build/matrixgame/e2e519/render-owner-attempt.patch`, ошибки —
+`render-host-build.log` и `render-host-final-build.log` этого же каталога.
+vptr/ASan/UBSan не отключались и фиктивный RTTI не добавлялся.
+
+Отсюда намеренное различие build recipes: Windows native-cache компилирует
+полную renderer TU; host/ARM64/SDK исполняемый CPU bootstrap её пока не включает,
+а полная TU проверяется отдельным object target **того же исходного движка**.
+Новый executable или standalone CPU/GPU prototype не создавался. Одинаковые
+effective files не означают одинаковый состав связанного бинарного кода.
+
+Адресные команды новой стадии (Linux команды запускаются из WSL repo root):
+
+```text
+python3 tools/matrixgame_engine_compile_audit.py --build-root build/matrixgame/e2e519/host --output build/matrixgame/e2e519/render-candidate-audit --source /MatrixRenderPipeline.cpp --jobs 1
+python3 tools/matrixgame_engine_compile_audit.py --build-root build/matrixgame/e2e519/arm64 --output build/matrixgame/e2e519/render-arm64-audit --source /MatrixRenderPipeline.cpp --jobs 1
+cmake --build build/matrixgame/e2e519/sdk/cmake --target CMakeFiles/matrixgame-native-engine.dir/source/MatrixGame/src/MatrixRenderPipeline.cpp.obj --parallel 2
+cmake --build build/matrixgame/e2e519/windows/engine --config Release --target matrixgame-native-bootstrap -j6
+cmake --build build/matrixgame/e2e519/windows-x64/engine --config Release --target matrixgame-native-bootstrap -j6
+```
+
+238 prepared engine files и core outputs сверены по реальным байтам между
+всеми пятью конфигурациями. Новый effective manifest SHA-256:
+`0d278a94cd6822da01ffa1b4767d00c6609da2fca5f3ef9895f4948e81ab0fec`.
+SDK ELF SHA-256:
+`ea33563b346ea02f7935328bbdf41b97d62306954615a84bf4aba2d33196acff`,
+build id `a71f9f60ee6173acd7be168d6557a3f7fcc04eeb`, 4622648 bytes.
+build_dirty=true перед commit; embedded Git SHA отсутствует, точный commit
+связан с исходными hashes в evidence. Команды адресных object audits и builds
+сохранены в JSON audit/sdk results. Общий inventory не повторялся.
+
+Все 14 protected hashes совпали. Сейвы, ресурсы, pinned upstream и оба
+аппаратных комплекта сохранены; основная NRO не пересобиралась.
+
+Не более трёх следующих приоритетов:
+
+1. Замкнуть настоящие texture/map-object resource и RTTI зависимости, затем
+   исполнить original renderer constructor в общем owner без ослабления UBSan.
+2. Закрывать оставшиеся зависимости полной Windows CGame связки; запустить
+   уже скомпилированные SDK state/caps readback проверки после восстановления link.
+3. Согласовать полный Init/static-init/heap/cache/data lifecycle перед вызовом
+   исходного CGame::Init поверх единого владельца.
+
+Новая достигнутая граница — компиляция полной TU и снятие двух Windows link
+зависимостей. **Граница исполнения пока прежняя:** static_init → heap/cache/CPU
+binding → progress/VO/config prefix; полный Init, renderer ctor, map/form/loop
+и бой не исполнены. E2E-5.19 остаётся активным.

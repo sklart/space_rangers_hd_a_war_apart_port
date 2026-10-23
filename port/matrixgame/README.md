@@ -28,7 +28,15 @@ Legacy L3GInitAsDLL/L3GDeinit теперь определены через то�
 Legacy flags/window/module/configured dimensions ссылаются на общий platform state.
 Положительный SDK runtime нового legacy entry пока NOT RUN.
 
-Текущие Windows x86/x64 сборки полного объекта — **LINK_BLOCKED: 35 методов**
+Полная MatrixRenderPipeline.cpp теперь компилируется на host, Linux ARM64 и
+devkitA64; Windows включает её в native-cache с настоящими water/terrain callbacks.
+Конструктор и деструктор замкнуты при Windows link, однако **ещё не исполнялись**.
+Host/ARM CPU bootstrap её не включает: пробное подключение под UBSan выявило
+незамкнутый RTTI оригинальных texture/map-object классов. Проверки не отключались.
+Состояние SDK расширено для FVF/declaration, texture stages и матриц; новые
+проверки реального SDK readback компилируются, но остаются NOT RUN.
+
+Текущие Windows x86/x64 сборки полного объекта — **LINK_BLOCKED: 33 метода**
 Init/Deinit/static_init. Это временная регрессия bootstrap после включения полной
 TU; новые WinMM/gamma runtime-проверки NOT RUN. Полный legacy SDK context, карта и
 reset-safe presentation lifecycle остаются незамкнутыми.
