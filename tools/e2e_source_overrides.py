@@ -1132,6 +1132,16 @@ void CloseVorbisStream(TOggWorker* worker) {
             text = '#include "e2e4_game_audio_bridge.hpp"\n' + text
         text = '#if defined(__SWITCH__)\n#include <switch.h>\n#include <cstdio>\n#include "e2e_stage.hpp"\n#endif\n' + text
     if source.name == "aScript.cpp":
+        finalize = '    void FinalizeScriptEngine() {'
+        text = _replace_exact(text, finalize, finalize + '''
+        // The request worker belongs to this script runtime, not the process.
+        // Quiesce it while script data and the turn worker are still alive.
+        if (ScriptRequestThread != nullptr) {
+            ScriptRequestThread->RequestStop();
+            ScriptRequestThread->WaitForIdle(WindowsSdk::INFINITE);
+            pas::free(ScriptRequestThread);
+            ScriptRequestThread = nullptr;
+        }''', 1, source.name)
         key = "        std::uint32_t Key = static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Block));"
         entry_key = "static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(Entry->Block))"
         if text.count(key) != 1 or text.count(entry_key) != 3:
@@ -1314,7 +1324,13 @@ void CloseVorbisStream(TOggWorker* worker) {
         if text.count(steam_shutdown) != 1:
             raise RuntimeError("optional Steam shutdown block changed")
         text = text.replace(steam_shutdown,
-            "#if !defined(__SWITCH__)\n" + steam_shutdown + "\n#endif", 1)
+            "#if !defined(__SWITCH__)\n" + '''                                        if (SteamCallbackThread != nullptr) {
+                                            SteamCallbackThread->RequestStop();
+                                            SteamCallbackThread->WaitForIdle(WindowsSdk::INFINITE);
+                                            pas::free(SteamCallbackThread);
+                                            SteamCallbackThread = nullptr;
+                                        }
+                                        SimpleSteamApi::UnloadSteamApi();''' + "\n#endif", 1)
         for call, stage in STAGES.items():
             if text.count(call) != 1:
                 raise RuntimeError(f"startup stage changed: {call}")

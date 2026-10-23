@@ -31,6 +31,8 @@ def main():
     parser.add_argument('--advance-turns', type=int, default=0)
     parser.add_argument('--normal-exit', action='store_true',
                         help='After a copied map-save route, leave campaign and quit through native menus; verify process exit')
+    parser.add_argument('--quit-main-menu', action='store_true',
+                        help='Quit the initial main menu without loading or generating a world')
     parser.add_argument('--exit-backtrace', action='store_true',
                         help='On normal-exit timeout, attach local gdb once before cleanup (requires ptrace permission)')
     parser.add_argument('--map-move',type=int,nargs=2,metavar=('X','Y'),
@@ -66,8 +68,10 @@ def main():
         parser.error('--load-save is a separate fresh-process route')
     if args.normal_exit and (not args.load_save or args.resave_name or args.planet_cycles or args.trade_dialog or args.interstellar):
         parser.error('--normal-exit requires a copied map-save route without other panel/save scenarios')
-    if args.exit_backtrace and (not args.normal_exit or not shutil.which('gdb')):
-        parser.error('--exit-backtrace requires --normal-exit and gdb in PATH')
+    if args.quit_main_menu and (args.load_save or args.campaign or args.save or args.normal_exit):
+        parser.error('--quit-main-menu is a separate initial-menu route')
+    if args.exit_backtrace and (not (args.normal_exit or args.quit_main_menu) or not shutil.which('gdb')):
+        parser.error('--exit-backtrace requires a native quit route and gdb in PATH')
     if (args.advance_turns or args.resave_name or args.expect_checkpoint) and not args.load_save:
         parser.error('turns/resave/checkpoint require --load-save')
     if not 0 <= args.advance_turns <= 10:
@@ -291,19 +295,20 @@ def main():
                 pulse(16)
                 wait(lambda text: state()[1] == target, 'focus original Accept button')
 
-        def final_quit_confirmation():
+        def final_quit_confirmation(touch=None):
             # The final input may terminate the game before its release ACK.
             # Accept process termination here only; ordinary raw-pad checks
             # keep their existing strict delivery/consumption requirements.
             nonlocal sequence
             if not switch_effective:
                 raise RuntimeError('--normal-exit requires the switch-effective host build')
-            for mask in (1, 0):
+            for mask in (1024 if touch else 1, 0):
                 if process.poll() is not None:
                     break
                 sequence += 1
                 temporary = stage / 'pad-input.tmp'
-                temporary.write_text(f'{sequence} {mask}\n')
+                coordinates = f' {touch[0]} {touch[1]}' if touch and mask else ''
+                temporary.write_text(f'{sequence} {mask}{coordinates}\n')
                 temporary.replace(stage / 'pad-input.txt')
                 if not mask:
                     # Quit has already stopped the input loop. Publish the
@@ -469,7 +474,22 @@ def main():
         try:
             wait(lambda text: 'screen first presented id=1 ' in text and state()[2] > 0,
                  'main menu and native focus graph', 180)
-            if args.load_save is None:
+            if args.quit_main_menu:
+                parent = state()[0]
+                exit_button = next(node for node in graph()[2] if node[2] == 'Exit')
+                x, y, width, height = exit_button[1]
+                raw(1024, 0, (x + width // 2, y + height // 2)); raw(0)
+                wait(lambda text: state()[0] != parent and state()[2] == 2,
+                     'native initial-menu quit confirmation')
+                accept = min(graph()[2], key=lambda node: node[1][0])
+                x, y, width, height = accept[1]
+                started = time.monotonic()
+                final_quit_confirmation((x + width // 2, y + height // 2))
+                report.update(normal_shutdown_verified=True,
+                              normal_shutdown_seconds=round(time.monotonic() - started, 3),
+                              normal_shutdown_route='initial main menu -> quit -> accept',
+                              status='PASS')
+            elif args.load_save is None:
                 cycles = []
                 if not args.campaign:
                     for cycle in range(5):

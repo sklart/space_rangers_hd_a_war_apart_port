@@ -338,10 +338,88 @@ raw pad по-прежнему требует точный sequence/mask ACK. П�
 игровой цикл к этому моменту завершились. Утечки workers нельзя исправлять
 принудительным `_Exit` или бессрочным хранением condition_variable.
 Это пока **не доказанная причина полного зависания Switch**: host-компиляция
-Steam-ветки отличается от `__SWITCH__`; владельцы workers уточняются отдельно.
+Steam-ветки отличается от `__SWITCH__`; владельцы workers установлены ниже.
 Драйвер поддерживает opt-in `--exit-backtrace` с локальным gdb и правом ptrace
 только при timeout, перед принудительной очисткой неудачного теста.
 Исходные конфиги и сейв во всех этих прогонах совпали по SHA256.
+
+### Установленные владельцы и исправление shutdown
+
+Отладчиком подтверждён адрес уничтожаемого объекта: main ждёт в
+`pthread_cond_destroy`, аргумент указывает внутрь символа
+`e2e_events::(anonymous namespace)::g_changed`. В коротком сценарии
+«начальное меню → Выход», без генерации или загрузки мира, два оставшихся
+`ProcessRequests` идентифицированы по настоящим vtable:
+
+- `aScript::TScriptThread`: создаётся в
+  `aScriptFun::InitializeScriptBuiltinsAndConstants`, хранится в
+  `aScript::ScriptRequestThread`. `FinalizeScriptEngine` освобождал scope и
+  process, но **не освобождал worker**. Это общий код host/Switch.
+- `Rangers::TSteamCallbacksThread`: owner `SteamCallbackThread` при выходе
+  получал только RequestStop. Это завершает текущий Execute, но не постоянный
+  цикл ProcessRequests, ожидающий ShutdownEvent. Эта ветка компилируется
+  только без `__SWITCH__`; на Switch Steam worker отсутствует.
+
+Артефакты: `build/e2e515/e2e523-menu-exit-owners/result.json`,
+его run `082fdbedd43949ec96625a4af6e55bb0/exit-backtrace.log`, а также
+`e2e523-exit-identify` с адресом condition_variable. Первые попытки gdb
+не определяли классы из-за сброса выбранного frame; они не использованы
+как доказательство владельцев. Корректная Python-команда выбирает frame и
+читает vtable в одной операции. Регистровый способ относится только к этому
+конкретному x86_64 binary; он не добавлен в production диагностику.
+
+В effective sources исправлено владение обоих потоков: RequestStop →
+WaitForIdle → `pas::free` → nullptr. Для script worker это происходит в начале
+FinalizeScriptEngine, до освобождения script data; turn worker ещё существует.
+Для Steam — до UnloadSteamApi и внутри прежнего `!__SWITCH__`. Используется
+исходный TThreadEC destructor: ShutdownEvent, ожидание завершения native thread,
+закрытие thread handle и пяти events. Принудительного `_Exit`, отключения
+condition_variable destructor или фиктивного успешного завершения нет.
+
+`tests/test_e2e523_script_shutdown.cpp` исполняет оригинальные
+TScriptThread_Create/Start/Execute/FinalizeScriptEngine и реальные event/thread
+adapters. Три lifecycle сессии включают idle worker, запущенный worker,
+повторное создание и повторный Finalize. Проверено удаление frontend thread
+handle и всех пяти event handles. Очереди пустые, исходный Execute сам
+завершает работу; игровые методы не подменяются. ASan/UBSan/leak-check PASS
+для aScript, EC_Thread, event/thread/sync/handle adapters и теста;
+**остальные полные игровые объекты не инструментированы**.
+
+Воспроизводимая сборка из существующего host baseline:
+
+```sh
+ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 \
+UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 \
+python3 tools/e2e523_shutdown_lifecycle.py
+```
+
+Отдельный host-кандидат `build/e2e523/exit-candidate/original-game-host`, SHA256
+`86ff8561c3b80014b7e2d6ad9c643dc4fcd3938c0ea187976a6fbd90b3f57709`.
+В нём изменены только два названных finalizers: из332 link inputs заменены
+два объекта, остальные330 унаследованы из baseline.
+Новые rescale/recovery/save diagnostics в этот узкий кандидат не включены.
+`report.json` содержит actual source/object hashes и границы частичной
+инструментации; `test-runtime.log` — исполнение lifecycle. Повторного
+полного rebuild нет. Оба изменённых полных effective units отдельно
+скомпилированы devkitA64 (`exit-candidate/sdk-result.json`): **COMPILE PASS**,
+без ARM64 link/runtime/NRO. Влияние на аппаратный exit остаётся
+**HARDWARE_PENDING**, причина зависания всей консоли этим не доказана.
+
+Полный кандидатный маршрут **HOST PASS**:
+`build/e2e515/e2e523-shutdown-candidate/result.json`. Через оригинальный UI
+загружен тот же RecoveredSave-1, выполнены реальные ходы303→304→305→306,
+затем campaign exit → main menu → quit → подтверждение. Процесс сам вернул0,
+`normal_shutdown_verified=true`, `stopped_by_runner=false`, время от финального
+подтверждения до выхода0.659с. В baseline тот же выход оставлял два workers
+и не завершался30с после `Game shutdown complete`. Это исправление именно
+**host shutdown**, а не устранение аппаратного зависания карты или всей HOS.
+Source configs/save SHA256 после кандидатного прогона неизменны.
+Loaded checkpoint (включая RNG/scripts/globals/inventory/ship hashes) и
+наблюдаемые map states до/после трёх ходов совпали с baseline. Это не отдельное
+доказательство полной эквивалентности всех внутренних мировых состояний после
+ходов; игровая логика и аркада в данном кандидате не менялись.
+Повторная сверка13 доступных protected inputs и обоих frozen ZIP не нашла
+расхождений: `build/e2e523/shutdown-protected-after.json`; G:\\pack.zip недоступен.
 
 В существующий perf writer добавлены четыре статических atomic slots: main,
 turn, saver, writer. Публикация не берёт игровые mutex, не выделяет память и
