@@ -8,6 +8,11 @@ E2E-5.19: единый bootstrap исполняет оригинальные CMa
 VO/shadow/form и game static initialization перед созданием game heap/cache.
 54 исходных определения данных перенесены в общую TU с прежними типами/значениями
 effective sources; stale EXITLOOP, отказ при живой чужой форме и reentry проверены.
+В тот же bootstrap включена полная оригинальная MatrixLoadProgress.cpp:
+исполнены constructor, SetCurLP/SetCurLPPos и исходные веса 70/300/150/30.
+Callback проверен через RangersInterface fixture; настоящая UI хозяина не запускалась.
+Destructor снимает только собственный g_LoadProgress: проверены stack unwind,
+чужой publisher, cleanup и повторный вход под ASan/UBSan и ARM64/QEMU.
 Полная оригинальная MatrixGame.cpp перешла COMPILE_FAIL → COMPILE_PASS и входит
 в bootstrap вместо выбранного GameVideoNative.cpp. Host/QEMU вызывают её
 ApplyVideoParams и проверяют отказ первой операции без устройства, cleanup/reentry.
@@ -23,7 +28,7 @@ Legacy L3GInitAsDLL/L3GDeinit теперь определены через то�
 Legacy flags/window/module/configured dimensions ссылаются на общий platform state.
 Положительный SDK runtime нового legacy entry пока NOT RUN.
 
-Текущие Windows x86/x64 сборки полного объекта — **LINK_BLOCKED: 38 методов**
+Текущие Windows x86/x64 сборки полного объекта — **LINK_BLOCKED: 35 методов**
 Init/Deinit/static_init. Это временная регрессия bootstrap после включения полной
 TU; новые WinMM/gamma runtime-проверки NOT RUN. Полный legacy SDK context, карта и
 reset-safe presentation lifecycle остаются незамкнутыми.

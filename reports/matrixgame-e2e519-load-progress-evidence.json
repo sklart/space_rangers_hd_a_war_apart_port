@@ -1,0 +1,327 @@
+{
+  "stage": "E2E-5.19 full CLoadProgress integration and published-pointer lifetime",
+  "status": "ORIGINAL_PROGRESS_CALLBACK_AND_LIFETIME_PASS_WINDOWS_35_FUNCTION_DEPS_PENDING",
+  "base_sha": "52ec42356992941979d9ac1f16d4cdd38704cbaa",
+  "implementation_sha": "336d038881efad1cd24c871c5c5a4b65af1a34ca",
+  "branch": "master",
+  "push_performed": false,
+  "remote_fetched": false,
+  "cached_origin_master": "df48ae6eb77eff72cccedf9a23e2264fc0e28cff",
+  "upstream_pin": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
+  "upstream_clean": true,
+  "source_hashes": {
+    "port/matrixgame/native-engine/CMakeLists.txt": "20e88faf65639342c1a038ffa2489ca5ef42f581ccca7bbce180f958a6cbdee5",
+    "port/matrixgame/native-engine/init_runtime.cpp": "eef7d3dfc0b8b5a2f357daa604713b1bbcaf99da6307df4daad83255b0e29850",
+    "port/matrixgame/native-engine/init_runtime.hpp": "00fc1b797962d2205c0593de3e35baba2022dbcbe1768902440fd653db8e4496",
+    "tests/matrixgame_bootstrap_game.cpp": "88c8e4ec1156e92d642a42ea6214dba7bc6cfae8fa52a807f5f85a9e07fc3ba3",
+    "tests/test_matrixgame_bootstrap.cpp": "265e74b65e32ae8b812131f43b048ab2684b4583aab26666e05bb35fb7c299a3",
+    "tools/matrixgame_engine_prepare.py": "83aff04356c5901b7337394d6b90d43f7763bcf3ed28e73bb380f34aef2cecf5",
+    "tools/matrixgame_load_progress_overrides.py": "0cbfce9b27d41ab5208d24c2fbfc5e916b8527cd667a1d6d5c82dff129dc21a5"
+  },
+  "full_original_progress_tu_in_existing_bootstrap": true,
+  "original_constructor_setters_and_weights_unchanged": true,
+  "header_no_new_fields": true,
+  "full_cgame_cpp_unchanged": true,
+  "compile_baseline": {
+    "status": "COMPLETE",
+    "scope": "actual objects only; no full link/runtime claim",
+    "units": [
+      {
+        "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/load-progress-baseline-source/MatrixGame/src/MatrixLoadProgress.cpp",
+        "source_sha256": "b13bfcf5c2c0cf1574e9b3bb84d2d83b82caa1762f1a7ea2f8485949df9d86fc",
+        "status": "COMPILE_PASS",
+        "returncode": 0,
+        "first_error": "",
+        "log": "0.log",
+        "object_sha256": "ae3a3ec235bc305903402c03627ab5eef5a4f3f98291974fb8d0f33724aa267b"
+      }
+    ],
+    "targets": [
+      "matrixgame-native-engine"
+    ],
+    "source_filters": [
+      "/MatrixLoadProgress.cpp"
+    ],
+    "source_view": "build/matrixgame/e2e519/load-progress-baseline-source",
+    "source_manifest_sha256": "9f64050e95fb5ba0934924f26a00b8a0a8b9aba6af516c1af4229b951fe7d672",
+    "compile_pass": 1,
+    "compile_fail": 0,
+    "linked": false,
+    "runtime_executed": false,
+    "hardware_executed": false
+  },
+  "compile_candidate": {
+    "status": "COMPLETE",
+    "scope": "actual objects only; no full link/runtime claim",
+    "units": [
+      {
+        "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/load-progress-candidate-source/MatrixGame/src/MatrixLoadProgress.cpp",
+        "source_sha256": "e2c7c1f952ae12e8ec3c74b709e45329729763e300b3c31e2e7fe64fdebff96a",
+        "status": "COMPILE_PASS",
+        "returncode": 0,
+        "first_error": "",
+        "log": "0.log",
+        "object_sha256": "3ce08766b93763a6434591c631359b8028183c547d92d1322e154585f4bbcc0c"
+      }
+    ],
+    "targets": [
+      "matrixgame-native-engine"
+    ],
+    "source_filters": [
+      "/MatrixLoadProgress.cpp"
+    ],
+    "source_view": "build/matrixgame/e2e519/load-progress-candidate-source",
+    "source_manifest_sha256": "5df55b4be569330a2201ece044c500657dd5a0612cad40cc25042072863c1c75",
+    "compile_pass": 1,
+    "compile_fail": 0,
+    "linked": false,
+    "runtime_executed": false,
+    "hardware_executed": false
+  },
+  "compile_note": "TU already COMPILE_PASS in previous inventory recipe; this change links and executes its genuine methods in actual bootstrap, not a new COMPILE_FAIL to PASS claim",
+  "original_call_site": "MatrixGame.cpp:186 stack CLoadProgress lp, then g_LoadProgress=&lp in real Init",
+  "execution": [
+    "one initialized native CPU owner constructs and publishes actual original CLoadProgress",
+    "original 70/300/150/30 stage weights produce five actual callback fixture invocations, monotonic quantized values ending at 1.0",
+    "duplicate/backward updates suppressed; null interface advances state without replay on later interface publication",
+    "duplicate owned progress and foreign published progress are refused without changing current owner",
+    "unpublished different stack object destructor preserves existing publisher",
+    "normal stack destructor and stack unwind from real callback fixture exception clear own published pointer",
+    "explicit Finish repeated safely, retry works, owner Deinit also destroys real held progress before CPU/cache teardown",
+    "two full sessions host ASan/UBSan with leak detection and ARM64/QEMU"
+  ],
+  "lifetime_fix": "original empty inline destructor replaced with out-of-line destructor clearing g_LoadProgress only when equal to this; no progress algorithm changes",
+  "callback_fixture": "typed SMGDRangersInterface local callback recorder/thrower, not the actual Rangers host UI and not game/battle logic",
+  "runtime_logs": {
+    "host": {
+      "path": "build/matrixgame/e2e519/progress-host-runtime.log",
+      "sha256": "0b3f329774b41bc8c3e0a366dcba4cd28ace9428d2ae018f08e2bc3fc02043d7",
+      "text": "full original Camera header COMPILED; DirectXMath world/view/projection + aliased transform regression PASS; camera object NOT CONSTRUCTED\nfull original DeviceState TU: no-backend capture denied; uncaptured/failed groups cannot restore\ncycle=0 entering original cache/CPU bootstrap\nfull original CGame static_init EXECUTED before game heap/cache: stale EXITLOOP cleared, real original static data bound\nCacheInit + L3G CPU prefix EXECUTED\nfull original CLoadProgress TU EXECUTED: actual progress callback fixture, original 70/300/150/30 weights, monotonic/duplicate/null-interface behavior, foreign publisher refusal, stack/error lifetime and reentry PASS; no real Rangers host UI claimed\nCache Get(VO) EXECUTED; entering original LoadSpecial\ncycle=0 original Cache/VO/SSkin ready submissions=1\noriginal CMatrixConfig::SetDefaults EXECUTED + ownership refusal/retry; original Konus cleanup released real staging bytes; Clear pending owner Deinit\nfull original CMatrixConfig::ApplySettings EXECUTED: supplied flags/shadow/gamma copied into real g_Config\nfull original ReadParams EXECUTED on pinned data.txt through config/cursors -> 3G device negotiation not complete\nfull original ReadParams EXECUTED on pinned data.txt through config/cursors -> 3G device negotiation not complete\noriginal CBlockPar real data load + game-heap ownership, missing-file unwind, duplicate refusal and ReadParams retry PASS; direct repeated Clear also frees label/description cleanup fixtures; parser tail NOT EXECUTED on CPU\nGPU prefix UNSUPPORTED: this platform has no native window attachment\noriginal sampler blocked before device negotiation\nfull original MatrixGame.cpp CGame::ApplyVideoParams ENTERED -> actual device unavailable; no synthetic display; owner preserved\noriginal cursor constructor/window prefix Unsupported; CPU game heap preserved\noriginal loop timer call contract Unsupported without actual platform; no timer success synthesized\nlegacy L3GInitAsDLL ABI EXECUTED -> explicit unregistered/missing SDK identity refusal; repeated L3GDeinit preserves real CPU/cache/data owner\nfull original DeviceState TU: no-backend capture denied; uncaptured/failed groups cannot restore\ncycle=1 entering original cache/CPU bootstrap\nfull original CGame static_init EXECUTED before game heap/cache: stale EXITLOOP cleared, real original static data bound\nCacheInit + L3G CPU prefix EXECUTED\nfull original CLoadProgress TU EXECUTED: actual progress callback fixture, original 70/300/150/30 weights, monotonic/duplicate/null-interface behavior, foreign publisher refusal, stack/error lifetime and reentry PASS; no real Rangers host UI claimed\nCache Get(VO) EXECUTED; entering original LoadSpecial\ncycle=1 original Cache/VO/SSkin ready submissions=1\noriginal CMatrixConfig::SetDefaults EXECUTED + ownership refusal/retry; original Konus cleanup released real staging bytes; Clear pending owner Deinit\nfull original CMatrixConfig::ApplySettings EXECUTED: supplied flags/shadow/gamma copied into real g_Config\nfull original ReadParams EXECUTED on pinned data.txt through config/cursors -> 3G device negotiation not complete\nfull original ReadParams EXECUTED on pinned data.txt through config/cursors -> 3G device negotiation not complete\noriginal CBlockPar real data load + game-heap ownership, missing-file unwind, duplicate refusal and ReadParams retry PASS; direct repeated Clear also frees label/description cleanup fixtures; parser tail NOT EXECUTED on CPU\nGPU prefix UNSUPPORTED: this platform has no native window attachment\noriginal sampler blocked before device negotiation\nfull original MatrixGame.cpp CGame::ApplyVideoParams ENTERED -> actual device unavailable; no synthetic display; owner preserved\noriginal cursor constructor/window prefix Unsupported; CPU game heap preserved\noriginal loop timer call contract Unsupported without actual platform; no timer success synthesized\nlegacy L3GInitAsDLL ABI EXECUTED -> explicit unregistered/missing SDK identity refusal; repeated L3GDeinit preserves real CPU/cache/data owner\nfull original DeviceState TU: no-backend capture denied; uncaptured/failed groups cannot restore\nBOOTSTRAP owner cleanup/reentry PASS; CGame::Init NOT CALLED; draw_executed=false\n"
+    },
+    "arm64": {
+      "path": "build/matrixgame/e2e519/progress-qemu-runtime.log",
+      "sha256": "0b3f329774b41bc8c3e0a366dcba4cd28ace9428d2ae018f08e2bc3fc02043d7",
+      "text": "full original Camera header COMPILED; DirectXMath world/view/projection + aliased transform regression PASS; camera object NOT CONSTRUCTED\nfull original DeviceState TU: no-backend capture denied; uncaptured/failed groups cannot restore\ncycle=0 entering original cache/CPU bootstrap\nfull original CGame static_init EXECUTED before game heap/cache: stale EXITLOOP cleared, real original static data bound\nCacheInit + L3G CPU prefix EXECUTED\nfull original CLoadProgress TU EXECUTED: actual progress callback fixture, original 70/300/150/30 weights, monotonic/duplicate/null-interface behavior, foreign publisher refusal, stack/error lifetime and reentry PASS; no real Rangers host UI claimed\nCache Get(VO) EXECUTED; entering original LoadSpecial\ncycle=0 original Cache/VO/SSkin ready submissions=1\noriginal CMatrixConfig::SetDefaults EXECUTED + ownership refusal/retry; original Konus cleanup released real staging bytes; Clear pending owner Deinit\nfull original CMatrixConfig::ApplySettings EXECUTED: supplied flags/shadow/gamma copied into real g_Config\nfull original ReadParams EXECUTED on pinned data.txt through config/cursors -> 3G device negotiation not complete\nfull original ReadParams EXECUTED on pinned data.txt through config/cursors -> 3G device negotiation not complete\noriginal CBlockPar real data load + game-heap ownership, missing-file unwind, duplicate refusal and ReadParams retry PASS; direct repeated Clear also frees label/description cleanup fixtures; parser tail NOT EXECUTED on CPU\nGPU prefix UNSUPPORTED: this platform has no native window attachment\noriginal sampler blocked before device negotiation\nfull original MatrixGame.cpp CGame::ApplyVideoParams ENTERED -> actual device unavailable; no synthetic display; owner preserved\noriginal cursor constructor/window prefix Unsupported; CPU game heap preserved\noriginal loop timer call contract Unsupported without actual platform; no timer success synthesized\nlegacy L3GInitAsDLL ABI EXECUTED -> explicit unregistered/missing SDK identity refusal; repeated L3GDeinit preserves real CPU/cache/data owner\nfull original DeviceState TU: no-backend capture denied; uncaptured/failed groups cannot restore\ncycle=1 entering original cache/CPU bootstrap\nfull original CGame static_init EXECUTED before game heap/cache: stale EXITLOOP cleared, real original static data bound\nCacheInit + L3G CPU prefix EXECUTED\nfull original CLoadProgress TU EXECUTED: actual progress callback fixture, original 70/300/150/30 weights, monotonic/duplicate/null-interface behavior, foreign publisher refusal, stack/error lifetime and reentry PASS; no real Rangers host UI claimed\nCache Get(VO) EXECUTED; entering original LoadSpecial\ncycle=1 original Cache/VO/SSkin ready submissions=1\noriginal CMatrixConfig::SetDefaults EXECUTED + ownership refusal/retry; original Konus cleanup released real staging bytes; Clear pending owner Deinit\nfull original CMatrixConfig::ApplySettings EXECUTED: supplied flags/shadow/gamma copied into real g_Config\nfull original ReadParams EXECUTED on pinned data.txt through config/cursors -> 3G device negotiation not complete\nfull original ReadParams EXECUTED on pinned data.txt through config/cursors -> 3G device negotiation not complete\noriginal CBlockPar real data load + game-heap ownership, missing-file unwind, duplicate refusal and ReadParams retry PASS; direct repeated Clear also frees label/description cleanup fixtures; parser tail NOT EXECUTED on CPU\nGPU prefix UNSUPPORTED: this platform has no native window attachment\noriginal sampler blocked before device negotiation\nfull original MatrixGame.cpp CGame::ApplyVideoParams ENTERED -> actual device unavailable; no synthetic display; owner preserved\noriginal cursor constructor/window prefix Unsupported; CPU game heap preserved\noriginal loop timer call contract Unsupported without actual platform; no timer success synthesized\nlegacy L3GInitAsDLL ABI EXECUTED -> explicit unregistered/missing SDK identity refusal; repeated L3GDeinit preserves real CPU/cache/data owner\nfull original DeviceState TU: no-backend capture denied; uncaptured/failed groups cannot restore\nBOOTSTRAP owner cleanup/reentry PASS; CGame::Init NOT CALLED; draw_executed=false\n"
+    }
+  },
+  "engine_prepared_files": 238,
+  "all_prepared_source_bytes_equal_five_platforms": true,
+  "source_manifest_sha256": "5df55b4be569330a2201ece044c500657dd5a0612cad40cc25042072863c1c75",
+  "windows_x86": {
+    "compile_status": "PASS full progress/CGame/config",
+    "link_status": "LINK_BLOCKED",
+    "runtime_status": "NOT_RUN",
+    "old_undefined_count": 38,
+    "new_undefined_count": 35,
+    "removed_symbols": [
+      "??0CLoadProgress@@QAE@XZ",
+      "?SetCurLP@CLoadProgress@@QAEXH@Z",
+      "?SetCurLPPos@CLoadProgress@@QAEXH@Z"
+    ],
+    "new_unresolved_symbols": [],
+    "remaining_errors": [
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: static void __cdecl CMatrixEffect::InitEffects(class Base::CBlockPar &)\" (?InitEffects@CMatrixEffect@@SAXAAVCBlockPar@Base@@@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"int __cdecl L3GRun(void)\" (?L3GRun@@YAHXZ) в функции \"public: static void __cdecl CGame::RunGameLoop(class CFormMatrixGame *)\" (?RunGameLoop@CGame@@SAXPAVCFormMatrixGame@@@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"void __cdecl SetMaxCameraDistance(float)\" (?SetMaxCameraDistance@@YAXM@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __thiscall CMatrixSideUnit::Select(enum ESelType,class CMatrixMapStatic *)\" (?Select@CMatrixSideUnit@@QAEXW4ESelType@@PAVCMatrixMapStatic@@@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: static void __cdecl CInstDraw::ClearAll(void)\" (?ClearAll@CInstDraw@@SAXXZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __thiscall CMatrixCursor::Select(class std::basic_string<wchar_t,struct std::char_traits<wchar_t>,class std::allocator<wchar_t> > const &)\" (?Select@CMatrixCursor@@QAEXABV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: static void __cdecl CMatrixRobot::DestroyPneumaticData(void)\" (?DestroyPneumaticData@CMatrixRobot@@SAXXZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __thiscall CTransition::BuildTexture(void)\" (?BuildTexture@CTransition@@QAEXXZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __thiscall CTransition::RenderToPrimaryScreen(void)\" (?RenderToPrimaryScreen@CTransition@@QAEXXZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __thiscall CMatrixMap::RobotPreload(void)\" (?RobotPreload@CMatrixMap@@QAEXXZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __thiscall CMatrixMap::LoadSide(class Base::CBlockPar &)\" (?LoadSide@CMatrixMap@@QAEXAAVCBlockPar@Base@@@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: int __thiscall CMatrixMap::PrepareMap(class Base::CStorage &,class std::basic_string<wchar_t,struct std::char_traits<wchar_t>,class std::allocator<wchar_t> > const &)\" (?PrepareMap@CMatrixMap@@QAEHAAVCStorage@Base@@ABV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __thiscall CMatrixMap::InitObjectsLights(void)\" (?InitObjectsLights@CMatrixMap@@QAEXXZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __thiscall CMatrixMap::CreatePoolDefaultResources(bool)\" (?CreatePoolDefaultResources@CMatrixMap@@QAEX_N@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __thiscall CMatrixMap::EnterDialogMode(wchar_t const *)\" (?EnterDialogMode@CMatrixMap@@QAEXPB_W@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __thiscall CMatrixMapLogic::CMatrixMapLogic(void)\" (??0CMatrixMapLogic@@QAE@XZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __thiscall CMatrixMapLogic::~CMatrixMapLogic(void)\" (??1CMatrixMapLogic@@QAE@XZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __thiscall CMatrixMapLogic::CalcCannonPlace(void)\" (?CalcCannonPlace@CMatrixMapLogic@@QAEXXZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: static void __cdecl SSpecialBot::LoadAIRobotType(class Base::CBlockPar &)\" (?LoadAIRobotType@SSpecialBot@@SAXAAVCBlockPar@Base@@@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: static void __cdecl SSpecialBot::ClearAIRobotType(void)\" (?ClearAIRobotType@SSpecialBot@@SAXXZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: bool __thiscall CInterface::Load(class Base::CBlockPar &,wchar_t const *)\" (?Load@CInterface@@QAE_NAAVCBlockPar@Base@@PB_W@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __thiscall CInterface::CInterface(void)\" (??0CInterface@@QAE@XZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __thiscall CInterface::~CInterface(void)\" (??1CInterface@@QAE@XZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __thiscall CIFaceList::ConstructorButtonsInit(void)\" (?ConstructorButtonsInit@CIFaceList@@QAEXXZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __thiscall CIFaceList::CIFaceList(void)\" (??0CIFaceList@@QAE@XZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __thiscall CIFaceList::~CIFaceList(void)\" (??1CIFaceList@@QAE@XZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __thiscall CRenderPipeline::CRenderPipeline(void)\" (??0CRenderPipeline@@QAE@XZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __thiscall CRenderPipeline::~CRenderPipeline(void)\" (??1CRenderPipeline@@QAE@XZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: static bool __cdecl CIFaceMenu::LoadMenuGraphics(class Base::CBlockPar &)\" (?LoadMenuGraphics@CIFaceMenu@@SA_NAAVCBlockPar@Base@@@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __thiscall CIFaceMenu::CIFaceMenu(void)\" (??0CIFaceMenu@@QAE@XZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __thiscall CIFaceMenu::~CIFaceMenu(void)\" (??1CIFaceMenu@@QAE@XZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: static void __cdecl CMatrixHint::PreloadBitmaps(void)\" (?PreloadBitmaps@CMatrixHint@@SAXXZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: static void __cdecl CMatrixHint::ClearAll(void)\" (?ClearAll@CMatrixHint@@SAXXZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __thiscall CHistory::CHistory(void)\" (??0CHistory@@QAE@XZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPAX0PB_WIPBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __thiscall CHistory::~CHistory(void)\" (??1CHistory@@QAE@XZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows\\engine\\matrixgame-native-bootstrap.vcxproj]"
+    ],
+    "log_sha256": "3d03e265af7e15aeb3a42f241163907ab1094c231f77b3f619afcece1276b7d3"
+  },
+  "windows_x64": {
+    "compile_status": "PASS same full source",
+    "link_status": "LINK_BLOCKED",
+    "runtime_status": "NOT_RUN",
+    "undefined_count": 35,
+    "remaining_errors": [
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: static void __cdecl CMatrixEffect::InitEffects(class Base::CBlockPar &)\" (?InitEffects@CMatrixEffect@@SAXAEAVCBlockPar@Base@@@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"int __cdecl L3GRun(void)\" (?L3GRun@@YAHXZ) в функции \"public: static void __cdecl CGame::RunGameLoop(class CFormMatrixGame *)\" (?RunGameLoop@CGame@@SAXPEAVCFormMatrixGame@@@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"void __cdecl SetMaxCameraDistance(float)\" (?SetMaxCameraDistance@@YAXM@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __cdecl CMatrixSideUnit::Select(enum ESelType,class CMatrixMapStatic *)\" (?Select@CMatrixSideUnit@@QEAAXW4ESelType@@PEAVCMatrixMapStatic@@@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: static void __cdecl CInstDraw::ClearAll(void)\" (?ClearAll@CInstDraw@@SAXXZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __cdecl CMatrixCursor::Select(class std::basic_string<wchar_t,struct std::char_traits<wchar_t>,class std::allocator<wchar_t> > const &)\" (?Select@CMatrixCursor@@QEAAXAEBV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: static void __cdecl CMatrixRobot::DestroyPneumaticData(void)\" (?DestroyPneumaticData@CMatrixRobot@@SAXXZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __cdecl CTransition::BuildTexture(void)\" (?BuildTexture@CTransition@@QEAAXXZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __cdecl CTransition::RenderToPrimaryScreen(void)\" (?RenderToPrimaryScreen@CTransition@@QEAAXXZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __cdecl CMatrixMap::RobotPreload(void)\" (?RobotPreload@CMatrixMap@@QEAAXXZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __cdecl CMatrixMap::LoadSide(class Base::CBlockPar &)\" (?LoadSide@CMatrixMap@@QEAAXAEAVCBlockPar@Base@@@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: int __cdecl CMatrixMap::PrepareMap(class Base::CStorage &,class std::basic_string<wchar_t,struct std::char_traits<wchar_t>,class std::allocator<wchar_t> > const &)\" (?PrepareMap@CMatrixMap@@QEAAHAEAVCStorage@Base@@AEBV?$basic_string@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __cdecl CMatrixMap::InitObjectsLights(void)\" (?InitObjectsLights@CMatrixMap@@QEAAXXZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __cdecl CMatrixMap::CreatePoolDefaultResources(bool)\" (?CreatePoolDefaultResources@CMatrixMap@@QEAAX_N@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __cdecl CMatrixMap::EnterDialogMode(wchar_t const *)\" (?EnterDialogMode@CMatrixMap@@QEAAXPEB_W@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __cdecl CMatrixMapLogic::CMatrixMapLogic(void)\" (??0CMatrixMapLogic@@QEAA@XZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __cdecl CMatrixMapLogic::~CMatrixMapLogic(void)\" (??1CMatrixMapLogic@@QEAA@XZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __cdecl CMatrixMapLogic::CalcCannonPlace(void)\" (?CalcCannonPlace@CMatrixMapLogic@@QEAAXXZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: static void __cdecl SSpecialBot::LoadAIRobotType(class Base::CBlockPar &)\" (?LoadAIRobotType@SSpecialBot@@SAXAEAVCBlockPar@Base@@@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: static void __cdecl SSpecialBot::ClearAIRobotType(void)\" (?ClearAIRobotType@SSpecialBot@@SAXXZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: bool __cdecl CInterface::Load(class Base::CBlockPar &,wchar_t const *)\" (?Load@CInterface@@QEAA_NAEAVCBlockPar@Base@@PEB_W@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __cdecl CInterface::CInterface(void)\" (??0CInterface@@QEAA@XZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __cdecl CInterface::~CInterface(void)\" (??1CInterface@@QEAA@XZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: void __cdecl CIFaceList::ConstructorButtonsInit(void)\" (?ConstructorButtonsInit@CIFaceList@@QEAAXXZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __cdecl CIFaceList::CIFaceList(void)\" (??0CIFaceList@@QEAA@XZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __cdecl CIFaceList::~CIFaceList(void)\" (??1CIFaceList@@QEAA@XZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __cdecl CRenderPipeline::CRenderPipeline(void)\" (??0CRenderPipeline@@QEAA@XZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __cdecl CRenderPipeline::~CRenderPipeline(void)\" (??1CRenderPipeline@@QEAA@XZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: static bool __cdecl CIFaceMenu::LoadMenuGraphics(class Base::CBlockPar &)\" (?LoadMenuGraphics@CIFaceMenu@@SA_NAEAVCBlockPar@Base@@@Z) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __cdecl CIFaceMenu::CIFaceMenu(void)\" (??0CIFaceMenu@@QEAA@XZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __cdecl CIFaceMenu::~CIFaceMenu(void)\" (??1CIFaceMenu@@QEAA@XZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: static void __cdecl CMatrixHint::PreloadBitmaps(void)\" (?PreloadBitmaps@CMatrixHint@@SAXXZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: static void __cdecl CMatrixHint::ClearAll(void)\" (?ClearAll@CMatrixHint@@SAXXZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __cdecl CHistory::CHistory(void)\" (??0CHistory@@QEAA@XZ) в функции \"public: static void __cdecl CGame::Init(void *,void *,wchar_t const *,unsigned int,struct SRobotsSettings const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *,wchar_t const *)\" (?Init@CGame@@SAXPEAX0PEB_WIPEBUSRobotsSettings@@11111@Z). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]",
+      "matrixgame-native-cache.lib(MatrixGame.obj) : error LNK2019: ссылка на неразрешенный внешний символ \"public: __cdecl CHistory::~CHistory(void)\" (??1CHistory@@QEAA@XZ) в функции \"public: static void __cdecl CGame::Deinit(void)\" (?Deinit@CGame@@SAXXZ). [D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\windows-x64\\engine\\matrixgame-native-bootstrap.vcxproj]"
+    ],
+    "log_sha256": "358eab70213c5c2ffb87a7dceae014e237fe8560c7b46188cf7556d9005767d2"
+  },
+  "binaries": {
+    "host": {
+      "path": "build/matrixgame/e2e519/host/matrixgame-native-bootstrap",
+      "sha256": "b67a1241c5c45d0173619b16dc78a0f7aa00bb3c2852a35d2802d847ca4d7a1b"
+    },
+    "arm64": {
+      "path": "build/matrixgame/e2e519/arm64/matrixgame-native-bootstrap",
+      "sha256": "a7c0c2da836c26cecf37dbe733288c3f12e0d0571d13cc99875dd2414d662899"
+    },
+    "sdk": {
+      "path": "build/matrixgame/e2e519/sdk/cmake/matrixgame-native-bootstrap.elf",
+      "sha256": "e87b3a71340b7e9204a7045033d5b5f3bceb3bd6047ee48d568d2a6ea4b13c7e"
+    }
+  },
+  "sdk": {
+    "status": "SDK_LINK_PASS",
+    "hardware_pending": true,
+    "runtime_executed": false,
+    "nro_packaged": false,
+    "commands": [
+      [
+        "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+        "-S",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-engine",
+        "-B",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\sdk\\cmake",
+        "-G",
+        "Ninja",
+        "-DCMAKE_MAKE_PROGRAM=C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\Ninja\\ninja.exe",
+        "-DCMAKE_TOOLCHAIN_FILE=D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core\\switch-toolchain.cmake",
+        "-DMATRIXGAME_DEVKITPRO=C:/devkitPro",
+        "-DBUILD_TESTING=OFF",
+        "-DCMAKE_BUILD_TYPE=Release",
+        "-DPython3_EXECUTABLE=C:\\Users\\Sklyarov\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe",
+        "-DMATRIXGAME_INIT_BUILD_LINK_PROBE=ON",
+        "-DMATRIXGAME_SHADER_DIR=D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\deko",
+        "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+      ],
+      [
+        "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+        "--build",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\sdk\\cmake",
+        "--target",
+        "matrixgame-native-bootstrap",
+        "--parallel",
+        "4"
+      ],
+      [
+        "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-readelf.exe",
+        "-h",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\sdk\\cmake\\matrixgame-native-bootstrap.elf"
+      ],
+      [
+        "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-readelf.exe",
+        "-sW",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\sdk\\cmake\\matrixgame-native-bootstrap.elf"
+      ],
+      [
+        "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-readelf.exe",
+        "-n",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\sdk\\cmake\\matrixgame-native-bootstrap.elf"
+      ]
+    ],
+    "undefined_strong": [],
+    "elf": "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\sdk\\cmake\\matrixgame-native-bootstrap.elf",
+    "sha256": "e87b3a71340b7e9204a7045033d5b5f3bceb3bd6047ee48d568d2a6ea4b13c7e",
+    "bytes": 4621888,
+    "build_id": "Build ID: ce62cb0977fb749391c01988dd2d8806366d1956"
+  },
+  "remaining": [
+    "35 actual original function dependencies still prevent Windows full-object link (renderer/map/interface/selection/loop/effects/history/camera entry helper)",
+    "complete original CGame::Init still creates stack progress plus static-init/heap/cache/data; reconcile source lifecycle with native owner before calling full Init",
+    "positive legacy SDK device/gamma/presentation/Reset and actual map/form/loop/battle remain unexecuted"
+  ],
+  "full_inventory_rerun": false,
+  "new_executable_target": false,
+  "build_dirty_before_commit": true,
+  "embedded_git_sha": false,
+  "cgame_init_called": false,
+  "actual_rangers_ui_exercised": false,
+  "full_engine_linked": false,
+  "loop_called": false,
+  "gamma_submission_executed": false,
+  "reset_executed": false,
+  "map_created": false,
+  "gpu_draw_executed": false,
+  "new_nro_packaged": false,
+  "main_nro_rebuilt": false,
+  "hardware_status": "HARDWARE_PENDING",
+  "protected_before": {
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\newgame.txt": "edebec1fbe596bfdb856719310372b9bf69ce7989394b86ae13377db847ec65c",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\QuickSave.sav": "84509d9ab5411555c0a361d5616c94aae6ef3a5c00fa81782ea64192b5c7bd73",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Medical Center Autoclave.sav": "d6e238a00e514712ab9eed796c40c39dd1cddc20f7036de1a7b8d25fee34e622",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\hardware-gpu-a224fa4.zip": "1c5cfebb2696bbf6db98bd2cd598956f468ef1ca8183bbf31271148c30103429",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Sol System.sav": "62c35d050b256e13326ce904123c44bad3756deeb66e269dbae2a66b4f903cc0",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-2.vo": "b7cba8a78faf0c8cf32cf942288d2fdb0d5d21b047d0e9abaa212092c11d9ccd",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\reports\\e2e5\\e2e510-artifact-provenance.json": "eaac3d9181b12566492bda774933af6469f2b0b26104bcc83a8d266fee7759ec",
+    "G:\\pack.zip": "f2ea785ad8f1ca35288132a2fee211ac0e6e7bd2db00cff35f4a1fbc2cfed51f",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-1.vo": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\CFG.TXT": "6b63a47bba893e4a33c4f92d3aaa19adf3c45c4032da7a302b140e03ab166180",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\mg-merge-host\\core\\texture-request-fixtures\\assets\\plain.png": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\########.log": "fef05715d095d39568aee8d9c121c1cb232a80a84e0c6e2a56712070d2f505b3",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\AutoSave.sav": "739c428d9a7f13e88e7e2fe65d6435dbf297270be35c672020b9fa7d097ac601",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce.zip": "e1a1dec5f410b983d629ae538ad9b4ba063f89a8101af43d27ea00c6ce6a08a4"
+  },
+  "protected_after": {
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\newgame.txt": "edebec1fbe596bfdb856719310372b9bf69ce7989394b86ae13377db847ec65c",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\QuickSave.sav": "84509d9ab5411555c0a361d5616c94aae6ef3a5c00fa81782ea64192b5c7bd73",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Medical Center Autoclave.sav": "d6e238a00e514712ab9eed796c40c39dd1cddc20f7036de1a7b8d25fee34e622",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\hardware-gpu-a224fa4.zip": "1c5cfebb2696bbf6db98bd2cd598956f468ef1ca8183bbf31271148c30103429",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Sol System.sav": "62c35d050b256e13326ce904123c44bad3756deeb66e269dbae2a66b4f903cc0",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-2.vo": "b7cba8a78faf0c8cf32cf942288d2fdb0d5d21b047d0e9abaa212092c11d9ccd",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\reports\\e2e5\\e2e510-artifact-provenance.json": "eaac3d9181b12566492bda774933af6469f2b0b26104bcc83a8d266fee7759ec",
+    "G:\\pack.zip": "f2ea785ad8f1ca35288132a2fee211ac0e6e7bd2db00cff35f4a1fbc2cfed51f",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-1.vo": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\CFG.TXT": "6b63a47bba893e4a33c4f92d3aaa19adf3c45c4032da7a302b140e03ab166180",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\mg-merge-host\\core\\texture-request-fixtures\\assets\\plain.png": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\########.log": "fef05715d095d39568aee8d9c121c1cb232a80a84e0c6e2a56712070d2f505b3",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\AutoSave.sav": "739c428d9a7f13e88e7e2fe65d6435dbf297270be35c672020b9fa7d097ac601",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce.zip": "e1a1dec5f410b983d629ae538ad9b4ba063f89a8101af43d27ea00c6ce6a08a4"
+  },
+  "protected_unchanged": true
+}

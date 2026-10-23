@@ -1278,3 +1278,69 @@ standalone suites не было. Switch/GPU HARDWARE_PENDING. E2E-5.19 акти�
    owner перед настоящим вызовом полного Init.
 3. После восстановления Windows link проверить положительный legacy device
    lifecycle, затем gamma/presentation/Reset и настоящие map/form/loop ресурсы.
+
+## Продолжение 23.10.2026: полная CLoadProgress и время жизни публикации
+
+Implementation: `336d038881efad1cd24c871c5c5a4b65af1a34ca`, baseline:
+`52ec42356992941979d9ac1f16d4cdd38704cbaa`. Локальный master, без push/fetch.
+[Evidence](matrixgame-e2e519-load-progress-evidence.json) содержит команды,
+runtime-логи, source/binary hashes и полную разницу unresolved symbols.
+
+В существующий bootstrap включена **полная MatrixLoadProgress.cpp**. Constructor,
+SetCurLP, SetCurLPPos и таблица весов 70/300/150/30 сохранены без изменения
+алгоритма. Эта TU компилировалась и в baseline: COMPILE_PASS → COMPILE_PASS;
+новый результат — реальная компоновка и исполнение её методов в общей session,
+а не исправление ранее отсутствовавшей compile error. Новый executable не создан.
+
+Обнаружен конкретный lifecycle дефект: CGame::Init публикует адрес локального
+`CLoadProgress lp` в g_LoadProgress, а прежний пустой destructor оставлял этот
+адрес после выхода/unwind. Теперь destructor обнуляет global **только если он
+указывает на данный объект**. В native owner добавлены создание/завершение
+progress после CPU/static stage и освобождение до остальных ресурсов Deinit.
+В header лишь квалифицирован настоящий Base::CMain и объявлен destructor;
+новых полей нет. Полная CGame::Init не менялась и по-прежнему NOT CALLED.
+
+В двух bootstrap sessions исполнены исходный расчёт пяти callback-значений,
+финальное 1.0, подавление повторного/регрессивного значения, null-interface без
+последующего replay, отказ при чужом/дублированном publisher, сохранность живой
+публикации при уничтожении другого объекта и stack unwind при исключении из
+callback. После Finish/Deinit проверены отсутствие опубликованного объекта и
+повторный вход. Используется настоящая структура SMGDRangersInterface с
+контролируемым callback fixture; **реальная Rangers UI не проверялась**.
+
+| Gate | Результат |
+|---|---|
+| Host ASan/UBSan + leak detection | PASS новых методов, callback/lifetime и двух общих sessions |
+| Linux ARM64/QEMU | PASS того же CPU scope |
+| devkitA64 | COMPILE/LINK PASS, strong undefined=0; runtime NOT RUN |
+| Windows x86/x64 | C++ compile без ошибок, LINK_BLOCKED **35 вместо 38**; runtime NOT RUN |
+
+Удалены ровно три прежних unresolved: constructor CLoadProgress, SetCurLP и
+SetCurLPPos. Новых unresolved нет. ELF section GC по-прежнему исключает
+незамкнутые методы полного Init/Run: SDK link PASS не означает full-engine link.
+Оставшиеся зависимости относятся к renderer/map/interface/selection/loop,
+effects/history и camera entry helper; полный список сохранён в evidence.
+
+Сверены 238 prepared files и core outputs всех пяти конфигураций по реальным
+байтам. Candidate effective manifest SHA-256:
+`5df55b4be569330a2201ece044c500657dd5a0612cad40cc25042072863c1c75`.
+SDK ELF SHA-256:
+`e87b3a71340b7e9204a7045033d5b5f3bceb3bd6047ee48d568d2a6ea4b13c7e`,
+build id `ce62cb0977fb749391c01988dd2d8806366d1956`, 4621888 bytes.
+Сборки выполнены до commit с build_dirty=true, embedded Git SHA отсутствует;
+evidence связывает точные source hashes с implementation SHA.
+
+Все 14 protected hashes совпали; upstream pin и пользовательские данные
+сохранены. Основная NRO и оба аппаратных комплекта не менялись. Общий inventory
+и старые standalone suites не повторялись. GPU/Switch HARDWARE_PENDING.
+
+Следующие три приоритета:
+
+1. Закрыть следующие реальные вызовы original Init и renderer/map зависимости;
+   CLoadProgress больше не является unresolved initial-entry constructor.
+2. Согласовать исходный Init/static-init/heap/cache/data с единым owner перед
+   вызовом полного Init: вызов поверх живой Begin-session пока недопустим.
+3. После восстановления Windows link исполнить положительный legacy device
+   lifecycle и определить следующую настоящую map/form/loop границу.
+
+E2E-5.19 остаётся активным: полный Init, карта, loop и бой ещё не исполнены.
