@@ -1,12 +1,14 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение: **снят SDK include barrier полного `3g.hpp`/`Texture.hpp`;
-настоящая компиляция MatrixGame.cpp дошла до resource declarations эффектов**.
-Первая ошибка теперь `MatrixEffectKonus.hpp:35 D3D_VB`, не `3g.hpp:16 d3d9.h`.
-Коммит `6c947f22e05bc569a0482153a9661c1c6f46aaae`, актуальные хэши —
-`matrixgame-e2e519-header-boundary-evidence.json`; подробности в последнем разделе.
-Исполняемая граница bootstrap сохранена: оригинальные DLL/sampler/S3D_Default/
-DeviceState с реальными Windows state calls; сам CGame::Init ещё не вызван.
+Актуальное продолжение: **в общем owner исполняются оригинальные
+CMatrixConfig::SetDefaults/Clear; effect/map buffers используют существующий
+native staging context, полная camera declaration компилируется**.
+Первая ошибка MatrixGame.cpp теперь `MatrixCursor.hpp:19 HICON`.
+Коммит `72a49dd223457ccf5e298b612beb4042e660e403`, актуальные хэши —
+`matrixgame-e2e519-config-resources-evidence.json`; подробности в последнем разделе.
+На Windows выполняются прежние оригинальные DLL/sampler/S3D_Default/DeviceState
+с реальными SDK state calls. Полный CGame::Init ещё не вызван.
+Header-boundary этап (`6c947f2`, header evidence) сохранён ниже как история.
 Предыдущий DeviceState этап (`1d5b8c8`, state evidence) сохранён как история.
 Этап S3D_Default (`8fda1d4`, defaults evidence) сохранён ниже как история.
 Предыдущий type-boundary этап (`35ac1ab`) сохранён ниже как история.
@@ -627,3 +629,112 @@ production NRO и hardware ZIP не менялись. Switch/GPU draw — HARDWA
    contract, без имитации SDK операций.
 3. Замкнуть реальные texture/map/static-init owners перед CGame::Init, затем
    CFormMatrixGame/RunGameLoop; не вызывать Init при незавершённых предусловиях.
+
+## Продолжение: исходные config defaults и общие effect/map resources
+
+База: `b15bbf606c7c1f6645f102fc24b92f60d61f78df`.
+Реализация: `72a49dd223457ccf5e298b612beb4042e660e403`, master, без push/fetch.
+Evidence: `matrixgame-e2e519-config-resources-evidence.json`.
+
+### Новая фактически исполненная стадия
+
+`NativeInitRuntime::InitializeGameDefaults` вызывает полное исходное тело
+`CMatrixConfig::SetDefaults` из MatrixConfig.cpp:177. Это та же операция,
+которую настоящий CGame::Init вызывает в MatrixGame.cpp:319. Используется полный
+исходный класс CMatrixConfig и его единственный настоящий global g_Config,
+не сокращённая модель настроек. g_MaxFPS=1000, camera distances/angles,
+shadow/gloss/software-cursor flags, capture times и serialized key actions
+проверены после исполнения. VK identifiers перенесены в их исходные численные
+значения; никакие input/device функции не имитируются.
+
+Метод требует этот живой CPU/cache owner, не включает GPU readiness и не позволяет
+повторно публиковать уже принадлежащие ему defaults. На Windows новая стадия
+исполняется после настоящего DLL/device bootstrap, перед sampler/S3D_Default.
+На host/ARM64 это независимо исполняемая CPU-стадия; неподдержанный window/device
+prefix остаётся явным отказом. Это не притворное продолжение CGame после отказа
+GPU и не выполнение всей последовательности Init.
+
+Новый адресный отказ: уже существующий real cursor-label array на cache heap
+не позволяет SetDefaults потерять прежнее владение. Отказ сохраняет array/string
+и не публикует readiness; после исходного Clear повторная инициализация успешна.
+Затем два реально созданных std::wstring pairs освобождает исходный
+`CMatrixConfig::Clear` (MatrixConfig.cpp:322) при owner Deinit, до device/cache
+teardown. Owner инвалидирует освобождённые pointer/count: double Deinit и второй
+полный вход не используют dangling array. ASan leak detection прошёл.
+ReadParams/ApplySettings не реализованы этим selected-methods TU и не вызваны;
+это **не COMPILE_PASS полной MatrixConfig.cpp**.
+
+### Resource и camera boundary
+
+Поля D3D_VB/D3D_IB эффектов/карты переведены на те же реальные typed staging
+VertexBuffer/IndexBuffer, что используются принятыми BigVB/BigIB, через приватные
+native buffer macros. Второй context/manager не создан. Pool/dynamic/map modes
+сохранены; Normal остаётся прежним default, новые Discard/NoOverwrite передаются
+реальному Resource::Map. Изменение не объявляет staging allocation GPU-ready.
+Реальный legacy D3DControl SDK source сохранён, counterfeit d3d9.h не добавлялся.
+
+В том же driver исполняются исходные inline CMatrixEffectKonus::StaticInit
+(MatrixEffectKonus.hpp:44) и MarkAllBuffersNoNeed (:49), с исходными statics.
+Проверяется освобождение настоящих 96 staging bytes в текущем общем context,
+обнуление handle, повторный cleanup без повторного освобождения. Конус как объект
+не создаётся, его virtual gameplay/draw methods не подменяются и не вызываются.
+Это lifecycle проверки реальной зависимости, а не rendered effect.
+
+Полный MatrixCamera.hpp теперь компилируется вместе с настоящими config/effect
+declarations. D3DXVECTOR4 хранит реальный XMFLOAT4; matrix multiplication,
+perspective, TransformCoord и Project выполняются DirectXMath. Viewport —
+собственный POD value, без имитации D3DVIEWPORT9 interface. Проекция с ненулевым
+viewport origin, world/view translations и depth range сверена с независимой
+аналитической формулой; in-place TransformCoord и порядок world*view*projection
+проверены. Camera object/constructor/Takt/Draw **не исполнялись**.
+Serialized vertex layout bits перенесены отдельно от capability/backend API.
+Callback ABI сохраняет stdcall на x86 и native calling convention на ARM64.
+
+### Подтверждённые результаты и новая граница
+
+| Проверка | Фактический результат |
+|---|---|
+| Host ASan/UBSan + leak detection | PASS: реальные SetDefaults/Clear, refused ownership/retry, effect cleanup, projection; GPU prefix Unsupported |
+| ARM64/QEMU | PASS того же реального CPU-кода; положительный GPU prefix не исполнялся |
+| Windows x86/D3D9 NULLREF | PASS новой config стадии плюс прежние DLL/window/input/sampler/S3D_Default/DeviceState calls и restore 207 values |
+| devkitA64 | COMPILE/LINK PASS; undefined strong=0; настоящие config wrappers присутствуют в symbol table; GPU runtime NOT RUN |
+| Адресный MatrixGame.cpp | COMPILE_FAIL переместился с MatrixEffectKonus.hpp:35 D3D_VB на MatrixCursor.hpp:19 HICON |
+
+SetDefaults/Clear могут быть встроены оптимизатором в их cross-TU wrappers;
+SDK проверяет реально требуемые InitializeOriginalGameDefaults и
+ClearOriginalGameDefaults, не требует искусственно удерживать неиспользованный
+standalone symbol. Новый executable/probe не создан, прежние большие suites и
+полный inventory 106 единиц не повторялись.
+
+Новый effective MatrixGame.cpp SHA:
+`0039afb72023870af1543e9a6a006a8c4c60e67a13a28a9d8280cf1e5d77e0d9`.
+Обратная замена только native viewport type и двух explicit includes возвращает
+прежний SHA `19c1485c608202ff088c4b37a62ca2508ee9b064f655017799e6bae27fae672b`:
+весь control flow Init/ApplyVideoParams/Run остаётся исходным, тело не вырезано.
+Generated GameDefaultsNative.cpp SHA:
+`3aea1deeef59b04202a4b25430a32b6d8bd81927b0f47daf5cd3b7d34d0a0e9c`.
+Сверены реальные байты всех core outputs и 236 engine prepared files между четырьмя
+платформами и audited view, а не только список имён. JSON ordering difference
+остаётся документированным; structured manifests и source bytes равны.
+SDK ELF SHA: `a700c252ba0750e7af8e38ebcfb2713ee2ee03f05ecf3fd84e94cf425c5ebcc4`.
+Точные остальные хэши, logs/commands, build_dirty и исходные pin hashes — в evidence.
+
+Точная новая runtime граница: общий cache/VO/SSkin owner и платформенный bootstrap
+→ **оригинальные config defaults + owned Clear**; на Windows далее прежние
+sampler/S3D_Default/DeviceState/input/Deinit. Full CGame::Init, загрузка карты,
+CFormMatrixGame и RunGameLoop не выполнены. Следующая compile проблема cursor
+не ограничивается typedef: исходный constructor также вызывает SetCursor и
+обнуляет нетривиальный std::wstring через memset, что требует настоящего
+window/resource lifecycle, а не пустого SDK вызова.
+
+Все 14 защищённых SHA совпали. User saves/resources, main NRO/ELF/hardware ZIP,
+upstream/gitlink не менялись. Switch/GPU draw — HARDWARE_PENDING, цель активна.
+
+Следующие три приоритета:
+
+1. Настоящий MatrixCursor/window lifecycle и оставшиеся interface declarations,
+   начиная с подтверждённого MatrixCursor.hpp:19 HICON/SetCursor.
+2. ReadParams/ApplySettings и legacy texture/map ownership на настоящих ресурсах,
+   без смены действующего cache owner и без фиктивных настроек.
+3. Presentation/Reset и обязательные static-init/map зависимости перед реальным
+   CGame::Init, затем CFormMatrixGame/RunGameLoop.

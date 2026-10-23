@@ -1,8 +1,19 @@
 # MatrixGame: нативный перенос и Windows x86 reference
 
-## Текущий статус на 22.10.2026
+## Текущий статус на 23.10.2026
 
-Новое: исходный frame/timing-путь CVectorObjectAnim подключён к skinned Draw.
+E2E-5.19: единый bootstrap исполняет оригинальные CMatrixConfig::SetDefaults/Clear,
+проверяет владение ресурсами и повторный вход: host ASan/UBSan и ARM64/QEMU PASS.
+На Windows x86 также выполняются настоящие DLL/window/caps calls, оригинальные
+sampler/S3D_Default и полная DeviceState.cpp с восстановлением 207 state values.
+Effect/map buffers используют существующий native staging context; это не GPU upload.
+Полные 3G/Texture/Camera declarations компилируются, SDK compile/link PASS.
+CGame::Init ещё не вызван: первый compile blocker теперь MatrixCursor.hpp:19 HICON;
+ReadParams, карта, presentation/Reset и планетарный бой остаются незавершёнными.
+GPU/Switch HARDWARE_PENDING; production NRO не менялась.
+[Актуальная граница bootstrap и evidence](../../reports/matrixgame-e2e519-engine-bootstrap.md).
+
+Предыдущий срез: исходный frame/timing-путь CVectorObjectAnim подключён к skinned Draw.
 Явный no-billboard вариант сохраняет Takt/NextFrame/BeforeDraw/Draw; проверен
 реальный цикл Terron из 41 кадра, 4100 мс, с выдачей четырёх draw-групп.
 Host ASan/UBSan и ARM64/QEMU PASS, SDK link PASS; GPU HARDWARE_PENDING.
