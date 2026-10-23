@@ -1,10 +1,12 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение: **оригинальный `S3D_Default` исполняется через настоящий
-D3D9 backend в том же cache/device owner; недефолтное состояние и COM texture
-bindings восстанавливаются при Detach/ошибке**. Коммит
-`8fda1d4b7d5b1074e95dfc7ba005697f4b51b9ec`, актуальные хэши —
-`matrixgame-e2e519-device-defaults-evidence.json`; подробности в последнем разделе.
+Актуальное продолжение: **полная оригинальная `DeviceState.cpp` переведена
+из COMPILE_FAIL в COMPILE_PASS и исполняется внутри существующего device owner**.
+Windows SDK readback подтверждает восстановление всех 103 render + 13×8 sampler
+значений после `S3D_Default`, Detach и частичного отказа. Коммит
+`1d5b8c851a6e3d77c32fa604dd545a1054195bf6`, актуальные хэши —
+`matrixgame-e2e519-device-state-evidence.json`; подробности в последнем разделе.
+Этап S3D_Default (`8fda1d4`, defaults evidence) сохранён ниже как история.
 Предыдущий type-boundary этап (`35ac1ab`) сохранён ниже как история.
 Ранее полная `MatrixSampleStateManager.cpp` переведена из COMPILE_FAIL в PASS
 и исполняется в bootstrap (`246c6ef`, sampler evidence сохранён как история).
@@ -436,3 +438,102 @@ Reset, presentation/viewport, lost-device, полный render pipeline и CForm
 Следующие три узла: полный 3g.hpp contract для caps/presentation/Reset;
 затем обязательные Texture/DeviceState/static_init/map зависимости настоящего
 CGame::Init; затем CFormMatrixGame/RunGameLoop и физический draw.
+
+## Продолжение: полная оригинальная DeviceState.cpp в общей цепочке
+
+База этого продолжения: `47ec8065b7d99a0c9a7146cfd7e5bba934830763`.
+Реализация: `1d5b8c851a6e3d77c32fa604dd545a1054195bf6`, локальный master,
+без push/fetch. Evidence: `matrixgame-e2e519-device-state-evidence.json`.
+
+Это реальная зависимость подготовки карты: исходный
+`MatrixGame/src/MatrixMapPrepare.cpp:1954` создаёт CDeviceState, строка 1956
+вызывает StoreState, строка 1941 — RestoreState. Сами методы MatrixMapPrepare
+и CGame::Init пока НЕ вызваны. Новая интеграция применяется уже сейчас внутри
+существующего Windows StateLease: полный оригинальный CDeviceState сохраняет
+render/sampler до изменения устройства, восстанавливает при Detach/ошибке.
+Самостоятельный executable/probe не добавлен, второй cache/device owner не создан.
+
+### Реальный переход compile и границы адаптации
+
+Оригинальный input DeviceState.cpp SHA:
+`f627dbaa15a1e2a75304469ccbb0cea13f0f10a13810bd30d13fbb3b915aefa3`.
+Взята полная TU, оба метода и все четыре группы states сохранены; это не
+извлечение отдельных функций. Порядок таблиц 103 render и 13 sampler,
+циклы восьми sampler stages, lights и material branches сохранены.
+Указатель устройства заменён типизированным StoredStateBackend, DWORD/BOOL —
+fixed-width storage. Регистры представлены порядковыми ключами исходных таблиц;
+Windows backend разрешает их в настоящие SDK constants, не в придуманные caps.
+
+Осмысленные изменения семантики: проверяются реальные результаты backend;
+данные инициализированы; null backend запрещён; RestoreState проверяет успешный
+захват запрошенных групп. StoreState сбрасывает валидность перезахватываемых
+групп до операций, отмечает успех после всего захвата. Частичный отказ не
+превращает недополученные данные в готовый снимок.
+
+Адресный baseline старого prepared tree, тем же реальным matrixlib recipe:
+**COMPILE_FAIL**, `3g.hpp:16:10: d3d9.h: No such file or directory`.
+Финальный кандидат: **COMPILE_PASS**, object SHA
+`c84f84e2197f308c7e2784d20cc45c77da907fda12af0840c68f9d595fea60f3`.
+Промежуточная ошибка упаковки общего generated header сохранена в evidence:
+DeviceState собиралась в bootstrap, но audit target не находил registry header.
+Он добавлен в полноценный MatrixLib/3G source view; стабильный include guard
+предотвращает повторное объявление одинаковых типов между generated views.
+Compile flags не ослаблялись. Полный inventory 106 единиц не повторялся;
+старое число 14/92 остаётся историческим, новый итог 106 не вычислялся.
+
+### Исполнение и адресные проверки
+
+| Проверка | Подтверждено |
+|---|---|
+| Windows x86/D3D9 NULLREF | Полные StoreState/RestoreState для render/sampler внутри общего bootstrap; два входа, SDK readback всех 207 значений |
+| Выборочные группы | Restore render не меняет sampler; отдельный BORDERCOLOR сохраняется до явного восстановления |
+| Частичный захват | StoreState(ALL) реально читает 207 значений, затем явно отказывает на lights; Restore недозахваченных групп запрещён, recapture успешен |
+| Частичный GPU init | Прежний адресный отказ после world/sampler writes восстанавливает все 207 значений, world/TSS/texture binding и ноль owned state leases |
+| Host ASan/UBSan/leak detection | PASS CPU/Unsupported scope; restore до capture и после отказа запрещён; положительные SDK state operations не исполнялись |
+| ARM64/QEMU | PASS того же CPU/Unsupported scope; не Switch runtime |
+| devkitA64 | COMPILE/LINK PASS того же bootstrap, StoreState/RestoreState присутствуют; undefined strong=0; NRO не выпускалась |
+
+Новые дополнительные мутации FILLMODE и sampler-stage-7 BORDERCOLOR проверяют
+восстановление за пределами прежних 14 render/8 sampler registers. Сравниваются
+все 207 реально прочитанных значений, также сохранены проверки недефолтного world,
+COM texture, hooks, cleanup и повторного входа. Никаких успешных HRESULT или
+функционирующего D3D9 backend на Linux/Switch не имитируется.
+
+**Ограничение:** lights/material branches компилируются, но backend этих операций
+явно Unsupported. Поэтому default StoreState(ALL) ещё НЕ поддержан; проверенное
+владение здесь использует исходную маску RENDERSTATES|SAMPLERSTATES. Это не
+доказательство готовности map lifecycle, полного GPU state или lost-device/Reset.
+NULLREF подтверждает настоящие SDK state calls, физический draw не выполнен.
+
+Generated DeviceState.cpp SHA:
+`2a95fafeeb7700d37d6d181c87a4792cf805ce70320afea6789c4d326e3c76ba`.
+Все core outputs и 235 prepared engine files сверены по фактическим байтам между
+host, ARM64, Windows и SDK. Новый SDK ELF:
+`68a6ecdf2001e96c205b26a0a52fc4c032ca81dc096208d98e795731c4b2a796`.
+Build dirty во время компиляции отмечен; встроенного Git SHA у bootstrap нет.
+Связь с implementation commit устанавливается source hashes/manifest/evidence.
+Прежние экспериментальные файлы в общих build paths заменены этим кандидатом.
+
+Команды воспроизведения: существующий target `matrixgame-native-bootstrap`
+с `build/e2e515/big-buffer-models/model-1.vo` и
+`build/mg-merge-host/core/texture-request-fixtures/assets/plain.png`;
+`tools/matrixgame_init_sdk.py --bootstrap --resume --output build/matrixgame/e2e519/sdk`.
+Адресный audit: `tools/matrixgame_engine_compile_audit.py --build-root
+build/matrixgame/e2e519/host --output <fresh build directory> --target
+matrixgame-native-matrixlib-audit --source /DeviceState.cpp --jobs 1`.
+ASan/UBSan flags, actual recipe, binary hashes и логи находятся в evidence.
+
+Все 14 защищённых SHA совпали, pinned upstream чист и прежний, saves/resources,
+production NRO и hardware ZIP не менялись. Физическая Switch: HARDWARE_PENDING.
+Точная новая граница: единый Cache/VO/SSkin owner → DLL/caps → оригинальные
+CDeviceState capture → sampler/S3D_Default → CForm callbacks → оригинальные
+CDeviceState restore/Deinit/reentry. Полный CGame::Init не запущен; цель активна.
+
+Следующие приоритеты (не более трёх):
+
+1. Общий 3g.hpp contract и настоящие presentation/Reset prerequisites перед
+   CGame::ApplyVideoParams. Его прежний первый blocker `3g.hpp:16 d3d9.h`
+   не изменился; повторная компиляция CGame в этом продолжении не проводилась.
+2. Обязательные Texture/static_init/map owners и неподдержанные группы
+   CDeviceState(ALL), только по реальному call graph, затем настоящий CGame::Init.
+3. CFormMatrixGame/RunGameLoop после исполнения Init и отдельный физический draw.
