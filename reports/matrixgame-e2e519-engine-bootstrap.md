@@ -847,3 +847,73 @@ cursor assets и физический GPU draw остаются невыполн
    пустой cursor lifecycle доказательством готовности selection или draw.
 3. Согласовать настоящий CGame::Init с единственным game/cache owner, замкнуть
    обязательные static-init/map dependencies, затем CFormMatrixGame/RunGameLoop.
+
+## Продолжение 23.10.2026: оригинальный CGame::ApplyVideoParams
+
+Implementation commit: `70444b5c5dfef4157d33c13bc1922af501bff799`, локальный master,
+без push/fetch. Подробные SHA, результаты компиляции, полные runtime-логи и
+protected-input checks: [video negotiation evidence](matrixgame-e2e519-video-negotiation-evidence.json).
+
+В существующий NativeInitRuntime подключено полное оригинальное тело
+`MatrixGame.cpp:521 CGame::ApplyVideoParams` через typed device/window contract.
+В производственном Init вызов находится на строке 435, после подготовки карты;
+**Init и подготовка карты здесь не выполнялись**. Под тем же владельцем cache,
+game heap, config и sampler реально исполнена начальная часть метода, которой
+карта ещё не нужна. Свет в оставшемся теле по-прежнему читает настоящие поля
+g_MatrixMap; подставного объекта карты нет.
+
+Новый Windows provider вызывает GetCreationParameters, GetDirect3D и
+GetAdapterDisplayMode, GetClientRect/GetWindowRect. Полученные значения
+проверены по всем полям против независимых прямых SDK-вызовов. Временный COM
+reference на API освобождается RAII, включая ошибку неверного adapter ordinal.
+CheckDeviceMultiSampleType также возвращает настоящий HRESULT; он сверён
+отдельно с SDK, но оригинальный метод до этого вызова пока не доходит.
+NULLREF сообщает нулевой hFocusWindow даже при переданном HWND создания;
+адаптер сохраняет это фактическое значение.
+
+Исполнены original bpp/refresh calculations, проверка FSAA >16 и обе ветви
+выбора режима. Оконная ветвь доходит до ResizeOuter и получает Unsupported;
+ветвь изменённой частоты — до SetFullscreenStyle и получает Unsupported.
+До отказа провайдеры не изменяют окно/устройство. Владелец откатывает общие
+flags/presentation; проверены неизменные RECT, world matrix и количество
+живых state leases, повторные вызовы и два полных входа/выхода bootstrap.
+Presentation — объект CPU-параметров, не измерение действующего видеорежима.
+
+Reset, viewport, material/light и последующий S3D_Default в этом методе
+**NOT EXECUTED**. Их ветви сохранены целиком; неподдерживаемые backend calls
+бросают Unsupported. Для Reset требуется сначала закрыть владение default-pool
+references/stateblock и восстановление чужих presentation/window/viewport.
+Существующий state lease пока не reset-safe, поэтому ложного Reset PASS нет.
+Оригинальные g_MatrixHeap/g_MatrixMap имеют единственное определение в общем
+runtime; полная source view объявляет их extern. g_MatrixMap остаётся null.
+
+| Проверка | Результат и граница |
+|---|---|
+| Windows x86 SDK/NULLREF | PASS нового участка оригинального video method, SDK readback/error, MSAA validation, window/fullscreen отказа, rollback/retry и owner reentry; физический GPU draw не проверялся |
+| Host ASan/UBSan + leak detection | PASS integrated CPU lifecycle; ApplyVideoSettings явно Unsupported без устройства |
+| ARM64/QEMU | PASS того же integrated CPU/Unsupported scope, не Switch runtime |
+| devkitA64 | COMPILE/LINK PASS, undefined strong=0; реальные CGame::ApplyVideoParams/ApplyVideoSettings/g_MatrixMap присутствуют в ELF; runtime NOT RUN |
+| Полная MatrixGame.cpp | COMPILE_FAIL: прежний D3DDISPLAYMODE:438 снят; новый первый error effective:698 timeBeginPeriod, original:783 RunGameLoop; также timeEndPeriod original:807 SafeFree |
+
+`GameVideoNative.cpp` — выбранный полный метод, **не полная TU MatrixGame.cpp**.
+Тот же адаптированный метод присутствует в полной compile-audit source view.
+Проверка восстановлением прежнего тела и двух деклараций владельцев даёт
+побайтово прежнюю MatrixGame.cpp; вне этих границ Init/loop/gameplay не менялись.
+Все core outputs и 238 prepared engine files проверены по байтам между host,
+Windows, ARM64 и SDK, включая сохранённую audited source view. Binaries собраны
+до коммита (build_dirty=true, embedded Git SHA отсутствует); evidence связывает
+их с implementation SHA и точными effective-source/binary SHA-256.
+
+SDK ELF SHA-256:
+`c850d8cbcc87051eee5ee4d9044690757ced2f26d6950ba65b1065b1ba869725`.
+Build id: `b85acdc3e4b4c4784d426b940b732dd598026bb3`.
+Новых executable targets, повторного inventory 106 и standalone suites нет.
+Все 14 protected hashes совпали; saves/resources/upstream и frozen аппаратные
+архивы сохранены. Основная NRO не пересобиралась. Switch — HARDWARE_PENDING.
+
+Дальше: (1) реальные timer begin/end contracts для полного MatrixGame.cpp,
+(2) reset-safe владение borrowed device/window, (3) ReadParams/map/static-init
+и согласование единственного owner с настоящим CGame::Init. Этап E2E-5.19 активен;
+полный запуск Init/form/loop и бой ещё не достигнуты. Вечерний аппаратный сценарий
+основной игры и отдельного прежнего GPU-прототипа остаётся в
+[инструкции](../docs/e2e517-evening-switch-check.md).

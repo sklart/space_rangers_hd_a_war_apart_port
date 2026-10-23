@@ -12,8 +12,13 @@ Effect/map buffers используют существующий native staging 
 на Windows настоящие SetCursor/GetCursor подтверждают Clear/detach/reentry restore.
 Отдельный game heap принадлежит тому же owner; host/QEMU проверяют безопасный
 cursor-prefix Unsupported, а не положительную работу системного курсора.
-CGame::Init ещё не вызван: первый compile blocker теперь D3DDISPLAYMODE внутри
-ApplyVideoParams; ReadParams, карта, presentation/Reset и бой остаются незавершёнными.
+Новый участок: оригинальный CGame::ApplyVideoParams выполняет настоящие SDK-запросы
+параметров устройства, режима адаптера и размеров окна; оконная/полноэкранная
+ветви останавливаются до изменения окна с явным Unsupported. Отказ, rollback
+общих параметров и повторный вызов проверены на Windows NULLREF.
+CGame::Init ещё не вызван. Полная MatrixGame.cpp теперь проходит ApplyVideoParams
+и останавливается на timeBeginPeriod в RunGameLoop. ReadParams, карта,
+reset-safe presentation lifecycle и бой остаются незавершёнными.
 GPU/Switch HARDWARE_PENDING; production NRO не менялась.
 [Актуальная граница bootstrap и evidence](../../reports/matrixgame-e2e519-engine-bootstrap.md).
 
