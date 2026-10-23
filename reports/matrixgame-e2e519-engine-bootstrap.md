@@ -1,5 +1,11 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
+Актуальное продолжение23.10: [terrain lifecycle](matrixgame-e2e519-terrain.md).
+Полный MatrixTerSurface.cpp включён в общий bootstrap; исходный repeated Clear
+воспроизвёл ASan double-free. Сброс ownership state проверен host/ARM64 runtime,
+SDK compile/link и MSVC compile. Настоящий map owner LINK FAIL18 unique symbols,
+геометрия/GPU terrain не загружены; CGame::Init и бой по-прежнему не исполнены.
+
 Актуальное продолжение23.10: [CalcPick viewport ABI](matrixgame-e2e519-viewport.md).
 Подтверждённый runtime failure из-за int/reference screen globals устранён
 единым SDK-free accessor; исходная геометрия проверена в общем host/ARM64

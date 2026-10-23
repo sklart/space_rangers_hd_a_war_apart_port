@@ -23,6 +23,7 @@
 #include "DevConsole.hpp"
 #include "MatrixMap.hpp"
 #include "Texture.hpp"
+#include "MatrixTerSurface.hpp"
 #include "legacy_texture_backend.hpp"
 #include "MatrixRenderPipeline.hpp"
 #ifdef _WIN32
@@ -58,6 +59,15 @@ static void VerifyOriginalPickViewport() {
 }
 void VerifyBootstrapMapCamera(NativeInitRuntime& runtime) {
     assert(runtime.GameDefaultsReady() && !runtime.MapCamera() && !g_MatrixMap);
+    assert(!CTerSurface::IsSurfacesPresent());CTerSurface::StaticInit();
+    CTerSurface::AllocSurfaces(3);assert(CTerSurface::IsSurfacesPresent());
+    CTerSurface::ClearSurfaces();
+    const bool empty_after_clear=!CTerSurface::IsSurfacesPresent();
+    std::printf("original terrain ClearSurfaces empty=%d; entering repeated Clear\n",empty_after_clear);
+    CTerSurface::ClearSurfaces();assert(empty_after_clear && !CTerSurface::IsSurfacesPresent());
+    CTerSurface::AllocSurfaces(2);assert(CTerSurface::IsSurfacesPresent());
+    CTerSurface::ClearSurfaces();CTerSurface::ClearSurfaces();assert(!CTerSurface::IsSurfacesPresent());
+    std::puts("original terrain surface allocation/destruction, repeated Clear and reentry EXECUTED on game heap; terrain geometry/GPU NOT LOADED");
     const auto gpu=runtime.GpuReady();
     SRobotsSettings settings{};
     settings.m_ResolutionX=g_ScreenX>0?g_ScreenX:1280;
@@ -575,6 +585,7 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
             refused([&]{md::SetTransform(md::Transform::View,&matrix);});
             refused([]{md::RasterCaps();});refused([]{md::StencilCaps();});
             refused([]{md::DrawPrimitive(5,0,2);});
+            refused([]{md::DrawIndexedPrimitive(5,0,0,3,0,1);});
             assert(runtime.CpuReady() && runtime.GameDefaultsReady() && !g_MatrixMap);
             std::puts("full map device boundaries deny missing real backend; no caps/transform/draw success fabricated; CPU owners preserved");
         }

@@ -15,5 +15,6 @@ template<class Matrix> platform3g::DeviceResult SetTransform(Transform type,cons
 std::uint32_t RasterCaps();
 std::uint32_t StencilCaps();
 platform3g::DeviceResult DrawPrimitive(std::uint32_t,std::uint32_t,std::uint32_t);
+platform3g::DeviceResult DrawIndexedPrimitive(std::uint32_t,int,std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t);
 void OpenManual();
 }
