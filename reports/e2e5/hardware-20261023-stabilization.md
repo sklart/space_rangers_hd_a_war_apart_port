@@ -310,6 +310,39 @@ ship2/star3/planet0. SHA файла
 
 ## 4. Раздельная диагностика карты и выхода
 
+### Новый full-host baseline общей карты и выхода
+
+Отдельно от станционного сейва загружена побайтовая копия присланного
+`RecoveredSave-1.sav` (SHA256
+`e0ec3a139ba803adcfe318e655c4b91ae06fa684425126e7d1fb5e4ee4069e3a`).
+Оригинальный UI восстановил **общую карту**, screen16, turn303, star3,
+planet0, fuel20. Реальные команды следующего дня дали304,305,306;
+каждый переход проверен по фактическому snapshot состояния и кадру.
+Артефакт: `build/e2e515/e2e523-map303-exit/result.json`.
+Это адресный **HOST map-turn PASS**, без воспроизведения аппаратного freeze.
+Использован прежний полный host binary SHA256 `4e826f1076dadeba796ec89dee7750190b4caa110862ae5f04a7a77eed18fb81`,
+а не кандидат с новым rescale/recovery или thread watchdog.
+
+Затем через настоящие меню выполнены campaign exit → main menu → quit.
+Первый rig неправильно требовал release ACK после остановки input loop;
+это ожидание убрано **только для финального отпускания кнопки**. Обычный
+raw pad по-прежнему требует точный sequence/mask ACK. Повтор уже без этой
+ошибки всё равно дал timeout30с **после** `Game shutdown complete`:
+`build/e2e515/e2e523-map303-exit-confirm/result.json`.
+Ни первый, ни второй процесс не считаются успешно завершившимися.
+
+Адресный повтор со снятием стеков (`e2e523-exit-stack`, `exit-backtrace.log`
+в его run-каталоге) установил реальный **host shutdown defect**: main уже
+в `exit()`/`pthread_cond_destroy`, два оставшихся `EC_Thread::ProcessRequests`
+ожидают общий `e2e_events::g_changed` в `WaitMany(INFINITE)`. Perf writer и
+игровой цикл к этому моменту завершились. Утечки workers нельзя исправлять
+принудительным `_Exit` или бессрочным хранением condition_variable.
+Это пока **не доказанная причина полного зависания Switch**: host-компиляция
+Steam-ветки отличается от `__SWITCH__`; владельцы workers уточняются отдельно.
+Драйвер поддерживает opt-in `--exit-backtrace` с локальным gdb и правом ptrace
+только при timeout, перед принудительной очисткой неудачного теста.
+Исходные конфиги и сейв во всех этих прогонах совпали по SHA256.
+
 В существующий perf writer добавлены четыре статических atomic slots: main,
 turn, saver, writer. Публикация не берёт игровые mutex, не выделяет память и
 не пишет файлы. Только существующий writer раз в heartbeat выводит не более

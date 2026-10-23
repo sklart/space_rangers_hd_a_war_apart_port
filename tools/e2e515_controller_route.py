@@ -29,6 +29,10 @@ def main():
     parser.add_argument('--fail-save-once', action='store_true', help='Refuse the first UI save with a private occupied temp directory, then retry')
     parser.add_argument('--load-save', type=Path, help='Load a copied build fixture in a separate fresh process')
     parser.add_argument('--advance-turns', type=int, default=0)
+    parser.add_argument('--normal-exit', action='store_true',
+                        help='After a copied map-save route, leave campaign and quit through native menus; verify process exit')
+    parser.add_argument('--exit-backtrace', action='store_true',
+                        help='On normal-exit timeout, attach local gdb once before cleanup (requires ptrace permission)')
     parser.add_argument('--map-move',type=int,nargs=2,metavar=('X','Y'),
                         help='Issue a real map tap before advancing a loaded map fixture')
     parser.add_argument('--resave-name', help='After loading, write a new slot using host OSK')
@@ -60,6 +64,10 @@ def main():
         parser.error('--fail-save-once requires a save route')
     if args.load_save and (args.campaign or args.save):
         parser.error('--load-save is a separate fresh-process route')
+    if args.normal_exit and (not args.load_save or args.resave_name or args.planet_cycles or args.trade_dialog or args.interstellar):
+        parser.error('--normal-exit requires a copied map-save route without other panel/save scenarios')
+    if args.exit_backtrace and (not args.normal_exit or not shutil.which('gdb')):
+        parser.error('--exit-backtrace requires --normal-exit and gdb in PATH')
     if (args.advance_turns or args.resave_name or args.expect_checkpoint) and not args.load_save:
         parser.error('turns/resave/checkpoint require --load-save')
     if not 0 <= args.advance_turns <= 10:
@@ -270,6 +278,73 @@ def main():
         def pulse(mask, duration=.17):
             raw(mask, duration)
             raw(0)
+
+        def accept_exit_confirmation(parent):
+            wait(lambda text: state()[0] != parent and state()[2] > 0,
+                 'native exit confirmation')
+            _, selected, nodes = graph()
+            if len(nodes) != 2:
+                raise RuntimeError('Expected the original OK/Cancel exit dialog')
+            # Original TMessageBoxGI places Accept to the left of Cancel.
+            target = min(nodes, key=lambda node: node[1][0])[0]
+            if selected != target:
+                pulse(16)
+                wait(lambda text: state()[1] == target, 'focus original Accept button')
+
+        def final_quit_confirmation():
+            # The final input may terminate the game before its release ACK.
+            # Accept process termination here only; ordinary raw-pad checks
+            # keep their existing strict delivery/consumption requirements.
+            nonlocal sequence
+            if not switch_effective:
+                raise RuntimeError('--normal-exit requires the switch-effective host build')
+            for mask in (1, 0):
+                if process.poll() is not None:
+                    break
+                sequence += 1
+                temporary = stage / 'pad-input.tmp'
+                temporary.write_text(f'{sequence} {mask}\n')
+                temporary.replace(stage / 'pad-input.txt')
+                if not mask:
+                    # Quit has already stopped the input loop. Publish the
+                    # release, but verify completion by process exit instead.
+                    break
+                deadline = time.monotonic() + 10
+                while process.poll() is None:
+                    ack = stage / 'pad-ack.txt'
+                    try:
+                        consumed = ack.read_text().strip() == f'{sequence} {mask}'
+                    except OSError as error:
+                        if error.errno not in (errno.ENOENT, errno.ENODATA):
+                            raise
+                        consumed = False
+                    if consumed:
+                        break
+                    if time.monotonic() >= deadline:
+                        raise RuntimeError('Final quit input was not consumed')
+                    time.sleep(.005)
+                if mask:
+                    time.sleep(.17)
+            try:
+                process.wait(timeout=30)
+            except subprocess.TimeoutExpired:
+                if args.exit_backtrace:
+                    trace = stage / 'exit-backtrace.log'
+                    with trace.open('wb') as output:
+                        try:
+                            captured = subprocess.run(
+                                ['gdb', '-q', '-nx', '-batch', '-p', str(process.pid),
+                                 '-ex', 'set debuginfod enabled off',
+                                 '-ex', 'thread apply all bt 24',
+                                 '-ex', 'detach'],
+                                stdout=output, stderr=subprocess.STDOUT, timeout=20)
+                            report['exit_backtrace_returncode'] = captured.returncode
+                        except subprocess.TimeoutExpired:
+                            report['exit_backtrace_timeout'] = True
+                    report['exit_backtrace_path'] = str(trace)
+                raise
+            if process.returncode != 0 or 'Game shutdown complete' not in game_messages():
+                raise RuntimeError('Native shutdown did not finish successfully')
 
         def capture(screen, label):
             samples = report.setdefault('scene_frames', [])
@@ -807,13 +882,33 @@ def main():
                     if report['saved_checkpoint']['turn'] != report.get('flight_arrived_turn', loaded['turn']) + args.advance_turns:
                         raise RuntimeError('Saved turn does not match the requested actual turn advance')
                     report.update(status='PASS', scope='recovered real state, native end-turns and original manual resave UI')
+                if args.normal_exit:
+                    if report['restored_screen'] != 16:
+                        raise RuntimeError('--normal-exit fixture did not restore the map')
+                    select('PM_Logo'); at = len(lines()); pulse(1)
+                    wait(lambda text: 'screen dispatch id=25 ' in text[at:] and
+                         any(node[2] == 'Exit' for node in graph()[2]), 'original in-game menu')
+                    select('Exit'); parent = state()[0]; pulse(1)
+                    accept_exit_confirmation(parent)
+                    at = len(lines()); pulse(1)
+                    wait(lambda text: 'screen dispatch id=1 ' in text[at:] and
+                         any(node[2] == 'Exit' for node in graph()[2]), 'native campaign exit to main menu', 90)
+                    select('Exit'); parent = state()[0]; pulse(1)
+                    accept_exit_confirmation(parent)
+                    started = time.monotonic()
+                    final_quit_confirmation()
+                    report.update(normal_shutdown_verified=True,
+                                  normal_shutdown_seconds=round(time.monotonic() - started, 3),
+                                  normal_shutdown_route='map -> game menu -> accept -> main menu -> quit -> accept',
+                                  status='PASS')
         except Exception as error:
             report.update(status='FAIL', error=str(error))
         finally:
-            process.kill()
+            report['stopped_by_runner'] = process.poll() is None
+            if report['stopped_by_runner']:
+                process.kill()
             process.wait()
             report['returncode'] = process.returncode
-            report['stopped_by_runner'] = True
     report['source_configs_unchanged'] = all(
         hashlib.sha256((args.config_root / name).read_bytes()).hexdigest() == digest
         for name, digest in original.items())
