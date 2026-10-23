@@ -12,6 +12,7 @@
 #include "MatrixGame.h"
 #include "MatrixLoadProgress.hpp"
 #include <vector>
+#include <limits>
 #include "3g.hpp"
 #include "Texture.hpp"
 #include "legacy_texture_backend.hpp"
@@ -20,6 +21,42 @@
 #include "platform_win32.hpp"
 #endif
 using namespace srhd_awa::matrixgame;
+void VerifyBootstrapMapCamera(NativeInitRuntime& runtime) {
+    assert(runtime.GameDefaultsReady() && !runtime.MapCamera() && !g_MatrixMap);
+    const auto gpu=runtime.GpuReady();
+    SRobotsSettings settings{};
+    settings.m_ResolutionX=g_ScreenX>0?g_ScreenX:1280;
+    settings.m_ResolutionY=g_ScreenY>0?g_ScreenY:720;
+    settings.m_MaxDistance=25;
+    const auto old_x=g_ScreenX,old_y=g_ScreenY;const auto old_far=MAX_VIEW_DISTANCE;
+    for(int failure=0;failure<3;++failure) {
+        auto bad=settings;
+        if(failure==0)bad.m_ResolutionX=0;
+        if(failure==1)bad.m_MaxDistance=-100;
+        if(failure==2)bad.m_MaxDistance=std::numeric_limits<float>::quiet_NaN();
+        bool rejected=false;try{runtime.InitializeMapCamera(bad);}catch(const std::invalid_argument&){rejected=true;}
+        assert(rejected && !runtime.MapCamera() && g_ScreenX==old_x && g_ScreenY==old_y && MAX_VIEW_DISTANCE==old_far);
+    }
+    runtime.InitializeMapCamera(settings);auto* camera=runtime.MapCamera();assert(camera);
+    assert(MAX_VIEW_DISTANCE==5000 && g_ScreenX==settings.m_ResolutionX && g_ScreenY==settings.m_ResolutionY);
+    assert(std::fabs(camera->GetResXInversed()-1.f/settings.m_ResolutionX)<1e-8f);
+    assert(std::fabs(camera->GetResYInversed()-1.f/settings.m_ResolutionY)<1e-8f);
+    assert(camera->GetAngleZ()==g_Config.m_CamBaseAngleZ);
+    const auto& config=g_Config.m_CamParams[CAMERA_STRATEGY];
+    assert(std::fabs(camera->GetAngleX()-(config.m_CamRotAngleMin+(config.m_CamRotAngleMax-config.m_CamRotAngleMin)*config.m_CamAngleParam))<1e-6f);
+    const auto& projection=camera->GetProjMatrix();
+    const float focal=1.f/std::tan(float(CAM_HFOV)/2);
+    assert(std::fabs(projection._11-focal*settings.m_ResolutionY/settings.m_ResolutionX)<1e-5f);
+    assert(std::fabs(projection._22-focal)<1e-5f);
+    // Independent near/far endpoints of the original LH projection.
+    assert(std::fabs(projection._33+projection._43)<1e-6f);
+    assert(std::fabs(projection._33+projection._43/5000.f-1.f)<1e-6f);
+    bool duplicate=false;try{runtime.InitializeMapCamera(settings);}catch(const std::logic_error&){duplicate=true;}
+    assert(duplicate && runtime.MapCamera()==camera && runtime.GpuReady()==gpu && !g_MatrixMap);
+    runtime.FinishMapCamera();runtime.FinishMapCamera();assert(!runtime.MapCamera());
+    runtime.InitializeMapCamera(settings); // Actual destructor is also exercised by shared Deinit.
+    std::puts("original SetMaxCameraDistance -> CMatrixCamera ctor/projection EXECUTED; invalid config atomic refusal, duplicate owner, cleanup/reentry PASS; map NOT CONSTRUCTED; camera held until common Deinit");
+}
 void VerifyBootstrapRenderer(NativeInitRuntime& runtime) {
     assert(!g_Render && !runtime.RenderPipeline());
     if(!runtime.GpuReady()) {
@@ -469,6 +506,7 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
     assert(KonusCleanupAccess::Empty() && context.AllocatedBytes()==before);
     KonusCleanupAccess::MarkAllBuffersNoNeed();assert(context.AllocatedBytes()==before);
     std::puts("original CMatrixConfig::SetDefaults EXECUTED + ownership refusal/retry; original Konus cleanup released real staging bytes; Clear pending owner Deinit");
+    VerifyBootstrapMapCamera(runtime);
 }
 void VerifyBootstrapProjection() {
     D3DXMATRIX world,view,projection;

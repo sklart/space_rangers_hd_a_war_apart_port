@@ -10,6 +10,7 @@ class CMatrixCursor;
 class CLoadProgress;
 class CTextureManaged;
 class CRenderPipeline;
+class CMatrixCamera;
 namespace Base {class CBlockPar;}
 extern Base::CHeap* g_MatrixHeap;
 namespace srhd_awa::matrixgame {
@@ -47,6 +48,9 @@ public:
     void InitializeRenderPipeline();
     void FinishRenderPipeline()noexcept;
     CRenderPipeline* RenderPipeline()const noexcept{return render_pipeline_;}
+    void InitializeMapCamera(const SRobotsSettings&);
+    void FinishMapCamera()noexcept;
+    CMatrixCamera* MapCamera()const noexcept{return map_camera_;}
     bool GameDefaultsReady()const noexcept{return CpuReady() && game_defaults_;}
     void InitializeCursor();
     CMatrixCursor* Cursor()const noexcept{return cursor_.get();} // Borrowed until DetachDevice/Deinit.
@@ -65,6 +69,7 @@ private:
     std::unique_ptr<CLoadProgress> load_progress_;
     CTextureManaged* original_texture_{}; // HNew/CCache::Destroy, not delete or a CPU cache cast.
     CRenderPipeline* render_pipeline_{}; // Same original game-heap allocation protocol.
+    CMatrixCamera* map_camera_{}; // Original map member prerequisite, not a map publication.
     std::unique_ptr<buffers::Context> buffers_;
     std::unique_ptr<buffers::Scope> scope_;
     std::unique_ptr<platform3g::DeviceStateLease> device_snapshot_;

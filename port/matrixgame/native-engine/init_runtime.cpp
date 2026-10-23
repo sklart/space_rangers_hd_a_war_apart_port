@@ -11,7 +11,9 @@
 #include "Texture.hpp"
 #include "legacy_texture_backend.hpp"
 #include "MatrixRenderPipeline.hpp"
+#include "MatrixCamera.hpp"
 #include "3g.hpp"
+#include <cmath>
 #include <stdexcept>
 Base::CHeap* g_MatrixHeap;
 CMatrixMapLogic* g_MatrixMap;
@@ -82,6 +84,7 @@ void NativeInitRuntime::LeaveLegacyDll() {
     if(platform3g::Current().ready)throw platform3g::Unsupported("legacy deinit cannot detach a foreign platform owner");
 }
 void NativeInitRuntime::Deinit() noexcept {
+    FinishMapCamera();
     FinishLoadProgress();
     FinishRenderPipeline();
     FinishOriginalManagedTexture();
@@ -121,6 +124,24 @@ void NativeInitRuntime::FinishRenderPipeline()noexcept {
     if(!render_pipeline_)return;
     if(g_Render==render_pipeline_)g_Render=nullptr;
     HDelete(CRenderPipeline,render_pipeline_,g_MatrixHeap);render_pipeline_=nullptr;
+}
+void NativeInitRuntime::InitializeMapCamera(const SRobotsSettings& settings) {
+    if(active!=this || !GameDefaultsReady())throw std::logic_error("map camera requires this CPU/config owner");
+    if(map_camera_)throw std::logic_error("map camera already owned");
+    // These are configured dimensions, not measured physical display facts.
+    // Validate before the original constructor divides by either dimension.
+    const double far_plane=4000.0*(1.0+0.01*settings.m_MaxDistance);
+    if(settings.m_ResolutionX<=0 || settings.m_ResolutionY<=0 ||
+       !std::isfinite(far_plane) || far_plane<=1.0 || far_plane>3.402823466e38)
+        throw std::invalid_argument("invalid configured map camera projection");
+    const int old_x=g_ScreenX,old_y=g_ScreenY;const float old_far=MAX_VIEW_DISTANCE;
+    g_ScreenX=settings.m_ResolutionX;g_ScreenY=settings.m_ResolutionY;
+    SetMaxCameraDistance(settings.m_MaxDistance); // Original CGame::Init prerequisite.
+    try {map_camera_=HNew(g_MatrixHeap) CMatrixCamera;}
+    catch(...) {g_ScreenX=old_x;g_ScreenY=old_y;MAX_VIEW_DISTANCE=old_far;throw;}
+}
+void NativeInitRuntime::FinishMapCamera()noexcept {
+    if(map_camera_){HDelete(CMatrixCamera,map_camera_,g_MatrixHeap);map_camera_=nullptr;}
 }
 void NativeInitRuntime::LoadOriginalManagedTexture(const wchar_t* path,bool convert_to_16bit) {
     if(active!=this || !CpuReady() || !OriginalStaticsReady())throw std::logic_error("original managed texture requires this live CPU/cache owner");

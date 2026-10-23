@@ -100,6 +100,8 @@ def prepare_engine(output):
     paths.update(prepare_render_pipeline(output))
     from matrixgame_legacy_texture_overrides import prepare_legacy_texture
     paths.update(prepare_legacy_texture(output))
+    from matrixgame_camera_overrides import prepare_camera
+    paths.update(prepare_camera(output))
     result={'schema':1,'source_commit':revision,'scope':'full engine compilation input; runtime/backend not implemented here',
         'files_sha256':paths,'portable_inputs':report['inputs_sha256'],
         'excluded_platform_launcher':'MatrixGameDll.cpp; native entry remains to implement'}
