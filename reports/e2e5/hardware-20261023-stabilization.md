@@ -1,0 +1,149 @@
+# Офлайн-стабилизация по аппаратным данным 23.10.2026 — продолжается
+
+Это продолжение анализа `hardware-20261023-analysis.md`, не объявление устранения
+всех дефектов. Главные источники: неизменённые `logs/2026.10.23`, frozen E2E-5.16
+и pinned исходники. Основная NRO/ELF и оба старых ZIP не пересобираются.
+
+Проверенный implementation commit: `be6f63e11ab2c434336502a38496ec7d19e5b0bb`,
+локальный master, без push/fetch. Команды, source/object hashes, исходы и честные
+границы сохранены в приватном `build/e2e523/evidence.json`. Повторно совпали все
+107 входных файлов аппаратного прогона и 13 доступных защищённых baseline файлов;
+`G:\pack.zip` остаётся недоступен, его текущий hash не объявляется проверенным.
+Оба frozen ZIP совпали с прежними SHA-256. Пользовательские данные не включены в Git.
+
+## 1. Повторяющийся текст: источник ещё не найден
+
+Из аппаратного stage log дополнительно выделен точный ресурс испорченного
+фона: **`GI,Bm.FormRuins.2RCbg`**. Он наблюдается у RuinsTalk, GoodsShop, Info и
+Hangar; во всех этих записях `hardware=0`, bounds1280x720. Это исключает гипотезу,
+что настройка в этом переходе случайно включила D3D-ветку. Свежие CPU-холсты
+перед композицией чистые; фрагмент вводится оригинальным рисованием интерфейса.
+
+Выполнен один новый source-backed host baseline с реальным прокрученным текстом:
+generation → ожидание20с → разговор → ангар → карта/меню. Ожидание добавлено в
+существующий raw-pad driver через `--intro-hold-seconds`; код генерации, RNG,
+OnClose и рисование не изменены. Текст действительно присутствует на обоих
+снимках генерации, что проверено просмотром PPM. После перехода на стартовую
+станцию текст не остаётся. Но там выбран другой станционный фон: это не
+доказательство исправности именно аппаратного `2RCbg`-маршрута.
+
+Артефакты: `build/e2e515/e2e523-intro-baseline/result.json` и
+`build/e2e523/intro-baseline-contact.jpg`. В этом драйвере PASS означает маршрут;
+он завершает процесс принудительно, `normal_shutdown_verified=false`.
+Существующий baseline binary SHA256
+`4e826f1076dadeba796ec89dee7750190b4caa110862ae5f04a7a77eed18fb81`.
+Это старый Switch-effective host executable, не вновь собранный кандидат с
+изменённой диагностикой. Графический fix и очередная очистка framebuffer
+**не внесены**. Следующий адресный шаг — источник `2RCbg` и соответствующий
+CPU/cache buffer в точном переходе, а не общий новый цикл всех рендер-тестов.
+
+## 2. manual-publish: точный аппаратный syscall ещё неизвестен
+
+Старое сообщение объединяло source fopen, destination open/fdopen, read/write,
+flush и close; хвост errno мог измениться при cleanup. Теперь сохраняются:
+
+- точная фаза (`source-open`, `destination-create`, `destination-fdopen`,
+  `read`, `write`, `flush`, `destination-close`, `source-close`, final stat);
+- исходный error_code до cleanup и число записанных байтов;
+- UTF-8 bytes обоих путей в hex, без потерь ANSI и внедрения переводов строки.
+
+На успешном пути нет нового журналирования или форматирования путей. Byte I/O,
+O_EXCL, валидация, flush/readback, rollback и публикация commit сохраняются.
+Это **исправление точности диагностики**, не доказанное устранение аппаратного
+ENOENT. Исходное сообщение само по себе не позволяет выбрать одну фазу.
+
+Новый тест `test_e2e523_manual_publish.cpp` использует **настоящие присланные
+RSG64 поколения** и production ReplaceGameSavePath. Четыре случая: source-open
+ENOENT и destination-create ENOENT × новый/занятый `Солнце.sav`. Внедряется
+только отрицательный результат libc, не успешное копирование. Проверены
+различение фаз при одинаковом errno2, bytes имени, неизменность temp/старого
+слота, настоящее восстановление, успешный Unicode retry и следующая запись.
+После успешного commit тест создаёт новое временное поколение, как TSaver:
+старый save.tmp должен быть освобождён, переиспользовать удалённый файл нельзя.
+Host ASan/UBSan/leak detection — PASS. Входные сейвы не менялись.
+
+## 3. Настоящий load → ходы → ручная запись на новых данных
+
+Копия нового AutoSave загружена в существующем полном host executable через
+исходный UI. Наблюдаемый checkpoint: turn301, money980, ship2, star3, planet0,
+16 scripts, generation_seed908803244. Три настоящих хода дали turn304;
+оригинальный UI создал физический Unicode-файл `Солнце.sav`.
+
+Первый rig ошибочно ждал commit marker в legacy `########.log`, который у
+Switch-effective performance профиля содержит только Start. Тот же marker
+**уже был** в perf515-stage.log, а правильный UTF-8 файл существовал. Это был
+таймаут harness, не воспроизведение аппаратного ENOENT. Исправлен выбор журнала:
+сохраняются тот же commit marker, проверка существования/размера именно
+ожидаемого файла и сравнение сохранённых checkpoints. Не заменено условием
+«любой файл существует».
+
+Один повтор кандидата с исправленным чтением журнала — PASS:
+`build/e2e515/e2e523-newsave-candidate/result.json`. Это исправление rig, а не
+игровой файловой системы. Переход выполнен на станции/ангаре: **не следует
+считать его воспроизведением полного зависания общей карты**.
+
+Fresh-process reload завершён **PASS**, а не выведен из CRC:
+`build/e2e515/e2e523-newsave-reload/result.json`. Новый процесс действительно
+загрузил `Солнце.sav`, turn304; checkpoint_comparison_verified=true.
+С сохранением совпали RNG, scripts/globals, inventory и ship hashes, money980,
+ship2/star3/planet0. SHA файла
+`924ec8ee27519ab9a5ac8b3871330e55d5b3a4377e87a2a0924b0826af0b8f7d`.
+Новый AutoSave source SHA
+`87bf6b2a50b77826eb9f1941d815280978bdab2dcc7f1f0550416a4e2813ca3d`.
+Драйвер затем остановил процесс (-9), поэтому это всё ещё не проверка штатного
+выхода. Файловый путь работает в этой host-среде на новых реальных данных;
+аппаратный ENOENT остаётся отдельной незакрытой причиной.
+
+## 4. Раздельная диагностика карты и выхода
+
+В существующий perf writer добавлены четыре статических atomic slots: main,
+turn, saver, writer. Публикация не берёт игровые mutex, не выделяет память и
+не пишет файлы. Только существующий writer раз в heartbeat выводит не более
+четырёх дополнительных строк. Snapshot имеет bounded retry и consistent flag;
+прогресс записей в очереди не используется как число кадров.
+
+На Switch thread_token получен через svcGetThreadId, на Linux — gettid; fallback
+явно помечается native_id=0. Для каждого role выводятся phase/stage, since/age и
+монотонный progress. Слоты сбрасываются при новом Initialize. Они отражают
+последнюю опубликованную работу, а не гарантируют, что OS-поток всё ещё жив.
+
+Точки:
+
+- main: исходные loop/present Stage IDs; ожидание turn-idle; `osk-active` на
+  всё время настоящего системного applet. Большой SaveManager interval с этим
+  маркером нельзя объявлять CPU-зависанием;
+- turn: вход оригинального TThreadCalc_Execute с настоящим Self->Job;
+- saver: ожидание SaveLoadLock → serialization → именованная copy transaction;
+- exit: после возврата ProgramMain, перед return main, перед drain/join writer;
+  writer отдельно подтверждает выход из drain loop. Этот последний marker
+  **не** утверждает завершение fclose, всех static destructors или возврат hbmenu.
+
+Новый тест `test_e2e523_thread_progress.cpp` блокирует настоящий worker на
+condition_variable, различает его native ID/неизменный progress и фазу main OSK,
+проверяет restore scopes, heartbeat, bounded join и повторный Initialize без
+stale worker identity. ASan/UBSan/leaks — PASS. Существующая регрессия
+async producer I/O guard/pressure/shutdown тоже PASS. Это не воспроизведение
+аппаратного system freeze. Если перестанет работать весь kernel/SD, обычный
+writer не сможет гарантировать последнюю запись — аппаратная граница остаётся.
+
+## 5. ARM64 и неизменность игры
+
+Адресная devkitA64 компиляция с performance diagnostics=1 — PASS для семи
+затронутых частей: perf.cpp, save transaction, оригинальные подготовленные
+ThreadCalc/aSaveLoad/program/GI_MessageLoop и реальный OSK backend. Все новые
+overlays лежат отдельно в `build/e2e523/sdk-source`, frozen effective sources
+не перезаписывались. Это **COMPILE PASS, не полный link/NRO/runtime PASS**.
+Standalone OSK probe выявил отсутствовавший прямой include perf header;
+исправлено и повторён только этот unit. Уточнённый Self->Job также проверен
+повторной компиляцией только ThreadCalc.
+
+SwkbdType_All и прежнее исправление deko image alignment сохраняются. Нового
+аппаратного подтверждения нет; старый smoke имеет HARDWARE FAIL до draw,
+его исправленный вариант — HARDWARE_PENDING. Аркадные алгоритмы/тик/ввод не
+оптимизировались и не менялись. MatrixGame E2E-5.19 остаётся после первоочередных
+P0 основной игры.
+
+Работа продолжается: (1) конкретный владелец/источник `2RCbg`-композиции;
+(2) аппаратный ENOENT до сих пор не локализован до syscall;
+(3) точные причины freeze карты и полного выхода не установлены. Новые markers
+позволят различить их при будущем доступе, но новый Switch-тест сейчас не требуется.
