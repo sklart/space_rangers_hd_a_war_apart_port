@@ -8,11 +8,13 @@
 #include "skin_pipeline.hpp"
 #include MATRIXGAME_FULL_VECTOR_HEADER // Full declaration must agree with cache/CPU class.
 #include MATRIXGAME_FULL_BILLBOARD_HEADER
+#include MATRIXGAME_FULL_3G_HEADER
 #include "VectorObjectAnimNative.hpp"
 #include "Form.hpp"
 #include <cassert>
 #include <cstdio>
 #include <filesystem>
+#include <type_traits>
 using namespace srhd_awa::matrixgame;
 namespace p=srhd_awa::matrixgame::platform3g;
 // Original full animator retains its light pointer/count. The accepted native
@@ -20,6 +22,16 @@ namespace p=srhd_awa::matrixgame::platform3g;
 constexpr auto full_light_extent=(sizeof(void*)+sizeof(int)+alignof(CVectorObjectAnim)-1)/alignof(CVectorObjectAnim)*alignof(CVectorObjectAnim);
 static_assert(sizeof(CVectorObjectAnim)==sizeof(NativeVectorObjectAnim)+full_light_extent);
 static_assert(sizeof(SBillboardVertex)==24); // Original XYZ/diffuse/UV payload, not MeshVertex.
+static_assert(std::is_base_of_v<CCacheData,CBaseTexture> && std::is_base_of_v<CBaseTexture,CTextureManaged>);
+static_assert(std::is_abstract_v<CBaseTexture> && !std::is_abstract_v<CTextureManaged>);
+static_assert(std::is_same_v<decltype(std::declval<CTextureManaged&>().DX()),IDirect3DTexture9*>);
+static_assert(TF_NOMIPMAP==8 && TF_ALPHATEST==16 && TF_ALPHABLEND==32);
+// SDK enum -> bool would silently select convert_to_16bit. The declaration
+// boundary must require explicit format conversion, not change texture behavior.
+enum LegacyTextureFormatForOverloadCheck {LegacyFormatValueForCheck=21};
+template<class T> concept TextureBitmapArgument=requires(CTextureManaged& t,const CBitmap& bm,T arg){t.LoadFromBitmap(bm,arg);};
+static_assert(TextureBitmapArgument<bool> && TextureBitmapArgument<TexturePixelFormat>);
+static_assert(!TextureBitmapArgument<LegacyTextureFormatForOverloadCheck>);
 extern void VerifyBootstrapSampling(NativeInitRuntime&,p::Window&,p::Device&,unsigned,bool);
 extern void VerifyBootstrapSamplerCold();
 extern void VerifyBootstrapDefaults(NativeInitRuntime&,p::Window&,p::Device&,unsigned,bool);

@@ -195,6 +195,15 @@ inline constexpr int FileBegin = 0, FileCurrent = 1, FileEnd = 2;
     patch_device_defaults(files)
     patch_device_state(files)
     bc_provenance=prepare_bc(root,files)
+    # The same logical source header is present in core and full-engine views.
+    # pragma once alone only identifies a physical path; stable guards ensure
+    # one class/function definition when a real engine header joins the driver.
+    for name,data in list(files.items()):
+        # Full VectorObject.hpp is reconstructed from its animator tail later;
+        # its shared class already has an explicit cross-view ABI guard.
+        if Path(name).suffix in ('.hpp','.h') and name!='VectorObject.hpp':
+            guard='SRHD_MATRIXGAME_SOURCE_HEADER_'+hashlib.sha256(name.encode()).hexdigest()[:16].upper()
+            files[name]=('#ifndef '+guard+'\n#define '+guard+'\n').encode()+data+('\n#endif // '+guard+'\n').encode()
     output.mkdir(parents=True, exist_ok=True)
     for name, data in files.items():
         destination = output / name
