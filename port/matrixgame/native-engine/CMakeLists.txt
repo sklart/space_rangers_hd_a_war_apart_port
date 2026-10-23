@@ -43,6 +43,8 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectPointLight.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/CBillboard.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalVectorAnim.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapGroup.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/OriginalGroupLifecycle.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixDebugInfo.cpp"
@@ -71,6 +73,8 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectPointLight.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/CBillboard.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalVectorAnim.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapGroup.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/OriginalGroupLifecycle.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixDebugInfo.cpp"
@@ -83,11 +87,13 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
 # UBSan vptr metadata would retain RTTI for unported map-object key functions
 # even when their original methods are discarded. The skin callback table also
 # retains callbacks inspecting those real, still-unported object types. The
-# effects factory metadata similarly references unported concrete effects.
+# effects factory metadata similarly references unported concrete effects;
+# group object queries reference the unported static-object/robot RTTI.
 # Do not fabricate RTTI. Keep address and the other undefined-behavior checks.
 set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixLogic.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMap.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSkinManager.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapGroup.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffect.cpp" APPEND PROPERTY COMPILE_OPTIONS
     "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fno-sanitize=vptr>")
 

@@ -1,6 +1,12 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение24.10: [эффекты, billboard и point-light pool](matrixgame-e2e519-effects.md).
+Актуальное продолжение24.10: [группы и оригинальная очистка владельца](matrixgame-e2e519-map-group.md).
+Полный group TU и три exact original cleanup methods подключены. Настоящий
+visibility Release непустых heap arrays исполнен на host и ARM64/QEMU;
+devkitA64 compile/common prefix link PASS. Full map owner LINK FAIL12;
+GroupClear runtime, BuildBottom/BuildWater и CGame::Init NOT RUN.
+
+Предыдущее продолжение24.10: [эффекты, billboard и point-light pool](matrixgame-e2e519-effects.md).
 Полные оригинальные модули и original CVectorObjectAnim подключены к общей
 цепочке. Реальные staging allocation/reuse/ClearEffects и line geometry
 исполнены на host и ARM64/QEMU; devkitA64 compile/link PASS. Full map owner

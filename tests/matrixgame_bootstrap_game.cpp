@@ -78,6 +78,20 @@ static void VerifyOriginalEffectResources() {
     }
     std::puts("original effects CreatePoolDefaultResources/ClearEffects with billboard staging and real point-light pool reuse/release; original billboard line XYZ/color/UV EXECUTED; effect map Init/Draw NOT EXECUTED");
 }
+static void VerifyOriginalGroupVisibility() {
+    SGroupVisibility visibility{};visibility.z_from=7.5f;
+    for(int cycle=0;cycle<2;++cycle) {
+        visibility.vis=static_cast<PCMatrixMapGroup*>(HAllocClear(3*sizeof(PCMatrixMapGroup),g_MatrixHeap));
+        visibility.vis_cnt=3;
+        visibility.levels=static_cast<int*>(HAlloc(2*sizeof(int),g_MatrixHeap));
+        visibility.levels_cnt=2;visibility.levels[0]=4;visibility.levels[1]=9;
+        visibility.Release();visibility.Release();
+        assert(!visibility.vis && !visibility.levels && !visibility.vis_cnt && !visibility.levels_cnt);
+        assert(visibility.z_from==7.5f);
+    }
+    assert(!g_MatrixMap);
+    std::puts("original SGroupVisibility Release real heap arrays/repeated cleanup/reentry EXECUTED; no map or terrain group fabricated");
+}
 static void VerifyOriginalPickViewport() {
     const int old_x=g_ScreenX,old_y=g_ScreenY;
     struct Restore {int x,y;~Restore(){g_ScreenX=x;g_ScreenY=y;}} restore{old_x,old_y};
@@ -658,6 +672,7 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
     assert(rejected && !runtime.GameDefaultsReady() && g_Config.m_Cursors==foreign && foreign->key==L"existing cursor");
     ClearOriginalGameDefaults();
     runtime.InitializeGameDefaults();
+    VerifyOriginalGroupVisibility();
     VerifyOriginalEffectResources();
     if(!runtime.GpuReady()) {
         CSkinManager::StaticInit();
