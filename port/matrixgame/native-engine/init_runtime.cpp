@@ -7,6 +7,7 @@
 #include "MatrixCursor.hpp"
 #include "MatrixGame.h"
 #include "MatrixConfig.hpp"
+#include "MatrixLoadProgress.hpp"
 #include "3g.hpp"
 #include <stdexcept>
 Base::CHeap* g_MatrixHeap;
@@ -78,6 +79,7 @@ void NativeInitRuntime::LeaveLegacyDll() {
     if(platform3g::Current().ready)throw platform3g::Unsupported("legacy deinit cannot detach a foreign platform owner");
 }
 void NativeInitRuntime::Deinit() noexcept {
+    FinishLoadProgress();
     if(game_defaults_){ClearOriginalGameDefaults();game_defaults_=false;}
     if(cpu_owned_){DetachDevice();L3GDeinitCpuPhase();g_Sampler.m_AFDegree=0;cpu_owned_=false;}
     if(matrix_data_) {
@@ -97,6 +99,13 @@ void NativeInitRuntime::InitializeCursor() {
     if(cursor_)throw std::logic_error("cursor already owned by this session");
     cursor_=std::make_unique<CMatrixCursor>();
 }
+void NativeInitRuntime::InitializeLoadProgress() {
+    if(active!=this || !CpuReady() || !OriginalStaticsReady())throw std::logic_error("progress requires this initialized CPU owner");
+    if(g_LoadProgress || load_progress_)throw std::logic_error("live load-progress publisher already present");
+    auto progress=std::make_unique<CLoadProgress>();
+    g_LoadProgress=progress.get();load_progress_=std::move(progress);
+}
+void NativeInitRuntime::FinishLoadProgress()noexcept {load_progress_.reset();}
 void NativeInitRuntime::InitializeGameDefaults() {
     if(active!=this || !CpuReady())throw platform3g::Unsupported("original config defaults require this live CPU/cache owner");
     if(game_defaults_)throw std::logic_error("game defaults already initialized by this owner");

@@ -17,6 +17,7 @@
 #include <type_traits>
 using namespace srhd_awa::matrixgame;
 namespace p=srhd_awa::matrixgame::platform3g;
+extern CLoadProgress* g_LoadProgress; // Actual engine global; keep Windows SDK aliases out of this TU.
 // Original full animator retains its light pointer/count. The accepted native
 // no-light variant remains a separate class, never substituted for this type.
 constexpr auto full_light_extent=(sizeof(void*)+sizeof(int)+alignof(CVectorObjectAnim)-1)/alignof(CVectorObjectAnim)*alignof(CVectorObjectAnim);
@@ -42,6 +43,7 @@ extern void VerifyBootstrapVideo(NativeInitRuntime&,p::Window&,p::Device&,bool);
 extern void VerifyBootstrapTimer(NativeInitRuntime&,p::Window&,p::Device&,bool);
 extern void VerifyBootstrapConfiguration(NativeInitRuntime&,const wchar_t*,bool);
 extern void VerifyBootstrapLegacy(NativeInitRuntime&,void*,p::Window&,p::Device&,bool);
+extern void VerifyBootstrapProgress(NativeInitRuntime&);
 extern void VerifyBootstrapCursor(NativeInitRuntime&,p::Window&,p::Device&,bool);
 struct UnavailableDevice final:p::Device {
     p::DeviceCaps ReadCaps()override{throw p::Unsupported("backend has no verified legacy device caps");}
@@ -99,6 +101,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
             assert(runtime.OriginalStaticsReady() && g_Flags==0);
             std::puts("full original CGame static_init EXECUTED before game heap/cache: stale EXITLOOP cleared, real original static data bound");
             std::puts("CacheInit + L3G CPU prefix EXECUTED");
+            VerifyBootstrapProgress(runtime);
             MaterialTexture stale;
             {
                 NativeSkinLibrary skins(runtime,false);NativeSkinPipeline pipeline(runtime,skins);
@@ -160,7 +163,8 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
                 VerifyBootstrapLegacy(runtime,module,*window,*device,false);
 #endif
             }
-            runtime.Deinit();runtime.Deinit();assert(!runtime.OriginalStaticsReady());cold();
+            runtime.InitializeLoadProgress();assert(g_LoadProgress==runtime.LoadProgress()); // Full owner cleanup also owns this real object.
+            runtime.Deinit();runtime.Deinit();assert(!runtime.OriginalStaticsReady() && !runtime.LoadProgress() && !g_LoadProgress);cold();
             bool expired=false;try{(void)stale.Read();}catch(...){expired=true;}assert(expired);
 #ifdef _WIN32
             assert(IsWindow(hwnd) && GetWindowLongPtrW(hwnd,GWLP_WNDPROC)==original_proc);

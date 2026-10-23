@@ -10,11 +10,68 @@
 #include <cstdio>
 #include <string>
 #include "MatrixGame.h"
+#include "MatrixLoadProgress.hpp"
+#include <vector>
 #include "3g.hpp"
 #ifdef _WIN32
 #include "platform_win32.hpp"
 #endif
 using namespace srhd_awa::matrixgame;
+namespace {
+std::vector<float>* captured_progress{};
+void RecordProgress(float value){assert(captured_progress);captured_progress->push_back(value);}
+void ThrowProgress(float){throw std::runtime_error("progress callback fixture failure");}
+}
+void VerifyBootstrapProgress(NativeInitRuntime& runtime) {
+    assert(!runtime.LoadProgress() && !g_LoadProgress && runtime.OriginalStaticsReady());
+    std::vector<float> values;values.reserve(16);
+    struct Restore {
+        SMGDRangersInterface* iface;std::vector<float>* output;
+        ~Restore(){g_RangersInterface=iface;captured_progress=output;}
+    } restore{g_RangersInterface,captured_progress};
+    captured_progress=&values;SMGDRangersInterface iface{};iface.m_ProgressBar=RecordProgress;
+    g_RangersInterface=&iface;
+    {
+        CLoadProgress foreign;g_LoadProgress=&foreign;
+        bool refused=false;try{runtime.InitializeLoadProgress();}catch(const std::logic_error&){refused=true;}
+        assert(refused && g_LoadProgress==&foreign && !runtime.LoadProgress());
+    }
+    assert(!g_LoadProgress); // Original stack publication is now invalidated on destruction.
+    runtime.InitializeLoadProgress();auto* progress=runtime.LoadProgress();assert(progress && g_LoadProgress==progress);
+    {CLoadProgress unpublished;}
+    assert(g_LoadProgress==progress); // Destroying a different object must preserve the real publisher.
+    bool duplicate=false;try{runtime.InitializeLoadProgress();}catch(const std::logic_error&){duplicate=true;}
+    assert(duplicate && runtime.LoadProgress()==progress && g_LoadProgress==progress);
+    progress->SetCurLP(LP_PRELOADROBOTS);progress->InitCurLP(10);progress->SetCurLPPos(0);assert(values.empty());
+    progress->SetCurLPPos(10);assert(values.size()==1);
+    progress->SetCurLPPos(10);progress->SetCurLPPos(1);assert(values.size()==1);
+    progress->SetCurLP(LP_LOADINGMAP);progress->InitCurLP(10);progress->SetCurLPPos(5);progress->SetCurLPPos(10);
+    progress->SetCurLP(LP_PREPARINGOBJECTS);progress->InitCurLP(10);progress->SetCurLPPos(10);
+    progress->SetCurLP(LP_PREPARININTERFACE);progress->InitCurLP(10);progress->SetCurLPPos(10);
+    assert(values.size()==5 && values.back()==1.f);
+    const float expected[]{70.f/550,220.f/550,370.f/550,520.f/550,1.f};
+    for(std::size_t i=0;i<values.size();++i) {
+        assert(std::isfinite(values[i]) && values[i]>=0 && values[i]<=1);
+        assert(std::fabs(values[i]-expected[i])<=1.f/LPACCURACY);
+        if(i)assert(values[i]>values[i-1]);
+    }
+    runtime.FinishLoadProgress();runtime.FinishLoadProgress();assert(!g_LoadProgress && !runtime.LoadProgress());
+    runtime.InitializeLoadProgress();progress=runtime.LoadProgress();
+    const auto old_count=values.size();g_RangersInterface=nullptr;
+    progress->SetCurLP(LP_PRELOADROBOTS);progress->InitCurLP(10);progress->SetCurLPPos(10);
+    g_RangersInterface=&iface;progress->SetCurLPPos(10);assert(values.size()==old_count);
+    runtime.FinishLoadProgress();
+    iface.m_ProgressBar=ThrowProgress;bool unwound=false;
+    try {
+        CLoadProgress local;g_LoadProgress=&local;
+        local.SetCurLP(LP_PRELOADROBOTS);local.InitCurLP(1);local.SetCurLPPos(1);
+    }catch(const std::runtime_error& e){unwound=std::string(e.what())=="progress callback fixture failure";}
+    assert(unwound && !g_LoadProgress && runtime.CpuReady());
+    iface.m_ProgressBar=RecordProgress;
+    runtime.InitializeLoadProgress();runtime.FinishLoadProgress();
+    assert(!g_LoadProgress && !runtime.LoadProgress());
+    std::puts("full original CLoadProgress TU EXECUTED: actual progress callback fixture, original 70/300/150/30 weights, monotonic/duplicate/null-interface behavior, foreign publisher refusal, stack/error lifetime and reentry PASS; no real Rangers host UI claimed");
+}
 void VerifyBootstrapLegacy(NativeInitRuntime& runtime,void* module,platform3g::Window& window,platform3g::Device& device,bool negotiated) {
     namespace p=platform3g;
     assert(&g_HInst==&p::Current().module && &g_Wnd==&p::Current().window_identity && &g_Flags==&p::Current().flags);
