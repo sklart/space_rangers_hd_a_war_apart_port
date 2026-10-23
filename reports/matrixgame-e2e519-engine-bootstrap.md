@@ -1459,3 +1459,117 @@ build_dirty=true перед commit; embedded Git SHA отсутствует, т�
 зависимостей. **Граница исполнения пока прежняя:** static_init → heap/cache/CPU
 binding → progress/VO/config prefix; полный Init, renderer ctor, map/form/loop
 и бой не исполнены. E2E-5.19 остаётся активным.
+
+## Продолжение 23.10.2026: оригинальный CTextureManaged в общем owner
+
+Implementation: `0670bad8e549edbc684860f34e96f9b28bd73445`, baseline:
+`2e69352f8fa7ccfc1d12ba658882be13c2f5dc70`. Локальный master, без push/fetch.
+[Original-texture evidence](matrixgame-e2e519-original-texture-evidence.json)
+содержит хэши всех 14 методов до/после, runtime-логи, реальную команду relink,
+remaining errors, compiled-input hashes и protected hashes.
+
+В native-cache добавлены **выбранные оригинальные методы** из Texture.cpp и
+ранее inline Texture.hpp: CBaseTexture constructor/destructor/ParseFlags и
+LoadTextureFromFile; CTextureManaged Init/Load/Unload/destructor/Preload,
+CreateLock/LockRect/UnlockRect и два bitmap overloads. Это **не full Texture.cpp
+port**. Используется исходный production USE_DX_MANAGED_TEXTURES branch.
+Обычный default-pool CTexture и полный texture lost/reset path ещё не перенесены.
+
+Constructor/destructor CBaseTexture и ParseFlags сохранены без изменения тела.
+Настоящий исходный `_textures` registry принадлежит тому же модулю. Pixel/mip
+циклы обоих bitmap методов побайтово сохранены (отдельные loop hashes в JSON).
+GPU API обращения заменены типизированной границей; native LockedRect/LevelDesc
+являются значениями, а не поддельными SDK structs. Windows bridge копирует поля
+настоящих SDK значений без предположений об их layout. В full source view
+сохраняются те же адаптированные определения выбранных методов, чтобы при
+последующем переносе не возникала вторая реализация с другой семантикой.
+
+Оригинальный временный texture при to16 PNG-конверсии теперь имеет RAII cleanup:
+при исключении CBitmap/CreateTexture он уничтожается через CCache::Destroy.
+Исходный код оставлял explicit Destroy после потенциально бросающих операций.
+Новый fault path действительно исполнен без SDK, registry после unwind
+возвращается к прежнему размеру. Также добавлены явная ошибка вместо null
+dereference при неудачном decode и освобождение texture при ошибке GetLevelDesc;
+эти положительные/отрицательные SDK ветви пока runtime NOT RUN.
+
+NativeInitRuntime получил отдельный original-texture slot с корректной парой
+HNew/CCache::Destroy. Успешный Init публикуется владельцу только после загрузки;
+при исключении временный оригинальный объект уничтожается. Cleanup выполняется
+до borrowed device/window/cache/heap teardown, Finish и Deinit идемпотентны.
+Begin отказывает при живой чужой оригинальной texture **до** static reset;
+чужой объект и его registry entry сохраняются. Это проверено в том же bootstrap.
+
+**Новая реально исполненная цепочка:** прежний NativeInitRuntime/CPU owner →
+оригинальные CBaseTexture/CTextureManaged constructors → ParseFlags (включая
+Alpha/Trans flags) → Load/Init → оригинальный CFile/CBuf encoded-file read →
+`original texture DecodeTexture: 3G device negotiation not complete`.
+Для to16: оригинальное разрешение PNG → создание настоящего временного
+CTextureManaged → CBitmap::LoadFromPNG → original LoadFromBitmap →
+`original texture CreateTexture: 3G device negotiation not complete`.
+Это явный отказ GPU backend, не фиктивно успешная texture загрузка.
+
+Проверены два retry, отсутствие m_Tex после отказа, missing-file отказ до GPU
+границы, registry 0→1→0, cleanup временной конверсии, отказ Native owner Init без
+оставшегося slot/registry entry, repeated Finish/Deinit, foreign-object refusal
+и два общих sessions. Pixel conversion loops, Lock/Unlock/Preload и создание
+настоящего SDK resource на host/QEMU не исполнялись.
+
+Windows backend использует реальные CreateTexture/GetLevelDesc/LockRect/
+UnlockRect/PreLoad/Release и настоящий borrowed SDK device. Encoded загрузка
+применяет уже существующие TextureAsset Decode/PrepareMips и настоящую загрузку
+в SDK texture, включая RGBA→BGRA packing и BC1/2/3 payloads. **D3DX/GPU pixel/mip
+parity не подтверждена.** В существующий Windows bootstrap добавлены actual
+resource description/retention и 16-bit pixel readback, cleanup и reentry;
+проверки компилируются, но NOT RUN из-за 33 unresolved полного CGame.
+
+Важно: исходный CTextureManaged создаётся настоящим typed HNew factory и
+принадлежит NativeInitRuntime. Ранее принятый CPU CacheTexture/MaterialTexture
+factory остаётся отдельным контрактом. Он не трактуется как CTextureManaged;
+полная миграция cache factory для map/material clients ещё не выполнена.
+
+| Gate | Подтверждение |
+|---|---|
+| Host ASan/UBSan + leak detection | PASS нового original texture CPU-prefix, registry/ownership/failure cleanup и двух sessions |
+| Linux ARM64/QEMU | PASS той же реально исполненной цепочки |
+| devkitA64 | COMPILE/LINK PASS общего bootstrap, strong undefined=0; SDK texture runtime NOT RUN |
+| Windows x86/x64 | Новые original methods/backend/readback tests компилируются; LINK_BLOCKED 33, новых unresolved нет |
+| Full renderer relink под ASan/UBSan | Две настоящие texture RTTI зависимости сняты; остался только `typeinfo for CMatrixMapObject` |
+| Renderer ctor, map/form/loop/battle, Switch/GPU | NOT EXECUTED / HARDWARE_PENDING |
+
+Для relink использованы реальные test objects общего bootstrap, его библиотеки
+и полный renderer object с теми же sanitizer flags. Точная команда и единственный
+undefined сохранены в evidence. Исходный renderer object повторно не компилировался
+после проверки совпадения effective-source manifest и recipes; ранее созданный
+адресный object audit использован повторно. Запрос повторного audit в уже занятый
+каталог был отклонён инструментом без перезаписи старого evidence. Исполняемый
+артефакт из неудачной relink попытки не получен; новый prototype/target не создан.
+RTTI/vptr проверки не отключались. Тела полного CGame и renderer CPP не менялись.
+
+239 effective engine files, core outputs и реальные bytes всех пяти source views
+сверены. Native cpp/header inputs дополнительно сверены с implementation commit
+с нормализацией лишь CRLF/LF; оба вида hashes сохранены. Effective manifest SHA:
+`66a946a1c515bfd049ab36ae40826dc5271b6b4296e1e6ffaf6afdaa0a1428fc`.
+SDK ELF SHA-256:
+`8429269525641dc7233d5f5454289e3339d147b5349265daa1036994d1bfe2dc`,
+build id `ed53c008c97def9a78f4236a63532ba9d3a4a774`, 4654056 bytes.
+build_dirty=true перед commit; embedded Git SHA отсутствует. Сборки запускались
+только для существующего matrixgame-native-bootstrap; отдельный renderer object
+audit/relink проверял конкретную новую ресурсную зависимость. Общий inventory
+и старые standalone suites не повторялись.
+
+Все 14 protected hashes совпали: пользовательские saves/config/logs, ресурсы,
+архивы аппаратных комплектов и pinned upstream сохранены. Основная NRO не
+пересобиралась и новый NRO не упаковывался.
+
+Следующие три приоритета:
+
+1. Замкнуть оригинальный CMatrixMapObject resource/type closure и исполнить
+   constructor рендера в общем owner: в проверенной relink остался только его RTTI.
+2. Закрывать оставшиеся Windows CGame dependencies, выполнить скомпилированные
+   SDK texture/state readback проверки и согласовать настоящие cache factories.
+3. Согласовать полные Init/static-init/heap/cache/data действия перед настоящим
+   вызовом CGame::Init; карта, form, loop и бой пока не исполняются.
+
+E2E-5.19 остаётся активным. Новая граница исполнения — настоящие managed texture
+методы и чтение/bitmap-prefix до первой неподдержанной GPU операции, с проверенным
+освобождением ресурсов; полного запуска игры ещё нет.

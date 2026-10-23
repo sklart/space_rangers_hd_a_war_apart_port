@@ -13,6 +13,12 @@ effective sources; stale EXITLOOP, отказ при живой чужой фо�
 Callback проверен через RangersInterface fixture; настоящая UI хозяина не запускалась.
 Destructor снимает только собственный g_LoadProgress: проверены stack unwind,
 чужой publisher, cleanup и повторный вход под ASan/UBSan и ARM64/QEMU.
+В общий owner также включены 14 исходных managed texture методов. На host/QEMU
+исполнены настоящий CTextureManaged, ParseFlags, Load/Init, чтение файла и
+bitmap-prefix до DecodeTexture/CreateTexture Unsupported. Registry, временная
+текстура, отказ загрузки, cleanup/reentry проверены. Это selected methods,
+не полная Texture.cpp. При renderer relink две texture RTTI зависимости сняты;
+остаётся CMatrixMapObject. Создание SDK-текстуры и GPU parity ещё NOT RUN.
 Полная оригинальная MatrixGame.cpp перешла COMPILE_FAIL → COMPILE_PASS и входит
 в bootstrap вместо выбранного GameVideoNative.cpp. Host/QEMU вызывают её
 ApplyVideoParams и проверяют отказ первой операции без устройства, cleanup/reentry.
