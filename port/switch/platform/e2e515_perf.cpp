@@ -1,4 +1,9 @@
 #include "e2e515_perf.hpp"
+#include <functional>
+#if defined(__linux__)
+#include <sys/syscall.h>
+#include <unistd.h>
+#endif
 #include "e2e_clock.hpp"
 #include <array>
 #include <atomic>
@@ -11,6 +16,52 @@
 #include <ctime>
 
 namespace srhd_awa::platform::perf515 {
+namespace {
+struct ThreadSlot {
+ std::atomic<std::uint64_t> version{},token{},since{},progress{};
+ std::atomic<const char*> phase{"idle"};
+ std::atomic<unsigned> stage{};
+ std::atomic<bool> native{};
+};
+std::array<ThreadSlot,static_cast<unsigned>(ThreadRole::Count)> thread_slots;
+constexpr const char* thread_names[]{"main","turn","saver","writer"};
+}
+ThreadSnapshot InspectThread(ThreadRole role)noexcept {
+ auto& slot=thread_slots[static_cast<unsigned>(role)];
+ ThreadSnapshot value;
+ for(int retry=0;retry<2;++retry){
+  const auto before=slot.version.load(std::memory_order_acquire);
+  if(before&1)continue;
+  value.phase=slot.phase.load();value.thread_token=slot.token.load();
+  value.since_us=slot.since.load();value.progress=slot.progress.load();
+  value.stage=slot.stage.load();value.native_thread_id=slot.native.load();
+  value.consistent=before==slot.version.load(std::memory_order_acquire);
+  if(value.consistent)return value;
+ }
+ value.consistent=false;return value;
+}
+void MarkThread(ThreadRole role,const char* phase,unsigned stage,std::uint64_t now)noexcept {
+ if(!Mode())return;
+ struct Identity {std::uint64_t value;bool native;};
+ static thread_local const Identity identity=[]()noexcept{
+#if defined(__SWITCH__)
+  u64 id{};if(R_SUCCEEDED(svcGetThreadId(&id,CUR_THREAD_HANDLE)))return Identity{id,true};
+#elif defined(__linux__)
+  return Identity{static_cast<std::uint64_t>(syscall(SYS_gettid)),true};
+#endif
+  return Identity{static_cast<std::uint64_t>(std::hash<std::thread::id>{}(std::this_thread::get_id())),false};
+ }();
+ if(!now)now=e2e_clock::Microseconds();
+ auto& slot=thread_slots[static_cast<unsigned>(role)];
+ slot.version.fetch_add(1,std::memory_order_acq_rel);
+ slot.token.store(identity.value);slot.native.store(identity.native);
+ slot.phase.store(phase);slot.stage.store(stage);slot.since.store(now);slot.progress.fetch_add(1);
+ slot.version.fetch_add(1,std::memory_order_release);
+}
+ThreadScope::ThreadScope(ThreadRole role,const char* phase,unsigned stage)noexcept:role_(role),enabled_(Mode()!=0){
+ if(enabled_){previous_=InspectThread(role);MarkThread(role,phase,stage);}
+}
+ThreadScope::~ThreadScope(){if(enabled_)MarkThread(role_,previous_.consistent?previous_.phase:"returned",previous_.stage);}
 namespace {
 constexpr std::size_t Capacity=8192, PerfLimit=16*1024*1024, LogLimit=8*1024*1024;
 struct Entry {bool log{};char text[640]{};};
@@ -103,6 +154,7 @@ void Writer(std::filesystem::path root) {
   std::array<Entry,16> batch; // Keep below the libnx worker stack budget.
   auto next=Now();
   while(true) {
+    MarkThread(ThreadRole::Writer,"writer-io");
     std::size_t size{};bool done{};
     {std::lock_guard lock(mutex);
       while(count&&size<batch.size()) {batch[size++]=queue[head];head=(head+1)%Capacity;--count;}
@@ -124,6 +176,14 @@ void Writer(std::filesystem::path root) {
       std::snprintf(line,sizeof(line),"mono_us=%llu active=%s active_age_us=%llu last_completed=%s dropped=%llu truncated=%llu perf_failed=%d log_failed=%d capped=%d/%d",
         static_cast<unsigned long long>(now),active.load(),static_cast<unsigned long long>(since&&now>=since?now-since:0),completed.load(),
         static_cast<unsigned long long>(dropped.load()),static_cast<unsigned long long>(truncated.load()),perf.failed,log.failed,perf.capped,log.capped);log.Write(line);
+      for(unsigned role=0;role<static_cast<unsigned>(ThreadRole::Count);++role){
+        const auto state=InspectThread(static_cast<ThreadRole>(role));
+        if(!state.thread_token && state.consistent)continue;
+        std::snprintf(line,sizeof(line),"mono_us=%llu watchdog role=%s thread_token=%llu native_id=%d phase=%s stage=%u age_us=%llu progress=%llu consistent=%d",
+          static_cast<unsigned long long>(now),thread_names[role],static_cast<unsigned long long>(state.thread_token),int(state.native_thread_id),
+          state.phase,state.stage,static_cast<unsigned long long>(now>=state.since_us?now-state.since_us:0),
+          static_cast<unsigned long long>(state.progress),int(state.consistent));log.Write(line);
+      }
 #if defined(__SWITCH__)
       u64 used{},total{},program{};
       const auto ur=svcGetInfo(&used,InfoType_UsedMemorySize,CUR_PROCESS_HANDLE,0);
@@ -140,7 +200,8 @@ void Writer(std::filesystem::path root) {
       next=now+1000000;
     }
     if(!Mode()&&(now>=next||done)){log.Flush();next=now+1000000;}
-    if(done)break;
+    if(done){log.Write("[WATCHDOG] writer queue drained; leaving writer loop; stream close follows");break;}
+    MarkThread(ThreadRole::Writer,"writer-idle");
     if(size==0)e2e_clock::SleepMilliseconds(20);
   }
 }
@@ -183,6 +244,10 @@ void SceneImage(const char* event,int id,std::uint64_t generation,
 void Initialize(const char* root) {
 #if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
   if(running.load())return;
+  for(auto& slot:thread_slots){
+    slot.version.store(0);slot.token.store(0);slot.since.store(0);slot.progress.store(0);
+    slot.phase.store("idle");slot.stage.store(0);slot.native.store(false);
+  }
   image_run=Now();image_sequence.store(0);image_dropped.store(0);
   int value=1;char setting[32]{};
   const auto config=std::filesystem::path(root)/"perf-mode.txt";
@@ -209,7 +274,11 @@ void Initialize(const char* root) {
   (void)root;
 #endif
 }
-void Shutdown(){running.store(false);if(writer.joinable())writer.join();}
+void Shutdown(){
+ ThreadScope stage(ThreadRole::Main,"perf-shutdown-join");
+ AsyncLog("[WATCHDOG] ","shutdown drain/join begin");
+ running.store(false);if(writer.joinable())writer.join();
+}
 void AsyncLog(const char* prefix,const char* message) {
   char line[640]{};const auto n=std::snprintf(line,sizeof(line),"mono_us=%llu %s%s",static_cast<unsigned long long>(Now()),prefix,message);
   if(n<0||static_cast<std::size_t>(n)>=sizeof(line))++truncated;

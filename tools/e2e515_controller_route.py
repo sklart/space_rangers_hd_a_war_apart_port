@@ -23,6 +23,8 @@ def main():
     parser.add_argument('--host-build', type=Path, help='Use an explicitly selected complete host build')
     parser.add_argument('--config-root', type=Path, required=True)
     parser.add_argument('--campaign', action='store_true', help='Continue via native focus, OSK and world generation')
+    parser.add_argument('--intro-hold-seconds', type=float, default=0,
+                        help='Keep the actual generated intro open before Continue (0..60); expose scrolled text before planet transition')
     parser.add_argument('--save', action='store_true', help='After takeoff, save from the original UI using Unicode OSK')
     parser.add_argument('--fail-save-once', action='store_true', help='Refuse the first UI save with a private occupied temp directory, then retry')
     parser.add_argument('--load-save', type=Path, help='Load a copied build fixture in a separate fresh process')
@@ -38,6 +40,8 @@ def main():
     parser.add_argument('--trade-roundtrip', action='store_true', help='After Cancel, buy and sell one unit through the original quantity UI on a copied save')
     parser.add_argument('--interstellar', action='store_true', help='Take off, touch an observed reachable star, issue original jump, advance real turns and resave')
     args = parser.parse_args()
+    if not 0 <= args.intro_hold_seconds <= 60 or (args.intro_hold_seconds and not args.campaign):
+        parser.error('--intro-hold-seconds requires --campaign and a duration between 0 and 60')
     if args.trade_roundtrip:
         args.trade_dialog = True
     if args.interstellar:
@@ -164,13 +168,18 @@ def main():
                     raise
             return last_log
 
-        def manual_committed():
+        def game_messages():
             try:
-                return game_log.exists() and 'E2E5 manual save committed path=' in game_log.read_text(errors='replace')
+                # The Switch-effective performance build routes the same game
+                # messages into the stage log; ########.log remains "Start".
+                return lines() if switch_effective else (game_log.read_text(errors='replace') if game_log.exists() else '')
             except OSError as error:
                 if error.errno != errno.ENODATA:
                     raise
-                return False
+                return ''
+
+        def manual_committed():
+            return 'E2E5 manual save committed path=' in game_messages()
 
         def checkpoints():
             try:
@@ -350,8 +359,8 @@ def main():
                 occupied_temp.mkdir()
                 pulse(1)
                 wait(lambda text: state()[0] != parent_scope and state()[2] > 0 and
-                     game_log.exists() and 'occupied temp is not a readable regular file' in
-                     game_log.read_text(errors='replace'), 'original save error dialog', 90)
+                     'occupied temp is not a readable regular file' in
+                     game_messages(), 'original save error dialog', 90)
                 if manual_committed():
                     raise RuntimeError('Failed save was reported as committed')
                 failed_slots = {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
@@ -477,6 +486,14 @@ def main():
                          'introduction status=continue-enabled' in text[at:], 'real world generation', 180)
                     report['world_generation_complete'] = True
                     if args.scene_cycles: capture(3, 'generation-ready')
+                    if args.intro_hold_seconds:
+                        deadline = time.monotonic() + args.intro_hold_seconds
+                        while time.monotonic() < deadline:
+                            if process.poll() is not None:
+                                raise RuntimeError('Game exited while observing actual scrolling intro')
+                            time.sleep(min(.1, max(0, deadline-time.monotonic())))
+                        report['intro_observation_seconds'] = args.intro_hold_seconds
+                        if args.scene_cycles: capture(3, 'generation-text-visible')
                     select('Ok')
                     at = len(lines())
                     pulse(1)

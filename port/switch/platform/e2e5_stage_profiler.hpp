@@ -140,6 +140,10 @@ public:
             screen_ = current_screen;
         }
         active_ = next;
+#if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
+        perf515::MarkThread(perf515::ThreadRole::Main,domain_,next,
+            static_cast<std::uint64_t>(now.time_since_epoch().count()));
+#endif
         if (now - window_start_ >= std::chrono::seconds(5)) {
             Flush();
             window_start_ = now;

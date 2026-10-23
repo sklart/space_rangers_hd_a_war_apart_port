@@ -2,6 +2,9 @@
 #include "e2e4_save_replace.hpp"
 #include "unicode_path.hpp"
 #include "user_root.hpp"
+#if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
+#include "e2e515_perf.hpp"
+#endif
 
 #include <algorithm>
 #include <array>
@@ -107,45 +110,78 @@ bool SyncFile(const fs::path& path) {
 // returns ENOSYS, leaving an empty destination before any bytes are copied.
 // On POSIX use only byte I/O; exclusive creation retains no-overwrite safety.
 // CopyVerified still flushes and reads back the complete size/CRC afterwards.
+struct CopyFailure {
+    const char* phase{"none"};
+    std::uint64_t copied{};
+};
+
+// Hex preserves the actual native UTF-8 path bytes, including any unexpected
+// separator/control byte. Format only on failure; never reinterpret as ANSI.
+std::string PathBytes(const fs::path& path) {
+    const auto bytes = path.generic_u8string();
+    static constexpr char digits[] = "0123456789abcdef";
+    std::string result;
+    result.reserve(bytes.size() * 2);
+    for (const auto byte : bytes) {
+        const auto value = static_cast<unsigned char>(byte);
+        result.push_back(digits[value >> 4]);
+        result.push_back(digits[value & 15]);
+    }
+    return result;
+}
+
 bool CopyBytesExclusive(const fs::path& from, const fs::path& to,
-                        std::error_code& ec) {
+                        std::error_code& ec, CopyFailure& failure) {
 #ifdef _WIN32
-    return fs::copy_file(from, to, fs::copy_options::none, ec);
+    const bool ok = fs::copy_file(from, to, fs::copy_options::none, ec);
+    if (!ok || ec) failure.phase = "filesystem-copy";
+    return ok;
 #else
     FILE* input = std::fopen(from.c_str(), "rb");
-    if (!input) { ec = {errno, std::generic_category()}; return false; }
+    if (!input) { failure.phase = "source-open"; ec = {errno, std::generic_category()}; return false; }
     const int fd = ::open(to.c_str(), O_WRONLY | O_CREAT | O_EXCL, 0600);
     if (fd < 0) {
+        failure.phase = "destination-create";
         ec = {errno, std::generic_category()};
         std::fclose(input);
         return false;
     }
     FILE* output = fdopen(fd, "wb");
     if (!output) {
+        failure.phase = "destination-fdopen";
         ec = {errno, std::generic_category()};
         ::close(fd);
         std::fclose(input);
         return false;
     }
-    auto failed = [&] {
-        if (!ec) ec = {errno ? errno : EIO, std::generic_category()};
+    auto failed = [&](const char* phase, int saved_errno) {
+        if (!ec) {
+            failure.phase = phase;
+            ec = {saved_errno ? saved_errno : EIO, std::generic_category()};
+        }
     };
     std::array<unsigned char, 32768> buffer{};
     std::uint64_t total{};
     while (!ec) {
+        errno = 0;
         const auto count = std::fread(buffer.data(), 1, buffer.size(), input);
+        const auto read_errno = errno;
+        const bool read_failed = std::ferror(input) != 0;
         if (count) {
             total += count;
-            if (total > kMaxSaveBytes) { ec = {EFBIG, std::generic_category()}; break; }
-            if (std::fwrite(buffer.data(), 1, count, output) != count) { failed(); break; }
+            if (total > kMaxSaveBytes) { failure.phase = "size-limit"; ec = {EFBIG, std::generic_category()}; break; }
+            errno = 0;
+            const auto written = std::fwrite(buffer.data(), 1, count, output);
+            failure.copied += written;
+            if (written != count) { failed("write", errno); break; }
         }
-        if (std::ferror(input)) { failed(); break; }
+        if (read_failed) { failed("read", read_errno); break; }
         if (std::feof(input)) break;
-        if (!count) { ec = {EIO, std::generic_category()}; break; }
+        if (!count) { failed("read-no-progress", EIO); break; }
     }
-    if (std::fflush(output) != 0) failed();
-    if (std::fclose(output) != 0) failed();
-    if (std::fclose(input) != 0) failed();
+    if (std::fflush(output) != 0) failed("flush", errno);
+    if (std::fclose(output) != 0) failed("destination-close", errno);
+    if (std::fclose(input) != 0) failed("source-close", errno);
     return !ec;
 #endif
 }
@@ -153,16 +189,23 @@ bool CopyBytesExclusive(const fs::path& from, const fs::path& to,
 bool CopyVerified(const fs::path& from, const fs::path& to,
                   const Fingerprint& expected, const Fault& fault,
                   const char* operation, std::string& error) {
+#if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
+    perf515::ThreadScope watchdog_copy(perf515::ThreadRole::Saver, operation);
+#endif
     if (FileKind(from) != Kind::regular || FileKind(to) != Kind::missing) {
         error = std::string(operation) + ": unsafe source or occupied destination";
         return false;
     }
     if (!Step(fault, operation)) { error = std::string(operation) + ": injected failure"; return false; }
     std::error_code ec;
-    if (!CopyBytesExclusive(from, to, ec) || ec ||
+    CopyFailure failure;
+    if (!CopyBytesExclusive(from, to, ec, failure) || ec ||
         FileKind(to) != Kind::regular) {
+        if (std::strcmp(failure.phase, "none") == 0) failure.phase = "destination-readback-stat";
         error = std::string(operation) + ": byte copy failed: " + ec.message() +
-                ", errno=" + std::strerror(errno);
+                ", phase=" + failure.phase + ", error_code=" + std::to_string(ec.value()) +
+                ", copied=" + std::to_string(failure.copied) +
+                ", source_utf8_hex=" + PathBytes(from) + ", target_utf8_hex=" + PathBytes(to);
         return false;
     }
     if (!Step(fault, "copy-before-flush") || !SyncFile(to)) {

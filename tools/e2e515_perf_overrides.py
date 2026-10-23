@@ -120,10 +120,31 @@ def apply(name: str, text: str) -> str:
             ('    void TGraphBufGI::BindExternalGraphBuf(GR_GraphBuf::TGraphBufGR* Buffer) {','bind','Buffer','true'),
             ('    void TGraphBufGI::Draw(WindowsSdk::TRect ClipRect) {','draw','GraphBuf','UsesExternalGraphBuf')]:
             once(marker,marker+f'\n        srhd_awa::platform::renderer_platform::SceneCache("{event}",MessageLoop,this,{buffer},SourceHasPerPixelAlpha,{borrowed});')
+    if name=='ThreadCalc.cpp':
+        text='#include "e2e515_perf.hpp"\n'+text
+        once('    void TThreadCalc_Execute(TThreadCalc* Self) {',
+             '    void TThreadCalc_Execute(TThreadCalc* Self) {\n        srhd_awa::platform::perf515::ThreadScope watchdog_turn(srhd_awa::platform::perf515::ThreadRole::Turn,"turn-execute",static_cast<unsigned>(Self->Job));')
+        once('    void WaitForTurnCalculation() {',
+             '    void WaitForTurnCalculation() {\n        srhd_awa::platform::perf515::ThreadScope watchdog_wait(srhd_awa::platform::perf515::ThreadRole::Main,"wait-turn-idle");')
+    if name=='aSaveLoad.cpp':
+        text='#include "e2e515_perf.hpp"\n'+text
+        once('    void TSaver_Execute(TSaver* Self) {',
+             '    void TSaver_Execute(TSaver* Self) {\n        srhd_awa::platform::perf515::ThreadScope watchdog_save(srhd_awa::platform::perf515::ThreadRole::Saver,"save-lock-wait");')
+        start=text.index('    void TSaver_Execute(TSaver* Self) {')
+        end=text.index('    void TSaver::QueueSave(',start)
+        part=text[start:end]
+        marker='        pas::critical_enter(SaveLoadLock);'
+        if part.count(marker)!=1:raise RuntimeError('Saver lock watchdog boundary changed')
+        part=part.replace(marker,marker+'\n        srhd_awa::platform::perf515::MarkThread(srhd_awa::platform::perf515::ThreadRole::Saver,"save-serialize");',1)
+        text=text[:start]+part+text[end:]
     if name=='program.cpp':
         once('    namespace platform = srhd_awa::platform;',
              '    namespace platform = srhd_awa::platform;\n    platform::perf515::Session perf515_session(platform::e2e_stage::kRoot);')
         text=text.replace('        std::_Exit(1);','        platform::perf515::Shutdown();\n        std::_Exit(1);')
+        once('    platform::win32_compat::LogRuntimeStats();\n    if (!platform::e2e_stage::FirstFailure().empty()) {',
+             '    platform::perf515::MarkThread(platform::perf515::ThreadRole::Main,"post-ProgramMain");\n    platform::perf515::AsyncLog("[WATCHDOG] ","ProgramMain returned; checking exit gates");\n    platform::win32_compat::LogRuntimeStats();\n    if (!platform::e2e_stage::FirstFailure().empty()) {')
+        once('    return 0;\n}',
+             '    platform::perf515::MarkThread(platform::perf515::ThreadRole::Main,"main-return");\n    platform::perf515::AsyncLog("[WATCHDOG] ","main returning; perf session destructor next");\n    return 0;\n}')
     if name=='GR_Main.cpp':
         for function in ['AppendLogLineThreadSafe','AppendLogTextThreadSafe','AppendDebugLogLine']:
             marker=f'    void {function}(const pas::AnsiString& Text) {{'

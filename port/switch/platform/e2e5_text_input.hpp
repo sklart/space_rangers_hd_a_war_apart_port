@@ -2,6 +2,7 @@
 #include "runtime_support.hpp"
 #include "controller_text_input.hpp"
 #include "win32_compat_messages.hpp"
+#include "e2e515_perf.hpp"
 #include <cstring>
 #include <vector>
 #if defined(__SWITCH__)
@@ -18,6 +19,9 @@ inline void SetHostBackend(controller_text_input::Backend backend, void* user = 
 inline bool NativeBackend(const controller_text_input::Request& request,
                           std::u16string& value, void*) {
 #if defined(__SWITCH__)
+#if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
+  perf515::ThreadScope keyboard_phase(perf515::ThreadRole::Main,"osk-active");
+#endif
   std::vector<char> initial(request.initial.size() * 3 + 1);
   const auto bytes = utf16_to_utf8(reinterpret_cast<std::uint8_t*>(initial.data()),
       reinterpret_cast<const std::uint16_t*>(request.initial.c_str()), initial.size() - 1);
