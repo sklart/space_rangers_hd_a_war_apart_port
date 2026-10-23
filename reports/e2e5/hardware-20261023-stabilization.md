@@ -4,7 +4,7 @@
 всех дефектов. Главные источники: неизменённые `logs/2026.10.23`, frozen E2E-5.16
 и pinned исходники. Основная NRO/ELF и оба старых ZIP не пересобираются.
 
-Проверенный implementation commit: `be6f63e11ab2c434336502a38496ec7d19e5b0bb`,
+Базовый implementation commit диагностики: `be6f63e11ab2c434336502a38496ec7d19e5b0bb`,
 локальный master, без push/fetch. Команды, source/object hashes, исходы и честные
 границы сохранены в приватном `build/e2e523/evidence.json`. Повторно совпали все
 107 входных файлов аппаратного прогона и 13 доступных защищённых baseline файлов;
@@ -43,9 +43,12 @@ CPU/cache buffer в точном переходе, а не общий новый
 повторяется **на экране планеты**. Это часть исходного дефекта переходов между
 экранами; его нельзя сводить к аркаде или к зависшему последнему кадру.
 
-Выполнен один адресный host-кандидат на локальном
+Предварительная проверка была выполнена на локальном
 `DATA/FormRuins/2RCbg.gi`: исходный Format0 RGB565 1920x1536,
 центрированный crop1920x1080 с top228, выход1280x720.
+**Уточнение:** это одноимённый ресурс из `forms.pkg`, а не фактический источник
+ключа `Bm.FormRuins.2RCbg`. Приведённый ниже Format0 PASS не доказывает исправность
+показанного на Switch фона. Правильный источник установлен далее.
 Оригинальные `TgiGR::DecodeToGraphBuf`, `TGraphBufGR::RescaleRGBA_HW`
 (существующий CPU override), `CreateFromGraphBuf`,
 `TCGiEC::ApplyWideScreenLayoutFixups` и `LoadFromConfigBuffer` прошли проверку.
@@ -72,14 +75,119 @@ packed `9ca6adbf22277927`. Полезная нагрузка выхода1843200
 порядок переходов этим тестом не проверяются. Совпадение host-хэшей не является
 cross-architecture доказательством.
 
-Есть ещё непрояснённое расхождение: локальный извлечённый ресурс имеет5898336
-байт, аппаратный `SourceBuffer->DataSize` перед rescale —5968179 при тех же
-bounds. Это не установленная порча и не доказательство разных ресурсов:
-нужно проследить загрузку/распаковку и фактическое содержимое буфера.
-Нельзя объявлять локальный файл побайтово совпадающим с аппаратным входом.
-Причина повторяющегося текста остаётся **OPEN**; новая очистка framebuffer
-или предположительный lifetime fix не внесены. Frozen NRO/ELF, ZIP,
-пользовательские сохранения и игровые ресурсы не изменялись.
+Расхождение5898336/5968179 **объяснено разрешением ключа**, а не объявлено порчей:
+оригинальный `CFG/CacheData.dat` отображает `Bm/FormRuins/2RCbg` в
+`data\FormRuinsBG\2RCbg.gi`. Это **Format2**, три плоскости, из `background.pkg`,
+ровно5968179 байт. Такой же размер уже присутствует в полном host-запуске
+`e2e523-newsave-candidate`. SHA256 локально извлечённого фактического GI:
+`6de1e1ef78679d017f78fe52b4f02c0f7e51cad71cf41d1d483a4cf9f1030ef3`.
+Хэш самого аппаратного ресурса не прислан: побайтовая идентичность не доказана.
+
+Адресный тест повторён **на фактическом Format2** с независимым Python RLE
+декодером и оригинальными decode/rescale/repack/CacheGI методами. HOST/NATIVE
+PASS: decoded FNV64 `63fb890d7dc66568`, scaled `e36b6f814bc16840`, packed
+`c7abbe2c80d5e0f4`. Своя копия CacheGI сохраняется после освобождения входа.
+Артефакты: `build/e2e523/ruins-format2/result.json`, `ruins-format2.log`.
+
+### Подтверждён отказный путь публикации незаписанного буфера
+
+В pinned `OKGF_Rescale` необходимы четыре calloc (таблицы/веса) и один malloc
+(промежуточные строки). При отказе он освобождает временные блоки и **молча
+возвращается через void ABI, не записав destination**. Оригинальный
+`RescaleWithAspect` затем освобождает источник и принимает незаписанный
+destination с новыми размерами. В resource cache могут попасть остатки прежнего
+содержимого heap, без какой-либо ошибки загрузки ресурса.
+
+Это воспроизведено на фактическом Format2: избирательно отказало каждое из пяти
+выделений **только внутри оригинального rescale.c**. Во всех случаях весь выход
+остался тестовым0xcd, но объект уже имел1280x720 вместо1920x1536.
+`build/e2e523/rescale-failure/result.json` содержит исходные сбои; это отказная
+проверка, а не PASS старой реализации.
+
+В новом кандидате:
+
+- `Ex_OKGF_Rescale` изолирует errno вызова. Required allocation failure ENOMEM
+  из POSIX/newlib становится ошибкой; старый ENOENT/ENOMEM вызывающего кода не
+  используется как результат и восстанавливается даже при исключении.
+- `RescaleWithAspect` при исключении освобождает ещё не принятый destination
+  и освобождает полученные texture locks; **исходные пиксели, размеры и
+  владение не меняются**. Незаписанный результат не доходит до repack/cache.
+- В generic background-ветке `TCGiEC::ApplyWideScreenLayoutFixups` временный
+  `SourceGraph` теперь также имеет scope owner: исключение rescale не оставляет
+  исходный RGBA временный буфер без владельца. Нормальный порядок очистки
+  сохранён; после явного освобождения указатель сбрасывается.
+- Алгоритмы фильтрации, формат GI, ресурсы, RNG и обычная аркада не меняются.
+  Дополнительной очистки framebuffer нет. Автоматический retry/OOM recovery
+  здесь не добавлен: проверен успешный последующий вызов после снятия отказа.
+
+HOST/NATIVE ASan/UBSan/leak-check PASS для действительного generated
+`Ex_OKGF_Rescale` (извлечённого из candidate `GR_Main.cpp`) и original generated
+`GR_GraphBuf.cpp`: обычный вызов и пять отказов с сохранением источника и
+последующим повтором. Результат повтора побайтово тот же, что у нормального
+вызова. Полные результаты: `build/e2e523/rescale-candidate/result.json`.
+Отдельный tracked `test_e2e523_checked_rescale.cpp` проверяет errno и исключения.
+Оба изменённых полных effective units скомпилированы devkitA64:
+`rescale-candidate/sdk-result.json`; **COMPILE PASS, без link/NRO/hardware**.
+
+Граница причинности: аппаратные записи показывают большую malloc arena и
+почти исчерпанный uncommitted tail, но это **не доказывает отказ именно этого
+malloc/calloc**. Большие free_blocks также не доказывают наличие достаточно
+большого непрерывного блока; top_free не является максимальным свободным блоком.
+Новый guard исправляет доказанную ошибку публикации при ENOMEM, однако источник
+именно аппаратного текста пока **OPEN**. Первый PASS использовал NATIVE math;
+frozen Switch использует prepared fast24 COMPATIBLE/PORTABLE_MATH/no-TLS.
+Эта граница дополнительно проверена отдельной host-библиотекой из **самого
+prepared fast24 source** с `COMPATIBLE/PORTABLE_MATH/no-TLS`, точностьGAME24.
+На реальном Format2 оригинальные decode/rescale/repack/CacheGI методы прошли
+сверку с независимым RLE декодером и прямым вызовом того же backend:
+scaled FNV64 `8e98fdb0ba945a29`, packed `3c05d2ffbfc58bac`.
+Это ожидаемо другие хэши, чем NATIVE; равенство разных backend не утверждается.
+Артефакт: `build/e2e523/ruins-format2-compatible/result.json`.
+
+На этом же prepared backend прошла адресная ASan/UBSan/leak regression
+с generated original `Ex_OKGF_Rescale` и `RescaleWithAspect`: нормальный вызов,
+каждый из пяти внутренних отказов, сохранность исходника и эквивалентный повтор.
+Регрессия использует синтетические пиксели и не требует коммерческих ресурсов;
+ресурсный и отказный тесты имеют разные границы. Артефакт:
+`build/e2e523/rescale-portable-regression/result.json`.
+Воспроизводимый tracked runner (Linux/WSL, из корня checkout):
+
+```sh
+python3 tools/e2e523_rescale_failure.py \
+  --library-build build/e2e523/okgf-compatible-host \
+  --rescale-source port/switch/build/e2e-game-perf515/okgf-fast24-source/src/rescale.c \
+  --output build/e2e523/rescale-portable-check
+```
+
+Для allocator instrumentation объект rescale перелинкован с matching скрытыми
+SoftFloat helpers из этой же сборки; алгоритм rescale не переписывался.
+Успешный запуск записан после добавления этих обязательных link dependencies,
+остальные готовые объекты при ремонте link повторно не компилировались.
+Это **HOST PASS на соответствующем backend**, не ARM64 runtime и не Switch PASS.
+Общее происхождение источника и compile PASS не заменяют аппаратной причинности.
+
+После проверки вызывающего слоя расширена **та же адресная regression**:
+`LoadFromConfigBuffer` на фактическом Format2 из `background.pkg` выполняется
+обычно, затем с каждым из пяти внутренних отказов и повтором. При отказе
+входной GI не меняется, Image не публикуется; после повтора пиксели совпадают
+с нормальным cache baseline и остаются после освобождения входного `TBufEC`.
+ASan/UBSan/leak-check PASS включает временный `SourceGraph` вызывающего слоя.
+Артефакт: `build/e2e523/rescale-cache-regression/result.json`.
+Tracked runner поддерживает `--gi` для частного извлечённого ресурса;
+без него создаётся синтетический Format0. Сам коммерческий GI в Git не включён.
+Проверяются прямые оригинальные LoadFromConfigBuffer/ApplyWideScreenLayoutFixups,
+**не** конкурентный глобальный AcquireDataFromConfig и не полноценный UI после
+неудачной загрузки. Это отдельная оставшаяся граница error recovery.
+Дополнительно guard EC_CacheGI материализован через production UI/trace/perf
+шаги и скомпилирован devkitA64: `rescale-cache-regression/sdk-result.json`,
+**COMPILE PASS**, без link/NRO/hardware. Таким образом, проверены три изменённых
+SDK translation units; прежние два объекта при проверке третьего не повторялись.
+
+Frozen NRO/ELF, оба ZIP, пользовательские сохранения и игровые ресурсы
+не изменялись. Новая NRO не создавалась. После проверки повторно совпали все107
+входных аппаратных файлов и13 доступных protected baseline файлов, включая
+старый GPU ZIP; также отдельно совпал frozen основной ZIP.
+Сверка: `build/e2e523/rescale-protected-after.json`. `G:\pack.zip` недоступен.
 
 ## 2. manual-publish: точный аппаратный syscall ещё неизвестен
 

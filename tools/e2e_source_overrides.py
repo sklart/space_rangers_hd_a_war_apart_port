@@ -423,7 +423,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
         return destination
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name not in ('fGameMenu.cpp', 'ab_WorldLine.cpp', 'ThreadCalc.cpp', 'aEFilm.cpp', 'aCalc.cpp', 'fPanelMain.cpp', 'fFilmFile.cpp', 'fGov.cpp', 'fStarMap.cpp', 'EC_File.cpp', 'ab_Global.cpp', 'EC_Cache.cpp', 'EC_CacheBuf.cpp', 'fGalaxy2.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_Edit.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameLoad.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name != "EC_CacheGI.cpp" and source.name not in ('fGameMenu.cpp', 'ab_WorldLine.cpp', 'ThreadCalc.cpp', 'aEFilm.cpp', 'aCalc.cpp', 'fPanelMain.cpp', 'fFilmFile.cpp', 'fGov.cpp', 'fStarMap.cpp', 'EC_File.cpp', 'ab_Global.cpp', 'EC_Cache.cpp', 'EC_CacheBuf.cpp', 'fGalaxy2.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_Edit.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameLoad.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "EC_Cache.cpp":
@@ -2789,7 +2789,42 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
             srhd_awa::platform::e2e_stage::LogE2E3(detail);
         }''', 1)
         text = '#include "e2e_stage.hpp"\n#include <cstdio>\n' + text
+    if source.name == "EC_CacheGI.cpp":
+        generic_source = '''            SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+            RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
+            Delta = SourceGraph->Width;'''
+        text = _replace_exact(text, generic_source, '''            SourceGraph = pas::construct_call<GR_GraphBuf::TGraphBufGR>(GR_GraphBuf::TGraphBufGR_Create, false);
+            pas::ScopeExit e2e_source_graph_owner = [&]() noexcept {
+                pas::free(SourceGraph);
+            };
+            RenderGiBufferToGraphBuf(SourceBuffer, SourceGraph);
+            Delta = SourceGraph->Width;''', 1, source.name)
+        generic_finish = '''            SourceGraph->Clear();
+            pas::free(SourceGraph);
+            LogWideScreenGiRescaleDone();
+        }
+    }'''
+        text = _replace_exact(text, generic_finish, '''            SourceGraph->Clear();
+            pas::free(SourceGraph);
+            SourceGraph = nullptr;
+            LogWideScreenGiRescaleDone();
+        }
+    }''', 1, source.name)
     if source.name == "GR_GraphBuf.cpp":
+        rescale_call = "        GR_Main::Ex_OKGF_Rescale(Dest, Width, Height, DestPitch, EC_Mem::AddPointerOffset(Source, Top * SourcePitch + Left * BytesPerPixel), CropWidth, CropHeight, SourcePitch, BytesPerPixel, Filter);"
+        text = _replace_exact(text, rescale_call, '''        try {
+    ''' + rescale_call + '''
+        } catch (...) {
+            // Commit the replacement only after the resampler has written it.
+            // The original source, dimensions and ownership remain intact.
+            if (UsesTextureStorage && Texture != nullptr)
+                Direct3D9::IDirect3DTexture9_UnlockRect(Texture, 0u);
+            if (UseTexture && BitsPerPixel == 32)
+                Direct3D9::IDirect3DTexture9_UnlockRect(NewTexture, 0u);
+            else
+                EC_Mem::FreeEC(Dest);
+            throw;
+        }''', 1, source.name)
         rgba_start = "    void TGraphBufGR::AllocateRgbaTight(std::int32_t Width, std::int32_t Height) {"
         if text.count(rgba_start) != 1:
             raise RuntimeError("RGBA allocation boundary changed")
@@ -3006,6 +3041,24 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
             aGalaxy::Galaxy->CheckIntegrityChecksumAndSetStatus(555);
         }''', 1)
     if source.name == "GR_Main.cpp":
+        old_rescale = '''        try {
+            GR_Main::OKGF_Rescale(Dest, Width, Height, DestPitch, Source, SourceWidth, SourceHeight, SourcePitch, BytesPerPixel, Filter);
+        } catch (...) {
+            pas::raise(pas::make_exception<pas::Exception>("Error in OKGF_Rescale"_a));
+        }'''
+        text = _replace_exact(text, old_rescale, '''        bool completed = false;
+        try {
+            completed = srhd_awa::platform::checked_rescale::Invoke([&] {
+                GR_Main::OKGF_Rescale(Dest, Width, Height, DestPitch, Source, SourceWidth, SourceHeight, SourcePitch, BytesPerPixel, Filter);
+            });
+        } catch (...) {
+            pas::raise(pas::make_exception<pas::Exception>("Error in OKGF_Rescale"_a));
+        }
+        if (!completed) {
+            srhd_awa::platform::e2e_stage::Log("FAIL stage=ui-background-rescale reason=allocation-failed");
+            pas::raise(pas::make_exception<pas::Exception>("Insufficient memory in OKGF_Rescale"_a));
+        }''', 1, source.name)
+        text = '#include "e2e5_checked_rescale.hpp"\n' + text
         text = '#include "e2e5_cfg_bootstrap.hpp"\n#include "e2e3_generation_state.hpp"\n' + text
         finalize_buffers = "        GR_Main::FreeScreenRenderBuffers();\n        WideCaseTable = nullptr;"
         if text.count(finalize_buffers) != 1:
