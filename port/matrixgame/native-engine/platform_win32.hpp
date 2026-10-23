@@ -49,6 +49,9 @@ public:
     bool TextureBound(std::uint32_t)override;
     DeviceResult SetTextureStageState(std::uint32_t,TextureStageRegister,std::uint32_t)override;
     std::uint32_t ReadTextureStageState(std::uint32_t,TextureStageRegister)override;
+    DeviceResult SetFixedVertexLayout(std::uint32_t)override;
+    DeviceResult BindBorrowedTexture(std::uint32_t,void*)override;
+    DeviceResult SetTextureMatrix(std::uint32_t,const WorldMatrix&)override;
     DeviceResult GetRenderState(StoredRenderRegister,std::uint32_t*)override;
     DeviceResult SetRenderState(StoredRenderRegister,std::uint32_t)override;
     DeviceResult GetSamplerState(std::uint32_t,StoredSamplerRegister,std::uint32_t*)override;

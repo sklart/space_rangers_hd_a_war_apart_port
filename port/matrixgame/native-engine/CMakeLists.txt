@@ -41,7 +41,8 @@ add_library(matrixgame-native-cache STATIC
 target_link_libraries(matrixgame-native-cache PUBLIC matrixgame-native-vector-object)
 # Compile the complete original CGame TU; link only the original methods whose
 # dependencies are actually closed. This is not a full-engine link claim.
-set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp" APPEND PROPERTY COMPILE_OPTIONS
+set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixRenderPipeline.cpp" APPEND PROPERTY COMPILE_OPTIONS
     "$<$<CXX_COMPILER_ID:MSVC>:/Gy>" "$<$<CXX_COMPILER_ID:MSVC>:/Gw>"
     "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-ffunction-sections>"
     "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fdata-sections>")
@@ -53,7 +54,11 @@ target_include_directories(matrixgame-native-cache BEFORE PUBLIC
     "${ENGINE_SOURCE}/MatrixLib/3G" "${ENGINE_SOURCE}/MatrixLib/Base"
     "${ENGINE_SOURCE}/MatrixLib/Bitmap" "${ENGINE_SOURCE}/MatrixGame/src")
 if(WIN32)
-    target_sources(matrixgame-native-cache PRIVATE platform_win32.cpp)
+    # The complete original renderer closes the Windows CGame ctor/dtor refs.
+    # Host/ARM full-TU compile is audited below; ASan/UBSan execution still needs
+    # the original texture/map-object RTTI closure. Never disable vptr checks.
+    target_sources(matrixgame-native-cache PRIVATE platform_win32.cpp
+        "${ENGINE_SOURCE}/MatrixGame/src/MatrixRenderPipeline.cpp")
     target_link_libraries(matrixgame-native-cache PUBLIC d3d9 user32 winmm)
 endif()
 if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)

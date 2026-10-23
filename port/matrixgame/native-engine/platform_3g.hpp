@@ -8,6 +8,7 @@
 #include "../deko/sampler_state.hpp"
 #include "../deko/raster_state.hpp"
 #include "video_types.hpp"
+namespace srhd_awa::matrixgame::buffers {class VertexBuffer;class IndexBuffer;}
 namespace srhd_awa::matrixgame::platform3g {
 struct Unsupported:std::runtime_error {using std::runtime_error::runtime_error;};
 // Only facts actually supplied by a backend. No D3DCAPS9 impersonation or
@@ -15,6 +16,7 @@ struct Unsupported:std::runtime_error {using std::runtime_error::runtime_error;}
 struct DeviceCaps {
     bool calibrate_gamma{};
     std::uint32_t max_texture_stages{},max_anisotropy{},swapchain_count{};
+    std::uint32_t max_simultaneous_textures{}; // Distinct SDK cap; not MaxTextureBlendStages.
 };
 struct GammaRamp {std::array<std::uint16_t,256> red{},green{},blue{};};
 struct LegacyDeviceHandles {std::uintptr_t api{},device{};};
@@ -69,6 +71,12 @@ public:
     virtual bool TextureBound(std::uint32_t){throw Unsupported("backend texture query unsupported");}
     virtual DeviceResult SetTextureStageState(std::uint32_t,TextureStageRegister,std::uint32_t){throw Unsupported("backend texture-stage state unsupported");}
     virtual std::uint32_t ReadTextureStageState(std::uint32_t,TextureStageRegister){throw Unsupported("backend texture-stage query unsupported");}
+    virtual DeviceResult SetFixedVertexLayout(std::uint32_t){throw Unsupported("backend fixed vertex layout unsupported");}
+    virtual DeviceResult BindBorrowedTexture(std::uint32_t,void*){throw Unsupported("backend borrowed texture binding unsupported");}
+    virtual DeviceResult SetTextureMatrix(std::uint32_t,const WorldMatrix&){throw Unsupported("backend texture transform unsupported");}
+    // CPU staging resources are never reinterpreted as COM/GPU buffers.
+    virtual DeviceResult BindStagingVertex(std::uint32_t,buffers::VertexBuffer*,std::uint32_t,std::uint32_t){throw Unsupported("renderer staging vertex upload/binding unsupported");}
+    virtual DeviceResult BindStagingIndex(buffers::IndexBuffer*){throw Unsupported("renderer staging index upload/binding unsupported");}
 };
 enum class Visibility {Maximized,Restored,Minimized,Normal};
 struct CursorHandle {std::uintptr_t value{};bool operator==(const CursorHandle&)const=default;};

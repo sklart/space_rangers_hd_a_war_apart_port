@@ -6,6 +6,8 @@
 #include "platform_win32.hpp"
 #include <cstdio>
 #include <cassert>
+#include <array>
+#include <cstring>
 namespace p=srhd_awa::matrixgame::platform3g;
 static_assert(static_cast<unsigned>(p::PixelFormat::Argb8)==D3DFMT_A8R8G8B8 && static_cast<unsigned>(p::PixelFormat::Xrgb8)==D3DFMT_X8R8G8B8);
 static_assert(static_cast<unsigned>(p::PixelFormat::Rgb565)==D3DFMT_R5G6B5 && static_cast<unsigned>(p::PixelFormat::Depth16)==D3DFMT_D16);
@@ -31,6 +33,45 @@ int RunWindowsBootstrap(int argc,char**argv,int(*run)(int,char**,void*,p::Window
     struct TextureOwner {IDirect3DTexture9*p;~TextureOwner(){p->Release();}} own_texture{texture};
     if(FAILED(raw->SetTexture(0,texture)))return 77; // Real borrowed binding must survive native ClearTexture/Deinit.
     p::Win32Window window(hwnd);p::D3D9Device device(raw);
+    D3DCAPS9 direct_caps{};assert(SUCCEEDED(raw->GetDeviceCaps(&direct_caps)));
+    const auto actual_caps=device.ReadCaps();
+    assert(actual_caps.max_simultaneous_textures==direct_caps.MaxSimultaneousTextures);
+    assert(actual_caps.max_texture_stages==direct_caps.MaxTextureBlendStages);
+    bool uncaptured_layout=false;try{device.SetFixedVertexLayout(D3DFVF_XYZ);}catch(const p::Unsupported&){uncaptured_layout=true;}
+    assert(uncaptured_layout);
+    constexpr D3DTEXTURESTAGESTATETYPE stage_keys[]{D3DTSS_COLOROP,D3DTSS_COLORARG1,D3DTSS_COLORARG2,
+        D3DTSS_ALPHAOP,D3DTSS_ALPHAARG1,D3DTSS_ALPHAARG2,D3DTSS_TEXCOORDINDEX,D3DTSS_RESULTARG,D3DTSS_TEXTURETRANSFORMFLAGS};
+    constexpr DWORD changed[]{D3DTOP_MODULATE,D3DTA_TEXTURE,D3DTA_CURRENT,D3DTOP_SELECTARG1,
+        D3DTA_DIFFUSE,D3DTA_CURRENT,1,D3DTA_CURRENT,D3DTTFF_COUNT2};
+    DWORD before_stage[std::size(stage_keys)]{},before_fvf{};D3DMATRIX before_matrix{};
+    assert(SUCCEEDED(raw->GetFVF(&before_fvf)) && SUCCEEDED(raw->GetTransform(D3DTS_TEXTURE2,&before_matrix)));
+    for(unsigned key=0;key<std::size(stage_keys);++key)assert(SUCCEEDED(raw->GetTextureStageState(2,stage_keys[key],&before_stage[key])));
+    IDirect3DVertexDeclaration9* before_declaration=nullptr;
+    assert(SUCCEEDED(raw->GetVertexDeclaration(&before_declaration)));
+    struct DeclarationOwner {IDirect3DVertexDeclaration9*p;~DeclarationOwner(){if(p)p->Release();}} own_declaration{before_declaration};
+    for(int cycle=0;cycle<2;++cycle) {
+        auto state=device.CaptureState();assert(device.OutstandingStateLeases()==1);
+        assert(device.SetFixedVertexLayout(D3DFVF_XYZ)==p::DeviceSuccess);
+        assert(device.BindBorrowedTexture(0,nullptr)==p::DeviceSuccess);
+        for(unsigned key=0;key<std::size(stage_keys);++key)
+            assert(device.SetTextureStageState(2,static_cast<p::TextureStageRegister>(stage_keys[key]),changed[key])==p::DeviceSuccess);
+        p::WorldMatrix transform{1,0,0,0,0,1,0,0,0,0,1,0,0.25f,0.5f,0,1};
+        assert(device.SetTextureMatrix(2,transform)==p::DeviceSuccess);
+        D3DMATRIX check{};DWORD fvf{};
+        assert(SUCCEEDED(raw->GetTransform(D3DTS_TEXTURE2,&check)) && std::memcmp(&check,transform.data(),sizeof(check))==0);
+        assert(SUCCEEDED(raw->GetFVF(&fvf)) && fvf==D3DFVF_XYZ);
+        assert(state->Restore()==p::DeviceSuccess);state.reset();assert(device.OutstandingStateLeases()==0);
+        assert(SUCCEEDED(raw->GetFVF(&fvf)) && fvf==before_fvf);
+        assert(SUCCEEDED(raw->GetTransform(D3DTS_TEXTURE2,&check)) && std::memcmp(&check,&before_matrix,sizeof(check))==0);
+        for(unsigned key=0;key<std::size(stage_keys);++key) {
+            DWORD value{};assert(SUCCEEDED(raw->GetTextureStageState(2,stage_keys[key],&value)) && value==before_stage[key]);
+        }
+        IDirect3DVertexDeclaration9* declaration=nullptr;assert(SUCCEEDED(raw->GetVertexDeclaration(&declaration)));
+        assert(declaration==before_declaration);if(declaration)declaration->Release();
+        IDirect3DBaseTexture9* binding=nullptr;assert(SUCCEEDED(raw->GetTexture(0,&binding)));
+        assert(binding==texture);if(binding)binding->Release();
+    }
+    std::puts("real SDK renderer state lease: FVF/declaration, nine stage registers, texture matrices/bindings restored over two entries");
     D3DDEVICE_CREATION_PARAMETERS direct_creation{};
     assert(SUCCEEDED(raw->GetCreationParameters(&direct_creation)));
     const auto creation=device.ReadCreationParameters();

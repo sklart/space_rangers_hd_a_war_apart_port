@@ -103,21 +103,29 @@ struct StateLease final:DeviceStateLease {
     D3DMATRIX world{};
     static constexpr D3DRENDERSTATETYPE render_keys[]{D3DRS_ZENABLE,D3DRS_SHADEMODE,D3DRS_ZWRITEENABLE,D3DRS_ALPHATESTENABLE,
         D3DRS_SRCBLEND,D3DRS_DESTBLEND,D3DRS_CULLMODE,D3DRS_ZFUNC,D3DRS_ALPHAREF,D3DRS_ALPHAFUNC,D3DRS_ALPHABLENDENABLE,
-        D3DRS_LIGHTING,D3DRS_COLORWRITEENABLE,D3DRS_BLENDOP};
+        D3DRS_LIGHTING,D3DRS_COLORWRITEENABLE,D3DRS_BLENDOP,D3DRS_AMBIENT,D3DRS_TEXTUREFACTOR};
     static constexpr D3DSAMPLERSTATETYPE sampler_keys[]{D3DSAMP_ADDRESSU,D3DSAMP_ADDRESSV,D3DSAMP_ADDRESSW,D3DSAMP_MAGFILTER,
         D3DSAMP_MINFILTER,D3DSAMP_MIPFILTER,D3DSAMP_MIPMAPLODBIAS,D3DSAMP_MAXANISOTROPY};
     // The full original TU now owns render/sampler capture and restoration.
     // World, texcoord and COM texture leases were never part of CDeviceState.
     CDeviceState stored;
-    DWORD texcoords[8]{};
+    static constexpr D3DTEXTURESTAGESTATETYPE stage_keys[]{D3DTSS_COLOROP,D3DTSS_COLORARG1,D3DTSS_COLORARG2,
+        D3DTSS_ALPHAOP,D3DTSS_ALPHAARG1,D3DTSS_ALPHAARG2,D3DTSS_TEXCOORDINDEX,D3DTSS_RESULTARG,D3DTSS_TEXTURETRANSFORMFLAGS};
+    DWORD texture_stages[8][std::size(stage_keys)]{};
+    D3DMATRIX texture_matrices[8]{};
+    DWORD fvf{};IDirect3DVertexDeclaration9* declaration{};
     IDirect3DBaseTexture9* textures[8]{};
     StateLease(std::size_t& count,StoredStateBackend& backend):live(count),stored(&backend){}
-    ~StateLease(){for(auto* texture:textures)if(texture)texture->Release();if(block)block->Release();if(counted)--live;}
+    ~StateLease(){for(auto* texture:textures)if(texture)texture->Release();if(declaration)declaration->Release();if(block)block->Release();if(counted)--live;}
     void CaptureContract() {
         CheckDeviceResult(static_cast<DeviceResult>(device->GetTransform(D3DTS_WORLD,&world)),"capture world");
         stored.StoreState(DEVSTATE_RENDERSTATES|DEVSTATE_SAMPLERSTATES);
+        CheckDeviceResult(static_cast<DeviceResult>(device->GetFVF(&fvf)),"capture FVF");
+        CheckDeviceResult(static_cast<DeviceResult>(device->GetVertexDeclaration(&declaration)),"capture vertex declaration lease");
         for(unsigned stage=0;stage<8;++stage) {
-            CheckDeviceResult(static_cast<DeviceResult>(device->GetTextureStageState(stage,D3DTSS_TEXCOORDINDEX,&texcoords[stage])),"capture texcoord");
+            for(unsigned key=0;key<std::size(stage_keys);++key)
+                CheckDeviceResult(static_cast<DeviceResult>(device->GetTextureStageState(stage,stage_keys[key],&texture_stages[stage][key])),"capture texture stage");
+            CheckDeviceResult(static_cast<DeviceResult>(device->GetTransform(static_cast<D3DTRANSFORMSTATETYPE>(D3DTS_TEXTURE0+stage),&texture_matrices[stage])),"capture texture matrix");
             CheckDeviceResult(static_cast<DeviceResult>(device->GetTexture(stage,&textures[stage])),"capture texture lease");
         }
     }
@@ -128,11 +136,14 @@ struct StateLease final:DeviceStateLease {
         DeviceResult result=static_cast<DeviceResult>(block->Apply());
         const auto record=[&](HRESULT hr){if(result==DeviceSuccess && hr!=D3D_OK)result=static_cast<DeviceResult>(hr);};
         record(device->SetTransform(D3DTS_WORLD,&world));
+        record(fvf?device->SetFVF(fvf):device->SetVertexDeclaration(declaration));
         try {stored.RestoreState(DEVSTATE_RENDERSTATES|DEVSTATE_SAMPLERSTATES);}
         catch(const DeviceError& error){if(result==DeviceSuccess)result=error.result;}
         catch(...){if(result==DeviceSuccess)result=static_cast<DeviceResult>(D3DERR_INVALIDCALL);}
         for(unsigned stage=0;stage<8;++stage) {
-            record(device->SetTextureStageState(stage,D3DTSS_TEXCOORDINDEX,texcoords[stage]));
+            for(unsigned key=0;key<std::size(stage_keys);++key)
+                record(device->SetTextureStageState(stage,stage_keys[key],texture_stages[stage][key]));
+            record(device->SetTransform(static_cast<D3DTRANSFORMSTATETYPE>(D3DTS_TEXTURE0+stage),&texture_matrices[stage]));
             record(device->SetTexture(stage,textures[stage]));
         }
         return result;
@@ -168,7 +179,22 @@ std::intptr_t Win32Window::DefaultMessage(std::uint32_t m,std::uintptr_t w,std::
 DeviceCaps D3D9Device::ReadCaps() {
     auto& device=DeviceRef(device_);D3DCAPS9 caps{};
     if(FAILED(device.GetDeviceCaps(&caps)))throw std::runtime_error("IDirect3DDevice9::GetDeviceCaps failed");
-    return {bool(caps.Caps2&D3DCAPS2_CANCALIBRATEGAMMA),caps.MaxTextureBlendStages,caps.MaxAnisotropy,device.GetNumberOfSwapChains()};
+    return {bool(caps.Caps2&D3DCAPS2_CANCALIBRATEGAMMA),caps.MaxTextureBlendStages,caps.MaxAnisotropy,device.GetNumberOfSwapChains(),caps.MaxSimultaneousTextures};
+}
+DeviceResult D3D9Device::SetFixedVertexLayout(std::uint32_t layout) {
+    if(!leases_)throw Unsupported("fixed vertex layout requires a captured state lease");
+    return static_cast<DeviceResult>(DeviceRef(device_).SetFVF(layout));
+}
+DeviceResult D3D9Device::BindBorrowedTexture(std::uint32_t stage,void* texture) {
+    RequireStage(stage);if(!leases_)throw Unsupported("texture binding requires a captured state lease");
+    return static_cast<DeviceResult>(DeviceRef(device_).SetTexture(stage,static_cast<IDirect3DTexture9*>(texture)));
+}
+DeviceResult D3D9Device::SetTextureMatrix(std::uint32_t stage,const WorldMatrix& value) {
+    if(!leases_)throw Unsupported("texture matrix requires a captured state lease");
+    if(stage>=8)throw std::out_of_range("texture matrix stage");
+    D3DMATRIX matrix;static_assert(sizeof(matrix)==sizeof(value));
+    std::memcpy(&matrix,value.data(),sizeof(matrix));
+    return static_cast<DeviceResult>(DeviceRef(device_).SetTransform(static_cast<D3DTRANSFORMSTATETYPE>(D3DTS_TEXTURE0+stage),&matrix));
 }
 GammaRamp D3D9Device::ReadGamma(std::uint32_t index) {
     auto& device=DeviceRef(device_);
@@ -235,11 +261,11 @@ bool D3D9Device::TextureBound(std::uint32_t stage) {
     const bool bound=texture!=nullptr;if(texture)texture->Release();return bound;
 }
 DeviceResult D3D9Device::SetTextureStageState(std::uint32_t stage,TextureStageRegister type,std::uint32_t value) {
-    RequireStage(stage);if(type!=TextureStageRegister::TexcoordIndex)throw Unsupported("uncaptured texture-stage register");
+    RequireStage(stage);RequireRegister(static_cast<D3DTEXTURESTAGESTATETYPE>(type),StateLease::stage_keys);
     return static_cast<DeviceResult>(DeviceRef(device_).SetTextureStageState(stage,static_cast<D3DTEXTURESTAGESTATETYPE>(type),value));
 }
 std::uint32_t D3D9Device::ReadTextureStageState(std::uint32_t stage,TextureStageRegister type) {
-    RequireStage(stage);if(type!=TextureStageRegister::TexcoordIndex)throw Unsupported("uncaptured texture-stage register");
+    RequireStage(stage);RequireRegister(static_cast<D3DTEXTURESTAGESTATETYPE>(type),StateLease::stage_keys);
     DWORD value{};CheckDeviceResult(static_cast<DeviceResult>(DeviceRef(device_).GetTextureStageState(stage,static_cast<D3DTEXTURESTAGESTATETYPE>(type),&value)),"GetTextureStageState");return value;
 }
 static_assert(static_cast<unsigned>(RasterRegister::ShadeMode)==D3DRS_SHADEMODE && static_cast<unsigned>(RasterRegister::CullMode)==D3DRS_CULLMODE && static_cast<unsigned>(RasterRegister::Lighting)==D3DRS_LIGHTING);
