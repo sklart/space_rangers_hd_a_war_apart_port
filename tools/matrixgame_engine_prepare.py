@@ -104,6 +104,8 @@ def prepare_engine(output):
     paths.update(prepare_camera(output))
     from matrixgame_map_logic_overrides import prepare_map_logic
     paths.update(prepare_map_logic(output))
+    from matrixgame_input_overrides import prepare_input
+    paths.update(prepare_input(output))
     result={'schema':1,'source_commit':revision,'scope':'full engine compilation input; runtime/backend not implemented here',
         'files_sha256':paths,'portable_inputs':report['inputs_sha256'],
         'excluded_platform_launcher':'MatrixGameDll.cpp; native entry remains to implement'}

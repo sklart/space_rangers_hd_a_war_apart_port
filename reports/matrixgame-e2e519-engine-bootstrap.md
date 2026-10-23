@@ -1,5 +1,10 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
+Последующее продолжение23.10: [original input и Map dependencies](matrixgame-e2e519-map-input.md).
+Общий bootstrap теперь исполняет original input.cpp с настоящими game defaults;
+host/ARM64 runtime и MSVC/SDK compile/link gates разделены в отчёте. Полная
+MatrixMap.cpp дошла до D3DXPlaneIntersectLine, но карта/CGame::Init ещё NOT RUN.
+
 Актуальное продолжение23.10: [полная MatrixLogic.cpp](matrixgame-e2e519-map-logic.md)
 скомпилирована и включена в общий bootstrap; оригинальный path helper исполнен
 на host/ARM64, SDK ELF скомпонован. Карта и полный CGame::Init ещё не запускаются.

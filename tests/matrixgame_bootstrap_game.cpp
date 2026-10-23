@@ -1,5 +1,6 @@
 // Additional real game dependencies in the same bootstrap; no SDK type mixing.
 #include "init_runtime.hpp"
+#include "input.hpp"
 #include "game_defaults.hpp"
 #include MATRIXGAME_FULL_CONFIG_HEADER
 #include MATRIXGAME_FULL_CAMERA_HEADER
@@ -484,6 +485,17 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
     ClearOriginalGameDefaults();
     runtime.InitializeGameDefaults();
     assert(runtime.GameDefaultsReady() && runtime.GpuReady()==was_gpu && g_MaxFPS==1000);
+    const auto automatic_key=static_cast<uint8_t>(g_Config.m_KeyActions[KA_AUTO]);
+    assert(!Input::isVKeyPressed(automatic_key) && !Input::isKeyPressed(KA_AUTO));
+    Input::onKeyDown(automatic_key);
+    assert(Input::isVKeyPressed(automatic_key) && Input::isKeyPressed(KA_AUTO));
+    Input::onKeyDown(automatic_key); // Original held-state semantics, not a repeat event.
+    assert(Input::isKeyPressed(KA_AUTO));
+    Input::onKeyUp(automatic_key);
+    assert(!Input::isVKeyPressed(automatic_key) && !Input::isKeyPressed(KA_AUTO));
+    assert(VKey2Char(0x41)=='A' && VKey2Char(0x20)==' ' && VKey2Char(0xbf)=='\\');
+    assert(VKey2Char(0xbe)=='.' && VKey2Char(0xc0)=='~' && VKey2Char(0xff)==0);
+    std::puts("full original input.cpp EXECUTED against actual g_Config KA_AUTO; down/held/up and original character mapping PASS");
     assert(!g_Config.m_SoftwareCursor && g_Config.m_ObjTexturesGloss && g_Config.m_LandTexturesGloss);
     assert(g_Config.m_ShowStencilShadows && g_Config.m_ShowProjShadows && g_Config.m_VertexLight);
     assert(g_Config.m_CamParams[CAMERA_STRATEGY].m_CamDistMin==70 && g_Config.m_CamParams[CAMERA_STRATEGY].m_CamDistMax==250);

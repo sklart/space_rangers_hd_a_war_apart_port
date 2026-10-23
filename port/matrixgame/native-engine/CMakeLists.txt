@@ -34,6 +34,7 @@ add_library(matrixgame-native-cache STATIC
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixConfig.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixLogic.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/input.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/GameStaticResources.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixLoadProgress.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixRenderPipeline.cpp"
