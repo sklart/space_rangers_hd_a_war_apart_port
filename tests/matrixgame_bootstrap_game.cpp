@@ -19,6 +19,7 @@
 #include <limits>
 #include "3g.hpp"
 #include "DevConsole.hpp"
+#include "MatrixMap.hpp"
 #include "Texture.hpp"
 #include "legacy_texture_backend.hpp"
 #include "MatrixRenderPipeline.hpp"
@@ -286,6 +287,28 @@ void VerifyBootstrapConfiguration(NativeInitRuntime& runtime,const wchar_t* path
     runtime.LoadGameData(path);auto* data=g_MatrixData;assert(data && data->BlockCount(L"Config")==1);
     bool duplicate=false;try{runtime.LoadGameData(path);}catch(const std::logic_error&){duplicate=true;}
     assert(duplicate && g_MatrixData==data);
+    if(!negotiated) {
+        // Enter the actual base constructor. Never publish it as the derived
+        // CMatrixMapLogic owner; a missing font backend must unwind normally.
+        auto* heap=g_MatrixHeap;auto* cache=g_Cache;
+        for(int attempt=0;attempt<2;++attempt) {
+            bool rejected=false;
+            try {
+                auto* map=HNew(g_MatrixHeap) CMatrixMap();
+                (void)map;
+                // The base destructor is protected by the original engine.
+                // This negative CPU test must never complete construction;
+                // do not invent a derived owner merely to permit deletion.
+                std::terminate();
+            } catch(const platform3g::Unsupported& error) {
+                const std::string message=error.what();
+                rejected=message.starts_with("original debug font Create: ");
+                std::printf("original CMatrixMap constructor ENTERED -> %s; constructor unwind retry=%d\n",error.what(),attempt);
+            }
+            assert(rejected && !g_MatrixMap && g_MatrixHeap==heap && g_Cache==cache && g_MatrixData==data);
+            assert(runtime.CpuReady() && runtime.GameDefaultsReady() && !runtime.GpuReady());
+        }
+    }
     for(int attempt=0;attempt<2;++attempt) {
         bool unsupported=false;
         try{runtime.ReadGameParameters();}

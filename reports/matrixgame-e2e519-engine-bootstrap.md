@@ -1,5 +1,11 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
+Актуальное продолжение23.10: [настоящий CMatrixMap ctor и debug font](matrixgame-e2e519-debug-font.md).
+Прежние три отсутствующих symbols закрыты; общий host/ARM64 bootstrap реально
+входит в конструктор и проверяет unwind/retry при отсутствии font backend.
+SDK ELF LINK PASS; полного создания карты и CGame::Init ещё нет. Нижние записи
+с прежними link blockers сохранены как история, текущая граница — font Create.
+
 Последнее продолжение23.10: [полные Console/Sound dependencies](matrixgame-e2e519-console-sound.md).
 Оригинальные Console ctor/dtor и Sound Init/Clear исполняются в общем bootstrap
 host/ARM64; SDK ELF и MSVC compile gates отдельны. Настоящий map-owner link

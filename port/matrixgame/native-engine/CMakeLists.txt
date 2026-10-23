@@ -27,7 +27,7 @@ target_link_libraries(matrixgame-native-vector-object PUBLIC matrixgame-native-c
 add_library(matrixgame-native-cache STATIC
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/CacheNative.cpp" cache_resources.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/L3GCpuPhase.cpp" init_runtime.cpp cached_frame.cpp
-    "${CMAKE_CURRENT_BINARY_DIR}/core/source/3GPlatformNative.cpp" platform_3g.cpp map_device_backend.cpp
+    "${CMAKE_CURRENT_BINARY_DIR}/core/source/3GPlatformNative.cpp" platform_3g.cpp map_device_backend.cpp debug_font_backend.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/3GDeviceDefaults.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixLib/3G/DeviceState.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/GameDefaultsNative.cpp"
@@ -37,6 +37,8 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMap.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixDebugInfo.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixTransitionLifecycle.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/input.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/GameStaticResources.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixLoadProgress.cpp"
@@ -54,6 +56,8 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMap.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixDebugInfo.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixTransitionLifecycle.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Logic/MatrixRoadNetwork.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixRenderPipeline.cpp" APPEND PROPERTY COMPILE_OPTIONS
     "$<$<CXX_COMPILER_ID:MSVC>:/Gy>" "$<$<CXX_COMPILER_ID:MSVC>:/Gw>"
@@ -83,8 +87,24 @@ target_include_directories(matrixgame-native-cache BEFORE PUBLIC
     "${ENGINE_SOURCE}/MatrixLib/3G" "${ENGINE_SOURCE}/MatrixLib/Base"
     "${ENGINE_SOURCE}/MatrixLib/Bitmap" "${ENGINE_SOURCE}/MatrixGame/src")
 if(WIN32)
+    set(MATRIXGAME_D3DX9_ROOT "" CACHE PATH "Root of the official Microsoft.DXSDK.D3DX package (or legacy SDK)")
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(D3DX9_ARCH x64)
+    else()
+        set(D3DX9_ARCH x86)
+    endif()
+    find_path(MATRIXGAME_D3DX9_INCLUDE d3dx9core.h
+        HINTS "${MATRIXGAME_D3DX9_ROOT}" ENV DXSDK_DIR
+        PATH_SUFFIXES build/native/include Include)
+    find_library(MATRIXGAME_D3DX9_LIBRARY NAMES d3dx9
+        HINTS "${MATRIXGAME_D3DX9_ROOT}" ENV DXSDK_DIR
+        PATH_SUFFIXES "build/native/release/lib/${D3DX9_ARCH}" "Lib/${D3DX9_ARCH}")
+    if(NOT MATRIXGAME_D3DX9_INCLUDE OR NOT MATRIXGAME_D3DX9_LIBRARY)
+        message(FATAL_ERROR "Original debug font requires Microsoft D3DX9 headers/library; set MATRIXGAME_D3DX9_ROOT")
+    endif()
+    target_include_directories(matrixgame-native-cache PRIVATE "${MATRIXGAME_D3DX9_INCLUDE}")
     target_sources(matrixgame-native-cache PRIVATE platform_win32.cpp)
-    target_link_libraries(matrixgame-native-cache PUBLIC d3d9 user32 winmm)
+    target_link_libraries(matrixgame-native-cache PUBLIC d3d9 user32 winmm "${MATRIXGAME_D3DX9_LIBRARY}")
 endif()
 if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
     add_executable(matrixgame-native-bootstrap "${PORT_ROOT}/tests/test_matrixgame_bootstrap.cpp"
@@ -195,6 +215,7 @@ list(FILTER ENGINE_UNITS EXCLUDE REGEX "/MatrixGameDll.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/Logic/MatrixRoadNetwork.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/GameDefaultsNative.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/MatrixCursorLifecycle.cpp$")
+list(FILTER ENGINE_UNITS EXCLUDE REGEX "/MatrixTransitionLifecycle.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/MatrixCameraLifecycle.cpp$")
 # Opt-in full compilation target. Remaining Windows/D3D dependencies must be ported;
 # a successful default core build is not evidence that this target compiled.
