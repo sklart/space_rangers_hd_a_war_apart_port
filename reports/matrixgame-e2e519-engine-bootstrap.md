@@ -1,5 +1,11 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
+Последнее продолжение23.10: [полные Console/Sound dependencies](matrixgame-e2e519-console-sound.md).
+Оригинальные Console ctor/dtor и Sound Init/Clear исполняются в общем bootstrap
+host/ARM64; SDK ELF и MSVC compile gates отдельны. Настоящий map-owner link
+теперь ограничен DebugInfo ctor/dtor и Transition::Clear. Картой/боем это не
+объявляется; Console ASan global redzones исключены с доказательством причины.
+
 Последнее продолжение23.10: [полная MatrixMap и device bridge](matrixgame-e2e519-map-device.md).
 Map TU компилируется на host/ARM64/SDK и включена в общий archive. Настоящий
 ctor/dtor link ещё FAIL: CDevConsole, CMatrixDebugInfo, CTransition, CSound::Init;

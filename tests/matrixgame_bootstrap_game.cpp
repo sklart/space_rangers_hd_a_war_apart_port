@@ -2,6 +2,8 @@
 #include "init_runtime.hpp"
 #include "input.hpp"
 #include "map_device_backend.hpp"
+#include "console_backend.hpp"
+#include "MatrixSoundManager.hpp"
 #include "game_defaults.hpp"
 #include MATRIXGAME_FULL_CONFIG_HEADER
 #include MATRIXGAME_FULL_CAMERA_HEADER
@@ -16,6 +18,7 @@
 #include <vector>
 #include <limits>
 #include "3g.hpp"
+#include "DevConsole.hpp"
 #include "Texture.hpp"
 #include "legacy_texture_backend.hpp"
 #include "MatrixRenderPipeline.hpp"
@@ -486,6 +489,20 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
     ClearOriginalGameDefaults();
     runtime.InitializeGameDefaults();
     assert(runtime.GameDefaultsReady() && runtime.GpuReady()==was_gpu && g_MaxFPS==1000);
+    {
+        // The actual CMatrixMap member type, allocated on its real game heap.
+        // No fake map is installed to run console commands or draw output.
+        auto* console=HNew(g_MatrixHeap) CDevConsole;
+        assert(!console->IsActive());console->SetActive(false);
+        assert(!console->IsActive());HDelete(CDevConsole,console,g_MatrixHeap);
+        if(!g_RangersInterface) {
+            CSound::Init();assert(!CSound::IsSoundPlay(SOUND_ID_EMPTY));
+            CSound::StopPlayAllSounds();CSound::Clear();CSound::Clear();
+            CSound::Init();CSound::Clear();
+            std::puts("full original CSound Init/Clear reentry EXECUTED; original missing-interface predicate false; actual audio NOT AVAILABLE");
+        }
+        std::puts("full original CDevConsole ctor/dtor EXECUTED on game heap; console commands/keyboard/draw NOT EXECUTED");
+    }
     {
         const D3DXVECTOR2 vector{3,4},zero{0,0};
         assert(std::abs(D3DXVec2Length(&vector)-5.0f)<1e-5f && D3DXVec2Length(&zero)==0);

@@ -35,6 +35,8 @@ add_library(matrixgame-native-cache STATIC
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixLogic.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMap.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/input.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/GameStaticResources.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixLoadProgress.cpp"
@@ -50,6 +52,9 @@ target_link_libraries(matrixgame-native-cache PUBLIC matrixgame-native-vector-ob
 set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixLogic.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMap.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Logic/MatrixRoadNetwork.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixRenderPipeline.cpp" APPEND PROPERTY COMPILE_OPTIONS
     "$<$<CXX_COMPILER_ID:MSVC>:/Gy>" "$<$<CXX_COMPILER_ID:MSVC>:/Gw>"
     "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-ffunction-sections>"
@@ -60,6 +65,16 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
 set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixLogic.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMap.cpp" APPEND PROPERTY COMPILE_OPTIONS
     "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fno-sanitize=vptr>")
+
+# GCC ASan registers the original console's global command table even when
+# Keyboard/ShowHelp are unused; that registration roots every command handler
+# and its still-unported map dependencies. Keep the whole TU, all command
+# bodies, Address stack/heap checks and UBSan. Only ASan global redzones for
+# this TU are excluded from the addressed bootstrap, not from the game logic.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_FLAGS MATCHES "-fsanitize=[^ ]*address")
+    set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
+        APPEND PROPERTY COMPILE_OPTIONS "--param=asan-globals=0")
+endif()
 target_link_options(matrixgame-native-cache INTERFACE
     "$<$<CXX_COMPILER_ID:MSVC>:/OPT:REF>"
     "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wl,--gc-sections>")

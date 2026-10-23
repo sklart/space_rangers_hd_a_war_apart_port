@@ -4,11 +4,16 @@
 #include <windows.h>
 #include <d3d9.h>
 #include "platform_win32.hpp"
+#include "console_backend.hpp"
 #include <cstdio>
 #include <cassert>
 #include <array>
 #include <cstring>
 namespace p=srhd_awa::matrixgame::platform3g;
+namespace console_keys=srhd_awa::matrixgame::console;
+static_assert(console_keys::Back==VK_BACK && console_keys::Delete==VK_DELETE && console_keys::Left==VK_LEFT);
+static_assert(console_keys::Right==VK_RIGHT && console_keys::Home==VK_HOME && console_keys::End==VK_END);
+static_assert(console_keys::Return==VK_RETURN && console_keys::Escape==VK_ESCAPE && console_keys::Shift==VK_SHIFT);
 static_assert(static_cast<unsigned>(p::PixelFormat::Argb8)==D3DFMT_A8R8G8B8 && static_cast<unsigned>(p::PixelFormat::Xrgb8)==D3DFMT_X8R8G8B8);
 static_assert(static_cast<unsigned>(p::PixelFormat::Rgb565)==D3DFMT_R5G6B5 && static_cast<unsigned>(p::PixelFormat::Depth16)==D3DFMT_D16);
 static_assert(static_cast<unsigned>(p::PixelFormat::Depth24Stencil8)==D3DFMT_D24S8 && static_cast<unsigned>(p::PixelFormat::Depth24)==D3DFMT_D24X8);

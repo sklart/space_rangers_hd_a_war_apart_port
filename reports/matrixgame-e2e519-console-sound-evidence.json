@@ -1,0 +1,273 @@
+{
+  "date": "2026-10-23",
+  "base_commit": "9c545461e176dcbd9a174515be4dc5f3bbc9bde9",
+  "build_dirty": true,
+  "upstream_pin": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
+  "upstream_clean": true,
+  "compiled_and_generator_source_sha256": {
+    "port/matrixgame/native-engine/console_backend.hpp": "9e9d4243a85de54ece5ab46c2eca8e6ff960ada8855957d1532b5ae3c7ea97a4",
+    "tools/matrixgame_console_overrides.py": "dc09cc296e0b73014f71ef0ed68493c35b5eb62b05b19e34f90435d475d7c491",
+    "tests/matrixgame_bootstrap_game.cpp": "df6825a69ed0f0e1c060b99640e984ebaa1bef6474331a3bfbf380a893f2ea88",
+    "tests/test_matrixgame_bootstrap_win32.cpp": "3b6915e6b7118e1105e0aac86be63dfa8a90656e4904bd6b67664adfec2aa3e4"
+  },
+  "reviewed_configuration_inputs_sha256": {
+    "port/matrixgame/native-engine/CMakeLists.txt": "229612ac24a5a59ea44722c09b175d14d82adb4da701cd36bb36da8039e957bb",
+    "tools/matrixgame_engine_prepare.py": "87eb36f8b8f17ed5c3a102b2f6ca1c5547bca74a86a812b73bf0a3d40a4f414c"
+  },
+  "prepared_sources": {
+    "MatrixGame/src/DevConsole.cpp": "8cc24fce1e2d6f99017c7ea2b1c79320d46fd63437f0f047687b0fe19fbf6ee5",
+    "MatrixGame/src/MatrixSoundManager.cpp": "d935b7ba9f907e88b827cd98f45d6e060c5576640027e84ff8191661aa2fdf25",
+    "MatrixGame/src/Logic/MatrixRoadNetwork.cpp": "37474b280e55f3f86c500343fb85db50b6542ecd47e18d570e7ec82103f1c872"
+  },
+  "verified_effective_source_count": 240,
+  "fresh_prepare_and_cmake_source_views_equal": true,
+  "changed_effective_sources_since_prior_step": [
+    "MatrixGame/src/DevConsole.cpp"
+  ],
+  "source_view_manifests_sha256": {
+    "map-members-source": "3ff6180f3fff9ed03832798dc84f4eeb93e1d38e0338901fd2a5b36889ff91e8",
+    "map-members-production-source": "3ff6180f3fff9ed03832798dc84f4eeb93e1d38e0338901fd2a5b36889ff91e8",
+    "map-members-cmake-check/source": "4c5e4c35896af119f1a6a1956d6844f503e90c15e7b720ead0e466c664e34196"
+  },
+  "results": {
+    "map-members-baseline": {
+      "path": "build\\matrixgame\\e2e519\\map-members-baseline\\result.json",
+      "sha256": "ef0d195022a221947cd5666eb324d9e8140ab22aac8c82004c467912ff2c861d",
+      "result": {
+        "status": "COMPLETE",
+        "scope": "actual objects only; no full link/runtime claim",
+        "units": [
+          {
+            "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/map-device-production-source/MatrixGame/src/DevConsole.cpp",
+            "source_sha256": "246ca3f878357e11e992e618aa9436a3ac5d7a53b724158d8e6575d12d05fb7b",
+            "status": "COMPILE_FAIL",
+            "returncode": 1,
+            "first_error": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/map-device-production-source/MatrixGame/src/DevConsole.cpp:104:27: error: ‘timeGetTime’ was not declared in this scope; did you mean ‘timer_gettime’?",
+            "log": "0.log"
+          },
+          {
+            "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/map-device-production-source/MatrixGame/src/MatrixDebugInfo.cpp",
+            "source_sha256": "1b34061cb4f3376014d41749c9740d5bd825f677d998f5a13061fc406b32e0a8",
+            "status": "COMPILE_FAIL",
+            "returncode": 1,
+            "first_error": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/map-device-production-source/MatrixGame/src/MatrixDebugInfo.cpp:4:10: fatal error: d3dx9core.h: No such file or directory",
+            "log": "1.log"
+          },
+          {
+            "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/map-device-production-source/MatrixGame/src/MatrixSoundManager.cpp",
+            "source_sha256": "d935b7ba9f907e88b827cd98f45d6e060c5576640027e84ff8191661aa2fdf25",
+            "status": "COMPILE_PASS",
+            "returncode": 0,
+            "first_error": "",
+            "log": "2.log",
+            "object_sha256": "338630a953a8cf5934b89b140625e2cac1e7483a8ece757b05656d8cb5d22de5"
+          },
+          {
+            "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/map-device-production-source/MatrixGame/src/MatrixTransition.cpp",
+            "source_sha256": "2fb2bb07e5b91fb90483605f124e78b145cac0667dea230a274e9fa8a39389b0",
+            "status": "COMPILE_FAIL",
+            "returncode": 1,
+            "first_error": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/map-device-production-source/MatrixGame/src/MatrixInstantDraw.hpp:50:5: error: ‘CBaseTexture’ does not name a type",
+            "log": "3.log"
+          }
+        ],
+        "targets": [
+          "matrixgame-native-engine"
+        ],
+        "source_filters": [
+          "/MatrixSoundManager.cpp",
+          "/DevConsole.cpp",
+          "/MatrixDebugInfo.cpp",
+          "/MatrixTransition.cpp"
+        ],
+        "source_view": "build/matrixgame/e2e519/map-device-production-source",
+        "source_manifest_sha256": "c71f74dbd0c52c0c37171779e253c1feaf2a5e0636c1665e3940ce035b29f385",
+        "compile_pass": 1,
+        "compile_fail": 3,
+        "linked": false,
+        "runtime_executed": false,
+        "hardware_executed": false
+      }
+    },
+    "map-members-integration-final": {
+      "path": "build\\matrixgame\\e2e519\\map-members-integration-final\\result.json",
+      "sha256": "783169c64cf048a650e1bdc4258c5ffb95903eb00d779e8893e3fe475384d29a",
+      "result": {
+        "results": [
+          {
+            "platform": "host",
+            "runtime_exit": 0,
+            "console_cycles": 2,
+            "original_sound_reentry_sessions": 2,
+            "actual_audio_available": false,
+            "map_created": false,
+            "cgame_init_called": false,
+            "binary_sha256": "b74dafa90096bf18745823ad30cb4573e38f7652d2f92d9eb04ecf0a0e9b4886",
+            "forced_real_map_owner_link_exit": 1
+          },
+          {
+            "platform": "arm64",
+            "runtime_exit": 0,
+            "console_cycles": 2,
+            "original_sound_reentry_sessions": 2,
+            "actual_audio_available": false,
+            "map_created": false,
+            "cgame_init_called": false,
+            "binary_sha256": "bb704354ae585dc7fe874c4aa175d91bd352cc13a232fafc55272459e9ebb3a7"
+          }
+        ],
+        "game_test_sha256": "df6825a69ed0f0e1c060b99640e984ebaa1bef6474331a3bfbf380a893f2ea88",
+        "console_source_sha256": "8cc24fce1e2d6f99017c7ea2b1c79320d46fd63437f0f047687b0fe19fbf6ee5",
+        "sound_source_sha256": "d935b7ba9f907e88b827cd98f45d6e060c5576640027e84ff8191661aa2fdf25",
+        "hardware": false
+      }
+    },
+    "map-members-sdk": {
+      "path": "build\\matrixgame\\e2e519\\map-members-sdk\\result.json",
+      "sha256": "d4e8dce83c5698b54cf3a99ea8cc3c4442512547328c45a3c81432a26fb0f259",
+      "result": {
+        "status": "SDK_COMPILE_LINK_PASS",
+        "elf_sha256": "f539ba152f753159b347223f5c153c38bc329b32444ecc7b18b747bfb0ee7636",
+        "undefined_strong": [],
+        "console_and_sound_symbols_retained": true,
+        "runtime": false,
+        "hardware": false,
+        "nro": false
+      }
+    },
+    "map-members-msvc": {
+      "path": "build\\matrixgame\\e2e519\\map-members-msvc\\result.json",
+      "sha256": "674455fe63ab5c1b5a5cf4fdee1e4d10dec91a8fe7ae117a749df560c46319a5",
+      "result": {
+        "status": "MSVC_X86_COMPLETE_CONSOLE_AND_REAL_SDK_KEY_CONTRACT_COMPILE_PASS",
+        "runtime": false,
+        "keyboard_delivery": false,
+        "console_obj_sha256": "9ec1c3740a78c8e0a57b45452f44263e27ee05701502a56aa37798a235e2963c",
+        "SDK_key_obj_sha256": "abe5ad3f23c77cf966feeec410b6c2b4d6dec4913c620f93db8e8540cfa506d7"
+      }
+    },
+    "map-members-cmake-check": {
+      "path": "build\\matrixgame\\e2e519\\map-members-cmake-check\\result.json",
+      "sha256": "846b497a26a27f930b6f8b86337755ef3d4b026c66cfda1a55986f5ec199fa4d",
+      "result": {
+        "status": "FRESH_CONFIGURE_GENERATE_PASS",
+        "full_build": false,
+        "console_ASan_global_policy_verified": true,
+        "console_recipes": 2,
+        "sound_recipes": 2,
+        "command": [
+          "cmake",
+          "-S",
+          "port/matrixgame/native-engine",
+          "-B",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/map-members-cmake-check",
+          "-DBUILD_TESTING=OFF",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+          "-DCMAKE_CXX_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer"
+        ]
+      }
+    }
+  },
+  "asan_global_registration_comparison": {
+    "map-members-integration": {
+      "object_sha256": "170c3f387336e30616eb264d8cfefbbc458152413d9a7c36ddb84353cd8535d3",
+      "original_command_table_present": true,
+      "asan_global_registration": true,
+      "asan_reports_present": true,
+      "ubsan_handlers_present": true
+    },
+    "map-members-integration-final": {
+      "object_sha256": "ad8932276a047accc054ce3e7f329116e548c0f7970c877fce4bbea07c712455",
+      "original_command_table_present": true,
+      "asan_global_registration": false,
+      "asan_reports_present": true,
+      "ubsan_handlers_present": true
+    }
+  },
+  "logs_sha256": {
+    "build\\matrixgame\\e2e519\\map-members-baseline\\0.log": "615551933060c854ca63dad3e555af6da19ff3ddcb7391e00d4715b06dbb348b",
+    "build\\matrixgame\\e2e519\\map-members-baseline\\1.log": "7cda5c5f3f8be740460a7593312a34ee1baaa013dce3b6450746f77563042d68",
+    "build\\matrixgame\\e2e519\\map-members-baseline\\2.log": "33a1431f381f123d00f013d607c9a277d734d547816384a98fea8f89befa98cb",
+    "build\\matrixgame\\e2e519\\map-members-baseline\\3.log": "fba2abd63526e1ee85a50b98db83ee92e2a021efe777ae934f272bc1ce261d53",
+    "build\\matrixgame\\e2e519\\map-members-integration-final\\arm64\\archive.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-members-integration-final\\arm64\\console-compile.log": "1fc2d965ff049ef4f63242cc77736801247bf70d914a3a791d4e981ccee1989d",
+    "build\\matrixgame\\e2e519\\map-members-integration-final\\arm64\\game-compile.log": "477f31102a01f3494cc266cb0178e26ab2837626fcfcb855ad7a13aea54707fc",
+    "build\\matrixgame\\e2e519\\map-members-integration-final\\arm64\\link.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-members-integration-final\\arm64\\navigation-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-members-integration-final\\arm64\\runtime.log": "c33b28f1e39f7a8a0a030b8357cf009bca6f8d1177569dd3ffb69261c204c6e6",
+    "build\\matrixgame\\e2e519\\map-members-integration-final\\arm64\\sound-compile.log": "a93ca832419f058ccaf8ddae9a19ef04da954c92d6b18d411e3942e42f0cd7e7",
+    "build\\matrixgame\\e2e519\\map-members-integration-final\\host\\archive.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-members-integration-final\\host\\console-compile.log": "4695510d7720c9c4e49979222849844f4361709754080665378c4215fcb9ec73",
+    "build\\matrixgame\\e2e519\\map-members-integration-final\\host\\game-compile.log": "99628c049c009fe395975aecda1139b3b0f5b6d0cefb2022a8559ae0f1b5b507",
+    "build\\matrixgame\\e2e519\\map-members-integration-final\\host\\link.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-members-integration-final\\host\\map-owner-link.log": "905671dc987d8dd221b7c4ebfb4582e0f9c8f5e8ccf40fab28e4a8ef52b88e81",
+    "build\\matrixgame\\e2e519\\map-members-integration-final\\host\\navigation-compile.log": "1f95066de1035b3d2a8da7514aae4b9007bf44981c189b6bea1717a2bf431af6",
+    "build\\matrixgame\\e2e519\\map-members-integration-final\\host\\runtime.log": "c33b28f1e39f7a8a0a030b8357cf009bca6f8d1177569dd3ffb69261c204c6e6",
+    "build\\matrixgame\\e2e519\\map-members-integration-final\\host\\sound-compile.log": "f76555c3ced8423e5c698899ec1b25ed25e4dcc4e64195430f5bbd7198c7a18d",
+    "build\\matrixgame\\e2e519\\map-members-sdk\\archive.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-members-sdk\\console-compile.log": "8a6224fa68d1b2a742778e0b28a9d7e197959500676ea2efaa116f0b979b7d6b",
+    "build\\matrixgame\\e2e519\\map-members-sdk\\game-compile.log": "07c0c1c5887dda0493776b5d596906dae6571bbd08a762603426097da464dfb8",
+    "build\\matrixgame\\e2e519\\map-members-sdk\\link.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-members-sdk\\navigation-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-members-sdk\\ninja-commands.log": "e76680472bae0ed00a433ca5757d03e4923e3ac39390d07069f9031e8081025b",
+    "build\\matrixgame\\e2e519\\map-members-sdk\\sound-compile.log": "5ec4193b0254969a61835178deca99c1040d97a0d9c82b3f75349a36b09a79b1",
+    "build\\matrixgame\\e2e519\\map-members-sdk\\symbols.log": "c000c9692f71094f4e232601214e92da03ae0514c4c9088908dfa085f4880504",
+    "build\\matrixgame\\e2e519\\map-members-msvc\\compile.log": "5743a5d1e16b6abbbd9861bdcccbcb8eac38728833419f9c19dc1b2ec73f172c",
+    "build\\matrixgame\\e2e519\\map-members-cmake-check\\configure.log": "7ee86048c3177c622321983a902aa7978568f4f6982b347eb35bcdaf503b10c9",
+    "build\\matrixgame\\e2e519\\map-members-integration\\host\\link.log": "988ff519b54b21d9f921e6bb6f3f54662deac48f4611fb2fadcdddfe46fd382a"
+  },
+  "remaining_forced_map_owner_symbols": [
+    "CMatrixDebugInfo::CMatrixDebugInfo()",
+    "CMatrixDebugInfo::~CMatrixDebugInfo()",
+    "CTransition::Clear()"
+  ],
+  "SDK_exact_retained_functions": [
+    "_ZN11CDevConsoleC1Ev",
+    "_ZN11CDevConsoleD1Ev",
+    "_ZN6CSound4InitEv",
+    "_ZN6CSound5ClearEv"
+  ],
+  "build_scope": "Manual addressed recipes and reused accepted map-device archives; CMake fresh configure/generate validates final flags, not full build. Host recompiles console only after failed link; sound/navigation/game objects reused unchanged. ARM/SDK four TUs each; original unchanged driver and dependencies reused. No standalone navigation suite rerun.",
+  "sanitizer_limits": [
+    "GCC Console ASan global redzones/registration excluded; Address stack/heap and UBSan handlers present. Sound globals remain instrumented.",
+    "Previously documented Logic/Map no-vptr exceptions unchanged."
+  ],
+  "proof_limits": {
+    "console_keyboard_commands_draw": "NOT EXECUTED",
+    "actual_audio_callback_available": false,
+    "live_audio_release": "NOT RUN",
+    "map_created": false,
+    "CGame_Init_called": false,
+    "full_map_owner_link": "FAIL on DebugInfo ctor/dtor and Transition::Clear",
+    "new_NRO": false,
+    "hardware": "HARDWARE_PENDING"
+  },
+  "protected": {
+    "checked": {
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\newgame.txt": "edebec1fbe596bfdb856719310372b9bf69ce7989394b86ae13377db847ec65c",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\QuickSave.sav": "84509d9ab5411555c0a361d5616c94aae6ef3a5c00fa81782ea64192b5c7bd73",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Medical Center Autoclave.sav": "d6e238a00e514712ab9eed796c40c39dd1cddc20f7036de1a7b8d25fee34e622",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\hardware-gpu-a224fa4.zip": "1c5cfebb2696bbf6db98bd2cd598956f468ef1ca8183bbf31271148c30103429",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Sol System.sav": "62c35d050b256e13326ce904123c44bad3756deeb66e269dbae2a66b4f903cc0",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-2.vo": "b7cba8a78faf0c8cf32cf942288d2fdb0d5d21b047d0e9abaa212092c11d9ccd",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\reports\\e2e5\\e2e510-artifact-provenance.json": "eaac3d9181b12566492bda774933af6469f2b0b26104bcc83a8d266fee7759ec",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-1.vo": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\CFG.TXT": "6b63a47bba893e4a33c4f92d3aaa19adf3c45c4032da7a302b140e03ab166180",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\mg-merge-host\\core\\texture-request-fixtures\\assets\\plain.png": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\########.log": "fef05715d095d39568aee8d9c121c1cb232a80a84e0c6e2a56712070d2f505b3",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\AutoSave.sav": "739c428d9a7f13e88e7e2fe65d6435dbf297270be35c672020b9fa7d097ac601",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce.zip": "e1a1dec5f410b983d629ae538ad9b4ba063f89a8101af43d27ea00c6ce6a08a4"
+    },
+    "unavailable": [
+      "G:\\pack.zip"
+    ],
+    "frozen_game_artifacts": {
+      "switch/space-rangers-hd-a-war-apart/SpaceRangersHD-perf516.nro": "9f654daab36c71cb51940871d4a93bdcceb09edd7da8dde127ab023bfb21e789",
+      "debug/SpaceRangersHD-perf516.elf": "0ca47fa95e614167da814cf63e1bc19e0bd005e94b34763287d713d5c9989ab5"
+    },
+    "hardware_inputs_checked": 107,
+    "mismatches": []
+  },
+  "main_hardware_defects": "Repeated-text owner, historical two ENOENT phases and full-map freeze exact causes remain OPEN."
+}
