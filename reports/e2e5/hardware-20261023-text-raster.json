@@ -1,0 +1,89 @@
+{
+  "roi": [
+    580,
+    24,
+    630,
+    60
+  ],
+  "source": "scene-40986867502-023.ppm",
+  "selected_opaque_fill_and_outline_pixels": 542,
+  "pairs": [
+    {
+      "target": "scene-40986867502-027.ppm",
+      "opaque_text_pixels_equal": 542,
+      "all_pixels_equal": 1800,
+      "total_pixels": 1800,
+      "target_sha256": "a0465b9dd15fb824c2f7c3ce61926d5e58a809c817ef12d361f7f82685414b51",
+      "stage": {
+        "event": "compose-after",
+        "screen": "34",
+        "generation": "11",
+        "frame": "1",
+        "owner": "0x52ac4cb980",
+        "buffer": "0x52ab95f0c0",
+        "format": "RGB565"
+      }
+    },
+    {
+      "target": "scene-40986867502-031.ppm",
+      "opaque_text_pixels_equal": 542,
+      "all_pixels_equal": 1800,
+      "total_pixels": 1800,
+      "target_sha256": "6580a5b4fe341fa5e8484929c39bda6c127a7391e3399a9d34a25cb8ec2e3df1",
+      "stage": {
+        "event": "compose-after",
+        "screen": "28",
+        "generation": "12",
+        "frame": "1",
+        "owner": "0x52ab9a0880",
+        "buffer": "0x52bc95d800",
+        "format": "RGB565"
+      }
+    },
+    {
+      "target": "scene-40986867502-035.ppm",
+      "opaque_text_pixels_equal": 542,
+      "all_pixels_equal": 1800,
+      "total_pixels": 1800,
+      "target_sha256": "1a759a37dd47618f22f3275a4c568590d084fd402e8ded9a4e14a7e3094b2328",
+      "stage": {
+        "event": "compose-after",
+        "screen": "4",
+        "generation": "13",
+        "frame": "1",
+        "owner": "0x52ab5c4980",
+        "buffer": "0x52bc95d800",
+        "format": "RGB565"
+      }
+    },
+    {
+      "target": "scene-40986867502-036.ppm",
+      "opaque_text_pixels_equal": 542,
+      "all_pixels_equal": 1800,
+      "total_pixels": 1800,
+      "target_sha256": "29e6ce664cc7a969e3354ac603f0b958abdc090986858ea3f59ce87b83d35195",
+      "stage": {
+        "event": "compose-before",
+        "screen": "4",
+        "generation": "13",
+        "frame": "60",
+        "owner": "0x52ab5c4980",
+        "buffer": "0x52bc95d800",
+        "format": "RGB565"
+      }
+    }
+  ],
+  "source_sha256": "0c522c112315ba37e62999adba82e625ef27028af95477b7b03f44850262fd7d",
+  "limit": "Opaque color mask only identifies visible glyph pixels in selected ROI; not full text ownership. No final intro text source snapshot is available. Does not identify causal buffer.",
+  "source_stage": {
+    "event": "compose-after",
+    "screen": "20",
+    "generation": "10",
+    "frame": "1",
+    "owner": "0x52ab5ede20",
+    "buffer": "0x52e42c87e0",
+    "format": "RGB565"
+  },
+  "stage_log_sha256": "760314b3a4cbcdaf7a9dc863fc5ce566fd41ad9232c8ae4f4324c24f0062526c",
+  "causal_buffer_identified": false
+}
