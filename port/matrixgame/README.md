@@ -8,8 +8,12 @@ E2E-5.19: единый bootstrap исполняет оригинальные CMa
 sampler/S3D_Default и полная DeviceState.cpp с восстановлением 207 state values.
 Effect/map buffers используют существующий native staging context; это не GPU upload.
 Полные 3G/Texture/Camera declarations компилируются, SDK compile/link PASS.
-CGame::Init ещё не вызван: первый compile blocker теперь MatrixCursor.hpp:19 HICON;
-ReadParams, карта, presentation/Reset и планетарный бой остаются незавершёнными.
+Новый шаг: исправлен memset живого std::wstring в исходном cursor constructor;
+на Windows настоящие SetCursor/GetCursor подтверждают Clear/detach/reentry restore.
+Отдельный game heap принадлежит тому же owner; host/QEMU проверяют безопасный
+cursor-prefix Unsupported, а не положительную работу системного курсора.
+CGame::Init ещё не вызван: первый compile blocker теперь D3DDISPLAYMODE внутри
+ApplyVideoParams; ReadParams, карта, presentation/Reset и бой остаются незавершёнными.
 GPU/Switch HARDWARE_PENDING; production NRO не менялась.
 [Актуальная граница bootstrap и evidence](../../reports/matrixgame-e2e519-engine-bootstrap.md).
 

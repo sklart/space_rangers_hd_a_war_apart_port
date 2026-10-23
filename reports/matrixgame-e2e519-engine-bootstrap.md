@@ -1,11 +1,13 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение: **в общем owner исполняются оригинальные
-CMatrixConfig::SetDefaults/Clear; effect/map buffers используют существующий
-native staging context, полная camera declaration компилируется**.
-Первая ошибка MatrixGame.cpp теперь `MatrixCursor.hpp:19 HICON`.
-Коммит `72a49dd223457ccf5e298b612beb4042e660e403`, актуальные хэши —
-`matrixgame-e2e519-config-resources-evidence.json`; подробности в последнем разделе.
+Актуальное продолжение: **на Windows выполняется безопасный исходный cursor
+constructor/Clear через настоящий SetCursor/GetCursor, game heap и cursor
+принадлежат общему owner; исходный control flow CGame сохранён**.
+Первая ошибка теперь в ApplyVideoParams: `MatrixGame.cpp:438 D3DDISPLAYMODE`
+(effective source; исходная строка 525).
+Коммит `6e024b8495cd9545361b2d74593c3af0948141a7`, актуальные хэши —
+`matrixgame-e2e519-cursor-lifecycle-evidence.json`; подробности в последнем разделе.
+Config/resources этап (`72a49dd`, config evidence) сохранён ниже как история.
 На Windows выполняются прежние оригинальные DLL/sampler/S3D_Default/DeviceState
 с реальными SDK state calls. Полный CGame::Init ещё не вызван.
 Header-boundary этап (`6c947f2`, header evidence) сохранён ниже как история.
@@ -738,3 +740,110 @@ upstream/gitlink не менялись. Switch/GPU draw — HARDWARE_PENDING, ц
    без смены действующего cache owner и без фиктивных настроек.
 3. Presentation/Reset и обязательные static-init/map зависимости перед реальным
    CGame::Init, затем CFormMatrixGame/RunGameLoop.
+
+## Продолжение: настоящий cursor lifecycle и owned game heap
+
+База: `91fdc120225bb375b36e854c538746d7bb6ff488`.
+Реализация: `6e024b8495cd9545361b2d74593c3af0948141a7`, локальный master,
+без push/fetch. Evidence: `matrixgame-e2e519-cursor-lifecycle-evidence.json`.
+
+### Исполненный код и исправленная ошибка
+
+Исходный constructor MatrixCursor.hpp:33 делал memset всего объекта, включая
+уже созданный std::wstring. В portable overlay все исходные scalar/pointer
+members получают те же нулевые значения явно, string сохраняет корректный
+стандартный lifetime. Затем выполняется исходная операция скрытия системного
+курсора через настоящий Win32 SetCursor(NULL), с сохранением старого handle.
+Полный класс сохранён; добавлен borrowed typed Window pointer для cleanup.
+
+Constructor и исходное полное тело `CMatrixCursor::Clear` (MatrixCursor.cpp:212)
+скомпонованы в MatrixCursorLifecycle.cpp. Clear вызывает Window backend для
+SetCursor/DestroyIcon, сохраняет genuine virtual texture Unload contract и
+освобождение icon array на game heap. Новых фиктивных HICON/HCURSOR typedefs,
+SDK functions или успешных значений не добавлено: native handle values принадлежат
+типизированной границе, Win32 provider реально вызывает SetCursor/GetCursor.
+Icon/texture selection и Draw не исполнены и не объявляются готовыми.
+Это **selected lifecycle TU, не COMPILE_PASS полной MatrixCursor.cpp**.
+
+`NativeInitRuntime` теперь владеет отдельным настоящим CHeap/g_MatrixHeap,
+соответствующим исходному CGame::Init:181; это не alias g_CacheHeap. Game heap
+создаётся до CacheInit и освобождается после cursor/cache/buffer teardown.
+Begin отказывает при чужом существующем game heap, Deinit не удаляет и не
+обнуляет чужой pointer. Это проверено на реальном CHeap object.
+
+InitializeCursor требует живой negotiated Window/Device и исходные config
+defaults, не публикует cursor при отказе constructor/backend и отвергает
+вторую инициализацию в том же owner. Cursor уничтожается до window provider
+при DetachDevice/Deinit. Borrowed Cursor() pointer действителен лишь до detach.
+
+На Windows SDK helper загрузил настоящий shared system arrow и сохранил cursor
+самого caller. Readback подтвердил: constructor скрывает курсор, Clear и второй
+Clear восстанавливают тот же ненулевой handle; detach, reattach и второй полный
+вход корректны. Refusing backend не создаёт объект и не меняет прежний OS handle.
+Перед owner Deinit намеренно оставлен живой cursor: он очищается до heap/window,
+caller HWND/WndProc остаются живы; системный arrow не уничтожается.
+
+На host/QEMU window prefix по-прежнему Unsupported. Проверен именно реальный
+constructor exception/unwind с корректным string lifetime и сохранённым game
+heap, а не имитирован успешный системный курсор. Прежние config/VO/SSkin CPU
+стадии проходят в том же owner. Game heap/cursor не разрешают вызывать весь
+CGame::Init поверх уже созданного cache/heap: prefix ownership ещё требуется
+согласовать при подключении полного Init, двойной инициализации быть не должно.
+
+### Следующий compile barrier теперь внутри video method
+
+Сняты header барьеры cursor/shadow/interface. Реальный CVOShadowProj объявлен
+полностью, SDK-зависимые BeforeRenderAll/Render/RenderCustom bodies перенесены
+в существующий ShadowProj.cpp; исходный CMultiSelection::DrawAll — в его CPP.
+Тела сохранены, **не скомпилированы/не исполнены** как GPU implementation.
+POD RectI заменяет только rectangle value, ZeroTrivialBytes реально обнуляет
+trivially-copyable storage и запрещает обнуление нетривиального объекта.
+Притворных graphics methods здесь нет.
+
+Настоящий CGame Init использует явные pointer→uintptr conversions на прежней
+raw device границе. ShowWindow(SW_SHOWNORMAL)/UpdateWindow подключены к
+реальному typed Window backend, эти provider operations проверены на Windows.
+Полный algorithm/control flow не вырезан. После обратной замены только
+документированных type/includes/memory/window boundary changes получается
+прежний effective CGame cpp SHA
+`0039afb72023870af1543e9a6a006a8c4c60e67a13a28a9d8280cf1e5d77e0d9`.
+Новый SHA `cc776094dce5eea7eac791e5ab8f1a1ecd4b7a04c74d028945a21039a7d91edd`.
+
+Адресный audit теперь впервые проходит эти declarations и останавливается
+в самом `CGame::ApplyVideoParams`: effective MatrixGame.cpp:438:5,
+`D3DDISPLAYMODE was not declared in this scope` (pinned original line 525).
+Далее остаются настоящие creation/display mode, presentation/Reset, viewport,
+material/light и loop-timer/platform contracts; их успех не имитируется.
+
+| Проверка | Фактически подтверждено |
+|---|---|
+| Windows x86 SDK/NULLREF | PASS реального ctor/Clear/window show/update, refusal/no mutation, repeated Clear, detach и два полных reentry; прежний SDK state restore PASS |
+| Host ASan/UBSan + leak detection | PASS CPU/game-heap/constructor rejection/unwind, сохранность чужого heap, config cleanup; positive cursor window backend отсутствует |
+| ARM64/QEMU | PASS того же CPU/Unsupported scope; не Switch runtime |
+| devkitA64 | COMPILE/LINK PASS, undefined strong=0; реальные ctor/Clear/InitializeCursor symbols присутствуют |
+| MatrixGame.cpp | COMPILE_FAIL с новым первым барьером внутри ApplyVideoParams; CGame::Init не вызывался |
+
+Нового standalone executable не создавалось. Общий inventory 106 units и старые
+большие suites не повторялись. Все core outputs и 237 prepared engine files,
+включая audited view, сверены по реальным байтам между четырьмя платформами;
+structured manifests равны, особенности JSON key order сохранены в evidence.
+Generated cursor lifecycle SHA:
+`2cfeaf9acff9fcd93540da5de7d24251c873a1325c196caa8a67c987f12c47d6`.
+SDK ELF SHA: `836a1bde10a07ec29dd8d31dcfd83bd8db29ceec6caa2ce60dcdf2ef6c37f620`.
+Остальные binary/source hashes, команды/логи, build_dirty и SDK build id — в evidence.
+
+Точная новая выполненная стадия: общий game/cache/buffer owner → DLL/window/caps
+→ config defaults и прежние sampler/S3D_Default/DeviceState → **настоящий cursor
+constructor/Clear с OS restore** → owner cleanup/reentry. Полный Init/map/form/loop,
+cursor assets и физический GPU draw остаются невыполненными.
+Все 14 защищённых SHA совпали, saves/resources/main NRO/ELF/ZIP/upstream не
+менялись. Switch — HARDWARE_PENDING, цель активна.
+
+Следующие три приоритета:
+
+1. Typed creation/display/presentation/Reset contract для полного ApplyVideoParams,
+   начиная с подтверждённого D3DDISPLAYMODE, с настоящими provider results.
+2. ReadParams/ApplySettings и реальные cursor/texture/map resources; не считать
+   пустой cursor lifecycle доказательством готовности selection или draw.
+3. Согласовать настоящий CGame::Init с единственным game/cache owner, замкнуть
+   обязательные static-init/map dependencies, затем CFormMatrixGame/RunGameLoop.
