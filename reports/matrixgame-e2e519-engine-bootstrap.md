@@ -1,11 +1,13 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение: **полная оригинальная `DeviceState.cpp` переведена
-из COMPILE_FAIL в COMPILE_PASS и исполняется внутри существующего device owner**.
-Windows SDK readback подтверждает восстановление всех 103 render + 13×8 sampler
-значений после `S3D_Default`, Detach и частичного отказа. Коммит
-`1d5b8c851a6e3d77c32fa604dd545a1054195bf6`, актуальные хэши —
-`matrixgame-e2e519-device-state-evidence.json`; подробности в последнем разделе.
+Актуальное продолжение: **снят SDK include barrier полного `3g.hpp`/`Texture.hpp`;
+настоящая компиляция MatrixGame.cpp дошла до resource declarations эффектов**.
+Первая ошибка теперь `MatrixEffectKonus.hpp:35 D3D_VB`, не `3g.hpp:16 d3d9.h`.
+Коммит `6c947f22e05bc569a0482153a9661c1c6f46aaae`, актуальные хэши —
+`matrixgame-e2e519-header-boundary-evidence.json`; подробности в последнем разделе.
+Исполняемая граница bootstrap сохранена: оригинальные DLL/sampler/S3D_Default/
+DeviceState с реальными Windows state calls; сам CGame::Init ещё не вызван.
+Предыдущий DeviceState этап (`1d5b8c8`, state evidence) сохранён как история.
 Этап S3D_Default (`8fda1d4`, defaults evidence) сохранён ниже как история.
 Предыдущий type-boundary этап (`35ac1ab`) сохранён ниже как история.
 Ранее полная `MatrixSampleStateManager.cpp` переведена из COMPILE_FAIL в PASS
@@ -537,3 +539,91 @@ CDeviceState restore/Deinit/reentry. Полный CGame::Init не запуще�
 2. Обязательные Texture/static_init/map owners и неподдержанные группы
    CDeviceState(ALL), только по реальному call graph, затем настоящий CGame::Init.
 3. CFormMatrixGame/RunGameLoop после исполнения Init и отдельный физический draw.
+
+## Продолжение: 3G/Texture header contract и следующий реальный CGame blocker
+
+База: `72c66d40a04806a7fce14b357336eab143ae0f34`.
+Реализация: `6c947f22e05bc569a0482153a9661c1c6f46aaae`, локальный master,
+без push/fetch. Evidence: `matrixgame-e2e519-header-boundary-evidence.json`.
+
+Прежний первый барьер `3g.hpp:16 d3d9.h` снят. Полный 3g.hpp теперь включает
+полные объявления оригинальных CBaseTexture/CTexture/CTextureManaged и ранее
+перенесённый DeviceState, не импортируя concrete graphics SDK. Поля и хвосты
+классов сохранены. SDK interfaces и struct tags объявлены настоящими opaque
+типами; фиктивных device methods/успешных HRESULT/возможностей GPU нет.
+
+Оба исходных варианта color/alpha operations (`DO_SMART_COLOROPS` и обычный)
+перенесены из inline header в существующий 3g.cpp. В существующий Texture.cpp
+перенесены исходные managed destructor, Preload, CreateLock, LockRect и UnlockRect,
+включая managed/non-managed branches. Native format/pool value identifiers
+преобразуются в SDK enum явно на границе реализации. Сами 3g.cpp/Texture.cpp
+ещё **НЕ COMPILE_PASS и НЕ EXECUTED**: SDK-зависимые тела сохранены для
+продолжения переноса, а не заменены пустыми функциями.
+
+Выявлен риск перегрузки: старый SDK enum формата после изменения объявления
+мог бы выбрать LoadFromBitmap(..., bool), изменив convert_to_16bit. Deleted enum
+overload требует явного переноса такого вызова. C++ concepts в существующем
+bootstrap подтверждают: bool/native format допустимы, старый enum недопустим.
+
+Компиляция полного header вместе с cache/VO обнаружила дубли Cache/Math/Form/
+bitmap declarations в двух generated views. Стабильные guards задают идентичность
+логического исходного header между физическими путями. Для реконструируемого
+VectorObject.hpp сохранён прежний отдельный shared ABI guard. Существующие
+native core cpp bytes при этом не менялись; новые guards относятся к headers.
+
+Дополнительно удалена транзитивная SDK-зависимость ID3DXFont pointer из
+MatrixDebugInfo.hpp, конкретный include остался в MatrixDebugInfo.cpp.
+DWORD/WORD/BYTE fields явно нормализуются в uint32/uint16/uint8 **после** проверки
+pinned algorithm overlays. Проверки исходного navigation SHA не ослаблены.
+Сохранены оригинальные release tracer definitions; его Windows/x86 debug helpers
+ограничены исходной debug/trace конфигурацией. MatrixMapStatic получает явный
+Texture.hpp include для ETexSize. Ни новых эффектов, ни нового draw path нет.
+
+### Что проверено, а что ещё не достигнуто
+
+| Проверка | Фактический результат |
+|---|---|
+| Windows x86 bootstrap | PASS: full 3G/Texture headers совместимы с общими cache/VO/Form types; прежние оригинальные методы исполняются, 207 SDK state values восстановлены, cleanup/reentry успешны |
+| Host ASan/UBSan/leak detection | PASS CPU/Unsupported scope; full headers компилируются, GPU prefix явно unsupported |
+| ARM64/QEMU | PASS того же CPU/Unsupported scope и полного header contract |
+| devkitA64 | COMPILE/LINK PASS, undefined strong=0; без NRO и без hardware runtime |
+| MatrixGame.cpp | По-прежнему COMPILE_FAIL; первая ошибка переместилась в MatrixEffectKonus.hpp:35:12, D3D_VB does not name a type |
+| 3g.cpp / Texture.cpp SDK bodies | NOT COMPILED / NOT EXECUTED; header PASS не означает их готовность |
+
+Это адресное продвижение compile boundary, **не новая выполненная стадия
+CGame::Init**. Наблюдаемая runtime цепочка остаётся прежней: общий Cache/VO/SSkin
+owner → DLL/caps → CDeviceState capture → sampler/S3D_Default → CForm callbacks →
+DeviceState restore/Deinit/reentry. Исходное тело MatrixGame.cpp, включая Init,
+ApplyVideoParams и game loop, совпадает с предыдущим effective cpp SHA:
+`19c1485c608202ff088c4b37a62ca2508ee9b064f655017799e6bae27fae672b`.
+Тело Init не вырезано и не заменено. После первой ошибки следуют настоящие
+resource cleanup macros и camera viewport/projection/matrix dependencies.
+
+Полные legacy texture declarations ещё не означают готовность texture backend:
+эти CTexture/CTextureManaged объекты не создавались. Действующий native cache
+использует ранее проверенный NativeCacheTexture; его интеграцию с настоящими
+потребителями legacy texture API требуется завершить до вызова полного Init.
+
+Сверены реальные байты всех core outputs и 235 prepared engine files на host,
+ARM64, Windows и SDK, а также в source view адресного CGame audit. JSON marker
+SHA может отличаться из-за порядка directory enumeration Windows/WSL:
+полные структурированные объекты manifests равны, все file hashes подтверждены
+чтением файлов. Это не разрешение расхождений по именам.
+Host manifest SHA `c95a3ea86b4f28d14a45ec5d3c72a024ec51de0bb6996ea0edf3941e89660ee1`;
+audit marker SHA `447cb99fdf32a560e24b4c9349f791c2747c4f6dcaaa040ec76879a6d7827af9`.
+SDK ELF SHA `5ce9ef0bbfb740bb52dacdf90d748def2e8a578eac2fa95d77ab2c722ea40bc2`.
+Все binaries/logs/source hashes и ограничения build_dirty находятся в evidence.
+Общий inventory 106 единиц не повторялся, новый общий счёт PASS не заявляется.
+
+Все 14 защищённых SHA совпали. Upstream чист, pin/gitlink прежний; saves/resources,
+production NRO и hardware ZIP не менялись. Switch/GPU draw — HARDWARE_PENDING.
+Ветка master остаётся локальной, цель полного входа в игру активна.
+
+Следующие три приоритета:
+
+1. Resource declarations и исходный buffer cleanup эффектов/карты, начиная с
+   `MatrixEffectKonus.hpp:35 D3D_VB`, только как зависимости настоящего Init.
+2. Camera viewport/projection math и типизированный device presentation/Reset
+   contract, без имитации SDK операций.
+3. Замкнуть реальные texture/map/static-init owners перед CGame::Init, затем
+   CFormMatrixGame/RunGameLoop; не вызывать Init при незавершённых предусловиях.
