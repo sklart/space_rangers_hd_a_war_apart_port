@@ -47,9 +47,13 @@ def patch_math(files, root, body):
     h=h.replace('    inline void UpdateSignBits(void) {', '    inline void UpdateSignBits(void) {\n        dxplane={norm.x,norm.y,norm.z,dist};')
     h=h.replace('    CTrajectory(void) :', '    CTrajectory(const CTrajectory&) = delete;\n    CTrajectory& operator=(const CTrajectory&) = delete;\n    CTrajectory(void) :')
     files['Math3D.hpp']=h.encode()
-    c=files['Math3D.cpp'].decode().replace('#include "3g.hpp"','extern int g_ScreenX, g_ScreenY;').replace('DTRACE();','')
+    c=files['Math3D.cpp'].decode().replace('#include "3g.hpp"','#include "pick_viewport.hpp"').replace('DTRACE();','')
     c=c.replace('memcpy(m_Segments, m_Segments +', 'memmove(m_Segments, m_Segments +')
     c=c.replace('    D3DXMatrixInverse(&m, NULL, &matView);','    if (g_ScreenX <= 0 || g_ScreenY <= 0 || matProj._11 == 0 || matProj._22 == 0 ||\n        !D3DXMatrixInverse(&m, NULL, &matView)) ERROR_E;')
+    signature='void CalcPick(CPoint mp, D3DXMATRIX &matProj, D3DXMATRIX &matView, D3DXVECTOR3 *vpos, D3DXVECTOR3 *vdir) {'
+    if c.count(signature)!=1:raise ValueError('Original CalcPick signature changed')
+    c=c.replace(signature,signature+'\n    const auto viewport=srhd_awa::matrixgame::ReadPickViewport();\n    const int native_screen_x=viewport.width,native_screen_y=viewport.height;')
+    c=c.replace('g_ScreenX','native_screen_x').replace('g_ScreenY','native_screen_y')
     for name in ('Init1','Init2'):
         signature=f'void CTrajectory::{name}(const D3DXVECTOR3 *points, int pcnt)'
         c=c.replace(signature+' {', signature+''' {

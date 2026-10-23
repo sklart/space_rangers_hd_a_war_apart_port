@@ -1,5 +1,11 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
+Актуальное продолжение23.10: [CalcPick viewport ABI](matrixgame-e2e519-viewport.md).
+Подтверждённый runtime failure из-за int/reference screen globals устранён
+единым SDK-free accessor; исходная геометрия проверена в общем host/ARM64
+bootstrap и против сохранённого x86 oracle. SDK ELF LINK PASS; Windows LINK
+FAIL150, прежние два screen symbols исправлены. Full map/CGame::Init не выполнены.
+
 Актуальное продолжение23.10: [Windows original debug font owner](matrixgame-e2e519-font-owner.md).
 Исполнены исходные DebugInfo ctor/T/Takt/lost/reset/dtor после настоящей
 InitAsDLL negotiation; исправлены DrawText macro ABI и shared color-op symbols.

@@ -3,6 +3,8 @@
 #include "input.hpp"
 #include "map_device_backend.hpp"
 #include "console_backend.hpp"
+#include "pick_viewport.hpp"
+#include "CException.hpp"
 #include "MatrixSoundManager.hpp"
 #include "game_defaults.hpp"
 #include MATRIXGAME_FULL_CONFIG_HEADER
@@ -28,6 +30,32 @@
 #endif
 using namespace srhd_awa::matrixgame;
 void VerifyOriginalDebugFontOwner();
+static void VerifyOriginalPickViewport() {
+    const int old_x=g_ScreenX,old_y=g_ScreenY;
+    struct Restore {int x,y;~Restore(){g_ScreenX=x;g_ScreenY=y;}} restore{old_x,old_y};
+    for(const auto size:{std::pair{1280,720},std::pair{1920,1080}}) {
+        g_ScreenX=size.first;g_ScreenY=size.second;
+        const auto actual=ReadPickViewport();assert(actual.width==g_ScreenX && actual.height==g_ScreenY);
+        D3DXMATRIX projection,view;D3DXMatrixIdentity(&projection);D3DXMatrixIdentity(&view);
+        projection._11=2.f;projection._22=3.f;
+        view._41=-10.f;view._42=5.f;view._43=-3.f;
+        D3DXVECTOR3 origin,direction;
+        std::printf("CalcPick actual bootstrap viewport=%dx%d\n",g_ScreenX,g_ScreenY);
+        CalcPick(CPoint(g_ScreenX/2,g_ScreenY/2),projection,view,&origin,&direction);
+        assert(std::fabs(origin.x-10.f)<1e-5f && std::fabs(origin.y+5.f)<1e-5f && std::fabs(origin.z-3.f)<1e-5f);
+        assert(std::fabs(direction.x)<1e-5f && std::fabs(direction.y)<1e-5f && std::fabs(direction.z-1.f)<1e-5f);
+        CalcPick(CPoint(0,0),projection,view,&origin,&direction);
+        const float length=std::sqrt(.25f+1.f/9.f+1.f);
+        assert(std::fabs(direction.x+.5f/length)<1e-5f && std::fabs(direction.y-(1.f/3.f)/length)<1e-5f);
+        assert(std::fabs(direction.z-1.f/length)<1e-5f);
+    }
+    g_ScreenX=0;g_ScreenY=720;
+    D3DXMATRIX projection,view;D3DXMatrixIdentity(&projection);D3DXMatrixIdentity(&view);
+    D3DXVECTOR3 origin{7,8,9},direction{10,11,12};bool rejected=false;
+    try{CalcPick(CPoint(0,0),projection,view,&origin,&direction);}catch(const Base::CException&){rejected=true;}
+    assert(rejected && origin.x==7 && origin.y==8 && origin.z==9 && direction.x==10 && direction.y==11 && direction.z==12);
+    std::puts("original CalcPick uses live bootstrap viewport: center/corner rays and inverse-view origin PASS at two resolutions");
+}
 void VerifyBootstrapMapCamera(NativeInitRuntime& runtime) {
     assert(runtime.GameDefaultsReady() && !runtime.MapCamera() && !g_MatrixMap);
     const auto gpu=runtime.GpuReady();
@@ -46,6 +74,7 @@ void VerifyBootstrapMapCamera(NativeInitRuntime& runtime) {
     }
     runtime.InitializeMapCamera(settings);auto* camera=runtime.MapCamera();assert(camera);
     assert(MAX_VIEW_DISTANCE==5000 && g_ScreenX==settings.m_ResolutionX && g_ScreenY==settings.m_ResolutionY);
+    VerifyOriginalPickViewport();
     assert(std::fabs(camera->GetResXInversed()-1.f/settings.m_ResolutionX)<1e-8f);
     assert(std::fabs(camera->GetResYInversed()-1.f/settings.m_ResolutionY)<1e-8f);
     assert(camera->GetAngleZ()==g_Config.m_CamBaseAngleZ);

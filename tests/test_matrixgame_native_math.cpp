@@ -15,7 +15,11 @@
 #include <crtdbg.h>
 #endif
 #ifndef MATRIXGAME_ORIGINAL_MATH_REFERENCE
+#include "pick_viewport.hpp"
 int g_ScreenX=1280,g_ScreenY=720;
+namespace srhd_awa::matrixgame {
+PickViewport ReadPickViewport() noexcept {return {g_ScreenX,g_ScreenY};}
+}
 #else
 extern int g_ScreenX,g_ScreenY;
 #endif

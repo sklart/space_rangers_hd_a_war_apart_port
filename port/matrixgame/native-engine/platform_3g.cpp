@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "platform_3g.hpp"
+#include "pick_viewport.hpp"
 namespace srhd_awa::matrixgame::platform3g {
 namespace {State state;}
 State& Current() noexcept {return state;}
@@ -38,5 +39,11 @@ void Deinit() noexcept {
     state.flags=flags; // Run reads EXITLOOP after SafeFree; retain non-device flags.
     state.configured_width=width;state.configured_height=height;
     state.available_texture_mib=available; // Original Deinit retains these last configured/queried scalar values.
+}
+}
+namespace srhd_awa::matrixgame {
+PickViewport ReadPickViewport() noexcept {
+    const auto& state=platform3g::Current();
+    return {state.configured_width,state.configured_height};
 }
 }
