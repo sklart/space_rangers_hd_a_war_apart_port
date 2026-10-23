@@ -24,6 +24,7 @@
 #include "MatrixMap.hpp"
 #include "Texture.hpp"
 #include "MatrixTerSurface.hpp"
+#include "MatrixMapTexture.hpp"
 #include "legacy_texture_backend.hpp"
 #include "MatrixRenderPipeline.hpp"
 #ifdef _WIN32
@@ -145,6 +146,24 @@ void VerifyBootstrapRenderer(NativeInitRuntime& runtime) {
 void VerifyBootstrapOriginalTexture(NativeInitRuntime& runtime,const wchar_t* path) {
     namespace lt=srhd_awa::matrixgame::legacy_texture;
     assert(runtime.CpuReady() && !runtime.GpuReady() && lt::RegistrySize()==0);
+    {
+        CBitmap bitmap;bitmap.CreateRGB(32,32);bitmap.Fill(CPoint(0,0),CPoint(32,32),0xff224466u);
+        CBottomTextureUnion::Init(2);
+        bool all_rejected=true,clean_after_each=true;
+        for(int retry=0;retry<2;++retry) {
+            bool rejected=false;
+            try{CBottomTextureUnion::Get(0).MakeFromBitmap(bitmap);}
+            catch(const platform3g::Unsupported& error){rejected=std::string(error.what())=="original texture DecodeFormattedTexture: 3G device negotiation not complete";}
+            std::printf("original bottom DXT1 refusal retry=%d live textures=%zu pending=%p\n",retry,lt::RegistrySize(),CBottomTextureUnion::Get(0).GetTexture());
+            all_rejected=all_rejected && rejected;
+            clean_after_each=clean_after_each && !CBottomTextureUnion::Get(0).GetTexture() && lt::RegistrySize()==0;
+        }
+        CBottomTextureUnion::Clear();CBottomTextureUnion::Clear();
+        std::printf("original bottom after Clear registry=%zu\n",lt::RegistrySize());
+        assert(all_rejected && clean_after_each && lt::RegistrySize()==0);
+        CBottomTextureUnion::Init(1);CBottomTextureUnion::Clear();CBottomTextureUnion::Clear();
+        std::puts("original bottom texture Init/MakeFromBitmap DXT1 refusal/Clear/reentry EXECUTED; failed material not published and registry clean; GPU texture NOT CREATED");
+    }
     // Observe protected original state without overriding any virtual method.
     struct Inspect: CTextureManaged {std::uint32_t RawFlags()const{return m_Flags;}};
     auto* texture=HNew(g_CacheHeap) Inspect;

@@ -114,6 +114,8 @@ def prepare_engine(output):
     paths.update(prepare_debug_font(output))
     from matrixgame_terrain_overrides import prepare_terrain
     paths.update(prepare_terrain(output))
+    from matrixgame_bottom_texture_overrides import prepare_bottom_texture
+    paths.update(prepare_bottom_texture(output))
     result={'schema':1,'source_commit':revision,'scope':'full engine compilation input; runtime/backend not implemented here',
         'files_sha256':paths,'portable_inputs':report['inputs_sha256'],
         'excluded_platform_launcher':'MatrixGameDll.cpp; native entry remains to implement'}

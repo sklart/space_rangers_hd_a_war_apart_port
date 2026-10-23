@@ -22,6 +22,8 @@ static_assert(static_cast<unsigned>(p::PixelFormat::Rgb565)==D3DFMT_R5G6B5 && st
 static_assert(static_cast<unsigned>(p::PixelFormat::Depth24Stencil8)==D3DFMT_D24S8 && static_cast<unsigned>(p::PixelFormat::Depth24)==D3DFMT_D24X8);
 static_assert((DT_CALCRECT|DT_SINGLELINE)==0x420u);
 void VerifyPortableDebugFontText(ID3DXFont*);
+void VerifyFormattedBitmapDevice();
+static_assert(D3DFMT_DXT1==0x31545844u && D3DPOOL_MANAGED==1);
 static void VerifyDebugFont(p::Device& device,IDirect3DDevice9* raw) {
     namespace font=srhd_awa::matrixgame::debug_font;
     const auto leases=device.OutstandingStateLeases();
@@ -72,6 +74,14 @@ int RunWindowsBootstrap(int argc,char**argv,int(*run)(int,char**,void*,p::Window
     if(FAILED(raw->SetTexture(0,texture)))return 77; // Real borrowed binding must survive native ClearTexture/Deinit.
     p::Win32Window window(hwnd);p::D3D9Device device(raw);
     VerifyDebugFont(device,raw);
+    {
+        p::InitAsDLL(module,window,device);
+        struct Scope {~Scope(){p::Deinit();}} scope;
+        auto state=device.CaptureState();
+        VerifyFormattedBitmapDevice();
+        p::CheckDeviceResult(state->Restore(),"formatted texture state restoration");
+    }
+    assert(!p::Current().ready && device.OutstandingStateLeases()==0);
     IDirect3DVertexBuffer9* stream0=nullptr;
     assert(SUCCEEDED(raw->CreateVertexBuffer(64,0,D3DFVF_XYZ,D3DPOOL_MANAGED,&stream0,nullptr)));
     struct StreamOwner {IDirect3DVertexBuffer9*p;~StreamOwner(){p->Release();}} own_stream{stream0};

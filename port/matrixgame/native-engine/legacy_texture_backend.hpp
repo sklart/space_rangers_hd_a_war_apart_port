@@ -18,4 +18,5 @@ platform3g::DeviceResult Lock(IDirect3DTexture9*,std::uint32_t,LockedRect*,std::
 platform3g::DeviceResult Unlock(IDirect3DTexture9*,std::uint32_t);
 platform3g::DeviceResult Create(std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**,std::uintptr_t);
 platform3g::DeviceResult Decode(const void*,std::size_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**);
+platform3g::DeviceResult DecodeFormatted(const void*,std::size_t,std::uint32_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**);
 }

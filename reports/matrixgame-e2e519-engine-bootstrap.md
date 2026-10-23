@@ -1,5 +1,12 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
+Актуальное продолжение24.10: [bottom texture/DXT1 ownership](matrixgame-e2e519-bottom-texture.md).
+Полный original bottom TU подключён; UBSan доказал неверный CacheTexture→
+CTextureManaged cast, retry baseline — потерю одного материала после Clear.
+Исправлены factory и атомарная публикация. Общий host/ARM64 runtime и SDK link
+PASS; Windows actual DXT1/six mip backend runtime PASS отдельным адресным тестом.
+Full map owner LINK FAIL17, CGame::Init и бой не исполнены. Gates разделены.
+
 Актуальное продолжение23.10: [terrain lifecycle](matrixgame-e2e519-terrain.md).
 Полный MatrixTerSurface.cpp включён в общий bootstrap; исходный repeated Clear
 воспроизвёл ASan double-free. Сброс ownership state проверен host/ARM64 runtime,

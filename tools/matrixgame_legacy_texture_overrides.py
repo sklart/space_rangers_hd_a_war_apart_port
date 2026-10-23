@@ -7,6 +7,7 @@ import hashlib,re
 from matrixgame_vector_object_overrides import function
 
 BITMAP='void CTextureManaged::LoadFromBitmap(const CBitmap &bm, bool convert_to_16bit, int levelcnt)'
+FORMATTED='void CTextureManaged::LoadFromBitmap(const CBitmap &bm, TexturePixelFormat native_format, int levels)'
 def extract(source,signature):
     if signature!=BITMAP:return function(source,signature)
     # Alternative preprocessor branches have intentionally unmatched raw braces.
@@ -28,10 +29,28 @@ def prepare_legacy_texture(output):
         'void CTextureManaged::LockRect(_D3DLOCKED_RECT &lr, std::uint32_t Flags)',
         'void CTextureManaged::UnlockRect(void)',
         'void CTextureManaged::LoadFromBitmap(int level, const CBitmap &bm, bool convert_to_16bit)',
-        'void CTextureManaged::LoadFromBitmap(const CBitmap &bm, bool convert_to_16bit, int levelcnt)']
+        'void CTextureManaged::LoadFromBitmap(const CBitmap &bm, bool convert_to_16bit, int levelcnt)',FORMATTED]
     chunks=[]
     for signature in signatures:
         before=extract(source,signature);body=before
+        if signature==FORMATTED:
+            if before.count('bm.SaveInDDSUncompressed(buf);')!=1 or before.count('D3DXCreateTextureFromFileInMemoryEx(')!=2:
+                raise ValueError('Original formatted bitmap path changed')
+            # Keep original serialization/format/levels/pool/filter semantics.
+            # Publish replacement only after SDK creation and description succeed.
+            body=FORMATTED+''' {
+    CBuf buf;
+    bm.SaveInDDSUncompressed(buf);
+    IDirect3DTexture9* candidate=nullptr;
+    struct Owner {IDirect3DTexture9*& value;~Owner(){lt::Release(value);}} owner{candidate};
+    tp::CheckDeviceResult(lt::DecodeFormatted(buf.Get(),buf.Len(),levels,
+        static_cast<std::uint32_t>(native_format),1u,&candidate), "original formatted bitmap decode");
+    if(!candidate)throw std::runtime_error("original formatted bitmap returned no texture");
+    lt::LevelDesc desc{};
+    tp::CheckDeviceResult(lt::Describe(candidate,0,&desc), "formatted bitmap GetLevelDesc");
+    lt::Release(m_Tex);m_Tex=candidate;candidate=nullptr;
+    m_Size.x=desc.Width;m_Size.y=desc.Height;
+}'''
         body=body.replace('const auto pool=static_cast<D3DPOOL>(native_pool);','const auto pool=static_cast<std::uint32_t>(native_pool);')
         body=body.replace('D3DPOOL_MANAGED','1u').replace('D3DPOOL_SYSTEMMEM','2u')
         body=body.replace('LoadTextureFromFile(to16, 1u)','LoadTextureFromFile(to16, TextureMemoryPool::Managed)')

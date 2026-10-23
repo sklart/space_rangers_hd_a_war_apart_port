@@ -4,11 +4,13 @@
 #define NOMINMAX
 #include <windows.h>
 #include <d3d9.h>
+#include <d3dx9tex.h>
 #endif
 #include "legacy_texture_backend.hpp"
 #include "texture_asset.hpp"
 #include <cstring>
 #include <exception>
+#include <limits>
 namespace srhd_awa::matrixgame::legacy_texture {
 namespace p=platform3g;
 #ifdef _WIN32
@@ -74,6 +76,19 @@ p::DeviceResult Decode(const void* bytes,std::size_t size,std::uint32_t levels,s
     }
     *out=texture;owner.texture=nullptr;return p::DeviceSuccess;
 }
+p::DeviceResult DecodeFormatted(const void* bytes,std::size_t size,std::uint32_t levels,std::uint32_t format,
+                                std::uint32_t pool,IDirect3DTexture9** out) {
+    if(!out || *out || !bytes || !size || size>std::numeric_limits<UINT>::max())
+        throw std::invalid_argument("invalid formatted texture input/output");
+    IDirect3DTexture9* candidate=nullptr;
+    // Exact original formatted bitmap loader request, including both filters.
+    const auto result=D3DXCreateTextureFromFileInMemoryEx(&Device(),bytes,static_cast<UINT>(size),
+        0,0,levels,0,static_cast<D3DFORMAT>(format),static_cast<D3DPOOL>(pool),
+        D3DX_FILTER_NONE,D3DX_FILTER_BOX,0,nullptr,nullptr,&candidate);
+    if(result!=D3D_OK){Release(candidate);return static_cast<p::DeviceResult>(result);}
+    if(!candidate)throw std::runtime_error("formatted texture loader returned no texture");
+    *out=candidate;return static_cast<p::DeviceResult>(result);
+}
 #else
 namespace {[[noreturn]]void Unsupported(const char* call){
     try{(void)p::ReadyDevice();}
@@ -88,5 +103,6 @@ p::DeviceResult Lock(IDirect3DTexture9*,std::uint32_t,LockedRect*,std::nullptr_t
 p::DeviceResult Unlock(IDirect3DTexture9*,std::uint32_t){Unsupported("UnlockRect");}
 p::DeviceResult Create(std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**,std::uintptr_t){Unsupported("CreateTexture");}
 p::DeviceResult Decode(const void*,std::size_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**){Unsupported("DecodeTexture");}
+p::DeviceResult DecodeFormatted(const void*,std::size_t,std::uint32_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**){Unsupported("DecodeFormattedTexture");}
 #endif
 }
