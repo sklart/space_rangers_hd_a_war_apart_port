@@ -46,7 +46,7 @@ def main() -> int:
     end = source.index("\n    void Ex_OKGR_F5_DrawRGBA", start)
     (out / "wrapper.cpp").write_text(
         '#include "units/GR_Main.hpp"\n#include "e2e5_checked_rescale.hpp"\n'
-        '#include "e2e_stage.hpp"\nnamespace GR_Main {\n' + source[start:end] + "\n}\n")
+        '#include "e2e5_memory_recovery.hpp"\n#include "e2e_stage.hpp"\nnamespace GR_Main {\n' + source[start:end] + "\n}\n")
     sanitizer = ["-fsanitize=address,undefined", "-fno-sanitize=vptr", "-fno-omit-frame-pointer"]
     common = ["g++", "-std=gnu++20", "-O1", "-g", "-D__SWITCH__", "-DE2E5_ORIGINAL_CACHEGI", "-ffunction-sections",
               "-fdata-sections", "-Wno-invalid offsetof".replace(" ", "-"), *sanitizer]

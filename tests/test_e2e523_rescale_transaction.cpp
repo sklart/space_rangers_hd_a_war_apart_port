@@ -15,9 +15,28 @@
 
 #include <cerrno>
 #include <algorithm>
+#include "layout/EC_Cache.hpp"
+#include "units/EC_Cache.hpp"
+
+// The host __SWITCH__ fixture supplies only the heap-boundary diagnostics;
+// no console heap or GPU is emulated by these placeholders.
+extern "C" {
+char* fake_heap_start = nullptr;
+char* fake_heap_end = nullptr;
+}
+namespace GR_DX {
+void EvictTextureCaches(std::uint8_t) {}  // This fixture has no texture cache.
+}
+namespace GlobalsV {
+std::uint8_t FontSmoothingEnabled = false;
+pas::WideString SmallFontName, SmallBoldFontName, NormalFontName, NormalBoldFontName;
+pas::WideString SmoothSmallFontName, SmoothSmallBoldFontName, SmoothNormalFontName, SmoothNormalBoldFontName;
+}
 
 namespace {
 int fail_at{}, allocations{}, failures{};
+int kernel_calls{};
+bool repeat_failures{};
 }
 
 // Only rescale.c is compiled with malloc/calloc redirected to these functions.
@@ -36,6 +55,7 @@ extern "C" void* rescale_test_calloc(std::size_t count, std::size_t bytes) {
 }
 
 namespace GR_Main {
+EC_Cache::TCacheEC* GlobalCache = nullptr;
 void Ex_OKGR_TransBuf_Draw_RGBA(void* d, std::int32_t p, void* s) {
   ::OKGR_TransBuf_Draw_RGBA(d, p, static_cast<const OkgfRleHeader*>(s));
 }
@@ -48,6 +68,8 @@ void Ex_OKGR_TransAlphaBuf_Draw_RGBA(void* d, std::int32_t p, void* s) {
 void OKGF_Rescale(void* dest, std::int32_t w, std::int32_t h, std::int32_t pitch,
                   void* source, std::int32_t sw, std::int32_t sh,
                   std::int32_t sp, std::int32_t bpp, std::int32_t filter) {
+  ++kernel_calls;
+  if (repeat_failures) allocations = 0;
   ::OKGF_Rescale(dest, w, h, pitch, source, sw, sh, sp, bpp, filter);
 }
 }
@@ -157,5 +179,55 @@ int main(int argc, char** argv) {
     pas::free(cache);
     if (!same) return 9;
     std::printf("cache position=%d input retained, retry equivalent, owned copy and cleanup PASS\n", position);
+  }
+
+  for (bool exhausted : {false, true}) {
+    // The real reclaimer must evict the unretained resource and leave the
+    // actively loading entry (RetainCount=1) bound and alive.
+    auto* global = pas::construct_call<EC_Cache::TCacheEC>(EC_Cache::TCacheEC_Create);
+    GR_Main::GlobalCache = global;
+    auto* input = pas::construct_call<EC_Buf::TBufEC>(EC_Buf::TBufEC_Create);
+    input->AddBytes(encoded.data(), static_cast<std::int32_t>(encoded.size()));
+    auto* spare = pas::construct_call<EC_CacheGI::TCGiEC>(EC_CacheGI::TCGiEC_Create);
+    spare->Image->LoadRawGiFromBuffer(input);
+    spare->ResidentBytes = spare->Image->DataSize;
+    global->ResidentBytes = spare->ResidentBytes;
+    global->AddDataToLruHead(spare);
+    auto* cache = pas::construct_call<EC_CacheGI::TCGiEC>(EC_CacheGI::TCGiEC_Create);
+    cache->CacheKey = pas::WideString(u"Bm.FormRuins.2RCbg");
+    auto* control = pas::construct_call<EC_Cache::TCacheControlEC>(EC_Cache::TCacheControlEC_Create);
+    cache->AppendControl(control);
+    control->BoundData = cache;
+    control->RetainCount = 1;
+    global->AddDataToLruHead(cache);
+    fail_at = 5;
+    allocations = failures = kernel_calls = 0;
+    repeat_failures = exhausted;
+    bool rejected = false;
+    try { cache->LoadFromConfigBuffer(input, pas::WideString()); }
+    catch (...) { rejected = true; }
+    fail_at = 0;
+    repeat_failures = false;
+    bool correct = kernel_calls == 2 && failures == (exhausted ? 2 : 1) &&
+        control->BoundData == cache && control->RetainCount == 1 &&
+        global->MostRecentData == cache && global->LeastRecentData == cache &&
+        global->ResidentBytes == 0 && rejected == exhausted;
+    if (exhausted) {
+      correct &= cache->Image->IsEmpty() && input->DataSize == static_cast<std::int32_t>(encoded.size()) &&
+          std::memcmp(input->Data, encoded.data(), encoded.size()) == 0;
+    } else {
+      correct &= cache->Image->DataSize == static_cast<std::int32_t>(96 + cache_expected.size()) &&
+          std::memcmp(static_cast<const std::uint8_t*>(cache->Image->Data) + 96,
+                      cache_expected.data(), cache_expected.size()) == 0;
+      global->ResidentBytes += cache->ResidentBytes;
+    }
+    pas::free(input);
+    control->Release();
+    global->Clear();
+    pas::free(control);
+    pas::free(global);
+    GR_Main::GlobalCache = nullptr;
+    if (!correct) return 10;
+    std::printf("automatic recovery exhausted=%d bounded retry and retained loader PASS\n", exhausted);
   }
 }

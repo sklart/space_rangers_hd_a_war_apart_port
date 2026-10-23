@@ -3048,8 +3048,13 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
         }'''
         text = _replace_exact(text, old_rescale, '''        bool completed = false;
         try {
-            completed = srhd_awa::platform::checked_rescale::Invoke([&] {
+            completed = srhd_awa::platform::checked_rescale::InvokeWithRecovery([&] {
                 GR_Main::OKGF_Rescale(Dest, Width, Height, DestPitch, Source, SourceWidth, SourceHeight, SourcePitch, BytesPerPixel, Filter);
+            }, [&] {
+                const auto bytes = static_cast<std::int64_t>(DestPitch) * Height;
+                const auto requested = bytes > 0 && bytes <= 2147483647LL ?
+                    static_cast<std::int32_t>(bytes) : 0;
+                return srhd_awa::platform::e2e5_memory_recovery::Reclaim("ui-background-rescale", requested);
             });
         } catch (...) {
             pas::raise(pas::make_exception<pas::Exception>("Error in OKGF_Rescale"_a));
@@ -3058,7 +3063,7 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
             srhd_awa::platform::e2e_stage::Log("FAIL stage=ui-background-rescale reason=allocation-failed");
             pas::raise(pas::make_exception<pas::Exception>("Insufficient memory in OKGF_Rescale"_a));
         }''', 1, source.name)
-        text = '#include "e2e5_checked_rescale.hpp"\n' + text
+        text = '#include "e2e5_checked_rescale.hpp"\n#include "e2e5_memory_recovery.hpp"\n' + text
         text = '#include "e2e5_cfg_bootstrap.hpp"\n#include "e2e3_generation_state.hpp"\n' + text
         finalize_buffers = "        GR_Main::FreeScreenRenderBuffers();\n        WideCaseTable = nullptr;"
         if text.count(finalize_buffers) != 1:
