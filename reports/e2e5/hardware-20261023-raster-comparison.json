@@ -1,0 +1,77 @@
+{
+  "source": "scene-40986867502-020.ppm",
+  "target": "scene-40986867502-035.ppm",
+  "roi": [
+    10,
+    80,
+    80,
+    280
+  ],
+  "best": [
+    {
+      "dx": -4,
+      "dy": 0,
+      "equal": 14000,
+      "pixels": 14000,
+      "mean_abs": 0.0
+    },
+    {
+      "dx": -5,
+      "dy": 0,
+      "equal": 1605,
+      "pixels": 14000,
+      "mean_abs": 13.168142857142858
+    },
+    {
+      "dx": -3,
+      "dy": 0,
+      "equal": 1572,
+      "pixels": 14000,
+      "mean_abs": 13.293880952380952
+    },
+    {
+      "dx": -4,
+      "dy": 1,
+      "equal": 1206,
+      "pixels": 14000,
+      "mean_abs": 12.376047619047618
+    },
+    {
+      "dx": -4,
+      "dy": -1,
+      "equal": 1197,
+      "pixels": 14000,
+      "mean_abs": 12.451261904761905
+    },
+    {
+      "dx": -5,
+      "dy": 1,
+      "equal": 875,
+      "pixels": 14000,
+      "mean_abs": 15.386357142857143
+    }
+  ],
+  "source_sha256": "e4dc21ac88d03718735f3d456bf819060ef76fd080ea3e17395a82f62c1ea29a",
+  "target_sha256": "1a759a37dd47618f22f3275a4c568590d084fd402e8ded9a4e14a7e3094b2328",
+  "unique_rgb_in_matching_roi": 1113,
+  "sample_dimensions": [
+    640,
+    360
+  ],
+  "original_dimensions": [
+    1280,
+    720
+  ],
+  "search_offsets": {
+    "x": [
+      -32,
+      32
+    ],
+    "y": [
+      -8,
+      8
+    ]
+  },
+  "meaning": "target(x,y)==source(x-4,y) for 14000 RGB pixels; eight full-resolution pixels shift right",
+  "causal_buffer_identified": false
+}
