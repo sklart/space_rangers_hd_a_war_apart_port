@@ -5,6 +5,8 @@ TYPES={
     'D3D_IB':'::srhd_awa::matrixgame::buffers::IndexBuffer*',
     'D3DVIEWPORT9':'::srhd_awa::matrixgame::Viewport',
     'LPDIRECT3DTEXTURE9':'IDirect3DTexture9*',
+    'D3DRECT':'::srhd_awa::matrixgame::RectI',
+    'ZeroMemory':'::srhd_awa::matrixgame::ZeroTrivialBytes',
 }
 CALLS={
     'CREATE_VB':'NATIVE_BUF_CREATE_VB','CREATE_VB_DYNAMIC':'NATIVE_BUF_CREATE_DYNAMIC_VB','CREATE_VBM':'NATIVE_BUF_CREATE_MANAGED_VB',
@@ -32,7 +34,7 @@ def patch_resource_header(name,data):
     text=text.replace('#include "D3DControl.hpp"','#include "big_buffer_bridge.hpp"')
     mapping={**TYPES,**CALLS,**{k:'::srhd_awa::matrixgame::vertex_layout::'+v for k,v in LAYOUTS.items()}}
     for old,new in mapping.items():text=re.sub(r'\b'+old+r'\b',lambda m:new,text)
-    if text!=before:text='#include "big_buffer_bridge.hpp"\n#include "math_types.hpp"\n'+text
+    if text!=before:text='#include "big_buffer_bridge.hpp"\n#include "math_types.hpp"\n#include "memory_ops.hpp"\n'+text
     if '__stdcall' in text:
         text=re.sub(r'\b__stdcall\b','MATRIXGAME_NATIVE_CALLBACK',text)
         text='#include "engine_callconv.hpp"\n'+text

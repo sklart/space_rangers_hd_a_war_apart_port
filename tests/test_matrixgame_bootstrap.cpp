@@ -38,6 +38,7 @@ extern void VerifyBootstrapDefaults(NativeInitRuntime&,p::Window&,p::Device&,uns
 extern void VerifyBootstrapGameCold();
 extern void VerifyBootstrapGameDefaults(NativeInitRuntime&);
 extern void VerifyBootstrapProjection();
+extern void VerifyBootstrapCursor(NativeInitRuntime&,p::Window&,p::Device&,bool);
 struct UnavailableDevice final:p::Device {
     p::DeviceCaps ReadCaps()override{throw p::Unsupported("backend has no verified legacy device caps");}
     p::GammaRamp ReadGamma(std::uint32_t)override{throw p::Unsupported("gamma unsupported");}
@@ -99,6 +100,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
                 VerifyBootstrapGameDefaults(runtime);
                 VerifyBootstrapSampling(runtime,*window,*device,cycle,true);
                 VerifyBootstrapDefaults(runtime,*window,*device,cycle,true);
+                VerifyBootstrapCursor(runtime,*window,*device,true);
                 assert(GetWindowLongPtrW(hwnd,GWLP_WNDPROC)!=original_proc);
                 const auto actual=device->ReadCaps();
                 assert(actual.swapchain_count==p::Current().caps.swapchain_count);
@@ -123,6 +125,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
                 assert(runtime.CpuReady() && !runtime.GpuReady() && InspectCpu3GState().bound);
                 assert(GetWindowLongPtrW(hwnd,GWLP_WNDPROC)==original_proc);
                 runtime.AttachDevice(*window,*device);assert(runtime.GpuReady());
+                runtime.InitializeCursor(); // Leave a real cursor owned until full Deinit.
 #else
                 VerifyBootstrapGameDefaults(runtime); // Independent original CPU settings stage; GPU remains unsupported.
                 bool rejected=false;
@@ -130,12 +133,14 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
                 assert(rejected && runtime.CpuReady() && InspectCpu3GState().bound && !runtime.GpuReady() && !p::Current().attachment);
                 VerifyBootstrapSampling(runtime,*window,*device,cycle,false);
                 VerifyBootstrapDefaults(runtime,*window,*device,cycle,false);
+                VerifyBootstrapCursor(runtime,*window,*device,false);
 #endif
             }
             runtime.Deinit();runtime.Deinit();cold();
             bool expired=false;try{(void)stale.Read();}catch(...){expired=true;}assert(expired);
 #ifdef _WIN32
             assert(IsWindow(hwnd) && GetWindowLongPtrW(hwnd,GWLP_WNDPROC)==original_proc);
+            assert(window->ReadCursor().value!=0);
             (void)device->ReadCaps(); // borrowed device still live
             assert(device->OutstandingStateLeases()==0);
             // New integration fault: real hook is installed, device negotiation refuses.

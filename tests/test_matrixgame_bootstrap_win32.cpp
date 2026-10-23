@@ -27,5 +27,9 @@ int RunWindowsBootstrap(int argc,char**argv,int(*run)(int,char**,void*,p::Window
     struct TextureOwner {IDirect3DTexture9*p;~TextureOwner(){p->Release();}} own_texture{texture};
     if(FAILED(raw->SetTexture(0,texture)))return 77; // Real borrowed binding must survive native ClearTexture/Deinit.
     p::Win32Window window(hwnd);p::D3D9Device device(raw);
+    const auto saved_cursor=GetCursor();const auto arrow=LoadCursorA(nullptr,IDC_ARROW);
+    if(!arrow)return 77;
+    SetCursor(arrow);
+    struct CursorOwner {HCURSOR old;~CursorOwner(){SetCursor(old);}} restore_cursor{saved_cursor};
     return run(argc,argv,module,window,device);
 }

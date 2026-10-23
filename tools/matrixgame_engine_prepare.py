@@ -84,6 +84,10 @@ def prepare_engine(output):
             path.write_bytes(adapted);paths[name]=hashlib.sha256(adapted).hexdigest()
     from matrixgame_game_defaults_overrides import prepare_game_defaults
     paths.update(prepare_game_defaults(output))
+    from matrixgame_cursor_overrides import prepare_cursor
+    paths.update(prepare_cursor(output))
+    from matrixgame_interface_header_overrides import prepare_interface_headers
+    paths.update(prepare_interface_headers(output))
     result={'schema':1,'source_commit':revision,'scope':'full engine compilation input; runtime/backend not implemented here',
         'files_sha256':paths,'portable_inputs':report['inputs_sha256'],
         'excluded_platform_launcher':'MatrixGameDll.cpp; native entry remains to implement'}

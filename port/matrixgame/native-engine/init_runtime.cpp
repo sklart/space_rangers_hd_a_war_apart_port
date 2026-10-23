@@ -3,15 +3,19 @@
 #include "MatrixSampleStateManager.hpp"
 #include "device_defaults.hpp"
 #include "game_defaults.hpp"
+#include "MatrixCursor.hpp"
 #include <stdexcept>
+Base::CHeap* g_MatrixHeap;
 namespace srhd_awa::matrixgame {
 namespace {NativeInitRuntime* active{};}
+NativeInitRuntime::NativeInitRuntime()=default;
 bool NativeCacheFactoryBound() noexcept {return active && active->CpuReady();}
 NativeInitRuntime::~NativeInitRuntime(){Deinit();}
 void NativeInitRuntime::Begin(void* module,void* window) {
-    if(active || g_Cache || g_CacheHeap)throw std::logic_error("live engine/cache owner already present");
+    if(active || g_Cache || g_CacheHeap || g_MatrixHeap)throw std::logic_error("live engine/cache/game-heap owner already present");
     active=this;
     try {
+        matrix_heap_=std::make_unique<Base::CHeap>();g_MatrixHeap=matrix_heap_.get();
         buffers_=std::make_unique<buffers::Context>();
         scope_=std::make_unique<buffers::Scope>(*buffers_);
         CacheInit();cache_owned_=true;
@@ -42,7 +46,14 @@ void NativeInitRuntime::Deinit() noexcept {
     if(cpu_owned_){DetachDevice();L3GDeinitCpuPhase();g_Sampler.m_AFDegree=0;cpu_owned_=false;}
     if(cache_owned_){CacheDeinit();cache_owned_=false;}
     scope_.reset();buffers_.reset();
+    if(g_MatrixHeap==matrix_heap_.get())g_MatrixHeap=nullptr;
+    matrix_heap_.reset();
     if(active==this)active=nullptr;
+}
+void NativeInitRuntime::InitializeCursor() {
+    if(active!=this || !GpuReady() || !GameDefaultsReady())throw platform3g::Unsupported("cursor requires this negotiated window/device and original game defaults");
+    if(cursor_)throw std::logic_error("cursor already owned by this session");
+    cursor_=std::make_unique<CMatrixCursor>();
 }
 void NativeInitRuntime::InitializeGameDefaults() {
     if(active!=this || !CpuReady())throw platform3g::Unsupported("original config defaults require this live CPU/cache owner");
@@ -63,6 +74,7 @@ void NativeInitRuntime::ApplyDefaultDeviceState() {
 }
 void NativeInitRuntime::DetachDevice() noexcept {
     if(active!=this || !cpu_owned_)return;
+    cursor_.reset(); // Original Clear must run before window/heap providers die.
     const bool was_bound=platform3g::Current().ready;
     if(device_snapshot_){last_restore_=device_snapshot_->Restore();device_snapshot_.reset();}
     sampler_configured_=false;defaults_applied_=false;g_Sampler.m_AFDegree=0;

@@ -7,6 +7,10 @@ Device& ReadyDevice() {
     if(!state.ready || !state.device)throw Unsupported("3G device negotiation not complete");
     return *state.device;
 }
+Window& ReadyWindow() {
+    if(!state.ready || !state.window)throw Unsupported("3G window negotiation not complete");
+    return *state.window;
+}
 void Deinit() noexcept {
     // DLL/device objects are borrowed, as in the original L3GDeinit; no Release
     // or DestroyWindow is performed on somebody else's device/window.

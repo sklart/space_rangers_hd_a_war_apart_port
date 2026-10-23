@@ -13,6 +13,10 @@ public:
     void Show(Visibility) override;
     void ReleaseCursor() override;
     std::intptr_t DefaultMessage(std::uint32_t,std::uintptr_t,std::intptr_t) override;
+    CursorHandle ExchangeCursor(CursorHandle)override;
+    CursorHandle ReadCursor()override;
+    void DestroyCursorIcon(IconHandle)override;
+    void Update()override;
 private:void* hwnd_;
 };
 class D3D9Device final:public Device,public StoredStateBackend {

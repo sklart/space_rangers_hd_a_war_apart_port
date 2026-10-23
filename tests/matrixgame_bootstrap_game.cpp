@@ -4,6 +4,7 @@
 #include MATRIXGAME_FULL_CONFIG_HEADER
 #include MATRIXGAME_FULL_CAMERA_HEADER
 #include MATRIXGAME_FULL_KONUS_HEADER
+#include MATRIXGAME_FULL_CURSOR_HEADER
 #include <cassert>
 #include <cmath>
 #include <cstdio>
@@ -18,10 +19,60 @@ struct KonusCleanupAccess:CMatrixEffectKonus {
     static bool Empty(){return m_VB==nullptr;}
 };
 void VerifyBootstrapGameCold() {
+    assert(!g_MatrixHeap);
+    {
+        Base::CHeap foreign_heap;g_MatrixHeap=&foreign_heap;
+        NativeInitRuntime refused;bool refused_owner=false;
+        try{refused.Begin(nullptr,nullptr);}catch(const std::logic_error&){refused_owner=true;}
+        assert(refused_owner && g_MatrixHeap==&foreign_heap && !g_Cache && !g_CacheHeap);
+        refused.Deinit();assert(g_MatrixHeap==&foreign_heap);
+        g_MatrixHeap=nullptr;
+    }
     assert(!g_Config.m_Cursors && g_Config.m_CursorsCnt==0);
     NativeInitRuntime absent;bool rejected=false;
     try{absent.InitializeGameDefaults();}catch(const platform3g::Unsupported&){rejected=true;}
     assert(rejected && !absent.GameDefaultsReady());
+}
+namespace {
+struct RefusingCursorWindow final:platform3g::Window {
+    platform3g::Window& real;
+    explicit RefusingCursorWindow(platform3g::Window& w):real(w){}
+    void* Identity()const noexcept override{return real.Identity();}
+    std::unique_ptr<platform3g::WindowAttachment> Attach(platform3g::MessageHandler h)override{return real.Attach(h);}
+    void Show(platform3g::Visibility v)override{real.Show(v);}
+    void ReleaseCursor()override{real.ReleaseCursor();}
+    std::intptr_t DefaultMessage(std::uint32_t m,std::uintptr_t w,std::intptr_t l)override{return real.DefaultMessage(m,w,l);}
+    platform3g::CursorHandle ReadCursor()override{return real.ReadCursor();}
+    platform3g::CursorHandle ExchangeCursor(platform3g::CursorHandle)override{throw platform3g::Unsupported("cursor denied by backend");}
+};
+}
+void VerifyBootstrapCursor(NativeInitRuntime& runtime,platform3g::Window& window,platform3g::Device& device,bool negotiated) {
+    assert(g_MatrixHeap && g_MatrixHeap!=g_CacheHeap && !runtime.Cursor());
+    if(!negotiated) {
+        bool rejected=false;try{runtime.InitializeCursor();}catch(const platform3g::Unsupported&){rejected=true;}
+        assert(rejected && !runtime.Cursor() && runtime.GameDefaultsReady());
+        rejected=false;try{CMatrixCursor missing_window;}catch(const platform3g::Unsupported&){rejected=true;}
+        assert(rejected); // Actual constructor unwinds a valid wstring, not memset memory.
+        std::puts("original cursor constructor/window prefix Unsupported; CPU game heap preserved");return;
+    }
+    window.Show(platform3g::Visibility::Normal);window.Update();
+    const auto borrowed=window.ReadCursor();assert(borrowed.value!=0);
+    runtime.DetachDevice();RefusingCursorWindow denied(window);
+    runtime.AttachDevice(denied,device);
+    bool rejected=false;try{runtime.InitializeCursor();}catch(const platform3g::Unsupported&){rejected=true;}
+    assert(rejected && !runtime.Cursor() && runtime.GpuReady() && runtime.GameDefaultsReady());
+    assert(window.ReadCursor()==borrowed);
+    runtime.DetachDevice();runtime.AttachDevice(window,device);runtime.InitializeCursor();
+    assert(runtime.Cursor() && window.ReadCursor().value==0);
+    assert(runtime.Cursor()->GetPosX()==0 && runtime.Cursor()->GetPosY()==0);
+    runtime.Cursor()->SetPos(37,-11);
+    assert(runtime.Cursor()->GetPosX()==37 && runtime.Cursor()->GetPosY()==-11);
+    bool duplicate=false;try{runtime.InitializeCursor();}catch(const std::logic_error&){duplicate=true;}
+    assert(duplicate && runtime.Cursor() && window.ReadCursor().value==0);
+    runtime.Cursor()->Clear();runtime.Cursor()->Clear();assert(window.ReadCursor()==borrowed);
+    runtime.DetachDevice();assert(!runtime.Cursor() && window.ReadCursor()==borrowed && g_MatrixHeap);
+    runtime.AttachDevice(window,device);runtime.InitializeCursor();assert(window.ReadCursor().value==0);
+    std::puts("original cursor ctor/Clear EXECUTED through actual SetCursor/GetCursor; refusal, repeated Clear and detach/reentry restore PASS; icon/texture selection NOT RUN");
 }
 void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
     assert(runtime.CpuReady() && !runtime.GameDefaultsReady());

@@ -56,7 +56,9 @@ public:
     virtual DeviceResult SetTextureStageState(std::uint32_t,TextureStageRegister,std::uint32_t){throw Unsupported("backend texture-stage state unsupported");}
     virtual std::uint32_t ReadTextureStageState(std::uint32_t,TextureStageRegister){throw Unsupported("backend texture-stage query unsupported");}
 };
-enum class Visibility {Maximized,Restored,Minimized};
+enum class Visibility {Maximized,Restored,Minimized,Normal};
+struct CursorHandle {std::uintptr_t value{};bool operator==(const CursorHandle&)const=default;};
+struct IconHandle {std::uintptr_t value{};};
 class Window;
 using MessageHandler=std::intptr_t(*)(Window&,std::uint32_t,std::uintptr_t,std::intptr_t);
 class WindowAttachment {
@@ -72,6 +74,10 @@ public:
     virtual void Show(Visibility)=0;
     virtual void ReleaseCursor()=0;
     virtual std::intptr_t DefaultMessage(std::uint32_t,std::uintptr_t,std::intptr_t)=0;
+    virtual CursorHandle ExchangeCursor(CursorHandle){throw Unsupported("backend system cursor unsupported");}
+    virtual CursorHandle ReadCursor(){throw Unsupported("backend cursor query unsupported");}
+    virtual void DestroyCursorIcon(IconHandle){throw Unsupported("backend owned icon destruction unsupported");}
+    virtual void Update(){throw Unsupported("backend window update unsupported");}
 };
 struct State {
     void* module{};void* window_identity{};bool external{};
@@ -86,6 +92,7 @@ struct State {
 };
 State& Current() noexcept;
 Device& ReadyDevice();
+Window& ReadyWindow();
 // Original DLL bootstrap and WndProc/input algorithms via typed backend calls.
 // Only external/borrowed device/window mode is supported; no fake owned EXE.
 void InitAsDLL(void* module,Window&,Device&);

@@ -94,9 +94,17 @@ std::unique_ptr<WindowAttachment> Win32Window::Attach(MessageHandler handler) {
     return std::make_unique<Attachment>(static_cast<HWND>(hwnd_),*this,handler);
 }
 void Win32Window::Show(Visibility v) {
-    ShowWindow(static_cast<HWND>(hwnd_),v==Visibility::Maximized?SW_MAXIMIZE:v==Visibility::Restored?SW_RESTORE:SW_MINIMIZE);
+    ShowWindow(static_cast<HWND>(hwnd_),v==Visibility::Maximized?SW_MAXIMIZE:v==Visibility::Restored?SW_RESTORE:v==Visibility::Normal?SW_SHOWNORMAL:SW_MINIMIZE);
 }
 void Win32Window::ReleaseCursor(){ClipCursor(nullptr);}
+void Win32Window::Update(){::UpdateWindow(static_cast<HWND>(hwnd_));}
+CursorHandle Win32Window::ExchangeCursor(CursorHandle cursor) {
+    return {reinterpret_cast<std::uintptr_t>(::SetCursor(reinterpret_cast<HCURSOR>(cursor.value)))};
+}
+CursorHandle Win32Window::ReadCursor(){return {reinterpret_cast<std::uintptr_t>(::GetCursor())};}
+void Win32Window::DestroyCursorIcon(IconHandle icon) {
+    if(!::DestroyIcon(reinterpret_cast<HICON>(icon.value)))throw std::runtime_error("DestroyIcon failed");
+}
 std::intptr_t Win32Window::DefaultMessage(std::uint32_t m,std::uintptr_t w,std::intptr_t l) {
     return DefWindowProcW(static_cast<HWND>(hwnd_),m,w,l);
 }
