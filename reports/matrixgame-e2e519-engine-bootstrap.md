@@ -1005,3 +1005,103 @@ Windows executable как новый кандидат не публиковал�
    продвигать его настоящую map/static-init цепочку.
 3. Закрыть reset-safe device/window/presentation и связанные реальные ресурсы;
    проверить WinMM lifecycle после восстановления Windows runtime.
+
+## Продолжение 23.10.2026: полная MatrixConfig и настоящий data.txt
+
+Implementation: `77fe348a1f4c0bddf2d108081b9eb38f75eb2db5`, локальный master,
+без push/fetch. [Config integration evidence](matrixgame-e2e519-config-integration-evidence.json)
+содержит baseline/candidate compiler results, runtime-логи, точные удалённые
+Windows unresolved symbols, source/binary hashes и protected-input checks.
+
+Полная оригинальная `MatrixGame/src/MatrixConfig.cpp` перешла COMPILE_FAIL →
+COMPILE_PASS и вошла в существующий matrixgame-native-cache/bootstrap.
+Baseline первого отказа — `VK_LBUTTON` в static key table. Полная таблица теперь
+использует исходные числовые key identifiers; Windows keyboard API не эмулируется.
+Gamma использует typed GammaRamp и реальный Win32 SetGammaRamp provider.
+Provider разрешает запись только для того же устройства с сохранённой исходной
+ramp; положительный gamma runtime **NOT RUN**. Его отсутствие не заменено успехом.
+GameDefaultsNative больше не дублирует SetDefaults/Clear/global g_Config:
+все эти методы и глобальный объект теперь приходят из полной исходной TU.
+
+**Новые реально исполненные методы:**
+
+- `CMatrixConfig::ApplySettings:155` целиком переносит supplied settings в
+  настоящий g_Config: flags, shadow selection, три gamma structures. Его тело
+  побайтово совпадает с прежним оригинальным effective source.
+- Оригинальный `CBlockPar::LoadFromTextFile` загружает настоящий
+  `upstream/matrixgame/MatrixGame/CFG/robots/data.txt` (134462 bytes), без
+  сгенерированного блока конфигурации. SHA-256:
+  `9579962ecdf9eef7dfca4dc70a3c96cbec9aa0fd2db2347ccb76e8e400b7b27c`.
+- `CMatrixConfig::ReadParams:334` читает Config и пять исходных Cursors,
+  копирует key/value strings, flags, MaxFPS=100 и RGB gamma values. Точный
+  следующий барьер — **строка 427 ApplyGammaRamp → ReadyDevice Unsupported**.
+  Изменения g_Config и все пять пар сверены с настоящим загруженным деревом.
+- ReadParams повторён дважды в каждом из двух полных owner sessions; после
+  отказа сохранены CPU/cache/data/config ownership, затем выполнены cleanup/re-init.
+
+ApplySettings проверяется как самостоятельный исходный CPU-метод в том же
+bootstrap. Это не утверждение о выполнении производственной цепочки после
+успешного ReadParams: **ReadParams целиком ещё не завершался**, post-gamma
+damage/weapon/camera/labels/model parsing в этих host/QEMU прогонах не исполнялся.
+GenRamp body побайтово совпадает с прежним; ReadParams восстанавливается в
+прежний текст после обратной подстановки typed byte и cursor construction block.
+Полный MatrixGame.cpp остался побайтово прежним.
+
+NativeInitRuntime теперь владеет реальным HNew(g_MatrixHeap) CBlockPar и
+публикует g_MatrixData только после успешной загрузки. Отсутствующий файл
+освобождает неопубликованный объект; duplicate load сохраняет существующее
+дерево. Чужой g_MatrixData вызывает отказ Begin и сохраняется после Deinit.
+Собственные data уничтожаются до cache/game heap teardown, глобальный указатель
+обнуляется. Это исходный fallback text-data путь; storage robots.dat/package path
+и полный CGame::Init не запускались.
+
+Для безопасных retry исправлен lifetime, а не игровой parser algorithm:
+
+- Full Clear обнуляет освобождённый cursor pointer/count. Labels/descriptions
+  освобождаются тем же Clear по исходным LABELS_LAST/DESCRIPTIONS_LAST и game
+  heap; прежний guarded cleanup в неизменённом CGame::Deinit увидит null.
+- Конструируются целые cursor string pairs, число живых пар обновляется до
+  копирования текста; отказ копирования не оставляет destructor над неинициализированными
+  строками. bad_alloc injection внутри string copy здесь NOT RUN.
+- Nothrow default construction std::wstring проверено static_assert. Отдельные
+  cleanup-only arrays labels/descriptions, заполненные исходными cursor strings,
+  освобождены прямым повторным Clear в существующем bootstrap. Это **cleanup
+  fixture**, не доказательство выполнения post-gamma parser tail.
+
+| Gate | Подтверждено |
+|---|---|
+| Полная MatrixConfig.cpp | COMPILE_PASS по тому же compiler-audit рецепту, что baseline; это не selected config methods |
+| Host ASan/UBSan + leak detection | PASS ApplySettings, настоящий data load, ReadParams до gamma refusal, retries, foreign/duplicate/missing-file ownership, repeated Clear и полный reentry |
+| ARM64/QEMU | PASS того же scope на том же original data.txt; не Switch runtime |
+| devkitA64 | COMPILE/LINK PASS; strong undefined=0, реальные ReadParams/ApplySettings/LoadGameData symbols присутствуют; runtime NOT RUN |
+| Windows x86 | Полные CGame/config TU компилируются; LINK_BLOCKED, **97 вместо 99** symbols; новый runtime NOT RUN |
+
+Из Windows undefined set удалены ровно
+`?ReadParams@CMatrixConfig@@QAEXXZ` и
+`?ApplySettings@CMatrixConfig@@QAEXPAUSRobotsSettings@@@Z`.
+Новых unresolved symbols нет. Остальные 97, включая legacy L3G entry,
+render/map/static-init/selection dependencies, перечислены в evidence.
+Windows bootstrap пока не восстановлен; прежний selected-method PASS не
+переносится на эту конфигурацию.
+
+237 prepared engine files и все core outputs сверены по реальным байтам между
+host, Windows, ARM64 и SDK, включая сохранённый audited view. Source/binary
+hashes привязаны к implementation commit; сборки сделаны до commit с
+build_dirty=true, без embedded Git SHA. SDK ELF SHA-256:
+`8fde90f84d0a26eaf6896b070ea9c937168d3fd2a855818713262954c19de11d`.
+Build id: `1f60cb373af27247e6b716d169267a2eb55a5bf4`.
+Нового executable/probe и полного inventory не создавалось.
+
+Все 14 protected hashes совпали; исходный config input и upstream неизменны.
+Сейвы, ресурсы, основная NRO и frozen аппаратные комплекты сохранены.
+Full Init/Run/map/battle и реальный GPU runtime остаются невыполненными;
+Switch HARDWARE_PENDING. E2E-5.19 активен.
+
+Следующие три приоритета:
+
+1. Настоящий legacy L3G entry и согласование его с общим window/device owner;
+   продолжить закрывать 97 Windows link dependencies.
+2. Согласовать source Init/static-init/cache/data ownership и продвигать
+   настоящий вызов CGame::Init без повторного создания уже живых владельцев.
+3. Выполнить ReadParams за gamma-границей на настоящем провайдере, проверить
+   реальные следующие ресурсы и reset-safe presentation lifecycle.

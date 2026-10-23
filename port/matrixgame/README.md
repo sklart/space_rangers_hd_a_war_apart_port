@@ -8,10 +8,14 @@ E2E-5.19: единый bootstrap исполняет оригинальные CMa
 в bootstrap вместо выбранного GameVideoNative.cpp. Host/QEMU вызывают её
 ApplyVideoParams и проверяют отказ первой операции без устройства, cleanup/reentry.
 devkitA64 compile/link PASS; Init/Run/map и физический GPU draw ещё не выполнялись.
+Полная оригинальная MatrixConfig.cpp также компилируется и включена в bootstrap.
+ApplySettings исполняется; ReadParams на настоящем pinned data.txt разбирает
+Config и пять Cursors, затем останавливается на обязательном gamma/device call.
+Host ASan/UBSan и ARM64/QEMU подтверждают реальные ресурсы, retry и cleanup.
 
-Текущая Windows x86 сборка полного объекта — **LINK_BLOCKED: 99 символов**
+Текущая Windows x86 сборка полного объекта — **LINK_BLOCKED: 97 символов**
 Init/Deinit/static_init. Это временная регрессия bootstrap после включения полной
-TU; новые WinMM runtime-проверки NOT RUN. ReadParams, legacy L3G entry, карта и
+TU; новые WinMM/gamma runtime-проверки NOT RUN. Legacy L3G entry, карта и
 reset-safe presentation lifecycle остаются незамкнутыми.
 
 В предыдущем Windows x86 срезе подтверждены настоящие DLL/window/caps calls,
