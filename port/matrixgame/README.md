@@ -4,6 +4,10 @@
 
 E2E-5.19: единый bootstrap исполняет оригинальные CMatrixConfig::SetDefaults/Clear,
 проверяет владение ресурсами и повторный вход: host ASan/UBSan и ARM64/QEMU PASS.
+Теперь из полной original TU исполняется Release `static_init`: CMain/Base,
+VO/shadow/form и game static initialization перед созданием game heap/cache.
+54 исходных определения данных перенесены в общую TU с прежними типами/значениями
+effective sources; stale EXITLOOP, отказ при живой чужой форме и reentry проверены.
 Полная оригинальная MatrixGame.cpp перешла COMPILE_FAIL → COMPILE_PASS и входит
 в bootstrap вместо выбранного GameVideoNative.cpp. Host/QEMU вызывают её
 ApplyVideoParams и проверяют отказ первой операции без устройства, cleanup/reentry.
@@ -19,10 +23,12 @@ Legacy L3GInitAsDLL/L3GDeinit теперь определены через то�
 Legacy flags/window/module/configured dimensions ссылаются на общий platform state.
 Положительный SDK runtime нового legacy entry пока NOT RUN.
 
-Текущие Windows x86/x64 сборки полного объекта — **LINK_BLOCKED: 92 символа**
+Текущие Windows x86/x64 сборки полного объекта — **LINK_BLOCKED: 38 методов**
 Init/Deinit/static_init. Это временная регрессия bootstrap после включения полной
 TU; новые WinMM/gamma runtime-проверки NOT RUN. Полный legacy SDK context, карта и
 reset-safe presentation lifecycle остаются незамкнутыми.
+Полный Init ещё нельзя вызывать поверх уже живого native owner: требуется
+согласовать его повторные static_init/heap/cache/data действия с одним lifecycle.
 
 В предыдущем Windows x86 срезе подтверждены настоящие DLL/window/caps calls,
 sampler/S3D_Default и полная DeviceState.cpp с восстановлением 207 state values.

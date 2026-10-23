@@ -1192,3 +1192,89 @@ Switch/GPU HARDWARE_PENDING. E2E-5.19 активен.
    владельцев недопустима.
 3. Проверить положительный legacy SDK entry после восстановления Windows link,
    затем реальную gamma/presentation/Reset границу и следующие ресурсы.
+
+## Продолжение 23.10.2026: настоящая production static_init
+
+Implementation: `08d05eb711f5de5472944ed2b7cf6f30c9aa5085`, локальный master,
+без push/fetch. [Static-init evidence](matrixgame-e2e519-static-init-evidence.json)
+содержит все 54 исходных определения с origin/file/line/hash, runtime-логи,
+полную link delta и remaining method errors.
+
+Оригинальная Release `MatrixGame.cpp:138 static_init` теперь реально исполняется
+из полной исходной TU через небольшую wrapper-функцию в той же TU. Тело самой
+static_init и тело полного CGame::Init побайтово совпадают с предыдущим source
+view. Не удалялись классовые initialization calls и не добавлялись методы-заглушки.
+Новый executable/probe не создавался.
+
+Для этого перенесены **54 настоящих определения данных** из их оригинальных
+prepared CPP: shadow/map/progress/flyer/water/terrain/skin/selection static state,
+interface и DLL pointers/counters. GameStaticResources.cpp содержит точные
+прежние effective definitions, включая ранее принятые portable resource pointer
+типы. Новые нулевые значения не придумывались: сохранены исходные декларации,
+array extents и initializers. Старые определения убраны из prepared original TU
+(для globals оставлены extern declarations), чтобы последующее подключение
+полных CPP не создавало второй экземпляр данных. Upstream не менялся.
+Production preparer использует явный source manifest, не тестовый linker report.
+
+**Новая фактически исполненная цепочка:** один NativeInitRuntime → пустой
+native staging context → оригинальная static_init/CMain::BaseInit → game heap
+→ CacheInit → CPU platform binding → прежняя VO/config/legacy error-chain.
+Статическая стадия выполняется до game/cache allocations, как в исходном входе.
+В конце owner освобождает свои ресурсы и вызывает CMain::BaseDeInit.
+
+В тесте перед Begin оставляется настоящий GFLAG_EXITLOOP от прежнего loop state.
+Исходная static_init очищает его; после Begin проверено OriginalStaticsReady,
+после двойного Deinit — снятие этого состояния. Два полных sessions проходят
+на host ASan/UBSan с leak detection и ARM64/QEMU на тех же настоящих VO/PNG/data.txt.
+В существующем bootstrap также создана и зарегистрирована живая чужая CForm:
+новый Begin отказывается до static reset, сохраняя g_FormFirst/Last/Cur и форму.
+BaseInit вызывает исходные CFile::StaticInit и SRemindCore::StaticInit; registry
+пакетов не обходится фиктивным успехом (real ReleasePackFiles отказывает при
+активных package files). Debug resource/helper/tracer ветви здесь не проверялись.
+
+| Gate | Подтверждено |
+|---|---|
+| Host ASan/UBSan + leak detection | PASS реально исполненной original static_init, stale EXITLOOP reset, foreign-form refusal, source-data/VO/config regressions, cleanup и два reentry |
+| ARM64/QEMU | PASS той же production-stage/CPU scope; не Switch runtime |
+| devkitA64 | COMPILE/LINK PASS, strong undefined=0; InitializeOriginalGameStatics retained; runtime NOT RUN |
+| Windows x86/x64 | Полные CGame/config/shared-data TU компилируются; LINK_BLOCKED **38 вместо 92** |
+
+Из x86 undefined set удалены ровно 54 data definitions. Новых unresolved нет;
+в текущем remaining set — 38 функций, а не недостающие данные. Это закрытие
+прямых data references текущей связки CGame, не утверждение о всей зависимости
+всех ещё непортированных engine CPP. Положительные SDK/WinMM/gamma/device
+проверки новой Windows-конфигурации по-прежнему NOT RUN. Full-engine link/GPU
+runtime не объявляются на основании ELF section garbage collection.
+
+**Ограничение перед следующим настоящим Init:** исходный CGame::Init пока
+по-прежнему сам вызывает static_init и создаёт heap/cache/data. Его нельзя
+без согласования вызвать поверх уже живой Begin-session: получатся повторная
+инициализация и конфликт владельцев. Сейчас исполнена именно оригинальная
+промежуточная static stage; полный Init ещё NOT CALLED. Его алгоритм не вырезан
+для обхода оставшихся link dependencies.
+
+По производственному порядку ближайший unresolved constructor —
+`CLoadProgress lp` на исходной строке 186, после game heap и package opening.
+Первый напечатанный linker error (например InitEffects) не означает первую
+runtime-операцию. CLoadProgress methods, renderer/map/interface/history,
+selection и L3GRun перечислены в evidence; package/storage/map loading через
+полный Init ещё не исполнялось.
+
+238 prepared engine files и все core outputs сверены по реальным байтам между
+host, ARM64, SDK и Windows x86/x64. Binaries собраны до commit с build_dirty=true,
+без embedded Git SHA; evidence связывает их с точным implementation SHA.
+SDK ELF SHA-256:
+`84d35229c582e3562fa1f8c077f085225796f4b4915ecb4ca34c0e0d6bcd2ae3`.
+Build id: `5d5f260af4eaca64835baf8edd406ffeedb59d9e`.
+Все 14 protected SHA совпали; saves/resources/upstream/frozen аппаратные
+комплекты сохранены. Основная NRO не пересобиралась; общего inventory и больших
+standalone suites не было. Switch/GPU HARDWARE_PENDING. E2E-5.19 активен.
+
+Следующие три приоритета:
+
+1. Портировать настоящие CLoadProgress и последующие initial-entry методы по
+   порядку CGame::Init; закрывать оставшиеся 38 функциональных dependencies.
+2. Согласовать полный source Init/static-init/game heap/cache/data с единым
+   owner перед настоящим вызовом полного Init.
+3. После восстановления Windows link проверить положительный legacy device
+   lifecycle, затем gamma/presentation/Reset и настоящие map/form/loop ресурсы.
