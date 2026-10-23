@@ -119,6 +119,7 @@ inline D3DXVECTOR3* D3DXVec3Project(D3DXVECTOR3* out,const D3DXVECTOR3* in,const
         DirectX::XMLoadFloat4x4(projection),DirectX::XMLoadFloat4x4(view),DirectX::XMLoadFloat4x4(world)));
 }
 inline float D3DXVec2LengthSq(const D3DXVECTOR2* v) { return DirectX::XMVectorGetX(DirectX::XMVector2LengthSq(LoadVector2(v))); }
+inline float D3DXVec2Length(const D3DXVECTOR2* v) { return DirectX::XMVectorGetX(DirectX::XMVector2Length(LoadVector2(v))); }
 inline D3DXVECTOR2* D3DXVec2Normalize(D3DXVECTOR2* out,const D3DXVECTOR2* in) {
     const auto value=DirectX::XMVector2Normalize(LoadVector2(in));
     out->x=DirectX::XMVectorGetX(value);out->y=DirectX::XMVectorGetY(value);return out;

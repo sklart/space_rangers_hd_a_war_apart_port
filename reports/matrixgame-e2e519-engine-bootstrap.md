@@ -1,5 +1,11 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
+Последнее продолжение23.10: [полная MatrixMap и device bridge](matrixgame-e2e519-map-device.md).
+Map TU компилируется на host/ARM64/SDK и включена в общий archive. Настоящий
+ctor/dtor link ещё FAIL: CDevConsole, CMatrixDebugInfo, CTransition, CSound::Init;
+старый manual recipe также не подключал уже перенесённый navigation archive.
+CGame::Init, карта и бой ещё NOT EXECUTED; fresh source/CMake gates отдельны.
+
 Последнее продолжение23.10: [plane/line contract](matrixgame-e2e519-plane-line.md).
 Математическая зависимость MatrixMap снята с проверкой против настоящей D3DX9
 x86 DLL и общего bootstrap host/ARM64. Следующая compile-граница —

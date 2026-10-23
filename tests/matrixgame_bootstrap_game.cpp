@@ -1,6 +1,7 @@
 // Additional real game dependencies in the same bootstrap; no SDK type mixing.
 #include "init_runtime.hpp"
 #include "input.hpp"
+#include "map_device_backend.hpp"
 #include "game_defaults.hpp"
 #include MATRIXGAME_FULL_CONFIG_HEADER
 #include MATRIXGAME_FULL_CAMERA_HEADER
@@ -485,6 +486,21 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
     ClearOriginalGameDefaults();
     runtime.InitializeGameDefaults();
     assert(runtime.GameDefaultsReady() && runtime.GpuReady()==was_gpu && g_MaxFPS==1000);
+    {
+        const D3DXVECTOR2 vector{3,4},zero{0,0};
+        assert(std::abs(D3DXVec2Length(&vector)-5.0f)<1e-5f && D3DXVec2Length(&zero)==0);
+        if(!runtime.GpuReady()) {
+            namespace md=srhd_awa::matrixgame::map_device;
+            D3DXMATRIX matrix;D3DXMatrixIdentity(&matrix);
+            auto refused=[](auto action){bool denied=false;try{action();}catch(const platform3g::Unsupported&){denied=true;}assert(denied);};
+            refused([&]{md::SetTransform(md::Transform::World,&matrix);});
+            refused([&]{md::SetTransform(md::Transform::View,&matrix);});
+            refused([]{md::RasterCaps();});refused([]{md::StencilCaps();});
+            refused([]{md::DrawPrimitive(5,0,2);});
+            assert(runtime.CpuReady() && runtime.GameDefaultsReady() && !g_MatrixMap);
+            std::puts("full map device boundaries deny missing real backend; no caps/transform/draw success fabricated; CPU owners preserved");
+        }
+    }
     const auto automatic_key=static_cast<uint8_t>(g_Config.m_KeyActions[KA_AUTO]);
     assert(!Input::isVKeyPressed(automatic_key) && !Input::isKeyPressed(KA_AUTO));
     Input::onKeyDown(automatic_key);

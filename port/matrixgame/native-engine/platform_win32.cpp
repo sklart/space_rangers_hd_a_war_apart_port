@@ -100,7 +100,7 @@ IDirect3DDevice9& DeviceRef(void* p) {
 }
 struct StateLease final:DeviceStateLease {
     IDirect3DStateBlock9* block{};IDirect3DDevice9* device{};std::size_t& live;bool counted{};
-    D3DMATRIX world{};
+    D3DMATRIX world{},view{},projection{};
     static constexpr D3DRENDERSTATETYPE render_keys[]{D3DRS_ZENABLE,D3DRS_SHADEMODE,D3DRS_ZWRITEENABLE,D3DRS_ALPHATESTENABLE,
         D3DRS_SRCBLEND,D3DRS_DESTBLEND,D3DRS_CULLMODE,D3DRS_ZFUNC,D3DRS_ALPHAREF,D3DRS_ALPHAFUNC,D3DRS_ALPHABLENDENABLE,
         D3DRS_LIGHTING,D3DRS_COLORWRITEENABLE,D3DRS_BLENDOP,D3DRS_AMBIENT,D3DRS_TEXTUREFACTOR};
@@ -119,6 +119,8 @@ struct StateLease final:DeviceStateLease {
     ~StateLease(){for(auto* texture:textures)if(texture)texture->Release();if(declaration)declaration->Release();if(block)block->Release();if(counted)--live;}
     void CaptureContract() {
         CheckDeviceResult(static_cast<DeviceResult>(device->GetTransform(D3DTS_WORLD,&world)),"capture world");
+        CheckDeviceResult(static_cast<DeviceResult>(device->GetTransform(D3DTS_VIEW,&view)),"capture view");
+        CheckDeviceResult(static_cast<DeviceResult>(device->GetTransform(D3DTS_PROJECTION,&projection)),"capture projection");
         stored.StoreState(DEVSTATE_RENDERSTATES|DEVSTATE_SAMPLERSTATES);
         CheckDeviceResult(static_cast<DeviceResult>(device->GetFVF(&fvf)),"capture FVF");
         CheckDeviceResult(static_cast<DeviceResult>(device->GetVertexDeclaration(&declaration)),"capture vertex declaration lease");
@@ -136,6 +138,8 @@ struct StateLease final:DeviceStateLease {
         DeviceResult result=static_cast<DeviceResult>(block->Apply());
         const auto record=[&](HRESULT hr){if(result==DeviceSuccess && hr!=D3D_OK)result=static_cast<DeviceResult>(hr);};
         record(device->SetTransform(D3DTS_WORLD,&world));
+        record(device->SetTransform(D3DTS_VIEW,&view));
+        record(device->SetTransform(D3DTS_PROJECTION,&projection));
         record(fvf?device->SetFVF(fvf):device->SetVertexDeclaration(declaration));
         try {stored.RestoreState(DEVSTATE_RENDERSTATES|DEVSTATE_SAMPLERSTATES);}
         catch(const DeviceError& error){if(result==DeviceSuccess)result=error.result;}

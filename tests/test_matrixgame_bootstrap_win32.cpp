@@ -43,7 +43,9 @@ int RunWindowsBootstrap(int argc,char**argv,int(*run)(int,char**,void*,p::Window
         D3DTSS_ALPHAOP,D3DTSS_ALPHAARG1,D3DTSS_ALPHAARG2,D3DTSS_TEXCOORDINDEX,D3DTSS_RESULTARG,D3DTSS_TEXTURETRANSFORMFLAGS};
     constexpr DWORD changed[]{D3DTOP_MODULATE,D3DTA_TEXTURE,D3DTA_CURRENT,D3DTOP_SELECTARG1,
         D3DTA_DIFFUSE,D3DTA_CURRENT,1,D3DTA_CURRENT,D3DTTFF_COUNT2};
-    DWORD before_stage[std::size(stage_keys)]{},before_fvf{};D3DMATRIX before_matrix{};
+    DWORD before_stage[std::size(stage_keys)]{},before_fvf{};D3DMATRIX before_matrix{},before_view{},before_projection{};
+    assert(SUCCEEDED(raw->GetTransform(D3DTS_VIEW,&before_view)));
+    assert(SUCCEEDED(raw->GetTransform(D3DTS_PROJECTION,&before_projection)));
     assert(SUCCEEDED(raw->GetFVF(&before_fvf)) && SUCCEEDED(raw->GetTransform(D3DTS_TEXTURE2,&before_matrix)));
     for(unsigned key=0;key<std::size(stage_keys);++key)assert(SUCCEEDED(raw->GetTextureStageState(2,stage_keys[key],&before_stage[key])));
     IDirect3DVertexDeclaration9* before_declaration=nullptr;
@@ -51,6 +53,10 @@ int RunWindowsBootstrap(int argc,char**argv,int(*run)(int,char**,void*,p::Window
     struct DeclarationOwner {IDirect3DVertexDeclaration9*p;~DeclarationOwner(){if(p)p->Release();}} own_declaration{before_declaration};
     for(int cycle=0;cycle<2;++cycle) {
         auto state=device.CaptureState();assert(device.OutstandingStateLeases()==1);
+        auto changed_view=before_view,changed_projection=before_projection;
+        changed_view._41=13.0f+cycle;changed_projection._22=7.0f+cycle;
+        assert(SUCCEEDED(raw->SetTransform(D3DTS_VIEW,&changed_view)));
+        assert(SUCCEEDED(raw->SetTransform(D3DTS_PROJECTION,&changed_projection)));
         assert(device.SetFixedVertexLayout(D3DFVF_XYZ)==p::DeviceSuccess);
         assert(device.BindBorrowedTexture(0,nullptr)==p::DeviceSuccess);
         for(unsigned key=0;key<std::size(stage_keys);++key)
@@ -63,6 +69,8 @@ int RunWindowsBootstrap(int argc,char**argv,int(*run)(int,char**,void*,p::Window
         assert(state->Restore()==p::DeviceSuccess);state.reset();assert(device.OutstandingStateLeases()==0);
         assert(SUCCEEDED(raw->GetFVF(&fvf)) && fvf==before_fvf);
         assert(SUCCEEDED(raw->GetTransform(D3DTS_TEXTURE2,&check)) && std::memcmp(&check,&before_matrix,sizeof(check))==0);
+        assert(SUCCEEDED(raw->GetTransform(D3DTS_VIEW,&check)) && std::memcmp(&check,&before_view,sizeof(check))==0);
+        assert(SUCCEEDED(raw->GetTransform(D3DTS_PROJECTION,&check)) && std::memcmp(&check,&before_projection,sizeof(check))==0);
         for(unsigned key=0;key<std::size(stage_keys);++key) {
             DWORD value{};assert(SUCCEEDED(raw->GetTextureStageState(2,stage_keys[key],&value)) && value==before_stage[key]);
         }
@@ -71,7 +79,7 @@ int RunWindowsBootstrap(int argc,char**argv,int(*run)(int,char**,void*,p::Window
         IDirect3DBaseTexture9* binding=nullptr;assert(SUCCEEDED(raw->GetTexture(0,&binding)));
         assert(binding==texture);if(binding)binding->Release();
     }
-    std::puts("real SDK renderer state lease: FVF/declaration, nine stage registers, texture matrices/bindings restored over two entries");
+    std::puts("real SDK renderer state lease: FVF/declaration, nine stage registers, texture/view/projection matrices and bindings restored over two entries");
     D3DDEVICE_CREATION_PARAMETERS direct_creation{};
     assert(SUCCEEDED(raw->GetCreationParameters(&direct_creation)));
     const auto creation=device.ReadCreationParameters();
