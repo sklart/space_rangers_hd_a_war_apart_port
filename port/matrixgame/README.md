@@ -13,9 +13,15 @@ ApplySettings исполняется; ReadParams на настоящем pinned 
 Config и пять Cursors, затем останавливается на обязательном gamma/device call.
 Host ASan/UBSan и ARM64/QEMU подтверждают реальные ресурсы, retry и cleanup.
 
-Текущая Windows x86 сборка полного объекта — **LINK_BLOCKED: 97 символов**
+Legacy L3GInitAsDLL/L3GDeinit теперь определены через тот же NativeInitRuntime.
+Зарегистрированные providers должны подтвердить реальные SDK identities;
+без SDK проверены явный отказ, repeated deinit и сохранность CPU/cache/data.
+Legacy flags/window/module/configured dimensions ссылаются на общий platform state.
+Положительный SDK runtime нового legacy entry пока NOT RUN.
+
+Текущие Windows x86/x64 сборки полного объекта — **LINK_BLOCKED: 92 символа**
 Init/Deinit/static_init. Это временная регрессия bootstrap после включения полной
-TU; новые WinMM/gamma runtime-проверки NOT RUN. Legacy L3G entry, карта и
+TU; новые WinMM/gamma runtime-проверки NOT RUN. Полный legacy SDK context, карта и
 reset-safe presentation lifecycle остаются незамкнутыми.
 
 В предыдущем Windows x86 срезе подтверждены настоящие DLL/window/caps calls,

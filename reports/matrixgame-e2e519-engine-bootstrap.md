@@ -1105,3 +1105,90 @@ Switch HARDWARE_PENDING. E2E-5.19 активен.
    настоящий вызов CGame::Init без повторного создания уже живых владельцев.
 3. Выполнить ReadParams за gamma-границей на настоящем провайдере, проверить
    реальные следующие ресурсы и reset-safe presentation lifecycle.
+
+## Продолжение 23.10.2026: legacy ABI entry и единый 3G context
+
+Implementation: `f2f78f09db567277f9c9099efae466e2c940281a`, локальный master,
+без push/fetch. [Legacy entry evidence](matrixgame-e2e519-legacy-entry-evidence.json)
+содержит runtime-логи, source/binary hashes, точную Windows link delta и
+результат отдельной x64-конфигурации.
+
+Определены настоящие ABI symbols `L3GInitAsDLL(...)` и `L3GDeinit()`, которые
+вызывает неизменённый полный CGame.cpp. Вход обращается к тому же singleton
+NativeInitRuntime: требуется активный CPU owner и зарегистрированные borrowed
+Window/Device providers. Проверяются module/window identity и действительные
+API/device identities провайдера **до** снятия текущих hook/cursor/timer/state
+leases. Произвольные raw ABI arguments не разыменовываются.
+
+Win32 ReadLegacyHandles получает API через настоящий GetDirect3D и освобождает
+временный COM reference RAII; borrowed device продолжает держать API живым.
+После успешной проверки тот же owner выполняет DetachDevice → AttachDevice,
+то есть прежний перенесённый оригинальный DLL algorithm и реальный CaptureState.
+Второй resource manager не создан. Ошибка attachment сохраняет CPU/cache/data
+owner и откатывает device/window фазу. Config/sysname/caption остаются unused,
+как и в исходном DLL implementation.
+
+**Что реально исполнено сейчас:** global legacy ABI на host и ARM64/QEMU
+проверил unregistered-provider отказ и явный no-SDK-identity отказ; затем
+повторные L3GDeinit, cold provider rebind/retry и два полных owner sessions.
+Проверены неизменные CPU/cache/data/game-heap owners и настоящий config input.
+Это **не положительный device init**: код оригинального typed DLL algorithm
+через новый entry в этих прогонах не достигнут. Windows assertions правильных
+SDK identities, wrong-API/no-mutation, live reentry и реального cleanup
+скомпилированы, но **NOT RUN** из-за оставшегося link blocker.
+
+Legacy scalar lvalues теперь непосредственно ссылаются на поля единственного
+platform3g::Current: g_HInst, g_Wnd, g_Flags, g_ScreenX/Y, g_AvailableTexMem.
+Host/QEMU подтверждают равенство их адресов адресам native state fields.
+Flags видны тем же исходным call sites и typed WndProc. ScreenX/Y означают
+configured dimensions, не измеренный display mode; AvailableTexMem — последнее
+действительное provider query, не RAM и не придуманный GPU budget. Dimensions
+и этот cached query сохраняются при Deinit, как исходные globals.
+
+В prepared 3g.hpp объявления используют shared references; определения этих
+скаляров в prepared полном 3g.cpp становятся matching extern declarations.
+SDK pointers/caps objects не создаются и не подменяются. Полная TU 3g.cpp
+по-прежнему не считается портированной. Её исходные InitAsDLL/Deinit bodies,
+generated original typed DLL algorithm, полный CGame.cpp и полный Config.cpp
+побайтово не изменены относительно предыдущего этапа; изменено только владение
+скалярным состоянием и native ABI dispatch.
+
+| Gate | Подтверждённый результат |
+|---|---|
+| Host ASan/UBSan + leak detection | PASS legacy ABI/provider refusal, общие scalar lvalues, retained real owners, repeated deinit/rebind и полный cleanup/reentry |
+| ARM64/QEMU | PASS того же scope с настоящим data.txt; не Switch runtime |
+| devkitA64 | COMPILE/LINK PASS, strong undefined=0; global legacy ABI и shared state symbols присутствуют; runtime NOT RUN |
+| Windows x86 | Полные CGame/config/entry/provider objects компилируются; LINK_BLOCKED **92 вместо 97** |
+| Windows x64 | Те же полные TU компилируются; LINK_BLOCKED **92**; положительный SDK runtime нового пути NOT RUN |
+
+Из x86 undefined set удалены ровно L3GInitAsDLL, L3GDeinit, g_Flags и g_ScreenX/Y;
+новых unresolved symbols нет. Оставшиеся 92 перечислены в evidence. Во время
+отдельного x64 setup обнаружено и исправлено локальное libpng CRT/policy
+несовпадение. Финальные x64 errors — зависимости движка, без CRT errors.
+Переход x86 → x64 не закрыл engine dependency graph; повторять эту архитектурную
+проверку без новых изменений не требуется. Отдельный CPU/GPU executable не создан:
+использован тот же existing bootstrap target и те же оригинальные source views.
+
+Все core outputs и 237 prepared engine files проверены по реальным байтам
+между host, ARM64, SDK, Windows x86 и x64. Binaries построены до commit,
+build_dirty=true, embedded Git SHA отсутствует; source hashes привязаны к
+implementation commit. SDK ELF SHA-256:
+`75465306867c77113ed21d908fe1243c02e844c59c41736373ed65b2de5e24b0`.
+Build id: `c054d7fea98184cc5a262e2674fd84203ea92191`.
+Windows executable как успешный кандидат не публиковался.
+
+Все 14 protected SHA совпали; saves/resources/upstream/frozen аппаратные архивы
+сохранены. Основная NRO не пересобиралась, общего inventory и больших standalone
+suites не было. Full CGame::Init/Run/map/battle остаются NOT EXECUTED,
+Switch/GPU HARDWARE_PENDING. E2E-5.19 активен.
+
+Следующие три приоритета:
+
+1. Закрывать реальные static-init/render/map/loop зависимости полного CGame
+   object, начиная с исходных определений владельцев и методов; Windows link
+   остаётся заблокирован 92 символами.
+2. Согласовать исходный Init/static-init/cache/game-heap/data порядок с одним
+   owner перед настоящим вызовом CGame::Init; повторная инициализация уже живых
+   владельцев недопустима.
+3. Проверить положительный legacy SDK entry после восстановления Windows link,
+   затем реальную gamma/presentation/Reset границу и следующие ресурсы.
