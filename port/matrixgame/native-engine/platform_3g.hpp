@@ -17,6 +17,7 @@ struct DeviceCaps {
     std::uint32_t max_texture_stages{},max_anisotropy{},swapchain_count{};
 };
 struct GammaRamp {std::array<std::uint16_t,256> red{},green{},blue{};};
+struct LegacyDeviceHandles {std::uintptr_t api{},device{};};
 using DeviceResult=std::int32_t; // Actual signed 32-bit device result; never a fake success.
 inline constexpr DeviceResult DeviceSuccess=0;
 struct DeviceError:std::runtime_error {
@@ -37,6 +38,7 @@ class Device {
 public:
     virtual ~Device()=default;
     virtual DeviceCaps ReadCaps()=0;
+    virtual LegacyDeviceHandles ReadLegacyHandles(){throw Unsupported("legacy D3D identities unsupported by this provider");}
     virtual CreationParameters ReadCreationParameters(){throw Unsupported("backend creation parameters unsupported");}
     virtual DisplayMode ReadAdapterDisplayMode(std::uint32_t){throw Unsupported("backend display mode unsupported");}
     virtual DeviceResult CheckMultisample(std::uint32_t,std::uint32_t,PixelFormat,bool,std::uint32_t){throw Unsupported("backend multisample query unsupported");}
@@ -114,6 +116,7 @@ struct State {
     std::uint32_t flags{};
     Presentation presentation{};
     int available_texture_mib{};
+    int configured_width{},configured_height{}; // Original g_ScreenX/Y settings, not a measured display mode.
     bool ready{};
 };
 State& Current() noexcept;

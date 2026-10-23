@@ -10,10 +10,51 @@
 #include <cstdio>
 #include <string>
 #include "MatrixGame.h"
+#include "3g.hpp"
 #ifdef _WIN32
 #include "platform_win32.hpp"
 #endif
 using namespace srhd_awa::matrixgame;
+void VerifyBootstrapLegacy(NativeInitRuntime& runtime,void* module,platform3g::Window& window,platform3g::Device& device,bool negotiated) {
+    namespace p=platform3g;
+    assert(&g_HInst==&p::Current().module && &g_Wnd==&p::Current().window_identity && &g_Flags==&p::Current().flags);
+    assert(&g_ScreenX==&p::Current().configured_width && &g_ScreenY==&p::Current().configured_height && &g_AvailableTexMem==&p::Current().available_texture_mib);
+    Base::CBlockPar unused_original_config;
+    auto& config=g_MatrixData?*g_MatrixData->BlockGet(L"Config"):unused_original_config;
+    auto* data=g_MatrixData;auto* cache=g_Cache;auto* heap=g_MatrixHeap;
+    if(!negotiated) {
+        bool unregistered=false;
+        try{L3GInitAsDLL(module,config,L"MatrixGame",L"Matrix Game",window.Identity(),0,0);}
+        catch(const p::Unsupported& e){unregistered=std::string(e.what())=="legacy DLL entry requires registered borrowed Window/Device providers";}
+        assert(unregistered);
+        for(int i=0;i<2;++i) {
+            runtime.BindLegacyProviders(window,device);
+            bool unsupported=false;
+            try{L3GInitAsDLL(module,config,L"MatrixGame",L"Matrix Game",window.Identity(),0,0);}
+            catch(const p::Unsupported& e){unsupported=std::string(e.what())=="legacy D3D identities unsupported by this provider";}
+            assert(unsupported && runtime.CpuReady() && !runtime.GpuReady() && InspectCpu3GState().bound);
+            L3GDeinit();L3GDeinit();
+        }
+        assert(g_MatrixData==data && g_Cache==cache && g_MatrixHeap==heap);
+        std::puts("legacy L3GInitAsDLL ABI EXECUTED -> explicit unregistered/missing SDK identity refusal; repeated L3GDeinit preserves real CPU/cache/data owner");return;
+    }
+    const auto handles=device.ReadLegacyHandles();assert(handles.api && handles.device);
+    const auto leases=device.OutstandingStateLeases();const auto world=device.ReadWorldTransform();
+    bool wrong_api=false;
+    try{L3GInitAsDLL(module,config,L"MatrixGame",L"Matrix Game",window.Identity(),handles.api^1,handles.device);}
+    catch(const std::invalid_argument&){wrong_api=true;}
+    assert(wrong_api && runtime.GpuReady() && device.OutstandingStateLeases()==leases && device.ReadWorldTransform()==world);
+    L3GInitAsDLL(module,config,L"MatrixGame",L"Matrix Game",window.Identity(),handles.api,handles.device);
+    assert(runtime.GpuReady() && device.OutstandingStateLeases()==1 && !runtime.Cursor());
+    assert(g_HInst==module && g_Wnd==window.Identity() && g_AvailableTexMem==p::Current().available_texture_mib);
+    L3GDeinit();L3GDeinit();
+    assert(runtime.CpuReady() && !runtime.GpuReady() && device.OutstandingStateLeases()==0 && InspectCpu3GState().bound);
+    assert(g_MatrixData==data && g_Cache==cache && g_MatrixHeap==heap);
+    runtime.BindLegacyProviders(window,device);
+    L3GInitAsDLL(module,config,L"MatrixGame",L"Matrix Game",window.Identity(),handles.api,handles.device);
+    assert(runtime.GpuReady() && device.OutstandingStateLeases()==1);
+    std::puts("legacy L3GInitAsDLL/L3GDeinit ABI -> actual SDK identities/original DLL algorithm EXECUTED; invalid identity no mutation, live reentry, cleanup, cold rebind PASS");
+}
 void VerifyBootstrapConfiguration(NativeInitRuntime& runtime,const wchar_t* path,bool negotiated) {
     assert(!g_MatrixData && runtime.GameDefaultsReady());
     auto settings=SRobotsSettings::generate_default_settings();

@@ -55,6 +55,18 @@ void SetAlphaOpDisable(int stage);
     for old,new in [('DWORD','std::uint32_t'),('HRESULT','std::int32_t'),('HINSTANCE','void*'),('HWND','void*')]:
         h=re.sub(r'\b'+old+r'\b',new,h)
     h=h.replace('hr != D3D_OK','hr != 0')
+    # Legacy lvalues share the one native platform context. No parallel copies
+    # of flags/window/configured dimensions may diverge from the real WndProc.
+    globals=[
+        ('extern void* g_HInst;','extern void*& g_HInst;','HINSTANCE g_HInst = 0;'),
+        ('extern void* g_Wnd;','extern void*& g_Wnd;','HWND g_Wnd = 0;'),
+        ('extern int g_ScreenX, g_ScreenY;','extern int &g_ScreenX, &g_ScreenY;','int g_ScreenX = 0, g_ScreenY = 0;'),
+        ('extern std::uint32_t g_Flags;','extern std::uint32_t& g_Flags;','DWORD g_Flags = 0;'),
+        ('extern int g_AvailableTexMem;','extern int& g_AvailableTexMem;','int g_AvailableTexMem;'),
+    ]
+    for declaration,shared,definition in globals:
+        if h.count(declaration)!=1 or c.count(definition)!=1:raise ValueError('Original 3G context globals changed: '+declaration)
+        h=h.replace(declaration,shared);c=c.replace(definition,shared)
     # SDK DWORD may be unsigned long on Windows, unlike uint32_t. Definitions
     # use the same fixed-width public API instead of changing their algorithms.
     impl=re.sub(r'\bDWORD\b','std::uint32_t',impl)

@@ -32,7 +32,11 @@ void Deinit() noexcept {
         if(state.gamma_saved[i])state.device->RestoreGamma(i,state.saved_gamma[i]);
     if(state.attachment)state.attachment->Restore();
     const auto flags=state.flags & ~(1u<<5);
+    const auto width=state.configured_width,height=state.configured_height;
+    const auto available=state.available_texture_mib;
     state=State{};
     state.flags=flags; // Run reads EXITLOOP after SafeFree; retain non-device flags.
+    state.configured_width=width;state.configured_height=height;
+    state.available_texture_mib=available; // Original Deinit retains these last configured/queried scalar values.
 }
 }

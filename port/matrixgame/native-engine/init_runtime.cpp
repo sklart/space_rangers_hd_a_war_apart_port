@@ -6,6 +6,7 @@
 #include "MatrixCursor.hpp"
 #include "MatrixGame.h"
 #include "MatrixConfig.hpp"
+#include "3g.hpp"
 #include <stdexcept>
 Base::CHeap* g_MatrixHeap;
 CMatrixMapLogic* g_MatrixMap;
@@ -35,15 +36,43 @@ void NativeInitRuntime::AttachDevice(platform3g::Window& window,platform3g::Devi
         platform3g::InitAsDLL(module,window,device);
         device_snapshot_=device.CaptureState();
         if(!device_snapshot_)throw std::logic_error("device returned no state lease");
+        legacy_window_=&window;legacy_device_=&device;
         g_Sampler.m_AFDegree=0;
     }
     catch(...) {
         // Device rollback removes the hook/gamma. Retain this owner's CPU/cache
         // session, so failure does not turn CpuReady into a dangling identity.
-        device_snapshot_.reset();platform3g::Deinit();
+        device_snapshot_.reset();platform3g::Deinit();legacy_window_=nullptr;legacy_device_=nullptr;
         L3GInitAsDLLCpuPhase(module,window.Identity());
         throw;
     }
+}
+void NativeInitRuntime::BindLegacyProviders(platform3g::Window& window,platform3g::Device& device) {
+    if(active!=this || !CpuReady() || platform3g::Current().ready || device_snapshot_)
+        throw std::logic_error("legacy provider binding requires this cold CPU owner");
+    if(window.Identity()!=InspectCpu3GState().window)throw std::invalid_argument("legacy window differs from CPU binding");
+    legacy_window_=&window;legacy_device_=&device;
+}
+void NativeInitRuntime::EnterLegacyDll(void* module,void* window,std::uintptr_t api,std::uintptr_t device) {
+    if(!active || !active->CpuReady())throw platform3g::Unsupported("legacy DLL entry requires an active native CPU owner");
+    auto& owner=*active;
+    if(!owner.legacy_window_ || !owner.legacy_device_)
+        throw platform3g::Unsupported("legacy DLL entry requires registered borrowed Window/Device providers");
+    const auto cpu=InspectCpu3GState();
+    if(module!=cpu.module || window!=cpu.window || window!=owner.legacy_window_->Identity())
+        throw std::invalid_argument("legacy caller module/window differs from registered CPU owner");
+    const auto handles=owner.legacy_device_->ReadLegacyHandles();
+    if(!handles.api || !handles.device || handles.api!=api || handles.device!=device)
+        throw std::invalid_argument("legacy caller API/device differs from actual borrowed SDK identities");
+    // Validate opaque caller identities before touching any live hook, cursor,
+    // gamma or state lease. Never dereference arbitrary raw ABI arguments.
+    auto& borrowed_window=*owner.legacy_window_;auto& borrowed_device=*owner.legacy_device_;
+    owner.DetachDevice();
+    owner.AttachDevice(borrowed_window,borrowed_device); // Original typed DLL algorithm + real state capture.
+}
+void NativeInitRuntime::LeaveLegacyDll() {
+    if(active && active->CpuReady()){active->DetachDevice();return;}
+    if(platform3g::Current().ready)throw platform3g::Unsupported("legacy deinit cannot detach a foreign platform owner");
 }
 void NativeInitRuntime::Deinit() noexcept {
     if(game_defaults_){ClearOriginalGameDefaults();game_defaults_=false;}
@@ -53,6 +82,7 @@ void NativeInitRuntime::Deinit() noexcept {
         HDelete(CBlockPar,matrix_data_,g_MatrixHeap);matrix_data_=nullptr;
     }
     if(cache_owned_){CacheDeinit();cache_owned_=false;}
+    legacy_window_=nullptr;legacy_device_=nullptr;
     scope_.reset();buffers_.reset();
     if(g_MatrixHeap==matrix_heap_.get())g_MatrixHeap=nullptr;
     matrix_heap_.reset();
@@ -111,6 +141,7 @@ void NativeInitRuntime::ApplyDefaultDeviceState() {
 }
 void NativeInitRuntime::DetachDevice() noexcept {
     if(active!=this || !cpu_owned_)return;
+    legacy_window_=nullptr;legacy_device_=nullptr;
     cursor_.reset(); // Original Clear must run before window/heap providers die.
     const bool was_bound=platform3g::Current().ready;
     if(device_snapshot_){last_restore_=device_snapshot_->Restore();device_snapshot_.reset();}
@@ -126,3 +157,20 @@ const char* NativeInitRuntime::FirstUnsupportedOperation() noexcept {
     return "L3GInitAsDLL requires a real Window/Device provider; deko legacy caps and CGame::Init dependency closure remain unsupported";
 }
 }
+// Genuine legacy ABI used by the original CGame::Init/SafeFree call sites.
+// Config/names are unused by the original DLL implementation too. Raw SDK
+// arguments select no implementation; registered providers must prove identity.
+void L3GInitAsDLL(void* module,Base::CBlockPar&,const wchar_t*,const wchar_t*,void* window,std::uintptr_t api,std::uintptr_t device) {
+    srhd_awa::matrixgame::NativeInitRuntime::EnterLegacyDll(module,window,api,device);
+}
+void L3GDeinit() {
+    srhd_awa::matrixgame::NativeInitRuntime::LeaveLegacyDll();
+}
+// Same mutable lvalues seen by original engine call sites and typed WndProc.
+// No SDK interface/caps object is fabricated or published here.
+void*& g_HInst=srhd_awa::matrixgame::platform3g::Current().module;
+void*& g_Wnd=srhd_awa::matrixgame::platform3g::Current().window_identity;
+std::uint32_t& g_Flags=srhd_awa::matrixgame::platform3g::Current().flags;
+int& g_ScreenX=srhd_awa::matrixgame::platform3g::Current().configured_width;
+int& g_ScreenY=srhd_awa::matrixgame::platform3g::Current().configured_height;
+int& g_AvailableTexMem=srhd_awa::matrixgame::platform3g::Current().available_texture_mib;

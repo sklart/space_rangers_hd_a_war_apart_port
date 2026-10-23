@@ -34,6 +34,8 @@ int RunWindowsBootstrap(int argc,char**argv,int(*run)(int,char**,void*,p::Window
     D3DDEVICE_CREATION_PARAMETERS direct_creation{};
     assert(SUCCEEDED(raw->GetCreationParameters(&direct_creation)));
     const auto creation=device.ReadCreationParameters();
+    const auto legacy=device.ReadLegacyHandles();
+    assert(legacy.api==reinterpret_cast<std::uintptr_t>(api) && legacy.device==reinterpret_cast<std::uintptr_t>(raw));
     std::printf("direct SDK creation: adapter=%u type=%u flags=%lu focus=%p expected=%p\n",direct_creation.AdapterOrdinal,direct_creation.DeviceType,direct_creation.BehaviorFlags,direct_creation.hFocusWindow,hwnd);
     assert(creation.AdapterOrdinal==direct_creation.AdapterOrdinal && creation.DeviceType==direct_creation.DeviceType && creation.BehaviorFlags==direct_creation.BehaviorFlags && creation.FocusWindow==direct_creation.hFocusWindow);
     D3DDISPLAYMODE direct_mode{};assert(SUCCEEDED(api->GetAdapterDisplayMode(creation.AdapterOrdinal,&direct_mode)));

@@ -29,6 +29,7 @@ public:
     D3D9Device(const D3D9Device&)=delete;
     D3D9Device& operator=(const D3D9Device&)=delete;
     DeviceCaps ReadCaps() override;
+    LegacyDeviceHandles ReadLegacyHandles()override;
     CreationParameters ReadCreationParameters()override;
     DisplayMode ReadAdapterDisplayMode(std::uint32_t)override;
     DeviceResult CheckMultisample(std::uint32_t,std::uint32_t,PixelFormat,bool,std::uint32_t)override;

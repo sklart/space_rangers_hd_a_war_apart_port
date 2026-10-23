@@ -32,6 +32,13 @@ std::unique_ptr<TimerPeriodLease> Win32Window::AcquireTimerPeriod(std::uint32_t 
     return std::make_unique<WinmmTimerLease>(period,timer_leases_);
 }
 namespace {IDirect3DDevice9& DeviceRef(void*);}
+LegacyDeviceHandles D3D9Device::ReadLegacyHandles() {
+    IDirect3D9* api=nullptr;
+    CheckDeviceResult(static_cast<DeviceResult>(DeviceRef(device_).GetDirect3D(&api)),"GetDirect3D");
+    struct Owner {IDirect3D9* p;~Owner(){p->Release();}} owner{api};
+    // The borrowed device keeps its API alive after this temporary reference.
+    return {reinterpret_cast<std::uintptr_t>(api),reinterpret_cast<std::uintptr_t>(device_)};
+}
 CreationParameters D3D9Device::ReadCreationParameters() {
     D3DDEVICE_CREATION_PARAMETERS p{};
     CheckDeviceResult(static_cast<DeviceResult>(DeviceRef(device_).GetCreationParameters(&p)),"GetCreationParameters");

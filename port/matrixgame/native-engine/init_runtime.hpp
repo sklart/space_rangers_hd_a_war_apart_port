@@ -24,6 +24,9 @@ public:
     NativeInitRuntime& operator=(const NativeInitRuntime&)=delete;
     void Begin(void* module,void* window);
     void AttachDevice(platform3g::Window&,platform3g::Device&);
+    void BindLegacyProviders(platform3g::Window&,platform3g::Device&);
+    static void EnterLegacyDll(void* module,void* window,std::uintptr_t api,std::uintptr_t device);
+    static void LeaveLegacyDll();
     void DetachDevice() noexcept;
     void ApplySamplerSettings(SRobotsSettings&);
     void ApplyDefaultDeviceState();
@@ -49,6 +52,8 @@ private:
     std::unique_ptr<buffers::Context> buffers_;
     std::unique_ptr<buffers::Scope> scope_;
     std::unique_ptr<platform3g::DeviceStateLease> device_snapshot_;
+    platform3g::Window* legacy_window_{};
+    platform3g::Device* legacy_device_{};
     std::optional<platform3g::DeviceResult> last_restore_;
     bool sampler_configured_{},defaults_applied_{};
     bool game_defaults_{};
