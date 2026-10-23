@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <d3d9.h>
 #include "platform_win32.hpp"
+#include "DeviceState.hpp"
 #include <algorithm>
 #include <cstring>
 #include <iterator>
@@ -48,15 +49,17 @@ struct StateLease final:DeviceStateLease {
         D3DRS_LIGHTING,D3DRS_COLORWRITEENABLE,D3DRS_BLENDOP};
     static constexpr D3DSAMPLERSTATETYPE sampler_keys[]{D3DSAMP_ADDRESSU,D3DSAMP_ADDRESSV,D3DSAMP_ADDRESSW,D3DSAMP_MAGFILTER,
         D3DSAMP_MINFILTER,D3DSAMP_MIPFILTER,D3DSAMP_MIPMAPLODBIAS,D3DSAMP_MAXANISOTROPY};
-    DWORD renders[14]{},samplers[8][8]{},texcoords[8]{};
+    // The full original TU now owns render/sampler capture and restoration.
+    // World, texcoord and COM texture leases were never part of CDeviceState.
+    CDeviceState stored;
+    DWORD texcoords[8]{};
     IDirect3DBaseTexture9* textures[8]{};
-    explicit StateLease(std::size_t& count):live(count){}
+    StateLease(std::size_t& count,StoredStateBackend& backend):live(count),stored(&backend){}
     ~StateLease(){for(auto* texture:textures)if(texture)texture->Release();if(block)block->Release();if(counted)--live;}
     void CaptureContract() {
         CheckDeviceResult(static_cast<DeviceResult>(device->GetTransform(D3DTS_WORLD,&world)),"capture world");
-        for(unsigned i=0;i<14;++i)CheckDeviceResult(static_cast<DeviceResult>(device->GetRenderState(render_keys[i],&renders[i])),"capture render");
+        stored.StoreState(DEVSTATE_RENDERSTATES|DEVSTATE_SAMPLERSTATES);
         for(unsigned stage=0;stage<8;++stage) {
-            for(unsigned i=0;i<8;++i)CheckDeviceResult(static_cast<DeviceResult>(device->GetSamplerState(stage,sampler_keys[i],&samplers[stage][i])),"capture sampler");
             CheckDeviceResult(static_cast<DeviceResult>(device->GetTextureStageState(stage,D3DTSS_TEXCOORDINDEX,&texcoords[stage])),"capture texcoord");
             CheckDeviceResult(static_cast<DeviceResult>(device->GetTexture(stage,&textures[stage])),"capture texture lease");
         }
@@ -68,9 +71,10 @@ struct StateLease final:DeviceStateLease {
         DeviceResult result=static_cast<DeviceResult>(block->Apply());
         const auto record=[&](HRESULT hr){if(result==DeviceSuccess && hr!=D3D_OK)result=static_cast<DeviceResult>(hr);};
         record(device->SetTransform(D3DTS_WORLD,&world));
-        for(unsigned i=0;i<14;++i)record(device->SetRenderState(render_keys[i],renders[i]));
+        try {stored.RestoreState(DEVSTATE_RENDERSTATES|DEVSTATE_SAMPLERSTATES);}
+        catch(const DeviceError& error){if(result==DeviceSuccess)result=error.result;}
+        catch(...){if(result==DeviceSuccess)result=static_cast<DeviceResult>(D3DERR_INVALIDCALL);}
         for(unsigned stage=0;stage<8;++stage) {
-            for(unsigned i=0;i<8;++i)record(device->SetSamplerState(stage,sampler_keys[i],samplers[stage][i]));
             record(device->SetTextureStageState(stage,D3DTSS_TEXCOORDINDEX,texcoords[stage]));
             record(device->SetTexture(stage,textures[stage]));
         }
@@ -126,7 +130,7 @@ std::uint32_t D3D9Device::ReadSamplerState(std::uint32_t sampler,SamplerRegister
     return value;
 }
 std::unique_ptr<DeviceStateLease> D3D9Device::CaptureState() {
-    auto state=std::make_unique<StateLease>(leases_);
+    auto state=std::make_unique<StateLease>(leases_,*this);
     state->device=&DeviceRef(device_);
     CheckDeviceResult(static_cast<DeviceResult>(DeviceRef(device_).CreateStateBlock(D3DSBT_ALL,&state->block)),"CreateStateBlock");
     if(!state->block)throw std::runtime_error("CreateStateBlock returned no state block");
@@ -168,4 +172,27 @@ std::uint32_t D3D9Device::ReadTextureStageState(std::uint32_t stage,TextureStage
 static_assert(static_cast<unsigned>(RasterRegister::ShadeMode)==D3DRS_SHADEMODE && static_cast<unsigned>(RasterRegister::CullMode)==D3DRS_CULLMODE && static_cast<unsigned>(RasterRegister::Lighting)==D3DRS_LIGHTING);
 static_assert(static_cast<unsigned>(TextureStageRegister::TexcoordIndex)==D3DTSS_TEXCOORDINDEX);
 static_assert(D3DSHADE_GOURAUD==2 && D3DCULL_CCW==3 && D3DZB_TRUE==1);
+#include "device_state_sdk_tables.inc"
+DeviceResult D3D9Device::GetRenderState(StoredRenderRegister key,std::uint32_t* out) {
+    const auto i=static_cast<unsigned>(key);
+    if(i>=std::size(stored_render_keys)||!out)throw std::invalid_argument("stored render key/output");
+    DWORD value{};const auto hr=DeviceRef(device_).GetRenderState(stored_render_keys[i],&value);
+    if(SUCCEEDED(hr))*out=value;return static_cast<DeviceResult>(hr);
+}
+DeviceResult D3D9Device::SetRenderState(StoredRenderRegister key,std::uint32_t value) {
+    const auto i=static_cast<unsigned>(key);
+    if(i>=std::size(stored_render_keys))throw std::invalid_argument("stored render key");
+    return static_cast<DeviceResult>(DeviceRef(device_).SetRenderState(stored_render_keys[i],value));
+}
+DeviceResult D3D9Device::GetSamplerState(std::uint32_t stage,StoredSamplerRegister key,std::uint32_t* out) {
+    RequireStage(stage);const auto i=static_cast<unsigned>(key);
+    if(i>=std::size(stored_sampler_keys)||!out)throw std::invalid_argument("stored sampler key/output");
+    DWORD value{};const auto hr=DeviceRef(device_).GetSamplerState(stage,stored_sampler_keys[i],&value);
+    if(SUCCEEDED(hr))*out=value;return static_cast<DeviceResult>(hr);
+}
+DeviceResult D3D9Device::SetSamplerState(std::uint32_t stage,StoredSamplerRegister key,std::uint32_t value) {
+    RequireStage(stage);const auto i=static_cast<unsigned>(key);
+    if(i>=std::size(stored_sampler_keys))throw std::invalid_argument("stored sampler key");
+    return static_cast<DeviceResult>(DeviceRef(device_).SetSamplerState(stage,stored_sampler_keys[i],value));
+}
 }

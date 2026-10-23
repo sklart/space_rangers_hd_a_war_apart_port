@@ -2,6 +2,7 @@
 #include "init_runtime.hpp"
 #include "MatrixGameDll.hpp"
 #include "MatrixSampleStateManager.hpp"
+#include "DeviceState.hpp"
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
@@ -12,6 +13,20 @@ void VerifyBootstrapSamplerCold() {
     assert(g_Sampler.m_AFDegree==0);
     bool rejected=false;try{g_Sampler.SetState(0,SamplerRegister::MinFilter,2);}catch(const platform3g::Unsupported&){rejected=true;}
     assert(rejected);
+    struct DeniedStateBackend final:platform3g::StoredStateBackend {
+        platform3g::DeviceResult GetRenderState(platform3g::StoredRenderRegister,std::uint32_t*)override{throw platform3g::Unsupported("no actual render query backend");}
+        platform3g::DeviceResult SetRenderState(platform3g::StoredRenderRegister,std::uint32_t)override{throw platform3g::Unsupported("no actual render restore backend");}
+        platform3g::DeviceResult GetSamplerState(std::uint32_t,platform3g::StoredSamplerRegister,std::uint32_t*)override{throw platform3g::Unsupported("no actual sampler query backend");}
+        platform3g::DeviceResult SetSamplerState(std::uint32_t,platform3g::StoredSamplerRegister,std::uint32_t)override{throw platform3g::Unsupported("no actual sampler restore backend");}
+    } denied;
+    CDeviceState states(&denied);
+    bool uncaptured=false;try{states.RestoreState(DEVSTATE_RENDERSTATES);}catch(const std::logic_error&){uncaptured=true;}
+    assert(uncaptured);
+    bool capture_denied=false;try{states.StoreState(DEVSTATE_RENDERSTATES);}catch(const platform3g::Unsupported&){capture_denied=true;}
+    assert(capture_denied);
+    uncaptured=false;try{states.RestoreState(DEVSTATE_RENDERSTATES);}catch(const std::logic_error&){uncaptured=true;}
+    assert(uncaptured);
+    std::puts("full original DeviceState TU: no-backend capture denied; uncaptured/failed groups cannot restore");
 }
 namespace {
 // A backend can lack sampler support even after returning real device caps.
@@ -98,7 +113,36 @@ void VerifyBootstrapDefaults(NativeInitRuntime& runtime,platform3g::Window& wind
     runtime.AttachDevice(window,device);runtime.ApplySamplerSettings(settings);
     const auto original_world=device.ReadWorldTransform();
     const auto original_blend=device.ReadRenderState(RasterRegister::BlendEnable);
+    auto* stored_backend=dynamic_cast<platform3g::StoredStateBackend*>(&device);
+    assert(stored_backend); // Windows SDK provider implements actual complete tables.
+    const auto read_stored=[&] {
+        std::array<std::uint32_t,103+13*8> values{};std::size_t i=0;
+        for(unsigned key=0;key<103;++key)
+            platform3g::CheckDeviceResult(stored_backend->GetRenderState(static_cast<platform3g::StoredRenderRegister>(key),&values[i++]),"verify actual stored render");
+        for(unsigned stage=0;stage<8;++stage)for(unsigned key=0;key<13;++key)
+            platform3g::CheckDeviceResult(stored_backend->GetSamplerState(stage,static_cast<platform3g::StoredSamplerRegister>(key),&values[i++]),"verify actual stored sampler");
+        return values;
+    };
+    const auto original_stored=read_stored();
+    CDeviceState selective(stored_backend);
+    bool all_denied=false;try{selective.StoreState();}catch(const platform3g::Unsupported&){all_denied=true;}
+    assert(all_denied); // Actual 207 queries precede the unsupported light group.
+    bool invalidated=false;try{selective.RestoreState(DEVSTATE_RENDERSTATES);}catch(const std::logic_error&){invalidated=true;}
+    assert(invalidated && read_stored()==original_stored);
+    selective.StoreState(DEVSTATE_RENDERSTATES);
+    platform3g::CheckDeviceResult(stored_backend->SetRenderState(platform3g::StoredRenderRegister::FILLMODE,2),"selective render mutation");
+    platform3g::CheckDeviceResult(stored_backend->SetSamplerState(7,platform3g::StoredSamplerRegister::BORDERCOLOR,0x12345678),"selective sampler mutation");
+    selective.RestoreState(DEVSTATE_RENDERSTATES);
+    auto selective_values=read_stored();
+    assert(std::equal(selective_values.begin(),selective_values.begin()+103,original_stored.begin()));
+    assert(selective_values[103+7*13+3]==0x12345678);
+    platform3g::CheckDeviceResult(stored_backend->SetSamplerState(7,platform3g::StoredSamplerRegister::BORDERCOLOR,original_stored[103+7*13+3]),"reset selective sampler");
+    selective.StoreState(DEVSTATE_RENDERSTATES|DEVSTATE_SAMPLERSTATES);
+    selective.RestoreState(DEVSTATE_RENDERSTATES|DEVSTATE_SAMPLERSTATES);
+    assert(read_stored()==original_stored && device.OutstandingStateLeases()==1);
+    std::puts("CDeviceState selective groups + real-query partial StoreState(ALL) rejection + recapture PASS; lights/material Unsupported");
     const auto restored=[&] {
+        assert(read_stored()==original_stored);
         assert(device.ReadWorldTransform()==original_world && device.ReadRenderState(RasterRegister::BlendEnable)==original_blend);
         assert(device.TextureBound(0));
         for(unsigned stage=0;stage<8;++stage) {
@@ -109,6 +153,9 @@ void VerifyBootstrapDefaults(NativeInitRuntime& runtime,platform3g::Window& wind
     auto altered=original_world;altered[12]=137.5f;
     platform3g::CheckDeviceResult(device.SetWorldTransform(altered),"seed world");
     platform3g::CheckDeviceResult(device.SetRenderState(RasterRegister::BlendEnable,original_blend?0:1),"seed blend");
+    platform3g::CheckDeviceResult(stored_backend->SetRenderState(platform3g::StoredRenderRegister::FILLMODE,2),"mutate extra captured render");
+    platform3g::CheckDeviceResult(stored_backend->SetSamplerState(7,platform3g::StoredSamplerRegister::BORDERCOLOR,0x12345678),"mutate extra captured sampler");
+    assert(read_stored()!=original_stored);
     const auto check=[&] {
         assert(runtime.DefaultDeviceStateReady());
         const platform3g::WorldMatrix identity{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};
@@ -135,6 +182,7 @@ void VerifyBootstrapDefaults(NativeInitRuntime& runtime,platform3g::Window& wind
     assert(runtime.LastStateRestoreResult()==platform3g::DeviceSuccess && device.OutstandingStateLeases()==0);
     std::printf("restore readback world.x=%g expected=%g blend=%u expected=%u\n",device.ReadWorldTransform()[12],original_world[12],device.ReadRenderState(RasterRegister::BlendEnable),original_blend);
     restored();
+    std::puts("original full CDeviceState TU EXECUTED: 103 render + 13x8 sampler; all 207 values restored by actual SDK readback");
     RefusingDefaults refusing(device);
     struct Guard {NativeInitRuntime& runtime;bool armed{true};~Guard(){if(armed)runtime.DetachDevice();}} guard{runtime};
     runtime.AttachDevice(window,refusing);runtime.ApplySamplerSettings(settings);

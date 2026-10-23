@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 #include "platform_3g.hpp"
+#include "device_state_backend.hpp"
 namespace srhd_awa::matrixgame::platform3g {
 // Real Windows SDK implementation, borrowed HWND / IDirect3DDevice9.
 // Opaque pointers keep SDK types out of the portable engine contract.
@@ -14,7 +15,7 @@ public:
     std::intptr_t DefaultMessage(std::uint32_t,std::uintptr_t,std::intptr_t) override;
 private:void* hwnd_;
 };
-class D3D9Device final:public Device {
+class D3D9Device final:public Device,public StoredStateBackend {
 public:
     explicit D3D9Device(void* device):device_(device){}
     D3D9Device(const D3D9Device&)=delete;
@@ -35,6 +36,10 @@ public:
     bool TextureBound(std::uint32_t)override;
     DeviceResult SetTextureStageState(std::uint32_t,TextureStageRegister,std::uint32_t)override;
     std::uint32_t ReadTextureStageState(std::uint32_t,TextureStageRegister)override;
+    DeviceResult GetRenderState(StoredRenderRegister,std::uint32_t*)override;
+    DeviceResult SetRenderState(StoredRenderRegister,std::uint32_t)override;
+    DeviceResult GetSamplerState(std::uint32_t,StoredSamplerRegister,std::uint32_t*)override;
+    DeviceResult SetSamplerState(std::uint32_t,StoredSamplerRegister,std::uint32_t)override;
 private:void* device_;std::size_t leases_{};
 };
 }

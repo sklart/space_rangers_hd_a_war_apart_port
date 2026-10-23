@@ -62,6 +62,11 @@ def prepare_engine(output):
     paths['MatrixLib/3G/VectorObjectShared.hpp']=hashlib.sha256(shared_header).hexdigest()
     from matrixgame_engine_header_overrides import patch_engine_headers
     paths.update(patch_engine_headers(output))
+    # Full DeviceState TU and the same shared ordinal types are visible to the
+    # opt-in engine/matrixlib targets as well as the integrated native driver.
+    registry='MatrixLib/3G/device_state_registers.hpp'
+    data=(output/'portable-core/device_state_registers.hpp').read_bytes()
+    (output/registry).write_bytes(data);paths[registry]=hashlib.sha256(data).hexdigest()
     result={'schema':1,'source_commit':revision,'scope':'full engine compilation input; runtime/backend not implemented here',
         'files_sha256':paths,'portable_inputs':report['inputs_sha256'],
         'excluded_platform_launcher':'MatrixGameDll.cpp; native entry remains to implement'}
