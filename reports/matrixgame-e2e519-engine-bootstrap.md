@@ -1,5 +1,11 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
+Последнее продолжение23.10: [plane/line contract](matrixgame-e2e519-plane-line.md).
+Математическая зависимость MatrixMap снята с проверкой против настоящей D3DX9
+x86 DLL и общего bootstrap host/ARM64. Следующая compile-граница —
+DrawLandscapeSurfaces/SetSamplerState (prepared MatrixMap.cpp:1500).
+Полная карта, CGame::Init и бой ещё NOT EXECUTED.
+
 Последующее продолжение23.10: [original input и Map dependencies](matrixgame-e2e519-map-input.md).
 Общий bootstrap теперь исполняет original input.cpp с настоящими game defaults;
 host/ARM64 runtime и MSVC/SDK compile/link gates разделены в отчёте. Полная

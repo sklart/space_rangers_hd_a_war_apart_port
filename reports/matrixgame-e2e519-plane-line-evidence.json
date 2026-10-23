@@ -1,0 +1,171 @@
+{
+  "date": "2026-10-23",
+  "base_commit": "c3141f7e41ca575901508a205d329559816efd08",
+  "build_dirty": true,
+  "source_sha256": {
+    "port/matrixgame/native-core/math_types.hpp": "4cf6bd0adf1125fa5aaa7baa1b8de40185bc38b371252c4c09494230b5f15aed",
+    "tests/matrixgame_bootstrap_game.cpp": "8b3a14efe1451db73ea746977d83445eae62294eaefe40950a05d1adee3c229b",
+    "tests/probe_matrixgame_plane_line_win32.cpp": "74b0801c1cfa22be0061dcadf8835261748504096068754f4cc66e85c4273017"
+  },
+  "source_view": "build\\matrixgame\\e2e519\\map-input-final-source",
+  "source_manifest_sha256": "11531bc9195e3e2631108b4622b75b3169c8094a156ac2df720584213fd8a343",
+  "source_view_files_verified": 240,
+  "native_math_header_is_external_portable_input": true,
+  "results": {
+    "map-plane-integration": {
+      "path": "build\\matrixgame\\e2e519\\map-plane-integration\\result.json",
+      "sha256": "e43ddc81e7ab95ad97521700cc822475ef06dad623b51ebe559c83c42fde5d72",
+      "result": {
+        "results": [
+          {
+            "platform": "host",
+            "exit": 0,
+            "input_cycles": 2,
+            "binary_sha256": "31b54972f9692f2b3902499cda1293dab93702c56e91589e0467de8a8e595065",
+            "map_created": false,
+            "cgame_init_called": false
+          },
+          {
+            "platform": "arm64",
+            "exit": 0,
+            "input_cycles": 2,
+            "binary_sha256": "14fb31a0f6bbe708e043f0bc98347e3f424956fe034cb7a3dc18423054d991df",
+            "map_created": false,
+            "cgame_init_called": false
+          }
+        ],
+        "input_cpp_sha256": "fa237ded3e940dac71f68531f5d3ed8fbbdfd071bdae713f8ff286c540330e0b",
+        "input_header_sha256": "6bbd4741884bf2b374268f93ee22342affb4608caeca34ec5fe50a81a6176155",
+        "game_test_sha256": "8b3a14efe1451db73ea746977d83445eae62294eaefe40950a05d1adee3c229b",
+        "hardware": false
+      }
+    },
+    "map-plane-sdk": {
+      "path": "build\\matrixgame\\e2e519\\map-plane-sdk\\result.json",
+      "sha256": "41ad2fb59b1364476ad8109619193cba68818cd31917f285b142ceee0300451d",
+      "result": {
+        "status": "SDK_COMPILE_LINK_PASS",
+        "undefined_strong": [],
+        "original_map_helper_retained": true,
+        "elf_sha256": "651b1d756b5a4ce465c74dfb291dfa720a870c27a28b0b47ca09b81ef49ef77a",
+        "input_source_sha256": "fa237ded3e940dac71f68531f5d3ed8fbbdfd071bdae713f8ff286c540330e0b",
+        "input_header_sha256": "6bbd4741884bf2b374268f93ee22342affb4608caeca34ec5fe50a81a6176155",
+        "original_input_api_retained": true,
+        "runtime": false,
+        "hardware": false,
+        "nro": false,
+        "baseline_sdk_elf_unchanged": true
+      }
+    },
+    "map-plane-msvc": {
+      "path": "build\\matrixgame\\e2e519\\map-plane-msvc\\result.json",
+      "sha256": "7af12d7fef4b0c67eaea1798215f347c5ff2cc2ebb9d727adb11084a91d7249d",
+      "result": {
+        "oracle": "Microsoft D3DX9 system DLL",
+        "architecture_bits": 32,
+        "cases": 414,
+        "maximum_scaled_error": 2.14225884e-06,
+        "status": "PASS",
+        "dll_sha256": "0b28546be22c71834501f7d7185ede5d79742457331c7ee09efc14490dd64f5f",
+        "source_sha256": "74b0801c1cfa22be0061dcadf8835261748504096068754f4cc66e85c4273017"
+      }
+    },
+    "map-plane-audit": {
+      "path": "build\\matrixgame\\e2e519\\map-plane-audit\\result.json",
+      "sha256": "5b20fa2a087772bb78526bf8c14696b21f203f1bfe1da87cdb6638d799625a18",
+      "result": {
+        "status": "COMPLETE",
+        "scope": "actual objects only; no full link/runtime claim",
+        "units": [
+          {
+            "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/map-input-final-source/MatrixGame/src/MatrixMap.cpp",
+            "source_sha256": "36130f7f02bb829ff9831954c58a6c17b6d59e006628142eb576762631d26e01",
+            "status": "COMPILE_FAIL",
+            "returncode": 1,
+            "first_error": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/map-input-final-source/MatrixGame/src/MatrixMap.cpp:1500:25: error: invalid use of incomplete type ‘struct IDirect3DDevice9’",
+            "log": "0.log"
+          }
+        ],
+        "targets": [
+          "matrixgame-native-engine"
+        ],
+        "source_filters": [
+          "/MatrixMap.cpp"
+        ],
+        "source_view": "build/matrixgame/e2e519/map-input-final-source",
+        "source_manifest_sha256": "11531bc9195e3e2631108b4622b75b3169c8094a156ac2df720584213fd8a343",
+        "compile_pass": 0,
+        "compile_fail": 1,
+        "linked": false,
+        "runtime_executed": false,
+        "hardware_executed": false
+      }
+    }
+  },
+  "logs_sha256": {
+    "build\\matrixgame\\e2e519\\map-plane-integration\\arm64\\archive.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-plane-integration\\arm64\\game-compile.log": "31ddc0f9553dce31889ec5875fba9fe7fb83cfd1c628a6faf6517f9cfe9867dc",
+    "build\\matrixgame\\e2e519\\map-plane-integration\\arm64\\input-compile.log": "cf0bea4561912341a26935581a1fe522bcf2af5a0d0946c28ff895f931545737",
+    "build\\matrixgame\\e2e519\\map-plane-integration\\arm64\\link.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-plane-integration\\arm64\\runtime.log": "510de252a45a8480d26713e938ab109fca8d7fc689a0d6d4fb760ae0e7dfb659",
+    "build\\matrixgame\\e2e519\\map-plane-integration\\host\\archive.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-plane-integration\\host\\game-compile.log": "b8016912e0d199a36b0bc673b20ddd23a037eb967f25c4e5757495d40d7d430e",
+    "build\\matrixgame\\e2e519\\map-plane-integration\\host\\input-compile.log": "ae46b27e782682b5cd3f165862ed1a8600913c0946cc72a6075051f41e786b94",
+    "build\\matrixgame\\e2e519\\map-plane-integration\\host\\link.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-plane-integration\\host\\runtime.log": "510de252a45a8480d26713e938ab109fca8d7fc689a0d6d4fb760ae0e7dfb659",
+    "build\\matrixgame\\e2e519\\map-plane-sdk\\archive.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-plane-sdk\\game-compile.log": "22c45963be3b14f6e0584db7a2e32f7e80fe3dffeeaf7ba21ce10b38e37c47d2",
+    "build\\matrixgame\\e2e519\\map-plane-sdk\\input-compile.log": "672bbe7ec0f4fdf881ed7285faeddb005623c11e98cc627782c90d8a8bf24779",
+    "build\\matrixgame\\e2e519\\map-plane-sdk\\link.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-plane-sdk\\ninja-commands.log": "e76680472bae0ed00a433ca5757d03e4923e3ac39390d07069f9031e8081025b",
+    "build\\matrixgame\\e2e519\\map-plane-sdk\\symbols.log": "ab6d5601dfb81665c9f52b0b77cf90da47222cfd73694aa2c40df04af1e54108",
+    "build\\matrixgame\\e2e519\\map-plane-msvc\\compile.log": "03d0dfdb810f9a1a11569972293390333f5af320ad0d728145c31347e552cdb9",
+    "build\\matrixgame\\e2e519\\map-plane-msvc\\runtime.log": "26b543d0e45101e560fceeb7b80dc9cc7d98a81d1e15e0131e7946882abf141f",
+    "build\\matrixgame\\e2e519\\map-plane-audit\\0.log": "9067f4bdf7e91ebbe25b7d475b300340f94ee2b4722727415dcd42b32a1f5436"
+  },
+  "protected": {
+    "checked": {
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\newgame.txt": "edebec1fbe596bfdb856719310372b9bf69ce7989394b86ae13377db847ec65c",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\QuickSave.sav": "84509d9ab5411555c0a361d5616c94aae6ef3a5c00fa81782ea64192b5c7bd73",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Medical Center Autoclave.sav": "d6e238a00e514712ab9eed796c40c39dd1cddc20f7036de1a7b8d25fee34e622",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\hardware-gpu-a224fa4.zip": "1c5cfebb2696bbf6db98bd2cd598956f468ef1ca8183bbf31271148c30103429",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Sol System.sav": "62c35d050b256e13326ce904123c44bad3756deeb66e269dbae2a66b4f903cc0",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-2.vo": "b7cba8a78faf0c8cf32cf942288d2fdb0d5d21b047d0e9abaa212092c11d9ccd",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\reports\\e2e5\\e2e510-artifact-provenance.json": "eaac3d9181b12566492bda774933af6469f2b0b26104bcc83a8d266fee7759ec",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-1.vo": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\CFG.TXT": "6b63a47bba893e4a33c4f92d3aaa19adf3c45c4032da7a302b140e03ab166180",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\mg-merge-host\\core\\texture-request-fixtures\\assets\\plain.png": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\########.log": "fef05715d095d39568aee8d9c121c1cb232a80a84e0c6e2a56712070d2f505b3",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\AutoSave.sav": "739c428d9a7f13e88e7e2fe65d6435dbf297270be35c672020b9fa7d097ac601",
+      "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce.zip": "e1a1dec5f410b983d629ae538ad9b4ba063f89a8101af43d27ea00c6ce6a08a4"
+    },
+    "unavailable": [
+      "G:\\pack.zip"
+    ],
+    "frozen_game_artifacts": {
+      "switch/space-rangers-hd-a-war-apart/SpaceRangersHD-perf516.nro": "9f654daab36c71cb51940871d4a93bdcceb09edd7da8dde127ab023bfb21e789",
+      "debug/SpaceRangersHD-perf516.elf": "0ca47fa95e614167da814cf63e1bc19e0bd005e94b34763287d713d5c9989ab5"
+    },
+    "hardware_inputs_checked": 107,
+    "hardware_input_manifest_sha256": "30d26a4c29d8b4444978362b48fb795689e816f5045da5249b6644e7479f3bc9",
+    "mismatches": []
+  },
+  "proof_limits": {
+    "full_map_compile": "FAIL at DrawLandscapeSurfaces/SetSamplerState prepared MatrixMap.cpp:1500",
+    "UnitPickGrid_UnitPickWorld_runtime": false,
+    "map_created": false,
+    "CGame_Init": false,
+    "GPU_or_battle": false,
+    "new_nro": false,
+    "hardware": "HARDWARE_PENDING",
+    "D3DX_math_float_domain": "selected finite inputs, scaled tolerance 2e-5; not bit-identical all float"
+  },
+  "main_hardware_causes": {
+    "repeated_text_buffer_owner": "OPEN",
+    "two_manual_ENOENT_phases": "OPEN",
+    "full_map_freeze": "OPEN",
+    "Switch_whole_console_exit_freeze": "OPEN; earlier host shutdown issue fixed separately"
+  },
+  "sanitizers": "host address,undefined,leaks; previous MatrixLogic object retains documented no-vptr exception",
+  "build_scope": "Two TUs input/game-check rebuilt with accepted Logic archive and unchanged driver/dependencies; no full engine rebuild."
+}

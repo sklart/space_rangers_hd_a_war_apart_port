@@ -149,3 +149,15 @@ inline D3DXPLANE* D3DXPlaneFromPointNormal(D3DXPLANE* out,const D3DXVECTOR3* poi
 inline D3DXPLANE* D3DXPlaneFromPoints(D3DXPLANE* out,const D3DXVECTOR3* a,const D3DXVECTOR3* b,const D3DXVECTOR3* c) {
     return StorePlane(out,DirectX::XMPlaneFromPoints(LoadVector3(a),LoadVector3(b),LoadVector3(c)));
 }
+inline D3DXVECTOR3* D3DXPlaneIntersectLine(D3DXVECTOR3* out,const D3DXPLANE* plane,
+    const D3DXVECTOR3* start,const D3DXVECTOR3* end) {
+    // D3DX9 accepts nonzero near-parallel directions; XMPlaneIntersectLine
+    // rejects them with an epsilon. Preserve D3DX's null/unchanged-output
+    // contract for parallel (including coplanar) lines and allow out==start/end.
+    const auto direction=*end-*start;
+    const float denominator=plane->a*direction.x+plane->b*direction.y+plane->c*direction.z;
+    if(denominator==0.0f) return nullptr;
+    const float distance=(plane->a*start->x+plane->b*start->y+plane->c*start->z+plane->d)/denominator;
+    const auto point=*start-direction*distance;
+    *out=point;return out;
+}

@@ -496,6 +496,29 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
     assert(VKey2Char(0x41)=='A' && VKey2Char(0x20)==' ' && VKey2Char(0xbf)=='\\');
     assert(VKey2Char(0xbe)=='.' && VKey2Char(0xc0)=='~' && VKey2Char(0xff)==0);
     std::puts("full original input.cpp EXECUTED against actual g_Config KA_AUTO; down/held/up and original character mapping PASS");
+    {
+        const D3DXPLANE plane{0,0,1,-1};
+        const D3DXVECTOR3 origin{0,0,0};
+        for(float slope:{1.0f,-1.0f,1e-10f,1e-8f,1e-7f}) {
+            D3DXVECTOR3 end{1,0,slope},intersection{111,222,333};
+            assert(D3DXPlaneIntersectLine(&intersection,&plane,&origin,&end)==&intersection);
+            assert(std::abs(intersection.z-1.0f)<1e-5f && intersection.y==0);
+            assert(std::abs(intersection.x*slope-1.0f)<1e-5f);
+            // Infinite line, not segment; aliasing either endpoint is supported.
+            assert(D3DXPlaneIntersectLine(&end,&plane,&origin,&end)==&end);
+            assert(std::abs(end.x-intersection.x)<=1e-5f*std::max(1.0f,std::abs(intersection.x)));
+        }
+        for(const D3DXVECTOR3 start:{D3DXVECTOR3{0,0,0},D3DXVECTOR3{0,0,1}}) {
+            const auto end=start+D3DXVECTOR3{1,0,0};
+            D3DXVECTOR3 unchanged{111,222,333};
+            assert(!D3DXPlaneIntersectLine(&unchanged,&plane,&start,&end));
+            assert(unchanged.x==111 && unchanged.y==222 && unchanged.z==333);
+        }
+        D3DXVECTOR3 start{2,3,4};const D3DXVECTOR3 end{2,3,0};
+        assert(D3DXPlaneIntersectLine(&start,&plane,&start,&end)==&start);
+        assert(start.x==2 && start.y==3 && start.z==1);
+        std::puts("D3DX plane/line contract PASS: infinite/parallel/coplanar/near-parallel and endpoint aliases; full map NOT EXECUTED");
+    }
     assert(!g_Config.m_SoftwareCursor && g_Config.m_ObjTexturesGloss && g_Config.m_LandTexturesGloss);
     assert(g_Config.m_ShowStencilShadows && g_Config.m_ShowProjShadows && g_Config.m_VertexLight);
     assert(g_Config.m_CamParams[CAMERA_STRATEGY].m_CamDistMin==70 && g_Config.m_CamParams[CAMERA_STRATEGY].m_CamDistMax==250);
