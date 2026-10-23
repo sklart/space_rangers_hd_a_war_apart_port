@@ -79,7 +79,8 @@ struct DekoMeshRenderer::Impl {
     const auto plan=ValidateRgba8Upload(w,h,pitch,rgba.size());
     dk::ImageLayout layout;
     dk::ImageLayoutMaker{device}.setFlags(0).setFormat(DkImageFormat_RGBA8_Unorm).setDimensions(w,h).initialize(layout);
-    if(layout.getAlignment()>DK_MEMBLOCK_ALIGNMENT) throw std::runtime_error("deko texture alignment");
+    // Dedicated Image memblock, offset zero: image layout alignment constrains
+    // the offset within the block, not the CPU backing allocation alignment.
     const auto image_bytes=Align(layout.getSize()),staging_bytes=Align(plan.staging_bytes);
     // Account old+new+staging, including replacement's temporary peak. Failure
     // preserves the old slot instead of dropping it to make room implicitly.
@@ -108,7 +109,6 @@ struct DekoMeshRenderer::Impl {
     dk::ImageLayout layout;
     dk::ImageLayoutMaker{device}.setFlags(0).setFormat(formats[static_cast<unsigned>(asset.format)])
       .setDimensions(plan.levels[0].width,plan.levels[0].height).setMipLevels(plan.levels.size()).initialize(layout);
-    if(layout.getAlignment()>DK_MEMBLOCK_ALIGNMENT)throw std::runtime_error("deko texture alignment");
     const auto image_bytes=Align(layout.getSize()),staging_bytes=Align(plan.bytes);
     if(std::uint64_t(texture_bytes)+image_bytes+staging_bytes>texture_budget)
       throw std::length_error("deko texture upload budget");
@@ -149,8 +149,10 @@ struct DekoMeshRenderer::Impl {
       .setFormat(DkImageFormat_RGBA8_Unorm).setDimensions(w,h).initialize(color_layout);
     dk::ImageLayoutMaker{device}.setFlags(DkImageFlags_UsageRender)
       .setFormat(DkImageFormat_Z24S8).setDimensions(w,h).initialize(depth_layout);
-    if(color_layout.getAlignment()>DK_MEMBLOCK_ALIGNMENT || depth_layout.getAlignment()>DK_MEMBLOCK_ALIGNMENT)
-      throw std::runtime_error("deko image alignment exceeds prototype allocator");
+    // Z24S8 can require GPU big-page layout alignment. Both images occupy
+    // separate Image memblocks at offset zero, satisfying that requirement;
+    // deko3d owns the image GPU mappings. DK_MEMBLOCK_ALIGNMENT is a different
+    // requirement on backing allocation size/storage (not an image limit).
     color_mem=Allocate(color_layout.getSize(),DkMemBlockFlags_GpuCached|DkMemBlockFlags_Image);
     depth_mem=Allocate(depth_layout.getSize(),DkMemBlockFlags_GpuCached|DkMemBlockFlags_Image);
     color.initialize(color_layout,color_mem,0); depth.initialize(depth_layout,depth_mem,0);
