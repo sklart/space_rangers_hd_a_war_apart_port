@@ -4,21 +4,31 @@
 
 E2E-5.19: единый bootstrap исполняет оригинальные CMatrixConfig::SetDefaults/Clear,
 проверяет владение ресурсами и повторный вход: host ASan/UBSan и ARM64/QEMU PASS.
-На Windows x86 также выполняются настоящие DLL/window/caps calls, оригинальные
+Полная оригинальная MatrixGame.cpp перешла COMPILE_FAIL → COMPILE_PASS и входит
+в bootstrap вместо выбранного GameVideoNative.cpp. Host/QEMU вызывают её
+ApplyVideoParams и проверяют отказ первой операции без устройства, cleanup/reentry.
+devkitA64 compile/link PASS; Init/Run/map и физический GPU draw ещё не выполнялись.
+
+Текущая Windows x86 сборка полного объекта — **LINK_BLOCKED: 99 символов**
+Init/Deinit/static_init. Это временная регрессия bootstrap после включения полной
+TU; новые WinMM runtime-проверки NOT RUN. ReadParams, legacy L3G entry, карта и
+reset-safe presentation lifecycle остаются незамкнутыми.
+
+В предыдущем Windows x86 срезе подтверждены настоящие DLL/window/caps calls,
 sampler/S3D_Default и полная DeviceState.cpp с восстановлением 207 state values.
 Effect/map buffers используют существующий native staging context; это не GPU upload.
 Полные 3G/Texture/Camera declarations компилируются, SDK compile/link PASS.
-Новый шаг: исправлен memset живого std::wstring в исходном cursor constructor;
+Там же исправлен memset живого std::wstring в исходном cursor constructor;
 на Windows настоящие SetCursor/GetCursor подтверждают Clear/detach/reentry restore.
 Отдельный game heap принадлежит тому же owner; host/QEMU проверяют безопасный
 cursor-prefix Unsupported, а не положительную работу системного курсора.
-Новый участок: оригинальный CGame::ApplyVideoParams выполняет настоящие SDK-запросы
+Предыдущий выбранный CGame::ApplyVideoParams выполнял настоящие SDK-запросы
 параметров устройства, режима адаптера и размеров окна; оконная/полноэкранная
 ветви останавливаются до изменения окна с явным Unsupported. Отказ, rollback
 общих параметров и повторный вызов проверены на Windows NULLREF.
-CGame::Init ещё не вызван. Полная MatrixGame.cpp теперь проходит ApplyVideoParams
-и останавливается на timeBeginPeriod в RunGameLoop. ReadParams, карта,
-reset-safe presentation lifecycle и бой остаются незавершёнными.
+Timer begin/end теперь используют lease общего platform state с настоящим WinMM
+provider на Windows и явным Unsupported без него. Его положительный Windows
+runtime остаётся NOT RUN до восстановления полной компоновки.
 GPU/Switch HARDWARE_PENDING; production NRO не менялась.
 [Актуальная граница bootstrap и evidence](../../reports/matrixgame-e2e519-engine-bootstrap.md).
 

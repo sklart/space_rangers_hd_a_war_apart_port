@@ -917,3 +917,91 @@ Build id: `b85acdc3e4b4c4784d426b940b732dd598026bb3`.
 полный запуск Init/form/loop и бой ещё не достигнуты. Вечерний аппаратный сценарий
 основной игры и отдельного прежнего GPU-прототипа остаётся в
 [инструкции](../docs/e2e517-evening-switch-check.md).
+
+## Продолжение 23.10.2026: полная CGame TU в общем bootstrap
+
+Implementation: `48b469f8a3936e28bfebcb75a372c6b4b2cdf18f`, локальный master,
+без push/fetch. [Полное evidence](matrixgame-e2e519-full-cgame-timing-evidence.json)
+содержит фактические логи, 99 Windows linker errors, effective-source/object/binary
+SHA-256 и protected-input checks.
+
+Снят последний compile blocker полной `MatrixGame.cpp`: исходные
+`RunGameLoop:783 timeBeginPeriod` и `SafeFree:807 timeEndPeriod` теперь обращаются
+к typed platform timer lease. Общий platform3g State владеет одним запросом,
+отклоняет повторный Begin и несовпадающий End, освобождает запрос до teardown
+заимствованного окна/устройства. Win32 provider содержит настоящие WinMM
+timeBeginPeriod/timeEndPeriod; без провайдера запрос явно Unsupported.
+Возвращаемое значение End в исходном SafeFree по-прежнему игнорируется, чтобы
+ошибка release не пропустила дальнейший Deinit. Положительное выполнение WinMM
+**NOT RUN**, поскольку новая Windows-компоновка заблокирована (см. ниже).
+
+Полная TU теперь является настоящим input `matrixgame-native-cache` вместо
+`GameVideoNative.cpp`; прежний generated файл и его archive member удалены из
+управляемых source views. Новый executable/harness не создавался.
+Оригинальный logger использует свой существующий ostream-конструктор со
+std::clog, поэтому подключение полного объекта не открывает test.log в cwd.
+Обратная подстановка только двух timer calls и logger constructor даёт
+побайтово прежнюю полную MatrixGame.cpp; Init/Deinit/static_init/SaveResult и
+остальной RunGameLoop не вырезались и не заменялись.
+
+**Новая точная граница исполнения:** тот же CPU/cache/game-heap/config owner →
+настоящий `CGame::ApplyVideoParams` из полного MatrixGame.cpp object → первая
+creation-parameter операция получает Unsupported из ReadyDevice. На host и
+ARM64 нет подставного устройства/режима экрана; flags/presentation/owner
+сохранены, два цикла очистки и re-init проходят. Wrapper допускает этот
+проверяемый отказ исходного метода при живом CPU/config owner; при наличии
+GPU сохраняется обязательное предусловие sampler settings.
+
+| Gate | Итоговая фактическая граница |
+|---|---|
+| Полная MatrixGame.cpp | **COMPILE_PASS**, независимый audit настоящего объекта; прежний baseline timeBeginPeriod COMPILE_FAIL сохранён |
+| Host ASan/UBSan + leak detection | **PASS** integrated bootstrap: реальный вызов оригинального video method из полной TU, device refusal, owner cleanup/reentry; Init/Run NOT CALLED |
+| ARM64/QEMU | **PASS** того же CPU/error scope; не Switch runtime |
+| devkitA64 | **COMPILE/LINK PASS**, strong undefined=0; полный объект включён, ApplyVideoParams retained; Init/Run sections не входят в итоговый ELF |
+| Windows x86 | Полная TU **COMPILE_PASS**, bootstrap **LINK_BLOCKED**, 99 настоящих unresolved symbols; новый runtime **NOT RUN** |
+| Switch/GPU/map/battle | **HARDWARE_PENDING / NOT EXECUTED** |
+
+ELF-компоновка использует function/data sections и --gc-sections: удерживает
+реально вызываемый метод и отбрасывает незамкнутые Init/Deinit/Run/static_init.
+Это не доказательство полной engine link closure. MSVC /OPT:REF сообщает 99
+unresolved references полного объекта. Текущая Windows-конфигурация bootstrap
+после перехода на полную TU временно не компонуется; её предыдущий selected-method
+PASS не объявляется PASS новой сборки. Подавления unresolved errors и фиктивных
+определений нет. Положительные Windows timer assertions скомпилированы, не запущены.
+
+Конкретные подтверждённые зависимости Windows full-object link:
+
+| Оригинальный узел | Источник / причина |
+|---|---|
+| CMatrixEffect::InitEffects | `MatrixGame/src/Effects/MatrixEffect.cpp:273`; нет связанного оригинального init-effects implementation |
+| Legacy L3GInitAsDLL / L3GRun / L3GDeinit | `MatrixLib/3G/3g.cpp`, DLL init:346; текущий typed backend не реализует весь legacy entry ABI |
+| CMatrixConfig::ReadParams / ApplySettings | `MatrixGame/src/MatrixConfig.cpp:334 / :155`; пока подключены только SetDefaults/Clear |
+| CMatrixCursor::Select | `MatrixGame/src/MatrixCursor.cpp:45`; lifecycle портирован, selection/resources ещё нет |
+| CRenderPipeline constructor | `MatrixGame/src/MatrixRenderPipeline.cpp:2300`; реальный render/map/material graph не замкнут |
+| Static map/effect/interface/selection resources | Все точные decorated/demangled имена и контексты Init/Deinit/static_init сохранены в evidence; нулевые определения ради LINK PASS не добавлялись |
+
+Перед настоящим вызовом Init также необходимо согласовать его исходные
+alloc/static-init/cache действия с единственным NativeInitRuntime owner.
+Текущий native bootstrap уже владеет heap/cache: прямой вызов полного Init
+без этого согласования создал бы конфликт владельцев. Init не запускался.
+
+237 prepared engine files и все core outputs сверены по реальным байтам на
+четырёх платформах и с сохранённой audited view. Binaries построены до commit,
+build_dirty=true, embedded Git SHA отсутствует; evidence связывает их с точным
+implementation SHA. SDK ELF SHA-256:
+`07aa6742d0bcdde77867aa32b1f4fdb398f42fd701d3109ab7e2fe2a734bd41d`.
+Build id: `7fe180a4fbd562adea240108ac7472f97d6b9bdf`.
+Windows executable как новый кандидат не публиковался.
+
+Все 14 protected SHA совпали. Saves/config/logs/resources/upstream и frozen
+аппаратные архивы сохранены; основная NRO не пересобиралась. Общий inventory
+106 и большие standalone suites не повторялись. E2E-5.19 остаётся активным.
+
+Следующие приоритеты:
+
+1. Закрыть реальные entry/config зависимости полного CGame object: legacy
+   L3G entry и оригинальные ReadParams/ApplySettings; восстановить Windows link.
+2. Согласовать ownership/порядок исходного CGame::Init с общим owner и затем
+   продвигать его настоящую map/static-init цепочку.
+3. Закрыть reset-safe device/window/presentation и связанные реальные ресурсы;
+   проверить WinMM lifecycle после восстановления Windows runtime.
