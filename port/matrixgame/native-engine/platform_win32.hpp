@@ -33,6 +33,7 @@ public:
     DisplayMode ReadAdapterDisplayMode(std::uint32_t)override;
     DeviceResult CheckMultisample(std::uint32_t,std::uint32_t,PixelFormat,bool,std::uint32_t)override;
     GammaRamp ReadGamma(std::uint32_t) override;
+    void ApplyCalibratedGamma(std::uint32_t,const GammaRamp&)override;
     void RestoreGamma(std::uint32_t,const GammaRamp&)noexcept override;
     std::uint64_t AvailableTextureBytes() override;
     DeviceResult SetSamplerState(std::uint32_t,SamplerRegister,std::uint32_t) override;

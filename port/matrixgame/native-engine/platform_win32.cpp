@@ -170,6 +170,14 @@ GammaRamp D3D9Device::ReadGamma(std::uint32_t index) {
     std::copy_n(ramp.red,256,result.red.begin());std::copy_n(ramp.green,256,result.green.begin());std::copy_n(ramp.blue,256,result.blue.begin());
     return result;
 }
+void D3D9Device::ApplyCalibratedGamma(std::uint32_t index,const GammaRamp& value) {
+    const auto& state=Current();
+    if(!state.ready || state.device!=this || index>=state.gamma_saved.size() || !state.gamma_saved[index])
+        throw Unsupported("calibrated gamma requires this device's captured original ramp");
+    D3DGAMMARAMP ramp{};
+    std::copy_n(value.red.begin(),256,ramp.red);std::copy_n(value.green.begin(),256,ramp.green);std::copy_n(value.blue.begin(),256,ramp.blue);
+    DeviceRef(device_).SetGammaRamp(index,D3DSGR_CALIBRATE,&ramp);
+}
 void D3D9Device::RestoreGamma(std::uint32_t index,const GammaRamp& saved)noexcept {
     auto& device=*static_cast<IDirect3DDevice9*>(device_);D3DGAMMARAMP ramp{};
     std::copy_n(saved.red.begin(),256,ramp.red);std::copy_n(saved.green.begin(),256,ramp.green);std::copy_n(saved.blue.begin(),256,ramp.blue);

@@ -5,16 +5,18 @@
 #include "game_defaults.hpp"
 #include "MatrixCursor.hpp"
 #include "MatrixGame.h"
+#include "MatrixConfig.hpp"
 #include <stdexcept>
 Base::CHeap* g_MatrixHeap;
 CMatrixMapLogic* g_MatrixMap;
 namespace srhd_awa::matrixgame {
+using Base::CBlockPar;
 namespace {NativeInitRuntime* active{};}
 NativeInitRuntime::NativeInitRuntime()=default;
 bool NativeCacheFactoryBound() noexcept {return active && active->CpuReady();}
 NativeInitRuntime::~NativeInitRuntime(){Deinit();}
 void NativeInitRuntime::Begin(void* module,void* window) {
-    if(active || g_Cache || g_CacheHeap || g_MatrixHeap)throw std::logic_error("live engine/cache/game-heap owner already present");
+    if(active || g_Cache || g_CacheHeap || g_MatrixHeap || g_MatrixData)throw std::logic_error("live engine/cache/game-heap/data owner already present");
     active=this;
     try {
         matrix_heap_=std::make_unique<Base::CHeap>();g_MatrixHeap=matrix_heap_.get();
@@ -46,6 +48,10 @@ void NativeInitRuntime::AttachDevice(platform3g::Window& window,platform3g::Devi
 void NativeInitRuntime::Deinit() noexcept {
     if(game_defaults_){ClearOriginalGameDefaults();game_defaults_=false;}
     if(cpu_owned_){DetachDevice();L3GDeinitCpuPhase();g_Sampler.m_AFDegree=0;cpu_owned_=false;}
+    if(matrix_data_) {
+        if(g_MatrixData==matrix_data_)g_MatrixData=nullptr;
+        HDelete(CBlockPar,matrix_data_,g_MatrixHeap);matrix_data_=nullptr;
+    }
     if(cache_owned_){CacheDeinit();cache_owned_=false;}
     scope_.reset();buffers_.reset();
     if(g_MatrixHeap==matrix_heap_.get())g_MatrixHeap=nullptr;
@@ -61,6 +67,23 @@ void NativeInitRuntime::InitializeGameDefaults() {
     if(active!=this || !CpuReady())throw platform3g::Unsupported("original config defaults require this live CPU/cache owner");
     if(game_defaults_)throw std::logic_error("game defaults already initialized by this owner");
     InitializeOriginalGameDefaults();game_defaults_=true;
+}
+void NativeInitRuntime::LoadGameData(const wchar_t* path) {
+    if(active!=this || !CpuReady() || !GameDefaultsReady())throw std::logic_error("game data requires this CPU/config owner");
+    if(g_MatrixData || matrix_data_)throw std::logic_error("existing game data owner");
+    auto* data=HNew(g_MatrixHeap) CBlockPar{};
+    try {data->LoadFromTextFile(path);}
+    catch(...) {HDelete(CBlockPar,data,g_MatrixHeap);throw;}
+    matrix_data_=data;g_MatrixData=data;
+}
+void NativeInitRuntime::ReadGameParameters() {
+    if(active!=this || !GameDefaultsReady() || !matrix_data_ || g_MatrixData!=matrix_data_)
+        throw std::logic_error("ReadParams requires this owner's real game data");
+    g_Config.ReadParams();
+}
+void NativeInitRuntime::ApplyGameSettings(SRobotsSettings& settings) {
+    if(active!=this || !GameDefaultsReady())throw std::logic_error("game settings require this CPU/config owner");
+    g_Config.ApplySettings(&settings);
 }
 void NativeInitRuntime::ApplySamplerSettings(SRobotsSettings& settings) {
     if(active!=this || !GpuReady())throw platform3g::Unsupported("sampler settings require this live negotiated device");

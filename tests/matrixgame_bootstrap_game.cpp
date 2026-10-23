@@ -14,6 +14,56 @@
 #include "platform_win32.hpp"
 #endif
 using namespace srhd_awa::matrixgame;
+void VerifyBootstrapConfiguration(NativeInitRuntime& runtime,const wchar_t* path,bool negotiated) {
+    assert(!g_MatrixData && runtime.GameDefaultsReady());
+    auto settings=SRobotsSettings::generate_default_settings();
+    settings.m_IzvratMS=true;settings.m_LandTexturesGloss=false;settings.m_ObjTexturesGloss=false;
+    settings.m_RobotShadow=1;settings.m_ShowProjShadows=false;settings.m_ShowStencilShadows=false;
+    settings.m_SkyBox=3;settings.m_SoftwareCursor=true;settings.m_Brightness=.25f;settings.m_Contrast=.75f;
+    runtime.ApplyGameSettings(settings);
+    assert(g_Config.m_IzvratMS && !g_Config.m_LandTexturesGloss && !g_Config.m_ObjTexturesGloss);
+    assert(g_Config.m_RobotShadow==SHADOW_STENCIL && !g_Config.m_ShowProjShadows && !g_Config.m_ShowStencilShadows);
+    assert(g_Config.m_SkyBox==3 && g_Config.m_SoftwareCursor);
+    assert(g_Config.m_GammaR.brightness==.25f && g_Config.m_GammaG.contrast==.75f && g_Config.m_GammaB.gamma==1.f);
+    settings.m_RobotShadow=0;runtime.ApplyGameSettings(settings);assert(g_Config.m_RobotShadow==SHADOW_OFF);
+    std::puts("full original CMatrixConfig::ApplySettings EXECUTED: supplied flags/shadow/gamma copied into real g_Config");
+    bool missing=false;try{runtime.LoadGameData(L"__matrixgame_missing_original_configuration__.txt");}catch(...){missing=true;}
+    assert(missing && !g_MatrixData && runtime.CpuReady());
+    runtime.LoadGameData(path);auto* data=g_MatrixData;assert(data && data->BlockCount(L"Config")==1);
+    bool duplicate=false;try{runtime.LoadGameData(path);}catch(const std::logic_error&){duplicate=true;}
+    assert(duplicate && g_MatrixData==data);
+    for(int attempt=0;attempt<2;++attempt) {
+        bool unsupported=false;
+        try{runtime.ReadGameParameters();}
+        catch(const platform3g::Unsupported& e){unsupported=true;
+            if(!negotiated)assert(std::string(e.what())=="3G device negotiation not complete");
+            std::printf("full original ReadParams EXECUTED on pinned data.txt through config/cursors -> %s\n",e.what());
+        }
+        if(!negotiated)assert(unsupported);
+        const auto* cursors=data->BlockGet(L"Cursors");
+        assert(g_MatrixData==data && runtime.CpuReady() && runtime.GameDefaultsReady());
+        assert(g_Config.m_CursorsCnt==cursors->ParCount() && g_Config.m_CursorsCnt==5);
+        for(int i=0;i<g_Config.m_CursorsCnt;++i) {
+            assert(g_Config.m_Cursors[i].key==cursors->ParGetName(i));
+            assert(g_Config.m_Cursors[i].val==cursors->ParGet(i));
+        }
+        assert(!g_Config.m_SoftwareCursor && g_Config.m_LandTexturesGloss && g_Config.m_ObjTexturesGloss);
+        assert(g_Config.m_SkyBox==1 && !g_Config.m_IzvratMS && g_MaxFPS==100);
+        assert(g_Config.m_GammaR.brightness==.5f && g_Config.m_GammaG.contrast==.5f && g_Config.m_GammaB.gamma==1.f);
+        if(unsupported)assert(!g_Config.m_Labels && !g_Config.m_Descriptions);
+    }
+    // Cleanup-only fixture for the arrays allocated after gamma in the full
+    // parser. This does not claim that its post-gamma gameplay body ran.
+    g_Config.m_Labels=static_cast<std::wstring*>(HAlloc(sizeof(std::wstring)*LABELS_LAST,g_MatrixHeap));
+    for(int i=0;i<LABELS_LAST;++i)new(g_Config.m_Labels+i)std::wstring();
+    g_Config.m_Descriptions=static_cast<std::wstring*>(HAlloc(sizeof(std::wstring)*DESCRIPTIONS_LAST,g_MatrixHeap));
+    for(int i=0;i<DESCRIPTIONS_LAST;++i)new(g_Config.m_Descriptions+i)std::wstring();
+    g_Config.m_Labels[0]=data->BlockGet(L"Cursors")->ParGetName(0);
+    g_Config.m_Descriptions[0]=data->BlockGet(L"Cursors")->ParGet(0);
+    g_Config.Clear();g_Config.Clear();
+    assert(!g_Config.m_Cursors && !g_Config.m_CursorsCnt && !g_Config.m_Labels && !g_Config.m_Descriptions && g_MatrixData==data);
+    std::puts("original CBlockPar real data load + game-heap ownership, missing-file unwind, duplicate refusal and ReadParams retry PASS; direct repeated Clear also frees label/description cleanup fixtures; parser tail NOT EXECUTED on CPU");
+}
 void VerifyBootstrapTimer(NativeInitRuntime& runtime,platform3g::Window& window,platform3g::Device& device,bool negotiated) {
     namespace p=platform3g;
     assert(!p::Current().timer && !p::Current().timer_period);
@@ -100,7 +150,14 @@ struct KonusCleanupAccess:CMatrixEffectKonus {
     static bool Empty(){return m_VB==nullptr;}
 };
 void VerifyBootstrapGameCold() {
-    assert(!g_MatrixHeap);
+    assert(!g_MatrixHeap && !g_MatrixData);
+    {
+        Base::CBlockPar foreign;g_MatrixData=&foreign;
+        NativeInitRuntime refused;bool rejected=false;
+        try{refused.Begin(nullptr,nullptr);}catch(const std::logic_error&){rejected=true;}
+        refused.Deinit();assert(rejected && g_MatrixData==&foreign && !g_MatrixHeap && !g_Cache);
+        g_MatrixData=nullptr;
+    }
     {
         Base::CHeap foreign_heap;g_MatrixHeap=&foreign_heap;
         NativeInitRuntime refused;bool refused_owner=false;

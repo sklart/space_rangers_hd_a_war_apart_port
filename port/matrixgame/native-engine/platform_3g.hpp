@@ -48,6 +48,7 @@ public:
     virtual DeviceResult SetVideoLight(std::uint32_t,const VideoLight&){throw Unsupported("backend video light unsupported");}
     virtual DeviceResult EnableVideoLight(std::uint32_t,bool){throw Unsupported("backend video light enable unsupported");}
     virtual GammaRamp ReadGamma(std::uint32_t swapchain)=0;
+    virtual void ApplyCalibratedGamma(std::uint32_t,const GammaRamp&){throw Unsupported("backend calibrated gamma submission unsupported");}
     virtual void RestoreGamma(std::uint32_t swapchain,const GammaRamp&) noexcept=0;
     virtual std::uint64_t AvailableTextureBytes()=0;
     virtual DeviceResult SetSamplerState(std::uint32_t,SamplerRegister,std::uint32_t) {

@@ -7,6 +7,7 @@
 #include <optional>
 struct SRobotsSettings;
 class CMatrixCursor;
+namespace Base {class CBlockPar;}
 extern Base::CHeap* g_MatrixHeap;
 namespace srhd_awa::matrixgame {
 struct Cpu3GState {void* module;void* window;bool bound;};
@@ -28,6 +29,9 @@ public:
     void ApplyDefaultDeviceState();
     void ApplyVideoSettings(SRobotsSettings&);
     void InitializeGameDefaults();
+    void LoadGameData(const wchar_t*);
+    void ReadGameParameters();
+    void ApplyGameSettings(SRobotsSettings&);
     bool GameDefaultsReady()const noexcept{return CpuReady() && game_defaults_;}
     void InitializeCursor();
     CMatrixCursor* Cursor()const noexcept{return cursor_.get();} // Borrowed until DetachDevice/Deinit.
@@ -40,6 +44,7 @@ public:
     static const char* FirstUnsupportedOperation() noexcept;
 private:
     std::unique_ptr<Base::CHeap> matrix_heap_;
+    Base::CBlockPar* matrix_data_{};
     std::unique_ptr<CMatrixCursor> cursor_;
     std::unique_ptr<buffers::Context> buffers_;
     std::unique_ptr<buffers::Scope> scope_;

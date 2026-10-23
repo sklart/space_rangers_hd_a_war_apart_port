@@ -82,6 +82,8 @@ def prepare_engine(output):
         adapted=patch_resource_header(name,data)
         if adapted!=data:
             path.write_bytes(adapted);paths[name]=hashlib.sha256(adapted).hexdigest()
+    from matrixgame_config_overrides import prepare_config
+    paths.update(prepare_config(output))
     from matrixgame_game_defaults_overrides import prepare_game_defaults
     paths.update(prepare_game_defaults(output))
     from matrixgame_cursor_overrides import prepare_cursor
