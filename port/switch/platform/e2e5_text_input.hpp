@@ -29,6 +29,9 @@ inline bool NativeBackend(const controller_text_input::Request& request,
   if (R_FAILED(swkbdCreate(&keyboard, 0))) return false;
   struct Close { SwkbdConfig* config; ~Close() { swkbdClose(config); } } close{&keyboard};
   swkbdConfigMakePresetDefault(&keyboard);
+  // The default preset selects QWERTY only. Allow the system language picker,
+  // including Cyrillic, without changing the console's language settings.
+  swkbdConfigSetType(&keyboard, SwkbdType_All);
   swkbdConfigSetStringLenMin(&keyboard, request.min_length);
   swkbdConfigSetStringLenMax(&keyboard, request.max_length);
   swkbdConfigSetHeaderText(&keyboard, request.header);
