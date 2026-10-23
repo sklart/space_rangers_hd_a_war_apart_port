@@ -26,6 +26,7 @@ public:
     void DetachDevice() noexcept;
     void ApplySamplerSettings(SRobotsSettings&);
     void ApplyDefaultDeviceState();
+    void ApplyVideoSettings(SRobotsSettings&);
     void InitializeGameDefaults();
     bool GameDefaultsReady()const noexcept{return CpuReady() && game_defaults_;}
     void InitializeCursor();

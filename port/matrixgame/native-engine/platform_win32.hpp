@@ -17,6 +17,8 @@ public:
     CursorHandle ReadCursor()override;
     void DestroyCursorIcon(IconHandle)override;
     void Update()override;
+    WindowRect ReadClientRect()override;
+    WindowRect ReadWindowRect()override;
 private:void* hwnd_;
 };
 class D3D9Device final:public Device,public StoredStateBackend {
@@ -25,6 +27,9 @@ public:
     D3D9Device(const D3D9Device&)=delete;
     D3D9Device& operator=(const D3D9Device&)=delete;
     DeviceCaps ReadCaps() override;
+    CreationParameters ReadCreationParameters()override;
+    DisplayMode ReadAdapterDisplayMode(std::uint32_t)override;
+    DeviceResult CheckMultisample(std::uint32_t,std::uint32_t,PixelFormat,bool,std::uint32_t)override;
     GammaRamp ReadGamma(std::uint32_t) override;
     void RestoreGamma(std::uint32_t,const GammaRamp&)noexcept override;
     std::uint64_t AvailableTextureBytes() override;

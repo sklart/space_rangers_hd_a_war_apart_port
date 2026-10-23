@@ -9,6 +9,34 @@
 #include <cstring>
 #include <iterator>
 namespace srhd_awa::matrixgame::platform3g {
+namespace {IDirect3DDevice9& DeviceRef(void*);}
+CreationParameters D3D9Device::ReadCreationParameters() {
+    D3DDEVICE_CREATION_PARAMETERS p{};
+    CheckDeviceResult(static_cast<DeviceResult>(DeviceRef(device_).GetCreationParameters(&p)),"GetCreationParameters");
+    return {p.AdapterOrdinal,static_cast<std::uint32_t>(p.DeviceType),p.BehaviorFlags,p.hFocusWindow};
+}
+DisplayMode D3D9Device::ReadAdapterDisplayMode(std::uint32_t adapter) {
+    IDirect3D9* api=nullptr;
+    CheckDeviceResult(static_cast<DeviceResult>(DeviceRef(device_).GetDirect3D(&api)),"GetDirect3D");
+    struct Owner {IDirect3D9* p;~Owner(){p->Release();}} owner{api};
+    D3DDISPLAYMODE mode{};
+    CheckDeviceResult(static_cast<DeviceResult>(api->GetAdapterDisplayMode(adapter,&mode)),"GetAdapterDisplayMode");
+    return {mode.Width,mode.Height,mode.RefreshRate,static_cast<PixelFormat>(mode.Format)};
+}
+DeviceResult D3D9Device::CheckMultisample(std::uint32_t adapter,std::uint32_t type,PixelFormat format,bool windowed,std::uint32_t samples) {
+    IDirect3D9* api=nullptr;
+    CheckDeviceResult(static_cast<DeviceResult>(DeviceRef(device_).GetDirect3D(&api)),"GetDirect3D");
+    struct Owner {IDirect3D9* p;~Owner(){p->Release();}} owner{api};
+    return static_cast<DeviceResult>(api->CheckDeviceMultiSampleType(adapter,static_cast<D3DDEVTYPE>(type),static_cast<D3DFORMAT>(format),windowed,static_cast<D3DMULTISAMPLE_TYPE>(samples),nullptr));
+}
+WindowRect Win32Window::ReadClientRect() {
+    RECT r{};if(!GetClientRect(static_cast<HWND>(hwnd_),&r))throw std::runtime_error("GetClientRect failed");
+    return {r.left,r.top,r.right,r.bottom};
+}
+WindowRect Win32Window::ReadWindowRect() {
+    RECT r{};if(!GetWindowRect(static_cast<HWND>(hwnd_),&r))throw std::runtime_error("GetWindowRect failed");
+    return {r.left,r.top,r.right,r.bottom};
+}
 namespace {
 constexpr wchar_t property[]=L"SRHD.MatrixGame.Native3G.Attachment";
 struct Attachment final:WindowAttachment {

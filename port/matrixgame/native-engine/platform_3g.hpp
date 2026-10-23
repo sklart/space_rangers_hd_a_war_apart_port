@@ -7,6 +7,7 @@
 #include <string>
 #include "../deko/sampler_state.hpp"
 #include "../deko/raster_state.hpp"
+#include "video_types.hpp"
 namespace srhd_awa::matrixgame::platform3g {
 struct Unsupported:std::runtime_error {using std::runtime_error::runtime_error;};
 // Only facts actually supplied by a backend. No D3DCAPS9 impersonation or
@@ -36,6 +37,16 @@ class Device {
 public:
     virtual ~Device()=default;
     virtual DeviceCaps ReadCaps()=0;
+    virtual CreationParameters ReadCreationParameters(){throw Unsupported("backend creation parameters unsupported");}
+    virtual DisplayMode ReadAdapterDisplayMode(std::uint32_t){throw Unsupported("backend display mode unsupported");}
+    virtual DeviceResult CheckMultisample(std::uint32_t,std::uint32_t,PixelFormat,bool,std::uint32_t){throw Unsupported("backend multisample query unsupported");}
+    // A real Reset needs a reset-safe lease, default-pool release and borrowed
+    // presentation restoration. Never return success while these are unclosed.
+    virtual DeviceResult ResetPresentation(Presentation&){throw Unsupported("device Reset lifecycle unsupported");}
+    virtual DeviceResult SetVideoViewport(const VideoViewport&){throw Unsupported("backend video viewport unsupported");}
+    virtual DeviceResult SetVideoMaterial(const VideoMaterial&){throw Unsupported("backend video material unsupported");}
+    virtual DeviceResult SetVideoLight(std::uint32_t,const VideoLight&){throw Unsupported("backend video light unsupported");}
+    virtual DeviceResult EnableVideoLight(std::uint32_t,bool){throw Unsupported("backend video light enable unsupported");}
     virtual GammaRamp ReadGamma(std::uint32_t swapchain)=0;
     virtual void RestoreGamma(std::uint32_t swapchain,const GammaRamp&) noexcept=0;
     virtual std::uint64_t AvailableTextureBytes()=0;
@@ -78,6 +89,11 @@ public:
     virtual CursorHandle ReadCursor(){throw Unsupported("backend cursor query unsupported");}
     virtual void DestroyCursorIcon(IconHandle){throw Unsupported("backend owned icon destruction unsupported");}
     virtual void Update(){throw Unsupported("backend window update unsupported");}
+    virtual WindowRect ReadClientRect(){throw Unsupported("backend client rectangle unsupported");}
+    virtual WindowRect ReadWindowRect(){throw Unsupported("backend window rectangle unsupported");}
+    virtual void ResizeOuter(std::int32_t,std::int32_t){throw Unsupported("window resize requires reset-safe presentation ownership");}
+    virtual void SetFullscreenStyle(){throw Unsupported("fullscreen style requires reset-safe presentation ownership");}
+    virtual void MoveFullscreen(std::int32_t,std::int32_t){throw Unsupported("fullscreen move requires reset-safe presentation ownership");}
 };
 struct State {
     void* module{};void* window_identity{};bool external{};
@@ -87,6 +103,7 @@ struct State {
     std::array<GammaRamp,2> saved_gamma{};
     std::array<bool,2> gamma_saved{};
     std::uint32_t flags{};
+    Presentation presentation{};
     int available_texture_mib{};
     bool ready{};
 };

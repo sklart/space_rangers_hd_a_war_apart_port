@@ -8,7 +8,56 @@
 #include <cassert>
 #include <cmath>
 #include <cstdio>
+#include <string>
+#include "MatrixGame.h"
 using namespace srhd_awa::matrixgame;
+void VerifyBootstrapVideo(NativeInitRuntime& runtime,platform3g::Window& window,platform3g::Device& device,bool negotiated) {
+    namespace p=platform3g;
+    auto settings=SRobotsSettings::generate_default_settings();
+    if(!negotiated) {
+        bool rejected=false;try{runtime.ApplyVideoSettings(settings);}catch(const p::Unsupported&){rejected=true;}
+        assert(rejected && runtime.CpuReady() && !runtime.GpuReady() && !g_MatrixMap);
+        std::puts("original CGame video unavailable without actual window/device; no synthetic display");return;
+    }
+    window.Show(p::Visibility::Normal);window.Update();
+    const auto creation=device.ReadCreationParameters();
+    const auto mode=device.ReadAdapterDisplayMode(creation.AdapterOrdinal);
+    std::printf("video actual creation: adapter=%u type=%u flags=%u focus=%p bound=%p mode=%ux%u/%u\n",creation.AdapterOrdinal,creation.DeviceType,creation.BehaviorFlags,creation.FocusWindow,window.Identity(),mode.Width,mode.Height,mode.RefreshRate);
+    // NULLREF reports a null focus window even when CreateDevice received a
+    // HWND. The SDK-only helper checks every returned field against raw SDK.
+    assert(window.Identity() && mode.Width>0 && mode.Height>0);
+    const auto client=window.ReadClientRect(),outer=window.ReadWindowRect();
+    settings.m_ResolutionX=client.right;settings.m_ResolutionY=client.bottom;
+    settings.m_BPP=(mode.Format==p::PixelFormat::Xrgb8 || mode.Format==p::PixelFormat::Argb8)?32:16;
+    settings.m_RefreshRate=0;settings.m_FSAASamples=0;
+    runtime.ApplySamplerSettings(settings);
+    const auto flags=p::Current().flags;const auto presentation=p::Current().presentation;
+    const auto world=device.ReadWorldTransform();const auto leases=device.OutstandingStateLeases();
+    for(int attempt=0;attempt<2;++attempt) {
+        bool rejected=false;
+        try{runtime.ApplyVideoSettings(settings);}
+        catch(const p::Unsupported& e){
+            rejected=true;const std::string message=e.what();
+            assert(message=="window resize requires reset-safe presentation ownership");
+            std::printf("original CGame::ApplyVideoParams EXECUTED actual adapter=%u type=%u mode=%ux%u/%u client=%dx%d -> %s\n",creation.AdapterOrdinal,creation.DeviceType,mode.Width,mode.Height,mode.RefreshRate,client.right,client.bottom,e.what());
+        }
+        assert(rejected && runtime.GpuReady() && runtime.GameDefaultsReady() && !g_MatrixMap);
+        assert(p::Current().flags==flags && p::Current().presentation==presentation);
+        assert(window.ReadClientRect()==client && window.ReadWindowRect()==outer);
+        assert(device.ReadWorldTransform()==world && device.OutstandingStateLeases()==leases);
+    }
+    settings.m_FSAASamples=17;
+    bool invalid=false;try{runtime.ApplyVideoSettings(settings);}catch(const p::Unsupported&){assert(false);}catch(...){invalid=true;}
+    assert(invalid && p::Current().flags==flags && p::Current().presentation==presentation);
+    // Real refresh mismatch selects the original fullscreen path. It must
+    // reject before changing the caller's style or resetting its device.
+    settings.m_FSAASamples=0;settings.m_RefreshRate=mode.RefreshRate+1;
+    bool fullscreen_denied=false;
+    try{runtime.ApplyVideoSettings(settings);}catch(const p::Unsupported& e){fullscreen_denied=std::string(e.what())=="fullscreen style requires reset-safe presentation ownership";}
+    assert(fullscreen_denied && window.ReadWindowRect()==outer && window.ReadClientRect()==client);
+    assert(p::Current().flags==flags && p::Current().presentation==presentation && !g_MatrixMap);
+    std::puts("CGame video validation/window/fullscreen refusal, shared-state rollback and retry PASS; Reset/map/material/light NOT EXECUTED");
+}
 static_assert(sizeof(SKonusVertex)==20);
 // Protected original cleanup is callable without constructing an effect or
 // substituting its virtual gameplay methods. Statics come from original CPP.

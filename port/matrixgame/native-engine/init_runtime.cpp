@@ -4,8 +4,10 @@
 #include "device_defaults.hpp"
 #include "game_defaults.hpp"
 #include "MatrixCursor.hpp"
+#include "MatrixGame.h"
 #include <stdexcept>
 Base::CHeap* g_MatrixHeap;
+CMatrixMapLogic* g_MatrixMap;
 namespace srhd_awa::matrixgame {
 namespace {NativeInitRuntime* active{};}
 NativeInitRuntime::NativeInitRuntime()=default;
@@ -64,6 +66,16 @@ void NativeInitRuntime::ApplySamplerSettings(SRobotsSettings& settings) {
     if(active!=this || !GpuReady())throw platform3g::Unsupported("sampler settings require this live negotiated device");
     g_Sampler.ApplySettings(&settings); // Same original call as CGame::Init:323.
     sampler_configured_=true;defaults_applied_=false;
+}
+void NativeInitRuntime::ApplyVideoSettings(SRobotsSettings& settings) {
+    if(active!=this || !GpuReady() || !GameDefaultsReady() || !sampler_configured_)
+        throw platform3g::Unsupported("video settings require this owner's device, game defaults and sampler settings");
+    auto& state=platform3g::Current();
+    const auto flags=state.flags;const auto presentation=state.presentation;
+    // Current providers reject every window mutation and Reset before side
+    // effects. Preserve the shared CPU values as well on that failure path.
+    try {CGame::ApplyVideoParams(settings);}
+    catch(...) {state.flags=flags;state.presentation=presentation;throw;}
 }
 void NativeInitRuntime::ApplyDefaultDeviceState() {
     if(active!=this || !GpuReady() || !sampler_configured_)
