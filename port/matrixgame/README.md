@@ -17,8 +17,8 @@ Destructor снимает только собственный g_LoadProgress: п
 исполнены настоящий CTextureManaged, ParseFlags, Load/Init, чтение файла и
 bitmap-prefix до DecodeTexture/CreateTexture Unsupported. Registry, временная
 текстура, отказ загрузки, cleanup/reentry проверены. Это selected methods,
-не полная Texture.cpp. При renderer relink две texture RTTI зависимости сняты;
-остаётся CMatrixMapObject. Создание SDK-текстуры и GPU parity ещё NOT RUN.
+не полная Texture.cpp. Две texture RTTI зависимости закрыты настоящими методами.
+Создание SDK-текстуры и GPU parity ещё NOT RUN.
 Полная оригинальная MatrixGame.cpp перешла COMPILE_FAIL → COMPILE_PASS и входит
 в bootstrap вместо выбранного GameVideoNative.cpp. Host/QEMU вызывают её
 ApplyVideoParams и проверяют отказ первой операции без устройства, cleanup/reentry.
@@ -34,11 +34,13 @@ Legacy L3GInitAsDLL/L3GDeinit теперь определены через то�
 Legacy flags/window/module/configured dimensions ссылаются на общий platform state.
 Положительный SDK runtime нового legacy entry пока NOT RUN.
 
-Полная MatrixRenderPipeline.cpp теперь компилируется на host, Linux ARM64 и
-devkitA64; Windows включает её в native-cache с настоящими water/terrain callbacks.
-Конструктор и деструктор замкнуты при Windows link, однако **ещё не исполнялись**.
-Host/ARM CPU bootstrap её не включает: пробное подключение под UBSan выявило
-незамкнутый RTTI оригинальных texture/map-object классов. Проверки не отключались.
+Полная MatrixRenderPipeline.cpp теперь включена в общий bootstrap всех платформ.
+Host ASan/UBSan и ARM64/QEMU реально входят в оригинальный constructor до первой
+caps операции: без устройства получен Unsupported, HNew unwind/retry проверен.
+Constructor ещё не завершался успешно; выбор callback table и SDK state readback
+остаются NOT RUN. RTTI CMatrixMapObject относился к двум неиспользуемым object
+callbacks: их полные тела сохранены с внутренним linkage. Класс не объявляется
+перенесённым; действующие water/terrain callbacks и проверки UBSan сохранены.
 Состояние SDK расширено для FVF/declaration, texture stages и матриц; новые
 проверки реального SDK readback компилируются, но остаются NOT RUN.
 

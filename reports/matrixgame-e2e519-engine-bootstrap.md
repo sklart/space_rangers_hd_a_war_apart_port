@@ -1573,3 +1573,107 @@ audit/relink проверял конкретную новую ресурсную
 E2E-5.19 остаётся активным. Новая граница исполнения — настоящие managed texture
 методы и чтение/bitmap-prefix до первой неподдержанной GPU операции, с проверенным
 освобождением ресурсов; полного запуска игры ещё нет.
+
+## Продолжение 23.10.2026: настоящий вход в constructor рендера
+
+Implementation: `09975e98ee6b5255c2be1de55f1dfdf3b8276ee6`, baseline:
+`39408a552bf37aec9f46d7a384bb69a5b2c4327c`. Локальный master, без push/fetch.
+[Renderer-entry evidence](matrixgame-e2e519-renderer-entry-evidence.json)
+содержит runtime-логи, проверку reference scope, source/binary hashes,
+Windows errors и текущую доступность защищённых файлов.
+
+**Уточнение предыдущего вывода о первом блокере:** сам CMatrixMapObject не
+требуется активному constructor CRenderPipeline. Остаточная RTTI-ссылка шла из
+`obj_ordinal_t4` и `obj_ordinal_gloss_t4` в MatrixRenderPipeline.cpp. В pinned
+исходниках обе функции не имеют header/extern/export/call references вне этой
+TU; после исключения комментариев единственное вхождение имени — определение.
+Все назначения их в object callback table закомментированы уже в оригинале.
+Ссылка появилась из-за удержания неиспользуемых внешних functions/UBSan metadata.
+Начинать полный перенос map-object/shadow поведения только ради этого не нужно.
+
+Обе функции получили `static` linkage. **Тела полностью сохранены.** Обратное
+удаление ровно двух добавленных `static` даёт побайтово прежний prepared CPP;
+constructor, destructor, callback assignments и остальные методы не менялись.
+Объявления DLL API не затронуты. Ничего не заменено заглушкой и RTTI не
+сфабрикован; sanitizer flags/проверки не отключались. Если позднее реальный
+in-TU caller/назначение этих функций будет включён, обычная компиляция снова
+потребует настоящие зависимости их классов. **CMatrixMapObject не перенесён.**
+
+После этого полная MatrixRenderPipeline.cpp включена в native-cache на **всех**
+платформах, вместо прежнего Windows-only включения. Нормальная host компоновка
+общего bootstrap теперь проходит; в объекте и итоговом бинарнике есть настоящий
+constructor/destructor рендера, отсутствуют две неиспользуемые функции и RTTI
+ссылка на MapObject. В devkitA64 ELF constructor/destructor также реально
+retained. Это закрытие текущей renderer TU, а не full-engine link.
+
+NativeInitRuntime владеет renderer через исходную пару HNew(game heap)/HDelete.
+g_Render публикуется только после успешного constructor. Finish снимает только
+собственную публикацию, освобождает объект до device/texture/cache/heap teardown
+и допускает повторные вызовы. Исходный полный CGame::Init не менялся.
+
+**Реальная новая граница исполнения на host/QEMU:** NativeInitRuntime →
+InitializeRenderPipeline → HNew(g_MatrixHeap) CRenderPipeline → исходный memset →
+первый MaxSimultaneousTextures prerequisite → ReadyDevice →
+`3G device negotiation not complete`. Constructor **вызван, но не завершён**.
+После исключения matching placement delete освобождает память, g_Render и slot
+остаются null; CPU owner сохраняется. Проверены два retry в каждом из двух
+sessions, repeated Finish/Deinit и прежние реальные texture/config/cache стадии.
+Доступные caps или успешная callback table на host не имитируются.
+
+В существующем Windows bootstrap подготовлен положительный путь: реальные SDK
+caps, исходные tiers числа water/terrain passes, непустые callback slots,
+duplicate-owner refusal, вызов **оригинального TerBotClear** через таблицу →
+реальные SDK SetRenderState/GetRenderState, Finish/reentry и удержание renderer
+до настоящего DetachDevice/Deinit. При фактических caps<2 проверяется исходный
+отказ карты. Эти проверки компилируются, но **NOT RUN** до закрытия Windows link.
+
+| Gate | Доказано |
+|---|---|
+| Host ASan/UBSan + leak detection | PASS настоящего входа в constructor, первого device refusal, game-heap unwind/retry и двух общих sessions |
+| Linux ARM64/QEMU | PASS того же реально исполненного CPU-prefix |
+| devkitA64 | COMPILE/LINK PASS с retained renderer constructor/destructor, strong undefined=0; runtime NOT RUN |
+| Windows x86/x64 | Новые constructor/callback/SDK-readback проверки компилируются; LINK_BLOCKED 33, без новых unresolved |
+| Успешный renderer constructor/table, callbacks, GPU | NOT EXECUTED / HARDWARE_PENDING |
+| Полный CGame::Init, map/form/loop/battle | NOT CALLED / NOT EXECUTED |
+
+Проверялся один existing bootstrap candidate. Новый executable/prototype не
+создан; полная compile inventory и старые standalone suites не повторялись.
+Основные команды прежние: `cmake --build build/matrixgame/e2e519/host --target
+matrixgame-native-bootstrap -j6`, запуск с ASAN_OPTIONS=detect_leaks=1:halt_on_error=1
+и UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 на прежних model-1.vo/plain.png/
+pinned data.txt; тот же driver через qemu-aarch64 -L /usr/aarch64-linux-gnu.
+SDK — matrixgame_init_sdk.py --output build/matrixgame/e2e519/sdk --bootstrap --resume.
+Полные SDK commands и runtime texts сохранены в evidence.
+
+239 prepared files и core outputs сверены по фактическим байтам между всеми
+пятью конфигурациями. Generated изменение только одно — renderer CPP с двумя
+добавлениями linkage; original managed-texture CPP и полный CGame CPP неизменны.
+Effective manifest SHA-256:
+`36571c58fd4c0637dd71ca2515e115c9da11ed75f831540301a1ecbcf51cad8e`.
+SDK ELF SHA-256:
+`f45f7944c0ce89ba5423165e34e646fe44598d4babd4cf63b4a3162d70163b87`,
+build id `3ec51b3b3cad925c0b78c99d9c3dacb0935792c7`, 4699632 bytes.
+build_dirty=true перед commit; embedded Git SHA отсутствует. Native inputs
+сверены с implementation commit с нормализацией только CRLF/LF.
+
+**Сохранность:** все **13 доступных** защищённых файлов совпали с baseline,
+включая saves/config/logs, реальные VO/PNG, оба frozen аппаратных комплекта.
+Pinned upstream чистый; основная NRO не пересобиралась, новый NRO не создавался.
+`G:\pack.zip` сейчас недоступен: текущий SHA повторно не измерен. Последний
+подтверждённый SHA `f2ea785ad8f1ca35288132a2fee211ac0e6e7bd2db00cff35f4a1fbc2cfed51f`
+сохранён в предыдущем original-texture evidence. Полное сравнение 14/14 сейчас
+**не объявляется PASS**; файл не переносился и не восстанавливался.
+
+Следующие три приоритета:
+
+1. Закрывать реальные зависимости полного CGame по порядку Init (включая
+   SetMaxCameraDistance в MatrixCamera.cpp и последующий map/interface entry),
+   затем исполнить подготовленные положительные SDK renderer/state проверки.
+2. Согласовать настоящие map/interface/resource/cache factories, сохраняя
+   различие исходного CTextureManaged и принятого CPU CacheTexture.
+3. Согласовать Init/static-init/heap/cache/data ownership перед вызовом полного
+   оригинального CGame::Init. Повторно инициализировать живой owner нельзя.
+
+E2E-5.19 остаётся активным. Новый результат — полный renderer в общей связке
+и фактический вход в его constructor до первого отсутствующего устройства;
+успешной инициализации рендера и запуска игры ещё нет.
