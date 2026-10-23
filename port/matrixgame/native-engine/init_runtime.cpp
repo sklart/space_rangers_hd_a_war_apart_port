@@ -3,6 +3,7 @@
 #include "MatrixSampleStateManager.hpp"
 #include "device_defaults.hpp"
 #include "game_defaults.hpp"
+#include "game_statics.hpp"
 #include "MatrixCursor.hpp"
 #include "MatrixGame.h"
 #include "MatrixConfig.hpp"
@@ -17,12 +18,14 @@ NativeInitRuntime::NativeInitRuntime()=default;
 bool NativeCacheFactoryBound() noexcept {return active && active->CpuReady();}
 NativeInitRuntime::~NativeInitRuntime(){Deinit();}
 void NativeInitRuntime::Begin(void* module,void* window) {
-    if(active || g_Cache || g_CacheHeap || g_MatrixHeap || g_MatrixData)throw std::logic_error("live engine/cache/game-heap/data owner already present");
+    if(active || g_Cache || g_CacheHeap || g_MatrixHeap || g_MatrixData || g_Render || g_MatrixMap || g_IFaceList || g_LoadProgress || g_FormFirst || g_FormLast || g_FormCur)
+        throw std::logic_error("live engine/cache/game-heap/data/form owner already present");
     active=this;
     try {
-        matrix_heap_=std::make_unique<Base::CHeap>();g_MatrixHeap=matrix_heap_.get();
         buffers_=std::make_unique<buffers::Context>();
         scope_=std::make_unique<buffers::Scope>(*buffers_);
+        InitializeOriginalGameStatics();statics_owned_=true;
+        matrix_heap_=std::make_unique<Base::CHeap>();g_MatrixHeap=matrix_heap_.get();
         CacheInit();cache_owned_=true;
         L3GInitAsDLLCpuPhase(module,window);cpu_owned_=true;
     } catch(...) {Deinit();throw;}
@@ -86,6 +89,7 @@ void NativeInitRuntime::Deinit() noexcept {
     scope_.reset();buffers_.reset();
     if(g_MatrixHeap==matrix_heap_.get())g_MatrixHeap=nullptr;
     matrix_heap_.reset();
+    if(statics_owned_){Base::CMain::BaseDeInit();statics_owned_=false;}
     if(active==this)active=nullptr;
 }
 void NativeInitRuntime::InitializeCursor() {

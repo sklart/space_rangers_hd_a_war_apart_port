@@ -83,10 +83,21 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
         const auto hwnd=static_cast<HWND>(window->Identity());
         const auto original_proc=GetWindowLongPtrW(hwnd,GWLP_WNDPROC);
 #endif
+        {
+            Form foreign;FormChange(&foreign);
+            NativeInitRuntime refused;bool rejected=false;
+            try{refused.Begin(module,window->Identity());}catch(const std::logic_error&){rejected=true;}
+            refused.Deinit();
+            assert(rejected && !refused.OriginalStaticsReady() && g_FormCur==&foreign && g_FormFirst==&foreign && g_FormLast==&foreign);
+            FormChange(nullptr);
+        }
         cold();
         for(unsigned cycle=0;cycle<2;++cycle) {
             std::printf("cycle=%u entering original cache/CPU bootstrap\n",cycle);
+            g_Flags|=GFLAG_EXITLOOP; // Genuine stale loop state must be reset by original static_init.
             NativeInitRuntime runtime;runtime.Begin(module,window->Identity());
+            assert(runtime.OriginalStaticsReady() && g_Flags==0);
+            std::puts("full original CGame static_init EXECUTED before game heap/cache: stale EXITLOOP cleared, real original static data bound");
             std::puts("CacheInit + L3G CPU prefix EXECUTED");
             MaterialTexture stale;
             {
@@ -149,7 +160,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
                 VerifyBootstrapLegacy(runtime,module,*window,*device,false);
 #endif
             }
-            runtime.Deinit();runtime.Deinit();cold();
+            runtime.Deinit();runtime.Deinit();assert(!runtime.OriginalStaticsReady());cold();
             bool expired=false;try{(void)stale.Read();}catch(...){expired=true;}assert(expired);
 #ifdef _WIN32
             assert(IsWindow(hwnd) && GetWindowLongPtrW(hwnd,GWLP_WNDPROC)==original_proc);

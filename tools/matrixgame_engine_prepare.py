@@ -92,6 +92,8 @@ def prepare_engine(output):
     paths.update(prepare_interface_headers(output))
     from matrixgame_video_overrides import prepare_video
     paths.update(prepare_video(output))
+    from matrixgame_static_resources_overrides import prepare_static_resources
+    paths.update(prepare_static_resources(output))
     result={'schema':1,'source_commit':revision,'scope':'full engine compilation input; runtime/backend not implemented here',
         'files_sha256':paths,'portable_inputs':report['inputs_sha256'],
         'excluded_platform_launcher':'MatrixGameDll.cpp; native entry remains to implement'}

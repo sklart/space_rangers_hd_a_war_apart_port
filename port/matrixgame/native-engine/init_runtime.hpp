@@ -42,6 +42,7 @@ public:
     std::optional<platform3g::DeviceResult> LastStateRestoreResult()const noexcept{return last_restore_;}
     void Deinit() noexcept;
     bool CpuReady() const noexcept {return cpu_owned_;}
+    bool OriginalStaticsReady()const noexcept {return statics_owned_;}
     // Device negotiation completed; does not imply a game draw/map is supported.
     bool GpuReady() const noexcept {return cpu_owned_ && platform3g::Current().ready && bool(device_snapshot_);}
     static const char* FirstUnsupportedOperation() noexcept;
@@ -58,5 +59,6 @@ private:
     bool sampler_configured_{},defaults_applied_{};
     bool game_defaults_{};
     bool cache_owned_{},cpu_owned_{};
+    bool statics_owned_{};
 };
 }
