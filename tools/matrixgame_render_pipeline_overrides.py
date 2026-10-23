@@ -67,8 +67,12 @@ def prepare_render_pipeline(output):
 #endif
 #include "render_pipeline_backend.hpp"
 namespace rp3g=srhd_awa::matrixgame::platform3g;
-namespace original_renderer_ops {
-'''+helpers+'\n}\n'
+'''
+    # One original implementation serves renderer and the other original TUs.
+    # Embedding it only in a renderer-private namespace left the ordinary
+    # global 3g.hpp declarations unresolved for map/debug consumers on MSVC.
+    write('MatrixGame/src/OriginalRendererOps.cpp',prelude+helpers+'\n')
+    prelude+='\n#include "renderer_ops.hpp"\n'
     name='MatrixGame/src/MatrixRenderPipeline.cpp'
     text=(output/name).read_text(encoding='utf-8')
     # Checked HRESULT behavior stays !=0; no CExceptionD3D implementation needed.

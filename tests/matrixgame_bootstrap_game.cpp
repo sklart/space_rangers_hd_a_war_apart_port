@@ -27,6 +27,7 @@
 #include "platform_win32.hpp"
 #endif
 using namespace srhd_awa::matrixgame;
+void VerifyOriginalDebugFontOwner();
 void VerifyBootstrapMapCamera(NativeInitRuntime& runtime) {
     assert(runtime.GameDefaultsReady() && !runtime.MapCamera() && !g_MatrixMap);
     const auto gpu=runtime.GpuReady();
@@ -308,6 +309,14 @@ void VerifyBootstrapConfiguration(NativeInitRuntime& runtime,const wchar_t* path
             assert(rejected && !g_MatrixMap && g_MatrixHeap==heap && g_Cache==cache && g_MatrixData==data);
             assert(runtime.CpuReady() && runtime.GameDefaultsReady() && !runtime.GpuReady());
         }
+    } else {
+        // Original font owner on the negotiated, borrowed real SDK device.
+        // No direct write to platform readiness and no fake map publication.
+        assert(runtime.GpuReady());
+        const auto leases=platform3g::ReadyDevice().OutstandingStateLeases();
+        VerifyOriginalDebugFontOwner();
+        assert(!g_MatrixMap && g_MatrixData==data && runtime.GpuReady());
+        assert(platform3g::ReadyDevice().OutstandingStateLeases()==leases);
     }
     for(int attempt=0;attempt<2;++attempt) {
         bool unsupported=false;

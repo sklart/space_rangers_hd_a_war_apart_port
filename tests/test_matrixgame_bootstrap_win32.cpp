@@ -3,12 +3,15 @@
 #define NOMINMAX
 #include <windows.h>
 #include <d3d9.h>
+#include <d3dx9core.h>
 #include "platform_win32.hpp"
 #include "console_backend.hpp"
+#include "debug_font_backend.hpp"
 #include <cstdio>
 #include <cassert>
 #include <array>
 #include <cstring>
+#include <cwchar>
 namespace p=srhd_awa::matrixgame::platform3g;
 namespace console_keys=srhd_awa::matrixgame::console;
 static_assert(console_keys::Back==VK_BACK && console_keys::Delete==VK_DELETE && console_keys::Left==VK_LEFT);
@@ -17,6 +20,36 @@ static_assert(console_keys::Return==VK_RETURN && console_keys::Escape==VK_ESCAPE
 static_assert(static_cast<unsigned>(p::PixelFormat::Argb8)==D3DFMT_A8R8G8B8 && static_cast<unsigned>(p::PixelFormat::Xrgb8)==D3DFMT_X8R8G8B8);
 static_assert(static_cast<unsigned>(p::PixelFormat::Rgb565)==D3DFMT_R5G6B5 && static_cast<unsigned>(p::PixelFormat::Depth16)==D3DFMT_D16);
 static_assert(static_cast<unsigned>(p::PixelFormat::Depth24Stencil8)==D3DFMT_D24S8 && static_cast<unsigned>(p::PixelFormat::Depth24)==D3DFMT_D24X8);
+static_assert((DT_CALCRECT|DT_SINGLELINE)==0x420u);
+void VerifyPortableDebugFontText(ID3DXFont*);
+static void VerifyDebugFont(p::Device& device,IDirect3DDevice9* raw) {
+    namespace font=srhd_awa::matrixgame::debug_font;
+    const auto leases=device.OutstandingStateLeases();
+    for(int cycle=0;cycle<2;++cycle) {
+        ID3DXFont* value=nullptr;
+        p::CheckDeviceResult(font::CreateFor(device,&value),"original D3DX font request");
+        assert(value);
+        struct Owner {ID3DXFont* value;~Owner(){font::Release(value);}} owner{value};
+        IDirect3DDevice9* actual=nullptr;
+        assert(SUCCEEDED(value->GetDevice(&actual)) && actual==raw);actual->Release();
+        D3DXFONT_DESCW desc{};assert(SUCCEEDED(value->GetDescW(&desc)));
+        assert(desc.Height==25 && desc.Width==0 && desc.Weight==FW_NORMAL && desc.MipLevels==1 && !desc.Italic);
+        assert(desc.CharSet==DEFAULT_CHARSET && desc.OutputPrecision==OUT_DEFAULT_PRECIS && desc.Quality==PROOF_QUALITY);
+        assert(desc.PitchAndFamily==DEFAULT_PITCH && std::wcscmp(desc.FaceName,L"MS Sans Serif")==0);
+        bool duplicate=false;
+        try{font::CreateFor(device,&value);}catch(const std::invalid_argument&){duplicate=true;}
+        assert(duplicate && value==owner.value);
+        // Real glyph measurement, not framebuffer/pixel or rendered-text proof.
+        font::TextRect bounds{};
+        const int height=font::DrawTextWide(value,L"MatrixGame",-1,bounds,DT_CALCRECT|DT_SINGLELINE,0xffffffffu);
+        assert(height>0 && bounds.right>bounds.left && bounds.bottom>bounds.top);
+        VerifyPortableDebugFontText(value);
+        p::CheckDeviceResult(font::Lost(value),"font lost-device notification");
+        p::CheckDeviceResult(font::Reset(value),"font reset-device notification");
+    }
+    assert(device.OutstandingStateLeases()==leases);
+    std::puts("actual D3DX font request/device identity/descriptor, glyph measurement, lost/reset notifications and Release/recreate PASS; no device Reset or rendered pixels claimed");
+}
 int RunWindowsBootstrap(int argc,char**argv,int(*run)(int,char**,void*,p::Window&,p::Device&)) {
     std::setvbuf(stdout,nullptr,_IONBF,0);
     std::puts("Windows SDK: creating borrowed host window/device");
@@ -38,6 +71,11 @@ int RunWindowsBootstrap(int argc,char**argv,int(*run)(int,char**,void*,p::Window
     struct TextureOwner {IDirect3DTexture9*p;~TextureOwner(){p->Release();}} own_texture{texture};
     if(FAILED(raw->SetTexture(0,texture)))return 77; // Real borrowed binding must survive native ClearTexture/Deinit.
     p::Win32Window window(hwnd);p::D3D9Device device(raw);
+    VerifyDebugFont(device,raw);
+    IDirect3DVertexBuffer9* stream0=nullptr;
+    assert(SUCCEEDED(raw->CreateVertexBuffer(64,0,D3DFVF_XYZ,D3DPOOL_MANAGED,&stream0,nullptr)));
+    struct StreamOwner {IDirect3DVertexBuffer9*p;~StreamOwner(){p->Release();}} own_stream{stream0};
+    assert(SUCCEEDED(raw->SetStreamSource(0,stream0,4,12)));
     D3DCAPS9 direct_caps{};assert(SUCCEEDED(raw->GetDeviceCaps(&direct_caps)));
     const auto actual_caps=device.ReadCaps();
     assert(actual_caps.max_simultaneous_textures==direct_caps.MaxSimultaneousTextures);
@@ -63,6 +101,14 @@ int RunWindowsBootstrap(int argc,char**argv,int(*run)(int,char**,void*,p::Window
         assert(SUCCEEDED(raw->SetTransform(D3DTS_VIEW,&changed_view)));
         assert(SUCCEEDED(raw->SetTransform(D3DTS_PROJECTION,&changed_projection)));
         assert(device.SetFixedVertexLayout(D3DFVF_XYZ)==p::DeviceSuccess);
+        const float triangle[9]{0,0,0,1,0,0,0,1,0};
+        assert(SUCCEEDED(raw->BeginScene()));
+        const auto draw=raw->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP,1,triangle,12);
+        assert(SUCCEEDED(raw->EndScene()) && SUCCEEDED(draw));
+        IDirect3DVertexBuffer9* after_draw=nullptr;UINT offset{},stride{};
+        assert(SUCCEEDED(raw->GetStreamSource(0,&after_draw,&offset,&stride)));
+        const bool cleared=after_draw==nullptr;if(after_draw)after_draw->Release();
+        assert(cleared); // Documented DrawPrimitiveUP side effect, observed directly.
         assert(device.BindBorrowedTexture(0,nullptr)==p::DeviceSuccess);
         for(unsigned key=0;key<std::size(stage_keys);++key)
             assert(device.SetTextureStageState(2,static_cast<p::TextureStageRegister>(stage_keys[key]),changed[key])==p::DeviceSuccess);
@@ -72,6 +118,11 @@ int RunWindowsBootstrap(int argc,char**argv,int(*run)(int,char**,void*,p::Window
         assert(SUCCEEDED(raw->GetTransform(D3DTS_TEXTURE2,&check)) && std::memcmp(&check,transform.data(),sizeof(check))==0);
         assert(SUCCEEDED(raw->GetFVF(&fvf)) && fvf==D3DFVF_XYZ);
         assert(state->Restore()==p::DeviceSuccess);state.reset();assert(device.OutstandingStateLeases()==0);
+        IDirect3DVertexBuffer9* restored_stream=nullptr;
+        assert(SUCCEEDED(raw->GetStreamSource(0,&restored_stream,&offset,&stride)));
+        const bool stream_restored=restored_stream==stream0 && offset==4 && stride==12;
+        if(restored_stream)restored_stream->Release();
+        assert(stream_restored);
         assert(SUCCEEDED(raw->GetFVF(&fvf)) && fvf==before_fvf);
         assert(SUCCEEDED(raw->GetTransform(D3DTS_TEXTURE2,&check)) && std::memcmp(&check,&before_matrix,sizeof(check))==0);
         assert(SUCCEEDED(raw->GetTransform(D3DTS_VIEW,&check)) && std::memcmp(&check,&before_view,sizeof(check))==0);
@@ -84,7 +135,7 @@ int RunWindowsBootstrap(int argc,char**argv,int(*run)(int,char**,void*,p::Window
         IDirect3DBaseTexture9* binding=nullptr;assert(SUCCEEDED(raw->GetTexture(0,&binding)));
         assert(binding==texture);if(binding)binding->Release();
     }
-    std::puts("real SDK renderer state lease: FVF/declaration, nine stage registers, texture/view/projection matrices and bindings restored over two entries");
+    std::puts("real SDK renderer state lease: FVF/declaration, nine stage registers, texture/view/projection matrices, bindings and stream0 after actual DrawPrimitiveUP restored over two entries; no rendered pixel proof");
     D3DDEVICE_CREATION_PARAMETERS direct_creation{};
     assert(SUCCEEDED(raw->GetCreationParameters(&direct_creation)));
     const auto creation=device.ReadCreationParameters();

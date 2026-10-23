@@ -18,7 +18,7 @@ def prepare_debug_font(output):
     text=text.replace('extern IDirect3DDevice9* g_D3DD;','')
     for old,new,count in [('m_Font->Release()','df::Release(m_Font)',1),
         ('m_Font->OnLostDevice()','df::Lost(m_Font)',1),('m_Font->OnResetDevice()','df::Reset(m_Font)',1),
-        ('m_Font->DrawTextW(NULL,','df::DrawText(m_Font,',2),('(LPRECT)&r','&r',2)]:
+        ('m_Font->DrawTextW(NULL,','df::DrawTextWide(m_Font,',2),('(LPRECT)&r','&r',2)]:
         if text.count(old)!=count:raise ValueError('Original font boundary changed: '+old)
         text=text.replace(old,new)
     flags='DT_NOCLIP | DT_LEFT | DT_VCENTER | DT_SINGLELINE'

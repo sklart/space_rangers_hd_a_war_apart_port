@@ -34,7 +34,7 @@ p::DeviceResult CreateFor(p::Device& device,ID3DXFont** out) {
     return static_cast<p::DeviceResult>(result);
 }
 void Release(ID3DXFont* font)noexcept {if(font)font->Release();}
-int DrawText(ID3DXFont* font,const wchar_t* text,int count,TextRect& bounds,std::uint32_t flags,std::uint32_t color) {
+int DrawTextWide(ID3DXFont* font,const wchar_t* text,int count,TextRect& bounds,std::uint32_t flags,std::uint32_t color) {
     RECT rect{bounds.left,bounds.top,bounds.right,bounds.bottom};
     const int result=Font(font).DrawTextW(nullptr,text,count,&rect,flags,color);
     bounds={rect.left,rect.top,rect.right,rect.bottom};return result;
@@ -48,7 +48,7 @@ p::DeviceResult DrawPrimitiveUP(std::uint32_t type,std::uint32_t count,const voi
 #else
 p::DeviceResult CreateFor(p::Device&,ID3DXFont**){throw p::Unsupported("debug font SDK creation unavailable on this backend");}
 void Release(ID3DXFont* font)noexcept {if(font)std::terminate();}
-int DrawText(ID3DXFont*,const wchar_t*,int,TextRect&,std::uint32_t,std::uint32_t){throw p::Unsupported("debug font draw backend unavailable");}
+int DrawTextWide(ID3DXFont*,const wchar_t*,int,TextRect&,std::uint32_t,std::uint32_t){throw p::Unsupported("debug font draw backend unavailable");}
 p::DeviceResult Lost(ID3DXFont*){throw p::Unsupported("debug font lost-device backend unavailable");}
 p::DeviceResult Reset(ID3DXFont*){throw p::Unsupported("debug font reset backend unavailable");}
 p::DeviceResult DrawPrimitiveUP(std::uint32_t,std::uint32_t,const void*,std::uint32_t){throw p::Unsupported("debug font immediate draw backend unavailable");}

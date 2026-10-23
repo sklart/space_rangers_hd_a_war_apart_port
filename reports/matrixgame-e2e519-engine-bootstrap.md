@@ -1,5 +1,12 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
+Актуальное продолжение23.10: [Windows original debug font owner](matrixgame-e2e519-font-owner.md).
+Исполнены исходные DebugInfo ctor/T/Takt/lost/reset/dtor после настоящей
+InitAsDLL negotiation; исправлены DrawText macro ABI и shared color-op symbols.
+Host/ARM64 общий bootstrap и SDK ELF PASS; полный Windows bootstrap LINK FAIL152,
+настоящий derived map owner требует19 unique cleanup symbols. CGame::Init
+не исполнен; Switch font backend Unsupported. Нижние этапы — история.
+
 Актуальное продолжение23.10: [настоящий CMatrixMap ctor и debug font](matrixgame-e2e519-debug-font.md).
 Прежние три отсутствующих symbols закрыты; общий host/ARM64 bootstrap реально
 входит в конструктор и проверяет unwind/retry при отсутствии font backend.

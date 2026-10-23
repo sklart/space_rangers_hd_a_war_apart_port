@@ -43,6 +43,7 @@ add_library(matrixgame-native-cache STATIC
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/GameStaticResources.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixLoadProgress.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixRenderPipeline.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/OriginalRendererOps.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalManagedTexture.cpp" legacy_texture_backend.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixCursorLifecycle.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixCameraLifecycle.cpp"
@@ -109,6 +110,7 @@ endif()
 if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
     add_executable(matrixgame-native-bootstrap "${PORT_ROOT}/tests/test_matrixgame_bootstrap.cpp"
         "${PORT_ROOT}/tests/matrixgame_bootstrap_sampling.cpp"
+        "${PORT_ROOT}/tests/matrixgame_bootstrap_font.cpp"
         "${PORT_ROOT}/tests/matrixgame_bootstrap_game.cpp")
     target_link_libraries(matrixgame-native-bootstrap PRIVATE matrixgame-native-cache)
     target_compile_definitions(matrixgame-native-bootstrap PRIVATE
@@ -124,6 +126,7 @@ if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
         MATRIXGAME_FULL_CURSOR_HEADER="${ENGINE_SOURCE}/MatrixGame/src/MatrixCursor.hpp")
     if(WIN32)
         target_sources(matrixgame-native-bootstrap PRIVATE "${PORT_ROOT}/tests/test_matrixgame_bootstrap_win32.cpp")
+        target_include_directories(matrixgame-native-bootstrap PRIVATE "${MATRIXGAME_D3DX9_INCLUDE}")
         target_compile_options(matrixgame-native-bootstrap PRIVATE /EHsc)
     endif()
     target_compile_options(matrixgame-native-bootstrap PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
@@ -216,6 +219,7 @@ list(FILTER ENGINE_UNITS EXCLUDE REGEX "/Logic/MatrixRoadNetwork.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/GameDefaultsNative.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/MatrixCursorLifecycle.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/MatrixTransitionLifecycle.cpp$")
+list(FILTER ENGINE_UNITS EXCLUDE REGEX "/OriginalRendererOps.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/MatrixCameraLifecycle.cpp$")
 # Opt-in full compilation target. Remaining Windows/D3D dependencies must be ported;
 # a successful default core build is not evidence that this target compiled.
