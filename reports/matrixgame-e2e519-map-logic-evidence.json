@@ -1,0 +1,261 @@
+{
+  "stage": "E2E-5.19 complete original MatrixLogic TU integration",
+  "base_sha": "92c83b4e45b678a814a1662c946fe0547945c185",
+  "built_while_dirty": true,
+  "embedded_git_sha": null,
+  "push": false,
+  "source_sha256": {
+    "port/matrixgame/native-engine/CMakeLists.txt": "465a801255fdfdf82dc143f4e8a39446a34f9db23b907058e7f5d19b661541d7",
+    "port/matrixgame/native-engine/map_logic_backend.hpp": "2dd969f3dc3399d3343de3fd701ae0a6bf7172d1b9c9aebcf38ca48270f8bd63",
+    "tools/matrixgame_engine_prepare.py": "503ef2ceb0d399fbf58c40fd2c02652c6f360ef7fe6665faa511194c0f8c13f2",
+    "tools/matrixgame_map_logic_overrides.py": "c3d82d75f07a196ba34fd9259aa6fe6e82587f2b82f44e7c971c97a07d70f858",
+    "tests/test_matrixgame_bootstrap.cpp": "28a10ec9e6feeed9c747f5b169724a5b49692af8d6303e5062708a8a8753c8b7"
+  },
+  "original_logic_sha256": "f8e3e953980306b18abe8cc08eb90ac6e6f2a806273d8e4146ff31041abd9788",
+  "baseline": {
+    "status": "COMPLETE",
+    "scope": "actual objects only; no full link/runtime claim",
+    "units": [
+      {
+        "source": "MatrixGame/src/MatrixLogic.cpp",
+        "source_sha256": "436e34968ae13269fad607cb9ff084c4435f4893ea41a101909f0382c61e3a97",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/host/source/MatrixGame/src/MatrixLogic.cpp:1336:20: error: \u2018LPRECT\u2019 was not declared in this scope",
+        "log": "0.log"
+      },
+      {
+        "source": "MatrixGame/src/MatrixMap.cpp",
+        "source_sha256": "b1d17b854f368d6792a6e4232ba60f623cb408724243c46c3e988bbbd050876b",
+        "status": "COMPILE_FAIL",
+        "returncode": 1,
+        "first_error": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/host/source/MatrixGame/src/MatrixMap.cpp:13:10: fatal error: windows.h: No such file or directory",
+        "log": "1.log"
+      }
+    ],
+    "targets": [
+      "matrixgame-native-engine"
+    ],
+    "source_filters": [
+      "/MatrixMap.cpp",
+      "/MatrixLogic.cpp"
+    ],
+    "source_manifest_sha256": "6f932cefe3066c6068de1bc1b595c8376b36670f2fe6077d99af0f701ff241ab",
+    "compile_pass": 0,
+    "compile_fail": 2,
+    "linked": false,
+    "runtime_executed": false,
+    "hardware_executed": false
+  },
+  "candidate_compile": {
+    "status": "COMPLETE",
+    "scope": "actual objects only; no full link/runtime claim",
+    "units": [
+      {
+        "source": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/map-logic-candidate-source/MatrixGame/src/MatrixLogic.cpp",
+        "source_sha256": "49aba32589a010abcb79a84d0ed2418e6743a57cae2b87ffa8038380524328b1",
+        "status": "COMPILE_PASS",
+        "returncode": 0,
+        "first_error": "",
+        "log": "0.log",
+        "object_sha256": "3026654a716ed12796c7688f299d99b7eb612a2707b701ba5935d230f4921430"
+      }
+    ],
+    "targets": [
+      "matrixgame-native-engine"
+    ],
+    "source_filters": [
+      "/MatrixLogic.cpp"
+    ],
+    "source_view": "build/matrixgame/e2e519/map-logic-candidate-source",
+    "source_manifest_sha256": "6a35f0c74d441ea3dbe29c38604e0d18def3326ccf294a6b536f83056b14f0ab",
+    "compile_pass": 1,
+    "compile_fail": 0,
+    "linked": false,
+    "runtime_executed": false,
+    "hardware_executed": false
+  },
+  "runtime": {
+    "reports": [
+      {
+        "platform": "host",
+        "binary_sha256": "f535a906a388c7d7ef9039577a911267df04ee5e5d77c078b217d4d06cfb4e7c",
+        "logic_source_sha256": "49aba32589a010abcb79a84d0ed2418e6743a57cae2b87ffa8038380524328b1",
+        "original_path_called": true,
+        "cgame_init_called": false,
+        "map_created": false,
+        "runtime_exit": 0
+      },
+      {
+        "platform": "arm64",
+        "binary_sha256": "d7b68952130427fe0f19e197fe6a2984ea2690e7c94c5674f2b89850dac92cdb",
+        "logic_source_sha256": "49aba32589a010abcb79a84d0ed2418e6743a57cae2b87ffa8038380524328b1",
+        "original_path_called": true,
+        "cgame_init_called": false,
+        "map_created": false,
+        "runtime_exit": 0
+      }
+    ],
+    "input_sha256": {
+      "build/e2e515/big-buffer-models/model-1.vo": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+      "build/mg-merge-host/core/texture-request-fixtures/assets/plain.png": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210",
+      "upstream/matrixgame/MatrixGame/CFG/robots/data.txt": "9579962ecdf9eef7dfca4dc70a3c96cbec9aa0fd2db2347ccb76e8e400b7b27c"
+    },
+    "hardware": false
+  },
+  "sdk": {
+    "status": "SDK_COMPILE_LINK_PASS",
+    "undefined_strong": [],
+    "original_map_helper_retained": true,
+    "elf_sha256": "2375a349033c9b4bde2ab886d45d601d1fb8224e19bda679912c3a1d221e9833",
+    "logic_source_sha256": "49aba32589a010abcb79a84d0ed2418e6743a57cae2b87ffa8038380524328b1",
+    "runtime": false,
+    "hardware": false,
+    "nro": false,
+    "baseline_sdk_elf_unchanged": true,
+    "relinked_only_after_env_repair": true
+  },
+  "win32_union": {
+    "native_user32_unionrect": [
+      {
+        "a": [
+          3,
+          4,
+          8,
+          9
+        ],
+        "b": [
+          -2,
+          7,
+          4,
+          12
+        ],
+        "expected": [
+          -2,
+          4,
+          8,
+          12
+        ],
+        "actual": [
+          -2,
+          4,
+          8,
+          12
+        ],
+        "return": 1,
+        "alias_destination": true
+      },
+      {
+        "a": [
+          20,
+          30,
+          20,
+          40
+        ],
+        "b": [
+          -2,
+          4,
+          8,
+          12
+        ],
+        "expected": [
+          -2,
+          4,
+          8,
+          12
+        ],
+        "actual": [
+          -2,
+          4,
+          8,
+          12
+        ],
+        "return": 1,
+        "alias_destination": true
+      },
+      {
+        "a": [
+          1,
+          2,
+          1,
+          3
+        ],
+        "b": [
+          3,
+          4,
+          2,
+          6
+        ],
+        "expected": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "actual": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "return": 0,
+        "alias_destination": true
+      }
+    ]
+  },
+  "windows_full_compile_link": "NOT RUN",
+  "host_sanitizers": "address,undefined; vptr excluded for complete MatrixLogic only; no fabricated RTTI",
+  "source_manifest_sha256": "6a35f0c74d441ea3dbe29c38604e0d18def3326ccf294a6b536f83056b14f0ab",
+  "initial_host_link_failure": "UBSan vptr metadata referenced unported map-object RTTI; repaired only Logic object/relink",
+  "cgame_init_called": false,
+  "map_created": false,
+  "draw_executed": false,
+  "hardware": "PENDING",
+  "new_nro": false,
+  "protected": {
+    "protected_mismatches": [],
+    "protected_checked": 13,
+    "frozen_game_artifacts": [
+      {
+        "matches_manifest": true,
+        "sha256": "9f654daab36c71cb51940871d4a93bdcceb09edd7da8dde127ab023bfb21e789",
+        "path": "switch/space-rangers-hd-a-war-apart/SpaceRangersHD-perf516.nro"
+      },
+      {
+        "matches_manifest": true,
+        "sha256": "0ca47fa95e614167da814cf63e1bc19e0bd005e94b34763287d713d5c9989ab5",
+        "path": "debug/SpaceRangersHD-perf516.elf"
+      }
+    ],
+    "pack_zip_unavailable": true
+  },
+  "next_blocker": {
+    "source": "upstream/matrixgame/MatrixGame/src/MatrixMap.cpp",
+    "line": 9,
+    "first_compile_error": "windows.h missing",
+    "runtime_owners": [
+      "CDevConsole",
+      "CMatrixCamera",
+      "CMinimap",
+      "CMatrixCursor",
+      "CTransition",
+      "CSound",
+      "object factories"
+    ],
+    "logic_material_submission": "existing Device::SetVideoMaterial default Unsupported; not executed"
+  },
+  "log_sha256": {
+    "build\\matrixgame\\e2e519\\map-logic-integration\\host\\logic-compile.log": "e5e892170efd8205eff927d9232e140a073cd120f80bd59afa663cd47c245000",
+    "build\\matrixgame\\e2e519\\map-logic-integration\\host\\driver-compile.log": "fe52e54e328df0bc298534e1172fee4e6820dd6c68a7737bcc7c39716186d74d",
+    "build\\matrixgame\\e2e519\\map-logic-integration\\host\\link.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-logic-integration\\host\\runtime.log": "a937ee1eb8f79ba2ba46885c13cdef4efec7459023d589db24384ab1c31a300f",
+    "build\\matrixgame\\e2e519\\map-logic-integration\\arm64\\logic-compile.log": "360ee052d5efceb23bdf58be22b454de875b22cc5c6a580b4d6d7ae6039bd811",
+    "build\\matrixgame\\e2e519\\map-logic-integration\\arm64\\driver-compile.log": "d5c237e5f359130b842f7c9de2528eec85a43dff7e9651f14963c647911c03a0",
+    "build\\matrixgame\\e2e519\\map-logic-integration\\arm64\\link.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-logic-integration\\arm64\\runtime.log": "a937ee1eb8f79ba2ba46885c13cdef4efec7459023d589db24384ab1c31a300f",
+    "build\\matrixgame\\e2e519\\map-logic-sdk\\logic-compile.log": "e88d6ec2ad1ab7b4630b1a041fa78080141815d153ab10a2b24772039bb14671",
+    "build\\matrixgame\\e2e519\\map-logic-sdk\\driver-compile.log": "e95a49e49e6dcbb0e10b90ff6fe48ca3fac46aaac77e423c376f722172629042",
+    "build\\matrixgame\\e2e519\\map-logic-sdk\\link.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build\\matrixgame\\e2e519\\map-logic-sdk\\symbols.log": "1a9b173ee4df192364886f0a7f3b568d625e678609c634a41e3245984dd3cd72"
+  }
+}

@@ -1,5 +1,11 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
+Актуальное продолжение23.10: [полная MatrixLogic.cpp](matrixgame-e2e519-map-logic.md)
+скомпилирована и включена в общий bootstrap; оригинальный path helper исполнен
+на host/ARM64, SDK ELF скомпонован. Карта и полный CGame::Init ещё не запускаются.
+Ниже сохранена история этапов; начальная сводка cursor-stage историческая,
+её D3DDISPLAYMODE blocker уже снят позднейшим full-CGame этапом.
+
 Актуальное продолжение: **на Windows выполняется безопасный исходный cursor
 constructor/Clear через настоящий SetCursor/GetCursor, game heap и cursor
 принадлежат общему owner; исходный control flow CGame сохранён**.

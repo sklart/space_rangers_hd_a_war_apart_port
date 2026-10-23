@@ -33,6 +33,7 @@ add_library(matrixgame-native-cache STATIC
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/GameDefaultsNative.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixConfig.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixGame.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixLogic.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/GameStaticResources.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixLoadProgress.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixRenderPipeline.cpp"
@@ -45,10 +46,16 @@ target_link_libraries(matrixgame-native-cache PUBLIC matrixgame-native-vector-ob
 # Compile the complete original CGame TU; link only the original methods whose
 # dependencies are actually closed. This is not a full-engine link claim.
 set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixLogic.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixRenderPipeline.cpp" APPEND PROPERTY COMPILE_OPTIONS
     "$<$<CXX_COMPILER_ID:MSVC>:/Gy>" "$<$<CXX_COMPILER_ID:MSVC>:/Gw>"
     "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-ffunction-sections>"
     "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fdata-sections>")
+# UBSan vptr metadata would retain RTTI for unported map-object key functions
+# even when their original methods are discarded. Do not fabricate RTTI.
+# Keep address and the remaining undefined-behavior checks on this full TU.
+set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixLogic.cpp" APPEND PROPERTY COMPILE_OPTIONS
+    "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fno-sanitize=vptr>")
 target_link_options(matrixgame-native-cache INTERFACE
     "$<$<CXX_COMPILER_ID:MSVC>:/OPT:REF>"
     "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wl,--gc-sections>")

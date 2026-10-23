@@ -11,6 +11,7 @@
 #include MATRIXGAME_FULL_3G_HEADER
 #include "VectorObjectAnimNative.hpp"
 #include "Form.hpp"
+#include "map_logic_backend.hpp"
 #include <cassert>
 #include <cstdio>
 #include <filesystem>
@@ -19,6 +20,25 @@ using namespace srhd_awa::matrixgame;
 namespace p=srhd_awa::matrixgame::platform3g;
 extern CLoadProgress* g_LoadProgress; // Actual engine global; keep Windows SDK aliases out of this TU.
 extern CRenderPipeline* g_Render;
+// Supplied by the complete original MatrixLogic.cpp, not a selected function TU.
+extern int OptimizeMovePath_Delete(int,CPoint*,int,int);
+void VerifyOriginalMapPathCopy() {
+    CPoint path[]={{0,0},{1,2},{2,4},{3,6},{4,8},{5,10},{6,12}};
+    assert(OptimizeMovePath_Delete(7,path,1,4)==5);
+    const CPoint expected[]={{0,0},{1,2},{4,8},{5,10},{6,12}};
+    for(int i=0;i<5;++i)assert(path[i].x==expected[i].x && path[i].y==expected[i].y);
+    assert(OptimizeMovePath_Delete(5,path,3,2)==5);
+    assert(OptimizeMovePath_Delete(5,path,-1,4)==5);
+    using srhd_awa::matrixgame::map_logic::UnionBounds;
+    CRect bounds(3,4,8,9);
+    bounds=UnionBounds(bounds,CRect(-2,7,4,12));
+    assert(bounds.left==-2 && bounds.top==4 && bounds.right==8 && bounds.bottom==12);
+    bounds=UnionBounds(CRect(20,30,20,40),bounds);
+    assert(bounds.left==-2 && bounds.top==4 && bounds.right==8 && bounds.bottom==12);
+    bounds=UnionBounds(CRect(1,2,1,3),CRect(3,4,2,6));
+    assert(bounds.left==0 && bounds.top==0 && bounds.right==0 && bounds.bottom==0);
+    std::puts("full original MatrixLogic TU path overlap copy and typed union: PASS; map constructor NOT CALLED");
+}
 // Original full animator retains its light pointer/count. The accepted native
 // no-light variant remains a separate class, never substituted for this type.
 constexpr auto full_light_extent=(sizeof(void*)+sizeof(int)+alignof(CVectorObjectAnim)-1)/alignof(CVectorObjectAnim)*alignof(CVectorObjectAnim);
@@ -75,6 +95,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
     if(argc!=3 && argc!=4)return 2;
     std::setvbuf(stdout,nullptr,_IONBF,0);
     try {
+        VerifyOriginalMapPathCopy();
         VerifyBootstrapProjection();
         D3DXMATRIX billboard_rotation;
         assert(D3DXMatrixRotationZ(&billboard_rotation,1.57079632679f)==&billboard_rotation);
