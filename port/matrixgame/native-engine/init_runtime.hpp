@@ -8,6 +8,7 @@
 struct SRobotsSettings;
 class CMatrixCursor;
 class CLoadProgress;
+class CTextureManaged;
 namespace Base {class CBlockPar;}
 extern Base::CHeap* g_MatrixHeap;
 namespace srhd_awa::matrixgame {
@@ -39,6 +40,9 @@ public:
     void InitializeLoadProgress();
     void FinishLoadProgress()noexcept;
     CLoadProgress* LoadProgress()const noexcept{return load_progress_.get();}
+    void LoadOriginalManagedTexture(const wchar_t*,bool convert_to_16bit=false);
+    void FinishOriginalManagedTexture()noexcept;
+    CTextureManaged* OriginalManagedTexture()const noexcept{return original_texture_;}
     bool GameDefaultsReady()const noexcept{return CpuReady() && game_defaults_;}
     void InitializeCursor();
     CMatrixCursor* Cursor()const noexcept{return cursor_.get();} // Borrowed until DetachDevice/Deinit.
@@ -55,6 +59,7 @@ private:
     Base::CBlockPar* matrix_data_{};
     std::unique_ptr<CMatrixCursor> cursor_;
     std::unique_ptr<CLoadProgress> load_progress_;
+    CTextureManaged* original_texture_{}; // HNew/CCache::Destroy, not delete or a CPU cache cast.
     std::unique_ptr<buffers::Context> buffers_;
     std::unique_ptr<buffers::Scope> scope_;
     std::unique_ptr<platform3g::DeviceStateLease> device_snapshot_;

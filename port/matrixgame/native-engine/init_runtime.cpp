@@ -8,6 +8,8 @@
 #include "MatrixGame.h"
 #include "MatrixConfig.hpp"
 #include "MatrixLoadProgress.hpp"
+#include "Texture.hpp"
+#include "legacy_texture_backend.hpp"
 #include "3g.hpp"
 #include <stdexcept>
 Base::CHeap* g_MatrixHeap;
@@ -19,7 +21,7 @@ NativeInitRuntime::NativeInitRuntime()=default;
 bool NativeCacheFactoryBound() noexcept {return active && active->CpuReady();}
 NativeInitRuntime::~NativeInitRuntime(){Deinit();}
 void NativeInitRuntime::Begin(void* module,void* window) {
-    if(active || g_Cache || g_CacheHeap || g_MatrixHeap || g_MatrixData || g_Render || g_MatrixMap || g_IFaceList || g_LoadProgress || g_FormFirst || g_FormLast || g_FormCur)
+    if(active || g_Cache || g_CacheHeap || g_MatrixHeap || g_MatrixData || g_Render || g_MatrixMap || g_IFaceList || g_LoadProgress || g_FormFirst || g_FormLast || g_FormCur || legacy_texture::RegistrySize())
         throw std::logic_error("live engine/cache/game-heap/data/form owner already present");
     active=this;
     try {
@@ -80,6 +82,7 @@ void NativeInitRuntime::LeaveLegacyDll() {
 }
 void NativeInitRuntime::Deinit() noexcept {
     FinishLoadProgress();
+    FinishOriginalManagedTexture();
     if(game_defaults_){ClearOriginalGameDefaults();game_defaults_=false;}
     if(cpu_owned_){DetachDevice();L3GDeinitCpuPhase();g_Sampler.m_AFDegree=0;cpu_owned_=false;}
     if(matrix_data_) {
@@ -106,6 +109,18 @@ void NativeInitRuntime::InitializeLoadProgress() {
     g_LoadProgress=progress.get();load_progress_=std::move(progress);
 }
 void NativeInitRuntime::FinishLoadProgress()noexcept {load_progress_.reset();}
+void NativeInitRuntime::LoadOriginalManagedTexture(const wchar_t* path,bool convert_to_16bit) {
+    if(active!=this || !CpuReady() || !OriginalStaticsReady())throw std::logic_error("original managed texture requires this live CPU/cache owner");
+    if(original_texture_)throw std::logic_error("original managed texture already owned");
+    if(!path || !*path)throw std::invalid_argument("empty original texture path");
+    auto* texture=legacy_texture::CreateManaged();
+    try {texture->m_Name=path;texture->Init(convert_to_16bit);}
+    catch(...) {CCache::Destroy(texture);throw;}
+    original_texture_=texture;
+}
+void NativeInitRuntime::FinishOriginalManagedTexture()noexcept {
+    if(original_texture_){CCache::Destroy(original_texture_);original_texture_=nullptr;}
+}
 void NativeInitRuntime::InitializeGameDefaults() {
     if(active!=this || !CpuReady())throw platform3g::Unsupported("original config defaults require this live CPU/cache owner");
     if(game_defaults_)throw std::logic_error("game defaults already initialized by this owner");
@@ -154,6 +169,7 @@ void NativeInitRuntime::ApplyDefaultDeviceState() {
 }
 void NativeInitRuntime::DetachDevice() noexcept {
     if(active!=this || !cpu_owned_)return;
+    FinishOriginalManagedTexture(); // Actual SDK resource dies before device/window/cache teardown.
     legacy_window_=nullptr;legacy_device_=nullptr;
     cursor_.reset(); // Original Clear must run before window/heap providers die.
     const bool was_bound=platform3g::Current().ready;

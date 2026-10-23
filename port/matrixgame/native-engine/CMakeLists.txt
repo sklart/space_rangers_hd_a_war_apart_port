@@ -35,6 +35,7 @@ add_library(matrixgame-native-cache STATIC
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixGame.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/GameStaticResources.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixLoadProgress.cpp"
+    "${ENGINE_SOURCE}/MatrixLib/3G/OriginalManagedTexture.cpp" legacy_texture_backend.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixCursorLifecycle.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixSampleStateManager.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/SkinResourcesNative.cpp" native_skin.cpp skin_pipeline.cpp)

@@ -44,6 +44,8 @@ extern void VerifyBootstrapTimer(NativeInitRuntime&,p::Window&,p::Device&,bool);
 extern void VerifyBootstrapConfiguration(NativeInitRuntime&,const wchar_t*,bool);
 extern void VerifyBootstrapLegacy(NativeInitRuntime&,void*,p::Window&,p::Device&,bool);
 extern void VerifyBootstrapProgress(NativeInitRuntime&);
+extern void VerifyBootstrapOriginalTexture(NativeInitRuntime&,const wchar_t*);
+extern void VerifyBootstrapOriginalTextureDevice(NativeInitRuntime&,const wchar_t*);
 extern void VerifyBootstrapCursor(NativeInitRuntime&,p::Window&,p::Device&,bool);
 struct UnavailableDevice final:p::Device {
     p::DeviceCaps ReadCaps()override{throw p::Unsupported("backend has no verified legacy device caps");}
@@ -102,6 +104,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
             std::puts("full original CGame static_init EXECUTED before game heap/cache: stale EXITLOOP cleared, real original static data bound");
             std::puts("CacheInit + L3G CPU prefix EXECUTED");
             VerifyBootstrapProgress(runtime);
+            VerifyBootstrapOriginalTexture(runtime,texture.c_str());
             MaterialTexture stale;
             {
                 NativeSkinLibrary skins(runtime,false);NativeSkinPipeline pipeline(runtime,skins);
@@ -116,6 +119,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
                 std::printf("cycle=%u original Cache/VO/SSkin ready submissions=%zu\n",cycle,batch.submissions.size());
 #ifdef _WIN32
                 runtime.AttachDevice(*window,*device);assert(runtime.GpuReady());
+                VerifyBootstrapOriginalTextureDevice(runtime,texture.c_str());
                 VerifyBootstrapGameDefaults(runtime);
                 if(!config.empty())VerifyBootstrapConfiguration(runtime,config.c_str(),true);
                 VerifyBootstrapSampling(runtime,*window,*device,cycle,true);
@@ -164,7 +168,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
 #endif
             }
             runtime.InitializeLoadProgress();assert(g_LoadProgress==runtime.LoadProgress()); // Full owner cleanup also owns this real object.
-            runtime.Deinit();runtime.Deinit();assert(!runtime.OriginalStaticsReady() && !runtime.LoadProgress() && !g_LoadProgress);cold();
+            runtime.Deinit();runtime.Deinit();assert(!runtime.OriginalStaticsReady() && !runtime.LoadProgress() && !g_LoadProgress && !runtime.OriginalManagedTexture());cold();
             bool expired=false;try{(void)stale.Read();}catch(...){expired=true;}assert(expired);
 #ifdef _WIN32
             assert(IsWindow(hwnd) && GetWindowLongPtrW(hwnd,GWLP_WNDPROC)==original_proc);

@@ -1,0 +1,92 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#include <d3d9.h>
+#endif
+#include "legacy_texture_backend.hpp"
+#include "texture_asset.hpp"
+#include <cstring>
+#include <exception>
+namespace srhd_awa::matrixgame::legacy_texture {
+namespace p=platform3g;
+#ifdef _WIN32
+namespace {
+IDirect3DDevice9& Device() {
+    const auto handles=p::ReadyDevice().ReadLegacyHandles();
+    if(!handles.device)throw p::Unsupported("original texture requires a genuine SDK device");
+    return *reinterpret_cast<IDirect3DDevice9*>(handles.device);
+}
+IDirect3DTexture9& Texture(IDirect3DTexture9* texture) {
+    if(!texture)throw std::invalid_argument("null original SDK texture");
+    return *texture;
+}
+}
+void Release(IDirect3DTexture9* texture)noexcept {if(texture)texture->Release();}
+void Preload(IDirect3DTexture9* texture){Texture(texture).PreLoad();}
+std::uint32_t LevelCount(IDirect3DTexture9* texture){return Texture(texture).GetLevelCount();}
+p::DeviceResult Describe(IDirect3DTexture9* texture,std::uint32_t level,LevelDesc* out) {
+    D3DSURFACE_DESC desc{};const auto result=Texture(texture).GetLevelDesc(level,&desc);
+    if(SUCCEEDED(result))*out={desc.Width,desc.Height,static_cast<std::uint32_t>(desc.Format)};
+    return static_cast<p::DeviceResult>(result);
+}
+p::DeviceResult Lock(IDirect3DTexture9* texture,std::uint32_t level,LockedRect* out,std::nullptr_t,std::uint32_t flags) {
+    D3DLOCKED_RECT rect{};const auto result=Texture(texture).LockRect(level,&rect,nullptr,flags);
+    if(SUCCEEDED(result))*out={rect.Pitch,rect.pBits};
+    return static_cast<p::DeviceResult>(result);
+}
+p::DeviceResult Unlock(IDirect3DTexture9* texture,std::uint32_t level){return static_cast<p::DeviceResult>(Texture(texture).UnlockRect(level));}
+p::DeviceResult Create(std::uint32_t width,std::uint32_t height,std::uint32_t levels,std::uint32_t usage,std::uint32_t format,std::uint32_t pool,IDirect3DTexture9** out,std::uintptr_t shared) {
+    if(shared)throw p::Unsupported("shared original texture ownership unsupported");
+    return static_cast<p::DeviceResult>(Device().CreateTexture(width,height,levels,usage,static_cast<D3DFORMAT>(format),static_cast<D3DPOOL>(pool),out,nullptr));
+}
+p::DeviceResult Decode(const void* bytes,std::size_t size,std::uint32_t levels,std::uint32_t pool,IDirect3DTexture9** out) {
+    (void)Device(); // No decode/GPU success before actual SDK negotiation.
+    auto asset=TextureAsset::Decode({static_cast<const std::byte*>(bytes),size});
+    asset.PrepareMips(levels==1?TextureMipPolicy::OneLevel:TextureMipPolicy::CompleteBox);
+    D3DFORMAT format=D3DFMT_A8R8G8B8;
+    if(asset.format==TextureFormat::BC1)format=D3DFMT_DXT1;
+    else if(asset.format==TextureFormat::BC2)format=D3DFMT_DXT3;
+    else if(asset.format==TextureFormat::BC3)format=D3DFMT_DXT5;
+    IDirect3DTexture9* texture=nullptr;
+    auto result=Create(asset.levels.front().width,asset.levels.front().height,static_cast<std::uint32_t>(asset.levels.size()),0,format,pool,&texture,0);
+    if(result!=p::DeviceSuccess)return result;
+    struct Owner {IDirect3DTexture9* texture;~Owner(){Release(texture);}} owner{texture};
+    for(std::uint32_t index=0;index<asset.levels.size();++index) {
+        const auto& source=asset.levels[index];LockedRect locked{};
+        result=Lock(texture,index,&locked,nullptr,0);if(result!=p::DeviceSuccess)return result;
+        const auto rows=asset.format==TextureFormat::RGBA8?source.height:(source.height+3)/4;
+        if(locked.Pitch<0||std::uint32_t(locked.Pitch)<source.pitch) {
+            Unlock(texture,index);throw std::runtime_error("SDK texture pitch shorter than decoded row");
+        }
+        for(std::uint32_t row=0;row<rows;++row) {
+            const auto* input=source.bytes.data()+std::size_t(row)*source.pitch;
+            auto* output=static_cast<std::byte*>(locked.pBits)+std::size_t(row)*locked.Pitch;
+            if(asset.format==TextureFormat::RGBA8) {
+                for(std::uint32_t pixel=0;pixel<source.width;++pixel) {
+                    output[pixel*4]=input[pixel*4+2];output[pixel*4+1]=input[pixel*4+1];
+                    output[pixel*4+2]=input[pixel*4];output[pixel*4+3]=input[pixel*4+3];
+                }
+            } else std::memcpy(output,input,source.pitch);
+        }
+        result=Unlock(texture,index);if(result!=p::DeviceSuccess)return result;
+    }
+    *out=texture;owner.texture=nullptr;return p::DeviceSuccess;
+}
+#else
+namespace {[[noreturn]]void Unsupported(const char* call){
+    try{(void)p::ReadyDevice();}
+    catch(const p::Unsupported& error){throw p::Unsupported(std::string("original texture ")+call+": "+error.what());}
+    throw p::Unsupported(std::string("original texture ")+call+": SDK operation unavailable on this backend");
+}}
+void Release(IDirect3DTexture9* texture)noexcept {if(texture)std::terminate();}
+void Preload(IDirect3DTexture9*){Unsupported("PreLoad");}
+std::uint32_t LevelCount(IDirect3DTexture9*){Unsupported("GetLevelCount");}
+p::DeviceResult Describe(IDirect3DTexture9*,std::uint32_t,LevelDesc*){Unsupported("GetLevelDesc");}
+p::DeviceResult Lock(IDirect3DTexture9*,std::uint32_t,LockedRect*,std::nullptr_t,std::uint32_t){Unsupported("LockRect");}
+p::DeviceResult Unlock(IDirect3DTexture9*,std::uint32_t){Unsupported("UnlockRect");}
+p::DeviceResult Create(std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**,std::uintptr_t){Unsupported("CreateTexture");}
+p::DeviceResult Decode(const void*,std::size_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**){Unsupported("DecodeTexture");}
+#endif
+}

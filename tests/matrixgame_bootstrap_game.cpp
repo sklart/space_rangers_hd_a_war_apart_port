@@ -13,10 +13,84 @@
 #include "MatrixLoadProgress.hpp"
 #include <vector>
 #include "3g.hpp"
+#include "Texture.hpp"
+#include "legacy_texture_backend.hpp"
 #ifdef _WIN32
 #include "platform_win32.hpp"
 #endif
 using namespace srhd_awa::matrixgame;
+void VerifyBootstrapOriginalTexture(NativeInitRuntime& runtime,const wchar_t* path) {
+    namespace lt=srhd_awa::matrixgame::legacy_texture;
+    assert(runtime.CpuReady() && !runtime.GpuReady() && lt::RegistrySize()==0);
+    // Observe protected original state without overriding any virtual method.
+    struct Inspect: CTextureManaged {std::uint32_t RawFlags()const{return m_Flags;}};
+    auto* texture=HNew(g_CacheHeap) Inspect;
+    struct Owner {CCacheData* value;~Owner(){if(value)CCache::Destroy(value);}} owner{texture};
+    assert(lt::RegistrySize()==1 && texture->m_Type==CacheClass::TextureManaged && !texture->m_Cache);
+    texture->m_Name=std::wstring(path)+L"?Alpha?Trans";
+    texture->ParseFlags(texture->m_Name);
+    assert(texture->RawFlags()==(TF_ALPHABLEND|TF_ALPHATEST));
+    for(int retry=0;retry<2;++retry) {
+        bool rejected=false;
+        try{texture->Load();}catch(const platform3g::Unsupported& error){rejected=std::string(error.what())=="original texture DecodeTexture: 3G device negotiation not complete";}
+        assert(rejected && !texture->DX() && !texture->IsLoaded() && lt::RegistrySize()==1);
+        assert(texture->RawFlags()==(TF_ALPHABLEND|TF_ALPHATEST));
+        texture->Unload(); // Original managed branch intentionally retains storage.
+    }
+    texture->m_Name=path;
+    bool convert_rejected=false;
+    try{texture->LoadTextureFromFile(true,TextureMemoryPool::Managed);}
+    catch(const platform3g::Unsupported& error){convert_rejected=std::string(error.what())=="original texture CreateTexture: 3G device negotiation not complete";}
+    assert(convert_rejected && !texture->DX() && lt::RegistrySize()==1); // Temporary original texture must be destroyed on unwind.
+    texture->m_Name=std::wstring(path)+L".missing-original-resource";
+    bool missing=false;try{texture->Load();}catch(const platform3g::Unsupported&){assert(false);}catch(...){missing=true;}
+    assert(missing && !texture->DX() && lt::RegistrySize()==1 && runtime.CpuReady());
+    CCache::Destroy(texture);owner.value=nullptr;
+    // CCache::Destroy requires a non-null pointer; release guard explicitly.
+    assert(lt::RegistrySize()==0);
+    for(bool converted:{false,true}) {
+        bool rejected=false;try{runtime.LoadOriginalManagedTexture(path,converted);}
+        catch(const platform3g::Unsupported& error){rejected=std::string(error.what())==std::string("original texture ")+(converted?"CreateTexture":"DecodeTexture")+": 3G device negotiation not complete";}
+        assert(rejected && !runtime.OriginalManagedTexture() && lt::RegistrySize()==0 && runtime.CpuReady());
+    }
+    runtime.FinishOriginalManagedTexture();runtime.FinishOriginalManagedTexture();
+    std::puts("original CTextureManaged constructor/ParseFlags/Load/Init and real encoded-file prefix EXECUTED; bitmap conversion reaches actual GPU boundary; missing-resource, temporary unwind and registry cleanup PASS; SDK texture creation NOT RUN");
+}
+void VerifyBootstrapOriginalTextureDevice(NativeInitRuntime& runtime,const wchar_t* path) {
+    namespace lt=srhd_awa::matrixgame::legacy_texture;
+    assert(runtime.GpuReady() && lt::RegistrySize()==0);
+    {
+        runtime.LoadOriginalManagedTexture(path);auto* texture=runtime.OriginalManagedTexture();
+        assert(texture);
+        struct Owner {NativeInitRuntime& runtime;~Owner(){runtime.FinishOriginalManagedTexture();}} owner{runtime};
+        assert(lt::RegistrySize()==1);texture->m_Name=path;texture->Load();
+        auto* stored=texture->DX();assert(stored && texture->IsLoaded());
+        lt::LevelDesc desc{};platform3g::CheckDeviceResult(lt::Describe(stored,0,&desc),"actual texture description");
+        assert(desc.Width==texture->GetSizeX() && desc.Height==texture->GetSizeY() && desc.Format==21);
+        texture->Load();texture->Init(false);texture->Preload();texture->Unload();
+        assert(texture->DX()==stored && lt::RegistrySize()==1); // Original managed retention policy.
+        CBitmap input;input.LoadFromPNG(path);
+        auto* converted=texture->LoadTextureFromFile(true,TextureMemoryPool::Managed);
+        struct ConvertedOwner {IDirect3DTexture9* value;~ConvertedOwner(){lt::Release(value);}} converted_owner{converted};
+        assert(converted && lt::RegistrySize()==1);
+        platform3g::CheckDeviceResult(lt::Describe(converted,0,&desc),"actual converted texture description");
+        assert(desc.Width==input.SizeX() && desc.Height==input.SizeY());
+        assert(desc.Format==(input.BytePP()==4?26u:24u));
+        lt::LockedRect pixels{};platform3g::CheckDeviceResult(lt::Lock(converted,0,&pixels,nullptr,0),"read actual converted pixel");
+        const auto* raw=static_cast<const std::uint8_t*>(pixels.pBits);const auto* source=input.Data();
+        if(input.BytePP()==4) {
+            assert(raw[0]==((source[1]&0xf0)|(source[2]>>4)));
+            assert(raw[1]==((source[3]&0xf0)|(source[0]>>4)));
+        }
+        platform3g::CheckDeviceResult(lt::Unlock(converted,0),"unlock converted pixel");
+    }
+    assert(lt::RegistrySize()==0);
+    runtime.FinishOriginalManagedTexture();runtime.LoadOriginalManagedTexture(path);
+    bool duplicate=false;try{runtime.LoadOriginalManagedTexture(path);}catch(const std::logic_error&){duplicate=true;}
+    assert(duplicate && runtime.OriginalManagedTexture() && lt::RegistrySize()==1);
+    // Keep the actual owned texture alive for the next real DetachDevice.
+    std::puts("original managed texture SDK Load/Init/Preload/Unload and original 16-bit bitmap conversion EXECUTED with actual resource/pixel readback; GPU draw NOT RUN");
+}
 namespace {
 std::vector<float>* captured_progress{};
 void RecordProgress(float value){assert(captured_progress);captured_progress->push_back(value);}
@@ -248,7 +322,17 @@ struct KonusCleanupAccess:CMatrixEffectKonus {
     static bool Empty(){return m_VB==nullptr;}
 };
 void VerifyBootstrapGameCold() {
-    assert(!g_MatrixHeap && !g_MatrixData);
+    assert(!g_MatrixHeap && !g_MatrixData && srhd_awa::matrixgame::legacy_texture::RegistrySize()==0);
+    {
+        auto* foreign=srhd_awa::matrixgame::legacy_texture::CreateManaged();
+        struct Owner {CCacheData* value;~Owner(){CCache::Destroy(value);}} owner{foreign};
+        NativeInitRuntime refused;bool rejected=false;
+        try{refused.Begin(nullptr,nullptr);}catch(const std::logic_error&){rejected=true;}
+        refused.Deinit();
+        assert(rejected && !refused.OriginalStaticsReady() && !foreign->DX() && !g_MatrixHeap && !g_Cache);
+        assert(srhd_awa::matrixgame::legacy_texture::RegistrySize()==1);
+    }
+    assert(srhd_awa::matrixgame::legacy_texture::RegistrySize()==0);
     {
         Base::CBlockPar foreign;g_MatrixData=&foreign;
         NativeInitRuntime refused;bool rejected=false;
