@@ -10,6 +10,7 @@
 #include "MatrixLoadProgress.hpp"
 #include "Texture.hpp"
 #include "legacy_texture_backend.hpp"
+#include "MatrixRenderPipeline.hpp"
 #include "3g.hpp"
 #include <stdexcept>
 Base::CHeap* g_MatrixHeap;
@@ -82,6 +83,7 @@ void NativeInitRuntime::LeaveLegacyDll() {
 }
 void NativeInitRuntime::Deinit() noexcept {
     FinishLoadProgress();
+    FinishRenderPipeline();
     FinishOriginalManagedTexture();
     if(game_defaults_){ClearOriginalGameDefaults();game_defaults_=false;}
     if(cpu_owned_){DetachDevice();L3GDeinitCpuPhase();g_Sampler.m_AFDegree=0;cpu_owned_=false;}
@@ -109,6 +111,17 @@ void NativeInitRuntime::InitializeLoadProgress() {
     g_LoadProgress=progress.get();load_progress_=std::move(progress);
 }
 void NativeInitRuntime::FinishLoadProgress()noexcept {load_progress_.reset();}
+void NativeInitRuntime::InitializeRenderPipeline() {
+    if(active!=this || !CpuReady() || !OriginalStaticsReady())throw std::logic_error("renderer requires this initialized CPU owner");
+    if(g_Render || render_pipeline_)throw std::logic_error("live renderer publisher already present");
+    auto* renderer=HNew(g_MatrixHeap) CRenderPipeline;
+    g_Render=renderer;render_pipeline_=renderer;
+}
+void NativeInitRuntime::FinishRenderPipeline()noexcept {
+    if(!render_pipeline_)return;
+    if(g_Render==render_pipeline_)g_Render=nullptr;
+    HDelete(CRenderPipeline,render_pipeline_,g_MatrixHeap);render_pipeline_=nullptr;
+}
 void NativeInitRuntime::LoadOriginalManagedTexture(const wchar_t* path,bool convert_to_16bit) {
     if(active!=this || !CpuReady() || !OriginalStaticsReady())throw std::logic_error("original managed texture requires this live CPU/cache owner");
     if(original_texture_)throw std::logic_error("original managed texture already owned");
@@ -169,6 +182,7 @@ void NativeInitRuntime::ApplyDefaultDeviceState() {
 }
 void NativeInitRuntime::DetachDevice() noexcept {
     if(active!=this || !cpu_owned_)return;
+    FinishRenderPipeline();
     FinishOriginalManagedTexture(); // Actual SDK resource dies before device/window/cache teardown.
     legacy_window_=nullptr;legacy_device_=nullptr;
     cursor_.reset(); // Original Clear must run before window/heap providers die.

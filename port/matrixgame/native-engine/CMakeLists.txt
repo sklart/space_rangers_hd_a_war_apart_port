@@ -35,6 +35,7 @@ add_library(matrixgame-native-cache STATIC
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixGame.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/GameStaticResources.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixLoadProgress.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixRenderPipeline.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalManagedTexture.cpp" legacy_texture_backend.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixCursorLifecycle.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixSampleStateManager.cpp"
@@ -55,11 +56,7 @@ target_include_directories(matrixgame-native-cache BEFORE PUBLIC
     "${ENGINE_SOURCE}/MatrixLib/3G" "${ENGINE_SOURCE}/MatrixLib/Base"
     "${ENGINE_SOURCE}/MatrixLib/Bitmap" "${ENGINE_SOURCE}/MatrixGame/src")
 if(WIN32)
-    # The complete original renderer closes the Windows CGame ctor/dtor refs.
-    # Host/ARM full-TU compile is audited below; ASan/UBSan execution still needs
-    # the original texture/map-object RTTI closure. Never disable vptr checks.
-    target_sources(matrixgame-native-cache PRIVATE platform_win32.cpp
-        "${ENGINE_SOURCE}/MatrixGame/src/MatrixRenderPipeline.cpp")
+    target_sources(matrixgame-native-cache PRIVATE platform_win32.cpp)
     target_link_libraries(matrixgame-native-cache PUBLIC d3d9 user32 winmm)
 endif()
 if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)

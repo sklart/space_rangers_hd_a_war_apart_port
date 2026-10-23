@@ -83,5 +83,15 @@ namespace original_renderer_ops {
 #define FAILED_DX(call) rp3g::CheckDeviceResult((call), #call)
 '''+text[position:]
     text=adapt(text)
+    # These legacy object callbacks have no header/export/external references;
+    # all table assignments in the pinned constructor are commented out. Keep
+    # their complete algorithms TU-local, so unused code/UBSan metadata is not
+    # retained as a spurious dependency of the active water/terrain pipeline.
+    # If a future in-TU caller is enabled, ordinary compilation emits the real
+    # methods and their full sanitizer/type dependencies again.
+    for callback in ('obj_ordinal_t4','obj_ordinal_gloss_t4'):
+        signature='bool '+callback+'(uintptr_t user_param, int)'
+        if text.count(signature)!=1:raise ValueError('Original object callback changed: '+callback)
+        text=text.replace(signature,'static '+signature,1)
     write(name,prelude+text)
     return changes

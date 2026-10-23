@@ -18,6 +18,7 @@
 using namespace srhd_awa::matrixgame;
 namespace p=srhd_awa::matrixgame::platform3g;
 extern CLoadProgress* g_LoadProgress; // Actual engine global; keep Windows SDK aliases out of this TU.
+extern CRenderPipeline* g_Render;
 // Original full animator retains its light pointer/count. The accepted native
 // no-light variant remains a separate class, never substituted for this type.
 constexpr auto full_light_extent=(sizeof(void*)+sizeof(int)+alignof(CVectorObjectAnim)-1)/alignof(CVectorObjectAnim)*alignof(CVectorObjectAnim);
@@ -46,6 +47,7 @@ extern void VerifyBootstrapLegacy(NativeInitRuntime&,void*,p::Window&,p::Device&
 extern void VerifyBootstrapProgress(NativeInitRuntime&);
 extern void VerifyBootstrapOriginalTexture(NativeInitRuntime&,const wchar_t*);
 extern void VerifyBootstrapOriginalTextureDevice(NativeInitRuntime&,const wchar_t*);
+extern void VerifyBootstrapRenderer(NativeInitRuntime&);
 extern void VerifyBootstrapCursor(NativeInitRuntime&,p::Window&,p::Device&,bool);
 struct UnavailableDevice final:p::Device {
     p::DeviceCaps ReadCaps()override{throw p::Unsupported("backend has no verified legacy device caps");}
@@ -104,6 +106,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
             std::puts("full original CGame static_init EXECUTED before game heap/cache: stale EXITLOOP cleared, real original static data bound");
             std::puts("CacheInit + L3G CPU prefix EXECUTED");
             VerifyBootstrapProgress(runtime);
+            VerifyBootstrapRenderer(runtime);
             VerifyBootstrapOriginalTexture(runtime,texture.c_str());
             MaterialTexture stale;
             {
@@ -128,6 +131,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
                 VerifyBootstrapCursor(runtime,*window,*device,true);
                 VerifyBootstrapTimer(runtime,*window,*device,true);
                 VerifyBootstrapLegacy(runtime,module,*window,*device,true);
+                VerifyBootstrapRenderer(runtime);
                 assert(GetWindowLongPtrW(hwnd,GWLP_WNDPROC)!=original_proc);
                 const auto actual=device->ReadCaps();
                 assert(actual.swapchain_count==p::Current().caps.swapchain_count);
@@ -149,10 +153,12 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
                 assert(form.keys==1 && form.mouse==1 && form.events==2);
                 FormChange(nullptr);
                 runtime.DetachDevice();
+                assert(!g_Render && !runtime.RenderPipeline());
                 assert(runtime.CpuReady() && !runtime.GpuReady() && InspectCpu3GState().bound);
                 assert(GetWindowLongPtrW(hwnd,GWLP_WNDPROC)==original_proc);
                 runtime.AttachDevice(*window,*device);assert(runtime.GpuReady());
                 runtime.InitializeCursor(); // Leave a real cursor owned until full Deinit.
+                VerifyBootstrapRenderer(runtime);
 #else
                 VerifyBootstrapGameDefaults(runtime); // Independent original CPU settings stage; GPU remains unsupported.
                 if(!config.empty())VerifyBootstrapConfiguration(runtime,config.c_str(),false);
@@ -168,7 +174,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
 #endif
             }
             runtime.InitializeLoadProgress();assert(g_LoadProgress==runtime.LoadProgress()); // Full owner cleanup also owns this real object.
-            runtime.Deinit();runtime.Deinit();assert(!runtime.OriginalStaticsReady() && !runtime.LoadProgress() && !g_LoadProgress && !runtime.OriginalManagedTexture());cold();
+            runtime.Deinit();runtime.Deinit();assert(!runtime.OriginalStaticsReady() && !runtime.LoadProgress() && !g_LoadProgress && !runtime.OriginalManagedTexture() && !runtime.RenderPipeline() && !g_Render);cold();
             bool expired=false;try{(void)stale.Read();}catch(...){expired=true;}assert(expired);
 #ifdef _WIN32
             assert(IsWindow(hwnd) && GetWindowLongPtrW(hwnd,GWLP_WNDPROC)==original_proc);

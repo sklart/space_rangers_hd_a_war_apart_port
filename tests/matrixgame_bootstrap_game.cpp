@@ -15,10 +15,50 @@
 #include "3g.hpp"
 #include "Texture.hpp"
 #include "legacy_texture_backend.hpp"
+#include "MatrixRenderPipeline.hpp"
 #ifdef _WIN32
 #include "platform_win32.hpp"
 #endif
 using namespace srhd_awa::matrixgame;
+void VerifyBootstrapRenderer(NativeInitRuntime& runtime) {
+    assert(!g_Render && !runtime.RenderPipeline());
+    if(!runtime.GpuReady()) {
+        for(int retry=0;retry<2;++retry) {
+            bool rejected=false;try{runtime.InitializeRenderPipeline();}
+            catch(const platform3g::Unsupported& error){rejected=std::string(error.what())=="3G device negotiation not complete";}
+            assert(rejected && !g_Render && !runtime.RenderPipeline() && runtime.CpuReady());
+        }
+        runtime.FinishRenderPipeline();runtime.FinishRenderPipeline();
+        std::puts("full original CRenderPipeline constructor ENTERED -> first actual caps query Unsupported without negotiated device; original game-heap allocation unwind/retry PASS; callback selection NOT RUN");
+        return;
+    }
+    const auto textures=platform3g::Current().caps.max_simultaneous_textures;
+    if(textures<2) {
+        bool rejected=false;try{runtime.InitializeRenderPipeline();}catch(const Base::CException&){rejected=true;}
+        assert(rejected && !g_Render && !runtime.RenderPipeline());
+        std::puts("original renderer rejects actual SDK MaxSimultaneousTextures<2; no callback success synthesized");return;
+    }
+    runtime.InitializeRenderPipeline();auto* renderer=runtime.RenderPipeline();assert(renderer && g_Render==renderer);
+    assert(renderer->m_WaterSolid && renderer->m_WaterAlpha && renderer->m_WaterClearSolid && renderer->m_WaterClearAlpha);
+    const auto alpha_pass=textures>=3?1:(platform3g::ReadyDevice().ReadAdapterDisplayMode(0).Format==platform3g::PixelFormat::Xrgb8?2:1);
+    assert(renderer->m_WaterPassSolid==1 && renderer->m_WaterPassAlpha==alpha_pass);
+    for(unsigned i=0;i<2;++i)assert(renderer->m_TerBot[i] && renderer->m_TerBotTex[i] && renderer->m_TerBotClear[i] && renderer->m_TerBotPass[i]==1);
+    for(unsigned i=0;i<SURF_TYPES_COUNT;++i)assert(renderer->m_TerSurf[i] && renderer->m_TerSurfTex[i] && renderer->m_TerSurfClear[i] && renderer->m_TerSurfPass[i]>=1);
+    assert(renderer->m_TerSurfPass[SURF_TYPE]==1 && renderer->m_TerSurfPass[SURF_TYPE_WHITE]==1);
+    assert(renderer->m_TerSurfPass[SURF_TYPE_MACRO]==(textures>=3?1:2));
+    assert(renderer->m_TerSurfPass[SURF_TYPE_GLOSS]==(textures>=4?1:2));
+    assert(renderer->m_TerSurfPass[SURF_TYPE_MACRO_GLOSS]==(textures>=4?1:2));
+    bool duplicate=false;try{runtime.InitializeRenderPipeline();}catch(const std::logic_error&){duplicate=true;}
+    assert(duplicate && runtime.RenderPipeline()==renderer && g_Render==renderer);
+    auto& device=platform3g::ReadyDevice();
+    platform3g::CheckDeviceResult(device.SetRenderState(RasterRegister::BlendEnable,1),"seed renderer clear blend");
+    platform3g::CheckDeviceResult(device.SetRenderState(RasterRegister::DepthWrite,0),"seed renderer clear depth");
+    renderer->m_TerBotClear[0](); // Actual original callback -> real SDK provider.
+    assert(device.ReadRenderState(RasterRegister::BlendEnable)==0 && device.ReadRenderState(RasterRegister::DepthWrite)==1);
+    runtime.FinishRenderPipeline();runtime.FinishRenderPipeline();assert(!g_Render && !runtime.RenderPipeline());
+    runtime.InitializeRenderPipeline();assert(g_Render==runtime.RenderPipeline());
+    std::puts("original renderer constructor/callback table and TerBotClear EXECUTED on actual SDK caps/state; cleanup/reentry PASS; draw NOT RUN");
+}
 void VerifyBootstrapOriginalTexture(NativeInitRuntime& runtime,const wchar_t* path) {
     namespace lt=srhd_awa::matrixgame::legacy_texture;
     assert(runtime.CpuReady() && !runtime.GpuReady() && lt::RegistrySize()==0);
@@ -322,7 +362,7 @@ struct KonusCleanupAccess:CMatrixEffectKonus {
     static bool Empty(){return m_VB==nullptr;}
 };
 void VerifyBootstrapGameCold() {
-    assert(!g_MatrixHeap && !g_MatrixData && srhd_awa::matrixgame::legacy_texture::RegistrySize()==0);
+    assert(!g_MatrixHeap && !g_MatrixData && !g_Render && srhd_awa::matrixgame::legacy_texture::RegistrySize()==0);
     {
         auto* foreign=srhd_awa::matrixgame::legacy_texture::CreateManaged();
         struct Owner {CCacheData* value;~Owner(){CCache::Destroy(value);}} owner{foreign};
