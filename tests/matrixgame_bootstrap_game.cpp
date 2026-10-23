@@ -27,6 +27,8 @@
 #include "MatrixMapTexture.hpp"
 #include "MatrixWater.hpp"
 #include "MatrixSkinManager.hpp"
+#include "Effects/MatrixEffect.hpp"
+#include "Effects/MatrixEffectPointLight.hpp"
 #include "legacy_texture_backend.hpp"
 #include "MatrixRenderPipeline.hpp"
 #ifdef _WIN32
@@ -34,6 +36,48 @@
 #endif
 using namespace srhd_awa::matrixgame;
 void VerifyOriginalDebugFontOwner();
+static void VerifyOriginalEffectResources() {
+    auto& context=buffers::Current();const auto before=context.AllocatedBytes();
+    assert(CMatrixEffect::m_Heap==nullptr && !g_MatrixMap);
+    {
+        // Real original animator type, distinct from NativeVectorObjectAnim.
+        CDebris empty;empty.Init(nullptr,nullptr);empty.Clear();empty.Clear();
+        assert(!empty.VO());
+    }
+    SPL_VBIB::StaticInit();
+    for(int cycle=0;cycle<2;++cycle) {
+        CMatrixEffect::CreatePoolDefaultResources();
+        const auto allocated=context.AllocatedBytes();assert(allocated>before);
+        CMatrixEffect::CreatePoolDefaultResources();assert(context.AllocatedBytes()==allocated);
+        auto* pool=SPL_VBIB::GetCreate(128,64,POINTLIGHT_FVF);
+        auto* vb=static_cast<std::uint32_t*>(pool->LockVB(128));
+        assert(vb);vb[0]=0x12345678u;pool->UnLockVB();
+        auto* ib=static_cast<std::uint16_t*>(pool->LockIB(64));
+        assert(ib);ib[0]=3;pool->UnLockIB();
+        assert(pool->DX_GetVB()->Initialized(0,128) && pool->DX_GetIB()->Initialized(0,64));
+        pool->NoNeed();auto* reused=SPL_VBIB::GetCreate(128,64,POINTLIGHT_FVF);
+        assert(reused==pool);reused->NoNeed();
+        CMatrixEffect::ClearEffects();assert(context.AllocatedBytes()==before);
+        CMatrixEffect::ClearEffects();assert(context.AllocatedBytes()==before);
+        assert(CMatrixEffect::m_Heap==nullptr);
+    }
+    {
+        CBillboardLine line({1,2,3},{5,2,3},2,0x89abcdefu,nullptr);
+        SBillboardVertex vertices[4]{};line.UpdateVBSlot(vertices,{3,2,13});
+        for(int i=0;i<4;++i) {
+            assert(std::fabs(vertices[i].p.x-(i<2?1.f:5.f))<1e-5f);
+            assert(std::fabs(vertices[i].p.y-(i%2?3.f:1.f))<1e-5f && vertices[i].p.z==3);
+            assert(vertices[i].color==0x89abcdefu && vertices[i].tu==(i<2?0.f:1.f) && vertices[i].tv==(i%2?0.f:1.f));
+        }
+        line.SetPos({0,0,0},{0,4,0});line.SetWidth(4);line.UpdateVBSlot(vertices,{0,2,10});
+        for(int i=0;i<4;++i) {
+            assert(std::fabs(vertices[i].p.x-(i%2?-2.f:2.f))<1e-5f);
+            assert(std::fabs(vertices[i].p.y-(i<2?0.f:4.f))<1e-5f && vertices[i].p.z==0);
+        }
+        line.Release();
+    }
+    std::puts("original effects CreatePoolDefaultResources/ClearEffects with billboard staging and real point-light pool reuse/release; original billboard line XYZ/color/UV EXECUTED; effect map Init/Draw NOT EXECUTED");
+}
 static void VerifyOriginalPickViewport() {
     const int old_x=g_ScreenX,old_y=g_ScreenY;
     struct Restore {int x,y;~Restore(){g_ScreenX=x;g_ScreenY=y;}} restore{old_x,old_y};
@@ -614,6 +658,7 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
     assert(rejected && !runtime.GameDefaultsReady() && g_Config.m_Cursors==foreign && foreign->key==L"existing cursor");
     ClearOriginalGameDefaults();
     runtime.InitializeGameDefaults();
+    VerifyOriginalEffectResources();
     if(!runtime.GpuReady()) {
         CSkinManager::StaticInit();
         for(int attempt=0;attempt<2;++attempt) {

@@ -1,6 +1,12 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение24.10: [полный skin manager](matrixgame-e2e519-skin-manager.md).
+Актуальное продолжение24.10: [эффекты, billboard и point-light pool](matrixgame-e2e519-effects.md).
+Полные оригинальные модули и original CVectorObjectAnim подключены к общей
+цепочке. Реальные staging allocation/reuse/ClearEffects и line geometry
+исполнены на host и ARM64/QEMU; devkitA64 compile/link PASS. Full map owner
+LINK FAIL13; InitEffects на ресурсах мира, CGame::Init и GPU draw NOT RUN.
+
+Предыдущее продолжение24.10: [полный skin manager](matrixgame-e2e519-skin-manager.md).
 Оригинальный GetSkin исполнен до отказа Prepare без устройства; доказанный
 ASan UAF повторного Clear исправлен сбросом ownership slots. Общий host и
 ARM64/QEMU runtime PASS, devkitA64 compile/link PASS. Full map owner LINK FAIL15;
