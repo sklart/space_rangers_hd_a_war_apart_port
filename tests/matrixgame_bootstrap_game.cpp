@@ -3,6 +3,7 @@
 #include "input.hpp"
 #include "map_device_backend.hpp"
 #include "offscreen_backend.hpp"
+#include "unmanaged_texture_backend.hpp"
 #include "view_geometry.hpp"
 #include "console_backend.hpp"
 #include "pick_viewport.hpp"
@@ -40,6 +41,7 @@ using namespace srhd_awa::matrixgame;
 void VerifyOriginalDebugFontOwner();
 #ifdef _WIN32
 void VerifyOriginalOffscreenResources();
+void VerifyOriginalUnmanagedTextureDevice();
 #endif
 static void VerifyOriginalEffectResources() {
     auto& context=buffers::Current();const auto before=context.AllocatedBytes();
@@ -115,6 +117,30 @@ static void VerifyOriginalStaticGeometry() {
     assert(!CMatrixMapStatic::EnumVertsHandler(vertex,reinterpret_cast<uintptr_t>(&data)) && !data.found);
     assert(!g_MatrixMap);
     std::puts("original static object empty sort/remove and transformed vertex rectangle predicate EXECUTED; abstract object/map not instantiated");
+}
+static void VerifyOriginalUnmanagedTexture(NativeInitRuntime& runtime) {
+    namespace lt=srhd_awa::matrixgame::legacy_texture;
+    const auto count=lt::RegistrySize();auto* texture=lt::CreateUnmanaged();
+    assert(texture && !texture->IsTextureManaged() && !texture->IsLoaded() && !texture->m_Cache);
+    assert(lt::RegistrySize()==count+1);
+    texture->Unload();texture->Unload();texture->OnLostDevice();texture->OnResetDevice();
+    CBaseTexture::OnLostDevice();CBaseTexture::OnResetDevice();
+    if(!runtime.GpuReady()) {
+        bool denied=false;
+        try {texture->MakeSolidTexture(4,4,0xff123456u);}
+        catch(const platform3g::Unsupported&) {denied=true;}
+        assert(denied && !texture->IsLoaded());
+        CBitmap bitmap;bitmap.CreateRGBA(4,4);denied=false;
+        try {texture->LoadFromBitmap(bitmap);}
+        catch(const platform3g::Unsupported&) {denied=true;}
+        assert(denied && !texture->IsLoaded());
+    }
+    CCache::Destroy(texture);assert(lt::RegistrySize()==count);
+    // Genuine caller-owned object transferred to its actual parent cache;
+    // no texture/resource success is implied by this unloaded cleanup entry.
+    texture=lt::CreateUnmanaged();texture->m_Name=L"original-unmanaged-parent-cleanup";
+    g_Cache->Add(texture);assert(texture->m_Cache==g_Cache && lt::RegistrySize()==count+1);
+    std::puts("original unmanaged CTexture factory/Unload/empty lost-reset/global dispatch/refusal EXECUTED; real unloaded object transferred to parent CacheDeinit; GPU resource NOT CREATED");
 }
 static void VerifyOriginalPickViewport() {
     const int old_x=g_ScreenX,old_y=g_ScreenY;
@@ -212,7 +238,7 @@ void VerifyBootstrapMapCamera(NativeInitRuntime& runtime) {
 }
 void VerifyBootstrapRenderer(NativeInitRuntime& runtime) {
 #ifdef _WIN32
-    if(runtime.GpuReady())VerifyOriginalOffscreenResources();
+    if(runtime.GpuReady()){VerifyOriginalOffscreenResources();VerifyOriginalUnmanagedTextureDevice();}
 #endif
     assert(!g_Render && !runtime.RenderPipeline());
     if(!runtime.GpuReady()) {
@@ -699,6 +725,7 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
     assert(rejected && !runtime.GameDefaultsReady() && g_Config.m_Cursors==foreign && foreign->key==L"existing cursor");
     ClearOriginalGameDefaults();
     runtime.InitializeGameDefaults();
+    VerifyOriginalUnmanagedTexture(runtime);
     VerifyOriginalGroupVisibility();
     VerifyOriginalStaticGeometry();
     VerifyOriginalEffectResources();

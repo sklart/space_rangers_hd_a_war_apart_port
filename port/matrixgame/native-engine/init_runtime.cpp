@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "init_runtime.hpp"
+#include "cache_owner_state.hpp"
 #include "MatrixSampleStateManager.hpp"
 #include "device_defaults.hpp"
 #include "game_defaults.hpp"
@@ -19,9 +20,8 @@ Base::CHeap* g_MatrixHeap;
 CMatrixMapLogic* g_MatrixMap;
 namespace srhd_awa::matrixgame {
 using Base::CBlockPar;
-namespace {NativeInitRuntime* active{};}
+namespace {NativeInitRuntime*& active=cache_owner_detail::Owner();}
 NativeInitRuntime::NativeInitRuntime()=default;
-bool NativeCacheFactoryBound() noexcept {return active && active->CpuReady();}
 NativeInitRuntime::~NativeInitRuntime(){Deinit();}
 void NativeInitRuntime::Begin(void* module,void* window) {
     if(active || g_Cache || g_CacheHeap || g_MatrixHeap || g_MatrixData || g_Render || g_MatrixMap || g_IFaceList || g_LoadProgress || g_FormFirst || g_FormLast || g_FormCur || legacy_texture::RegistrySize())

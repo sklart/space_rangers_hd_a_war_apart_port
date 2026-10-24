@@ -1,6 +1,12 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение24.10: [static-object и Windows offscreen backend](matrixgame-e2e519-map-static.md).
+Актуальное продолжение24.10: [original CTexture loss/reset](matrixgame-e2e519-unmanaged-texture.md).
+Оригинальные solid/bitmap texture creation, default/system/default notifications
+и все mip pixels исполнены на настоящем HAL. Общий host/ARM64 проверил actual
+parent CacheDeinit и owner-state split; devkitA64 prefix compile/link PASS.
+Full map owner LINK FAIL11; настоящий Device Reset, minimap и CGame::Init NOT RUN.
+
+Предыдущее продолжение24.10: [static-object и Windows offscreen backend](matrixgame-e2e519-map-static.md).
 Полный static-object TU подключён; original empty sort/remove и vertex predicate
 исполнены на host/ARM64. Настоящий Windows HAL проверил target/depth, Clear pixels,
 CPU pitch roundtrip и bindings/viewport restore. devkitA64 prefix compile/link

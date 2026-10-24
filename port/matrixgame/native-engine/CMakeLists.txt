@@ -25,7 +25,7 @@ add_library(matrixgame-native-vector-object STATIC "${CMAKE_CURRENT_BINARY_DIR}/
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/VectorObjectAnimNative.cpp")
 target_link_libraries(matrixgame-native-vector-object PUBLIC matrixgame-native-core)
 add_library(matrixgame-native-cache STATIC
-    "${CMAKE_CURRENT_BINARY_DIR}/core/source/CacheNative.cpp" cache_resources.cpp
+    "${CMAKE_CURRENT_BINARY_DIR}/core/source/CacheNative.cpp" cache_resources.cpp cache_owner_state.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/L3GCpuPhase.cpp" init_runtime.cpp cached_frame.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/3GPlatformNative.cpp" platform_3g.cpp map_device_backend.cpp debug_font_backend.cpp offscreen_backend.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/3GDeviceDefaults.cpp"
@@ -56,6 +56,7 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixRenderPipeline.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/OriginalRendererOps.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalManagedTexture.cpp" legacy_texture_backend.cpp
+    "${ENGINE_SOURCE}/MatrixLib/3G/OriginalUnmanagedTexture.cpp" unmanaged_texture_backend.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixCursorLifecycle.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixCameraLifecycle.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixSampleStateManager.cpp"
@@ -65,6 +66,11 @@ target_link_libraries(matrixgame-native-cache PUBLIC matrixgame-native-vector-ob
 # dependencies are actually closed. This is not a full-engine link claim.
 set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/offscreen_backend.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/unmanaged_texture_backend.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/cache_owner_state.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/init_runtime.cpp"
+    "${ENGINE_SOURCE}/MatrixLib/3G/OriginalManagedTexture.cpp"
+    "${ENGINE_SOURCE}/MatrixLib/3G/OriginalUnmanagedTexture.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixLogic.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMap.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixTerSurface.cpp"
@@ -158,7 +164,8 @@ if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
         MATRIXGAME_FULL_CURSOR_HEADER="${ENGINE_SOURCE}/MatrixGame/src/MatrixCursor.hpp")
     if(WIN32)
         target_sources(matrixgame-native-bootstrap PRIVATE "${PORT_ROOT}/tests/test_matrixgame_bootstrap_win32.cpp"
-            "${PORT_ROOT}/tests/matrixgame_bootstrap_offscreen.cpp")
+            "${PORT_ROOT}/tests/matrixgame_bootstrap_offscreen.cpp"
+            "${PORT_ROOT}/tests/matrixgame_bootstrap_unmanaged_texture.cpp")
         target_include_directories(matrixgame-native-bootstrap PRIVATE "${MATRIXGAME_D3DX9_INCLUDE}")
         target_compile_options(matrixgame-native-bootstrap PRIVATE /EHsc)
     endif()
