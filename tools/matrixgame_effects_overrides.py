@@ -12,7 +12,9 @@ def prepare_effects(output):
            ('MatrixGame/src/Effects/MatrixEffectSmokeAndFire.cpp','CMatrixEffectSmoke::CMatrixEffectSmoke('),
            ('MatrixGame/src/Effects/MatrixEffectExplosion.cpp','const SExplosionProperties ExplosionNormal ='),
            ('MatrixGame/src/Effects/MatrixEffectKonus.cpp','CMatrixEffectKonus::CMatrixEffectKonus('),
-           ('MatrixGame/src/Effects/MatrixEffectLandscapeSpot.cpp','static SSpotProperties m_SpotProperties[SPOT_TYPES_CNT];')]
+           ('MatrixGame/src/Effects/MatrixEffectLandscapeSpot.cpp','static SSpotProperties m_SpotProperties[SPOT_TYPES_CNT];'),
+           ('MatrixGame/src/Effects/MatrixEffectWeapon.cpp','void CMatrixEffectWeapon::WeaponHit('),
+           ('MatrixGame/src/Effects/MatrixEffectSelection.cpp','CMatrixEffectSelection::CMatrixEffectSelection(')]
     for name,marker in units:
         path=output/name;text=path.read_text(encoding='utf-8')
         text=text.replace('(CTextureManaged *)g_Cache->Get(CacheClass::TextureManaged, ','effect_texture::GetManaged(')
