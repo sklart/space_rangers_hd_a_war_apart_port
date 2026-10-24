@@ -1,0 +1,31 @@
+{
+  "source_ref": "03651ce",
+  "source_sha256": "e5e8150a519f22bb569152c9a9d902a5cb67d0dfeb9d26db038c028859f8a690",
+  "log_sha256": "34056c4b412b94960670b22675d507ded7a821270202aaa46f9e340b5c53844d",
+  "errors": [
+    {
+      "line": 5693,
+      "mono_us": 42023323107,
+      "text": "mono_us=42023323107 [SESSION] E2E4 manual save: manual-publish: byte copy failed: No such file or directory, errno=No such file or directory; interrupted manual save restored; new generation retained in temp"
+    },
+    {
+      "line": 5963,
+      "mono_us": 42034291833,
+      "text": "mono_us=42034291833 [SESSION] E2E4 manual save: manual-publish: byte copy failed: No such file or directory, errno=No such file or directory; interrupted manual save restored; new generation retained in temp"
+    }
+  ],
+  "established": [
+    "Both messages carry error_code ENOENT from CopyBytesExclusive, not merely trailing strerror(errno).",
+    "A successful CopyBytesExclusive followed only by a failed destination FileKind would have ec=0 and message Success, not this ENOENT text.",
+    "Source temp validation, hash/sync and manual journal preparation passed before entering manual-publish.",
+    "Separate SyncFile after copy, copied size/CRC verification and manual committed marker were not reached.",
+    "The source path is therefore not demonstrably persistently nonexistent; disappearance or VFS failure at later fopen remains possible."
+  ],
+  "not_established": [
+    "Which libc operation first failed: source fopen, target open, fdopen, read/write/flush/close.",
+    "Whether ENOENT was the failing read error: old code did not reset errno and could report stale errno after ferror.",
+    "Target native path bytes and equality of supplied resource filesystem with hardware filesystem.",
+    "An exact historical syscall cause cannot be reconstructed from this common error text or RSG64 description alone."
+  ],
+  "test_boundary": "Static historical source and existing hardware records; no new runtime PASS, no save fix claimed."
+}

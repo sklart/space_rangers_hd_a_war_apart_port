@@ -312,6 +312,26 @@ O_EXCL, валидация, flush/readback, rollback и публикация com
 Это **исправление точности диагностики**, не доказанное устранение аппаратного
 ENOENT. Исходное сообщение само по себе не позволяет выбрать одну фазу.
 
+Уточнение по **точному** старому producer из03651ce: в обоих аппаратных
+сообщениях ENOENT находится уже в `ec.message()`, а не только в последующем
+`strerror(errno)`. Значит, отказ возник внутри CopyBytesExclusive. Ветка,
+где копирование успешно и ошибся только последующий FileKind(destination),
+имела бы ec=0 и текст `Success`; она не объясняет эти два сообщения.
+Отдельные SyncFile после copy, size/CRC readback и committed marker тоже
+не были достигнуты. ValidateSave(temp), HashFile/SyncFile(temp) и подготовка
+manual journal к этому моменту уже прошли. Это исключает утверждение, что
+исходный путь постоянно был неверным или файл вообще не создавался, но
+не исключает последующее исчезновение/ошибку VFS при fopen.
+
+Точный syscall всё ещё неизвестен: source fopen, destination open/fdopen,
+read/write/flush/close используют общий error path. Для read старый код мог
+сохранить устаревший errno через ferror, поэтому даже ec=2 не является
+безусловным доказательством отсутствующего файла. Команда read-only разбора:
+`python tools/e2e523_manual_failure_boundary.py`;
+[две записи, хэши producer/журнала и границы вывода](hardware-20261023-manual-boundary.json).
+Это static/hardware-log анализ, без нового runtime PASS и без заявления
+об исправлении исторической причины.
+
 Новый тест `test_e2e523_manual_publish.cpp` использует **настоящие присланные
 RSG64 поколения** и production ReplaceGameSavePath. Четыре случая: source-open
 ENOENT и destination-create ENOENT × новый/занятый `Солнце.sav`. Внедряется
