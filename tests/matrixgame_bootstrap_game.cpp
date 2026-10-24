@@ -36,6 +36,8 @@
 #include "legacy_texture_backend.hpp"
 #include "MatrixRenderPipeline.hpp"
 #include "Interface/MatrixHint.hpp"
+#include "MatrixObject.hpp"
+#include "object_geometry.hpp"
 #ifdef _WIN32
 #include "platform_win32.hpp"
 #endif
@@ -119,6 +121,33 @@ static void VerifyOriginalStaticGeometry() {
     assert(!CMatrixMapStatic::EnumVertsHandler(vertex,reinterpret_cast<uintptr_t>(&data)) && !data.found);
     assert(!g_MatrixMap);
     std::puts("original static object empty sort/remove and transformed vertex rectangle predicate EXECUTED; abstract object/map not instantiated");
+}
+static void VerifyOriginalMapObjectResources() {
+    namespace lt=srhd_awa::matrixgame::legacy_texture;
+    namespace og=srhd_awa::matrixgame::object_geometry;
+    assert(!g_MatrixMap && !CMatrixMapObject::m_ShadowTextures && !CMatrixMapObject::m_ShadowTexturesCount);
+    const auto before=lt::RegistrySize();
+    auto* first=lt::CreateManaged();auto* second=lt::CreateManaged();
+    for(int cycle=0;cycle<2;++cycle) {
+        CMatrixMapObject::InitTextures(3);assert(CMatrixMapObject::m_ShadowTexturesCount==3);
+        auto* entries=CMatrixMapObject::m_ShadowTextures;
+        assert(entries && !entries[0].tex && !entries[0].tex_burn && !entries[2].tex);
+        entries[0].tex=first;entries[0].tex_burn=second;entries[1].tex=first;
+        CMatrixMapObject::ClearTexture(first);
+        assert(!entries[0].tex && entries[0].tex_burn==second && !entries[1].tex);
+        CMatrixMapObject::ClearTextures();CMatrixMapObject::ClearTextures();
+        assert(!CMatrixMapObject::m_ShadowTextures && !CMatrixMapObject::m_ShadowTexturesCount);
+        assert(lt::RegistrySize()==before+2); // Table borrows, does not own textures.
+    }
+    CCache::Destroy(first);CCache::Destroy(second);assert(lt::RegistrySize()==before);
+    D3DXMATRIX matrix;og::Scaling(&matrix,2,3,4);matrix._41=100;matrix._42=-200;matrix._43=300;
+    D3DXVECTOR3 value{1,-2,3};assert(og::TransformNormal(&value,&value,&matrix)==&value);
+    assert(value.x==2 && value.y==-6 && value.z==12); // No translation/divide/normalization.
+    og::RotationX(&matrix,DirectX::XM_PIDIV2);value={0,1,0};og::TransformNormal(&value,&value,&matrix);
+    assert(std::fabs(value.x)<1e-6f && std::fabs(value.y)<1e-6f && std::fabs(value.z-1)<1e-6f);
+    og::RotationY(&matrix,DirectX::XM_PIDIV2);value={0,0,1};og::TransformNormal(&value,&value,&matrix);
+    assert(std::fabs(value.x-1)<1e-6f && std::fabs(value.y)<1e-6f && std::fabs(value.z)<1e-6f);
+    std::puts("original full map-object InitTextures/ClearTexture/ClearTextures borrowed ownership/reentry EXECUTED; original math contracts checked; object/world ctor/dtor/GPU NOT EXECUTED");
 }
 static void VerifyOriginalHintBuild(NativeInitRuntime& runtime) {
     namespace lt=srhd_awa::matrixgame::legacy_texture;
@@ -783,6 +812,7 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
     VerifyOriginalUnmanagedTexture(runtime);
     VerifyOriginalMinimap();
     VerifyOriginalHintBuild(runtime);
+    VerifyOriginalMapObjectResources();
     VerifyOriginalGroupVisibility();
     VerifyOriginalStaticGeometry();
     VerifyOriginalEffectResources();

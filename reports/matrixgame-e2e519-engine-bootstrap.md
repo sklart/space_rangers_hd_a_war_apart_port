@@ -1,6 +1,15 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение24.10: [полный MatrixHint и исправление владения](matrixgame-e2e519-hint.md).
+Актуальное продолжение24.10: [полный MatrixObject и shadow table](matrixgame-e2e519-map-object.md).
+Подключён весь original map-object TU. Реальные InitTextures/ClearTexture/
+ClearTextures с borrowed genuine textures исполнены в общем host ASan/UBSan
+и ARM64/QEMU bootstrap. Полный модуль компилируется MSVC, devkitA64 prefix
+compile/link PASS. Пять original lifecycle bodies совпадают с upstream.
+Full map-owner link раскрыл38 unresolved symbols: шесть прежних и32 новые
+транзитивные зависимости исходного destructor/vtable/callbacks. Object/world
+ctor/dtor и CGame::Init NOT RUN; shadow и progress-bar owners — следующий слой.
+
+Предыдущее продолжение24.10: [полный MatrixHint и исправление владения](matrixgame-e2e519-hint.md).
 Реальный Build на controlled bitmap воспроизвёл потерю caller-owned texture
 при GPU refusal (registry2→3). Временный owner исправляет этот путь;
 host ASan/UBSan и ARM64/QEMU проверили retry без роста registry. Полный Hint

@@ -132,6 +132,8 @@ def prepare_engine(output):
     paths.update(prepare_minimap(output))
     from matrixgame_hint_overrides import prepare_hint
     paths.update(prepare_hint(output))
+    from matrixgame_map_object_overrides import prepare_map_object
+    paths.update(prepare_map_object(output))
     result={'schema':1,'source_commit':revision,'scope':'full engine compilation input; runtime/backend not implemented here',
         'files_sha256':paths,'portable_inputs':report['inputs_sha256'],
         'excluded_platform_launcher':'MatrixGameDll.cpp; native entry remains to implement'}
