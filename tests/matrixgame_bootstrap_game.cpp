@@ -37,6 +37,7 @@
 #include "MatrixRenderPipeline.hpp"
 #include "Interface/MatrixHint.hpp"
 #include "MatrixObject.hpp"
+#include "MatrixInstantDraw.hpp"
 #include "object_geometry.hpp"
 #include "shadow_stencil_view.hpp"
 #include <map>
@@ -394,6 +395,26 @@ void VerifyBootstrapMapCamera(NativeInitRuntime& runtime) {
         flight.Release();
         assert(target->m_Ref==1 && attacker->m_Ref==1);
         target->Release();attacker->Release();
+    }
+    if(!runtime.GpuReady()) {
+        auto& staging=buffers::Current();const auto before=staging.AllocatedBytes();
+        SVert_V4_UV quad[4]{};
+        for(unsigned i=0;i<4;++i){quad[i].p={float(i&1),float(i>>1),0,1};quad[i].tu=float(i&1);quad[i].tv=float(i>>1);}
+        for(int entry=0;entry<2;++entry) {
+            CInstDraw::DrawFrameBegin();CInstDraw::BeginDraw(IDFVF_V4_UV);
+            CInstDraw::ActualDraw(); // Original empty-batch path needs no device.
+            CInstDraw::BeginDraw(IDFVF_V4_UV);
+            CInstDraw::AddVerts(quad,nullptr);CInstDraw::AddVerts(quad,nullptr);
+            CInstDraw::AddVerts(quad,nullptr,0xff112233u);
+            bool blocked=false;
+            try{CInstDraw::ActualDraw();}catch(const platform3g::Unsupported&){blocked=true;}
+            // Twelve vertices, largest texture group eight vertices => twelve
+            // 16-bit indices. All original CPU batching ran before device bind.
+            assert(blocked && staging.AllocatedBytes()==before+12*sizeof(SVert_V4_UV)+12*sizeof(std::uint16_t));
+            CInstDraw::MarkAllBuffersNoNeed();assert(staging.AllocatedBytes()==before);
+            CInstDraw::ClearAll();CInstDraw::ClearAll();CInstDraw::StaticInit();
+        }
+        std::puts("original CInstDraw empty/merged/factor batches -> real VB/IB staging -> actual missing-device refusal; buffer cleanup/ClearAll/reentry PASS; GPU draw NOT EXECUTED");
     }
     runtime.InitializeMapCamera(settings);auto* camera=runtime.MapCamera();assert(camera);
     assert(MAX_VIEW_DISTANCE==5000 && g_ScreenX==settings.m_ResolutionX && g_ScreenY==settings.m_ResolutionY);
