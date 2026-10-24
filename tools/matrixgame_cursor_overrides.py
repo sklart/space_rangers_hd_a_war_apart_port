@@ -1,7 +1,8 @@
-"""Preserve real MatrixCursor construction/Clear via borrowed Window operations."""
+"""Complete original MatrixCursor through typed system/device/GDI operations."""
 import hashlib
 import re
 from matrixgame_vector_object_overrides import function
+from matrixgame_render_pipeline_overrides import adapt
 
 def prepare_cursor(output):
     name='MatrixGame/src/MatrixCursor.hpp';path=output/name
@@ -34,13 +35,33 @@ class CTextureManaged;''')
     # Keep the genuine virtual Unload contract while the concrete legacy texture
     # backend is still unported. No dummy Unload definition is introduced.
     native_clear=native_clear.replace('m_CursorTexture->Unload();','static_cast<CCacheData*>(m_CursorTexture)->Unload();')
-    c=c.replace(clear,'// Clear moved to MatrixCursorLifecycle.cpp; original body retained there.')
-    # Selection/Draw remain the original unsupported implementation, not stubs.
-    lifecycle=('''// Original MatrixCursor lifecycle, GPL-2.0-or-later; not full cursor TU.
-#include "MatrixCursor.hpp"
+    c=adapt(c.replace(clear,native_clear))
+    c=c.replace('(CTextureManaged *)g_Cache->Get(CacheClass::TextureManaged, ',
+                'srhd_awa::matrixgame::legacy_texture::GetManaged(')
+    c=c.replace('g_D3DD->ShowCursor(', 'cursor_native::ShowDeviceCursor(')
+    c=re.sub(r'\bShowCursor\(', 'cursor_native::ShowSystemCursor(',c)
+    c=c.replace('SetCursor(NULL);','m_CursorWindow->ExchangeCursor({});')
+    for index in ('m_Frame','0'):
+        c=c.replace('SetCursor(m_CursorIcons['+index+']);',
+                    'm_CursorWindow->ExchangeCursor({m_CursorIcons['+index+'].value});')
+    c=re.sub(r'\bHICON\b','srhd_awa::matrixgame::platform3g::IconHandle',c)
+    c=c.replace('WinBitmap frame;', 'cursor_native::BitmapFrame frame;')
+    c=c.replace('ICONINFO ii;', 'cursor_native::IconInfo ii;')
+    c=c.replace('CreateIconIndirect(&ii)', 'cursor_native::CreateIcon(ii)')
+    c=c.replace('D3DRS_ZENABLE','static_cast<srhd_awa::matrixgame::RasterRegister>(7)')
+    c=c.replace('D3DZB_FALSE','0u').replace('D3DZB_TRUE','1u')
+    c='''#include "MatrixCursor.hpp"
 #include "Texture.hpp"
-#include "MatrixGame.h"
-'''+ctor+'\n'+native_clear+'\n').encode()
+#include "renderer_ops.hpp"
+#include "cursor_backend.hpp"
+namespace rp3g=srhd_awa::matrixgame::platform3g;
+namespace cursor_native=srhd_awa::matrixgame::cursor;
+#undef ASSERT_DX
+#ifdef ASSERT_OFF
+#define ASSERT_DX(call) (call)
+#else
+#define ASSERT_DX(call) rp3g::CheckDeviceResult((call), #call)
+#endif
+'''+ctor+'\n'+c
     path.write_bytes(h.encode());cpath.write_bytes(c.encode())
-    generated='MatrixGame/src/MatrixCursorLifecycle.cpp';(output/generated).write_bytes(lifecycle)
-    return {name:hashlib.sha256(h.encode()).hexdigest(),'MatrixGame/src/MatrixCursor.cpp':hashlib.sha256(c.encode()).hexdigest(),generated:hashlib.sha256(lifecycle).hexdigest()}
+    return {name:hashlib.sha256(h.encode()).hexdigest(),'MatrixGame/src/MatrixCursor.cpp':hashlib.sha256(c.encode()).hexdigest()}
