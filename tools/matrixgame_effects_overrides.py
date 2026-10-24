@@ -18,7 +18,10 @@ def prepare_effects(output):
            ('MatrixGame/src/Effects/MatrixEffectMovingObject.cpp','CMatrixEffectMovingObject::CMatrixEffectMovingObject('),
            ('MatrixGame/src/Effects/MatrixEffectFirePlasma.cpp','CMatrixEffectFirePlasma::CMatrixEffectFirePlasma('),
            ('MatrixGame/src/Effects/MatrixEffectFlame.cpp','CFlamePuff::CFlamePuff('),
-           ('MatrixGame/src/Effects/MatrixEffectBigBoom.cpp','CMatrixEffectBigBoom::CMatrixEffectBigBoom(')]
+           ('MatrixGame/src/Effects/MatrixEffectBigBoom.cpp','CMatrixEffectBigBoom::CMatrixEffectBigBoom('),
+           ('MatrixGame/src/Effects/MatrixEffectLightening.cpp','CMatrixEffectLightening::CMatrixEffectLightening('),
+           ('MatrixGame/src/Effects/MatrixEffectRepair.cpp','CMatrixEffectRepair::CMatrixEffectRepair('),
+           ('MatrixGame/src/Effects/MatrixEffectShleif.cpp','CMatrixEffectShleif::CMatrixEffectShleif(')]
     for name,marker in units:
         path=output/name;text=path.read_text(encoding='utf-8')
         text=text.replace('(CTextureManaged *)g_Cache->Get(CacheClass::TextureManaged, ','effect_texture::GetManaged(')
