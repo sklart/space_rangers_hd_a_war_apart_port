@@ -1,4 +1,4 @@
-"""Full original Robot/Flyer owners; typed SDK operations, no fake RTTI."""
+"""Full original actor owners; typed SDK operations, no fake RTTI."""
 import hashlib
 import re
 from matrixgame_render_pipeline_overrides import adapt
@@ -7,7 +7,9 @@ from matrixgame_render_pipeline_overrides import adapt
 def prepare_actors(output):
     changed={}
     for name,marker in [('MatrixGame/src/MatrixObjectRobot.cpp','CMatrixRobot::CMatrixRobot()'),
-                        ('MatrixGame/src/MatrixFlyer.cpp','CMatrixFlyer::CMatrixFlyer(void)')]:
+                        ('MatrixGame/src/MatrixFlyer.cpp','CMatrixFlyer::CMatrixFlyer(void)'),
+                        ('MatrixGame/src/MatrixObjectBuilding.cpp','CMatrixBuilding::CMatrixBuilding()'),
+                        ('MatrixGame/src/MatrixRobot.cpp','CMatrixRobotAI::CMatrixRobotAI()')]:
         path=output/name;text=path.read_text(encoding='utf-8')
         text=text.replace('(CTextureManaged *)g_Cache->Get(CacheClass::TextureManaged,','actor_texture::GetManaged(')
         text=re.sub(r'\*\(\(LPDWORD\)\(&([^\)]+)\)\)',r'std::bit_cast<std::uint32_t>(\1)',text)
@@ -18,6 +20,8 @@ def prepare_actors(output):
                 'D3DCULL_CW':'2u','D3DCULL_CCW':'3u','D3DPT_TRIANGLEFAN':'6u'}
         for old,new in values.items():text=re.sub(r'\b'+old+r'\b',lambda m:new,text)
         for old,new in {'D3DXMatrixRotationX':'actor_geometry::RotationX',
+                        'D3DXMatrixRotationYawPitchRoll':'actor_geometry::RotationYawPitchRoll',
+                        'D3DXMatrixTranslation':'actor_translation::Translation',
                         'D3DXMatrixRotationY':'actor_geometry::RotationY',
                         'D3DXMatrixScaling':'actor_geometry::Scaling',
                         'D3DXVec3TransformNormal':'actor_geometry::TransformNormal',
@@ -42,6 +46,7 @@ def prepare_actors(output):
 #include "renderer_ops.hpp"
 #include "map_device_backend.hpp"
 #include "actor_geometry.hpp"
+#include "minimap_geometry.hpp"
 #include <bit>
 #include <cstring>
 #ifdef _MSC_VER
@@ -54,6 +59,7 @@ namespace rp3g=srhd_awa::matrixgame::platform3g;
 namespace actor_device=srhd_awa::matrixgame::map_device;
 namespace actor_geometry=srhd_awa::matrixgame::object_geometry;
 namespace actor_math=srhd_awa::matrixgame::actor_geometry;
+namespace actor_translation=srhd_awa::matrixgame::minimap_geometry;
 namespace actor_texture=srhd_awa::matrixgame::legacy_texture;
 '''
         path.write_bytes((prelude+text).encode());changed[name]=hashlib.sha256(path.read_bytes()).hexdigest()
