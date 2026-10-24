@@ -52,6 +52,8 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixLib/3G/ShadowStencil.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixProgressBar.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/ShadowProj.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixShadowManager.cpp"
+    "${ENGINE_SOURCE}/MatrixLib/3G/OriginalShadowProjection.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixDebugInfo.cpp"
@@ -96,6 +98,8 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/ShadowStencil.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixProgressBar.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/ShadowProj.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixShadowManager.cpp"
+    "${ENGINE_SOURCE}/MatrixLib/3G/OriginalShadowProjection.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixDebugInfo.cpp"
@@ -167,7 +171,8 @@ if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
         "${PORT_ROOT}/tests/matrixgame_bootstrap_formatted_texture.cpp"
         "${PORT_ROOT}/tests/matrixgame_bootstrap_game.cpp"
         "${PORT_ROOT}/tests/matrixgame_bootstrap_progress_bar.cpp"
-        "${PORT_ROOT}/tests/matrixgame_bootstrap_shadow_proj.cpp")
+        "${PORT_ROOT}/tests/matrixgame_bootstrap_shadow_proj.cpp"
+        "${PORT_ROOT}/tests/matrixgame_bootstrap_shadow_manager.cpp")
     target_link_libraries(matrixgame-native-bootstrap PRIVATE matrixgame-native-cache)
     target_compile_definitions(matrixgame-native-bootstrap PRIVATE
         MATRIXGAME_FULL_VECTOR_HEADER="${ENGINE_SOURCE}/MatrixLib/3G/VectorObject.hpp"

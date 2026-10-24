@@ -1,6 +1,14 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение24.10: [оригинальный projected-shadow owner](matrixgame-e2e519-shadow-proj.md).
+Актуальное продолжение24.10: [полный shadow manager и настоящий VO shadow basis](matrixgame-e2e519-shadow-manager.md).
+Полный manager включён; original animator/single/multiple CalcShadowProjMatrix
+на реальной VO проверены независимым scalar oracle на host и ARM64/QEMU.
+Original clipper достигает настоящей device boundary и получает Unsupported.
+devkitA64 prefix compile/link и MSVC compile PASS. Map-owner LINK FAIL27 вместо29:
+четыре manager symbols закрыты, открылись CalcShadowTexture/CalcShadowTextureWOMat.
+Terrain projection, GPU, мир и CGame::Init NOT RUN; подробности в evidence.
+
+Предыдущее продолжение24.10: [оригинальный projected-shadow owner](matrixgame-e2e519-shadow-proj.md).
 Повторный original Prepare воспроизвёл orphan-pool leak816 bytes/13 allocations.
 Исправлено снятие source-регистраций и владение пулами до последнего owner;
 раннее создание пулов для настоящего ReadGeometry сохранено. Map-owner LINK

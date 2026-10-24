@@ -62,6 +62,7 @@ extern void VerifyBootstrapGameCold();
 extern void VerifyBootstrapGameDefaults(NativeInitRuntime&);
 extern void VerifyBootstrapProgressBar(NativeInitRuntime&);
 extern void VerifyBootstrapShadowProj(NativeInitRuntime&,CVectorObject&);
+extern void VerifyBootstrapShadowManager(NativeInitRuntime&,CVectorObject&);
 extern void VerifyBootstrapShadowStencil(NativeInitRuntime&,CVectorObject&);
 extern void VerifyBootstrapProjection();
 extern void VerifyBootstrapVideo(NativeInitRuntime&,p::Window&,p::Device&,bool);
@@ -145,6 +146,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
                 VerifyBootstrapShadowStencil(runtime,*object);
                 VerifyBootstrapProgressBar(runtime);
                 VerifyBootstrapShadowProj(runtime,*object);
+                VerifyBootstrapShadowManager(runtime,*object);
                 stale=BorrowMaterialTexture(*g_Cache->Get(CacheClass::TextureManaged,texture));
                 (void)stale.Read();
                 std::printf("cycle=%u original Cache/VO/SSkin ready submissions=%zu\n",cycle,batch.submissions.size());

@@ -23,7 +23,10 @@ staging bytes, кэш и освобождение/повторное созда�
 clones, destructor и повторный вход проверены с активными assertions.
 Полный ShadowProj owner включён; доказанная утечка при повторном Prepare исправлена
 с сохранением раннего создания пулов, необходимого ReadGeometry.
-Полный map owner пока не линкуется: остаётся29 unresolved symbols ShadowProj/
+Полный shadow manager и original VO shadow basis включены; расчёт через настоящий
+animator проверен независимым scalar oracle на host/ARM64. Terrain projection
+и GPU texture generation ещё не выполнялись.
+Полный map owner пока не линкуется: остаётся27 unresolved symbols shadow texture/
 effects/side/picking. `CGame::Init`, `RunGameLoop`, `CFormMatrixGame`, загруженный мир и бой
 **NOT EXECUTED**. Никакого fake map или фиктивного результата боя нет.
 
@@ -34,7 +37,8 @@ effects/side/picking. `CGame::Init`, `RunGameLoop`, `CFormMatrixGame`, загр�
 [map objects](../../reports/matrixgame-e2e519-map-object.md),
 [shadow stencil](../../reports/matrixgame-e2e519-shadow-stencil.md),
 [progress bars](../../reports/matrixgame-e2e519-progress-bar.md),
-[projected-shadow owner и актуальные блокеры](../../reports/matrixgame-e2e519-shadow-proj.md).
+[projected-shadow owner](../../reports/matrixgame-e2e519-shadow-proj.md),
+[полный shadow manager и актуальные блокеры](../../reports/matrixgame-e2e519-shadow-manager.md).
 Основная NRO и оба прежних аппаратных комплекта неизменны; MatrixGame в неё
 не включён. Switch/deko3d runtime остаётся HARDWARE PENDING.
 
