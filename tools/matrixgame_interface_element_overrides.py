@@ -28,4 +28,11 @@ def prepare_interface_element(output):
 namespace rp3g=srhd_awa::matrixgame::platform3g;
 '''
     path.write_bytes((prelude+text).encode())
-    return {name:hashlib.sha256(path.read_bytes()).hexdigest()}
+    changed={name:hashlib.sha256(path.read_bytes()).hexdigest()}
+    name='MatrixGame/src/Interface/CIFaceButton.cpp';path=output/name
+    text=adapt(path.read_text(encoding='utf-8'))
+    if text.count('CIFaceButton::CIFaceButton()')!=1:
+        raise ValueError('Original interface button owner changed')
+    path.write_bytes((prelude+text).encode())
+    changed[name]=hashlib.sha256(path.read_bytes()).hexdigest()
+    return changed
