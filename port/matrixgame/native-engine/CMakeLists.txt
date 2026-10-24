@@ -107,6 +107,9 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalManagedTexture.cpp" legacy_texture_backend.cpp
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalUnmanagedTexture.cpp" unmanaged_texture_backend.cpp
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixCursor.cpp" cursor_backend.cpp
+    "${ENGINE_SOURCE}/MatrixGame/src/Text/Font.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Text/Parser.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Text/Render.cpp" text_backend.cpp
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixCamera.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixInstantDraw.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixSampleStateManager.cpp"
@@ -115,6 +118,10 @@ target_link_libraries(matrixgame-native-cache PUBLIC matrixgame-native-vector-ob
 # Compile the complete original CGame TU; link only the original methods whose
 # dependencies are actually closed. This is not a full-engine link claim.
 set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Text/Font.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Text/Parser.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Text/Render.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/text_backend.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixCursor.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/cursor_backend.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixCamera.cpp"
@@ -233,6 +240,7 @@ target_include_directories(matrixgame-native-cache PUBLIC "${CMAKE_CURRENT_LIST_
 target_include_directories(matrixgame-native-cache BEFORE PUBLIC
     "${ENGINE_SOURCE}/MatrixLib/3G" "${ENGINE_SOURCE}/MatrixLib/Base"
     "${ENGINE_SOURCE}/MatrixLib/Bitmap" "${ENGINE_SOURCE}/MatrixGame/src")
+target_include_directories(matrixgame-native-cache PRIVATE "${ENGINE_SOURCE}/MatrixGame")
 if(WIN32)
     set(MATRIXGAME_D3DX9_ROOT "" CACHE PATH "Root of the official Microsoft.DXSDK.D3DX package (or legacy SDK)")
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)

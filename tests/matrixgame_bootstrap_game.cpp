@@ -38,6 +38,9 @@
 #include "Interface/MatrixHint.hpp"
 #include "MatrixObject.hpp"
 #include "MatrixInstantDraw.hpp"
+#include "Text/Render.hpp"
+#include "Text/Font.hpp"
+#include "Text/Parser.hpp"
 #include "object_geometry.hpp"
 #include "shadow_stencil_view.hpp"
 #include <map>
@@ -431,6 +434,12 @@ void VerifyBootstrapMapCamera(NativeInitRuntime& runtime) {
     // Independent near/far endpoints of the original LH projection.
     assert(std::fabs(projection._33+projection._43)<1e-6f);
     assert(std::fabs(projection._33+projection._43/5000.f-1.f)<1e-6f);
+    if(!runtime.GpuReady()) {
+        bool refused=false;
+        try{auto* map=HNew(g_MatrixHeap) CMatrixMapLogic;HDelete(CMatrixMapLogic,map,g_MatrixHeap);}
+        catch(const platform3g::Unsupported& error){refused=true;std::printf("original CMatrixMapLogic/CMatrixMap construction entered -> %s; real constructor unwinding, no map stand-in\n",error.what());}
+        assert(refused && !g_MatrixMap && runtime.MapCamera()==camera);
+    }
     bool duplicate=false;try{runtime.InitializeMapCamera(settings);}catch(const std::logic_error&){duplicate=true;}
     assert(duplicate && runtime.MapCamera()==camera && runtime.GpuReady()==gpu && !g_MatrixMap);
     runtime.FinishMapCamera();runtime.FinishMapCamera();assert(!runtime.MapCamera());
@@ -917,6 +926,17 @@ void VerifyBootstrapCursor(NativeInitRuntime& runtime,platform3g::Window& window
 }
 void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
     assert(runtime.CpuReady() && !runtime.GameDefaultsReady());
+    if(!runtime.GpuReady()) {
+        assert(Text::icase_starts_with(L"<CoLoR=1,2,3>",L"<color="));
+        CBitmap retained;retained.CreateRGBA(2,2);std::memset(retained.Data(),0x5a,retained.Pitch()*2);
+        auto* data=retained.Data();bool denied=false;
+        try{Text::Render(L"MatrixGame",L"Font.2Normal",0xffffffff,16,16,0,0,1,0,0,Base::CRect(0,0,16,16),retained);}
+        catch(const platform3g::Unsupported&){denied=true;}
+        assert(denied && retained.Data()==data && retained.SizeX()==2 && retained.SizeY()==2);
+        for(int i=0;i<retained.Pitch()*2;++i)assert(retained.Data()[i]==0x5a);
+        Text::ClearFontCache();Text::ClearFontCache();
+        std::puts("full original Text::Render refused missing SDK before changing bitmap; cache cleanup/reentry PASS; glyphs NOT SYNTHESIZED");
+    }
     const auto was_gpu=runtime.GpuReady();
     // A refused new configuration must leave existing real allocated labels
     // untouched, and must not publish ownership to a failed initializer.

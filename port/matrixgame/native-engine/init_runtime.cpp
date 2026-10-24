@@ -14,6 +14,7 @@
 #include "MatrixRenderPipeline.hpp"
 #include "MatrixCamera.hpp"
 #include "3g.hpp"
+#include "Text/Font.hpp"
 #include <cmath>
 #include <stdexcept>
 Base::CHeap* g_MatrixHeap;
@@ -203,6 +204,7 @@ void NativeInitRuntime::ApplyDefaultDeviceState() {
 }
 void NativeInitRuntime::DetachDevice() noexcept {
     if(active!=this || !cpu_owned_)return;
+    if(device_snapshot_)Text::ClearFontCache(); // Release this negotiated device's text resources.
     FinishRenderPipeline();
     FinishOriginalManagedTexture(); // Actual SDK resource dies before device/window/cache teardown.
     legacy_window_=nullptr;legacy_device_=nullptr;
