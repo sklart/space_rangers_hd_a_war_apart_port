@@ -19,8 +19,10 @@ double-free и потеря caller-owned texture при GPU refusal в Hint::Bui
 Оригинальный ShadowStencil строит volume реальной Terron.vo frame0:1470 vertices/
 4572 indices. Host и ARM64/QEMU проверили оба invert, независимый geometry oracle,
 staging bytes, кэш и освобождение/повторное создание буферов. GPU draw не выполнялся.
-Полный map owner пока не линкуется: остаются33 unresolved symbols ShadowProj/
-progress/effects/side/picking. `CGame::Init`, `RunGameLoop`, `CFormMatrixGame`, загруженный мир и бой
+Оригинальные progress bars включены в общий bootstrap: cache texture refs,
+clones, destructor и повторный вход проверены с активными assertions.
+Полный map owner пока не линкуется: остаётся31 unresolved symbol ShadowProj/
+effects/side/picking. `CGame::Init`, `RunGameLoop`, `CFormMatrixGame`, загруженный мир и бой
 **NOT EXECUTED**. Никакого fake map или фиктивного результата боя нет.
 
 Актуальные подробности: [общий bootstrap](../../reports/matrixgame-e2e519-engine-bootstrap.md),
@@ -28,7 +30,8 @@ progress/effects/side/picking. `CGame::Init`, `RunGameLoop`, `CFormMatrixGame`, 
 [миникарта](../../reports/matrixgame-e2e519-minimap.md),
 [hints](../../reports/matrixgame-e2e519-hint.md),
 [map objects](../../reports/matrixgame-e2e519-map-object.md),
-[shadow stencil и актуальные блокеры](../../reports/matrixgame-e2e519-shadow-stencil.md).
+[shadow stencil](../../reports/matrixgame-e2e519-shadow-stencil.md),
+[progress bars и актуальные блокеры](../../reports/matrixgame-e2e519-progress-bar.md).
 Основная NRO и оба прежних аппаратных комплекта неизменны; MatrixGame в неё
 не включён. Switch/deko3d runtime остаётся HARDWARE PENDING.
 

@@ -1,6 +1,11 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение24.10: [оригинальный ShadowStencil на реальной VO](matrixgame-e2e519-shadow-stencil.md).
+Актуальное продолжение24.10: [оригинальный progress-bar owner](matrixgame-e2e519-progress-bar.md).
+Полный MatrixProgressBar.cpp включён в общий bootstrap; проверяются настоящие
+cache texture refs, clones, destructor и повторный вход. Map-owner LINK FAIL31
+вместо33. Draw, полный мир и CGame::Init NOT RUN; подробные gates в evidence.
+
+Предыдущее продолжение24.10: [оригинальный ShadowStencil на реальной VO](matrixgame-e2e519-shadow-stencil.md).
 Полный модуль строит volume Terron frame0:1470 vertices/4572 indices; оба
 invert проверены независимым signed-dot oracle. Host ASan/UBSan и ARM64/QEMU
 подтвердили geometry/staging/cache/free/recreate/destructor. MSVC compile и

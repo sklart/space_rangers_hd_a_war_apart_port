@@ -60,6 +60,7 @@ extern void VerifyBootstrapSamplerCold();
 extern void VerifyBootstrapDefaults(NativeInitRuntime&,p::Window&,p::Device&,unsigned,bool);
 extern void VerifyBootstrapGameCold();
 extern void VerifyBootstrapGameDefaults(NativeInitRuntime&);
+extern void VerifyBootstrapProgressBar(NativeInitRuntime&);
 extern void VerifyBootstrapShadowStencil(NativeInitRuntime&,CVectorObject&);
 extern void VerifyBootstrapProjection();
 extern void VerifyBootstrapVideo(NativeInitRuntime&,p::Window&,p::Device&,bool);
@@ -141,6 +142,7 @@ int RunBootstrap(int argc,char**argv,void* module,p::Window& bound_window,p::Dev
                 const auto batch=pipeline.Prepare(*object,0,{},skin);
                 assert(!batch.submissions.empty() && !batch.textures.empty());
                 VerifyBootstrapShadowStencil(runtime,*object);
+                VerifyBootstrapProgressBar(runtime);
                 stale=BorrowMaterialTexture(*g_Cache->Get(CacheClass::TextureManaged,texture));
                 (void)stale.Read();
                 std::printf("cycle=%u original Cache/VO/SSkin ready submissions=%zu\n",cycle,batch.submissions.size());

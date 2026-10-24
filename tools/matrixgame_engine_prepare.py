@@ -136,6 +136,8 @@ def prepare_engine(output):
     paths.update(prepare_map_object(output))
     from matrixgame_shadow_stencil_overrides import prepare_shadow_stencil
     paths.update(prepare_shadow_stencil(output))
+    from matrixgame_progress_bar_overrides import prepare_progress_bar
+    paths.update(prepare_progress_bar(output))
     result={'schema':1,'source_commit':revision,'scope':'full engine compilation input; runtime/backend not implemented here',
         'files_sha256':paths,'portable_inputs':report['inputs_sha256'],
         'excluded_platform_launcher':'MatrixGameDll.cpp; native entry remains to implement'}
