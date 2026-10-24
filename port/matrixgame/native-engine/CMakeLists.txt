@@ -27,7 +27,7 @@ target_link_libraries(matrixgame-native-vector-object PUBLIC matrixgame-native-c
 add_library(matrixgame-native-cache STATIC
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/CacheNative.cpp" cache_resources.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/L3GCpuPhase.cpp" init_runtime.cpp cached_frame.cpp
-    "${CMAKE_CURRENT_BINARY_DIR}/core/source/3GPlatformNative.cpp" platform_3g.cpp map_device_backend.cpp debug_font_backend.cpp
+    "${CMAKE_CURRENT_BINARY_DIR}/core/source/3GPlatformNative.cpp" platform_3g.cpp map_device_backend.cpp debug_font_backend.cpp offscreen_backend.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/3GDeviceDefaults.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixLib/3G/DeviceState.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/GameDefaultsNative.cpp"
@@ -45,6 +45,7 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalVectorAnim.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapGroup.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/OriginalGroupLifecycle.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapStatic.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixDebugInfo.cpp"
@@ -63,6 +64,7 @@ target_link_libraries(matrixgame-native-cache PUBLIC matrixgame-native-vector-ob
 # Compile the complete original CGame TU; link only the original methods whose
 # dependencies are actually closed. This is not a full-engine link claim.
 set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/offscreen_backend.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixLogic.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMap.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixTerSurface.cpp"
@@ -75,6 +77,7 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalVectorAnim.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapGroup.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/OriginalGroupLifecycle.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapStatic.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixDebugInfo.cpp"
@@ -89,11 +92,13 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
 # retains callbacks inspecting those real, still-unported object types. The
 # effects factory metadata similarly references unported concrete effects;
 # group object queries reference the unported static-object/robot RTTI.
+# Static-object dispatch references concrete robot/building/cannon RTTI too.
 # Do not fabricate RTTI. Keep address and the other undefined-behavior checks.
 set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixLogic.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMap.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSkinManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapGroup.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapStatic.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffect.cpp" APPEND PROPERTY COMPILE_OPTIONS
     "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fno-sanitize=vptr>")
 
@@ -152,7 +157,8 @@ if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
     target_compile_definitions(matrixgame-native-bootstrap PRIVATE
         MATRIXGAME_FULL_CURSOR_HEADER="${ENGINE_SOURCE}/MatrixGame/src/MatrixCursor.hpp")
     if(WIN32)
-        target_sources(matrixgame-native-bootstrap PRIVATE "${PORT_ROOT}/tests/test_matrixgame_bootstrap_win32.cpp")
+        target_sources(matrixgame-native-bootstrap PRIVATE "${PORT_ROOT}/tests/test_matrixgame_bootstrap_win32.cpp"
+            "${PORT_ROOT}/tests/matrixgame_bootstrap_offscreen.cpp")
         target_include_directories(matrixgame-native-bootstrap PRIVATE "${MATRIXGAME_D3DX9_INCLUDE}")
         target_compile_options(matrixgame-native-bootstrap PRIVATE /EHsc)
     endif()

@@ -2,6 +2,8 @@
 #include "init_runtime.hpp"
 #include "input.hpp"
 #include "map_device_backend.hpp"
+#include "offscreen_backend.hpp"
+#include "view_geometry.hpp"
 #include "console_backend.hpp"
 #include "pick_viewport.hpp"
 #include "CException.hpp"
@@ -36,6 +38,9 @@
 #endif
 using namespace srhd_awa::matrixgame;
 void VerifyOriginalDebugFontOwner();
+#ifdef _WIN32
+void VerifyOriginalOffscreenResources();
+#endif
 static void VerifyOriginalEffectResources() {
     auto& context=buffers::Current();const auto before=context.AllocatedBytes();
     assert(CMatrixEffect::m_Heap==nullptr && !g_MatrixMap);
@@ -91,6 +96,25 @@ static void VerifyOriginalGroupVisibility() {
     }
     assert(!g_MatrixMap);
     std::puts("original SGroupVisibility Release real heap arrays/repeated cleanup/reentry EXECUTED; no map or terrain group fabricated");
+}
+struct StaticGeometryAccess:CMatrixMapStatic {using CMatrixMapStatic::SEVH_data;};
+static void VerifyOriginalStaticGeometry() {
+    const D3DXVECTOR3 eye{0,0,-5},target{0,0,0},up{0,1,0};D3DXMATRIX view;
+    assert(geometry::LookAtLH(&view,&eye,&target,&up)==&view);
+    D3DXVECTOR3 transformed;D3DXVec3TransformCoord(&transformed,&eye,&view);
+    assert(transformed.x==0 && transformed.y==0 && transformed.z==0);
+    D3DXVec3TransformCoord(&transformed,&target,&view);
+    assert(transformed.x==0 && transformed.y==0 && transformed.z==5);
+    CMatrixMapStatic::SortBegin();assert(CMatrixMapStatic::GetVisObjCnt()==0);
+    CMatrixMapStatic::RemoveFromSorted(nullptr);assert(CMatrixMapStatic::GetVisObjCnt()==0);
+    const CRect rectangle{0,0,10,10};StaticGeometryAccess::SEVH_data data{};
+    data.rect=&rectangle;D3DXMatrixIdentity(&data.m);data.m._41=3;data.m._42=4;
+    SVOVertex vertex{};vertex.v={1,2,0};
+    assert(CMatrixMapStatic::EnumVertsHandler(vertex,reinterpret_cast<uintptr_t>(&data)) && data.found);
+    data.found=false;vertex.v={99,99,0};
+    assert(!CMatrixMapStatic::EnumVertsHandler(vertex,reinterpret_cast<uintptr_t>(&data)) && !data.found);
+    assert(!g_MatrixMap);
+    std::puts("original static object empty sort/remove and transformed vertex rectangle predicate EXECUTED; abstract object/map not instantiated");
 }
 static void VerifyOriginalPickViewport() {
     const int old_x=g_ScreenX,old_y=g_ScreenY;
@@ -187,6 +211,9 @@ void VerifyBootstrapMapCamera(NativeInitRuntime& runtime) {
     std::puts("original SetMaxCameraDistance -> CMatrixCamera ctor/projection EXECUTED; invalid config atomic refusal, duplicate owner, cleanup/reentry PASS; map NOT CONSTRUCTED; camera held until common Deinit");
 }
 void VerifyBootstrapRenderer(NativeInitRuntime& runtime) {
+#ifdef _WIN32
+    if(runtime.GpuReady())VerifyOriginalOffscreenResources();
+#endif
     assert(!g_Render && !runtime.RenderPipeline());
     if(!runtime.GpuReady()) {
         for(int retry=0;retry<2;++retry) {
@@ -673,6 +700,7 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
     ClearOriginalGameDefaults();
     runtime.InitializeGameDefaults();
     VerifyOriginalGroupVisibility();
+    VerifyOriginalStaticGeometry();
     VerifyOriginalEffectResources();
     if(!runtime.GpuReady()) {
         CSkinManager::StaticInit();
@@ -717,6 +745,14 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
             refused([]{md::RasterCaps();});refused([]{md::StencilCaps();});
             refused([]{md::DrawPrimitive(5,0,2);});
             refused([]{md::DrawIndexedPrimitive(5,0,0,3,0,1);});
+            IDirect3DSurface9* surface=nullptr;
+            refused([&]{offscreen::CreateTarget(32,32,21,0,0,true,&surface,0);});
+            refused([&]{offscreen::CreateDepth(32,32,80,0,0,true,&surface,nullptr);});
+            refused([&]{offscreen::GetTarget(0,&surface);});
+            refused([&]{offscreen::GetDepth(&surface);});
+            refused([]{offscreen::BeginScene();});refused([]{offscreen::EndScene();});
+            refused([]{offscreen::Clear(0,nullptr,1,0,1.f,0);});
+            assert(!surface);offscreen::Release(nullptr);
             assert(runtime.CpuReady() && runtime.GameDefaultsReady() && !g_MatrixMap);
             std::puts("full map device boundaries deny missing real backend; no caps/transform/draw success fabricated; CPU owners preserved");
         }

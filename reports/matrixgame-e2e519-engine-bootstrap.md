@@ -1,6 +1,12 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение24.10: [группы и оригинальная очистка владельца](matrixgame-e2e519-map-group.md).
+Актуальное продолжение24.10: [static-object и Windows offscreen backend](matrixgame-e2e519-map-static.md).
+Полный static-object TU подключён; original empty sort/remove и vertex predicate
+исполнены на host/ARM64. Настоящий Windows HAL проверил target/depth, Clear pixels,
+CPU pitch roundtrip и bindings/viewport restore. devkitA64 prefix compile/link
+PASS. Full map owner LINK FAIL11; robot portrait, CGame::Init и Switch draw NOT RUN.
+
+Предыдущее продолжение24.10: [группы и оригинальная очистка владельца](matrixgame-e2e519-map-group.md).
 Полный group TU и три exact original cleanup methods подключены. Настоящий
 visibility Release непустых heap arrays исполнен на host и ARM64/QEMU;
 devkitA64 compile/common prefix link PASS. Full map owner LINK FAIL12;
