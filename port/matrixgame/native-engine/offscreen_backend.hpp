@@ -18,6 +18,17 @@ platform3g::DeviceResult Clear(std::uint32_t,const void*,std::uint32_t,std::uint
 platform3g::DeviceResult BeginScene();
 platform3g::DeviceResult EndScene();
 platform3g::DeviceResult GetViewport(platform3g::VideoViewport*);
+platform3g::DeviceResult Readback(IDirect3DSurface9*,IDirect3DSurface9*);
+template<class Viewport> platform3g::DeviceResult GetViewport(Viewport* output) {
+    if(!output)throw std::invalid_argument("null offscreen viewport output");
+    platform3g::VideoViewport value{};
+    const auto result=GetViewport(&value);
+    if(result==0) {
+        output->X=value.X;output->Y=value.Y;output->Width=value.Width;output->Height=value.Height;
+        output->MinZ=value.MinZ;output->MaxZ=value.MaxZ;
+    }
+    return result;
+}
 platform3g::DeviceResult SetViewportValue(const platform3g::VideoViewport&);
 template<class Viewport> platform3g::DeviceResult SetViewport(const Viewport* viewport) {
     if(!viewport)throw std::invalid_argument("null offscreen viewport");

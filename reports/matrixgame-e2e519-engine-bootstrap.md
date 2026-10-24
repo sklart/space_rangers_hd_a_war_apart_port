@@ -1,6 +1,13 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение24.10: [original CTexture loss/reset](matrixgame-e2e519-unmanaged-texture.md).
+Актуальное продолжение24.10: [полный исходный модуль миникарты](matrixgame-e2e519-minimap.md).
+Original Init allocation/refusal, Clear/reentry и геометрия исполнены в общем
+host ASan/UBSan и ARM64/QEMU bootstrap. Полный модуль компилируется MSVC;
+настоящий HAL проверил GetRenderTargetData и все пиксели system-memory texture.
+devkitA64 prefix compile/link PASS. Full map owner LINK FAIL10 вместо11;
+полный minimap GPU path и CGame::Init NOT RUN.
+
+Предыдущее продолжение24.10: [original CTexture loss/reset](matrixgame-e2e519-unmanaged-texture.md).
 Оригинальные solid/bitmap texture creation, default/system/default notifications
 и все mip pixels исполнены на настоящем HAL. Общий host/ARM64 проверил actual
 parent CacheDeinit и owner-state split; devkitA64 prefix compile/link PASS.

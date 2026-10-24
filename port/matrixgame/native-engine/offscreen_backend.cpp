@@ -20,6 +20,13 @@ IDirect3DDevice9& ActualDevice() {
 }
 }
 #endif
+DeviceResult Readback(IDirect3DSurface9* source,IDirect3DSurface9* destination) {
+#ifdef _WIN32
+    return ActualDevice().GetRenderTargetData(source,destination);
+#else
+    (void)source;(void)destination;(void)ReadyDevice();throw Unsupported("offscreen GPU readback unavailable");
+#endif
+}
 DeviceResult CreateTarget(std::uint32_t width,std::uint32_t height,std::uint32_t format,std::uint32_t multisample,
     std::uint32_t quality,bool lockable,IDirect3DSurface9** output,std::uintptr_t shared) {
 #ifdef _WIN32

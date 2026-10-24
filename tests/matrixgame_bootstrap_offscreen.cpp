@@ -1,5 +1,6 @@
 // SDK-free caller exercising real SDK offscreen resources, not a game world.
 #include "offscreen_backend.hpp"
+#include "unmanaged_texture_backend.hpp"
 #include <cassert>
 #include <cstdio>
 #include <cstdint>
@@ -44,6 +45,21 @@ void VerifyOriginalOffscreenResources() {
         check(o::SetDepth(nullptr));check(o::SetTarget(0,original.value));check(o::SetDepth(original_depth.value));
         check(o::SetViewport(&viewport));
         std::puts("offscreen original bindings restored");
+        struct Texture {
+            IDirect3DTexture9* value{};
+            ~Texture(){legacy_texture::Release(value);}
+        } system;
+        check(legacy_texture::Create(64,64,1,0,21,2,&system.value,0));
+        Surface readback;check(unmanaged_texture::Surface(system.value,0,&readback.value));
+        check(o::Readback(target.value,readback.value));
+        legacy_texture::LockedRect pixels{};check(o::Lock(readback.value,&pixels,nullptr,16));
+        assert(pixels.pBits && pixels.Pitch>=64*4);
+        for(unsigned y=0;y<64;++y) {
+            const auto* row=reinterpret_cast<const std::uint32_t*>(static_cast<const unsigned char*>(pixels.pBits)+y*pixels.Pitch);
+            for(unsigned x=0;x<64;++x)assert(row[x]==0xff123456u);
+        }
+        check(o::Unlock(readback.value));
+        std::puts("actual GetRenderTargetData into system texture: all Clear pixels verified");
         legacy_texture::LockedRect locked{};check(o::Lock(target.value,&locked,nullptr,0));
         assert(locked.pBits && locked.Pitch>=64*4);
         for(unsigned y=0;y<64;++y) {

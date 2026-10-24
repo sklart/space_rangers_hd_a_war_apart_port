@@ -58,6 +58,14 @@ DeviceResult DrawPrimitive(std::uint32_t primitive,std::uint32_t start,std::uint
     throw Unsupported("map draw backend unavailable");
 #endif
 }
+DeviceResult DrawPrimitiveUP(std::uint32_t primitive,std::uint32_t count,const void* data,std::uint32_t stride) {
+#ifdef _WIN32
+    return ActualDevice().DrawPrimitiveUP(static_cast<D3DPRIMITIVETYPE>(primitive),count,data,stride);
+#else
+    (void)primitive;(void)count;(void)data;(void)stride;(void)ReadyDevice();
+    throw Unsupported("map immediate draw backend unavailable");
+#endif
+}
 DeviceResult DrawIndexedPrimitive(std::uint32_t primitive,int base_vertex,std::uint32_t minimum_vertex,
                                  std::uint32_t vertices,std::uint32_t start_index,std::uint32_t primitives) {
 #ifdef _WIN32

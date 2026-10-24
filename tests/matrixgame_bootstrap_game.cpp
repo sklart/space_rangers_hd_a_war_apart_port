@@ -5,6 +5,7 @@
 #include "offscreen_backend.hpp"
 #include "unmanaged_texture_backend.hpp"
 #include "view_geometry.hpp"
+#include "minimap_geometry.hpp"
 #include "console_backend.hpp"
 #include "pick_viewport.hpp"
 #include "CException.hpp"
@@ -117,6 +118,39 @@ static void VerifyOriginalStaticGeometry() {
     assert(!CMatrixMapStatic::EnumVertsHandler(vertex,reinterpret_cast<uintptr_t>(&data)) && !data.found);
     assert(!g_MatrixMap);
     std::puts("original static object empty sort/remove and transformed vertex rectangle predicate EXECUTED; abstract object/map not instantiated");
+}
+static void VerifyOriginalMinimap() {
+    namespace lt=srhd_awa::matrixgame::legacy_texture;
+    namespace mg=srhd_awa::matrixgame::minimap_geometry;
+    const auto count=lt::RegistrySize();auto* saved_data=g_MatrixData;
+    CBlockPar empty;g_MatrixData=&empty;
+    struct RestoreData {CBlockPar* data;~RestoreData(){g_MatrixData=data;}} restore{saved_data};
+    for(int cycle=0;cycle<2;++cycle) {
+        CMinimap minimap;minimap.Clear();minimap.Clear();
+        minimap.StoreTexture();minimap.RestoreTexture();assert(!minimap.GetTexture());
+        minimap.SetOutParams(10,20,320,240,{3,4},9,0xff112233u);
+        assert(minimap.GetScale()==1 && minimap.GetColor()==0xff112233u);
+        minimap.SetAngle(0.7f);minimap.PauseTakt(100);
+        const auto expected=1.f+2.f*static_cast<float>(1.0-std::pow(0.995,100.0));
+        assert(std::fabs(minimap.GetScale()-expected)<1e-6f);
+        bool refused=false;try{minimap.Init();}catch(const Base::CException&){refused=true;}
+        assert(refused && minimap.GetTexture() && !minimap.GetTexture()->IsTextureManaged());
+        assert(lt::RegistrySize()==count+1 && !minimap.GetTexture()->m_Cache);
+        minimap.Clear();minimap.Clear();assert(!minimap.GetTexture() && lt::RegistrySize()==count);
+    }
+    D3DXMATRIX matrix;mg::Translation(&matrix,7,-3,2);
+    matrix._14=0.25f;matrix._24=-0.125f;
+    struct Record {D3DXVECTOR2 xy;std::uint32_t color;float u,v;};
+    Record vertices[3]={{{2,4},0x12345678u,0.1f,0.2f},{{-4,2},0xabcdef01u,0.3f,0.4f},{{1,-2},0x89abcdefu,0.5f,0.6f}};
+    Record old[3];std::memcpy(old,vertices,sizeof(vertices));
+    mg::TransformCoordArray(&vertices[0].xy,sizeof(Record),&vertices[0].xy,sizeof(Record),&matrix,3);
+    for(int i=0;i<3;++i) {
+        const auto w=old[i].xy.x*matrix._14+old[i].xy.y*matrix._24+matrix._44;
+        assert(std::fabs(vertices[i].xy.x-(old[i].xy.x+7)/w)<1e-5f);
+        assert(std::fabs(vertices[i].xy.y-(old[i].xy.y-3)/w)<1e-5f);
+        assert(vertices[i].color==old[i].color && vertices[i].u==old[i].u && vertices[i].v==old[i].v);
+    }
+    std::puts("original full minimap Init refusal/Clear/reentry/SetAngle/PauseTakt EXECUTED; strided XY perspective transform preserves color/UV; map/GPU NOT EXECUTED");
 }
 static void VerifyOriginalUnmanagedTexture(NativeInitRuntime& runtime) {
     namespace lt=srhd_awa::matrixgame::legacy_texture;
@@ -726,6 +760,7 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
     ClearOriginalGameDefaults();
     runtime.InitializeGameDefaults();
     VerifyOriginalUnmanagedTexture(runtime);
+    VerifyOriginalMinimap();
     VerifyOriginalGroupVisibility();
     VerifyOriginalStaticGeometry();
     VerifyOriginalEffectResources();

@@ -46,6 +46,7 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapGroup.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/OriginalGroupLifecycle.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapStatic.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixMinimap.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixDebugInfo.cpp"
@@ -84,6 +85,7 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapGroup.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/OriginalGroupLifecycle.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapStatic.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixMinimap.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixDebugInfo.cpp"
@@ -99,12 +101,14 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
 # effects factory metadata similarly references unported concrete effects;
 # group object queries reference the unported static-object/robot RTTI.
 # Static-object dispatch references concrete robot/building/cannon RTTI too.
+# Full minimap rendering also references those still-unported concrete types.
 # Do not fabricate RTTI. Keep address and the other undefined-behavior checks.
 set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixLogic.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMap.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSkinManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapGroup.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapStatic.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixMinimap.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffect.cpp" APPEND PROPERTY COMPILE_OPTIONS
     "$<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-fno-sanitize=vptr>")
 
