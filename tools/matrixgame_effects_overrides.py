@@ -8,7 +8,8 @@ def prepare_effects(output):
     changes={}
     units=[('MatrixGame/src/Effects/MatrixEffect.cpp','static const SBillboardID2Texname bb2tn[]'),
            ('MatrixGame/src/Effects/MatrixEffectPointLight.cpp','static bool UnloadDX('),
-           ('MatrixLib/3G/CBillboard.cpp','void CBillboard::SortEndDraw(')]
+           ('MatrixLib/3G/CBillboard.cpp','void CBillboard::SortEndDraw('),
+           ('MatrixGame/src/Effects/MatrixEffectSmokeAndFire.cpp','CMatrixEffectSmoke::CMatrixEffectSmoke(')]
     for name,marker in units:
         path=output/name;text=path.read_text(encoding='utf-8')
         text=text.replace('(CTextureManaged *)g_Cache->Get(CacheClass::TextureManaged, ','effect_texture::GetManaged(')
