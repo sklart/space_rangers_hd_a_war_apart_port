@@ -35,6 +35,7 @@
 #include "Effects/MatrixEffectPointLight.hpp"
 #include "legacy_texture_backend.hpp"
 #include "MatrixRenderPipeline.hpp"
+#include "Interface/MatrixHint.hpp"
 #ifdef _WIN32
 #include "platform_win32.hpp"
 #endif
@@ -118,6 +119,26 @@ static void VerifyOriginalStaticGeometry() {
     assert(!CMatrixMapStatic::EnumVertsHandler(vertex,reinterpret_cast<uintptr_t>(&data)) && !data.found);
     assert(!g_MatrixMap);
     std::puts("original static object empty sort/remove and transformed vertex rectangle predicate EXECUTED; abstract object/map not instantiated");
+}
+static void VerifyOriginalHintBuild(NativeInitRuntime& runtime) {
+    namespace lt=srhd_awa::matrixgame::legacy_texture;
+    CMatrixHint::ClearAll();CMatrixHint::ClearAll();
+    if(runtime.GpuReady())return;
+    const auto before=lt::RegistrySize();
+    CBitmap bitmap;bitmap.CreateRGBA(2,2);std::memset(bitmap.Data(),0xff,16);
+    for(int cycle=0;cycle<2;++cycle) {
+        SHintElement elements[2]{};elements[0].bmp=&bitmap;elements[0].hem=HEM_BITMAP;
+        elements[1].bmp=nullptr;elements[1].hem=HEM_LAST;
+        bool refused=false;
+        try {auto* hint=CMatrixHint::Build(-1,L"",L"",elements);hint->Release();}
+        catch(const platform3g::Unsupported&){refused=true;}
+        assert(refused);
+        std::printf("original hint Build GPU refusal registry before=%zu after=%zu\n",before,lt::RegistrySize());
+        std::fflush(stdout);assert(lt::RegistrySize()==before);
+        for(int i=0;i<16;++i)assert(static_cast<unsigned char*>(bitmap.Data())[i]==0xff);
+        CMatrixHint::ClearAll();
+    }
+    std::puts("original full hint bitmap composition/Build GPU refusal cleanup/retry EXECUTED; successful hint/text rendering NOT EXECUTED");
 }
 static void VerifyOriginalMinimap() {
     namespace lt=srhd_awa::matrixgame::legacy_texture;
@@ -761,6 +782,7 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
     runtime.InitializeGameDefaults();
     VerifyOriginalUnmanagedTexture(runtime);
     VerifyOriginalMinimap();
+    VerifyOriginalHintBuild(runtime);
     VerifyOriginalGroupVisibility();
     VerifyOriginalStaticGeometry();
     VerifyOriginalEffectResources();

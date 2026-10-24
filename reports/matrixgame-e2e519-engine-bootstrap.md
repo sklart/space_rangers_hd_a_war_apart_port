@@ -1,6 +1,14 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение24.10: [полный исходный модуль миникарты](matrixgame-e2e519-minimap.md).
+Актуальное продолжение24.10: [полный MatrixHint и исправление владения](matrixgame-e2e519-hint.md).
+Реальный Build на controlled bitmap воспроизвёл потерю caller-owned texture
+при GPU refusal (registry2→3). Временный owner исправляет этот путь;
+host ASan/UBSan и ARM64/QEMU проверили retry без роста registry. Полный Hint
+компилируется MSVC, devkitA64 prefix compile/link PASS, новых sanitizer
+exclusions нет. Full map owner LINK FAIL8 вместо10; успешный Hint GPU/text path
+и CGame::Init NOT RUN.
+
+Предыдущее продолжение24.10: [полный исходный модуль миникарты](matrixgame-e2e519-minimap.md).
 Original Init allocation/refusal, Clear/reentry и геометрия исполнены в общем
 host ASan/UBSan и ARM64/QEMU bootstrap. Полный модуль компилируется MSVC;
 настоящий HAL проверил GetRenderTargetData и все пиксели system-memory texture.
