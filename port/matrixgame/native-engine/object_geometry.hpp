@@ -2,6 +2,9 @@
 #pragma once
 #include "math_types.hpp"
 namespace srhd_awa::matrixgame::object_geometry {
+inline D3DXMATRIX* RotationYawPitchRoll(D3DXMATRIX* out,float yaw,float pitch,float roll) {
+    DirectX::XMStoreFloat4x4(out,DirectX::XMMatrixRotationRollPitchYaw(pitch,yaw,roll));return out;
+}
 inline D3DXMATRIX* RotationX(D3DXMATRIX* out,float angle) {
     DirectX::XMStoreFloat4x4(out,DirectX::XMMatrixRotationX(angle));return out;
 }

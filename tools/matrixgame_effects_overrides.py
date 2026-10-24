@@ -9,7 +9,9 @@ def prepare_effects(output):
     units=[('MatrixGame/src/Effects/MatrixEffect.cpp','static const SBillboardID2Texname bb2tn[]'),
            ('MatrixGame/src/Effects/MatrixEffectPointLight.cpp','static bool UnloadDX('),
            ('MatrixLib/3G/CBillboard.cpp','void CBillboard::SortEndDraw('),
-           ('MatrixGame/src/Effects/MatrixEffectSmokeAndFire.cpp','CMatrixEffectSmoke::CMatrixEffectSmoke(')]
+           ('MatrixGame/src/Effects/MatrixEffectSmokeAndFire.cpp','CMatrixEffectSmoke::CMatrixEffectSmoke('),
+           ('MatrixGame/src/Effects/MatrixEffectExplosion.cpp','const SExplosionProperties ExplosionNormal ='),
+           ('MatrixGame/src/Effects/MatrixEffectKonus.cpp','CMatrixEffectKonus::CMatrixEffectKonus(')]
     for name,marker in units:
         path=output/name;text=path.read_text(encoding='utf-8')
         text=text.replace('(CTextureManaged *)g_Cache->Get(CacheClass::TextureManaged, ','effect_texture::GetManaged(')
@@ -28,8 +30,11 @@ def prepare_effects(output):
             if text.count('_alloca(')!=2:raise ValueError('Original point-light stack allocations changed')
             text=text.replace('_alloca(','effect_alloca(')
         text=text.replace('D3DXVec3TransformCoordArray(','srhd_awa::matrixgame::geometry::TransformCoordArray(')
+        text=text.replace('D3DXMatrixRotationYawPitchRoll(','srhd_awa::matrixgame::object_geometry::RotationYawPitchRoll(')
         text=text.replace('g_D3DD->SetTransform(D3DTS_WORLD,','effect_device::SetTransform(effect_device::Transform::World,')
         text=text.replace('g_D3DD->DrawIndexedPrimitive(','effect_device::DrawIndexedPrimitive(')
+        text=text.replace('g_D3DD->DrawPrimitive(','effect_device::DrawPrimitive(')
+        text=text.replace('D3DPT_TRIANGLEFAN','6u')
         text=text.replace('g_D3DD->DrawPrimitiveUP(','srhd_awa::matrixgame::debug_font::DrawPrimitiveUP(')
         if text.count(marker)!=1:raise ValueError('Original effects entry changed: '+name)
         check='''#undef ASSERT_DX
@@ -51,6 +56,8 @@ namespace rp3g=srhd_awa::matrixgame::platform3g;
 namespace effect_texture=srhd_awa::matrixgame::legacy_texture;
 namespace effect_device=srhd_awa::matrixgame::map_device;
 '''
+        if name.endswith('/MatrixEffectExplosion.cpp'):
+            prelude+='#include "object_geometry.hpp"\n'
         if name.endswith('/MatrixEffectPointLight.cpp'):
             prelude+='''#ifdef _MSC_VER
 #include <malloc.h>
@@ -60,6 +67,13 @@ namespace effect_device=srhd_awa::matrixgame::map_device;
 #endif
 '''
         path.write_bytes((prelude+text).encode());changes[name]=hashlib.sha256(path.read_bytes()).hexdigest()
+    # Full original Konus.cpp now owns its original statics. The earlier
+    # selected defaults TU must not publish a second definition.
+    name='MatrixGame/src/GameDefaultsNative.cpp';path=output/name
+    text=path.read_text(encoding='utf-8')
+    text,count=re.subn(r'^(?:::srhd_awa::matrixgame::buffers::VertexBuffer\*|int) CMatrixEffectKonus::m_VB(?:_ref)?;\n','',text,flags=re.M)
+    if count!=2:raise ValueError('Original Konus static owner changed')
+    path.write_bytes(text.encode());changes[name]=hashlib.sha256(path.read_bytes()).hexdigest()
     # ClearEffects destroys real CDebris, whose base is the full original
     # animator. NativeVectorObjectAnim is a distinct earlier CPU-only type.
     source=(output/'MatrixLib/3G/VectorObject.cpp').read_text(encoding='utf-8')

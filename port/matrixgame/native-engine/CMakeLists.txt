@@ -42,6 +42,8 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffect.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectPointLight.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectSmokeAndFire.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectExplosion.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectKonus.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/CBillboard.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalVectorAnim.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapGroup.cpp"
@@ -92,6 +94,8 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffect.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectPointLight.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectSmokeAndFire.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectExplosion.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectKonus.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/CBillboard.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalVectorAnim.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapGroup.cpp"
@@ -182,7 +186,8 @@ if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
         "${PORT_ROOT}/tests/matrixgame_bootstrap_shadow_proj.cpp"
         "${PORT_ROOT}/tests/matrixgame_bootstrap_shadow_manager.cpp"
         "${PORT_ROOT}/tests/matrixgame_bootstrap_shadow_texture.cpp"
-        "${PORT_ROOT}/tests/matrixgame_bootstrap_smoke_fire.cpp")
+        "${PORT_ROOT}/tests/matrixgame_bootstrap_smoke_fire.cpp"
+        "${PORT_ROOT}/tests/matrixgame_bootstrap_explosion.cpp")
     target_link_libraries(matrixgame-native-bootstrap PRIVATE matrixgame-native-cache)
     target_compile_definitions(matrixgame-native-bootstrap PRIVATE
         MATRIXGAME_FULL_VECTOR_HEADER="${ENGINE_SOURCE}/MatrixLib/3G/VectorObject.hpp"

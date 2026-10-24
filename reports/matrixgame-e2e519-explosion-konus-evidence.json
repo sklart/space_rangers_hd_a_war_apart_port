@@ -1,0 +1,574 @@
+{
+  "base_git": "d806776be23c7512ce804c583c13e1e0c9af5a10",
+  "build_dirty": true,
+  "source_sha256": {
+    "tools/matrixgame_effects_overrides.py": "85847ea2a70787c19a5b44156a06cd0289dc5002c75e15b339a3c872537ddccb",
+    "port/matrixgame/native-engine/CMakeLists.txt": "647cd81e836f7c5ed1aa953ba68029e3a3ce180301e9e758c00d06e950bfdc68",
+    "port/matrixgame/native-engine/object_geometry.hpp": "3c4ed3656d36e8aa01a20f9f62af2a713441ece2568b3cc4e3d5a842931a2ecc",
+    "tests/test_matrixgame_bootstrap.cpp": "2fbd507d3e94842adda35375c28b63c65a01d762aaa157833ac7ecd8bf78de8b",
+    "tests/matrixgame_bootstrap_explosion.cpp": "10103571bb3920604f75ccf3bad97aadef06ebb8ec8b5a4c38c416c47a2b5e0e"
+  },
+  "effective_changes": [
+    "MatrixGame/src/Effects/MatrixEffectExplosion.cpp",
+    "MatrixGame/src/Effects/MatrixEffectKonus.cpp",
+    "MatrixGame/src/GameDefaultsNative.cpp"
+  ],
+  "engine_files": 248,
+  "unchanged_core_outputs": 66,
+  "original_method_bodies_equal_after_adapters": {
+    "MatrixGame/src/Effects/MatrixEffectExplosion.cpp": [
+      "CMatrixEffectExplosion::CMatrixEffectExplosion(",
+      "void CMatrixEffectExplosion::RemoveDebris(",
+      "CMatrixEffectExplosion::~CMatrixEffectExplosion(",
+      "void CMatrixEffectExplosion::Release(",
+      "void CMatrixEffectExplosion::BeforeDraw(",
+      "void CMatrixEffectExplosion::Draw(",
+      "void CMatrixEffectExplosion::Takt("
+    ],
+    "MatrixGame/src/Effects/MatrixEffectKonus.cpp": [
+      "CMatrixEffectKonus::CMatrixEffectKonus(",
+      "bool CMatrixEffectKonus::PrepareDX(",
+      "CMatrixEffectKonus::~CMatrixEffectKonus(",
+      "void CMatrixEffectKonus::Release(",
+      "void CMatrixEffectKonus::Draw(",
+      "void CMatrixEffectKonus::Takt(",
+      "void CMatrixEffectKonus::UpdateMatrix(",
+      "void CMatrixEffectKonusSplash::Takt("
+    ]
+  },
+  "original_presets_equal": [
+    "ExplosionNormal",
+    "ExplosionMissile",
+    "ExplosionRobotHit",
+    "ExplosionLaserHit",
+    "ExplosionBuildingBoom",
+    "ExplosionBuildingBoom2",
+    "ExplosionRobotBoom",
+    "ExplosionRobotBoomSmall",
+    "ExplosionBigBoom",
+    "ExplosionObject"
+  ],
+  "konus_original_static_owner": true,
+  "host": {
+    "exit": 0,
+    "sessions": 2,
+    "assertions": true,
+    "source_sha256": {
+      "build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/Effects/MatrixEffectExplosion.cpp": "36aeb305a23dc4614f3907968af4efe57e793910248dbce4b943671f47b90daa",
+      "build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/Effects/MatrixEffectKonus.cpp": "f72f1c88216ba023da73fe646dc09ce5ac4b8a1805478a67e3509dec979c983f",
+      "build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/GameDefaultsNative.cpp": "5b5828f8a7fc625725f5515c5b50325bd209d6f82a339c102037d025a333e5f4",
+      "tests/matrixgame_bootstrap_explosion.cpp": "10103571bb3920604f75ccf3bad97aadef06ebb8ec8b5a4c38c416c47a2b5e0e",
+      "tests/test_matrixgame_bootstrap.cpp": "2fbd507d3e94842adda35375c28b63c65a01d762aaa157833ac7ecd8bf78de8b"
+    },
+    "binary_sha256": "937d539d9ed40c2e6c503c143852a5ebed1816f57820356d7218118ddb990ffc",
+    "commands": [
+      [
+        "/usr/bin/c++",
+        "-DMATRIXGAME_FULL_3G_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/3G/3g.hpp\"",
+        "-DMATRIXGAME_FULL_BILLBOARD_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/3G/CBillboard.hpp\"",
+        "-DMATRIXGAME_FULL_CAMERA_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/MatrixCamera.hpp\"",
+        "-DMATRIXGAME_FULL_CONFIG_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/MatrixConfig.hpp\"",
+        "-DMATRIXGAME_FULL_CURSOR_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/MatrixCursor.hpp\"",
+        "-DMATRIXGAME_FULL_KONUS_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/Effects/MatrixEffectKonus.hpp\"",
+        "-DMATRIXGAME_FULL_VECTOR_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/3G/VectorObject.hpp\"",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/3G",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/Base",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/Bitmap",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/host/core/source",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-O2",
+        "-g",
+        "-DNDEBUG",
+        "-std=gnu++20",
+        "-UNDEBUG",
+        "-ffp-contract=off",
+        "-o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/host/explosion-test.o",
+        "-c",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_explosion.cpp",
+        "-ffunction-sections",
+        "-fdata-sections"
+      ],
+      [
+        "ar",
+        "r",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/host/libmatrixgame-native-cache.a",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/host/explosion.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/host/konus.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/host/GameDefaultsNative.cpp.o"
+      ],
+      [
+        "/usr/bin/c++",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/host/explosion-test.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/smoke-fire-integration/host/smoke-test.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/shadow-texture-v3-integration/host/texture-test.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/shadow-manager-integration/host/manager-test.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/shadow-proj-v3-integration/host/lifecycle.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/progress-bar-integration/lifecycle.o",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-O2",
+        "-g",
+        "-DNDEBUG",
+        "-Wl,--gc-sections",
+        "-Wl,--dependency-file=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/font-shared-ops-integration/host/link.d",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/host/driver.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_sampling.cpp.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/stencil-v2-integration/host/game.o",
+        "-o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/host/matrixgame-native-bootstrap",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/host/libmatrixgame-native-cache.a",
+        "libmatrixgame-native-vector-object.a",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/viewport-integration/host/libmatrixgame-native-core.a",
+        "/usr/lib/x86_64-linux-gnu/libpng.so",
+        "/usr/lib/x86_64-linux-gnu/libz.so",
+        "/usr/lib/x86_64-linux-gnu/libjpeg.so",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/font-shared-ops-integration/host/font-test.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/water-integration/host/formatted-test.o"
+      ],
+      [
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/host/matrixgame-native-bootstrap",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/big-buffer-models/model-2.vo",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/mg-merge-host/core/texture-request-fixtures/assets/plain.png",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/upstream/matrixgame/MatrixGame/CFG/robots/data.txt"
+      ]
+    ],
+    "draw_executed": false,
+    "reused_unchanged_objects": {
+      "explosion": {
+        "object_sha256": "9d22264afb89f3e80dd6af41e3316a82b274e87d8c67eb04739add6cbdeed54e",
+        "source_sha256": "36aeb305a23dc4614f3907968af4efe57e793910248dbce4b943671f47b90daa"
+      },
+      "konus": {
+        "object_sha256": "d3fe529092791cfa6402f467c1aa829f12dff70ff64829ff00bd010a63f79844",
+        "source_sha256": "f72f1c88216ba023da73fe646dc09ce5ac4b8a1805478a67e3509dec979c983f"
+      },
+      "GameDefaultsNative.cpp": {
+        "object_sha256": "030e0c4c37d7c15057c04ee8a67c33a489d0d0354aaa69f4909e3a214dce1088",
+        "source_sha256": "5b5828f8a7fc625725f5515c5b50325bd209d6f82a339c102037d025a333e5f4"
+      },
+      "driver": {
+        "object_sha256": "ed591a8f2b81bac087797bb17422f0754de7f75db02c4f15a08003dc7840a60f",
+        "source_sha256": "2fbd507d3e94842adda35375c28b63c65a01d762aaa157833ac7ecd8bf78de8b"
+      }
+    }
+  },
+  "arm64": {
+    "exit": 0,
+    "sessions": 2,
+    "assertions": true,
+    "source_sha256": {
+      "build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/Effects/MatrixEffectExplosion.cpp": "36aeb305a23dc4614f3907968af4efe57e793910248dbce4b943671f47b90daa",
+      "build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/Effects/MatrixEffectKonus.cpp": "f72f1c88216ba023da73fe646dc09ce5ac4b8a1805478a67e3509dec979c983f",
+      "build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/GameDefaultsNative.cpp": "5b5828f8a7fc625725f5515c5b50325bd209d6f82a339c102037d025a333e5f4",
+      "tests/matrixgame_bootstrap_explosion.cpp": "10103571bb3920604f75ccf3bad97aadef06ebb8ec8b5a4c38c416c47a2b5e0e",
+      "tests/test_matrixgame_bootstrap.cpp": "2fbd507d3e94842adda35375c28b63c65a01d762aaa157833ac7ecd8bf78de8b"
+    },
+    "binary_sha256": "3bfa278c09c19ff36040d7c058b9b81b4c5e08080cd9f3ff7a97847041835e4e",
+    "commands": [
+      [
+        "/usr/bin/aarch64-linux-gnu-g++-15",
+        "-DMATRIXGAME_FULL_3G_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/3G/3g.hpp\"",
+        "-DMATRIXGAME_FULL_BILLBOARD_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/3G/CBillboard.hpp\"",
+        "-DMATRIXGAME_FULL_CAMERA_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/MatrixCamera.hpp\"",
+        "-DMATRIXGAME_FULL_CONFIG_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/MatrixConfig.hpp\"",
+        "-DMATRIXGAME_FULL_CURSOR_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/MatrixCursor.hpp\"",
+        "-DMATRIXGAME_FULL_KONUS_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/Effects/MatrixEffectKonus.hpp\"",
+        "-DMATRIXGAME_FULL_VECTOR_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/3G/VectorObject.hpp\"",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/3G",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/Base",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/Bitmap",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/arm64/core/source",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+        "-isystem",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+        "-isystem",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+        "-isystem",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source",
+        "-pthread",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+        "-O3",
+        "-DNDEBUG",
+        "-std=gnu++20",
+        "-UNDEBUG",
+        "-ffp-contract=off",
+        "-o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/arm64/explosion-test.o",
+        "-c",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_explosion.cpp",
+        "-ffunction-sections",
+        "-fdata-sections"
+      ],
+      [
+        "aarch64-linux-gnu-ar",
+        "r",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/arm64/libmatrixgame-native-cache.a",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/arm64/explosion.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/arm64/konus.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/arm64/GameDefaultsNative.cpp.o"
+      ],
+      [
+        "/usr/bin/aarch64-linux-gnu-g++-15",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/arm64/explosion-test.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/smoke-fire-integration/arm64/smoke-test.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/shadow-texture-v3-integration/arm64/texture-test.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/shadow-manager-integration/arm64/manager-test.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/shadow-proj-v3-integration/arm64/lifecycle.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/progress-bar-integration/arm64/lifecycle.o",
+        "-pthread",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+        "-O3",
+        "-DNDEBUG",
+        "-Wl,--gc-sections",
+        "-Wl,--dependency-file=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/font-shared-ops-integration/arm64/link.d",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/arm64/driver.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_sampling.cpp.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/stencil-v2-integration/arm64/game.o",
+        "-o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/arm64/matrixgame-native-bootstrap",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/arm64/libmatrixgame-native-cache.a",
+        "libmatrixgame-native-vector-object.a",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/viewport-integration/arm64/libmatrixgame-native-core.a",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png/libpng16.a",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/mg-navigation-arm64/zlib/libz.a",
+        "-lm",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg/libjpeg.a",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/font-shared-ops-integration/arm64/font-test.o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/water-integration/arm64/formatted-test.o"
+      ],
+      [
+        "qemu-aarch64",
+        "-L",
+        "/usr/aarch64-linux-gnu",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/arm64/matrixgame-native-bootstrap",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/big-buffer-models/model-2.vo",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/mg-merge-host/core/texture-request-fixtures/assets/plain.png",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/upstream/matrixgame/MatrixGame/CFG/robots/data.txt"
+      ]
+    ],
+    "draw_executed": false,
+    "reused_unchanged_objects": {
+      "explosion": {
+        "object_sha256": "df3537e3faa2fb1e58028bbb1cda0af8ece45dd09c436f833ce9ef27e6348608",
+        "source_sha256": "36aeb305a23dc4614f3907968af4efe57e793910248dbce4b943671f47b90daa"
+      },
+      "konus": {
+        "object_sha256": "c31039b448816ebf60c3eea060e15d9c3883cfb539f9842928f01d6c71ef23af",
+        "source_sha256": "f72f1c88216ba023da73fe646dc09ce5ac4b8a1805478a67e3509dec979c983f"
+      },
+      "GameDefaultsNative.cpp": {
+        "object_sha256": "112ed1b0f287e92657b0b27c69e208bc0b9a6566364052f17af760884521178a",
+        "source_sha256": "5b5828f8a7fc625725f5515c5b50325bd209d6f82a339c102037d025a333e5f4"
+      },
+      "driver": {
+        "object_sha256": "5b546ee2e8cec257c1bc391e192171b736b4034daab13828d3a98544bb9afd9d",
+        "source_sha256": "2fbd507d3e94842adda35375c28b63c65a01d762aaa157833ac7ecd8bf78de8b"
+      }
+    }
+  },
+  "sdk": {
+    "status": "SDK_COMPILE_LINK_PASS",
+    "elf_sha256": "522a14787e36fb70e56f25de5e02a9460ded61199fe48bb941ae81e9601124d8",
+    "source_sha256": {
+      "build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/Effects/MatrixEffectExplosion.cpp": "36aeb305a23dc4614f3907968af4efe57e793910248dbce4b943671f47b90daa",
+      "build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/Effects/MatrixEffectKonus.cpp": "f72f1c88216ba023da73fe646dc09ce5ac4b8a1805478a67e3509dec979c983f",
+      "build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/GameDefaultsNative.cpp": "5b5828f8a7fc625725f5515c5b50325bd209d6f82a339c102037d025a333e5f4",
+      "tests/matrixgame_bootstrap_explosion.cpp": "10103571bb3920604f75ccf3bad97aadef06ebb8ec8b5a4c38c416c47a2b5e0e",
+      "tests/test_matrixgame_bootstrap.cpp": "2fbd507d3e94842adda35375c28b63c65a01d762aaa157833ac7ecd8bf78de8b"
+    },
+    "strong_undefined": [],
+    "runtime": false,
+    "hardware": false,
+    "nro": false,
+    "commands": [
+      [
+        "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-g++.exe",
+        "-DMATRIXGAME_FULL_3G_HEADER=\"D:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/3G/3g.hpp\"",
+        "-DMATRIXGAME_FULL_BILLBOARD_HEADER=\"D:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/3G/CBillboard.hpp\"",
+        "-DMATRIXGAME_FULL_CAMERA_HEADER=\"D:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/MatrixCamera.hpp\"",
+        "-DMATRIXGAME_FULL_CONFIG_HEADER=\"D:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/MatrixConfig.hpp\"",
+        "-DMATRIXGAME_FULL_CURSOR_HEADER=\"D:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/MatrixCursor.hpp\"",
+        "-DMATRIXGAME_FULL_KONUS_HEADER=\"D:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/Effects/MatrixEffectKonus.hpp\"",
+        "-DMATRIXGAME_FULL_VECTOR_HEADER=\"D:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/3G/VectorObject.hpp\"",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-IC:/devkitPro/libnx/include",
+        "-ID:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/3G",
+        "-ID:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/Base",
+        "-ID:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixLib/Bitmap",
+        "-ID:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src",
+        "-ID:/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+        "-ID:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/sdk/cmake/core/source",
+        "-ID:/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+        "-ID:/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+        "-ID:/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+        "-isystem",
+        "C:/devkitPro/portlibs/switch/include",
+        "-march=armv8-a+crc+crypto",
+        "-mtune=cortex-a57",
+        "-mtp=soft",
+        "-fPIE",
+        "-D__SWITCH__",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-O3",
+        "-DNDEBUG",
+        "-UNDEBUG",
+        "-ffp-contract=off",
+        "-o",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-v3-sdk\\explosion-test.obj",
+        "-c",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\tests\\matrixgame_bootstrap_explosion.cpp",
+        "-ffunction-sections",
+        "-fdata-sections"
+      ],
+      [
+        "C:/devkitPro/devkitA64/bin/aarch64-none-elf-ar.exe",
+        "r",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-v3-sdk\\libmatrixgame-native-cache.a",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-v3-sdk\\explosion.obj",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-v3-sdk\\konus.obj",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-v3-sdk\\GameDefaultsNative.cpp.obj"
+      ],
+      [
+        "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-g++.exe",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-v3-sdk\\explosion-test.obj",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\smoke-fire-sdk\\smoke-test.obj",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\shadow-texture-v3-sdk\\texture-test.obj",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\shadow-manager-sdk\\manager-test.obj",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\shadow-proj-v3-sdk\\lifecycle.obj",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\progress-bar-integration\\sdk\\lifecycle.obj",
+        "-march=armv8-a+crc+crypto",
+        "-mtune=cortex-a57",
+        "-mtp=soft",
+        "-fPIE",
+        "-D__SWITCH__",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-O3",
+        "-DNDEBUG",
+        "-specs=C:/devkitPro/libnx/switch.specs",
+        "-Wl,--gc-sections",
+        "-Wl,--build-id=sha1",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-v3-sdk\\driver.obj",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/D_/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_sampling.cpp.obj",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\stencil-v2-sdk\\game.obj",
+        "-o",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-v3-sdk\\matrixgame-native-bootstrap.elf",
+        "-LC:/devkitPro/libnx/lib",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-v3-sdk\\libmatrixgame-native-cache.a",
+        "-lnx",
+        "libmatrixgame-native-vector-object.a",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\viewport-sdk\\libmatrixgame-native-core.a",
+        "C:/devkitPro/portlibs/switch/lib/libpng.a",
+        "C:/devkitPro/portlibs/switch/lib/libz.a",
+        "C:/devkitPro/portlibs/switch/lib/libjpeg.a",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\font-shared-ops-sdk\\font-test.obj",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\water-sdk\\formatted-test.obj"
+      ],
+      [
+        "C:/devkitPro/devkitA64/bin/aarch64-none-elf-readelf.exe",
+        "-sW",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-v3-sdk\\matrixgame-native-bootstrap.elf"
+      ]
+    ],
+    "reused_unchanged_objects": {
+      "explosion": {
+        "object_sha256": "03f5643271cdffb04b0fbfe74d8eb55fcc9f3de9f000933b005e7a4866e1c3ad",
+        "source_sha256": "36aeb305a23dc4614f3907968af4efe57e793910248dbce4b943671f47b90daa"
+      },
+      "konus": {
+        "object_sha256": "1c775415bfc5311e7e45dc3ab865df0f28edd458173d3517b6cc555885255a8b",
+        "source_sha256": "f72f1c88216ba023da73fe646dc09ce5ac4b8a1805478a67e3509dec979c983f"
+      },
+      "GameDefaultsNative.cpp": {
+        "object_sha256": "7712bda84b7943f058f6ce09bb0caef070df2bafa24dcba6fd605d971f0d6465",
+        "source_sha256": "5b5828f8a7fc625725f5515c5b50325bd209d6f82a339c102037d025a333e5f4"
+      },
+      "driver": {
+        "object_sha256": "316587f27849b4ef4cd8a605a63595c36b602882d45cb29d4d1bedf6c69413ed",
+        "source_sha256": "2fbd507d3e94842adda35375c28b63c65a01d762aaa157833ac7ecd8bf78de8b"
+      }
+    }
+  },
+  "msvc_compile": [
+    {
+      "source": "build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/Effects/MatrixEffectExplosion.cpp",
+      "compile_exit": 0,
+      "runtime": false,
+      "source_sha256": "36aeb305a23dc4614f3907968af4efe57e793910248dbce4b943671f47b90daa",
+      "object_sha256": "e793301dd1c63c993a0843ca6ef1ea6a9411dba6f3b06f03e16416f3a474795d",
+      "command": "call \"C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\Tools\\VsDevCmd.bat\" -no_logo -arch=x86 -host_arch=x64 && cl /nologo /std:c++20 /Zc:__cplusplus /EHsc /O2 /Gy /Gw /UNDEBUG /DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-engine\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixGame\\src\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixGame\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixLib\\3G\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixLib\\Base\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixLib\\Bitmap\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\portable-core\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\third_party\\directxmath\\Inc\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\third_party\\sal\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\deps\\microsoft.dxsdk.d3dx.9.29.952.8\\build\\native\\include\" /c /Fo\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-msvc\\explosion.obj\" \"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixGame\\src\\Effects\\MatrixEffectExplosion.cpp\""
+    },
+    {
+      "source": "build/matrixgame/e2e519/explosion-konus-final-source/MatrixGame/src/Effects/MatrixEffectKonus.cpp",
+      "compile_exit": 0,
+      "runtime": false,
+      "source_sha256": "f72f1c88216ba023da73fe646dc09ce5ac4b8a1805478a67e3509dec979c983f",
+      "object_sha256": "c184b2e099bd9787f4ece5243b2609694fa6575844ae1728eaa5f2e3f320381a",
+      "command": "call \"C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\Tools\\VsDevCmd.bat\" -no_logo -arch=x86 -host_arch=x64 && cl /nologo /std:c++20 /Zc:__cplusplus /EHsc /O2 /Gy /Gw /UNDEBUG /DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-engine\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixGame\\src\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixGame\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixLib\\3G\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixLib\\Base\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixLib\\Bitmap\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\portable-core\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\third_party\\directxmath\\Inc\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\third_party\\sal\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\deps\\microsoft.dxsdk.d3dx.9.29.952.8\\build\\native\\include\" /c /Fo\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-msvc\\konus.obj\" \"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixGame\\src\\Effects\\MatrixEffectKonus.cpp\""
+    }
+  ],
+  "real_sdk_rotation_oracle": {
+    "exit": 0,
+    "cases": 10045,
+    "tolerance": 5e-06,
+    "actual_sdk": true,
+    "gpu": false,
+    "command": "call \"C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\Tools\\VsDevCmd.bat\" -no_logo -arch=x86 -host_arch=x64 && cl /nologo /std:c++20 /Zc:__cplusplus /EHsc /O2 /Gy /Gw /UNDEBUG /DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-engine\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixGame\\src\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixGame\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixLib\\3G\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixLib\\Base\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixLib\\Bitmap\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\portable-core\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\third_party\\directxmath\\Inc\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\third_party\\sal\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\deps\\microsoft.dxsdk.d3dx.9.29.952.8\\build\\native\\include\" /c /Fo\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-msvc\\portable.obj\" \"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-msvc\\portable.cpp\" && cl /nologo /std:c++20 /Zc:__cplusplus /EHsc /O2 /Gy /Gw /UNDEBUG /DNOMINMAX /DWIN32_LEAN_AND_MEAN /D_CRT_SECURE_NO_WARNINGS /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-engine\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixGame\\src\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixGame\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixLib\\3G\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixLib\\Base\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\MatrixLib\\Bitmap\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-final-source\\portable-core\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\third_party\\directxmath\\Inc\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\third_party\\sal\" /I\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\deps\\microsoft.dxsdk.d3dx.9.29.952.8\\build\\native\\include\" /c /Fo\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-msvc\\sdk.obj\" \"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-msvc\\sdk.cpp\" && link /nologo /OUT:\"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-msvc\\rotation.exe\" \"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-msvc\\portable.obj\" \"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\explosion-konus-msvc\\sdk.obj\" \"D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\deps\\microsoft.dxsdk.d3dx.9.29.952.8\\build\\native\\release\\lib\\x86\\d3dx9.lib\"",
+    "sha256": {
+      "build/matrixgame/e2e519/explosion-konus-msvc/portable.cpp": "e8958f7e67db408098d0a8b7acfd0d412dd6f0f0d496a759e29003149e17d816",
+      "build/matrixgame/e2e519/explosion-konus-msvc/sdk.cpp": "811a2369c3e4c955d4de0d193bff864b78ec2c0afc07a6e7fe031da78f7214f4",
+      "build/matrixgame/e2e519/explosion-konus-msvc/rotation.exe": "b20cf15d446d54881a6da8d2952d4f5d9d16ca7d32837966ce80bc6aed048512",
+      "port/matrixgame/native-engine/object_geometry.hpp": "3c4ed3656d36e8aa01a20f9f62af2a713441ece2568b3cc4e3d5a842931a2ecc",
+      "build/matrixgame/e2e519/deps/microsoft.dxsdk.d3dx.9.29.952.8/build/native/release/lib/x86/d3dx9.lib": "0b1cd009d5e5ed15080c4d7ad0245a273242da07e0747921e80ac3ccf9bc0fc2",
+      "build/matrixgame/e2e519/explosion-konus-msvc/D3DCompiler_43.dll": "aaca0bac2e1e94966f4546b6234333f9cdc1a4599024e30cd20aef4c1fd1b4f1"
+    }
+  },
+  "first_setup_failure": "existing portable cache asset entry correctly refused by original SDK factory; changed test to caller-owned genuine unloaded CTextureManaged; no production cache change",
+  "first_setup_failure_logs": {
+    "build/matrixgame/e2e519/explosion-konus-integration/arm64/runtime.log": "93b2a20c1bb66e9ed50267a1136f241229b47f54472b3079d2b3b6ae8054b348",
+    "build/matrixgame/e2e519/explosion-konus-integration/host/runtime.log": "93b2a20c1bb66e9ed50267a1136f241229b47f54472b3079d2b3b6ae8054b348",
+    "build/matrixgame/e2e519/explosion-konus-v2-integration/arm64/runtime.log": "8bc74c2622ef62ca86bf2cfd3a612ee24c821acdb278f35a08271114c396b362",
+    "build/matrixgame/e2e519/explosion-konus-v2-integration/host/runtime.log": "c84e1d3c0b4146628574c27e042a5d6e8b034055e8be6efdb41b49bc750939a2"
+  },
+  "cmake_configured": true,
+  "cmake_units": [
+    {
+      "directory": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake",
+      "command": "/usr/bin/c++ -D_POSIX_C_SOURCE=200809L -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/3G -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/Base -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/Bitmap -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/core/source -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/Logic -O3 -DNDEBUG -std=gnu++20 -ffp-contract=off -ffunction-sections -fdata-sections -o CMakeFiles/matrixgame-native-cache.dir/source/MatrixGame/src/Effects/MatrixEffectExplosion.cpp.o -c /mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/Effects/MatrixEffectExplosion.cpp",
+      "file": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/Effects/MatrixEffectExplosion.cpp",
+      "output": "CMakeFiles/matrixgame-native-cache.dir/source/MatrixGame/src/Effects/MatrixEffectExplosion.cpp.o"
+    },
+    {
+      "directory": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake",
+      "command": "/usr/bin/c++ -D_POSIX_C_SOURCE=200809L -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/3G -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/Base -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/Bitmap -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/core/source -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/Logic -O3 -DNDEBUG -std=gnu++20 -ffp-contract=off -ffunction-sections -fdata-sections -o CMakeFiles/matrixgame-native-cache.dir/source/MatrixGame/src/Effects/MatrixEffectKonus.cpp.o -c /mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/Effects/MatrixEffectKonus.cpp",
+      "file": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/Effects/MatrixEffectKonus.cpp",
+      "output": "CMakeFiles/matrixgame-native-cache.dir/source/MatrixGame/src/Effects/MatrixEffectKonus.cpp.o"
+    },
+    {
+      "directory": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake",
+      "command": "/usr/bin/c++ -DMATRIXGAME_FULL_3G_HEADER=\\\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/3G/3g.hpp\\\" -DMATRIXGAME_FULL_BILLBOARD_HEADER=\\\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/3G/CBillboard.hpp\\\" -DMATRIXGAME_FULL_CAMERA_HEADER=\\\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/MatrixCamera.hpp\\\" -DMATRIXGAME_FULL_CONFIG_HEADER=\\\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/MatrixConfig.hpp\\\" -DMATRIXGAME_FULL_CURSOR_HEADER=\\\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/MatrixCursor.hpp\\\" -DMATRIXGAME_FULL_KONUS_HEADER=\\\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/Effects/MatrixEffectKonus.hpp\\\" -DMATRIXGAME_FULL_VECTOR_HEADER=\\\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/3G/VectorObject.hpp\\\" -D_POSIX_C_SOURCE=200809L -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/3G -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/Base -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/Bitmap -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/core/source -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/Logic -O3 -DNDEBUG -std=gnu++20 -UNDEBUG -ffp-contract=off -o CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_explosion.cpp.o -c /mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_explosion.cpp",
+      "file": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_explosion.cpp",
+      "output": "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_explosion.cpp.o"
+    },
+    {
+      "directory": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake",
+      "command": "/usr/bin/c++ -D_POSIX_C_SOURCE=200809L -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/Base -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/3G -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/Bitmap -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/core/source -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/Logic -O3 -DNDEBUG -std=gnu++20 -ffp-contract=off -ffunction-sections -fdata-sections -o CMakeFiles/matrixgame-native-engine.dir/source/MatrixGame/src/Effects/MatrixEffectExplosion.cpp.o -c /mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/Effects/MatrixEffectExplosion.cpp",
+      "file": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/Effects/MatrixEffectExplosion.cpp",
+      "output": "CMakeFiles/matrixgame-native-engine.dir/source/MatrixGame/src/Effects/MatrixEffectExplosion.cpp.o"
+    },
+    {
+      "directory": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake",
+      "command": "/usr/bin/c++ -D_POSIX_C_SOURCE=200809L -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/Base -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/3G -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixLib/Bitmap -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/core/source -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/Logic -O3 -DNDEBUG -std=gnu++20 -ffp-contract=off -ffunction-sections -fdata-sections -o CMakeFiles/matrixgame-native-engine.dir/source/MatrixGame/src/Effects/MatrixEffectKonus.cpp.o -c /mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/Effects/MatrixEffectKonus.cpp",
+      "file": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-cmake/source/MatrixGame/src/Effects/MatrixEffectKonus.cpp",
+      "output": "CMakeFiles/matrixgame-native-engine.dir/source/MatrixGame/src/Effects/MatrixEffectKonus.cpp.o"
+    }
+  ],
+  "full_cmake_build": false,
+  "new_sanitizer_exclusions": false,
+  "map_owner": {
+    "exit": 1,
+    "command": [
+      "/usr/bin/c++",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/host/explosion-test.o",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/smoke-fire-integration/host/smoke-test.o",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/shadow-texture-v3-integration/host/texture-test.o",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/shadow-manager-integration/host/manager-test.o",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/shadow-proj-v3-integration/host/lifecycle.o",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/progress-bar-integration/lifecycle.o",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-O2",
+      "-g",
+      "-DNDEBUG",
+      "-Wl,--gc-sections",
+      "-Wl,--dependency-file=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/font-shared-ops-integration/host/link.d",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/host/driver.o",
+      "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_sampling.cpp.o",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/stencil-v2-integration/host/game.o",
+      "-o",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/host/map-owner",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/host/libmatrixgame-native-cache.a",
+      "libmatrixgame-native-vector-object.a",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/viewport-integration/host/libmatrixgame-native-core.a",
+      "/usr/lib/x86_64-linux-gnu/libpng.so",
+      "/usr/lib/x86_64-linux-gnu/libz.so",
+      "/usr/lib/x86_64-linux-gnu/libjpeg.so",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/font-shared-ops-integration/host/font-test.o",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/water-integration/host/formatted-test.o",
+      "-Wl,--undefined=_ZN15CMatrixMapLogicC1Ev",
+      "-Wl,--undefined=_ZN15CMatrixMapLogicD1Ev"
+    ],
+    "missing": [
+      "CIFaceList::HideHintButtons()",
+      "CMatrixBuilding::~CMatrixBuilding()",
+      "CMatrixCannon::~CMatrixCannon()",
+      "CMatrixEffectLandscapeSpot::CMatrixEffectLandscapeSpot(D3DXVECTOR2 const&, float, float, ESpotType)",
+      "CMatrixEffectLandscapeSpot::Priority()",
+      "CMatrixEffectWeapon::CMatrixEffectWeapon(D3DXVECTOR3 const&, D3DXVECTOR3 const&, unsigned long, void (*)(CMatrixMapStatic*, D3DXVECTOR3 const&, unsigned long, unsigned int), EWeapon, int)",
+      "CMatrixEffectWeapon::FireEnd()",
+      "CMatrixEffectWeapon::SetOwner(CMatrixMapStatic*)",
+      "CMatrixFlyer::~CMatrixFlyer()",
+      "CMatrixMap::Trace(D3DXVECTOR3*, D3DXVECTOR3 const&, D3DXVECTOR3 const&, unsigned int, CMatrixMapStatic*)",
+      "CMatrixRobotAI::CreateTextures()",
+      "CMatrixRobotAI::~CMatrixRobotAI()",
+      "CMatrixSideUnit::PGOrderAttack(int, Base::CPoint const&, CMatrixMapStatic*)",
+      "CMatrixSideUnit::RobotToLogicGroup(CMatrixRobotAI*)",
+      "CMatrixSideUnit::SetArcadedObject(CMatrixMapStatic*)",
+      "CMatrixSideUnit::~CMatrixSideUnit()",
+      "SSpecialBot::GetRobot(D3DXVECTOR3 const&, int)"
+    ]
+  },
+  "closed_symbols": [
+    "CMatrixEffectExplosion::CMatrixEffectExplosion(D3DXVECTOR3 const&, SExplosionProperties const&)",
+    "ExplosionBuildingBoom",
+    "ExplosionBuildingBoom2",
+    "ExplosionObject"
+  ],
+  "new_missing": [],
+  "protected_verified": [
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\newgame.txt",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\QuickSave.sav",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Medical Center Autoclave.sav",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\hardware-gpu-a224fa4.zip",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Sol System.sav",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-2.vo",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\reports\\e2e5\\e2e510-artifact-provenance.json",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-1.vo",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\CFG.TXT",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\mg-merge-host\\core\\texture-request-fixtures\\assets\\plain.png",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\########.log",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\AutoSave.sav",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce.zip"
+  ],
+  "unavailable": [
+    "G:\\pack.zip"
+  ],
+  "hardware_inputs_verified": 107,
+  "frozen": {
+    "switch/space-rangers-hd-a-war-apart/SpaceRangersHD-perf516.nro": "9f654daab36c71cb51940871d4a93bdcceb09edd7da8dde127ab023bfb21e789",
+    "debug/SpaceRangersHD-perf516.elf": "0ca47fa95e614167da814cf63e1bc19e0bd005e94b34763287d713d5c9989ab5"
+  },
+  "switch_runtime": false,
+  "gpu_draw": false,
+  "explosion_constructor_executed": false,
+  "map_created": false,
+  "cgame_init_executed": false,
+  "new_nro": false,
+  "second_setup_failure": "continuous sine oracle was incorrect for the original 256-sample TableSin; corrected independent discrete index oracle at tighter 2e-5 tolerance; no production formula change"
+}
