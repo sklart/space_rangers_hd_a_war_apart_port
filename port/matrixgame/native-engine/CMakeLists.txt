@@ -98,7 +98,7 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixDebugInfo.cpp"
-    "${ENGINE_SOURCE}/MatrixGame/src/MatrixTransitionLifecycle.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/OriginalTransition.cpp" transition_backend.cpp
     "${ENGINE_SOURCE}/MatrixGame/src/input.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/GameStaticResources.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixLoadProgress.cpp"
@@ -199,7 +199,7 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixDebugInfo.cpp"
-    "${ENGINE_SOURCE}/MatrixGame/src/MatrixTransitionLifecycle.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/OriginalTransition.cpp" transition_backend.cpp
     "${ENGINE_SOURCE}/MatrixGame/src/Logic/MatrixRoadNetwork.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixRenderPipeline.cpp" APPEND PROPERTY COMPILE_OPTIONS
     "$<$<CXX_COMPILER_ID:MSVC>:/Gy>" "$<$<CXX_COMPILER_ID:MSVC>:/Gw>"
@@ -395,7 +395,7 @@ list(FILTER ENGINE_UNITS EXCLUDE REGEX "/MatrixGameDll.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/Logic/MatrixRoadNetwork.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/GameDefaultsNative.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/MatrixCursorLifecycle.cpp$")
-list(FILTER ENGINE_UNITS EXCLUDE REGEX "/MatrixTransitionLifecycle.cpp$")
+list(FILTER ENGINE_UNITS EXCLUDE REGEX "/(OriginalTransition|MatrixTransitionLifecycle).cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/OriginalRendererOps.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/MatrixCameraLifecycle.cpp$")
 # Opt-in full compilation target. Remaining Windows/D3D dependencies must be ported;

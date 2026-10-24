@@ -35,8 +35,9 @@ def prepare_debug_font(output):
     if text.count('static_cast<FLOAT>')!=2:raise ValueError('Original debug geometry casts changed')
     text=text.replace('static_cast<FLOAT>','static_cast<float>')
     write(name,text)
-    # Keep all GDI capture/render code untouched and explicitly unported.
-    # This exact original method closes the base map constructor's unwind.
+    # Retain the historical exact cleanup slice for source audits. The native
+    # target now selects OriginalTransition.cpp, prepared separately from the
+    # complete original capture/render TU; do not link both Clear definitions.
     original=(output/'MatrixGame/src/MatrixTransition.cpp').read_text(encoding='utf-8')
     clear=function(original,'void CTransition::Clear(void)')
     write('MatrixGame/src/MatrixTransitionLifecycle.cpp',

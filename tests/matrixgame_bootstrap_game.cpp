@@ -936,6 +936,15 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
         for(int i=0;i<retained.Pitch()*2;++i)assert(retained.Data()[i]==0x5a);
         Text::ClearFontCache();Text::ClearFontCache();
         std::puts("full original Text::Render refused missing SDK before changing bitmap; cache cleanup/reentry PASS; glyphs NOT SYNTHESIZED");
+        for(int entry=0;entry<2;++entry){
+            CTransition transition;
+            bool refused=false;
+            try{transition.BuildTexture();}catch(const platform3g::Unsupported&){refused=true;}
+            assert(refused);
+            transition.Render();transition.Takt(16);
+            transition.Clear();transition.Clear();
+        }
+        std::puts("original transition BuildTexture ENTERED -> missing native window refusal; empty Render/Takt and cleanup/reentry PASS; capture/GPU NOT EXECUTED");
     }
     const auto was_gpu=runtime.GpuReady();
     // A refused new configuration must leave existing real allocated labels
