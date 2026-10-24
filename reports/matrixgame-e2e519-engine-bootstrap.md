@@ -1,6 +1,14 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение24.10: [полный MatrixObject и shadow table](matrixgame-e2e519-map-object.md).
+Актуальное продолжение24.10: [оригинальный ShadowStencil на реальной VO](matrixgame-e2e519-shadow-stencil.md).
+Полный модуль строит volume Terron frame0:1470 vertices/4572 indices; оба
+invert проверены независимым signed-dot oracle. Host ASan/UBSan и ARM64/QEMU
+подтвердили geometry/staging/cache/free/recreate/destructor. MSVC compile и
+devkitA64 prefix compile/link PASS, новых sanitizer exclusions нет. Настоящий
+Render отказал на границе устройства до draw. Full map owner LINK FAIL33
+вместо38; GPU/world/battle и CGame::Init NOT RUN.
+
+Предыдущее продолжение24.10: [полный MatrixObject и shadow table](matrixgame-e2e519-map-object.md).
 Подключён весь original map-object TU. Реальные InitTextures/ClearTexture/
 ClearTextures с borrowed genuine textures исполнены в общем host ASan/UBSan
 и ARM64/QEMU bootstrap. Полный модуль компилируется MSVC, devkitA64 prefix

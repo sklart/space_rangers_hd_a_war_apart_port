@@ -38,6 +38,9 @@
 #include "Interface/MatrixHint.hpp"
 #include "MatrixObject.hpp"
 #include "object_geometry.hpp"
+#include "shadow_stencil_view.hpp"
+#include <map>
+#include <array>
 #ifdef _WIN32
 #include "platform_win32.hpp"
 #endif
@@ -121,6 +124,80 @@ static void VerifyOriginalStaticGeometry() {
     assert(!CMatrixMapStatic::EnumVertsHandler(vertex,reinterpret_cast<uintptr_t>(&data)) && !data.found);
     assert(!g_MatrixMap);
     std::puts("original static object empty sort/remove and transformed vertex rectangle predicate EXECUTED; abstract object/map not instantiated");
+}
+void VerifyBootstrapShadowStencil(NativeInitRuntime& runtime,CVectorObject& object) {
+    const auto& geometry=CVOShadowStencil::ReadSourceGeometry(object);
+    assert(!runtime.GpuReady() && geometry.m_EdgesCnt>0 && object.GetFramesCnt()>0);
+    auto& context=buffers::Current();const auto before=context.AllocatedBytes();
+    const auto live=ShadowStencilViewAccess::LiveObjects();
+    const auto& frame=geometry.m_Frames[0];
+    const D3DXVECTOR3 light{0.2f,0.3f,-1.f};
+    const auto magnitude=std::sqrt(double(light.x)*light.x+double(light.y)*light.y+double(light.z)*light.z);
+    const int quantized[]={int(std::round(light.x/magnitude*255)),int(std::round(light.y/magnitude*255)),int(std::round(light.z/magnitude*255))};
+    auto dot=[&](const SVONormal& normal) {
+        return quantized[0]*((normal.s&1)?-int(normal.x):int(normal.x))+
+            quantized[1]*((normal.s&2)?-int(normal.y):int(normal.y))+
+            quantized[2]*((normal.s&4)?-int(normal.z):int(normal.z));
+    };
+    for(int inverted=0;inverted<2;++inverted) {
+        {
+            CVOShadowStencil shadow;assert(ShadowStencilViewAccess::LiveObjects()==live+1);
+            assert(!shadow.IsReady());shadow.DX_Prepare();shadow.DX_Free();
+            shadow.Build(object,0,light,120.f,inverted!=0);
+            auto view=ShadowStencilViewAccess::Read(shadow);
+            assert(shadow.IsReady() && view.frame==0 && !view.vertices.empty() && !view.indices.empty());
+            std::vector<D3DXVECTOR3> vertices;std::vector<std::uint16_t> indices;
+            std::map<int,std::uint16_t> mapping;
+            const auto distance=120.f+frame.m_Radius*2+frame.m_GeoCenter.z;
+            auto vertex=[&](int offset) {
+                auto found=mapping.find(offset);if(found!=mapping.end())return found->second;
+                assert(vertices.size()+2<=65536);
+                const auto index=static_cast<std::uint16_t>(vertices.size());
+                const auto* item=reinterpret_cast<const SVOVertex*>(reinterpret_cast<const std::byte*>(geometry.m_Vertices.verts)+offset);
+                vertices.push_back(item->v);vertices.push_back(item->v+light*distance);
+                mapping.emplace(offset,index);return index;
+            };
+            for(int i=0;i<frame.m_EdgeCnt;++i) {
+                const auto& edge=geometry.m_Edges[frame.m_EdgeStart+i];
+                const auto front=dot(edge.n0);if((front<0)==(dot(edge.n1)<0))continue;
+                const auto a=vertex(edge.v00),b=vertex(edge.v01);
+                const std::array<int,6> quad=((front>=0) != (inverted!=0))?
+                    std::array<int,6>{b,a,b+1,a,a+1,b+1}:std::array<int,6>{b+1,a+1,b,a+1,a,b};
+                for(auto index:quad)indices.push_back(static_cast<std::uint16_t>(index));
+            }
+            assert(view.vertices.size()==vertices.size() && view.indices.size()==indices.size());
+            for(std::size_t i=0;i<vertices.size();++i) {
+                assert(std::fabs(view.vertices[i].x-vertices[i].x)<1e-4f);
+                assert(std::fabs(view.vertices[i].y-vertices[i].y)<1e-4f);
+                assert(std::fabs(view.vertices[i].z-vertices[i].z)<1e-4f);
+            }
+            assert(std::equal(view.indices.begin(),view.indices.end(),indices.begin()));
+            auto verify_staging=[&] {
+                shadow.DX_Prepare();const auto actual=ShadowStencilViewAccess::Read(shadow);
+                assert(actual.vertex_buffer && actual.index_buffer);
+                const auto vb=actual.vertices.size_bytes(),ib=actual.indices.size_bytes();
+                assert(actual.vertex_buffer->Dynamic() && actual.index_buffer->Dynamic());
+                assert(actual.vertex_buffer->Initialized(0,vb) && actual.index_buffer->Initialized(0,ib));
+                assert(actual.vertex_buffer->Size()>=vb && actual.index_buffer->Size()>=ib);
+                assert(std::memcmp(actual.vertex_buffer->Storage().data(),actual.vertices.data(),vb)==0);
+                assert(std::memcmp(actual.index_buffer->Storage().data(),actual.indices.data(),ib)==0);
+                return actual;
+            };
+            view=verify_staging();const auto version=view.vertex_buffer->Version();
+            shadow.Build(object,0,light,120.f,inverted!=0);auto cached=verify_staging();
+            assert(cached.vertex_buffer==view.vertex_buffer && cached.vertex_buffer->Version()==version);
+            CVOShadowStencil::MarkAllBuffersNoNeed();assert(context.AllocatedBytes()==before);
+            verify_staging();
+            D3DXMATRIX world;D3DXMatrixIdentity(&world);bool denied=false;
+            try{shadow.Render(world);}catch(const platform3g::Unsupported&){denied=true;}
+            assert(denied);
+            shadow.DX_Free();shadow.DX_Free();assert(context.AllocatedBytes()==before);
+            verify_staging();
+            std::printf("original stencil real VO frame0 invert=%d vertices=%zu indices=%zu scalar oracle/staging/cache/recreate PASS\n",inverted,vertices.size(),indices.size());
+        }
+        assert(context.AllocatedBytes()==before && ShadowStencilViewAccess::LiveObjects()==live);
+    }
+    std::puts("original full shadow stencil Build/DX_Prepare/MarkAllBuffersNoNeed/DX_Free/destructor on real VO EXECUTED; CPU staging and render refusal only; GPU/world NOT EXECUTED");
 }
 static void VerifyOriginalMapObjectResources() {
     namespace lt=srhd_awa::matrixgame::legacy_texture;
