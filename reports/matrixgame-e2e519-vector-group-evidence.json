@@ -1,0 +1,721 @@
+{
+  "parent": "63f860c",
+  "results": {
+    "vector-group-baseline-arm64": {
+      "status": "ORIGINAL_GROUP_AND_ANIM_POINTER_TRUNCATION_REPRODUCED",
+      "exit": 1,
+      "completed_sessions": 0,
+      "commands": [
+        [
+          "/usr/bin/aarch64-linux-gnu-g++-15",
+          "-D_POSIX_C_SOURCE=200809L",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixLib/3G",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixLib/Base",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixLib/Bitmap",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixGame/src",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-fresh-arm64/core/source",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixGame/src/Logic",
+          "-isystem",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+          "-isystem",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+          "-isystem",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source",
+          "-pthread",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+          "-O3",
+          "-DNDEBUG",
+          "-std=gnu++20",
+          "-ffp-contract=off",
+          "-ffunction-sections",
+          "-fdata-sections",
+          "-o",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-baseline-arm64/group.o",
+          "-c",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixLib/3G/OriginalVectorGroup.cpp"
+        ],
+        [
+          "/usr/bin/aarch64-linux-gnu-g++-15",
+          "-DMATRIXGAME_FULL_3G_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixLib/3G/3g.hpp\"",
+          "-DMATRIXGAME_FULL_BILLBOARD_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixLib/3G/CBillboard.hpp\"",
+          "-DMATRIXGAME_FULL_CAMERA_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixGame/src/MatrixCamera.hpp\"",
+          "-DMATRIXGAME_FULL_CONFIG_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixGame/src/MatrixConfig.hpp\"",
+          "-DMATRIXGAME_FULL_CURSOR_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixGame/src/MatrixCursor.hpp\"",
+          "-DMATRIXGAME_FULL_KONUS_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixGame/src/Effects/MatrixEffectKonus.hpp\"",
+          "-DMATRIXGAME_FULL_VECTOR_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixLib/3G/VectorObject.hpp\"",
+          "-D_POSIX_C_SOURCE=200809L",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixLib/3G",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixLib/Base",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixLib/Bitmap",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixGame/src",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-fresh-arm64/core/source",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixGame/src/Logic",
+          "-isystem",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+          "-isystem",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+          "-isystem",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source",
+          "-pthread",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+          "-O3",
+          "-DNDEBUG",
+          "-std=gnu++20",
+          "-UNDEBUG",
+          "-ffp-contract=off",
+          "-o",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-baseline-arm64/driver.o",
+          "-c",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-baseline-arm64/driver.cpp"
+        ],
+        [
+          "/usr/bin/aarch64-linux-gnu-g++-15",
+          "-DMATRIXGAME_FULL_3G_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixLib/3G/3g.hpp\"",
+          "-DMATRIXGAME_FULL_BILLBOARD_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixLib/3G/CBillboard.hpp\"",
+          "-DMATRIXGAME_FULL_CAMERA_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixGame/src/MatrixCamera.hpp\"",
+          "-DMATRIXGAME_FULL_CONFIG_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixGame/src/MatrixConfig.hpp\"",
+          "-DMATRIXGAME_FULL_CURSOR_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixGame/src/MatrixCursor.hpp\"",
+          "-DMATRIXGAME_FULL_KONUS_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixGame/src/Effects/MatrixEffectKonus.hpp\"",
+          "-DMATRIXGAME_FULL_VECTOR_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixLib/3G/VectorObject.hpp\"",
+          "-D_POSIX_C_SOURCE=200809L",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixLib/3G",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixLib/Base",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixLib/Bitmap",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixGame/src",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-fresh-arm64/core/source",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-sdk/source/MatrixGame/src/Logic",
+          "-isystem",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+          "-isystem",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+          "-isystem",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source",
+          "-pthread",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+          "-O3",
+          "-DNDEBUG",
+          "-std=gnu++20",
+          "-UNDEBUG",
+          "-ffp-contract=off",
+          "-o",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-baseline-arm64/test.o",
+          "-c",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_vector_group.cpp"
+        ],
+        [
+          "aarch64-linux-gnu-ar",
+          "r",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-baseline-arm64/libmatrixgame-native-cache.a",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-baseline-arm64/group.o"
+        ],
+        [
+          "/usr/bin/aarch64-linux-gnu-g++-15",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-baseline-arm64/test.o",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/cannon-ui-arm64/matrixgame_bootstrap_cannon_units.o",
+          "-pthread",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+          "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+          "-O3",
+          "-DNDEBUG",
+          "-Wl,--gc-sections",
+          "-Wl,--dependency-file=CMakeFiles/matrixgame-native-bootstrap.dir/link.d",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-baseline-arm64/driver.o",
+          "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_sampling.cpp.o",
+          "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_font.cpp.o",
+          "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_formatted_texture.cpp.o",
+          "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_game.cpp.o",
+          "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_progress_bar.cpp.o",
+          "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_shadow_proj.cpp.o",
+          "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_shadow_manager.cpp.o",
+          "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_shadow_texture.cpp.o",
+          "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_smoke_fire.cpp.o",
+          "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_explosion.cpp.o",
+          "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_selection.cpp.o",
+          "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_callback_width.cpp.o",
+          "-o",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-baseline-arm64/matrixgame-native-bootstrap",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-baseline-arm64/libmatrixgame-native-cache.a",
+          "libmatrixgame-native-vector-object.a",
+          "libmatrixgame-native-navigation.a",
+          "core/libmatrixgame-native-core.a",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png/libpng16.a",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/mg-navigation-arm64/zlib/libz.a",
+          "-lm",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg/libjpeg.a"
+        ],
+        [
+          "qemu-aarch64",
+          "-L",
+          "/usr/aarch64-linux-gnu",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-baseline-arm64/matrixgame-native-bootstrap",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/big-buffer-models/model-2.vo",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/mg-merge-host/core/texture-request-fixtures/assets/plain.png",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/upstream/matrixgame/MatrixGame/CFG/robots/data.txt"
+        ]
+      ],
+      "test_sha256": "b4369e317655f0a08d13c392c752c2f43d63b5c2dc8841089752611d589f834d",
+      "result_sha256": "7beef70a76439be1be71334649bd076b634c07a15b519aed91b06936a555167f"
+    },
+    "vector-group-fixed-sdk": {
+      "status": "FRESH_SDK_COMPILE_LINK_PASS",
+      "commands": [
+        [
+          "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe",
+          "-S",
+          "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-engine",
+          "-B",
+          "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\vector-group-fixed-sdk",
+          "-G",
+          "Ninja",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DBUILD_TESTING=OFF",
+          "-DMATRIXGAME_INIT_BUILD_LINK_PROBE=ON",
+          "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+          "-DCMAKE_TOOLCHAIN_FILE=D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core\\switch-toolchain.cmake",
+          "-DCMAKE_MAKE_PROGRAM=C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe",
+          "-DZLIB_INCLUDE_DIR=C:/devkitPro/portlibs/switch/include",
+          "-DZLIB_LIBRARY_RELEASE=C:/devkitPro/portlibs/switch/lib/libz.a",
+          "-DPNG_PNG_INCLUDE_DIR=C:/devkitPro/portlibs/switch/include",
+          "-DPNG_LIBRARY_RELEASE=C:/devkitPro/portlibs/switch/lib/libpng.a",
+          "-DJPEG_INCLUDE_DIR=C:/devkitPro/portlibs/switch/include",
+          "-DJPEG_LIBRARY_RELEASE=C:/devkitPro/portlibs/switch/lib/libjpeg.a"
+        ],
+        [
+          "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe",
+          "--build",
+          "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\vector-group-fixed-sdk",
+          "--target",
+          "matrixgame-native-bootstrap",
+          "-j",
+          "2"
+        ]
+      ],
+      "no_old_native_objects_reused": true,
+      "strong_undefined": [],
+      "runtime": false,
+      "hardware": false,
+      "nro": false,
+      "result_sha256": "90d13c30d2b606c6b6cbf6c899627e6e13c8dd9a3eb10a38c189187e006fae0a"
+    },
+    "vector-group-fresh-host": {
+      "status": "FRESH_HOST_COMPILE_LINK_RUNTIME_PASS",
+      "commands": [
+        [
+          "cmake",
+          "-S",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+          "-B",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-host",
+          "-G",
+          "Unix Makefiles",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DBUILD_TESTING=ON",
+          "-DMATRIXGAME_INIT_BUILD_LINK_PROBE=OFF",
+          "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+          "-DCMAKE_CXX_COMPILER=/usr/bin/c++",
+          "-DCMAKE_CXX_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer",
+          "-DZLIB_LIBRARY_RELEASE=/usr/lib/x86_64-linux-gnu/libz.so",
+          "-DZLIB_INCLUDE_DIR=/usr/include",
+          "-DPNG_LIBRARY_RELEASE=/usr/lib/x86_64-linux-gnu/libpng.so",
+          "-DPNG_PNG_INCLUDE_DIR=/usr/include",
+          "-DJPEG_LIBRARY_RELEASE=/usr/lib/x86_64-linux-gnu/libjpeg.so",
+          "-DJPEG_INCLUDE_DIR=/usr/include"
+        ],
+        [
+          "cmake",
+          "--build",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-host",
+          "--target",
+          "matrixgame-native-bootstrap",
+          "-j",
+          "3"
+        ],
+        [
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-host/matrixgame-native-bootstrap",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/big-buffer-models/model-2.vo",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/mg-merge-host/core/texture-request-fixtures/assets/plain.png",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/upstream/matrixgame/MatrixGame/CFG/robots/data.txt"
+        ]
+      ],
+      "no_old_native_objects_reused": true,
+      "sessions": 2,
+      "hardware": false,
+      "new_sanitizer_exclusions": false,
+      "result_sha256": "464c2cffa4eaf42fb92a11a97849a48c4d517254befc4c24812ee24384f54c54"
+    },
+    "vector-group-fresh-arm64": {
+      "status": "FRESH_ARM64_COMPILE_LINK_RUNTIME_PASS",
+      "commands": [
+        [
+          "cmake",
+          "-S",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+          "-B",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-arm64",
+          "-G",
+          "Unix Makefiles",
+          "-DCMAKE_BUILD_TYPE=Release",
+          "-DBUILD_TESTING=ON",
+          "-DMATRIXGAME_INIT_BUILD_LINK_PROBE=OFF",
+          "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+          "-DCMAKE_CXX_COMPILER=/usr/bin/aarch64-linux-gnu-g++-15",
+          "-DCMAKE_CXX_FLAGS=-pthread -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+          "-DZLIB_LIBRARY=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/mg-navigation-arm64/zlib/libz.a",
+          "-DZLIB_INCLUDE_DIR=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+          "-DPNG_LIBRARY_RELEASE=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png/libpng16.a",
+          "-DPNG_PNG_INCLUDE_DIR=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+          "-DJPEG_LIBRARY_RELEASE=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg/libjpeg.a",
+          "-DJPEG_INCLUDE_DIR=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source",
+          "-DCMAKE_SYSTEM_NAME=Linux",
+          "-DCMAKE_SYSTEM_PROCESSOR=aarch64"
+        ],
+        [
+          "cmake",
+          "--build",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-arm64",
+          "--target",
+          "matrixgame-native-bootstrap",
+          "-j",
+          "3"
+        ],
+        [
+          "qemu-aarch64",
+          "-L",
+          "/usr/aarch64-linux-gnu",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-arm64/matrixgame-native-bootstrap",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/big-buffer-models/model-2.vo",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/mg-merge-host/core/texture-request-fixtures/assets/plain.png",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/upstream/matrixgame/MatrixGame/CFG/robots/data.txt"
+        ]
+      ],
+      "no_old_native_objects_reused": true,
+      "sessions": 2,
+      "hardware": false,
+      "new_sanitizer_exclusions": false,
+      "result_sha256": "c4d80dc01d555134f7bd2bce1bb0bfb73eba93a98b3f10d821169206c7ff13df"
+    },
+    "vector-group-win32-abi": {
+      "status": "ACTUAL_MSVC_WIN32_MEMBER_SIGNATURE_AND_LAYOUT_IDENTITY_PASS",
+      "results": {
+        "before": {
+          "pointer": 4,
+          "vo": 240,
+          "anim": 40,
+          "group": 52,
+          "unit": 276
+        },
+        "after": {
+          "pointer": 4,
+          "vo": 240,
+          "anim": 40,
+          "group": 52,
+          "unit": 276
+        }
+      },
+      "hardware": false,
+      "result_sha256": "d38bba967b6ad0f45ec9af5d7d0752a6405f93e4957903f0258d2dbe633189bb"
+    }
+  },
+  "source_changes": {
+    "source": {
+      "portable-core\\VectorObjectCpu.cpp": {
+        "before": "7efe5b22d6e24a4d62484835c811da147b91bd9edd2842b3bb58065934bdd31a",
+        "after": "b09433c68a62a092bf2d11632e299968975b7ebac416f7cdedb9a4b53e2c3e1b",
+        "diff": "--- \n+++ \n@@ -573,7 +573,7 @@\n     DX_Prepare();\n     m_RemindCore.Use(FREE_VO_TIME_PERIOD);\n }\n-void CVectorObject::Draw(int noframe, std::uint32_t user_param, const SSkin *ds) {\n+void CVectorObject::Draw(int noframe, uintptr_t user_param, const SSkin *ds) {\n     \n \n     if (noframe < 0)\n"
+      },
+      "portable-core\\VectorObjectShared.hpp": {
+        "before": "1582f724913ee070de1cda5b3976849f5ba27c017b5679d2038deb3ac32eda0e",
+        "after": "e8ffa6c2d40290dca29fb8e2fee783e2ff863e8b02675c6c6f43e5f9dd3074d4",
+        "diff": "--- \n+++ \n@@ -446,7 +446,7 @@\n     std::vector<srhd_awa::matrixgame::MeshRange> PrepareNativeFrame(int frame);\n     int NativeSurfaceCount() const noexcept { return m_Geometry.m_SurfacesCnt; }\n     void BeforeDraw(void);\n-    void Draw(int noframe, std::uint32_t user_param, const SSkin *ds);\n+    void Draw(int noframe, uintptr_t user_param, const SSkin *ds);\n \n     void LoadSpecial(EObjectLoad flags, SKIN_GET sg, std::uint32_t gsp);\n     void PrepareSpecial(EObjectLoad flags, SKIN_GET sg, std::uint32_t gsp) {\n"
+      },
+      "MatrixLib\\3G\\OriginalVectorGroup.cpp": {
+        "before": "dfdd24f7e939b788ebb3684bd04ba1d65a23afc90c473d0e056986dda2a610ea",
+        "after": "199fec8017fb1b99f3c5446d01c62f8bc95d6c86304428b7c3a49bfdbdcf926c",
+        "diff": "--- \n+++ \n@@ -362,7 +362,7 @@\n \n struct SEVH_data_group {\n     const D3DXMATRIX *m;\n-    std::uint32_t data;\n+    uintptr_t data;\n     ENUM_VERTS_HANDLER evh;\n };\n \n@@ -373,7 +373,7 @@\n     return d->evh(vv, d->data);\n };\n \n-void CVectorObjectGroup::EnumFrameVerts_transform_position(ENUM_VERTS_HANDLER evh, std::uint32_t data) const {\n+void CVectorObjectGroup::EnumFrameVerts_transform_position(ENUM_VERTS_HANDLER evh, uintptr_t data) const {\n     SEVH_data_group d;\n     d.data = data;\n     d.evh = evh;\n@@ -550,7 +550,7 @@\n     }\n }\n \n-void CVectorObjectGroup::Draw(std::uint32_t userparam) {\n+void CVectorObjectGroup::Draw(uintptr_t userparam) {\n     DTRACE();\n \n     CVectorObjectGroupUnit *u = m_First;\n"
+      },
+      "MatrixLib\\3G\\VectorObject.hpp": {
+        "before": "e74ed1c81d45db1f9ca67b5ed4a5c33e118871d6f669ae5831675c898a001c4a",
+        "after": "e573673a2e3cc1e7e9dae54ccdee4d80b71c5599625164fef0c69b5353ae8da9",
+        "diff": "--- \n+++ \n@@ -181,7 +181,7 @@\n                   float *outt) const;\n \n     void BeforeDraw(void);\n-    void Draw(std::uint32_t user_param) { VO()->Draw(m_VOFrame, user_param, m_Skin); }\n+    void Draw(uintptr_t user_param) { VO()->Draw(m_VOFrame, user_param, m_Skin); }\n     void DrawLights(bool now, const D3DXMATRIX &objma, const D3DXMATRIX *iview);\n };\n \n@@ -260,7 +260,7 @@\n \n     CVectorObjectGroupUnit *Pick(const D3DXVECTOR3 &orig, const D3DXVECTOR3 &dir, float *outt) const;\n \n-    void EnumFrameVerts_transform_position(ENUM_VERTS_HANDLER evh, std::uint32_t data) const;\n+    void EnumFrameVerts_transform_position(ENUM_VERTS_HANDLER evh, uintptr_t data) const;\n \n     void BoundGet(D3DXVECTOR3 &bmin, D3DXVECTOR3 &bmax);\n     void BoundGetAllFrame(D3DXVECTOR3 &bmin, D3DXVECTOR3 &bmax);\n@@ -272,7 +272,7 @@\n     void Load(const wchar *filename, CTextureManaged *lt, SKIN_GET sg, std::uint32_t gsp);\n \n     void BeforeDraw(bool proceed_shadows);\n-    void Draw(std::uint32_t user_param);\n+    void Draw(uintptr_t user_param);\n     void DrawLights(bool now = false, const D3DXMATRIX *iview = NULL);\n     void ShadowStencilDraw(void);\n };\n"
+      },
+      "MatrixLib\\3G\\VectorObjectShared.hpp": {
+        "before": "0c265045d26db3926c180509ab4b20757c07198415a71241b37e9905860a58a0",
+        "after": "e1bd0d03c312b35da821b7ec9af6336859d9b9a93decb0457cdf42a56a8b457b",
+        "diff": "--- \n+++ \n@@ -449,7 +449,7 @@\n     std::vector<srhd_awa::matrixgame::MeshRange> PrepareNativeFrame(int frame);\n     int NativeSurfaceCount() const noexcept { return m_Geometry.m_SurfacesCnt; }\n     void BeforeDraw(void);\n-    void Draw(int noframe, std::uint32_t user_param, const SSkin *ds);\n+    void Draw(int noframe, uintptr_t user_param, const SSkin *ds);\n \n     void LoadSpecial(EObjectLoad flags, SKIN_GET sg, std::uint32_t gsp);\n     void PrepareSpecial(EObjectLoad flags, SKIN_GET sg, std::uint32_t gsp) {\n"
+      }
+    },
+    "core/source": {
+      "VectorObjectCpu.cpp": {
+        "before": "7efe5b22d6e24a4d62484835c811da147b91bd9edd2842b3bb58065934bdd31a",
+        "after": "b09433c68a62a092bf2d11632e299968975b7ebac416f7cdedb9a4b53e2c3e1b",
+        "diff": "--- \n+++ \n@@ -573,7 +573,7 @@\n     DX_Prepare();\n     m_RemindCore.Use(FREE_VO_TIME_PERIOD);\n }\n-void CVectorObject::Draw(int noframe, std::uint32_t user_param, const SSkin *ds) {\n+void CVectorObject::Draw(int noframe, uintptr_t user_param, const SSkin *ds) {\n     \n \n     if (noframe < 0)\n"
+      },
+      "VectorObjectShared.hpp": {
+        "before": "1582f724913ee070de1cda5b3976849f5ba27c017b5679d2038deb3ac32eda0e",
+        "after": "e8ffa6c2d40290dca29fb8e2fee783e2ff863e8b02675c6c6f43e5f9dd3074d4",
+        "diff": "--- \n+++ \n@@ -446,7 +446,7 @@\n     std::vector<srhd_awa::matrixgame::MeshRange> PrepareNativeFrame(int frame);\n     int NativeSurfaceCount() const noexcept { return m_Geometry.m_SurfacesCnt; }\n     void BeforeDraw(void);\n-    void Draw(int noframe, std::uint32_t user_param, const SSkin *ds);\n+    void Draw(int noframe, uintptr_t user_param, const SSkin *ds);\n \n     void LoadSpecial(EObjectLoad flags, SKIN_GET sg, std::uint32_t gsp);\n     void PrepareSpecial(EObjectLoad flags, SKIN_GET sg, std::uint32_t gsp) {\n"
+      }
+    }
+  },
+  "actual_compiled_vector_units": {
+    "vector-group-fixed-sdk": [
+      "D:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fixed-sdk/core/source/VectorObjectCpu.cpp",
+      "D:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fixed-sdk/source/MatrixLib/3G/OriginalVectorAnim.cpp",
+      "D:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fixed-sdk/source/MatrixLib/3G/OriginalVectorGroup.cpp"
+    ],
+    "vector-group-fresh-host": [
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-host/core/source/VectorObjectCpu.cpp",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-host/source/MatrixLib/3G/OriginalVectorAnim.cpp",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-host/source/MatrixLib/3G/OriginalVectorGroup.cpp"
+    ],
+    "vector-group-fresh-arm64": [
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-arm64/core/source/VectorObjectCpu.cpp",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-arm64/source/MatrixLib/3G/OriginalVectorAnim.cpp",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-arm64/source/MatrixLib/3G/OriginalVectorGroup.cpp"
+    ]
+  },
+  "unbuilt_matrixlib_audit": {
+    "vector-group-fixed-sdk": [
+      {
+        "file": "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\vector-group-fixed-sdk\\source\\MatrixLib\\3G\\VectorObject.cpp",
+        "output": "CMakeFiles\\matrixgame-native-matrixlib-audit.dir\\source\\MatrixLib\\3G\\VectorObject.cpp.obj",
+        "object_exists": false
+      }
+    ],
+    "vector-group-fresh-host": [
+      {
+        "file": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-host/source/MatrixLib/3G/VectorObject.cpp",
+        "output": "CMakeFiles/matrixgame-native-matrixlib-audit.dir/source/MatrixLib/3G/VectorObject.cpp.o",
+        "object_exists": false
+      }
+    ],
+    "vector-group-fresh-arm64": [
+      {
+        "file": "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-arm64/source/MatrixLib/3G/VectorObject.cpp",
+        "output": "CMakeFiles/matrixgame-native-matrixlib-audit.dir/source/MatrixLib/3G/VectorObject.cpp.o",
+        "object_exists": false
+      }
+    ]
+  },
+  "full_contiguous_group_block_exact_after_inverse_adapters": true,
+  "fresh_source_comparison": {
+    "vector-group-fresh-host": 379,
+    "vector-group-fresh-arm64": 379
+  },
+  "pointer_roundtrips": {
+    "host": {
+      "records": [
+        [
+          "700bc4e0cc30",
+          "700bc4e0cc30",
+          "700bc4e0cc30",
+          "3498",
+          "3",
+          "5"
+        ],
+        [
+          "700bc4e0cc30",
+          "700bc4e0cc30",
+          "700bc4e0cc30",
+          "3498",
+          "3",
+          "5"
+        ],
+        [
+          "700bc4ec0430",
+          "700bc4ec0430",
+          "700bc4ec0430",
+          "3498",
+          "3",
+          "5"
+        ],
+        [
+          "700bc4ec0430",
+          "700bc4ec0430",
+          "700bc4ec0430",
+          "3498",
+          "3",
+          "5"
+        ]
+      ],
+      "log_sha256": "b76b8f42ab92ca76d7e66213422dfd3ce8a31af091e4b4f6206a8a4ce0a6ca65"
+    },
+    "arm64": {
+      "records": [
+        [
+          "70d15e83e400",
+          "70d15e83e400",
+          "70d15e83e400",
+          "3498",
+          "3",
+          "5"
+        ],
+        [
+          "70d15e83e400",
+          "70d15e83e400",
+          "70d15e83e400",
+          "3498",
+          "3",
+          "5"
+        ],
+        [
+          "70d15e83e400",
+          "70d15e83e400",
+          "70d15e83e400",
+          "3498",
+          "3",
+          "5"
+        ],
+        [
+          "70d15e83e400",
+          "70d15e83e400",
+          "70d15e83e400",
+          "3498",
+          "3",
+          "5"
+        ]
+      ],
+      "log_sha256": "3120920ab1e629d853bc180722dcd9febf125da1ca32001b9ceef77e7809bbf9"
+    }
+  },
+  "baseline_pointer_loss": [
+    "72e241fce460",
+    "41fce460",
+    "41fce460",
+    "3498",
+    "3",
+    "5"
+  ],
+  "test_source_sha256": "b4369e317655f0a08d13c392c752c2f43d63b5c2dc8841089752611d589f834d",
+  "protected": {
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\newgame.txt": "edebec1fbe596bfdb856719310372b9bf69ce7989394b86ae13377db847ec65c",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\QuickSave.sav": "84509d9ab5411555c0a361d5616c94aae6ef3a5c00fa81782ea64192b5c7bd73",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Medical Center Autoclave.sav": "d6e238a00e514712ab9eed796c40c39dd1cddc20f7036de1a7b8d25fee34e622",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\hardware-gpu-a224fa4.zip": "1c5cfebb2696bbf6db98bd2cd598956f468ef1ca8183bbf31271148c30103429",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Sol System.sav": "62c35d050b256e13326ce904123c44bad3756deeb66e269dbae2a66b4f903cc0",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-2.vo": "b7cba8a78faf0c8cf32cf942288d2fdb0d5d21b047d0e9abaa212092c11d9ccd",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\reports\\e2e5\\e2e510-artifact-provenance.json": "eaac3d9181b12566492bda774933af6469f2b0b26104bcc83a8d266fee7759ec",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-1.vo": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\CFG.TXT": "6b63a47bba893e4a33c4f92d3aaa19adf3c45c4032da7a302b140e03ab166180",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\mg-merge-host\\core\\texture-request-fixtures\\assets\\plain.png": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\########.log": "fef05715d095d39568aee8d9c121c1cb232a80a84e0c6e2a56712070d2f505b3",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\AutoSave.sav": "739c428d9a7f13e88e7e2fe65d6435dbf297270be35c672020b9fa7d097ac601",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce.zip": "e1a1dec5f410b983d629ae538ad9b4ba063f89a8101af43d27ea00c6ce6a08a4"
+  },
+  "binary_sha256": {
+    "build/e2e516/hardware-e2e516-03651ce/switch/space-rangers-hd-a-war-apart/SpaceRangersHD-perf516.nro": "9f654daab36c71cb51940871d4a93bdcceb09edd7da8dde127ab023bfb21e789",
+    "build/e2e516/hardware-e2e516-03651ce/debug/SpaceRangersHD-perf516.elf": "0ca47fa95e614167da814cf63e1bc19e0bd005e94b34763287d713d5c9989ab5",
+    "build/matrixgame/e2e519/vector-group-fixed-sdk/matrixgame-native-bootstrap.elf": "0eca00e8f53e15aee0f798bc9f565b604ecc9242bf1f86583ea283a254a305e8",
+    "build/matrixgame/e2e519/vector-group-fresh-arm64/matrixgame-native-bootstrap": "bd96bba3ea9c8915665286f1d92f7dd118f9a8d91ff297f9b2831682c0fec987",
+    "build/matrixgame/e2e519/vector-group-fresh-host/matrixgame-native-bootstrap": "6b1f064f29aa3fc43d1dd3a7597a50ee651d1149cf874f6243a46038e0d1cd9d"
+  },
+  "hardware_logs_unchanged": 107,
+  "group_load_config_runtime": false,
+  "linked_units_runtime": false,
+  "group_Draw_or_GPU_runtime": false,
+  "cgame_init": false,
+  "switch_hardware": false,
+  "nro_created": false,
+  "new_sanitizer_exclusions": false,
+  "map_owner": {
+    "before": {
+      "exit": 1,
+      "command": [
+        "/usr/bin/aarch64-linux-gnu-g++-15",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/cannon-ui-arm64/matrixgame_bootstrap_cannon_units.o",
+        "-pthread",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+        "-O3",
+        "-DNDEBUG",
+        "-Wl,--gc-sections",
+        "-Wl,--dependency-file=CMakeFiles/matrixgame-native-bootstrap.dir/link.d",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/cannon-ui-arm64/test_matrixgame_bootstrap.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_sampling.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_font.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_formatted_texture.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_game.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_progress_bar.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_shadow_proj.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_shadow_manager.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_shadow_texture.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_smoke_fire.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_explosion.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_selection.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_callback_width.cpp.o",
+        "-o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-map/map-owner-before",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/button-billboard-arm64/libmatrixgame-native-cache.a",
+        "libmatrixgame-native-vector-object.a",
+        "libmatrixgame-native-navigation.a",
+        "core/libmatrixgame-native-core.a",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png/libpng16.a",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/mg-navigation-arm64/zlib/libz.a",
+        "-lm",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg/libjpeg.a",
+        "-Wl,--undefined=_ZN15CMatrixMapLogicC1Ev",
+        "-Wl,--undefined=_ZN15CMatrixMapLogicD1Ev"
+      ],
+      "missing": [
+        "CIFaceList::CreateDynamicTurrets(CMatrixBuilding*)",
+        "CIFaceList::CreateGroupIcons()",
+        "CIFaceList::DeleteProgressBars(CMatrixMapStatic*)",
+        "CIFaceList::DeleteStackIcon(int, CMatrixBuilding*)",
+        "CIFaceList::HideHintButtons()",
+        "CInfo::AddBadCoord(Base::CPoint const&)",
+        "CInfo::AddToList(CMatrixMapStatic*)",
+        "CInfo::Clear()",
+        "CInfo::RemoveFromList(CMatrixMapStatic*)",
+        "CInfo::Reset()",
+        "CInfo::SearchEnemy(CMatrixMapStatic*)",
+        "CInfo::~CInfo()",
+        "CInterface::DelElement(CIFaceElement*)",
+        "CInterface::ReCalcElementsPos()",
+        "CMatrixCamera::RestoreCameraParams()",
+        "CMatrixEffectDust::CMatrixEffectDust(D3DXVECTOR2 const&, D3DXVECTOR2 const&, float)",
+        "CMatrixEffectDust::Release()",
+        "CMatrixGroup::FindObject(CMatrixMapStatic*)",
+        "CMatrixGroup::RemoveObject(CMatrixMapStatic*)",
+        "CMatrixSideUnit::AssignPlace(CMatrixRobotAI*, int)",
+        "CMatrixSideUnit::ClacSpawnTeam(int, int)",
+        "CMatrixSideUnit::CorrectArcadedRobotArmorP(D3DXVECTOR3&, CMatrixRobot*)",
+        "CMatrixSideUnit::FindObjectInSelection(CMatrixMapStatic*)",
+        "CMatrixSideUnit::PGOrderAttack(int, Base::CPoint const&, CMatrixMapStatic*)",
+        "CMatrixSideUnit::PLDropAllActions()",
+        "CMatrixSideUnit::RemoveFromSelection(CMatrixMapStatic*)",
+        "CMatrixSideUnit::RobotToLogicGroup(CMatrixRobotAI*)",
+        "CMatrixSideUnit::Select(ESelType, CMatrixMapStatic*)",
+        "CMatrixSideUnit::SetArcadedObject(CMatrixMapStatic*)",
+        "CMatrixSideUnit::SetCurSelNum(int)",
+        "CMatrixSideUnit::~CMatrixSideUnit()",
+        "CVectorObjectGroup::BeforeDraw(bool)",
+        "CVectorObjectGroup::BoundGetAllFrame(D3DXVECTOR3&, D3DXVECTOR3&)",
+        "CVectorObjectGroup::Draw(unsigned int)",
+        "CVectorObjectGroup::DrawLights(bool, D3DXMATRIX const*)",
+        "CVectorObjectGroup::EnumFrameVerts_transform_position(bool (*)(SVOVertex const&, unsigned long), unsigned int) const",
+        "CVectorObjectGroup::GetById(int)",
+        "CVectorObjectGroup::Load(wchar_t const*, CTextureManaged*, SSkin const* (*)(wchar_t const*, unsigned int), unsigned int)",
+        "CVectorObjectGroup::Pick(D3DXVECTOR3 const&, D3DXVECTOR3 const&, float*) const",
+        "CVectorObjectGroup::RChange(unsigned int)",
+        "CVectorObjectGroup::RNeed(unsigned int)",
+        "CVectorObjectGroup::ShadowStencilDraw()",
+        "CVectorObjectGroup::ShadowStencilOn(bool)",
+        "CVectorObjectGroup::ShadowStencil_DX_Free()",
+        "CVectorObjectGroup::Takt(int)",
+        "CVectorObjectGroup::~CVectorObjectGroup()",
+        "SAutoFlyData::AddWarPair(CMatrixMapStatic*, CMatrixMapStatic*)",
+        "SAutoFlyData::Stat()",
+        "SSpecialBot::GetRobot(D3DXVECTOR3 const&, int)"
+      ]
+    },
+    "after": {
+      "exit": 1,
+      "command": [
+        "/usr/bin/aarch64-linux-gnu-g++-15",
+        "-pthread",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+        "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+        "-O3",
+        "-DNDEBUG",
+        "-Wl,--gc-sections",
+        "-Wl,--dependency-file=CMakeFiles/matrixgame-native-bootstrap.dir/link.d",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_bootstrap.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_sampling.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_font.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_formatted_texture.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_game.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_progress_bar.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_shadow_proj.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_shadow_manager.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_shadow_texture.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_smoke_fire.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_explosion.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_selection.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_callback_width.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_cannon_units.cpp.o",
+        "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_vector_group.cpp.o",
+        "-o",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-map/map-owner-after",
+        "libmatrixgame-native-cache.a",
+        "libmatrixgame-native-vector-object.a",
+        "libmatrixgame-native-navigation.a",
+        "core/libmatrixgame-native-core.a",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png/libpng16.a",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/mg-navigation-arm64/zlib/libz.a",
+        "-lm",
+        "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg/libjpeg.a",
+        "-Wl,--undefined=_ZN15CMatrixMapLogicC1Ev",
+        "-Wl,--undefined=_ZN15CMatrixMapLogicD1Ev"
+      ],
+      "missing": [
+        "CIFaceList::CreateDynamicTurrets(CMatrixBuilding*)",
+        "CIFaceList::CreateGroupIcons()",
+        "CIFaceList::DeleteProgressBars(CMatrixMapStatic*)",
+        "CIFaceList::DeleteStackIcon(int, CMatrixBuilding*)",
+        "CIFaceList::HideHintButtons()",
+        "CInfo::AddBadCoord(Base::CPoint const&)",
+        "CInfo::AddToList(CMatrixMapStatic*)",
+        "CInfo::Clear()",
+        "CInfo::RemoveFromList(CMatrixMapStatic*)",
+        "CInfo::Reset()",
+        "CInfo::SearchEnemy(CMatrixMapStatic*)",
+        "CInfo::~CInfo()",
+        "CInterface::DelElement(CIFaceElement*)",
+        "CInterface::ReCalcElementsPos()",
+        "CMatrixCamera::RestoreCameraParams()",
+        "CMatrixEffectDust::CMatrixEffectDust(D3DXVECTOR2 const&, D3DXVECTOR2 const&, float)",
+        "CMatrixEffectDust::Release()",
+        "CMatrixGroup::FindObject(CMatrixMapStatic*)",
+        "CMatrixGroup::RemoveObject(CMatrixMapStatic*)",
+        "CMatrixSideUnit::AssignPlace(CMatrixRobotAI*, int)",
+        "CMatrixSideUnit::ClacSpawnTeam(int, int)",
+        "CMatrixSideUnit::CorrectArcadedRobotArmorP(D3DXVECTOR3&, CMatrixRobot*)",
+        "CMatrixSideUnit::FindObjectInSelection(CMatrixMapStatic*)",
+        "CMatrixSideUnit::PGOrderAttack(int, Base::CPoint const&, CMatrixMapStatic*)",
+        "CMatrixSideUnit::PLDropAllActions()",
+        "CMatrixSideUnit::RemoveFromSelection(CMatrixMapStatic*)",
+        "CMatrixSideUnit::RobotToLogicGroup(CMatrixRobotAI*)",
+        "CMatrixSideUnit::Select(ESelType, CMatrixMapStatic*)",
+        "CMatrixSideUnit::SetArcadedObject(CMatrixMapStatic*)",
+        "CMatrixSideUnit::SetCurSelNum(int)",
+        "CMatrixSideUnit::~CMatrixSideUnit()",
+        "SAutoFlyData::AddWarPair(CMatrixMapStatic*, CMatrixMapStatic*)",
+        "SAutoFlyData::Stat()",
+        "SSpecialBot::GetRobot(D3DXVECTOR3 const&, int)"
+      ]
+    },
+    "closed": [
+      "CVectorObjectGroup::BeforeDraw(bool)",
+      "CVectorObjectGroup::BoundGetAllFrame(D3DXVECTOR3&, D3DXVECTOR3&)",
+      "CVectorObjectGroup::Draw(unsigned int)",
+      "CVectorObjectGroup::DrawLights(bool, D3DXMATRIX const*)",
+      "CVectorObjectGroup::EnumFrameVerts_transform_position(bool (*)(SVOVertex const&, unsigned long), unsigned int) const",
+      "CVectorObjectGroup::GetById(int)",
+      "CVectorObjectGroup::Load(wchar_t const*, CTextureManaged*, SSkin const* (*)(wchar_t const*, unsigned int), unsigned int)",
+      "CVectorObjectGroup::Pick(D3DXVECTOR3 const&, D3DXVECTOR3 const&, float*) const",
+      "CVectorObjectGroup::RChange(unsigned int)",
+      "CVectorObjectGroup::RNeed(unsigned int)",
+      "CVectorObjectGroup::ShadowStencilDraw()",
+      "CVectorObjectGroup::ShadowStencilOn(bool)",
+      "CVectorObjectGroup::ShadowStencil_DX_Free()",
+      "CVectorObjectGroup::Takt(int)",
+      "CVectorObjectGroup::~CVectorObjectGroup()"
+    ],
+    "opened": []
+  }
+}

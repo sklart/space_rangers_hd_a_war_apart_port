@@ -166,6 +166,12 @@ std::vector<srhd_awa::matrixgame::MeshRange> CVectorObject::PrepareNativeFrame(i
     actual_draw=actual_draw.replace('            again |=',
         '            if(!ss || !ss->m_SetupStages || !ss->m_SetupTex || !ss->m_SetupClear)\n                throw std::logic_error("VO draw has no complete skin callbacks");\n            again |=',1)
     actual_draw=actual_draw.replace('DTRACE();','').replace('DWORD','std::uint32_t')
+    draw_payload='void CVectorObject::Draw(int noframe, std::uint32_t user_param,'
+    if actual_draw.count(draw_payload)!=1:raise ValueError('Original VO draw payload changed')
+    actual_draw=actual_draw.replace(draw_payload,'void CVectorObject::Draw(int noframe, uintptr_t user_param,')
+    header,count=re.subn(r'void Draw\(int noframe, (?:DWORD|std::uint32_t) user_param,',
+                         'void Draw(int noframe, uintptr_t user_param,',header)
+    if count!=1:raise ValueError('Original VO draw declaration changed')
     selected+='\n'+before_draw+'\n'+actual_draw+'\n'
     # One identical CVectorObject declaration for cache/CPU implementation and
     # the full engine header. A macro guard also covers independent generated
