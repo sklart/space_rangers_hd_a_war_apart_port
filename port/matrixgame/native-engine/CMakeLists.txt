@@ -25,7 +25,7 @@ add_library(matrixgame-native-vector-object STATIC "${CMAKE_CURRENT_BINARY_DIR}/
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/VectorObjectAnimNative.cpp")
 target_link_libraries(matrixgame-native-vector-object PUBLIC matrixgame-native-core)
 add_library(matrixgame-native-cache STATIC
-    "${CMAKE_CURRENT_BINARY_DIR}/core/source/CacheNative.cpp" cache_resources.cpp cache_owner_state.cpp
+    "${CMAKE_CURRENT_BINARY_DIR}/core/source/CacheNative.cpp" cache_resources.cpp cache_owner_state.cpp platform_globals.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/L3GCpuPhase.cpp" init_runtime.cpp cached_frame.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/3GPlatformNative.cpp" platform_3g.cpp map_device_backend.cpp debug_font_backend.cpp offscreen_backend.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/3GDeviceDefaults.cpp"
@@ -54,6 +54,8 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixLib/3G/ShadowProj.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixShadowManager.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalShadowProjection.cpp"
+    "${ENGINE_SOURCE}/MatrixLib/3G/OriginalShadowTexture.cpp" shadow_texture_backend.cpp
+    "${ENGINE_SOURCE}/MatrixLib/3G/OriginalVectorPicking.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixDebugInfo.cpp"
@@ -76,6 +78,7 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/offscreen_backend.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/unmanaged_texture_backend.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/cache_owner_state.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/platform_globals.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/init_runtime.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalManagedTexture.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalUnmanagedTexture.cpp"
@@ -100,6 +103,9 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/ShadowProj.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixShadowManager.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalShadowProjection.cpp"
+    "${ENGINE_SOURCE}/MatrixLib/3G/OriginalShadowTexture.cpp"
+    "${ENGINE_SOURCE}/MatrixLib/3G/OriginalVectorPicking.cpp"
+    "${CMAKE_CURRENT_LIST_DIR}/shadow_texture_backend.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixDebugInfo.cpp"
@@ -172,7 +178,8 @@ if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
         "${PORT_ROOT}/tests/matrixgame_bootstrap_game.cpp"
         "${PORT_ROOT}/tests/matrixgame_bootstrap_progress_bar.cpp"
         "${PORT_ROOT}/tests/matrixgame_bootstrap_shadow_proj.cpp"
-        "${PORT_ROOT}/tests/matrixgame_bootstrap_shadow_manager.cpp")
+        "${PORT_ROOT}/tests/matrixgame_bootstrap_shadow_manager.cpp"
+        "${PORT_ROOT}/tests/matrixgame_bootstrap_shadow_texture.cpp")
     target_link_libraries(matrixgame-native-bootstrap PRIVATE matrixgame-native-cache)
     target_compile_definitions(matrixgame-native-bootstrap PRIVATE
         MATRIXGAME_FULL_VECTOR_HEADER="${ENGINE_SOURCE}/MatrixLib/3G/VectorObject.hpp"
@@ -193,6 +200,15 @@ if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
         target_compile_options(matrixgame-native-bootstrap PRIVATE /EHsc)
     endif()
     target_compile_options(matrixgame-native-bootstrap PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG> $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
+    if(WIN32)
+        add_executable(matrixgame-native-shadow-texture-hal
+            "${PORT_ROOT}/tests/matrixgame_shadow_texture_hal_main.cpp"
+            "${PORT_ROOT}/tests/matrixgame_bootstrap_shadow_texture_gpu.cpp"
+            "${PORT_ROOT}/tests/matrixgame_box_probe_sdk.cpp")
+        target_link_libraries(matrixgame-native-shadow-texture-hal PRIVATE matrixgame-native-cache)
+        target_include_directories(matrixgame-native-shadow-texture-hal PRIVATE "${MATRIXGAME_D3DX9_INCLUDE}")
+        target_compile_options(matrixgame-native-shadow-texture-hal PRIVATE /EHsc /UNDEBUG)
+    endif()
 endif()
 option(MATRIXGAME_INIT_BUILD_LINK_PROBE "Link the native init/cache contract and real deko upload; no NRO/runtime claim" OFF)
 if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
