@@ -11,7 +11,8 @@ def prepare_effects(output):
            ('MatrixLib/3G/CBillboard.cpp','void CBillboard::SortEndDraw('),
            ('MatrixGame/src/Effects/MatrixEffectSmokeAndFire.cpp','CMatrixEffectSmoke::CMatrixEffectSmoke('),
            ('MatrixGame/src/Effects/MatrixEffectExplosion.cpp','const SExplosionProperties ExplosionNormal ='),
-           ('MatrixGame/src/Effects/MatrixEffectKonus.cpp','CMatrixEffectKonus::CMatrixEffectKonus(')]
+           ('MatrixGame/src/Effects/MatrixEffectKonus.cpp','CMatrixEffectKonus::CMatrixEffectKonus('),
+           ('MatrixGame/src/Effects/MatrixEffectLandscapeSpot.cpp','static SSpotProperties m_SpotProperties[SPOT_TYPES_CNT];')]
     for name,marker in units:
         path=output/name;text=path.read_text(encoding='utf-8')
         text=text.replace('(CTextureManaged *)g_Cache->Get(CacheClass::TextureManaged, ','effect_texture::GetManaged(')
@@ -29,6 +30,16 @@ def prepare_effects(output):
         if name.endswith('/MatrixEffectPointLight.cpp'):
             if text.count('_alloca(')!=2:raise ValueError('Original point-light stack allocations changed')
             text=text.replace('_alloca(','effect_alloca(')
+        if name.endswith('/MatrixEffectLandscapeSpot.cpp'):
+            if text.count('_alloca(')!=1:raise ValueError('Original landscape stack allocation changed')
+            text=text.replace('_alloca(','effect_alloca(')
+            stores={
+                '*(std::uint32_t *)idxs = *(idxs - 1) | (tv0->index << 16);':'effect_store_indices(idxs, *(idxs - 1) | (tv0->index << 16));',
+                '*(std::uint32_t *)(idxs + 0) = tv0->index | (tv1->index << 16);':'effect_store_indices(idxs + 0, tv0->index | (tv1->index << 16));',
+                '*(std::uint32_t *)(idxs + 2) = tv2->index | (tv3->index << 16);':'effect_store_indices(idxs + 2, tv2->index | (tv3->index << 16));'}
+            for old,new in stores.items():
+                if text.count(old)!=1:raise ValueError('Original landscape index packing changed: '+old)
+                text=text.replace(old,new)
         text=text.replace('D3DXVec3TransformCoordArray(','srhd_awa::matrixgame::geometry::TransformCoordArray(')
         text=text.replace('D3DXMatrixRotationYawPitchRoll(','srhd_awa::matrixgame::object_geometry::RotationYawPitchRoll(')
         text=text.replace('g_D3DD->SetTransform(D3DTS_WORLD,','effect_device::SetTransform(effect_device::Transform::World,')
@@ -58,13 +69,19 @@ namespace effect_device=srhd_awa::matrixgame::map_device;
 '''
         if name.endswith('/MatrixEffectExplosion.cpp'):
             prelude+='#include "object_geometry.hpp"\n'
-        if name.endswith('/MatrixEffectPointLight.cpp'):
+        if name.endswith(('/MatrixEffectPointLight.cpp','/MatrixEffectLandscapeSpot.cpp')):
             prelude+='''#ifdef _MSC_VER
 #include <malloc.h>
 #define effect_alloca _alloca
 #else
 #define effect_alloca __builtin_alloca
 #endif
+'''
+        if name.endswith('/MatrixEffectLandscapeSpot.cpp'):
+            prelude+='''#include <cstring>
+static void effect_store_indices(std::uint16_t* destination,std::uint32_t packed) {
+    std::memcpy(destination,&packed,sizeof(packed));
+}
 '''
         path.write_bytes((prelude+text).encode());changes[name]=hashlib.sha256(path.read_bytes()).hexdigest()
     # Full original Konus.cpp now owns its original statics. The earlier

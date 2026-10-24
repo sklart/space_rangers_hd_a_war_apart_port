@@ -122,6 +122,8 @@ def prepare_engine(output):
     paths.update(prepare_skin_manager(output))
     from matrixgame_effects_overrides import prepare_effects
     paths.update(prepare_effects(output))
+    from matrixgame_trace_overrides import prepare_trace
+    paths.update(prepare_trace(output))
     from matrixgame_map_group_overrides import prepare_map_group
     paths.update(prepare_map_group(output))
     from matrixgame_map_static_overrides import prepare_map_static
