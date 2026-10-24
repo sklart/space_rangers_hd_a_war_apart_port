@@ -41,6 +41,7 @@
 #include "Text/Render.hpp"
 #include "Text/Font.hpp"
 #include "Text/Parser.hpp"
+#include "MatrixGamePathUtils.hpp"
 #include "object_geometry.hpp"
 #include "shadow_stencil_view.hpp"
 #include <map>
@@ -945,6 +946,12 @@ void VerifyBootstrapGameDefaults(NativeInitRuntime& runtime) {
             transition.Clear();transition.Clear();
         }
         std::puts("original transition BuildTexture ENTERED -> missing native window refusal; empty Render/Takt and cleanup/reentry PASS; capture/GPU NOT EXECUTED");
+#ifndef _WIN32
+        bool output_refused=false;
+        try{(void)PathToOutputFiles(L"Cache");}catch(const platform3g::Unsupported&){output_refused=true;}
+        assert(output_refused);
+        std::puts("original PathToOutputFiles ENTERED -> missing personal-folder mapping refusal; output path/directory NOT SYNTHESIZED");
+#endif
     }
     const auto was_gpu=runtime.GpuReady();
     // A refused new configuration must leave existing real allocated labels

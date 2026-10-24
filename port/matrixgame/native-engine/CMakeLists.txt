@@ -84,6 +84,7 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalVectorGroup.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapGroup.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/OriginalMapPrepare.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixGamePathUtils.cpp" output_paths_backend.cpp
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapStatic.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMinimap.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Interface/MatrixHint.cpp"
@@ -184,6 +185,7 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalVectorGroup.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapGroup.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/OriginalMapPrepare.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixGamePathUtils.cpp" output_paths_backend.cpp
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapStatic.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMinimap.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Interface/MatrixHint.cpp"
@@ -259,7 +261,7 @@ if(WIN32)
     endif()
     target_include_directories(matrixgame-native-cache PRIVATE "${MATRIXGAME_D3DX9_INCLUDE}")
     target_sources(matrixgame-native-cache PRIVATE platform_win32.cpp)
-    target_link_libraries(matrixgame-native-cache PUBLIC d3d9 user32 gdi32 winmm "${MATRIXGAME_D3DX9_LIBRARY}")
+    target_link_libraries(matrixgame-native-cache PUBLIC d3d9 user32 gdi32 winmm shell32 ole32 "${MATRIXGAME_D3DX9_LIBRARY}")
 endif()
 if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
     add_executable(matrixgame-native-bootstrap "${PORT_ROOT}/tests/test_matrixgame_bootstrap.cpp"
