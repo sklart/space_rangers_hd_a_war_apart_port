@@ -25,16 +25,22 @@ namespace {NativeInitRuntime*& active=cache_owner_detail::Owner();}
 NativeInitRuntime::NativeInitRuntime()=default;
 NativeInitRuntime::~NativeInitRuntime(){Deinit();}
 void NativeInitRuntime::Begin(void* module,void* window) {
+    BeginSession(module,window,false);
+}
+void NativeInitRuntime::BeginSession(void* module,void* window,bool original_game) {
     if(active || g_Cache || g_CacheHeap || g_MatrixHeap || g_MatrixData || g_Render || g_MatrixMap || g_IFaceList || g_LoadProgress || g_FormFirst || g_FormLast || g_FormCur || legacy_texture::RegistrySize())
         throw std::logic_error("live engine/cache/game-heap/data/form owner already present");
     active=this;
     try {
         buffers_=std::make_unique<buffers::Context>();
         scope_=std::make_unique<buffers::Scope>(*buffers_);
-        InitializeOriginalGameStatics();statics_owned_=true;
-        matrix_heap_=std::make_unique<Base::CHeap>();g_MatrixHeap=matrix_heap_.get();
-        CacheInit();cache_owned_=true;
+        if(!original_game){
+            InitializeOriginalGameStatics();statics_owned_=true;
+            matrix_heap_=std::make_unique<Base::CHeap>();g_MatrixHeap=matrix_heap_.get();
+            CacheInit();cache_owned_=true;
+        }
         L3GInitAsDLLCpuPhase(module,window);cpu_owned_=true;
+        if(original_game){cache_owner_detail::OriginalGameOwner()=this;cache_owner_detail::OriginalGameInitialized()=false;}
     } catch(...) {Deinit();throw;}
 }
 void NativeInitRuntime::AttachDevice(platform3g::Window& window,platform3g::Device& device) {
@@ -85,6 +91,7 @@ void NativeInitRuntime::LeaveLegacyDll() {
     if(platform3g::Current().ready)throw platform3g::Unsupported("legacy deinit cannot detach a foreign platform owner");
 }
 void NativeInitRuntime::Deinit() noexcept {
+    FinishOriginalGame();
     FinishMapCamera();
     FinishLoadProgress();
     FinishRenderPipeline();

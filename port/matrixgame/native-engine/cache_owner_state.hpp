@@ -5,5 +5,7 @@ class NativeInitRuntime;
 namespace cache_owner_detail {
 // Single owner slot shared with the existing Begin/Deinit state machine.
 NativeInitRuntime*& Owner()noexcept;
+NativeInitRuntime*& OriginalGameOwner()noexcept;
+bool& OriginalGameInitialized()noexcept;
 }
 }

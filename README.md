@@ -2,7 +2,7 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Статус на 24.10.2026: аппаратный прогон E2E-5.16 выполнен 23 октября; подтверждённые P0-дефекты остаются открытыми. MatrixGame E2E-5.19 — OFFLINE PARTIAL.** Повторяющиеся фоны, ошибки ручного сохранения и зависания ещё не устранены на Switch. Игра не готова к прохождению или релизу.
+> **Статус на 25.10.2026: аппаратный прогон E2E-5.16 выполнен 23 октября; подтверждённые P0-дефекты остаются открытыми. MatrixGame E2E-5.19 — OFFLINE PARTIAL.** Повторяющиеся фоны, ошибки ручного сохранения и зависания ещё не устранены на Switch. Игра не готова к прохождению или релизу.
 
 ## Последние результаты
 
@@ -14,7 +14,8 @@
 - **MatrixGame:** в общий bootstrap включены оригинальные cache/material/texture owners, renderer, terrain/water, effects, группы, миникарта, hints и map-object module. Оригинальный ShadowStencil строит volume реальной VO-модели: геометрия, staging и cleanup проверены на host/ARM64. Host ASan/UBSan и ARM64/QEMU проверяют доступные пути и cleanup/reentry; devkitA64 подтверждает compile/link. На настоящем Windows D3D9 HAL проверены texture loss/reset notifications, offscreen targets и GPU readback. Полные `CGame::Init`, игровой цикл, мир и планетарный бой ещё не запускались. MatrixGame не входит в основную NRO.
 - **Артефакты:** основная NRO, matching ELF и оба аппаратных ZIP сохранены неизменными. Новые offline-кандидаты находятся отдельно; позднейшие исходники и коммиты не включены в старые комплекты автоматически.
 
-Подробности: [аппаратный анализ 23 октября](reports/e2e5/hardware-20261023-analysis.md),
+Подробности: [MatrixGame: оригинальный Init и точная граница](reports/matrixgame-e2e519-original-init.md),
+[аппаратный анализ 23 октября](reports/e2e5/hardware-20261023-analysis.md),
 [офлайн-стабилизация и открытые причины](reports/e2e5/hardware-20261023-stabilization.md),
 [MatrixGame: актуальная граница bootstrap](reports/matrixgame-e2e519-engine-bootstrap.md),
 [офлайн-аудит E2E-5.16.1](reports/e2e5/e2e516-offline-stabilization.md),

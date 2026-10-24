@@ -1,6 +1,6 @@
 # MatrixGame: нативный перенос и Windows x86 reference
 
-## Текущий статус на 24.10.2026
+## Текущий статус на 25.10.2026
 
 E2E-5.19 остаётся **OFFLINE PARTIAL**. В общий native bootstrap включены полные
 оригинальные модули terrain/water, skin manager, effects/billboard, map groups,
@@ -26,9 +26,13 @@ clones, destructor и повторный вход проверены с акти
 Полный shadow manager и original VO shadow basis включены; расчёт через настоящий
 animator проверен независимым scalar oracle на host/ARM64. Terrain projection
 и GPU texture generation ещё не выполнялись.
-Полный map owner пока не линкуется: остаётся27 unresolved symbols shadow texture/
-effects/side/picking. `CGame::Init`, `RunGameLoop`, `CFormMatrixGame`, загруженный мир и бой
-**NOT EXECUTED**. Никакого fake map или фиктивного результата боя нет.
+Полный CGame::Init теперь линкуется. Его оригинальный начальный участок реально
+выполнен на host ASan/UBSan и ARM64/QEMU с настоящим robots.pkg и CFG: statics,
+heap, конфигурация и cache. Следующий отказ — отсутствие подключённых borrowed
+Window/Device providers для L3GInitAsDLL. Оригинальный Deinit и повторный вход
+проверены для отказов открытия пакета и подключения устройства.
+Успешный возврат Init, RunGameLoop, загруженный мир и бой **NOT EXECUTED**.
+[Новая граница и ограничения](../../reports/matrixgame-e2e519-original-init.md).
 
 Актуальные подробности: [общий bootstrap](../../reports/matrixgame-e2e519-engine-bootstrap.md),
 [текстуры](../../reports/matrixgame-e2e519-unmanaged-texture.md),

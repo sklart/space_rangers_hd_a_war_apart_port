@@ -7,6 +7,8 @@ NativeInitRuntime*& Owner()noexcept {
     static NativeInitRuntime* active{};
     return active;
 }
+NativeInitRuntime*& OriginalGameOwner()noexcept {static NativeInitRuntime* owner{};return owner;}
+bool& OriginalGameInitialized()noexcept {static bool initialized{};return initialized;}
 }
 bool NativeCacheFactoryBound()noexcept {
     auto* active=cache_owner_detail::Owner();

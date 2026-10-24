@@ -172,6 +172,8 @@ def prepare_engine(output):
     paths.update(prepare_map_prepare(output))
     from matrixgame_output_paths_overrides import prepare_output_paths
     paths.update(prepare_output_paths(output))
+    from matrixgame_original_game_overrides import prepare_original_game
+    paths.update(prepare_original_game(output))
     result={'schema':1,'source_commit':revision,'scope':'full engine compilation input; runtime/backend not implemented here',
         'files_sha256':paths,'portable_inputs':report['inputs_sha256'],
         'excluded_platform_launcher':'MatrixGameDll.cpp; native entry remains to implement'}

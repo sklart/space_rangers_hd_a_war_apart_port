@@ -3,6 +3,7 @@
 #include "cache_resources.hpp"
 #include "buffer_resources.hpp"
 #include "platform_3g.hpp"
+#include "original_game.hpp"
 #include <memory>
 #include <optional>
 struct SRobotsSettings;
@@ -27,6 +28,9 @@ public:
     NativeInitRuntime(const NativeInitRuntime&)=delete;
     NativeInitRuntime& operator=(const NativeInitRuntime&)=delete;
     void Begin(void* module,void* window);
+    // Fresh full-engine entry: original Init creates its own heap/cache/statics.
+    void InitializeOriginalGame(const OriginalGameOptions&);
+    bool OriginalGameReady()const noexcept;
     void AttachDevice(platform3g::Window&,platform3g::Device&);
     void BindLegacyProviders(platform3g::Window&,platform3g::Device&);
     static void EnterLegacyDll(void* module,void* window,std::uintptr_t api,std::uintptr_t device);
@@ -63,6 +67,9 @@ public:
     bool GpuReady() const noexcept {return cpu_owned_ && platform3g::Current().ready && bool(device_snapshot_);}
     static const char* FirstUnsupportedOperation() noexcept;
 private:
+    friend void original_game::ObserveStatics();
+    void BeginSession(void*,void*,bool original_game);
+    void FinishOriginalGame();
     std::unique_ptr<Base::CHeap> matrix_heap_;
     Base::CBlockPar* matrix_data_{};
     std::unique_ptr<CMatrixCursor> cursor_;
