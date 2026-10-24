@@ -25,7 +25,8 @@ def prepare_effects(output):
            ('MatrixGame/src/Effects/MatrixEffectElevatorField.cpp','CMatrixEffectElevatorField::CMatrixEffectElevatorField('),
            ('MatrixGame/src/Effects/MatrixEffectZahvat.cpp','CMatrixEffectZahvat::CMatrixEffectZahvat('),
            ('MatrixGame/src/Effects/MatrixEffectBillboard.cpp','CMatrixEffectBillboard::CMatrixEffectBillboard('),
-           ('MatrixGame/src/Effects/MatrixEffectDust.cpp','CMatrixEffectDust::CMatrixEffectDust(')]
+           ('MatrixGame/src/Effects/MatrixEffectDust.cpp','CMatrixEffectDust::CMatrixEffectDust('),
+           ('MatrixGame/src/Effects/MatrixEffectMoveTo.cpp','CMatrixEffectMoveto::CMatrixEffectMoveto(')]
     for name,marker in units:
         path=output/name;text=path.read_text(encoding='utf-8')
         text=text.replace('(CTextureManaged *)g_Cache->Get(CacheClass::TextureManaged, ','effect_texture::GetManaged(')
@@ -55,7 +56,7 @@ def prepare_effects(output):
                 text=text.replace(old,new)
         text=text.replace('D3DXVec3TransformCoordArray(','srhd_awa::matrixgame::geometry::TransformCoordArray(')
         text=text.replace('D3DXMatrixRotationYawPitchRoll(','srhd_awa::matrixgame::object_geometry::RotationYawPitchRoll(')
-        if name.endswith(('/MatrixEffectMovingObject.cpp','/MatrixEffectBigBoom.cpp')):
+        if name.endswith(('/MatrixEffectMovingObject.cpp','/MatrixEffectBigBoom.cpp','/MatrixEffectMoveTo.cpp')):
             text=text.replace('D3DXMatrixScaling(','srhd_awa::matrixgame::object_geometry::Scaling(')
             text=text.replace('D3DTTFF_COUNT3','3u')
             text=text.replace('D3DTSS_TCI_SPHEREMAP','0x40000u')
@@ -85,7 +86,7 @@ namespace rp3g=srhd_awa::matrixgame::platform3g;
 namespace effect_texture=srhd_awa::matrixgame::legacy_texture;
 namespace effect_device=srhd_awa::matrixgame::map_device;
 '''
-        if name.endswith(('/MatrixEffectExplosion.cpp','/MatrixEffectMovingObject.cpp','/MatrixEffectBigBoom.cpp')):
+        if name.endswith(('/MatrixEffectExplosion.cpp','/MatrixEffectMovingObject.cpp','/MatrixEffectBigBoom.cpp','/MatrixEffectMoveTo.cpp')):
             prelude+='#include "object_geometry.hpp"\n'
         if name.endswith(('/MatrixEffectPointLight.cpp','/MatrixEffectLandscapeSpot.cpp')):
             prelude+='''#ifdef _MSC_VER
