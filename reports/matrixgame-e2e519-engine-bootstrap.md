@@ -1,6 +1,12 @@
 # E2E-5.19 — интеграция оригинального DLL bootstrap
 
-Актуальное продолжение24.10: [оригинальный progress-bar owner](matrixgame-e2e519-progress-bar.md).
+Актуальное продолжение24.10: [оригинальный projected-shadow owner](matrixgame-e2e519-shadow-proj.md).
+Повторный original Prepare воспроизвёл orphan-pool leak816 bytes/13 allocations.
+Исправлено снятие source-регистраций и владение пулами до последнего owner;
+раннее создание пулов для настоящего ReadGeometry сохранено. Map-owner LINK
+FAIL29 вместо31; CGame::Init/world/GPU draw NOT RUN. Gates и пределы в evidence.
+
+Предыдущее продолжение24.10: [оригинальный progress-bar owner](matrixgame-e2e519-progress-bar.md).
 Полный MatrixProgressBar.cpp включён в общий bootstrap; проверяются настоящие
 cache texture refs, clones, destructor и повторный вход. Map-owner LINK FAIL31
 вместо33. Draw, полный мир и CGame::Init NOT RUN; подробные gates в evidence.

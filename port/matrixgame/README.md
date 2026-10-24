@@ -21,7 +21,9 @@ double-free и потеря caller-owned texture при GPU refusal в Hint::Bui
 staging bytes, кэш и освобождение/повторное создание буферов. GPU draw не выполнялся.
 Оригинальные progress bars включены в общий bootstrap: cache texture refs,
 clones, destructor и повторный вход проверены с активными assertions.
-Полный map owner пока не линкуется: остаётся31 unresolved symbol ShadowProj/
+Полный ShadowProj owner включён; доказанная утечка при повторном Prepare исправлена
+с сохранением раннего создания пулов, необходимого ReadGeometry.
+Полный map owner пока не линкуется: остаётся29 unresolved symbols ShadowProj/
 effects/side/picking. `CGame::Init`, `RunGameLoop`, `CFormMatrixGame`, загруженный мир и бой
 **NOT EXECUTED**. Никакого fake map или фиктивного результата боя нет.
 
@@ -31,7 +33,8 @@ effects/side/picking. `CGame::Init`, `RunGameLoop`, `CFormMatrixGame`, загр�
 [hints](../../reports/matrixgame-e2e519-hint.md),
 [map objects](../../reports/matrixgame-e2e519-map-object.md),
 [shadow stencil](../../reports/matrixgame-e2e519-shadow-stencil.md),
-[progress bars и актуальные блокеры](../../reports/matrixgame-e2e519-progress-bar.md).
+[progress bars](../../reports/matrixgame-e2e519-progress-bar.md),
+[projected-shadow owner и актуальные блокеры](../../reports/matrixgame-e2e519-shadow-proj.md).
 Основная NRO и оба прежних аппаратных комплекта неизменны; MatrixGame в неё
 не включён. Switch/deko3d runtime остаётся HARDWARE PENDING.
 
