@@ -124,6 +124,8 @@ def prepare_engine(output):
     paths.update(prepare_effects(output))
     from matrixgame_trace_overrides import prepare_trace
     paths.update(prepare_trace(output))
+    from matrixgame_actor_overrides import prepare_actors
+    paths.update(prepare_actors(output))
     from matrixgame_map_group_overrides import prepare_map_group
     paths.update(prepare_map_group(output))
     from matrixgame_map_static_overrides import prepare_map_static
