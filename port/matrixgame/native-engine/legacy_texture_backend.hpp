@@ -7,6 +7,7 @@ struct IDirect3DTexture9;
 class CTextureManaged;
 namespace srhd_awa::matrixgame::legacy_texture {
 struct LockedRect {int Pitch{};void* pBits{};};
+struct TextureRect {std::int32_t left,top,right,bottom;};
 struct LevelDesc {std::uint32_t Width{},Height{},Format{};};
 std::size_t RegistrySize()noexcept;
 CTextureManaged* CreateManaged();
@@ -19,6 +20,7 @@ std::uint32_t SetPriority(IDirect3DTexture9*,std::uint32_t);
 std::uint32_t LevelCount(IDirect3DTexture9*);
 platform3g::DeviceResult Describe(IDirect3DTexture9*,std::uint32_t,LevelDesc*);
 platform3g::DeviceResult Lock(IDirect3DTexture9*,std::uint32_t,LockedRect*,std::nullptr_t,std::uint32_t);
+platform3g::DeviceResult LockRegion(IDirect3DTexture9*,std::uint32_t,LockedRect*,const TextureRect&,std::uint32_t);
 platform3g::DeviceResult Unlock(IDirect3DTexture9*,std::uint32_t);
 platform3g::DeviceResult Create(std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**,std::uintptr_t);
 platform3g::DeviceResult Decode(const void*,std::size_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**);

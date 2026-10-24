@@ -39,6 +39,12 @@ p::DeviceResult Lock(IDirect3DTexture9* texture,std::uint32_t level,LockedRect* 
     if(SUCCEEDED(result))*out={rect.Pitch,rect.pBits};
     return static_cast<p::DeviceResult>(result);
 }
+p::DeviceResult LockRegion(IDirect3DTexture9* texture,std::uint32_t level,LockedRect* out,const TextureRect& region,std::uint32_t flags) {
+    const RECT requested{region.left,region.top,region.right,region.bottom};
+    D3DLOCKED_RECT rect{};const auto result=Texture(texture).LockRect(level,&rect,&requested,flags);
+    if(SUCCEEDED(result))*out={rect.Pitch,rect.pBits};
+    return static_cast<p::DeviceResult>(result);
+}
 p::DeviceResult Unlock(IDirect3DTexture9* texture,std::uint32_t level){return static_cast<p::DeviceResult>(Texture(texture).UnlockRect(level));}
 p::DeviceResult Create(std::uint32_t width,std::uint32_t height,std::uint32_t levels,std::uint32_t usage,std::uint32_t format,std::uint32_t pool,IDirect3DTexture9** out,std::uintptr_t shared) {
     if(shared)throw p::Unsupported("shared original texture ownership unsupported");
@@ -102,6 +108,7 @@ std::uint32_t SetPriority(IDirect3DTexture9*,std::uint32_t){Unsupported("SetPrio
 std::uint32_t LevelCount(IDirect3DTexture9*){Unsupported("GetLevelCount");}
 p::DeviceResult Describe(IDirect3DTexture9*,std::uint32_t,LevelDesc*){Unsupported("GetLevelDesc");}
 p::DeviceResult Lock(IDirect3DTexture9*,std::uint32_t,LockedRect*,std::nullptr_t,std::uint32_t){Unsupported("LockRect");}
+p::DeviceResult LockRegion(IDirect3DTexture9*,std::uint32_t,LockedRect*,const TextureRect&,std::uint32_t){Unsupported("LockRect region");}
 p::DeviceResult Unlock(IDirect3DTexture9*,std::uint32_t){Unsupported("UnlockRect");}
 p::DeviceResult Create(std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**,std::uintptr_t){Unsupported("CreateTexture");}
 p::DeviceResult Decode(const void*,std::size_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**){Unsupported("DecodeTexture");}

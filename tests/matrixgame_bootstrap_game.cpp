@@ -535,6 +535,7 @@ void VerifyBootstrapOriginalTexture(NativeInitRuntime& runtime,const wchar_t* pa
     const auto named_key=std::wstring(path)+L"?Alpha?Trans";
     assert(!g_Cache->Find(CacheClass::TextureManaged,named_key));
     auto* named=lt::GetManaged(named_key);
+    assert(named->GetPixelColor(-1,0)==0 && named->GetPixelColor(0,-1)==0);
     assert(named && named->m_Cache==g_Cache && named->m_Name==named_key && !named->IsLoaded() && lt::RegistrySize()==1);
     assert(lt::GetManaged(named_key)==named);g_Cache->Up(named);assert(lt::GetManaged(named_key)==named);
     g_Cache->Delete(named);CCache::Destroy(named);assert(!g_Cache->Find(CacheClass::TextureManaged,named_key) && lt::RegistrySize()==0);
