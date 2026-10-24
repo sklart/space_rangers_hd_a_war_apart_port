@@ -34,6 +34,11 @@ Window/Device providers для L3GInitAsDLL. Оригинальный Deinit и 
 Успешный возврат Init, RunGameLoop, загруженный мир и бой **NOT EXECUTED**.
 [Новая граница и ограничения](../../reports/matrixgame-e2e519-original-init.md).
 
+Полный Windows x86 кандидат компилируется, но пока не линкуется: остаются L3GRun,
+path effect и две функции видимости карты. Оригинальный Ramka подключён;
+его рамки и сохранность остальных пикселей проверены на настоящем D3D9 HAL.
+[Результаты и точные оставшиеся связи](../../reports/matrixgame-e2e519-ramka.md).
+
 Актуальные подробности: [общий bootstrap](../../reports/matrixgame-e2e519-engine-bootstrap.md),
 [текстуры](../../reports/matrixgame-e2e519-unmanaged-texture.md),
 [миникарта](../../reports/matrixgame-e2e519-minimap.md),

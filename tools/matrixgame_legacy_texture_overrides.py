@@ -29,6 +29,7 @@ def prepare_legacy_texture(output):
         'void CTextureManaged::LockRect(_D3DLOCKED_RECT &lr, std::uint32_t Flags)',
         'void CTextureManaged::UnlockRect(void)',
         'std::uint32_t CTextureManaged::GetPixelColor(int x, int y)',
+        'void CTextureManaged::Ramka(int x, int y, int w, int h, std::uint32_t c)',
         'void CTextureManaged::LoadFromBitmap(int level, const CBitmap &bm, bool convert_to_16bit)',
         'void CTextureManaged::LoadFromBitmap(const CBitmap &bm, bool convert_to_16bit, int levelcnt)',FORMATTED]
     chunks=[]
@@ -39,6 +40,11 @@ def prepare_legacy_texture(output):
             for texture in ('m_Tex','m_TexFrom'):
                 body=body.replace(texture+'->LockRect(0, &lr, &r, D3DLOCK_READONLY)',
                                   'lt::LockRegion('+texture+', 0, &lr, r, 16u)')
+        if signature=='void CTextureManaged::Ramka(int x, int y, int w, int h, std::uint32_t c)':
+            body=body.replace('RECT r;', 'lt::TextureRect r;')
+            for texture in ('m_Tex','m_TexFrom'):
+                body=body.replace(texture+'->LockRect(0, &lr, &r, 0)',
+                                  'lt::LockRegion('+texture+', 0, &lr, r, 0u)')
         if signature==FORMATTED:
             if before.count('bm.SaveInDDSUncompressed(buf);')!=1 or before.count('D3DXCreateTextureFromFileInMemoryEx(')!=2:
                 raise ValueError('Original formatted bitmap path changed')
