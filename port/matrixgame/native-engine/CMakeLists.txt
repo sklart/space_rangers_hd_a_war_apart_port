@@ -47,6 +47,10 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectLandscapeSpot.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectWeapon.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectSelection.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectMovingObject.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectFirePlasma.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectFlame.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectBigBoom.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapTrace.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixObjectRobot.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixFlyer.cpp"
@@ -105,6 +109,10 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectLandscapeSpot.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectWeapon.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectSelection.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectMovingObject.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectFirePlasma.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectFlame.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectBigBoom.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapTrace.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixObjectRobot.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixFlyer.cpp"
@@ -200,7 +208,8 @@ if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
         "${PORT_ROOT}/tests/matrixgame_bootstrap_shadow_texture.cpp"
         "${PORT_ROOT}/tests/matrixgame_bootstrap_smoke_fire.cpp"
         "${PORT_ROOT}/tests/matrixgame_bootstrap_explosion.cpp"
-        "${PORT_ROOT}/tests/matrixgame_bootstrap_selection.cpp")
+        "${PORT_ROOT}/tests/matrixgame_bootstrap_selection.cpp"
+        "${PORT_ROOT}/tests/matrixgame_bootstrap_callback_width.cpp")
     target_link_libraries(matrixgame-native-bootstrap PRIVATE matrixgame-native-cache)
     target_compile_definitions(matrixgame-native-bootstrap PRIVATE
         MATRIXGAME_FULL_VECTOR_HEADER="${ENGINE_SOURCE}/MatrixLib/3G/VectorObject.hpp"

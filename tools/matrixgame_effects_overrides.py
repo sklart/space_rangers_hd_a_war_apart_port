@@ -14,7 +14,11 @@ def prepare_effects(output):
            ('MatrixGame/src/Effects/MatrixEffectKonus.cpp','CMatrixEffectKonus::CMatrixEffectKonus('),
            ('MatrixGame/src/Effects/MatrixEffectLandscapeSpot.cpp','static SSpotProperties m_SpotProperties[SPOT_TYPES_CNT];'),
            ('MatrixGame/src/Effects/MatrixEffectWeapon.cpp','void CMatrixEffectWeapon::WeaponHit('),
-           ('MatrixGame/src/Effects/MatrixEffectSelection.cpp','CMatrixEffectSelection::CMatrixEffectSelection(')]
+           ('MatrixGame/src/Effects/MatrixEffectSelection.cpp','CMatrixEffectSelection::CMatrixEffectSelection('),
+           ('MatrixGame/src/Effects/MatrixEffectMovingObject.cpp','CMatrixEffectMovingObject::CMatrixEffectMovingObject('),
+           ('MatrixGame/src/Effects/MatrixEffectFirePlasma.cpp','CMatrixEffectFirePlasma::CMatrixEffectFirePlasma('),
+           ('MatrixGame/src/Effects/MatrixEffectFlame.cpp','CFlamePuff::CFlamePuff('),
+           ('MatrixGame/src/Effects/MatrixEffectBigBoom.cpp','CMatrixEffectBigBoom::CMatrixEffectBigBoom(')]
     for name,marker in units:
         path=output/name;text=path.read_text(encoding='utf-8')
         text=text.replace('(CTextureManaged *)g_Cache->Get(CacheClass::TextureManaged, ','effect_texture::GetManaged(')
@@ -44,6 +48,11 @@ def prepare_effects(output):
                 text=text.replace(old,new)
         text=text.replace('D3DXVec3TransformCoordArray(','srhd_awa::matrixgame::geometry::TransformCoordArray(')
         text=text.replace('D3DXMatrixRotationYawPitchRoll(','srhd_awa::matrixgame::object_geometry::RotationYawPitchRoll(')
+        if name.endswith(('/MatrixEffectMovingObject.cpp','/MatrixEffectBigBoom.cpp')):
+            text=text.replace('D3DXMatrixScaling(','srhd_awa::matrixgame::object_geometry::Scaling(')
+            text=text.replace('D3DTTFF_COUNT3','3u')
+            text=text.replace('D3DTSS_TCI_SPHEREMAP','0x40000u')
+            text=text.replace('g_D3DD->SetTransform(D3DTS_TEXTURE0,','srhd_awa::matrixgame::render_pipeline::TextureTransform(0,')
         text=text.replace('g_D3DD->SetTransform(D3DTS_WORLD,','effect_device::SetTransform(effect_device::Transform::World,')
         text=text.replace('g_D3DD->DrawIndexedPrimitive(','effect_device::DrawIndexedPrimitive(')
         text=text.replace('g_D3DD->DrawPrimitive(','effect_device::DrawPrimitive(')
@@ -69,7 +78,7 @@ namespace rp3g=srhd_awa::matrixgame::platform3g;
 namespace effect_texture=srhd_awa::matrixgame::legacy_texture;
 namespace effect_device=srhd_awa::matrixgame::map_device;
 '''
-        if name.endswith('/MatrixEffectExplosion.cpp'):
+        if name.endswith(('/MatrixEffectExplosion.cpp','/MatrixEffectMovingObject.cpp','/MatrixEffectBigBoom.cpp')):
             prelude+='#include "object_geometry.hpp"\n'
         if name.endswith(('/MatrixEffectPointLight.cpp','/MatrixEffectLandscapeSpot.cpp')):
             prelude+='''#ifdef _MSC_VER
@@ -83,6 +92,15 @@ namespace effect_device=srhd_awa::matrixgame::map_device;
             prelude+='''#include <cstring>
 static void effect_store_indices(std::uint16_t* destination,std::uint32_t packed) {
     std::memcpy(destination,&packed,sizeof(packed));
+}
+'''
+        if name.endswith('/MatrixEffectMovingObject.cpp'):
+            prelude+='#include "moving_object_callbacks.hpp"\n'
+            text+='''
+// Expose the exact callback used by original map enumeration to native callers.
+bool srhd_awa::matrixgame::moving_object::InvokeHit(
+    const D3DXVECTOR3& center,CMatrixMapStatic* object,uintptr_t properties) {
+    return MOEnum(center,object,properties);
 }
 '''
         path.write_bytes((prelude+text).encode());changes[name]=hashlib.sha256(path.read_bytes()).hexdigest()

@@ -1,0 +1,492 @@
+{
+  "stage": "E2E-5.19 callback payload width",
+  "parent": "687668a0ec95dedcb56c2c384bd80b044d30c20e",
+  "checks": {
+    "callback-width-baseline/arm64": {
+      "result": {
+        "exit": 1,
+        "status": "BUG_REPRODUCED_ORIGINAL_CALLBACK_HIGH_ADDRESS_TRUNCATED",
+        "assertions": true,
+        "source_sha256": {
+          "build/matrixgame/e2e519/callback-width-baseline-source/MatrixGame/src/Effects/MatrixEffectMovingObject.cpp": "db583ca7220950e670a711f8ae156de63d12d116e32d36d4a5ecb374319bb40e",
+          "tests/matrixgame_bootstrap_callback_width.cpp": "b86333d019c5a766769710bad397943b94b15c1afe55413156cecf5c81cbc1f0",
+          "tests/test_matrixgame_bootstrap.cpp": "049288b6ded0231dff4fc91cac50298fd6189218e1503a6d93f6e5d5f929ea13"
+        },
+        "binary_sha256": "bff97a3d09b12c745c859bd39829569ca404a78d1bcb482dc9a29d6feb0c2cdf",
+        "commands": [
+          [
+            "/usr/bin/aarch64-linux-gnu-g++-15",
+            "-D_POSIX_C_SOURCE=200809L",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixGame",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixGame/src",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixLib/Base",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixLib/3G",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixLib/Bitmap",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/arm64/core/source",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixGame/src/Logic",
+            "-isystem",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+            "-isystem",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+            "-isystem",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source",
+            "-pthread",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+            "-O3",
+            "-DNDEBUG",
+            "-std=gnu++20",
+            "-ffp-contract=off",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline/arm64/moving.o",
+            "-c",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixGame/src/Effects/MatrixEffectMovingObject.cpp",
+            "-ffunction-sections",
+            "-fdata-sections"
+          ],
+          [
+            "/usr/bin/aarch64-linux-gnu-g++-15",
+            "-DMATRIXGAME_FULL_3G_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixLib/3G/3g.hpp\"",
+            "-DMATRIXGAME_FULL_BILLBOARD_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixLib/3G/CBillboard.hpp\"",
+            "-DMATRIXGAME_FULL_CAMERA_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixGame/src/MatrixCamera.hpp\"",
+            "-DMATRIXGAME_FULL_CONFIG_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixGame/src/MatrixConfig.hpp\"",
+            "-DMATRIXGAME_FULL_CURSOR_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixGame/src/MatrixCursor.hpp\"",
+            "-DMATRIXGAME_FULL_KONUS_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixGame/src/Effects/MatrixEffectKonus.hpp\"",
+            "-DMATRIXGAME_FULL_VECTOR_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixLib/3G/VectorObject.hpp\"",
+            "-D_POSIX_C_SOURCE=200809L",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixLib/3G",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixLib/Base",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixLib/Bitmap",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixGame/src",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/arm64/core/source",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+            "-isystem",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+            "-isystem",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+            "-isystem",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source",
+            "-pthread",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+            "-O3",
+            "-DNDEBUG",
+            "-std=gnu++20",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline/arm64/width-test.o",
+            "-c",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_callback_width.cpp",
+            "-ffunction-sections",
+            "-fdata-sections"
+          ],
+          [
+            "/usr/bin/aarch64-linux-gnu-g++-15",
+            "-DMATRIXGAME_FULL_3G_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixLib/3G/3g.hpp\"",
+            "-DMATRIXGAME_FULL_BILLBOARD_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixLib/3G/CBillboard.hpp\"",
+            "-DMATRIXGAME_FULL_CAMERA_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixGame/src/MatrixCamera.hpp\"",
+            "-DMATRIXGAME_FULL_CONFIG_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixGame/src/MatrixConfig.hpp\"",
+            "-DMATRIXGAME_FULL_CURSOR_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixGame/src/MatrixCursor.hpp\"",
+            "-DMATRIXGAME_FULL_KONUS_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixGame/src/Effects/MatrixEffectKonus.hpp\"",
+            "-DMATRIXGAME_FULL_VECTOR_HEADER=\"/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixLib/3G/VectorObject.hpp\"",
+            "-D_POSIX_C_SOURCE=200809L",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixLib/3G",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixLib/Base",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixLib/Bitmap",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline-source/MatrixGame/src",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/arm64/core/source",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+            "-isystem",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+            "-isystem",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+            "-isystem",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source",
+            "-pthread",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+            "-O3",
+            "-DNDEBUG",
+            "-std=gnu++20",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline/arm64/driver.o",
+            "-c",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_bootstrap.cpp",
+            "-ffunction-sections",
+            "-fdata-sections"
+          ],
+          [
+            "aarch64-linux-gnu-ar",
+            "r",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline/arm64/libmatrixgame-native-cache.a",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline/arm64/moving.o"
+          ],
+          [
+            "/usr/bin/aarch64-linux-gnu-g++-15",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline/arm64/width-test.o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/weapon-selection-integration/arm64/selection-test.o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/explosion-konus-v3-integration/arm64/explosion-test.o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/smoke-fire-integration/arm64/smoke-test.o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/shadow-texture-v3-integration/arm64/texture-test.o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/shadow-manager-integration/arm64/manager-test.o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/shadow-proj-v3-integration/arm64/lifecycle.o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/progress-bar-integration/arm64/lifecycle.o",
+            "-pthread",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+            "-O3",
+            "-DNDEBUG",
+            "-Wl,--gc-sections",
+            "-Wl,--dependency-file=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/font-shared-ops-integration/arm64/link.d",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline/arm64/driver.o",
+            "CMakeFiles/matrixgame-native-bootstrap.dir/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/matrixgame_bootstrap_sampling.cpp.o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/stencil-v2-integration/arm64/game.o",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline/arm64/matrixgame-native-bootstrap",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline/arm64/libmatrixgame-native-cache.a",
+            "libmatrixgame-native-vector-object.a",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/viewport-integration/arm64/libmatrixgame-native-core.a",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png/libpng16.a",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/mg-navigation-arm64/zlib/libz.a",
+            "-lm",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg/libjpeg.a",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/font-shared-ops-integration/arm64/font-test.o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/water-integration/arm64/formatted-test.o"
+          ],
+          [
+            "qemu-aarch64",
+            "-L",
+            "/usr/aarch64-linux-gnu",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-baseline/arm64/matrixgame-native-bootstrap",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/big-buffer-models/model-2.vo",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/mg-merge-host/core/texture-request-fixtures/assets/plain.png",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/upstream/matrixgame/MatrixGame/CFG/robots/data.txt"
+          ]
+        ],
+        "draw_executed": false,
+        "requested_sessions": 2,
+        "completed_sessions": 0,
+        "observed_callback_invocations": 1
+      },
+      "sha256": "60dca3ef86554ba5c0bb3b77010d5dfa841d9ecad4db2465c56cdc524ee6cf80"
+    },
+    "callback-width-fresh-arm64": {
+      "result": {
+        "status": "FRESH_ARM64_BUILD_RUNTIME_PASS",
+        "no_old_native_objects_reused": true,
+        "sessions": 2,
+        "commands": [
+          [
+            "cmake",
+            "-S",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-B",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-fresh-arm64",
+            "-G",
+            "Unix Makefiles",
+            "-DCMAKE_BUILD_TYPE=Release",
+            "-DBUILD_TESTING=ON",
+            "-DMATRIXGAME_INIT_BUILD_LINK_PROBE=OFF",
+            "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+            "-DCMAKE_CXX_COMPILER=/usr/bin/aarch64-linux-gnu-g++-15",
+            "-DCMAKE_SYSTEM_NAME=Linux",
+            "-DCMAKE_SYSTEM_PROCESSOR=aarch64",
+            "-DCMAKE_CXX_FLAGS=-pthread -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png -I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+            "-DZLIB_LIBRARY=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/mg-navigation-arm64/zlib/libz.a",
+            "-DZLIB_INCLUDE_DIR=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+            "-DPNG_LIBRARY_RELEASE=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png/libpng16.a",
+            "-DPNG_PNG_INCLUDE_DIR=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+            "-DJPEG_LIBRARY_RELEASE=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg/libjpeg.a",
+            "-DJPEG_INCLUDE_DIR=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source"
+          ],
+          [
+            "cmake",
+            "--build",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-fresh-arm64",
+            "--target",
+            "matrixgame-native-bootstrap",
+            "-j",
+            "2"
+          ],
+          [
+            "qemu-aarch64",
+            "-L",
+            "/usr/aarch64-linux-gnu",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-fresh-arm64/matrixgame-native-bootstrap",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/big-buffer-models/model-2.vo",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/mg-merge-host/core/texture-request-fixtures/assets/plain.png",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/upstream/matrixgame/MatrixGame/CFG/robots/data.txt"
+          ]
+        ],
+        "hardware": false
+      },
+      "sha256": "b5aa6b32e03538d88c7097cafeabbf6aaad5945e25410cbbdb4af7baeca8bf5b"
+    },
+    "callback-width-fresh-sdk": {
+      "result": {
+        "status": "FRESH_SDK_COMPILE_LINK_PASS",
+        "commands": [
+          [
+            "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe",
+            "-S",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-engine",
+            "-B",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\callback-width-fresh-sdk",
+            "-G",
+            "Ninja",
+            "-DCMAKE_BUILD_TYPE=Release",
+            "-DBUILD_TESTING=OFF",
+            "-DMATRIXGAME_INIT_BUILD_LINK_PROBE=ON",
+            "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+            "-DCMAKE_TOOLCHAIN_FILE=D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core\\switch-toolchain.cmake",
+            "-DCMAKE_MAKE_PROGRAM=C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe",
+            "-DZLIB_INCLUDE_DIR=C:/devkitPro/portlibs/switch/include",
+            "-DZLIB_LIBRARY_RELEASE=C:/devkitPro/portlibs/switch/lib/libz.a",
+            "-DPNG_PNG_INCLUDE_DIR=C:/devkitPro/portlibs/switch/include",
+            "-DPNG_LIBRARY_RELEASE=C:/devkitPro/portlibs/switch/lib/libpng.a",
+            "-DJPEG_INCLUDE_DIR=C:/devkitPro/portlibs/switch/include",
+            "-DJPEG_LIBRARY_RELEASE=C:/devkitPro/portlibs/switch/lib/libjpeg.a"
+          ],
+          [
+            "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe",
+            "--build",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\callback-width-fresh-sdk",
+            "--target",
+            "matrixgame-native-bootstrap",
+            "-j",
+            "2"
+          ]
+        ],
+        "no_old_native_objects_reused": true,
+        "strong_undefined": [],
+        "runtime": false,
+        "hardware": false,
+        "nro": false
+      },
+      "sha256": "86888e3ef2be12bc15502226616f4beafc2a60b92bb55282eab7a959c83ce01a"
+    },
+    "callback-width-fresh-host": {
+      "result": {
+        "status": "FRESH_ASAN_UBSAN_COMPILE_PASS_LINK_BLOCKED_ORIGINAL_RTTI",
+        "build_exit": 2,
+        "missing": [
+          "typeinfo for CMatrixBuilding",
+          "typeinfo for CMatrixEffectLightening",
+          "typeinfo for CMatrixEffectRepair",
+          "typeinfo for CMatrixEffectShleif",
+          "typeinfo for CMatrixRobotAI"
+        ],
+        "commands": [
+          [
+            "cmake",
+            "-S",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-B",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-fresh-host",
+            "-G",
+            "Unix Makefiles",
+            "-DCMAKE_BUILD_TYPE=Release",
+            "-DBUILD_TESTING=ON",
+            "-DMATRIXGAME_INIT_BUILD_LINK_PROBE=OFF",
+            "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+            "-DCMAKE_CXX_FLAGS=-fsanitize=address,undefined -fno-omit-frame-pointer"
+          ],
+          [
+            "cmake",
+            "--build",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-fresh-host",
+            "--target",
+            "matrixgame-native-bootstrap",
+            "-j",
+            "2"
+          ]
+        ],
+        "no_old_native_objects_reused": true,
+        "runtime": false,
+        "new_exclusions": false
+      },
+      "sha256": "a4a63e18cb9c72a3b62d429643d8be91bfab97d559d2a52cd959a8989820ec24"
+    },
+    "callback-width-win32-abi": {
+      "result": {
+        "status": "ACTUAL_MSVC_WIN32_LAYOUT_TYPE_IDENTITY_PASS",
+        "results": {
+          "before": {
+            "pointer": 4,
+            "props": 108,
+            "moving": 204,
+            "plasma": 564,
+            "flame": 72,
+            "boom": 208,
+            "user_offset": 72,
+            "side_offset": 76,
+            "hitmask_offset": 80,
+            "skip_offset": 84
+          },
+          "after": {
+            "pointer": 4,
+            "props": 108,
+            "moving": 204,
+            "plasma": 564,
+            "flame": 72,
+            "boom": 208,
+            "user_offset": 72,
+            "side_offset": 76,
+            "hitmask_offset": 80,
+            "skip_offset": 84
+          }
+        },
+        "private_field_type_identity": "uint32_t and uintptr_t are same canonical Win32 compiler type; only those 12 type spellings change",
+        "hardware": false
+      },
+      "sha256": "5ede8e96821ee1fe6d1ff9c35360519adae040c2dc7dd31594990da1d94fd109"
+    },
+    "callback-width-fixed-audit": {
+      "result": {
+        "status": "ARM64_FACTORY_POINTER_NARROWING_WARNINGS_ELIMINATED",
+        "command": [
+          "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-g++.exe",
+          "-D_POSIX_C_SOURCE=200809L",
+          "-ID:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-fresh-sdk/source/MatrixLib/3G",
+          "-ID:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-fresh-sdk/source/MatrixLib/Base",
+          "-ID:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-fresh-sdk/source/MatrixLib/Bitmap",
+          "-ID:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-fresh-sdk/source/MatrixGame/src",
+          "-ID:/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+          "-ID:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-fresh-sdk/core/source",
+          "-ID:/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+          "-ID:/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+          "-ID:/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+          "-ID:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/callback-width-fresh-sdk/source/MatrixGame/src/Logic",
+          "-isystem",
+          "C:/devkitPro/portlibs/switch/include",
+          "-march=armv8-a+crc+crypto",
+          "-mtune=cortex-a57",
+          "-mtp=soft",
+          "-fPIE",
+          "-D__SWITCH__",
+          "-ffunction-sections",
+          "-fdata-sections",
+          "-O3",
+          "-DNDEBUG",
+          "-ffp-contract=off",
+          "-ffunction-sections",
+          "-fdata-sections",
+          "-fno-sanitize=vptr",
+          "-o",
+          "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\callback-width-fixed-audit\\effect-width.obj",
+          "-c",
+          "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e519\\callback-width-fresh-sdk\\source\\MatrixGame\\src\\Effects\\MatrixEffect.cpp",
+          "-Wconversion"
+        ],
+        "warnings": [],
+        "log_sha256": "faf51cd55dc32f9fd7725ff22ab9fdae2c868b60b20d6d7b6d61e7a0f774eb2f"
+      },
+      "sha256": "49a4fe3f23a6ed2813fdb5c3eb8c8384b0e1c23564cc28ffc7dad342ea797d9b"
+    }
+  },
+  "payload_only_source_diff": {
+    "MatrixGame\\src\\Effects\\MatrixEffectBigBoom.cpp": {
+      "replacements": 1,
+      "before": "5ab9327390d5bed3732791090fd63d026fa1a55596a96366a7faf88ba7bbe80d",
+      "after": "8f71c8bd39e4af39625302c49363c2ad01a899da8f84719f06e9c2d439df4a8a"
+    },
+    "MatrixGame\\src\\Effects\\MatrixEffectBigBoom.hpp": {
+      "replacements": 2,
+      "before": "bbaa76ddcb3901c93984c3eba6f85b5e7a6f88e3af4113199c2fbf5bcb554ceb",
+      "after": "1c3a74b8caee7fb7ad9d4d7f099089e95f4c1369eec51954924f2c6dea378934"
+    },
+    "MatrixGame\\src\\Effects\\MatrixEffectFirePlasma.cpp": {
+      "replacements": 1,
+      "before": "ef5db266c7739e00e65d74d2f76f4c55089999431833a57a01f3fbe177fe558f",
+      "after": "0d9e35f30bb367a75830c43ecc631284483b7c5f2ab47e4b5c5924a983aae837"
+    },
+    "MatrixGame\\src\\Effects\\MatrixEffectFirePlasma.hpp": {
+      "replacements": 2,
+      "before": "07ae5422c2751dcf556212df537d287417f4a356dc26090d827c550c4199356c",
+      "after": "126d8201d6211c5e9b0bf2a219340555dd98a1c380c9f5463e4f9b6a796cd8dd"
+    },
+    "MatrixGame\\src\\Effects\\MatrixEffectFlame.cpp": {
+      "replacements": 1,
+      "before": "60791d97683f61b309dbc88c96f424d6e681044c39cc8f9f502f8ff40c9cd518",
+      "after": "aaf2b40727570cd24f5d45505e8abfe5fb2af9c786ac7d946172d7f9b8019b49"
+    },
+    "MatrixGame\\src\\Effects\\MatrixEffectFlame.hpp": {
+      "replacements": 2,
+      "before": "c769604d733b88fe7b5da842c5c3478c50aa43d65c1b39e2ffb6dc583ac52de5",
+      "after": "13f01a8a87d8fbb34c0cd2123addb4aa0fa71fad08085e7cb83ed53dde24676e"
+    },
+    "MatrixGame\\src\\Effects\\MatrixEffectMovingObject.cpp": {
+      "replacements": 1,
+      "before": "db583ca7220950e670a711f8ae156de63d12d116e32d36d4a5ecb374319bb40e",
+      "after": "f2f1821df11374ebb29029b20dd286ce4818d32d81cb4184835f4bba9cb59866"
+    },
+    "MatrixGame\\src\\Effects\\MatrixEffectMovingObject.hpp": {
+      "replacements": 2,
+      "before": "92d17e5c1cc08aa9bede2a9488556b7e8bacba644c8311afb099bf2a6fdd3be1",
+      "after": "521e98164b6a9948918492f309df45a41443dfd421478ac845610227553d7e9c"
+    }
+  },
+  "fresh_source_comparison": {
+    "callback-width-fresh-arm64": 313,
+    "callback-width-fresh-sdk": 313,
+    "callback-width-fresh-host": 313
+  },
+  "actual_callback_roundtrips": [
+    [
+      "7f35be24e478",
+      "7f35be24e478",
+      "8"
+    ],
+    [
+      "7f35be24e478",
+      "7f35be24e478",
+      "8"
+    ],
+    [
+      "7f35be24e478",
+      "7f35be24e478",
+      "8"
+    ],
+    [
+      "7f35be24e478",
+      "7f35be24e478",
+      "8"
+    ]
+  ],
+  "unavailable_input": "G:\\pack.zip",
+  "protected_inputs": {
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\newgame.txt": "edebec1fbe596bfdb856719310372b9bf69ce7989394b86ae13377db847ec65c",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\QuickSave.sav": "84509d9ab5411555c0a361d5616c94aae6ef3a5c00fa81782ea64192b5c7bd73",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Medical Center Autoclave.sav": "d6e238a00e514712ab9eed796c40c39dd1cddc20f7036de1a7b8d25fee34e622",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\hardware-gpu-a224fa4.zip": "1c5cfebb2696bbf6db98bd2cd598956f468ef1ca8183bbf31271148c30103429",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Sol System.sav": "62c35d050b256e13326ce904123c44bad3756deeb66e269dbae2a66b4f903cc0",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-2.vo": "b7cba8a78faf0c8cf32cf942288d2fdb0d5d21b047d0e9abaa212092c11d9ccd",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\reports\\e2e5\\e2e510-artifact-provenance.json": "eaac3d9181b12566492bda774933af6469f2b0b26104bcc83a8d266fee7759ec",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-1.vo": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\CFG.TXT": "6b63a47bba893e4a33c4f92d3aaa19adf3c45c4032da7a302b140e03ab166180",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\mg-merge-host\\core\\texture-request-fixtures\\assets\\plain.png": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\########.log": "fef05715d095d39568aee8d9c121c1cb232a80a84e0c6e2a56712070d2f505b3",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\AutoSave.sav": "739c428d9a7f13e88e7e2fe65d6435dbf297270be35c672020b9fa7d097ac601",
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce.zip": "e1a1dec5f410b983d629ae538ad9b4ba063f89a8101af43d27ea00c6ce6a08a4"
+  },
+  "hardware_logs_unchanged": 107,
+  "binaries": {
+    "build/e2e516/hardware-e2e516-03651ce/switch/space-rangers-hd-a-war-apart/SpaceRangersHD-perf516.nro": "9f654daab36c71cb51940871d4a93bdcceb09edd7da8dde127ab023bfb21e789",
+    "build/e2e516/hardware-e2e516-03651ce/debug/SpaceRangersHD-perf516.elf": "0ca47fa95e614167da814cf63e1bc19e0bd005e94b34763287d713d5c9989ab5",
+    "build/matrixgame/e2e519/callback-width-fresh-arm64/matrixgame-native-bootstrap": "14469bb56328ca6e03ebe38484c45f2c9d862bec8f24865b7ef7d6a7f4724553",
+    "build/matrixgame/e2e519/callback-width-fresh-sdk/matrixgame-native-bootstrap.elf": "56e8a147b359fe8adc8fd8c64863b465229974fe02c017871f8bb742e470a28e"
+  }
+}
