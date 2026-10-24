@@ -1,6 +1,41 @@
 # MatrixGame: нативный перенос и Windows x86 reference
 
-## Текущий статус на 23.10.2026
+## Текущий статус на 24.10.2026
+
+E2E-5.19 остаётся **OFFLINE PARTIAL**. В общий native bootstrap включены полные
+оригинальные модули terrain/water, skin manager, effects/billboard, map groups,
+static/map objects, minimap и hints. На host ASan/UBSan и ARM64/QEMU исполнены
+доступные CPU/staging пути, владение и повторный вход; devkitA64 — compile/link.
+Существующие sanitizer exclusions перечислены в evidence; полного покрытия
+всего движка эти результаты не означают.
+
+На настоящем Windows D3D9 HAL проверены original CTexture solid/bitmap creation,
+loss/reset notifications с сохранностью mip pixels, offscreen target/depth и
+настоящий GetRenderTargetData. Физический Device::Reset и полный игровой GPU
+путь не проверены. MSVC compile отдельных полных модулей отделён от runtime.
+
+Исправлены доказанные ошибки владения: repeated skin Clear UAF, terrain
+double-free и потеря caller-owned texture при GPU refusal в Hint::Build.
+Оригинальный ShadowStencil строит volume реальной Terron.vo frame0:1470 vertices/
+4572 indices. Host и ARM64/QEMU проверили оба invert, независимый geometry oracle,
+staging bytes, кэш и освобождение/повторное создание буферов. GPU draw не выполнялся.
+Полный map owner пока не линкуется: остаются33 unresolved symbols ShadowProj/
+progress/effects/side/picking. `CGame::Init`, `RunGameLoop`, `CFormMatrixGame`, загруженный мир и бой
+**NOT EXECUTED**. Никакого fake map или фиктивного результата боя нет.
+
+Актуальные подробности: [общий bootstrap](../../reports/matrixgame-e2e519-engine-bootstrap.md),
+[текстуры](../../reports/matrixgame-e2e519-unmanaged-texture.md),
+[миникарта](../../reports/matrixgame-e2e519-minimap.md),
+[hints](../../reports/matrixgame-e2e519-hint.md),
+[map objects](../../reports/matrixgame-e2e519-map-object.md),
+[shadow stencil и актуальные блокеры](../../reports/matrixgame-e2e519-shadow-stencil.md).
+Основная NRO и оба прежних аппаратных комплекта неизменны; MatrixGame в неё
+не включён. Switch/deko3d runtime остаётся HARDWARE PENDING.
+
+## Предыдущий снимок интеграции на 23.10.2026
+
+Далее сохранены результаты и ограничения предыдущих срезов. Более поздние
+подтверждения SDK texture/offscreen runtime приведены выше и в новых отчётах.
 
 E2E-5.19: единый bootstrap исполняет оригинальные CMatrixConfig::SetDefaults/Clear,
 проверяет владение ресурсами и повторный вход: host ASan/UBSan и ARM64/QEMU PASS.
