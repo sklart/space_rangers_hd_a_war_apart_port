@@ -528,3 +528,30 @@ P0 основной игры.
 (2) аппаратный ENOENT до сих пор не локализован до syscall;
 (3) точные причины freeze карты и полного выхода не установлены. Новые markers
 позволят различить их при будущем доступе, но новый Switch-тест сейчас не требуется.
+
+### Уточнение пути первого дефектного экрана
+
+Адресный read-only разбор `perf515-stage.log.1` выделил первый RuinsTalk:
+screen20, generation10, owner `0x52ab5ede20`, canvas `0x52e42c87e0`.
+События упорядочены по mono_us, а не по порядку асинхронной записи в файл.
+На входе зафиксированы `inherit=0 nested=0 aux_width=0 aux_height=0 prepared=0`,
+depth0 и пустой stack. Первая композиция содержит `saved_pixels=0 saved_lines=0`;
+после неё сохранён уже дефектный `scene-40986867502-023.ppm`.
+
+Проверены не только текущие исходники: effective GI_MessageLoop и fRuinsTalk
+совпали с SHA-256 frozen source manifest E2E-5.16. Код renderer и генератора
+overlays прочитан через git show 03651ce. В этом цикле SavedBackgroundControl
+начинается с nullptr и создаётся только при viewport меньше полного экрана;
+InitializeLayout RuinsTalk устанавливает полный viewport. Это первый
+наблюдаемый вход в этот экземпляр RuinsTalk за данный запуск.
+
+Таким образом, передача prepared/унаследованной подложки SceneCanvas и создание
+SavedBackgroundControl не объясняют **первую** дефектную композицию при записанном
+потоке управления. Нулевые saved lists также не являются источником этого кадра.
+Отсутствие отдельных ui-cache events не использовано как доказательство
+отсутствия draw. Это сужение пути, а не найденная причина: payload самого
+GI blit не сохранён, конкретная старая allocation ещё не идентифицирована.
+Очистка framebuffer и новый графический fix не вносились.
+
+Воспроизводимый разбор: `python tools/e2e523_background_route.py`;
+[15 отобранных событий, хэши входов и границы вывода](hardware-20261023-background-route.json).

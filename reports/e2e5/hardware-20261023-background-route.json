@@ -1,0 +1,100 @@
+{
+  "source_ref": "03651ce",
+  "input_sha256": {
+    "logs\\2026.10.23\\logs\\perf515-stage.log.1": "760314b3a4cbcdaf7a9dc863fc5ce566fd41ad9232c8ae4f4324c24f0062526c",
+    "03651ce:upstream/cpp/src/GI_MessageLoop.cpp": "9e2821745d59615fd82911aafa61153732e86d2946f03e086694337204415237",
+    "03651ce:upstream/cpp/src/fRuinsTalk.cpp": "a55c6c49f5da7e1f970317e0b4a48a416a62371d19d0dc06d604e8139435a1c5",
+    "03651ce:port/switch/platform/renderer_platform.cpp": "3455b3ebd374a17194a686ce92c4aa0a9cd4980672e4fb8585500008f9b7db54",
+    "03651ce:tools/e2e_source_overrides.py": "c210193dd75937ad9e6a02365988d44705803f972eb6864dc9c8a655dc0b6cca"
+  },
+  "first_RuinsTalk_scene_count": 1,
+  "events": [
+    {
+      "mono_us": 41523399658,
+      "line": 9006,
+      "text": "mono_us=41523399658 [SCENE] event=scene-enter screen=20 generation=10 owner=0x52ab5ede20 buffer=0x52e42c87e0 source=0x52aa31ec40 parent=0x0 depth=0 stack=empty stack_truncated=0"
+    },
+    {
+      "mono_us": 41523399660,
+      "line": 8982,
+      "text": "mono_us=41523399660 [SCENE] event=scene-enter screen=20 generation=10 frame=0 owner=0x52ab5ede20 buffer=0x52e42c87e0 width=1280 height=720 pitch=2560 format=RGB565 cursor_x=-1000 cursor_y=-1000 turn=-1 film=-1 order=-1 center_hash=37dfb25a63112383 panel_hash=234d05f272597383 cursor_hash=14650fb0739d0383 copy_us=1357 file=scene-40986867502-021.ppm image_ok=1 image_dropped=22"
+    },
+    {
+      "mono_us": 41523401030,
+      "line": 9007,
+      "text": "mono_us=41523401030 [E2E] scene canvas id=20 inherit=0 nested=0 aux_width=0 aux_height=0 prepared=0"
+    },
+    {
+      "mono_us": 41524385233,
+      "line": 9044,
+      "text": "mono_us=41524385233 [E2E] loop name=RuinsTalk phase=geometry ready exit=0 requested=0"
+    },
+    {
+      "mono_us": 41524385257,
+      "line": 9045,
+      "text": "mono_us=41524385257 [E2E] loop name=RuinsTalk phase=bounds ready exit=0 requested=0"
+    },
+    {
+      "mono_us": 41524385265,
+      "line": 9046,
+      "text": "mono_us=41524385265 [E2E] background state loop=RuinsTalk path=GI,Bm.FormRuins.2RCbg active=1 parent_active=1 bounds=0,0,1280,720 hardware=0"
+    },
+    {
+      "mono_us": 41524385304,
+      "line": 9047,
+      "text": "mono_us=41524385304 [E2E] background state loop=RuinsTalk path= active=0 parent_active=1 bounds=0,0,1280,720 hardware=0"
+    },
+    {
+      "mono_us": 41524385336,
+      "line": 9048,
+      "text": "mono_us=41524385336 [E2E] loop name=RuinsTalk phase=activate ready exit=0 requested=0"
+    },
+    {
+      "mono_us": 41524385479,
+      "line": 9052,
+      "text": "mono_us=41524385479 [SCENE] event=frame-compose screen=20 generation=10 frame=1 owner=0x52ab5ede20 buffer=0x52e42c87e0 aux=0x52b214e360 saved_pixels=0 saved_lines=0"
+    },
+    {
+      "mono_us": 41524385481,
+      "line": 8983,
+      "text": "mono_us=41524385481 [SCENE] event=compose-before screen=20 generation=10 frame=1 owner=0x52ab5ede20 buffer=0x52e42c87e0 width=1280 height=720 pitch=2560 format=RGB565 cursor_x=1240 cursor_y=663 turn=-1 film=-1 order=-1 center_hash=37dfb25a63112383 panel_hash=234d05f272597383 cursor_hash=d3361412a457b983 copy_us=1186 file=scene-40986867502-022.ppm image_ok=1 image_dropped=22"
+    },
+    {
+      "mono_us": 41524386836,
+      "line": 9057,
+      "text": "mono_us=41524386836 [E2E] cache load begin key=Bm.FormRuins.2RCbg"
+    },
+    {
+      "mono_us": 41524703312,
+      "line": 9058,
+      "text": "mono_us=41524703312 [SESSION] Rescaling Bm.FormRuins.2RCbg... "
+    },
+    {
+      "mono_us": 41524703326,
+      "line": 9059,
+      "text": "mono_us=41524703326 [E2E] ruins gi key=Bm.FormRuins.2RCbg bytes=5968179 bounds=0,0,1920,1536 width64=1920 height64=1536 rgba64=11796480"
+    },
+    {
+      "mono_us": 41524796139,
+      "line": 9061,
+      "text": "mono_us=41524796139 [E2E] cache load end key=Bm.FormRuins.2RCbg elapsed_us=409299 bytes=1843296"
+    },
+    {
+      "mono_us": 41524850382,
+      "line": 8984,
+      "text": "mono_us=41524850382 [SCENE] event=compose-after screen=20 generation=10 frame=1 owner=0x52ab5ede20 buffer=0x52e42c87e0 width=1280 height=720 pitch=2560 format=RGB565 cursor_x=1240 cursor_y=663 turn=-1 film=-1 order=-1 center_hash=57ff40680734e95c panel_hash=3bce892cc12c8c0f cursor_hash=ec08f6c9b2518ebc copy_us=1186 file=scene-40986867502-023.ppm image_ok=1 image_dropped=22"
+    }
+  ],
+  "conclusions": [
+    "First observed RuinsTalk is independent, depth zero, inherit false, empty aux and no prepared background.",
+    "Original SavedBackgroundControl starts null and is created only for a smaller viewport; RuinsTalk configures full viewport.",
+    "Saved pixel/line lists are empty at the sampled first composition.",
+    "These paths do not explain this first corrupted scene under recorded control flow; GI resource composition remains open."
+  ],
+  "limits": [
+    "Loop and RuinsTalk effective sources match frozen source-sha256 manifest; renderer and overlay generator read from historical ref. This is not a new matching-ELF audit.",
+    "No source GI payload hash was recorded on hardware.",
+    "No new execution or hardware test; no inference from missing diagnostic records to missing draws.",
+    "The exact stale allocation and cause of historical corruption remain unproven."
+  ]
+}
