@@ -9,6 +9,13 @@
 #include "map_device_backend.hpp"
 namespace srhd_awa::matrixgame::map_device {
 using namespace platform3g;
+bool DeviceAvailable()noexcept{return Current().ready && Current().device;}
+StoredStateBackend* StateBackend(){
+    auto* backend=dynamic_cast<StoredStateBackend*>(&ReadyDevice());
+    if(!backend)throw Unsupported("map stored device state backend unavailable");
+    return backend;
+}
+DeviceResult ResetCurrentPresentation(){return ReadyDevice().ResetPresentation(Current().presentation);}
 #ifdef _WIN32
 namespace {
 IDirect3DDevice9& ActualDevice() {
@@ -24,6 +31,13 @@ D3DCAPS9 ActualCaps() {
 }
 }
 #endif
+DeviceResult CooperativeLevel(){
+#ifdef _WIN32
+    return ActualDevice().TestCooperativeLevel();
+#else
+    (void)ReadyDevice();throw Unsupported("map cooperative device state unavailable");
+#endif
+}
 DeviceResult SetTransform(Transform type,const WorldMatrix& value) {
     if(type==Transform::World) {
         return ReadyDevice().SetWorldTransform(value);

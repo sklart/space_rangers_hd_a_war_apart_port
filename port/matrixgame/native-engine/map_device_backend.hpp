@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 #include "platform_3g.hpp"
+#include "device_state_backend.hpp"
 #include <cstring>
 #include <type_traits>
 namespace srhd_awa::matrixgame::map_device {
@@ -18,4 +19,8 @@ platform3g::DeviceResult DrawPrimitive(std::uint32_t,std::uint32_t,std::uint32_t
 platform3g::DeviceResult DrawPrimitiveUP(std::uint32_t,std::uint32_t,const void*,std::uint32_t);
 platform3g::DeviceResult DrawIndexedPrimitive(std::uint32_t,int,std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t);
 void OpenManual();
+bool DeviceAvailable()noexcept;
+platform3g::StoredStateBackend* StateBackend();
+platform3g::DeviceResult CooperativeLevel();
+platform3g::DeviceResult ResetCurrentPresentation();
 }

@@ -44,8 +44,9 @@ namespace group_device=srhd_awa::matrixgame::map_device;
 #endif
 '''
     path.write_bytes((prelude+text).encode());changes[name]=hashlib.sha256(path.read_bytes()).hexdigest()
-    # Exact original owner cleanup, not a replacement world or fabricated map.
-    # Full MapPrepare still has its separate SDK render-target/reset boundary.
+    # Retain the exact historical cleanup slice for source audits. The native
+    # target now selects the complete OriginalMapPrepare.cpp instead; linking
+    # both would duplicate these three genuine cleanup implementations.
     source=(output/'MatrixGame/src/MatrixMapPrepare.cpp').read_text(encoding='utf-8')
     bodies=[function(source,s) for s in ('void SGroupVisibility::Release(void)',
         'void CMatrixMap::ClearGroupVis(void)','void CMatrixMap::GroupClear(void)')]

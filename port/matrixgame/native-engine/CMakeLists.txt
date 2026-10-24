@@ -83,7 +83,7 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalVectorAnim.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalVectorGroup.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapGroup.cpp"
-    "${ENGINE_SOURCE}/MatrixGame/src/OriginalGroupLifecycle.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/OriginalMapPrepare.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapStatic.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMinimap.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Interface/MatrixHint.cpp"
@@ -183,7 +183,7 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalVectorAnim.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalVectorGroup.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapGroup.cpp"
-    "${ENGINE_SOURCE}/MatrixGame/src/OriginalGroupLifecycle.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/OriginalMapPrepare.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMapStatic.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixMinimap.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Interface/MatrixHint.cpp"
@@ -396,6 +396,7 @@ list(FILTER ENGINE_UNITS EXCLUDE REGEX "/Logic/MatrixRoadNetwork.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/GameDefaultsNative.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/MatrixCursorLifecycle.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/(OriginalTransition|MatrixTransitionLifecycle).cpp$")
+list(FILTER ENGINE_UNITS EXCLUDE REGEX "/(OriginalMapPrepare|OriginalGroupLifecycle).cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/OriginalRendererOps.cpp$")
 list(FILTER ENGINE_UNITS EXCLUDE REGEX "/MatrixCameraLifecycle.cpp$")
 # Opt-in full compilation target. Remaining Windows/D3D dependencies must be ported;
