@@ -59,6 +59,10 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixRobot.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixObjectBuilding.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixObjectCannon.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Logic/MatrixEnvironment.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Logic/MatrixAIGroup.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixSide.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectDust.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Interface/CIFaceElement.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Interface/CIFaceButton.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectBillboard.cpp"
@@ -133,6 +137,10 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixRobot.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixObjectBuilding.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixObjectCannon.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Logic/MatrixEnvironment.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Logic/MatrixAIGroup.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixSide.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectDust.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Interface/CIFaceElement.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Interface/CIFaceButton.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectBillboard.cpp"
@@ -235,7 +243,8 @@ if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
         "${PORT_ROOT}/tests/matrixgame_bootstrap_selection.cpp"
         "${PORT_ROOT}/tests/matrixgame_bootstrap_callback_width.cpp"
         "${PORT_ROOT}/tests/matrixgame_bootstrap_cannon_units.cpp"
-        "${PORT_ROOT}/tests/matrixgame_bootstrap_vector_group.cpp")
+        "${PORT_ROOT}/tests/matrixgame_bootstrap_vector_group.cpp"
+        "${PORT_ROOT}/tests/matrixgame_bootstrap_ai_owners.cpp")
     target_link_libraries(matrixgame-native-bootstrap PRIVATE matrixgame-native-cache)
     target_compile_definitions(matrixgame-native-bootstrap PRIVATE
         MATRIXGAME_FULL_VECTOR_HEADER="${ENGINE_SOURCE}/MatrixLib/3G/VectorObject.hpp"

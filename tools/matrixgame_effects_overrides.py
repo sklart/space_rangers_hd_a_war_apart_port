@@ -24,7 +24,8 @@ def prepare_effects(output):
            ('MatrixGame/src/Effects/MatrixEffectShleif.cpp','CMatrixEffectShleif::CMatrixEffectShleif('),
            ('MatrixGame/src/Effects/MatrixEffectElevatorField.cpp','CMatrixEffectElevatorField::CMatrixEffectElevatorField('),
            ('MatrixGame/src/Effects/MatrixEffectZahvat.cpp','CMatrixEffectZahvat::CMatrixEffectZahvat('),
-           ('MatrixGame/src/Effects/MatrixEffectBillboard.cpp','CMatrixEffectBillboard::CMatrixEffectBillboard(')]
+           ('MatrixGame/src/Effects/MatrixEffectBillboard.cpp','CMatrixEffectBillboard::CMatrixEffectBillboard('),
+           ('MatrixGame/src/Effects/MatrixEffectDust.cpp','CMatrixEffectDust::CMatrixEffectDust(')]
     for name,marker in units:
         path=output/name;text=path.read_text(encoding='utf-8')
         text=text.replace('(CTextureManaged *)g_Cache->Get(CacheClass::TextureManaged, ','effect_texture::GetManaged(')
