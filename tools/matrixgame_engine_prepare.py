@@ -152,6 +152,8 @@ def prepare_engine(output):
     paths.update(prepare_vector_picking(output))
     from matrixgame_callback_payload_overrides import prepare_callback_payloads
     paths.update(prepare_callback_payloads(output))
+    from matrixgame_interface_element_overrides import prepare_interface_element
+    paths.update(prepare_interface_element(output))
     result={'schema':1,'source_commit':revision,'scope':'full engine compilation input; runtime/backend not implemented here',
         'files_sha256':paths,'portable_inputs':report['inputs_sha256'],
         'excluded_platform_launcher':'MatrixGameDll.cpp; native entry remains to implement'}

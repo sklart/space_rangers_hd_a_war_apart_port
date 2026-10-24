@@ -58,6 +58,10 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixObjectRobot.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixRobot.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixObjectBuilding.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixObjectCannon.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Interface/CIFaceElement.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectElevatorField.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectZahvat.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixFlyer.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/CBillboard.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalVectorAnim.cpp"
@@ -125,6 +129,10 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixObjectRobot.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixRobot.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixObjectBuilding.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixObjectCannon.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Interface/CIFaceElement.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectElevatorField.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/Effects/MatrixEffectZahvat.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixFlyer.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/CBillboard.cpp"
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalVectorAnim.cpp"
@@ -219,7 +227,8 @@ if(BUILD_TESTING OR MATRIXGAME_INIT_BUILD_LINK_PROBE)
         "${PORT_ROOT}/tests/matrixgame_bootstrap_smoke_fire.cpp"
         "${PORT_ROOT}/tests/matrixgame_bootstrap_explosion.cpp"
         "${PORT_ROOT}/tests/matrixgame_bootstrap_selection.cpp"
-        "${PORT_ROOT}/tests/matrixgame_bootstrap_callback_width.cpp")
+        "${PORT_ROOT}/tests/matrixgame_bootstrap_callback_width.cpp"
+        "${PORT_ROOT}/tests/matrixgame_bootstrap_cannon_units.cpp")
     target_link_libraries(matrixgame-native-bootstrap PRIVATE matrixgame-native-cache)
     target_compile_definitions(matrixgame-native-bootstrap PRIVATE
         MATRIXGAME_FULL_VECTOR_HEADER="${ENGINE_SOURCE}/MatrixLib/3G/VectorObject.hpp"
