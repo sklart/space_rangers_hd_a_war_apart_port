@@ -376,6 +376,25 @@ void VerifyBootstrapMapCamera(NativeInitRuntime& runtime) {
         bool rejected=false;try{runtime.InitializeMapCamera(bad);}catch(const std::invalid_argument&){rejected=true;}
         assert(rejected && !runtime.MapCamera() && g_ScreenX==old_x && g_ScreenY==old_y && MAX_VIEW_DISTANCE==old_far);
     }
+    // Original automatic-camera ownership must release every retained core,
+    // including shared references and the current pair. Null m_Object denotes
+    // a detached real core; no map/object stand-in is involved.
+    {
+        SAutoFlyData flight{};
+        auto* target=SObjectCore::Create(nullptr);
+        auto* attacker=SObjectCore::Create(nullptr);
+        for(int i=0;i<3;++i){target->RefInc();attacker->RefInc();}
+        flight.m_WarPairsCnt=2;
+        flight.m_WarPairs[0]={target,attacker,1000};
+        flight.m_WarPairs[1]={attacker,target,500};
+        flight.m_WarPairCurrent={target,attacker,250};
+        flight.Release();
+        assert(flight.m_WarPairsCnt==0 && !flight.m_WarPairCurrent.target && !flight.m_WarPairCurrent.attacker);
+        assert(target->m_Ref==1 && attacker->m_Ref==1);
+        flight.Release();
+        assert(target->m_Ref==1 && attacker->m_Ref==1);
+        target->Release();attacker->Release();
+    }
     runtime.InitializeMapCamera(settings);auto* camera=runtime.MapCamera();assert(camera);
     assert(MAX_VIEW_DISTANCE==5000 && g_ScreenX==settings.m_ResolutionX && g_ScreenY==settings.m_ResolutionY);
     VerifyOriginalPickViewport();

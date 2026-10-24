@@ -1,27 +1,35 @@
-"""Original map-member camera lifetime subset, not the complete Camera TU."""
+"""Complete original camera and automatic battle-camera algorithms."""
 import hashlib
-from matrixgame_vector_object_overrides import function
 
 
 def prepare_camera(output):
-    source = (output / 'MatrixGame/src/MatrixCamera.cpp').read_text(encoding='utf-8')
-    names = ('void SetMaxCameraDistance(float perc)',
-             'void SAutoFlyData::Release(void)',
-             'void SAutoFlyData::KillTrajectory(void)',
-             'CMatrixCamera::CMatrixCamera(void)',
-             'CMatrixCamera::~CMatrixCamera(void)')
-    # Keep the full prepared Camera.cpp intact for inventory; this explicit
-    # selected-method TU is linked only by the integrated bootstrap.
-    declaration = 'float MAX_VIEW_DISTANCE = 4000.0f;'
-    if source.count(declaration) != 1:
-        raise ValueError('Original camera distance definition changed')
-    text = '''// Selected original MatrixCamera methods, GPL-2.0-or-later.
-#include "MatrixCamera.hpp"
-#include "MatrixMapStatic.hpp"
-#include "MatrixGame.h"
-#include "3g.hpp"
-''' + declaration + '\n' + '\n'.join(function(source, name) for name in names) + '\n'
-    name = 'MatrixGame/src/MatrixCameraLifecycle.cpp'
-    data = text.encode()
-    (output / name).write_bytes(data)
+    name = 'MatrixGame/src/MatrixCamera.cpp'
+    path = output / name
+    text = path.read_text(encoding='utf-8')
+    if text.count('void CMatrixCamera::RestoreCameraParams(void)') != 1:
+        raise ValueError('Original camera restore changed')
+    text = text.replace('D3DXMatrixRotationX(', 'srhd_awa::matrixgame::object_geometry::RotationX(')
+    text = text.replace('D3DXMatrixRotationY(', 'srhd_awa::matrixgame::object_geometry::RotationY(')
+    text = text.replace('D3DXMatrixTranslation(', 'srhd_awa::matrixgame::minimap_geometry::Translation(')
+    text = text.replace('g_D3DD->SetViewport(', 'camera_offscreen::SetViewport(')
+    for kind in ('WORLD', 'VIEW', 'PROJECTION'):
+        text = text.replace('g_D3DD->SetTransform(D3DTS_'+kind+',',
+                            'camera_device::SetTransform(camera_device::Transform::'+kind.title()+',')
+    marker = 'void CMatrixCamera::RestoreCameraParams(void)'
+    text = text.replace(marker, '''#undef ASSERT_DX
+#ifdef ASSERT_OFF
+#define ASSERT_DX(call) (call)
+#else
+#define ASSERT_DX(call) srhd_awa::matrixgame::platform3g::CheckDeviceResult((call), #call)
+#endif
+''' + marker, 1)
+    data = ('''#include "Texture.hpp"
+#include "object_geometry.hpp"
+#include "minimap_geometry.hpp"
+#include "offscreen_backend.hpp"
+#include "map_device_backend.hpp"
+namespace camera_offscreen=srhd_awa::matrixgame::offscreen;
+namespace camera_device=srhd_awa::matrixgame::map_device;
+''' + text).encode()
+    path.write_bytes(data)
     return {name: hashlib.sha256(data).hexdigest()}

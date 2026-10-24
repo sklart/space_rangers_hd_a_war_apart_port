@@ -100,13 +100,14 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalManagedTexture.cpp" legacy_texture_backend.cpp
     "${ENGINE_SOURCE}/MatrixLib/3G/OriginalUnmanagedTexture.cpp" unmanaged_texture_backend.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixCursorLifecycle.cpp"
-    "${ENGINE_SOURCE}/MatrixGame/src/MatrixCameraLifecycle.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixCamera.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixSampleStateManager.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/SkinResourcesNative.cpp" native_skin.cpp skin_pipeline.cpp)
 target_link_libraries(matrixgame-native-cache PUBLIC matrixgame-native-vector-object)
 # Compile the complete original CGame TU; link only the original methods whose
 # dependencies are actually closed. This is not a full-engine link claim.
 set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
+    "${ENGINE_SOURCE}/MatrixGame/src/MatrixCamera.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/offscreen_backend.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/unmanaged_texture_backend.cpp"
     "${CMAKE_CURRENT_LIST_DIR}/cache_owner_state.cpp"
