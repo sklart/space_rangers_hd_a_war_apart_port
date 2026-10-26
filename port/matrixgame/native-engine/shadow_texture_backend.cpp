@@ -9,6 +9,10 @@
 #endif
 #include "shadow_texture_backend.hpp"
 #include "buffer_resources.hpp"
+#include "native_graphics.hpp"
+#ifndef _WIN32
+#include "native_texture.hpp"
+#endif
 #include <cstring>
 #include <limits>
 namespace srhd_awa::matrixgame::shadow_texture {
@@ -49,8 +53,9 @@ DeviceResult CreateRenderTexture(std::uint32_t width,std::uint32_t height,std::u
     return D3DXCreateTexture(&ActualDevice(),width,height,levels,usage,
         static_cast<D3DFORMAT>(format),static_cast<D3DPOOL>(pool),output);
 #else
-    (void)width;(void)height;(void)levels;(void)usage;(void)format;(void)pool;(void)output;
-    (void)ReadyDevice();throw Unsupported("shadow render texture SDK unavailable");
+    try{return native_texture::Create(width,height,levels,usage,format,pool,output);}
+    catch(const native_texture::ResidencyExhausted&){return native_texture::OutOfVideoMemory;}
+    catch(const std::bad_alloc&){return native_texture::OutOfMemory;}
 #endif
 }
 DeviceResult DrawIndexedStaging(std::uint32_t primitive,int base,std::uint32_t minimum,
@@ -95,10 +100,12 @@ DeviceResult DrawIndexedStaging(std::uint32_t primitive,int base,std::uint32_t m
     CheckDeviceResult(device.SetStreamSource(0,gpu_vb.value,static_cast<UINT>(binding.offset),static_cast<UINT>(binding.stride)),"shadow GPU stream bind");
     CheckDeviceResult(device.SetIndices(gpu_ib.value),"shadow GPU indices bind");
     const auto result=device.DrawIndexedPrimitive(static_cast<D3DPRIMITIVETYPE>(primitive),base,minimum,vertices,start,primitives);
+    if(SUCCEEDED(result))dynamic_cast<D3D9Device&>(ReadyDevice()).RecordDraw(true,primitives,primitive);
     const auto restore=previous.Restore();return FAILED(result)?result:restore;
 #else
-    (void)primitive;(void)base;(void)minimum;(void)vertices;(void)start;(void)primitives;
-    (void)ReadyDevice();throw Unsupported("shadow staging GPU upload/draw unavailable");
+    if(primitive!=4)throw std::invalid_argument("shadow native draw requires triangle list");
+    auto* backend=dynamic_cast<NativeGraphics*>(&ReadyDevice());if(!backend)throw Unsupported("shadow native indexed provider unavailable");
+    return backend->NativeDrawIndexed(primitive,base,minimum,vertices,start,primitives);
 #endif
 }
 }

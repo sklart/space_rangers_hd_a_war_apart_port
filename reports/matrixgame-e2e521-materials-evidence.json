@@ -1,0 +1,1035 @@
+{
+  "stage": "E2E-5.21 PARTIAL; full original material contract NOT CLOSED",
+  "date": "2026-10-25",
+  "parent": "4070b7e99e30e746a675a64c1d6451bbb475f539",
+  "results": {
+    "host": {
+      "scope": "original callback texture cascade only; no native Init/frame/hardware PASS",
+      "commands": [
+        {
+          "label": "build",
+          "command": [
+            "wsl",
+            "--exec",
+            "g++",
+            "-std=c++20",
+            "-O1",
+            "-g",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/materials/host/callbacks",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_materials.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_combiner.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/platform_3g.cpp",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/materials/host/material-checks",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-fno-pie",
+            "-no-pie"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/materials/host/material-checks"
+          ],
+          "exit": 0
+        }
+      ],
+      "status": "PASS",
+      "Switch_runtime": false,
+      "NRO_created": false,
+      "extraction": {
+        "original_skin_sha256": "d9d565af29522397011903bf6e3d730575092d0eb8ad540506740ff8f03f4778",
+        "test_extraction_sha256": "d528aa9454b3b0e7abeb4152728b12674cee8ba5ee56729c658b2d11f1c98d3e",
+        "original_renderer_normalized_sha256": "9b48e8c7670abd802b5c14b841c0770131e7ac6b99fa2052faa554daecf91afe",
+        "terrain_test_extraction_sha256": "d1ce3851ed76cf01a49ff5ab9d97fcc4343a463e1133ad4466d7e90a6f70b69b",
+        "terrain_water_callbacks": [
+          "WaterSolid_t2",
+          "WaterClearSolid_t2",
+          "WaterAlpha_t3",
+          "WaterClearAlpha_t3",
+          "TerBot",
+          "TerBotM",
+          "TerBotTex",
+          "TerBotTexM",
+          "TerBotClear",
+          "TerSurf",
+          "TerSurfW",
+          "TerSurfM",
+          "TerSurfMW",
+          "TerSurfGloss",
+          "TerSurfGlossW",
+          "TerSurfGlossM",
+          "TerSurfGlossMW",
+          "TerSurfTex",
+          "TerSurfTexM",
+          "TerSurfTexGloss",
+          "TerSurfTexGlossM",
+          "TerSurfClear",
+          "TerSurfClearGloss",
+          "TerSurfClearGlossM"
+        ]
+      },
+      "stdout": "material cases accepted=160 disabled_alpha=163 null_texture=46 D3D9_differential=0 mismatches=0 diagnostic_cases=0; deko GPU NOT RUN\n",
+      "input_sha256": {
+        "tests\\test_matrixgame_materials.cpp": "d8f58271c5d4a65dd99ffc0c5b42bac176892358263aa99a488af9733806841c",
+        "port\\matrixgame\\deko\\material_combiner.cpp": "9ff3750189ceb37046b2ab25ff555252b0cb56265501629febe91ddc14dfaf87",
+        "port\\matrixgame\\native-engine\\platform_3g.cpp": "bddda856514ae018bfb14b7d376261e1309ae4c9431532129724986a27a7c3eb",
+        "port\\matrixgame\\deko\\material_combiner.hpp": "5b66be58bec37094c5011d740c77ee3fbc3c650f51d7f5207acbbb46ffe7caa3",
+        "port\\matrixgame\\deko\\material_program.hpp": "148c10fb793e9740c3114dfbef6d96bcd7eb9bfe05f3d36cb0dfbecb12b235d1",
+        "port\\matrixgame\\deko\\material.frag.glsl": "d75ff5e778504783b30037dc70525c4e1d8307cfeb45b27cf6990e5fff6ac3f9",
+        "port\\matrixgame\\deko\\materials.cmake": "a6603f8a2e8c6fd51ed12ed0c852e43dc7d7364f836bf487669e8c82e1be2e70",
+        "tools\\matrixgame_material_callbacks_prepare.py": "dad305766cab158ce05c5c7416114ce97958b7b7f90c5a5e6062368daf2d0c63",
+        "tools\\matrixgame_material_checks.py": "ad4a1d020ff7534e0981ce652a7a730fc13c39246679c82cbd817121919e82a0"
+      }
+    },
+    "arm64": {
+      "scope": "original callback texture cascade only; no native Init/frame/hardware PASS",
+      "commands": [
+        {
+          "label": "build",
+          "command": [
+            "wsl",
+            "--exec",
+            "aarch64-linux-gnu-g++",
+            "-std=c++20",
+            "-O1",
+            "-g",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/materials/arm64/callbacks",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_materials.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_combiner.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/platform_3g.cpp",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/materials/arm64/material-checks"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "qemu-aarch64",
+            "-L",
+            "/usr/aarch64-linux-gnu",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/materials/arm64/material-checks"
+          ],
+          "exit": 0
+        }
+      ],
+      "status": "PASS",
+      "Switch_runtime": false,
+      "NRO_created": false,
+      "extraction": {
+        "original_skin_sha256": "d9d565af29522397011903bf6e3d730575092d0eb8ad540506740ff8f03f4778",
+        "test_extraction_sha256": "d528aa9454b3b0e7abeb4152728b12674cee8ba5ee56729c658b2d11f1c98d3e",
+        "original_renderer_normalized_sha256": "9b48e8c7670abd802b5c14b841c0770131e7ac6b99fa2052faa554daecf91afe",
+        "terrain_test_extraction_sha256": "d1ce3851ed76cf01a49ff5ab9d97fcc4343a463e1133ad4466d7e90a6f70b69b",
+        "terrain_water_callbacks": [
+          "WaterSolid_t2",
+          "WaterClearSolid_t2",
+          "WaterAlpha_t3",
+          "WaterClearAlpha_t3",
+          "TerBot",
+          "TerBotM",
+          "TerBotTex",
+          "TerBotTexM",
+          "TerBotClear",
+          "TerSurf",
+          "TerSurfW",
+          "TerSurfM",
+          "TerSurfMW",
+          "TerSurfGloss",
+          "TerSurfGlossW",
+          "TerSurfGlossM",
+          "TerSurfGlossMW",
+          "TerSurfTex",
+          "TerSurfTexM",
+          "TerSurfTexGloss",
+          "TerSurfTexGlossM",
+          "TerSurfClear",
+          "TerSurfClearGloss",
+          "TerSurfClearGlossM"
+        ]
+      },
+      "stdout": "material cases accepted=160 disabled_alpha=163 null_texture=46 D3D9_differential=0 mismatches=0 diagnostic_cases=0; deko GPU NOT RUN\n",
+      "input_sha256": {
+        "tests\\test_matrixgame_materials.cpp": "d8f58271c5d4a65dd99ffc0c5b42bac176892358263aa99a488af9733806841c",
+        "port\\matrixgame\\deko\\material_combiner.cpp": "9ff3750189ceb37046b2ab25ff555252b0cb56265501629febe91ddc14dfaf87",
+        "port\\matrixgame\\native-engine\\platform_3g.cpp": "bddda856514ae018bfb14b7d376261e1309ae4c9431532129724986a27a7c3eb",
+        "port\\matrixgame\\deko\\material_combiner.hpp": "5b66be58bec37094c5011d740c77ee3fbc3c650f51d7f5207acbbb46ffe7caa3",
+        "port\\matrixgame\\deko\\material_program.hpp": "148c10fb793e9740c3114dfbef6d96bcd7eb9bfe05f3d36cb0dfbecb12b235d1",
+        "port\\matrixgame\\deko\\material.frag.glsl": "d75ff5e778504783b30037dc70525c4e1d8307cfeb45b27cf6990e5fff6ac3f9",
+        "port\\matrixgame\\deko\\materials.cmake": "a6603f8a2e8c6fd51ed12ed0c852e43dc7d7364f836bf487669e8c82e1be2e70",
+        "tools\\matrixgame_material_callbacks_prepare.py": "dad305766cab158ce05c5c7416114ce97958b7b7f90c5a5e6062368daf2d0c63",
+        "tools\\matrixgame_material_checks.py": "ad4a1d020ff7534e0981ce652a7a730fc13c39246679c82cbd817121919e82a0"
+      }
+    },
+    "windows": {
+      "scope": "original callback texture cascade only; no native Init/frame/hardware PASS",
+      "commands": [
+        {
+          "label": "build",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\windows\\build.cmd"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime",
+          "command": [
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\windows\\material-checks.exe"
+          ],
+          "exit": 0
+        }
+      ],
+      "status": "PASS",
+      "Switch_runtime": false,
+      "NRO_created": false,
+      "extraction": {
+        "original_skin_sha256": "d9d565af29522397011903bf6e3d730575092d0eb8ad540506740ff8f03f4778",
+        "test_extraction_sha256": "d528aa9454b3b0e7abeb4152728b12674cee8ba5ee56729c658b2d11f1c98d3e",
+        "original_renderer_normalized_sha256": "9b48e8c7670abd802b5c14b841c0770131e7ac6b99fa2052faa554daecf91afe",
+        "terrain_test_extraction_sha256": "d1ce3851ed76cf01a49ff5ab9d97fcc4343a463e1133ad4466d7e90a6f70b69b",
+        "terrain_water_callbacks": [
+          "WaterSolid_t2",
+          "WaterClearSolid_t2",
+          "WaterAlpha_t3",
+          "WaterClearAlpha_t3",
+          "TerBot",
+          "TerBotM",
+          "TerBotTex",
+          "TerBotTexM",
+          "TerBotClear",
+          "TerSurf",
+          "TerSurfW",
+          "TerSurfM",
+          "TerSurfMW",
+          "TerSurfGloss",
+          "TerSurfGlossW",
+          "TerSurfGlossM",
+          "TerSurfGlossMW",
+          "TerSurfTex",
+          "TerSurfTexM",
+          "TerSurfTexGloss",
+          "TerSurfTexGlossM",
+          "TerSurfClear",
+          "TerSurfClearGloss",
+          "TerSurfClearGlossM"
+        ]
+      },
+      "stdout": "reference adapter=NVIDIA GeForce RTX 5060 driver=nvldumd.dll\nunsupported native material: skin caps=2 bits=0 group=0 alpha=0 pass=0 actual HAL ARGB=b12d6291\nunsupported native material: skin caps=2 bits=0 group=0 alpha=1 pass=0 actual HAL ARGB=b12d6291\nunsupported native material: skin caps=2 bits=0 group=2 alpha=0 pass=0 actual HAL ARGB=cc071e4f\nunsupported native material: skin caps=2 bits=0 group=2 alpha=1 pass=0 actual HAL ARGB=cc071e4f\nmaterial cases accepted=160 disabled_alpha=163 null_texture=46 D3D9_differential=160 mismatches=0 diagnostic_cases=209; deko GPU NOT RUN\n",
+      "input_sha256": {
+        "tests\\test_matrixgame_materials.cpp": "d8f58271c5d4a65dd99ffc0c5b42bac176892358263aa99a488af9733806841c",
+        "port\\matrixgame\\deko\\material_combiner.cpp": "9ff3750189ceb37046b2ab25ff555252b0cb56265501629febe91ddc14dfaf87",
+        "port\\matrixgame\\native-engine\\platform_3g.cpp": "bddda856514ae018bfb14b7d376261e1309ae4c9431532129724986a27a7c3eb",
+        "port\\matrixgame\\deko\\material_combiner.hpp": "5b66be58bec37094c5011d740c77ee3fbc3c650f51d7f5207acbbb46ffe7caa3",
+        "port\\matrixgame\\deko\\material_program.hpp": "148c10fb793e9740c3114dfbef6d96bcd7eb9bfe05f3d36cb0dfbecb12b235d1",
+        "port\\matrixgame\\deko\\material.frag.glsl": "d75ff5e778504783b30037dc70525c4e1d8307cfeb45b27cf6990e5fff6ac3f9",
+        "port\\matrixgame\\deko\\materials.cmake": "a6603f8a2e8c6fd51ed12ed0c852e43dc7d7364f836bf487669e8c82e1be2e70",
+        "tools\\matrixgame_material_callbacks_prepare.py": "dad305766cab158ce05c5c7416114ce97958b7b7f90c5a5e6062368daf2d0c63",
+        "tools\\matrixgame_material_checks.py": "ad4a1d020ff7534e0981ce652a7a730fc13c39246679c82cbd817121919e82a0"
+      }
+    },
+    "sdk": {
+      "scope": "original callback texture cascade only; no native Init/frame/hardware PASS",
+      "commands": [
+        {
+          "label": "uam",
+          "command": [
+            "C:\\devkitPro\\tools\\bin\\uam.exe",
+            "-s",
+            "frag",
+            "-o",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\material.frag.dksh",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko\\material.frag.glsl"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "test_matrixgame_materials",
+          "command": [
+            "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-g++.exe",
+            "-std=c++20",
+            "-O2",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-march=armv8-a+crc+crypto",
+            "-mtune=cortex-a57",
+            "-mtp=soft",
+            "-fPIE",
+            "-D__SWITCH__",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\callbacks",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-engine",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core",
+            "-IC:/devkitPro/libnx/include",
+            "-c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\tests\\test_matrixgame_materials.cpp",
+            "-o",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\test_matrixgame_materials.o"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "material_combiner",
+          "command": [
+            "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-g++.exe",
+            "-std=c++20",
+            "-O2",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-march=armv8-a+crc+crypto",
+            "-mtune=cortex-a57",
+            "-mtp=soft",
+            "-fPIE",
+            "-D__SWITCH__",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\callbacks",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-engine",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core",
+            "-IC:/devkitPro/libnx/include",
+            "-c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko\\material_combiner.cpp",
+            "-o",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\material_combiner.o"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "platform_3g",
+          "command": [
+            "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-g++.exe",
+            "-std=c++20",
+            "-O2",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-march=armv8-a+crc+crypto",
+            "-mtune=cortex-a57",
+            "-mtp=soft",
+            "-fPIE",
+            "-D__SWITCH__",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\callbacks",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-engine",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core",
+            "-IC:/devkitPro/libnx/include",
+            "-c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-engine\\platform_3g.cpp",
+            "-o",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\platform_3g.o"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "material_program",
+          "command": [
+            "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-g++.exe",
+            "-std=c++20",
+            "-O2",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-march=armv8-a+crc+crypto",
+            "-mtune=cortex-a57",
+            "-mtp=soft",
+            "-fPIE",
+            "-D__SWITCH__",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\callbacks",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-engine",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core",
+            "-IC:/devkitPro/libnx/include",
+            "-c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko\\material_program.cpp",
+            "-o",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\material_program.o"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "platform_switch",
+          "command": [
+            "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-g++.exe",
+            "-std=c++20",
+            "-O2",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-march=armv8-a+crc+crypto",
+            "-mtune=cortex-a57",
+            "-mtp=soft",
+            "-fPIE",
+            "-D__SWITCH__",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\callbacks",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-engine",
+            "-ID:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core",
+            "-IC:/devkitPro/libnx/include",
+            "-c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-engine\\platform_switch.cpp",
+            "-o",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\platform_switch.o"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "link",
+          "command": [
+            "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-g++.exe",
+            "-march=armv8-a+crc+crypto",
+            "-mtune=cortex-a57",
+            "-mtp=soft",
+            "-fPIE",
+            "-specs=C:/devkitPro/libnx/switch.specs",
+            "-Wl,--no-gc-sections",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\test_matrixgame_materials.o",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\material_combiner.o",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\platform_3g.o",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\material_program.o",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\platform_switch.o",
+            "-LC:/devkitPro/libnx/lib",
+            "-ldeko3d",
+            "-lnx",
+            "-o",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\material-checks.elf"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "symbols",
+          "command": [
+            "C:\\devkitPro\\devkitA64\\bin\\aarch64-none-elf-nm.exe",
+            "-C",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\sdk\\material-checks.elf"
+          ],
+          "exit": 0
+        }
+      ],
+      "status": "PASS",
+      "Switch_runtime": false,
+      "NRO_created": false,
+      "extraction": {
+        "original_skin_sha256": "d9d565af29522397011903bf6e3d730575092d0eb8ad540506740ff8f03f4778",
+        "test_extraction_sha256": "d528aa9454b3b0e7abeb4152728b12674cee8ba5ee56729c658b2d11f1c98d3e",
+        "original_renderer_normalized_sha256": "9b48e8c7670abd802b5c14b841c0770131e7ac6b99fa2052faa554daecf91afe",
+        "terrain_test_extraction_sha256": "d1ce3851ed76cf01a49ff5ab9d97fcc4343a463e1133ad4466d7e90a6f70b69b",
+        "terrain_water_callbacks": [
+          "WaterSolid_t2",
+          "WaterClearSolid_t2",
+          "WaterAlpha_t3",
+          "WaterClearAlpha_t3",
+          "TerBot",
+          "TerBotM",
+          "TerBotTex",
+          "TerBotTexM",
+          "TerBotClear",
+          "TerSurf",
+          "TerSurfW",
+          "TerSurfM",
+          "TerSurfMW",
+          "TerSurfGloss",
+          "TerSurfGlossW",
+          "TerSurfGlossM",
+          "TerSurfGlossMW",
+          "TerSurfTex",
+          "TerSurfTexM",
+          "TerSurfTexGloss",
+          "TerSurfTexGlossM",
+          "TerSurfClear",
+          "TerSurfClearGloss",
+          "TerSurfClearGlossM"
+        ]
+      },
+      "dksh": {
+        "bytes": 42240,
+        "sha256": "f0e2abd9ed3997e604efd51a28082c703982912f11f80c552a5b700996c18493"
+      },
+      "strong_undefined": [],
+      "input_sha256": {
+        "tests\\test_matrixgame_materials.cpp": "d8f58271c5d4a65dd99ffc0c5b42bac176892358263aa99a488af9733806841c",
+        "port\\matrixgame\\deko\\material_combiner.cpp": "9ff3750189ceb37046b2ab25ff555252b0cb56265501629febe91ddc14dfaf87",
+        "port\\matrixgame\\native-engine\\platform_3g.cpp": "bddda856514ae018bfb14b7d376261e1309ae4c9431532129724986a27a7c3eb",
+        "port\\matrixgame\\deko\\material_program.cpp": "61613e2ef4c488659dde066e7310c4f73710dca565bfb31b5e1befd58253f59a",
+        "port\\matrixgame\\native-engine\\platform_switch.cpp": "ae1a54d264042dab1101081b8973766c4675b1f704cdb29d85e155f968543a80",
+        "port\\matrixgame\\deko\\material_combiner.hpp": "5b66be58bec37094c5011d740c77ee3fbc3c650f51d7f5207acbbb46ffe7caa3",
+        "port\\matrixgame\\deko\\material_program.hpp": "148c10fb793e9740c3114dfbef6d96bcd7eb9bfe05f3d36cb0dfbecb12b235d1",
+        "port\\matrixgame\\deko\\material.frag.glsl": "d75ff5e778504783b30037dc70525c4e1d8307cfeb45b27cf6990e5fff6ac3f9",
+        "port\\matrixgame\\deko\\materials.cmake": "a6603f8a2e8c6fd51ed12ed0c852e43dc7d7364f836bf487669e8c82e1be2e70",
+        "tools\\matrixgame_material_callbacks_prepare.py": "dad305766cab158ce05c5c7416114ce97958b7b7f90c5a5e6062368daf2d0c63",
+        "tools\\matrixgame_material_checks.py": "ad4a1d020ff7534e0981ce652a7a730fc13c39246679c82cbd817121919e82a0"
+      }
+    },
+    "cmake-windows": {
+      "scope": "original callback texture cascade only; no native Init/frame/hardware PASS",
+      "commands": [
+        {
+          "label": "configure",
+          "command": [
+            "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+            "-S",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\cmake-windows\\source",
+            "-B",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\cmake-windows\\build",
+            "-G",
+            "Visual Studio 17 2022",
+            "-A",
+            "Win32",
+            "-DBUILD_TESTING=ON",
+            "-DPython3_EXECUTABLE=C:\\Users\\Sklyarov\\AppData\\Local\\Programs\\Python\\Python313\\python.exe"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "build",
+          "command": [
+            "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+            "--build",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\cmake-windows\\build",
+            "--config",
+            "Release",
+            "--target",
+            "matrixgame-material-contract",
+            "--parallel",
+            "2"
+          ],
+          "exit": 0
+        }
+      ],
+      "status": "PASS",
+      "Switch_runtime": false,
+      "NRO_created": false,
+      "extraction": {
+        "original_skin_sha256": "d9d565af29522397011903bf6e3d730575092d0eb8ad540506740ff8f03f4778",
+        "test_extraction_sha256": "d528aa9454b3b0e7abeb4152728b12674cee8ba5ee56729c658b2d11f1c98d3e",
+        "original_renderer_normalized_sha256": "9b48e8c7670abd802b5c14b841c0770131e7ac6b99fa2052faa554daecf91afe",
+        "terrain_test_extraction_sha256": "d1ce3851ed76cf01a49ff5ab9d97fcc4343a463e1133ad4466d7e90a6f70b69b",
+        "terrain_water_callbacks": [
+          "WaterSolid_t2",
+          "WaterClearSolid_t2",
+          "WaterAlpha_t3",
+          "WaterClearAlpha_t3",
+          "TerBot",
+          "TerBotM",
+          "TerBotTex",
+          "TerBotTexM",
+          "TerBotClear",
+          "TerSurf",
+          "TerSurfW",
+          "TerSurfM",
+          "TerSurfMW",
+          "TerSurfGloss",
+          "TerSurfGlossW",
+          "TerSurfGlossM",
+          "TerSurfGlossMW",
+          "TerSurfTex",
+          "TerSurfTexM",
+          "TerSurfTexGloss",
+          "TerSurfTexGlossM",
+          "TerSurfClear",
+          "TerSurfClearGloss",
+          "TerSurfClearGlossM"
+        ]
+      },
+      "runtime_executed": false,
+      "input_sha256": {
+        "tests\\test_matrixgame_materials.cpp": "d8f58271c5d4a65dd99ffc0c5b42bac176892358263aa99a488af9733806841c",
+        "port\\matrixgame\\deko\\material_combiner.cpp": "9ff3750189ceb37046b2ab25ff555252b0cb56265501629febe91ddc14dfaf87",
+        "port\\matrixgame\\native-engine\\platform_3g.cpp": "bddda856514ae018bfb14b7d376261e1309ae4c9431532129724986a27a7c3eb",
+        "port\\matrixgame\\deko\\material_combiner.hpp": "5b66be58bec37094c5011d740c77ee3fbc3c650f51d7f5207acbbb46ffe7caa3",
+        "port\\matrixgame\\deko\\material_program.hpp": "148c10fb793e9740c3114dfbef6d96bcd7eb9bfe05f3d36cb0dfbecb12b235d1",
+        "port\\matrixgame\\deko\\material.frag.glsl": "d75ff5e778504783b30037dc70525c4e1d8307cfeb45b27cf6990e5fff6ac3f9",
+        "port\\matrixgame\\deko\\materials.cmake": "a6603f8a2e8c6fd51ed12ed0c852e43dc7d7364f836bf487669e8c82e1be2e70",
+        "tools\\matrixgame_material_callbacks_prepare.py": "dad305766cab158ce05c5c7416114ce97958b7b7f90c5a5e6062368daf2d0c63",
+        "tools\\matrixgame_material_checks.py": "ad4a1d020ff7534e0981ce652a7a730fc13c39246679c82cbd817121919e82a0"
+      }
+    },
+    "cmake-sdk": {
+      "scope": "original callback texture cascade only; no native Init/frame/hardware PASS",
+      "commands": [
+        {
+          "label": "configure",
+          "command": [
+            "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+            "-S",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\cmake-sdk\\source",
+            "-B",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\cmake-sdk\\build",
+            "-G",
+            "Ninja",
+            "-DCMAKE_MAKE_PROGRAM=C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\Ninja\\ninja.exe",
+            "-DCMAKE_TOOLCHAIN_FILE=D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core\\switch-toolchain.cmake",
+            "-DMATRIXGAME_DEVKITPRO=C:/devkitPro",
+            "-DBUILD_TESTING=OFF",
+            "-DPython3_EXECUTABLE=C:\\Users\\Sklyarov\\AppData\\Local\\Programs\\Python\\Python313\\python.exe"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "build",
+          "command": [
+            "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+            "--build",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\materials\\cmake-sdk\\build",
+            "--config",
+            "Release",
+            "--target",
+            "matrixgame-material-combiner",
+            "--parallel",
+            "2"
+          ],
+          "exit": 0
+        }
+      ],
+      "status": "PASS",
+      "Switch_runtime": false,
+      "NRO_created": false,
+      "extraction": {
+        "original_skin_sha256": "d9d565af29522397011903bf6e3d730575092d0eb8ad540506740ff8f03f4778",
+        "test_extraction_sha256": "d528aa9454b3b0e7abeb4152728b12674cee8ba5ee56729c658b2d11f1c98d3e",
+        "original_renderer_normalized_sha256": "9b48e8c7670abd802b5c14b841c0770131e7ac6b99fa2052faa554daecf91afe",
+        "terrain_test_extraction_sha256": "d1ce3851ed76cf01a49ff5ab9d97fcc4343a463e1133ad4466d7e90a6f70b69b",
+        "terrain_water_callbacks": [
+          "WaterSolid_t2",
+          "WaterClearSolid_t2",
+          "WaterAlpha_t3",
+          "WaterClearAlpha_t3",
+          "TerBot",
+          "TerBotM",
+          "TerBotTex",
+          "TerBotTexM",
+          "TerBotClear",
+          "TerSurf",
+          "TerSurfW",
+          "TerSurfM",
+          "TerSurfMW",
+          "TerSurfGloss",
+          "TerSurfGlossW",
+          "TerSurfGlossM",
+          "TerSurfGlossMW",
+          "TerSurfTex",
+          "TerSurfTexM",
+          "TerSurfTexGloss",
+          "TerSurfTexGlossM",
+          "TerSurfClear",
+          "TerSurfClearGloss",
+          "TerSurfClearGlossM"
+        ]
+      },
+      "runtime_executed": false,
+      "input_sha256": {
+        "tests\\test_matrixgame_materials.cpp": "d8f58271c5d4a65dd99ffc0c5b42bac176892358263aa99a488af9733806841c",
+        "port\\matrixgame\\deko\\material_combiner.cpp": "9ff3750189ceb37046b2ab25ff555252b0cb56265501629febe91ddc14dfaf87",
+        "port\\matrixgame\\native-engine\\platform_3g.cpp": "bddda856514ae018bfb14b7d376261e1309ae4c9431532129724986a27a7c3eb",
+        "port\\matrixgame\\deko\\material_combiner.hpp": "5b66be58bec37094c5011d740c77ee3fbc3c650f51d7f5207acbbb46ffe7caa3",
+        "port\\matrixgame\\deko\\material_program.hpp": "148c10fb793e9740c3114dfbef6d96bcd7eb9bfe05f3d36cb0dfbecb12b235d1",
+        "port\\matrixgame\\deko\\material.frag.glsl": "d75ff5e778504783b30037dc70525c4e1d8307cfeb45b27cf6990e5fff6ac3f9",
+        "port\\matrixgame\\deko\\materials.cmake": "a6603f8a2e8c6fd51ed12ed0c852e43dc7d7364f836bf487669e8c82e1be2e70",
+        "tools\\matrixgame_material_callbacks_prepare.py": "dad305766cab158ce05c5c7416114ce97958b7b7f90c5a5e6062368daf2d0c63",
+        "tools\\matrixgame_material_checks.py": "ad4a1d020ff7534e0981ce652a7a730fc13c39246679c82cbd817121919e82a0"
+      }
+    }
+  },
+  "D3D9_reference_scope": "prelit vertices, constant 1x1 textures, raw combiner output; raster blend, alpha test, transforms and lighting excluded",
+  "D3D9_comparisons": 160,
+  "original_callback_comparisons": 115,
+  "extra_equation_modifier_comparisons": 45,
+  "native_material_cases_deliberately_refused": 209,
+  "disabled_alpha_refusals": 163,
+  "null_texture_refusals": 46,
+  "unsupported_case_D3D9_readbacks": 209,
+  "unsupported_case_native_parity": false,
+  "ReadCaps_returns_success": false,
+  "module_activated_as_full_DekoDevice_renderer": false,
+  "current_native_chain_boundary": "CGame::Init -> EnterPlatform -> EnterNativePlatform -> InitAsNative -> DekoDevice::ReadCaps",
+  "known_pending_original_methods": [
+    "obj_side2",
+    "obj_side6",
+    "TerSurf",
+    "TerBotM"
+  ],
+  "remaining_for_map": [
+    "disabled-alpha and null-texture observable parity",
+    "FVF vertex lighting and TCI/texture transforms",
+    "complete raster/stencil/shadow state and original draw submission",
+    "texture residency/allocation plus original texture backend",
+    "state capture, video/lifecycle, gamma/color, font/cursor/input",
+    "native Init map load and acquire/submit/present/readback"
+  ],
+  "native_Init_executed_this_continuation": false,
+  "Switch_hardware_runtime": false,
+  "NRO_created": false,
+  "full_Windows_Init_frame_repeated": false,
+  "original_Init_Draw_algorithms_modified": false,
+  "protected": {
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\newgame.txt": {
+      "sha256": "edebec1fbe596bfdb856719310372b9bf69ce7989394b86ae13377db847ec65c",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\QuickSave.sav": {
+      "sha256": "84509d9ab5411555c0a361d5616c94aae6ef3a5c00fa81782ea64192b5c7bd73",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Medical Center Autoclave.sav": {
+      "sha256": "d6e238a00e514712ab9eed796c40c39dd1cddc20f7036de1a7b8d25fee34e622",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\hardware-gpu-a224fa4.zip": {
+      "sha256": "1c5cfebb2696bbf6db98bd2cd598956f468ef1ca8183bbf31271148c30103429",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Sol System.sav": {
+      "sha256": "62c35d050b256e13326ce904123c44bad3756deeb66e269dbae2a66b4f903cc0",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-2.vo": {
+      "sha256": "b7cba8a78faf0c8cf32cf942288d2fdb0d5d21b047d0e9abaa212092c11d9ccd",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\reports\\e2e5\\e2e510-artifact-provenance.json": {
+      "sha256": "eaac3d9181b12566492bda774933af6469f2b0b26104bcc83a8d266fee7759ec",
+      "unchanged": true
+    },
+    "G:\\pack.zip": {
+      "status": "UNAVAILABLE"
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-1.vo": {
+      "sha256": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\CFG.TXT": {
+      "sha256": "6b63a47bba893e4a33c4f92d3aaa19adf3c45c4032da7a302b140e03ab166180",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\mg-merge-host\\core\\texture-request-fixtures\\assets\\plain.png": {
+      "sha256": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\########.log": {
+      "sha256": "fef05715d095d39568aee8d9c121c1cb232a80a84e0c6e2a56712070d2f505b3",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\AutoSave.sav": {
+      "sha256": "739c428d9a7f13e88e7e2fe65d6435dbf297270be35c672020b9fa7d097ac601",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce.zip": {
+      "sha256": "e1a1dec5f410b983d629ae538ad9b4ba063f89a8101af43d27ea00c6ce6a08a4",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce\\switch\\space-rangers-hd-a-war-apart\\SpaceRangersHD-perf516.nro": {
+      "sha256": "9f654daab36c71cb51940871d4a93bdcceb09edd7da8dde127ab023bfb21e789",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce\\debug\\SpaceRangersHD-perf516.elf": {
+      "sha256": "0ca47fa95e614167da814cf63e1bc19e0bd005e94b34763287d713d5c9989ab5",
+      "unchanged": true
+    }
+  },
+  "hardware_files_verified": 107,
+  "original_package_CFG_and_frozen_cache_unchanged": true,
+  "source_and_artifact_sha256": {
+    "build/matrixgame/e2e521/materials/arm64/build.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "build/matrixgame/e2e521/materials/arm64/result.json": {
+      "sha256": "8881037ac93750491c696c0a524690336128756a1595cbc84920d3944537d065",
+      "bytes": 3986
+    },
+    "build/matrixgame/e2e521/materials/arm64/runtime.log": {
+      "sha256": "f516fe49dd8cfe0bf2a7513040eda35a8c4aadc7a80651688f364f57f2134b24",
+      "bytes": 134
+    },
+    "build/matrixgame/e2e521/materials/cmake-sdk/build.log": {
+      "sha256": "71aa391ec7d7e291b419a7f40fba91919e14ac2394ab4e8b66ed126e267d70f6",
+      "bytes": 23
+    },
+    "build/matrixgame/e2e521/materials/cmake-sdk/configure.log": {
+      "sha256": "51227ed17bfeb972e63844bfeb537c6f86f6c5ccdaded66cdba84fcaa85aa722",
+      "bytes": 440
+    },
+    "build/matrixgame/e2e521/materials/cmake-sdk/result.json": {
+      "sha256": "ff21b2a2c5397b06333917c8858d737a246e6edbeb64772f74d0fe1236b59d08",
+      "bytes": 3872
+    },
+    "build/matrixgame/e2e521/materials/cmake-windows/build.log": {
+      "sha256": "0e442359a4f8391d7c4e16ca5e34d1daa07cc1ddac4fa38ec7dd7c432b41345e",
+      "bytes": 2322
+    },
+    "build/matrixgame/e2e521/materials/cmake-windows/configure.log": {
+      "sha256": "6836bfac624aecb824a496e3fd657d7cc3d0acb8082d1dac43b9e07991593766",
+      "bytes": 411
+    },
+    "build/matrixgame/e2e521/materials/cmake-windows/result.json": {
+      "sha256": "230bc949f6a05fe89f20ba2804b201601d0b1eb80e8055fb2cdc11c496e782a0",
+      "bytes": 3587
+    },
+    "build/matrixgame/e2e521/materials/host/build.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "build/matrixgame/e2e521/materials/host/result.json": {
+      "sha256": "ed2d629f8455ef6e87b301ae877d8e415d196d5886331544e0c19b9c6714861c",
+      "bytes": 4008
+    },
+    "build/matrixgame/e2e521/materials/host/runtime.log": {
+      "sha256": "f516fe49dd8cfe0bf2a7513040eda35a8c4aadc7a80651688f364f57f2134b24",
+      "bytes": 134
+    },
+    "build/matrixgame/e2e521/materials/sdk/link.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "build/matrixgame/e2e521/materials/sdk/material-checks.elf": {
+      "sha256": "48ddea5b6ac31523eaed099636499d0572c862fb3d741146fe6e0d3dbebef95d",
+      "bytes": 4401920
+    },
+    "build/matrixgame/e2e521/materials/sdk/material.frag.dksh": {
+      "sha256": "f0e2abd9ed3997e604efd51a28082c703982912f11f80c552a5b700996c18493",
+      "bytes": 42240
+    },
+    "build/matrixgame/e2e521/materials/sdk/material_combiner.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "build/matrixgame/e2e521/materials/sdk/material_combiner.o": {
+      "sha256": "8c782f15597719915ed65bb5bc7113337eff2aea9ce6f06237bb5531f70292f8",
+      "bytes": 20832
+    },
+    "build/matrixgame/e2e521/materials/sdk/material_program.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "build/matrixgame/e2e521/materials/sdk/material_program.o": {
+      "sha256": "48625f6db5625515c53165f8578130af3df8bb52728fb4d756cfd5b60c72f468",
+      "bytes": 7736
+    },
+    "build/matrixgame/e2e521/materials/sdk/platform_3g.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "build/matrixgame/e2e521/materials/sdk/platform_3g.o": {
+      "sha256": "3e42e5fefa553c8527d61757b43c7474d7525eea9a60ded2c5b72a9fea2394cc",
+      "bytes": 12808
+    },
+    "build/matrixgame/e2e521/materials/sdk/platform_switch.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "build/matrixgame/e2e521/materials/sdk/platform_switch.o": {
+      "sha256": "88ba987ab14008e24ecd7a1ce440939d587308a981e6a7c9e809a5b10dbbe37e",
+      "bytes": 90144
+    },
+    "build/matrixgame/e2e521/materials/sdk/result.json": {
+      "sha256": "077589c0a60d91a20c22679f14c0579e4b25a88789f7b17271c4d46eb1a31463",
+      "bytes": 9886
+    },
+    "build/matrixgame/e2e521/materials/sdk/symbols.log": {
+      "sha256": "c803b573e14467d67411cc6e23e0903913218a412384ad9f7bd829e1637a41cc",
+      "bytes": 217017
+    },
+    "build/matrixgame/e2e521/materials/sdk/test_matrixgame_materials.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "build/matrixgame/e2e521/materials/sdk/test_matrixgame_materials.o": {
+      "sha256": "03860818af1a345e08f88f079735aa4148114fc16688f38e8546b155094fa04d",
+      "bytes": 243976
+    },
+    "build/matrixgame/e2e521/materials/sdk/uam.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "build/matrixgame/e2e521/materials/source/original_skin_materials.inc": {
+      "sha256": "d528aa9454b3b0e7abeb4152728b12674cee8ba5ee56729c658b2d11f1c98d3e",
+      "bytes": 72918
+    },
+    "build/matrixgame/e2e521/materials/source/original_terrain_materials.inc": {
+      "sha256": "d1ce3851ed76cf01a49ff5ab9d97fcc4343a463e1133ad4466d7e90a6f70b69b",
+      "bytes": 24126
+    },
+    "build/matrixgame/e2e521/materials/windows/build.log": {
+      "sha256": "627b7ef827387e822bef3427d03e7c91dacb4f7f814aea43ee3b9efe8a04ea7d",
+      "bytes": 1423
+    },
+    "build/matrixgame/e2e521/materials/windows/material-checks.exe": {
+      "sha256": "62bfd571880fc2efe8b7d4e837daede5ef695734acdbbb8c5aab59774ebda74e",
+      "bytes": 234496
+    },
+    "build/matrixgame/e2e521/materials/windows/material_combiner.obj": {
+      "sha256": "aeb88fde89af16743c958a006df130d1360dfb9e33448c2f0ae970b78b12692b",
+      "bytes": 81372
+    },
+    "build/matrixgame/e2e521/materials/windows/platform_3g.obj": {
+      "sha256": "02bba1b5f1bd4240826de0f0258d8b3c5a60f83f0ce977427736a53020b69a37",
+      "bytes": 35578
+    },
+    "build/matrixgame/e2e521/materials/windows/result.json": {
+      "sha256": "1751f2b65ba86d08892de3d1277b4282111f0d54eb831899cfcb2bf821fceb6e",
+      "bytes": 3393
+    },
+    "build/matrixgame/e2e521/materials/windows/runtime.log": {
+      "sha256": "e12b0a15e4ef74ba1ea020394b642b02e1f3101c4734f7e4d07769d510f3e09b",
+      "bytes": 588
+    },
+    "build/matrixgame/e2e521/materials/windows/test_matrixgame_materials.obj": {
+      "sha256": "b934811dd8da7f47d80726312dae5cf19075bddc98c857c291d78e519a6e6a9c",
+      "bytes": 370109
+    },
+    "build/matrixgame/e2e521/materials/windows/callbacks/original_skin_materials.inc": {
+      "sha256": "d528aa9454b3b0e7abeb4152728b12674cee8ba5ee56729c658b2d11f1c98d3e",
+      "bytes": 72918
+    },
+    "build/matrixgame/e2e521/materials/windows/callbacks/original_terrain_materials.inc": {
+      "sha256": "d1ce3851ed76cf01a49ff5ab9d97fcc4343a463e1133ad4466d7e90a6f70b69b",
+      "bytes": 24126
+    },
+    "build/matrixgame/e2e521/materials/sdk/callbacks/original_skin_materials.inc": {
+      "sha256": "d528aa9454b3b0e7abeb4152728b12674cee8ba5ee56729c658b2d11f1c98d3e",
+      "bytes": 72918
+    },
+    "build/matrixgame/e2e521/materials/sdk/callbacks/original_terrain_materials.inc": {
+      "sha256": "d1ce3851ed76cf01a49ff5ab9d97fcc4343a463e1133ad4466d7e90a6f70b69b",
+      "bytes": 24126
+    },
+    "build/matrixgame/e2e521/materials/host/callbacks/original_skin_materials.inc": {
+      "sha256": "d528aa9454b3b0e7abeb4152728b12674cee8ba5ee56729c658b2d11f1c98d3e",
+      "bytes": 72918
+    },
+    "build/matrixgame/e2e521/materials/host/callbacks/original_terrain_materials.inc": {
+      "sha256": "d1ce3851ed76cf01a49ff5ab9d97fcc4343a463e1133ad4466d7e90a6f70b69b",
+      "bytes": 24126
+    },
+    "build/matrixgame/e2e521/materials/cmake-windows/callbacks/original_skin_materials.inc": {
+      "sha256": "d528aa9454b3b0e7abeb4152728b12674cee8ba5ee56729c658b2d11f1c98d3e",
+      "bytes": 72918
+    },
+    "build/matrixgame/e2e521/materials/cmake-windows/callbacks/original_terrain_materials.inc": {
+      "sha256": "d1ce3851ed76cf01a49ff5ab9d97fcc4343a463e1133ad4466d7e90a6f70b69b",
+      "bytes": 24126
+    },
+    "build/matrixgame/e2e521/materials/cmake-windows/build/material-callbacks/original_skin_materials.inc": {
+      "sha256": "d528aa9454b3b0e7abeb4152728b12674cee8ba5ee56729c658b2d11f1c98d3e",
+      "bytes": 72918
+    },
+    "build/matrixgame/e2e521/materials/cmake-windows/build/material-callbacks/original_terrain_materials.inc": {
+      "sha256": "d1ce3851ed76cf01a49ff5ab9d97fcc4343a463e1133ad4466d7e90a6f70b69b",
+      "bytes": 24126
+    },
+    "build/matrixgame/e2e521/materials/cmake-windows/build/Release/matrixgame-material-combiner.lib": {
+      "sha256": "9802c8c6b92de727bc917650da260c8483e8ca92315aea2d06a36263c0c84038",
+      "bytes": 51540
+    },
+    "build/matrixgame/e2e521/materials/cmake-windows/build/Release/matrixgame-material-contract.exe": {
+      "sha256": "876edbd27f4ca7a9378437f05c3407805baf439665bd057bcf1e6f9bc64da9aa",
+      "bytes": 94720
+    },
+    "build/matrixgame/e2e521/materials/cmake-windows/build/matrixgame-material-contract.dir/Release/platform_3g.obj": {
+      "sha256": "68d8c6f78b78f1059d721ec5446b7790ed97038f90a7459165591797d44561bc",
+      "bytes": 20407
+    },
+    "build/matrixgame/e2e521/materials/cmake-windows/build/matrixgame-material-contract.dir/Release/test_matrixgame_materials.obj": {
+      "sha256": "f82e02932bacd51fd638e672ffac61e344a853007d676150fd5bdc447e08d995",
+      "bytes": 189087
+    },
+    "build/matrixgame/e2e521/materials/cmake-windows/build/matrixgame-material-combiner.dir/Release/material_combiner.obj": {
+      "sha256": "3dbec51fa5abaa41798b78326007445abdb5ad7b56c62475d5480b90d6e2d010",
+      "bytes": 38579
+    },
+    "build/matrixgame/e2e521/materials/cmake-windows/build/CMakeFiles/3.31.6-msvc6/CompilerIdCXX/CompilerIdCXX.exe": {
+      "sha256": "19f9bc15d7cdee4cc27e1fcde12f6c83724bf9a1c38b320fdfc26a39847e91b3",
+      "bytes": 12800
+    },
+    "build/matrixgame/e2e521/materials/cmake-windows/build/CMakeFiles/3.31.6-msvc6/CompilerIdCXX/Debug/CMakeCXXCompilerId.obj": {
+      "sha256": "8749b07ae90b622e86fef9a916e4e007511faf0d2cdd9b1d6d33cd0cc8578f64",
+      "bytes": 2027
+    },
+    "build/matrixgame/e2e521/materials/cmake-sdk/build/libmatrixgame-material-combiner.a": {
+      "sha256": "d0264119805138ea33cc4f07a114bda848008ae803ac65f37ae13ebb7280ca9c",
+      "bytes": 128668
+    },
+    "build/matrixgame/e2e521/materials/cmake-sdk/build/material.frag.dksh": {
+      "sha256": "f0e2abd9ed3997e604efd51a28082c703982912f11f80c552a5b700996c18493",
+      "bytes": 42240
+    },
+    "build/matrixgame/e2e521/materials/cmake-sdk/callbacks/original_skin_materials.inc": {
+      "sha256": "d528aa9454b3b0e7abeb4152728b12674cee8ba5ee56729c658b2d11f1c98d3e",
+      "bytes": 72918
+    },
+    "build/matrixgame/e2e521/materials/cmake-sdk/callbacks/original_terrain_materials.inc": {
+      "sha256": "d1ce3851ed76cf01a49ff5ab9d97fcc4343a463e1133ad4466d7e90a6f70b69b",
+      "bytes": 24126
+    },
+    "build/matrixgame/e2e521/materials/cmake-sdk/build/CMakeFiles/matrixgame-material-combiner.dir/D_/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_combiner.cpp.obj": {
+      "sha256": "4cd81fb41ae175bfe75501aa86e2b77ecf9ecb7ed01aba2b6805b3bb1702241f",
+      "bytes": 78912
+    },
+    "build/matrixgame/e2e521/materials/cmake-sdk/build/CMakeFiles/matrixgame-material-combiner.dir/D_/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_program.cpp.obj": {
+      "sha256": "351cd8d04559ca1b93f0863ad782dc17f518ca7400a01754a047742dc8d39910",
+      "bytes": 38984
+    },
+    "build/matrixgame/e2e521/materials/arm64/callbacks/original_skin_materials.inc": {
+      "sha256": "d528aa9454b3b0e7abeb4152728b12674cee8ba5ee56729c658b2d11f1c98d3e",
+      "bytes": 72918
+    },
+    "build/matrixgame/e2e521/materials/arm64/callbacks/original_terrain_materials.inc": {
+      "sha256": "d1ce3851ed76cf01a49ff5ab9d97fcc4343a463e1133ad4466d7e90a6f70b69b",
+      "bytes": 24126
+    },
+    "tools/matrixgame_material_audit.py": {
+      "sha256": "c7db9cc45424d23633afad7a3f60c6aa6bff593fca37d03d35e687c57e51d020",
+      "bytes": 6084
+    },
+    "reports/matrixgame-e2e521-materials.md": {
+      "sha256": "4bc91a2066569b42a45a453f791cb2adfec17f74dfaf11842a939e66e911355b",
+      "bytes": 10075
+    },
+    "port/matrixgame/native-engine/platform_switch.cpp": {
+      "sha256": "ae1a54d264042dab1101081b8973766c4675b1f704cdb29d85e155f968543a80",
+      "bytes": 5312
+    },
+    "port/matrixgame/native-engine/CMakeLists.txt": {
+      "sha256": "2aee27a1070bd8aeec078564879514d80b412db6075f6e022ae422adee9b5edc",
+      "bytes": 36278
+    },
+    "port/matrixgame/deko/CMakeLists.txt": {
+      "sha256": "914a17a058ddaff0b8ef4d60e003febb046a71b9f22508432034704963706213",
+      "bytes": 2180
+    }
+  },
+  "sdk_sha256": {
+    "libnx/include/deko3d.h": "0388f36a5891e526066f89df7c055da1368a502d096e3fa15cb91f0d81aac54e",
+    "libnx/include/deko3d.hpp": "f5d7d262f8bf05105e7933c7f4f5505102dcbe3c102de6584003df5124f8cfa5",
+    "libnx/lib/libdeko3d.a": "bd99b3771ba5cad2900cf82137479a641f92d5c643a1537fd73c46499811cbe5",
+    "libnx/lib/libnx.a": "12a59cdfdceab83e39ee129b0275dd803e393e83f19de3922a3b6cc95c767edd",
+    "tools/bin/uam.exe": "15f29d489fce66f020b4b3189edc4e06ecb044baf86ca782746f48cee8ed0357",
+    "devkitA64/bin/aarch64-none-elf-g++.exe": "84f151a48fb60c3af7c7ae2d9afbb2981450f7a5542ff89f0221349e942d9f02"
+  },
+  "main_game_P0": "OPEN",
+  "GI_repeating_text_causality": "NOT PROVEN",
+  "manual_publish_ENOENT": "OPEN",
+  "Switch_hangs": "OPEN",
+  "commit": false,
+  "push": false
+}

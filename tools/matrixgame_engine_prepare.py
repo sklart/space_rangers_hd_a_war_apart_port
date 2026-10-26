@@ -8,7 +8,7 @@ import subprocess
 from matrixgame_core_prepare import prepare, SOURCE_SUBDIRS
 
 
-def prepare_engine(output):
+def _prepare_engine_direct(output):
     root=Path(__file__).resolve().parents[1]
     original=root/'upstream/matrixgame'
     output=output.resolve()
@@ -174,11 +174,46 @@ def prepare_engine(output):
     paths.update(prepare_output_paths(output))
     from matrixgame_original_game_overrides import prepare_original_game
     paths.update(prepare_original_game(output))
+    from matrixgame_full_game_overrides import prepare_full_game
+    paths.update(prepare_full_game(output))
     result={'schema':1,'source_commit':revision,'scope':'full engine compilation input; runtime/backend not implemented here',
         'files_sha256':paths,'portable_inputs':report['inputs_sha256'],
         'excluded_platform_launcher':'MatrixGameDll.cpp; native entry remains to implement'}
     marker.write_text(json.dumps(result,indent=2)+'\n')
     return result
+
+
+def prepare_engine(output):
+    # CMake reconfiguration must not invalidate 251 unchanged translation units.
+    # Generate/validate independently, then publish only different bytes.
+    import shutil,tempfile
+    output=output.resolve()
+    root=Path(__file__).resolve().parents[1]
+    if output.is_relative_to((root/'upstream').resolve()):raise ValueError('Refusing upstream output')
+    marker=output/'native-engine-source.json'
+    if output.exists() and any(output.iterdir()) and not marker.is_file():raise ValueError('Existing unmanaged source output')
+    output.parent.mkdir(parents=True,exist_ok=True)
+    temporary=Path(tempfile.mkdtemp(prefix='matrixgame-source-',dir=output.parent)).resolve()
+    if temporary.parent!=output.parent or not temporary.name.startswith('matrixgame-source-'):raise ValueError('Unexpected temporary source path')
+    try:
+        result=_prepare_engine_direct(temporary)
+        changed=[]
+        for source in temporary.rglob('*'):
+            if source.is_file():
+                target=output/source.relative_to(temporary);data=source.read_bytes()
+                if not target.is_file() or target.read_bytes()!=data:changed.append((target,data))
+        if changed:
+            output.mkdir(parents=True,exist_ok=True)
+            marker.write_text(json.dumps({'schema':1,'source_commit':result['source_commit'],'state':'publishing'})+'\n')
+            for target,data in changed:
+                if target!=marker:target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+            marker.write_bytes((temporary/'native-engine-source.json').read_bytes())
+        return result
+    finally:
+        # Only our freshly created, checked directory is ever recursively removed.
+        resolved_temporary=temporary.resolve()
+        if resolved_temporary.parent!=output.parent or not resolved_temporary.name.startswith('matrixgame-source-'):raise ValueError('Refusing temporary source cleanup')
+        shutil.rmtree(resolved_temporary)
 
 
 if __name__=='__main__':

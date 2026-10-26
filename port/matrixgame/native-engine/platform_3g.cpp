@@ -12,6 +12,18 @@ Window& ReadyWindow() {
     if(!state.ready || !state.window)throw Unsupported("3G window negotiation not complete");
     return *state.window;
 }
+void InitAsNative(Window& window,Device& device) {
+    if(state.ready || state.attachment)throw std::logic_error("native platform already attached");
+    try {
+        state.window=&window;state.window_identity=window.Identity();state.device=&device;state.external=true;
+        state.attachment=window.AttachNative();
+        if(!state.attachment)throw std::logic_error("native window returned no lifetime attachment");
+        state.caps=device.ReadCaps(); // Implemented material paths, never guessed D3D caps.
+        state.available_texture_mib=static_cast<int>(device.AvailableTextureBytes()/(1024*1024));
+        if(state.caps.calibrate_gamma)throw Unsupported("native display gamma negotiation requires explicit implementation");
+        state.ready=true;
+    }catch(...){Deinit();throw;}
+}
 void BeginLoopTimerPeriod(std::uint32_t period) {
     auto& window=ReadyWindow();
     if(state.timer)throw std::logic_error("loop timer period already owned");

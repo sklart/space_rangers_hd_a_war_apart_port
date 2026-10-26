@@ -7,6 +7,7 @@
 #include "platform_win32.hpp"
 #endif
 #include "transition_backend.hpp"
+#include "native_frame_scope.hpp"
 namespace srhd_awa::matrixgame::transition {
 namespace p=platform3g;
 p::WindowRect ClientRect(){return p::ReadyWindow().ReadClientRect();}
@@ -57,6 +58,6 @@ std::uintptr_t CompatibleBitmap(std::uintptr_t,int,int){throw p::Unsupported("tr
 std::uintptr_t CompatibleDC(std::uintptr_t){throw p::Unsupported("transition compatible DC unavailable");}
 std::uintptr_t SelectBitmap(std::uintptr_t,std::uintptr_t){throw p::Unsupported("transition bitmap selection unavailable");}
 bool CopyPixels(std::uintptr_t,int,int,int,int,std::uintptr_t,int,int,std::uint32_t){throw p::Unsupported("transition screen BitBlt unavailable");}
-p::DeviceResult Present(){(void)p::ReadyDevice();throw p::Unsupported("transition presentation unavailable");}
+p::DeviceResult Present(){auto* provider=dynamic_cast<p::NativeFrameProvider*>(&p::ReadyDevice());if(!provider)throw p::Unsupported("native presentation provider unavailable");return provider->NativePresent();}
 #endif
 }

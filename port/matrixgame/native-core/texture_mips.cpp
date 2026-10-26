@@ -87,7 +87,31 @@ void FillRGBA(const TextureLevel& source,TextureLevel& target,std::array<std::ui
   }
 }
 }
-void TextureAsset::PrepareMips(TextureMipPolicy policy,std::size_t budget) {
+void TextureAsset::CompressBC1(std::size_t budget) {
+  if(format!=TextureFormat::RGBA8 || png_gamma)throw std::invalid_argument("BC1 input must be prepared RGBA");
+  PrepareMips(TextureMipPolicy::PreserveSupplied,budget);
+  std::size_t used=0;for(const auto& source:levels)used+=source.bytes.size();
+  std::vector<TextureLevel> result;result.reserve(levels.size());
+  for(const auto& source:levels) {
+    const auto pitch=((source.width+3)/4)*8,rows=(source.height+3)/4;
+    const auto size=std::size_t(pitch)*rows;
+    if(size>budget-used)throw std::length_error("BC1 conversion peak budget");used+=size;
+    TextureLevel target{source.width,source.height,pitch,std::vector<std::byte>(size)};
+    for(unsigned by=0;by<rows;++by)for(unsigned bx=0;bx<(source.width+3)/4;++bx) {
+      alignas(16) DirectX::XMVECTOR colors[16];
+      for(unsigned y=0;y<4;++y)for(unsigned x=0;x<4;++x) {
+        const auto sx=std::min(bx*4+x,source.width-1),sy=std::min(by*4+y,source.height-1);
+        const auto* p=source.bytes.data()+std::size_t(sy)*source.pitch+sx*4;
+        colors[y*4+x]=DirectX::XMVectorSet(unsigned(p[0])/255.f,unsigned(p[1])/255.f,unsigned(p[2])/255.f,unsigned(p[3])/255.f);
+      }
+      EncodeBlock(TextureFormat::BC1,target.bytes.data()+std::size_t(by)*pitch+bx*8,colors);
+    }
+    result.push_back(std::move(target));
+  }
+  levels.swap(result);format=TextureFormat::BC1;
+}
+void TextureAsset::PrepareMips(TextureMipPolicy policy,std::size_t budget){PrepareMips(policy,budget,0);}
+void TextureAsset::PrepareMips(TextureMipPolicy policy,std::size_t budget,std::uint32_t level_count) {
   if(levels.empty())throw std::invalid_argument("empty mip image");
   if(budget>::matrixgame::native::BitmapLimit)throw std::length_error("mip image budget");
   auto w=levels[0].width,h=levels[0].height;
@@ -99,7 +123,7 @@ void TextureAsset::PrepareMips(TextureMipPolicy policy,std::size_t budget) {
     if(level.bytes.size()>budget-used)throw std::length_error("mip input ownership budget");used+=level.bytes.size();
     w=std::max(1u,w/2);h=std::max(1u,h/2);
   }
-  if(policy==TextureMipPolicy::PreserveSupplied)return;
+  if(policy==TextureMipPolicy::PreserveSupplied){if(level_count)throw std::invalid_argument("explicit count with preserved mips");return;}
   if(policy!=TextureMipPolicy::OneLevel&&policy!=TextureMipPolicy::CompleteBox)throw std::invalid_argument("mip policy");
   std::array<std::uint8_t,256> gamma_lut{};
   if(png_gamma) {
@@ -109,7 +133,9 @@ void TextureAsset::PrepareMips(TextureMipPolicy policy,std::size_t budget) {
   }
   const unsigned minimum=format==TextureFormat::RGBA8?1u:4u;
   w=std::max(minimum,std::bit_ceil(levels[0].width));h=std::max(minimum,std::bit_ceil(levels[0].height));
-  const auto count=policy==TextureMipPolicy::OneLevel?1u:std::bit_width(std::max(w,h));
+  const auto full=std::bit_width(std::max(w,h));
+  if(level_count>full || (policy==TextureMipPolicy::OneLevel && level_count>1))throw std::invalid_argument("explicit mip count");
+  const auto count=policy==TextureMipPolicy::OneLevel?1u:level_count?level_count:full;
   std::vector<TextureLevel> result(count);
   const auto previous=[&](std::size_t i)->const TextureLevel& {return result[i].bytes.empty()?levels[i]:result[i];};
   for(unsigned i=0;i<count;++i) {

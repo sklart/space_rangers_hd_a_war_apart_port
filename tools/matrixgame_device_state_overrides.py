@@ -47,6 +47,13 @@ static_assert(std::size(stored_sampler_keys)==static_cast<unsigned>(StoredSample
         else:
             text=text.replace('#include "DeviceState.hpp"','#include "DeviceState.hpp"\n#include <cassert>\n#include <cstring>\n#define ASSERT(x) assert(x)\n#define DTRACE()')
             text=re.sub(r'(m_Device->\w+\([^;]+\));',r'srhd_awa::matrixgame::platform3g::CheckDeviceResult(\1,"CDeviceState backend");',text)
+            # Original GetLight failures for never-assigned SDK slots leave
+            # the zeroed Type unchanged. Capture absence explicitly without
+            # swallowing real device errors or faking GetLight success.
+            light_queries='''            srhd_awa::matrixgame::platform3g::CheckDeviceResult(m_Device->GetLight(i, m_Lights + i),"CDeviceState backend");
+            srhd_awa::matrixgame::platform3g::CheckDeviceResult(m_Device->GetLightEnable(i, m_LightsEnabled + i),"CDeviceState backend");'''
+            if text.count(light_queries)!=1:raise ValueError('Original light capture boundary changed')
+            text=text.replace(light_queries,'            m_Device->CaptureLightSlot(i, m_Lights + i, m_LightsEnabled + i);',1)
             for method in ('StoreState','RestoreState'):
                 signature='void CDeviceState::'+method+'(std::uint32_t states) {'
                 check='\n    if(states!=std::uint32_t(DEVSTATE_ALL) && (states & ~15u))throw std::invalid_argument("unknown device-state groups");'

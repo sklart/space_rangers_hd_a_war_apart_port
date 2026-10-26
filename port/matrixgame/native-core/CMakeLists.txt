@@ -82,7 +82,7 @@ add_library(matrixgame-native-core STATIC texture_asset.cpp vector_geometry.cpp 
     "${CORE_SOURCE}/CMain.cpp" "${CORE_SOURCE}/Form.cpp"
     buffer_resources.cpp buffer_geometry.cpp skin_callbacks.cpp
     "${CORE_SOURCE}/CBuf.cpp" "${CORE_SOURCE}/CBuf_file.cpp"
-    "${CORE_SOURCE}/random.cpp" "${CORE_SOURCE}/Math3D.cpp" "${CORE_SOURCE}/CStorage.cpp" "${CORE_SOURCE}/CStorage_blockpar.cpp" "${CORE_SOURCE}/CBlockPar.cpp" heap_native.cpp cbuf_utf16.cpp exception_native.cpp file_native.cpp "${PORT_ROOT}/port/switch/platform/package.cpp")
+    "${CORE_SOURCE}/random.cpp" "${CORE_SOURCE}/Math3D.cpp" "${CORE_SOURCE}/CStorage.cpp" "${CORE_SOURCE}/CStorage_blockpar.cpp" "${CORE_SOURCE}/CBlockPar.cpp" heap_native.cpp cbuf_utf16.cpp exception_native.cpp file_native.cpp resource_paths.cpp "${PORT_ROOT}/port/switch/platform/package.cpp")
 target_include_directories(matrixgame-native-core PUBLIC "${CORE_SOURCE}" "${CMAKE_CURRENT_LIST_DIR}")
 target_sources(matrixgame-native-core PRIVATE "${CORE_SOURCE}/CList.cpp")
 target_sources(matrixgame-native-core PRIVATE texture_request.cpp "${CORE_SOURCE}/TextureFlags.cpp")

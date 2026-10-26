@@ -1,8 +1,42 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "skin_callbacks.hpp"
 #include "VectorObjectCpu.hpp"
+#include <unordered_map>
 namespace srhd_awa::matrixgame {
 namespace {thread_local SkinLoadScope* load_scope{};thread_local NativeDrawSink* draw_sink{};}
+namespace {
+thread_local BorrowedSkinScope* borrowed_scope{};
+thread_local std::unordered_map<const void*,std::weak_ptr<const int>> borrowed_owners;
+}
+BorrowedSkinScope::BorrowedSkinScope(SkinGetter getter):previous_(borrowed_scope),getter_(getter){
+    if(!getter)throw std::invalid_argument("borrowed skin callback missing");
+    borrowed_scope=this;
+}
+BorrowedSkinScope::~BorrowedSkinScope(){borrowed_scope=previous_;}
+bool BorrowedSkinProviderBound(SkinGetter getter) noexcept {
+    for(auto* scope=borrowed_scope;scope;scope=scope->previous_)
+        if(scope->getter_==getter)return true;
+    return false;
+}
+void TrackBorrowedSkinOwner(const void* object,SkinGetter getter){
+    if(!object)throw std::invalid_argument("borrowed skin object missing");
+    for(auto* scope=borrowed_scope;scope;scope=scope->previous_)if(scope->getter_==getter){
+        if(!scope->epoch_)scope->epoch_=std::make_shared<const int>(0);
+        borrowed_owners.insert_or_assign(object,scope->epoch_);return;
+    }
+    throw std::logic_error("borrowed skin callback is not registered");
+}
+void CheckBorrowedSkinOwner(const void* object){
+    const auto found=borrowed_owners.find(object);
+    if(found!=borrowed_owners.end() && found->second.expired())
+        throw std::logic_error("original skin manager lifetime expired; unload/reload required");
+}
+void ForgetBorrowedSkinOwner(const void* object) noexcept {borrowed_owners.erase(object);}
+void InvalidateBorrowedSkins(SkinGetter getter) noexcept {
+    for(auto* scope=borrowed_scope;scope;scope=scope->previous_)
+        if(scope->getter_==getter)scope->epoch_.reset();
+}
+std::size_t BorrowedSkinLeaseCount() noexcept {return borrowed_owners.size();}
 SkinLoadScope::SkinLoadScope(SkinProvider& provider):previous_(load_scope),provider_(provider){load_scope=this;}
 SkinLoadScope::~SkinLoadScope(){load_scope=previous_;}
 bool SkinProviderBound() noexcept {return load_scope!=nullptr;}

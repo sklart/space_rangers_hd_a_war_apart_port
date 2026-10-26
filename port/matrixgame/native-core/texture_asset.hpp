@@ -27,5 +27,9 @@ struct TextureAsset {
   // Complete original-style POT/BOX layout, preserving supplied POT payloads.
   // Budget counts owned input + new output + temporary mip work until commit.
   void PrepareMips(TextureMipPolicy,std::size_t budget=64*1024*1024);
+  void PrepareMips(TextureMipPolicy,std::size_t budget,std::uint32_t level_count);
+  // Encode supplied RGBA levels with the already bundled DirectX BC1 encoder.
+  // BC1 alpha uses the original D3DX threshold 0.5; no RGBA substitute.
+  void CompressBC1(std::size_t budget=64*1024*1024);
 };
 }

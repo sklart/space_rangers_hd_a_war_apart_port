@@ -1,0 +1,1235 @@
+{
+  "status": "E2E-5.38 INPUT AND VIEWPORT CLIP SOFTWARE PASS; SWITCH RUNTIME PARTIAL",
+  "profiles": {
+    "input/host": {
+      "status": "PASS",
+      "commands": [
+        {
+          "label": "build",
+          "command": [
+            "wsl",
+            "--exec",
+            "g++",
+            "-ffunction-sections",
+            "-fdata-sections",
+            "-Wl,--gc-sections",
+            "-std=c++20",
+            "-O1",
+            "-g",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-fno-pie",
+            "-no-pie",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/3G",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Base",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Bitmap",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_cursor.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_input.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_input_engine.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/3G/Form.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src/input.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_native_cursor_input.cpp",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e538-selection/input/host/native-cursor-input"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e538-selection/input/host/native-cursor-input"
+          ],
+          "exit": 0
+        }
+      ],
+      "Switch_runtime": false,
+      "stdout": "native cursor/input CPU PASS OOM=3 RGBA_hotspot=checked retained_icon=checked multi_source=checked double_click=checked repeat_focus=checked mouse_key_aliases=3 release_orders=checked original_Form_Input=executed HID_GPU_NOT_RUN\n",
+      "source_sha256": {
+        "port\\matrixgame\\native-engine\\native_cursor.cpp": "28c01811fa235b6d6282c08e6a7f42a553fa116e646e74c2877da2e67fa88527",
+        "port\\matrixgame\\native-engine\\native_input.cpp": "c9befeb047caca88c3f5c042625e5582f5b2a2763b83be0537411803416b5b37",
+        "port\\matrixgame\\native-engine\\native_input_engine.cpp": "5a0967c840b6dcd3fc184c8387fc228a800b815f0594e3e51aa32eaacd69a74c",
+        "build\\matrixgame\\e2e521\\source\\MatrixLib\\3G\\Form.cpp": "574623bd04c5e7a56dd82a2d34a0b2717da839e19afd4ba038bd8e32d02cb660",
+        "build\\matrixgame\\e2e521\\source\\MatrixGame\\src\\input.cpp": "fa237ded3e940dac71f68531f5d3ed8fbbdfd071bdae713f8ff286c540330e0b",
+        "tests\\test_matrixgame_native_cursor_input.cpp": "b1e09bcc5f4fe79c448f40218f5eb156d7c72188bb0ea95e97f70a9dcb1f9d0a",
+        "port\\matrixgame\\native-engine\\native_cursor.hpp": "d4ec84c19826f8760be03cfb2c291fdb04e345deabf9b25d96373853daa4599f",
+        "port\\matrixgame\\native-engine\\native_input.hpp": "49627283ea63bb0fe60782f979501188610b6b1a3a52635ccc15c05f08ec203d",
+        "port\\matrixgame\\native-engine\\native_input_engine.hpp": "cc7ceafe12967ec82c1d1e4749a3c730780f0ce0438cf63ffd970977ec70bc07",
+        "port\\matrixgame\\native-engine\\native_input_switch.hpp": "234523020c46b52a60e98ae700deaf7cd13ea0a80d6c979f05740196a0871bd2",
+        "port\\matrixgame\\native-engine\\cursor_backend.hpp": "782b056a19ac3eedd1c18c119e9f39707f0aa36d716009f984217a2087389f44",
+        "port\\matrixgame\\native-engine\\platform_switch.hpp": "316c1995ddee90880bd2865d97abba2a6eda77a76585b28bf5fe70fc7da586dc",
+        "tools\\matrixgame_cursor_checks.py": "2a8b9eab0cc9ccd325b675ff9ddf56ac2bba91326f0acbb2c280475d9f3c6b10"
+      }
+    },
+    "input/arm64": {
+      "status": "PASS",
+      "commands": [
+        {
+          "label": "build",
+          "command": [
+            "wsl",
+            "--exec",
+            "aarch64-linux-gnu-g++-15",
+            "-ffunction-sections",
+            "-fdata-sections",
+            "-Wl,--gc-sections",
+            "-std=c++20",
+            "-O1",
+            "-g",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-fno-pie",
+            "-no-pie",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/3G",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Base",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Bitmap",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_cursor.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_input.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_input_engine.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/3G/Form.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src/input.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_native_cursor_input.cpp",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e538-selection/input/arm64/native-cursor-input"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "qemu-aarch64",
+            "-L",
+            "/usr/aarch64-linux-gnu",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e538-selection/input/arm64/native-cursor-input"
+          ],
+          "exit": 0
+        }
+      ],
+      "Switch_runtime": false,
+      "stdout": "native cursor/input CPU PASS OOM=3 RGBA_hotspot=checked retained_icon=checked multi_source=checked double_click=checked repeat_focus=checked mouse_key_aliases=3 release_orders=checked original_Form_Input=executed HID_GPU_NOT_RUN\n",
+      "source_sha256": {
+        "port\\matrixgame\\native-engine\\native_cursor.cpp": "28c01811fa235b6d6282c08e6a7f42a553fa116e646e74c2877da2e67fa88527",
+        "port\\matrixgame\\native-engine\\native_input.cpp": "c9befeb047caca88c3f5c042625e5582f5b2a2763b83be0537411803416b5b37",
+        "port\\matrixgame\\native-engine\\native_input_engine.cpp": "5a0967c840b6dcd3fc184c8387fc228a800b815f0594e3e51aa32eaacd69a74c",
+        "build\\matrixgame\\e2e521\\source\\MatrixLib\\3G\\Form.cpp": "574623bd04c5e7a56dd82a2d34a0b2717da839e19afd4ba038bd8e32d02cb660",
+        "build\\matrixgame\\e2e521\\source\\MatrixGame\\src\\input.cpp": "fa237ded3e940dac71f68531f5d3ed8fbbdfd071bdae713f8ff286c540330e0b",
+        "tests\\test_matrixgame_native_cursor_input.cpp": "b1e09bcc5f4fe79c448f40218f5eb156d7c72188bb0ea95e97f70a9dcb1f9d0a",
+        "port\\matrixgame\\native-engine\\native_cursor.hpp": "d4ec84c19826f8760be03cfb2c291fdb04e345deabf9b25d96373853daa4599f",
+        "port\\matrixgame\\native-engine\\native_input.hpp": "49627283ea63bb0fe60782f979501188610b6b1a3a52635ccc15c05f08ec203d",
+        "port\\matrixgame\\native-engine\\native_input_engine.hpp": "cc7ceafe12967ec82c1d1e4749a3c730780f0ce0438cf63ffd970977ec70bc07",
+        "port\\matrixgame\\native-engine\\native_input_switch.hpp": "234523020c46b52a60e98ae700deaf7cd13ea0a80d6c979f05740196a0871bd2",
+        "port\\matrixgame\\native-engine\\cursor_backend.hpp": "782b056a19ac3eedd1c18c119e9f39707f0aa36d716009f984217a2087389f44",
+        "port\\matrixgame\\native-engine\\platform_switch.hpp": "316c1995ddee90880bd2865d97abba2a6eda77a76585b28bf5fe70fc7da586dc",
+        "tools\\matrixgame_cursor_checks.py": "2a8b9eab0cc9ccd325b675ff9ddf56ac2bba91326f0acbb2c280475d9f3c6b10"
+      }
+    },
+    "map-state/windows": {
+      "status": "PASS",
+      "commands": [
+        {
+          "label": "build-debug_font_backend",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-debug_font_backend.cmd"
+          ],
+          "exit": 0,
+          "seconds": 2.7397917000052985
+        },
+        {
+          "label": "build-map_device_backend",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-map_device_backend.cmd"
+          ],
+          "exit": 0,
+          "seconds": 6.737403599981917
+        },
+        {
+          "label": "build-offscreen_backend",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-offscreen_backend.cmd"
+          ],
+          "exit": 0,
+          "seconds": 5.579818300000625
+        },
+        {
+          "label": "build-original_game",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-original_game.cmd"
+          ],
+          "exit": 0,
+          "seconds": 5.588144300010754
+        },
+        {
+          "label": "build-platform_win32",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-platform_win32.cmd"
+          ],
+          "exit": 0,
+          "seconds": 8.860025300004054
+        },
+        {
+          "label": "build-shadow_texture_backend",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-shadow_texture_backend.cmd"
+          ],
+          "exit": 0,
+          "seconds": 5.824347499990836
+        },
+        {
+          "label": "build-text_backend",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-text_backend.cmd"
+          ],
+          "exit": 0,
+          "seconds": 4.96103010000661
+        },
+        {
+          "label": "build-unmanaged_texture_backend",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-unmanaged_texture_backend.cmd"
+          ],
+          "exit": 0,
+          "seconds": 5.1249037999950815
+        },
+        {
+          "label": "build-transition_backend",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-transition_backend.cmd"
+          ],
+          "exit": 0,
+          "seconds": 4.420473700010916
+        },
+        {
+          "label": "build-native_device_state",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-native_device_state.cmd"
+          ],
+          "exit": 0,
+          "seconds": 4.962542199995369
+        },
+        {
+          "label": "build-fixed_vertex",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-fixed_vertex.cmd"
+          ],
+          "exit": 0,
+          "seconds": 4.864853899984155
+        },
+        {
+          "label": "build-material_combiner",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-material_combiner.cmd"
+          ],
+          "exit": 0,
+          "seconds": 6.521885599999223
+        },
+        {
+          "label": "build-matrixgame_windows_stored_slots",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-matrixgame_windows_stored_slots.cmd"
+          ],
+          "exit": 0,
+          "seconds": 5.335936899995431
+        },
+        {
+          "label": "build-matrixgame_actual_draw_windows",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-matrixgame_actual_draw_windows.cmd"
+          ],
+          "exit": 0,
+          "seconds": 7.281148399983067
+        },
+        {
+          "label": "build-matrixgame_windows_frame_main",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-matrixgame_windows_frame_main.cmd"
+          ],
+          "exit": 0,
+          "seconds": 5.967830499983393
+        },
+        {
+          "label": "build-driver",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-driver.cmd"
+          ],
+          "exit": 0,
+          "seconds": 5.945406400016509
+        },
+        {
+          "label": "build-matrixgame_windows_selection",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-matrixgame_windows_selection.cmd"
+          ],
+          "exit": 0,
+          "seconds": 5.6563366999907885
+        },
+        {
+          "label": "build-native_input",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-native_input.cmd"
+          ],
+          "exit": 0,
+          "seconds": 6.615541000006488
+        },
+        {
+          "label": "build-native_input_engine",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\build-native_input_engine.cmd"
+          ],
+          "exit": 0,
+          "seconds": 4.883124999993015
+        },
+        {
+          "label": "link",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\link.cmd"
+          ],
+          "exit": 0,
+          "seconds": 6.016555999987759
+        },
+        {
+          "label": "runtime",
+          "command": [
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\actual-draw.exe",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows"
+          ],
+          "exit": 0,
+          "seconds": 166.6594259000267
+        }
+      ],
+      "Switch_hardware": "NOT RUN / HARDWARE_PENDING",
+      "binary_sha256": "d831fa049baba71ae28a52fa1ae286cbfa3995faa45e2bdb7726ddb099190c3b",
+      "stdout": "D3D9 HAL CreateDevice HRESULT=00000000\nactual SDK material/viewport/light/register readback and restoration PASS\nexception code=e06d7363 address=75E3BAE4 stack image=00A10000: 00A79048 77AFDB84 77B0A62F 67354DAD 00A76534\nexception code=e06d7363 address=75E3BAE4 stack image=00A10000: 00A79048 77AFDB84 77B0A62F 67354DAD 00A7667D 00A793F5 00BA38E9 76725D49 77AFC75B 77AFC6E1\nborrowed reset refusal, invalid size, actual DEFAULT-resource Reset failure/release/retry PASS\nactual SDK/CPU staging bind/unbind and owner cleanup PASS\noriginal Init entry=0\nMAPCACHE_COLD_RENDER\nMAPCACHE_STORED\noriginal CGame::Init returned: ready=1\nSDK_SLOT_ORACLE raw_light_material=exact raw_enable=exact undefined_HRESULT_preserved=PASS logical_type0_capture=PASS\nREAL_ARCADE_ENTRY robot_mode=1 expected=0E025CA8 actual=0E025CA8 selection=6 ordering=0\nREAL_ARCADE enter=PASS forward_order=PASS movement=18.483131 mouse_fire=PASS mouse_held_after_pad_key_release=1 fire_order_after_pad_key_release=1\nREAL_SELECTION mouse_drag=PASS real_player_object=PASS selected_type=3 merged_mouse_pad=PASS focus_release_restore=PASS frames=38 elapsed=950 IzvratMS=0 CONTROLLED_EVENTS NO_OS_HID NO_SWITCH_HARDWARE\nexception code=e06d7363 address=75E3BAE4 stack image=00A10000: 00A79048 77AFDB84 77B0A62F 67354DAD 00A7285F 00A7948B 00BA38E9 76725D49 77AFC75B 77AFC6E1\nactual map framebuffer readback: 800x600 distinct_rgb=149817 snapshot=D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\map-frame-0.png\nREAL_FORM_LOOP draws=8 elapsed=125 Enter/Pause/Escape/scroll/MouseMove/F9_guard=PASS focus_release_recreate=PASS FPS=4\nactual form HAL draws=107387 indexed=90243\nACTUAL_MAP_NATIVE_STATE draws=115786 indexed=98493 unique=81087 failures=0 CPU_VALIDATION NO_DEKO_GPU\nactual gamma/window readback restored; device/timer leases empty\noriginal Init entry=1\nMAPCACHE_LOADED\noriginal CGame::Init returned: ready=1\nSDK_SLOT_ORACLE raw_light_material=exact raw_enable=exact undefined_HRESULT_preserved=PASS logical_type0_capture=PASS\nREAL_ARCADE_ENTRY robot_mode=1 expected=0D1D58A0 actual=0D1D58A0 selection=6 ordering=0\nREAL_ARCADE enter=PASS forward_order=PASS movement=18.483131 mouse_fire=PASS mouse_held_after_pad_key_release=1 fire_order_after_pad_key_release=1\nREAL_SELECTION mouse_drag=PASS real_player_object=PASS selected_type=3 merged_mouse_pad=PASS focus_release_restore=PASS frames=38 elapsed=950 IzvratMS=0 CONTROLLED_EVENTS NO_OS_HID NO_SWITCH_HARDWARE\nexception code=e06d7363 address=75E3BAE4 stack image=00A10000: 00A79048 77AFDB84 77B0A62F 67354DAD 00A7285F 00A7948B 00BA38E9 76725D49 77AFC75B 77AFC6E1\nactual map framebuffer readback: 800x600 distinct_rgb=149817 snapshot=D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\map-frame-1.png\nREAL_FORM_LOOP draws=8 elapsed=125 Enter/Pause/Escape/scroll/MouseMove/F9_guard=PASS focus_release_recreate=PASS FPS=5\nactual form HAL draws=107387 indexed=90243\nACTUAL_MAP_NATIVE_STATE draws=111800 indexed=94507 unique=78607 failures=0 CPU_VALIDATION NO_DEKO_GPU\nactual gamma/window readback restored; device/timer leases empty\nACTUAL_MAP_HAL_RESULT=0 NATIVE_STATE_REJECTED_SESSIONS=0\nactual D3D9 Reset 640x480 HRESULT=8876086c\nactual D3D9 Reset 640x480 HRESULT=00000000\noriginal Init stage: RobotPreload complete borrowed_skin_objects=0 map_size=0x0 groups=0x0\noriginal Init stage: map storage loaded borrowed_skin_objects=0 map_size=0x0 groups=0x0\noriginal Init stage: PrepareMap complete borrowed_skin_objects=9 map_size=276x285 groups=28x29\nApply window mode\nactual D3D9 Reset 800x600 HRESULT=00000000\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\nactual D3D9 Reset 640x480 HRESULT=00000000\noriginal Init stage: RobotPreload complete borrowed_skin_objects=0 map_size=0x0 groups=0x0\noriginal Init stage: map storage loaded borrowed_skin_objects=0 map_size=0x0 groups=0x0\noriginal Init stage: PrepareMap complete borrowed_skin_objects=9 map_size=276x285 groups=28x29\nApply window mode\nactual D3D9 Reset 800x600 HRESULT=00000000\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\noriginal frame component: CMatrixMap::BeforeDraw\noriginal frame component: CMatrixMap::Draw\noriginal frame component: CMatrixMap::DrawObjects\noriginal frame component: CMatrixMap::DrawLandscape\noriginal frame component: CMatrixMap::DrawLandscapeSurfaces\noriginal frame component: CMatrixMap::DrawWater\noriginal frame component: CMatrixMap::DrawShadows\noriginal frame component: CMatrixMap::DrawEffects\nactual D3D9 Reset 640x480 HRESULT=00000000\n",
+      "source_sha256": {
+        "port/matrixgame/native-engine/shadow_texture_backend.cpp": "346786710db3770522ee395d3213e554fbfb33f75fb52e83ae539b438a792db9",
+        "tests/matrixgame_actual_draw_audit.hpp": "67999d2512d33cad3edac347ae8a93cef604b8a40e3ea1e289c025f1ce4dbf64",
+        "port\\matrixgame\\native-engine\\debug_font_backend.cpp": "2d7d840c29b6956dab0dcd8223e0fef061e10c5259ca233c1b894f6142489b02",
+        "port/matrixgame/deko/stencil_state.hpp": "5f2866f229b71b8c15904e160fb6ee26c976a69295d535cd1476295ded66c5ce",
+        "port/matrixgame/native-engine/map_device_backend.cpp": "2685c067a26df9e698a168e14bfada49d7c5a1e3fe4c29f483aa36e5b927406b",
+        "port\\matrixgame\\native-engine\\shadow_texture_backend.cpp": "346786710db3770522ee395d3213e554fbfb33f75fb52e83ae539b438a792db9",
+        "port/matrixgame/native-engine/platform_win32.hpp": "3cd6fc6d8470c43faee7fdfbd7abef2437256e4f2996d25d5c9947a4e6e186cd",
+        "port\\matrixgame\\native-engine\\map_device_backend.cpp": "2685c067a26df9e698a168e14bfada49d7c5a1e3fe4c29f483aa36e5b927406b",
+        "port\\matrixgame\\deko\\material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+        "port\\matrixgame\\native-engine\\unmanaged_texture_backend.cpp": "57c3c86ff044fcc4d31d99dc828d639932cf3f70ea0458541fcb593612cb0f33",
+        "tests\\matrixgame_windows_selection.cpp": "e412932981518525ef0037889ea9b28a000056b819ffd64cf1973f52ec5f6f31",
+        "tests/matrixgame_windows_form_loop.cpp": "668ac9eb07bdfb956e7d0e096527665c4ed4e84b03f084cba672ce95a5baa781",
+        "port\\matrixgame\\native-engine\\offscreen_backend.cpp": "05e99e3d2d362fbf9318f1d9eba0229734b8bbe1c2bdb8e3f3e7774a22d94a76",
+        "build\\matrixgame\\e2e538-selection\\map-state\\windows\\matrixgame_windows_frame_main.cpp": "f263de2c8849ccf20b871da5ced8b4dcdefe3ebf1e18a2fbcd8de8725a86885d",
+        "port\\matrixgame\\native-engine\\platform_win32.cpp": "3a42edbbf020c229f13da897fe9bfe236a2e08f00968ca1cdd8045f999da2ae8",
+        "port\\matrixgame\\native-engine\\original_game.cpp": "c3d7b3976359c8eab970c8d031194dc387fad9cfdbe05270247d9fe78d3a5cbd",
+        "tests/matrixgame_windows_frame_main.cpp": "811b483fe62d2879b8bf9dbf0a936a31751eaef37f13e7ca6af671cae477e5b2",
+        "port/matrixgame/native-engine/debug_font_backend.cpp": "2d7d840c29b6956dab0dcd8223e0fef061e10c5259ca233c1b894f6142489b02",
+        "port/matrixgame/deko/material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+        "port\\matrixgame\\native-engine\\native_device_state.cpp": "0e5a0252ee4c34435633f793b966d5ea13fc0d6603a2ad40c6006ec44c5fc17c",
+        "tests/matrixgame_actual_draw_state.hpp": "9c19170ee954501558b9046b22f2396061e262d2810bf91119f029db9af1c88b",
+        "port\\matrixgame\\native-engine\\native_input_engine.cpp": "5a0967c840b6dcd3fc184c8387fc228a800b815f0594e3e51aa32eaacd69a74c",
+        "build\\matrixgame\\e2e538-selection\\map-state\\windows\\driver.cpp": "80add2d9cb31aace9ccc8982f8c25922530b039389ccb1d6f51c06c8f0583a69",
+        "tests/test_matrixgame_actual_draw_replay.cpp": "5e5b7a23d93092b088bc0f0ed3adbbcb54c0dfda642a86213362e4c5b837a54a",
+        "port\\matrixgame\\native-engine\\transition_backend.cpp": "231f2f8a8d92c2c956a938c589cf5aac74d8964ad630fe8126a97e185924127c",
+        "tests\\matrixgame_windows_stored_slots.cpp": "76643e6e1e9019bc714d38958a52a41256a386590635b8554cb6827ee293e5eb",
+        "port/matrixgame/deko/pixel_fog.hpp": "891301d1c55594003438c6c2ce9ea82aefe6f82501c9acd043badd8d9e60cfba",
+        "port\\matrixgame\\native-engine\\native_input.cpp": "c9befeb047caca88c3f5c042625e5582f5b2a2763b83be0537411803416b5b37",
+        "tests/matrixgame_actual_draw_windows.cpp": "b8cd252bf3e2a322ed129835cd7e0573609944e0b6ba333b0ff2c65237c96d8b",
+        "port/matrixgame/native-engine/native_device_state.hpp": "d16899551271b310ac8ce54f6789afd10acd848b4507f138a1d19b8ed1dbd2c5",
+        "port/matrixgame/deko/material_combiner.hpp": "1ff9ebd13f1e8db5c89a60d33e70cdb9801fb48e944ac27026634f15ec44dcf7",
+        "tests\\matrixgame_actual_draw_windows.cpp": "b8cd252bf3e2a322ed129835cd7e0573609944e0b6ba333b0ff2c65237c96d8b",
+        "port\\matrixgame\\native-engine\\text_backend.cpp": "e7fa94aad3f0b38a14e22a1b4494479c73d97c41fbf5ccfd4b4361ba018ef29b",
+        "port/matrixgame/deko/fixed_vertex.cpp": "fe6380e0afad245492acdc2b602c67d21d81141430db11e08650f54bdbdb0c01",
+        "port/matrixgame/native-engine/native_device_state.cpp": "0e5a0252ee4c34435633f793b966d5ea13fc0d6603a2ad40c6006ec44c5fc17c",
+        "port\\matrixgame\\deko\\fixed_vertex.cpp": "fe6380e0afad245492acdc2b602c67d21d81141430db11e08650f54bdbdb0c01",
+        "port/matrixgame/deko/fixed_vertex.hpp": "83fb922974571fcc209bd5b90de8f7aacb2552b0e2e656803bcb2959a2a5b810"
+      },
+      "capture_sha256": {
+        "build\\matrixgame\\e2e538-selection\\map-state\\windows\\draw-states-0.bin": "3cac411cee589729cd843674c7d4c3b4334b69f0c88eb82437e039017e483846",
+        "build\\matrixgame\\e2e538-selection\\map-state\\windows\\draw-states-1.bin": "4ac58af102d061a71e93f14b30febcb9ffdc491c7b6eb51b218682684dae483d"
+      }
+    },
+    "map-state/host": {
+      "status": "PASS",
+      "commands": [
+        {
+          "label": "build",
+          "command": [
+            "wsl",
+            "--exec",
+            "g++",
+            "-std=c++20",
+            "-O1",
+            "-g",
+            "-UNDEBUG",
+            "-ffunction-sections",
+            "-fdata-sections",
+            "-Wl,--gc-sections",
+            "-fno-pie",
+            "-no-pie",
+            "-pthread",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e535-standalone-input/sdk/source/portable-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e535-standalone-input/sdk/source/MatrixLib/Base",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_actual_draw_replay.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_device_state.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/buffer_resources.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/fixed_vertex.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_combiner.cpp",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e538-selection/map-state/host/replay"
+          ],
+          "exit": 0,
+          "seconds": 48.19733880000422
+        },
+        {
+          "label": "runtime",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e538-selection/map-state/host/replay",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e538-selection/map-state/windows/draw-states-0.bin",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e538-selection/map-state/windows/draw-states-1.bin"
+          ],
+          "exit": 0,
+          "seconds": 76.56322689997614
+        }
+      ],
+      "Switch_hardware": "NOT RUN / HARDWARE_PENDING",
+      "binary_sha256": "51d95b62c6b675951fdf936d6d437535f12dfd93d5f1c6984aca811f63177ff8",
+      "stdout": "actual HAL map state replay draws=227586 unique=159694 failures=0 CPU_ONLY NO_DEKO_GPU NO_SWITCH_HARDWARE\n",
+      "capture_sha256": {
+        "build\\matrixgame\\e2e538-selection\\map-state\\windows\\draw-states-0.bin": "3cac411cee589729cd843674c7d4c3b4334b69f0c88eb82437e039017e483846",
+        "build\\matrixgame\\e2e538-selection\\map-state\\windows\\draw-states-1.bin": "4ac58af102d061a71e93f14b30febcb9ffdc491c7b6eb51b218682684dae483d"
+      },
+      "source_sha256": {
+        "tests/test_matrixgame_actual_draw_replay.cpp": "5e5b7a23d93092b088bc0f0ed3adbbcb54c0dfda642a86213362e4c5b837a54a",
+        "port/matrixgame/native-engine/map_device_backend.cpp": "2685c067a26df9e698a168e14bfada49d7c5a1e3fe4c29f483aa36e5b927406b",
+        "port/matrixgame/deko/pixel_fog.hpp": "891301d1c55594003438c6c2ce9ea82aefe6f82501c9acd043badd8d9e60cfba",
+        "tests/matrixgame_actual_draw_audit.hpp": "67999d2512d33cad3edac347ae8a93cef604b8a40e3ea1e289c025f1ce4dbf64",
+        "tests/matrixgame_actual_draw_state.hpp": "9c19170ee954501558b9046b22f2396061e262d2810bf91119f029db9af1c88b",
+        "port/matrixgame/native-engine/debug_font_backend.cpp": "2d7d840c29b6956dab0dcd8223e0fef061e10c5259ca233c1b894f6142489b02",
+        "port/matrixgame/deko/material_combiner.hpp": "1ff9ebd13f1e8db5c89a60d33e70cdb9801fb48e944ac27026634f15ec44dcf7",
+        "port/matrixgame/deko/stencil_state.hpp": "5f2866f229b71b8c15904e160fb6ee26c976a69295d535cd1476295ded66c5ce",
+        "port/matrixgame/native-engine/shadow_texture_backend.cpp": "346786710db3770522ee395d3213e554fbfb33f75fb52e83ae539b438a792db9",
+        "port/matrixgame/deko/material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+        "port/matrixgame/native-engine/native_device_state.hpp": "d16899551271b310ac8ce54f6789afd10acd848b4507f138a1d19b8ed1dbd2c5",
+        "port/matrixgame/native-engine/platform_win32.hpp": "3cd6fc6d8470c43faee7fdfbd7abef2437256e4f2996d25d5c9947a4e6e186cd",
+        "port/matrixgame/deko/fixed_vertex.hpp": "83fb922974571fcc209bd5b90de8f7aacb2552b0e2e656803bcb2959a2a5b810",
+        "port/matrixgame/native-engine/native_device_state.cpp": "0e5a0252ee4c34435633f793b966d5ea13fc0d6603a2ad40c6006ec44c5fc17c",
+        "port/matrixgame/native-core/buffer_resources.cpp": "aefc5bf2f13738d858c9feddeb8361501c64683692257d535cb85616a139cf61",
+        "port/matrixgame/deko/fixed_vertex.cpp": "fe6380e0afad245492acdc2b602c67d21d81141430db11e08650f54bdbdb0c01",
+        "tests/matrixgame_actual_draw_windows.cpp": "b8cd252bf3e2a322ed129835cd7e0573609944e0b6ba333b0ff2c65237c96d8b"
+      }
+    },
+    "map-state/arm64": {
+      "status": "PASS",
+      "commands": [
+        {
+          "label": "build",
+          "command": [
+            "wsl",
+            "--exec",
+            "aarch64-linux-gnu-g++-15",
+            "-std=c++20",
+            "-O1",
+            "-g",
+            "-UNDEBUG",
+            "-ffunction-sections",
+            "-fdata-sections",
+            "-Wl,--gc-sections",
+            "-fno-pie",
+            "-no-pie",
+            "-pthread",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e535-standalone-input/sdk/source/portable-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e535-standalone-input/sdk/source/MatrixLib/Base",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_actual_draw_replay.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_device_state.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/buffer_resources.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/fixed_vertex.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_combiner.cpp",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e538-selection/map-state/arm64/replay"
+          ],
+          "exit": 0,
+          "seconds": 44.07708889999776
+        },
+        {
+          "label": "runtime",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "qemu-aarch64",
+            "-L",
+            "/usr/aarch64-linux-gnu",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e538-selection/map-state/arm64/replay",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e538-selection/map-state/windows/draw-states-0.bin",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e538-selection/map-state/windows/draw-states-1.bin"
+          ],
+          "exit": 0,
+          "seconds": 89.16950980000547
+        }
+      ],
+      "Switch_hardware": "NOT RUN / HARDWARE_PENDING",
+      "binary_sha256": "c6c8530acd3868adece3423e33190f0c8c59070c4c4755a4c949eb711c606065",
+      "stdout": "actual HAL map state replay draws=227586 unique=159694 failures=0 CPU_ONLY NO_DEKO_GPU NO_SWITCH_HARDWARE\n",
+      "capture_sha256": {
+        "build\\matrixgame\\e2e538-selection\\map-state\\windows\\draw-states-0.bin": "3cac411cee589729cd843674c7d4c3b4334b69f0c88eb82437e039017e483846",
+        "build\\matrixgame\\e2e538-selection\\map-state\\windows\\draw-states-1.bin": "4ac58af102d061a71e93f14b30febcb9ffdc491c7b6eb51b218682684dae483d"
+      },
+      "source_sha256": {
+        "port/matrixgame/deko/material_combiner.hpp": "1ff9ebd13f1e8db5c89a60d33e70cdb9801fb48e944ac27026634f15ec44dcf7",
+        "port/matrixgame/native-engine/native_device_state.cpp": "0e5a0252ee4c34435633f793b966d5ea13fc0d6603a2ad40c6006ec44c5fc17c",
+        "port/matrixgame/native-engine/shadow_texture_backend.cpp": "346786710db3770522ee395d3213e554fbfb33f75fb52e83ae539b438a792db9",
+        "tests/matrixgame_actual_draw_audit.hpp": "67999d2512d33cad3edac347ae8a93cef604b8a40e3ea1e289c025f1ce4dbf64",
+        "port/matrixgame/native-engine/platform_win32.hpp": "3cd6fc6d8470c43faee7fdfbd7abef2437256e4f2996d25d5c9947a4e6e186cd",
+        "port/matrixgame/deko/fixed_vertex.hpp": "83fb922974571fcc209bd5b90de8f7aacb2552b0e2e656803bcb2959a2a5b810",
+        "tests/test_matrixgame_actual_draw_replay.cpp": "5e5b7a23d93092b088bc0f0ed3adbbcb54c0dfda642a86213362e4c5b837a54a",
+        "port/matrixgame/deko/pixel_fog.hpp": "891301d1c55594003438c6c2ce9ea82aefe6f82501c9acd043badd8d9e60cfba",
+        "port/matrixgame/deko/fixed_vertex.cpp": "fe6380e0afad245492acdc2b602c67d21d81141430db11e08650f54bdbdb0c01",
+        "port/matrixgame/deko/stencil_state.hpp": "5f2866f229b71b8c15904e160fb6ee26c976a69295d535cd1476295ded66c5ce",
+        "port/matrixgame/native-engine/native_device_state.hpp": "d16899551271b310ac8ce54f6789afd10acd848b4507f138a1d19b8ed1dbd2c5",
+        "port/matrixgame/native-engine/map_device_backend.cpp": "2685c067a26df9e698a168e14bfada49d7c5a1e3fe4c29f483aa36e5b927406b",
+        "tests/matrixgame_actual_draw_state.hpp": "9c19170ee954501558b9046b22f2396061e262d2810bf91119f029db9af1c88b",
+        "port/matrixgame/deko/material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+        "port/matrixgame/native-core/buffer_resources.cpp": "aefc5bf2f13738d858c9feddeb8361501c64683692257d535cb85616a139cf61",
+        "tests/matrixgame_actual_draw_windows.cpp": "b8cd252bf3e2a322ed129835cd7e0573609944e0b6ba333b0ff2c65237c96d8b",
+        "port/matrixgame/native-engine/debug_font_backend.cpp": "2d7d840c29b6956dab0dcd8223e0fef061e10c5259ca233c1b894f6142489b02"
+      }
+    },
+    "viewport-clip/host": {
+      "status": "PASS",
+      "commands": [
+        {
+          "label": "build",
+          "command": [
+            "wsl",
+            "--exec",
+            "g++",
+            "-std=c++20",
+            "-O1",
+            "-g",
+            "-UNDEBUG",
+            "-ffunction-sections",
+            "-fdata-sections",
+            "-Wl,--gc-sections",
+            "-fno-pie",
+            "-no-pie",
+            "-pthread",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e536-actual-draw/sdk/source/portable-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e536-actual-draw/sdk/source/MatrixLib/Base",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_line_state.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_device_state.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/buffer_resources.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/fixed_vertex.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_combiner.cpp",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e538-selection/viewport-clip/host/line-state"
+          ],
+          "exit": 0,
+          "seconds": 40.27537809999194
+        },
+        {
+          "label": "runtime",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e538-selection/viewport-clip/host/line-state"
+          ],
+          "exit": 0,
+          "seconds": 0.34988580000936054
+        }
+      ],
+      "Switch_hardware": "NOT RUN / HARDWARE_PENDING",
+      "stdout": "native line state PASS original LASTPIXEL=TRUE accepted; scalar/COW restore preserves FALSE and rejects unsupported draw; AA/point/scissor guards retained; CPU_ONLY NO_GPU NO_SWITCH_HARDWARE\n",
+      "binary_sha256": "fa1a0131d9da284189d60a944221ea8bc0fdae171f9abdb40ce3378d6662ab70",
+      "source_sha256": {
+        "port/matrixgame/native-engine/native_device_state.cpp": "0e5a0252ee4c34435633f793b966d5ea13fc0d6603a2ad40c6006ec44c5fc17c",
+        "port/matrixgame/native-engine/native_device_state.hpp": "d16899551271b310ac8ce54f6789afd10acd848b4507f138a1d19b8ed1dbd2c5",
+        "port/matrixgame/native-engine/native_state_layout.hpp": "3bace2c54f4942abff62eeabc8fb83e1efaa53dc74793ac8ef3bc6e33a300f52",
+        "port/matrixgame/native-engine/platform_switch.cpp": "9f41efc588409ae170cc4832de2ccb9e4263c34a0176678ef0c94472e19fa05e",
+        "port/matrixgame/deko/fixed_vertex.cpp": "fe6380e0afad245492acdc2b602c67d21d81141430db11e08650f54bdbdb0c01",
+        "port/matrixgame/deko/material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+        "port/matrixgame/deko/material.vert.glsl": "bf501b53eb352b861792eba18b1ed02b91f346e6f1c21d2deca696258e74dfb2",
+        "port/matrixgame/deko/material.frag.glsl": "0c4f8124be91e64065fe0eeb7fb8ed4292a8871739c07dd7fe753d9f48c5f3cc",
+        "port/matrixgame/deko/legacy_raster_viewport.hpp": "6bd4098e0faafd1b69c37270c59f7892fdda995111de1b4b6c9f66eb6f50df1a",
+        "tests/matrixgame_line_windows.cpp": "86d6b3dc932f70743f18ed84e1a49537baa29d5bb4e17bc7636fb627fb8f4173",
+        "tests/matrixgame_fog_windows.cpp": "6e0f930bb584943e9b3c8a6f214701211c9e5b134e25aad613cce1c2e597d2f4",
+        "tests/matrixgame_material_gl_reference.hpp": "8f9e1970934691e449142b1dbe9c987f27eb36d05d2944edfef22df3d21ca335",
+        "tests/matrixgame_actual_draw_state.hpp": "9c19170ee954501558b9046b22f2396061e262d2810bf91119f029db9af1c88b",
+        "tests/test_matrixgame_line_state.cpp": "8733a2d51ae417e71a301c4089cc1992655e0ebebb0e2d1b8b8bc28c8ec393e1"
+      }
+    },
+    "viewport-clip/arm64": {
+      "status": "PASS",
+      "commands": [
+        {
+          "label": "build",
+          "command": [
+            "wsl",
+            "--exec",
+            "aarch64-linux-gnu-g++-15",
+            "-std=c++20",
+            "-O1",
+            "-g",
+            "-UNDEBUG",
+            "-ffunction-sections",
+            "-fdata-sections",
+            "-Wl,--gc-sections",
+            "-fno-pie",
+            "-no-pie",
+            "-pthread",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e536-actual-draw/sdk/source/portable-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e536-actual-draw/sdk/source/MatrixLib/Base",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_line_state.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_device_state.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/buffer_resources.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/fixed_vertex.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_combiner.cpp",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e538-selection/viewport-clip/arm64/line-state"
+          ],
+          "exit": 0,
+          "seconds": 39.556740900006844
+        },
+        {
+          "label": "runtime",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "qemu-aarch64",
+            "-L",
+            "/usr/aarch64-linux-gnu",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e538-selection/viewport-clip/arm64/line-state"
+          ],
+          "exit": 0,
+          "seconds": 0.18984840001212433
+        }
+      ],
+      "Switch_hardware": "NOT RUN / HARDWARE_PENDING",
+      "stdout": "native line state PASS original LASTPIXEL=TRUE accepted; scalar/COW restore preserves FALSE and rejects unsupported draw; AA/point/scissor guards retained; CPU_ONLY NO_GPU NO_SWITCH_HARDWARE\n",
+      "binary_sha256": "bb32a892b6e453b5ee0dc55273ddd351b3d52396f6343afa767782e8080fba10",
+      "source_sha256": {
+        "port/matrixgame/native-engine/native_device_state.cpp": "0e5a0252ee4c34435633f793b966d5ea13fc0d6603a2ad40c6006ec44c5fc17c",
+        "port/matrixgame/native-engine/native_device_state.hpp": "d16899551271b310ac8ce54f6789afd10acd848b4507f138a1d19b8ed1dbd2c5",
+        "port/matrixgame/native-engine/native_state_layout.hpp": "3bace2c54f4942abff62eeabc8fb83e1efaa53dc74793ac8ef3bc6e33a300f52",
+        "port/matrixgame/native-engine/platform_switch.cpp": "9f41efc588409ae170cc4832de2ccb9e4263c34a0176678ef0c94472e19fa05e",
+        "port/matrixgame/deko/fixed_vertex.cpp": "fe6380e0afad245492acdc2b602c67d21d81141430db11e08650f54bdbdb0c01",
+        "port/matrixgame/deko/material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+        "port/matrixgame/deko/material.vert.glsl": "bf501b53eb352b861792eba18b1ed02b91f346e6f1c21d2deca696258e74dfb2",
+        "port/matrixgame/deko/material.frag.glsl": "0c4f8124be91e64065fe0eeb7fb8ed4292a8871739c07dd7fe753d9f48c5f3cc",
+        "port/matrixgame/deko/legacy_raster_viewport.hpp": "6bd4098e0faafd1b69c37270c59f7892fdda995111de1b4b6c9f66eb6f50df1a",
+        "tests/matrixgame_line_windows.cpp": "86d6b3dc932f70743f18ed84e1a49537baa29d5bb4e17bc7636fb627fb8f4173",
+        "tests/matrixgame_fog_windows.cpp": "6e0f930bb584943e9b3c8a6f214701211c9e5b134e25aad613cce1c2e597d2f4",
+        "tests/matrixgame_material_gl_reference.hpp": "8f9e1970934691e449142b1dbe9c987f27eb36d05d2944edfef22df3d21ca335",
+        "tests/matrixgame_actual_draw_state.hpp": "9c19170ee954501558b9046b22f2396061e262d2810bf91119f029db9af1c88b",
+        "tests/test_matrixgame_line_state.cpp": "8733a2d51ae417e71a301c4089cc1992655e0ebebb0e2d1b8b8bc28c8ec393e1"
+      }
+    },
+    "windows": {
+      "status": "PASS",
+      "commands": [
+        {
+          "label": "build-matrixgame_line_windows",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\windows\\build-matrixgame_line_windows.cmd"
+          ],
+          "exit": 0,
+          "seconds": 4.354616199998418
+        },
+        {
+          "label": "build-fixed_vertex",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\windows\\build-fixed_vertex.cmd"
+          ],
+          "exit": 0,
+          "seconds": 7.775614299986046
+        },
+        {
+          "label": "build-material_combiner",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\windows\\build-material_combiner.cmd"
+          ],
+          "exit": 0,
+          "seconds": 4.329646600002889
+        },
+        {
+          "label": "build-native_device_state",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\windows\\build-native_device_state.cmd"
+          ],
+          "exit": 0,
+          "seconds": 4.571218199998839
+        },
+        {
+          "label": "build-buffer_resources",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\windows\\build-buffer_resources.cmd"
+          ],
+          "exit": 0,
+          "seconds": 4.214598799997475
+        },
+        {
+          "label": "link",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\windows\\link.cmd"
+          ],
+          "exit": 0,
+          "seconds": 3.2884948999853805
+        },
+        {
+          "label": "runtime",
+          "command": [
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\windows\\line-oracle.exe",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko\\material.frag.glsl",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\line-geometry-0.bin",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\map-state\\windows\\line-geometry-1.bin"
+          ],
+          "exit": 0,
+          "seconds": 1.388675800000783
+        }
+      ],
+      "Switch_hardware": "NOT RUN / HARDWARE_PENDING",
+      "capture_sha256": {
+        "build\\matrixgame\\e2e538-selection\\map-state\\windows\\line-geometry-0.bin": "66cf04664cd0e0ec72acfb0cd826d4b8df2a6c0aaaa949d45c2d3bf19ac2ecb9",
+        "build\\matrixgame\\e2e538-selection\\map-state\\windows\\line-geometry-1.bin": "66cf04664cd0e0ec72acfb0cd826d4b8df2a6c0aaaa949d45c2d3bf19ac2ecb9"
+      },
+      "binary_sha256": "951103aa4f08ad68fc2aefee2ea74000dcb46f5edeb5ac6a6dca8eee6ae11c52",
+      "stdout": "actual HAL adapter=NVIDIA GeForce RTX 5060 RasterCaps=07732191\nGLSL reference GPU=NVIDIA GeForce RTX 5060/PCIe/SSE2 version=4.6.0 NVIDIA 617.42\nRAW_LINE_HAL_GLSL cases=398 strips=64 degenerate=14 last0_mismatches=0 last1_mismatches=0 max_delta=0 NO_SWITCH_HARDWARE\nVIEWPORT_TRIANGLE_CLIP_HAL_GLSL cases=24 mismatches=0\nactual HAL adapter=NVIDIA GeForce RTX 5060 RasterCaps=07732191\nACTUAL_ORIGINAL_LINE_HAL_GLSL cases=114 pixels=54720000 mismatches=0 max_delta=0 NO_SWITCH_HARDWARE\n",
+      "actual_cases": 114,
+      "actual_pixels": 54720000,
+      "synthetic_suite_repeated": true,
+      "source_sha256": {
+        "port/matrixgame/native-engine/native_device_state.cpp": "0e5a0252ee4c34435633f793b966d5ea13fc0d6603a2ad40c6006ec44c5fc17c",
+        "port/matrixgame/native-engine/native_device_state.hpp": "d16899551271b310ac8ce54f6789afd10acd848b4507f138a1d19b8ed1dbd2c5",
+        "port/matrixgame/native-engine/native_state_layout.hpp": "3bace2c54f4942abff62eeabc8fb83e1efaa53dc74793ac8ef3bc6e33a300f52",
+        "port/matrixgame/native-engine/platform_switch.cpp": "9f41efc588409ae170cc4832de2ccb9e4263c34a0176678ef0c94472e19fa05e",
+        "port/matrixgame/deko/fixed_vertex.cpp": "fe6380e0afad245492acdc2b602c67d21d81141430db11e08650f54bdbdb0c01",
+        "port/matrixgame/deko/material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+        "port/matrixgame/deko/material.vert.glsl": "bf501b53eb352b861792eba18b1ed02b91f346e6f1c21d2deca696258e74dfb2",
+        "port/matrixgame/deko/material.frag.glsl": "0c4f8124be91e64065fe0eeb7fb8ed4292a8871739c07dd7fe753d9f48c5f3cc",
+        "port/matrixgame/deko/legacy_raster_viewport.hpp": "6bd4098e0faafd1b69c37270c59f7892fdda995111de1b4b6c9f66eb6f50df1a",
+        "tests/matrixgame_line_windows.cpp": "86d6b3dc932f70743f18ed84e1a49537baa29d5bb4e17bc7636fb627fb8f4173",
+        "tests/matrixgame_fog_windows.cpp": "6e0f930bb584943e9b3c8a6f214701211c9e5b134e25aad613cce1c2e597d2f4",
+        "tests/matrixgame_material_gl_reference.hpp": "8f9e1970934691e449142b1dbe9c987f27eb36d05d2944edfef22df3d21ca335",
+        "tests/matrixgame_actual_draw_state.hpp": "9c19170ee954501558b9046b22f2396061e262d2810bf91119f029db9af1c88b",
+        "tests/test_matrixgame_line_state.cpp": "8733a2d51ae417e71a301c4089cc1992655e0ebebb0e2d1b8b8bc28c8ec393e1"
+      }
+    },
+    "sdk": {
+      "status": "COMPILE/LINK PASS; SWITCH RUNTIME NOT RUN",
+      "commands": [
+        {
+          "label": "configure",
+          "command": [
+            "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+            "-S",
+            "D:/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-B",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\sdk",
+            "-G",
+            "Ninja",
+            "-DCMAKE_MAKE_PROGRAM=C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\Ninja\\ninja.exe",
+            "-DCMAKE_TOOLCHAIN_FILE=D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core\\switch-toolchain.cmake",
+            "-DMATRIXGAME_DEVKITPRO=C:/devkitPro",
+            "-DBUILD_TESTING=OFF",
+            "-DPython3_EXECUTABLE=C:\\Users\\Sklyarov\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+            "-DMATRIXGAME_DEBUG_FONT_ASSET=D:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/font/windows/original-font.bin",
+            "-DMATRIXGAME_TEXT_FONT_ASSETS=D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e524-text\\windows"
+          ],
+          "exit": 0,
+          "seconds": 25.703692400013097
+        },
+        {
+          "label": "build",
+          "command": [
+            "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+            "--build",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\sdk",
+            "--target",
+            "matrixgame-native-entry",
+            "-j",
+            "4"
+          ],
+          "exit": 0,
+          "seconds": 4.655247599992435
+        },
+        {
+          "label": "symbols",
+          "command": [
+            "C:/devkitPro/devkitA64/bin/aarch64-none-elf-nm.exe",
+            "-C",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\sdk\\matrixgame-native-entry.elf"
+          ],
+          "exit": 0,
+          "seconds": 0.3164424999849871
+        },
+        {
+          "label": "link-graph",
+          "command": [
+            "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\Ninja\\ninja.exe",
+            "-C",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e538-selection\\sdk",
+            "-t",
+            "graph",
+            "matrixgame-native-entry.elf"
+          ],
+          "exit": 0,
+          "seconds": 0.062110900005791336
+        }
+      ],
+      "Switch_hardware": "NOT RUN / HARDWARE_PENDING",
+      "strong_undefined": [],
+      "elf_sha256": "94cf902377d29d8ddbc727cd3f56e17e966c4eecdfb0f415ba524b6497cf18c5",
+      "link_inputs_sha256": {
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-material-combiner.dir\\D_\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko\\fixed_vertex.cpp.obj": "1e5688d850b20eb121d5159924ef82b9d48e78f03491d674bf139cb69e00b16c",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-material-combiner.dir\\D_\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko\\material_combiner.cpp.obj": "a76d9934fe1acd61c211f28664dfd3b4c54777decc430917fe4d0b119278499a",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-material-combiner.dir\\D_\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko\\material_program.cpp.obj": "bf48c781922b0f226e78b66a2d8a314f9ad138e6094d9c7f5fa54144d1ecba83",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-material-combiner.dir\\D_\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko\\texture_store.cpp.obj": "b71dcc02c7c9a01a4e15ef794acc41371d4b247d901b08209432bfd84a7f8d36",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\applet_engine_events.cpp.obj": "c457b8c815870b2a2457f2dd3f44df02a5601abac4a6bfb2d684c9466482e6d9",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\applet_window_lifecycle.cpp.obj": "defb34bdd4da1d30cbfed8bebf2feac9a56e68464ac31920e464a65d1447c6a0",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\cache_owner_state.cpp.obj": "b5e6a4f5ade5c7aaad1d68b2c275945a6a621001039cc86a530bdd69537bfb45",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\cache_resources.cpp.obj": "11c49ca2fc7b89322951f29777c8b7dc5ad556e14a137cd2af7019b8deb99678",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\cached_frame.cpp.obj": "1c6759c5c2882afa778a1604a884ae5b64525487098ea1d6889d802a9d2e5dfa",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\core\\source\\3GDeviceDefaults.cpp.obj": "f8de68d6e810bdea15662986477c2b349fa0f2179070cbf32c29549c88474cbc",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\core\\source\\3GPlatformNative.cpp.obj": "72146e95fadaea68dc07e9c3c0efc7703499b4b0eb18ecabca402a009e181f0c",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\core\\source\\CacheNative.cpp.obj": "fe382a886472d6a9ec24a50109f51866ac9ec2cd9b7aa6b8734cc4c5cbaa6964",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\core\\source\\L3GCpuPhase.cpp.obj": "af3a13da9ebed72bee43c899552f1e97db010c6a80006cb45712335e2696e1e1",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\core\\source\\SkinResourcesNative.cpp.obj": "1c07563bdb4c9c116655d7ee81a7633f12d3fc71ef4dec4a56b68e02489d1637",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\cursor_backend.cpp.obj": "25c85d40eb10d2baa160a1a2d7830278006f2fe23f536eec574dafac3b660d49",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\debug_font_backend.cpp.obj": "da78b214ac08bff8bcb142f0f90a5b8b1cfb216c0a77c96ffb74ba73e38d8ed0",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\init_runtime.cpp.obj": "8d7698d1b05843b4b988185a6abd02b8cc30492e89c1a73de1263f012e762c71",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\legacy_texture_backend.cpp.obj": "9b904e1937df47a0ddfe415572c3c03bef8184c541af824253c4cb09b4f43b44",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\map_device_backend.cpp.obj": "756ec496126f921419abb9d7660c4d58235f0767283a9acec4a332dff1ee4be0",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_cursor.cpp.obj": "6305a48d0f72710212386da7dfb4864f9a4bac2f00fa63125db7b287ea10be1a",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_debug_font.cpp.obj": "2afb3c3a98bebcd0c8768f769f526ec9ee47741ddaa172df14c5d7e05ff6d3bf",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_debug_font_asset.cpp.obj": "642361eb99a37af04618ca8514a35d5be92e47a61cc878a1f4bb4e13d7d910b8",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_device_state.cpp.obj": "d4b97be1d3a310ab56ddefc080b8709b2c9887af40e637261d03ae812d5b2fa8",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_form_backend.cpp.obj": "7137ccaead26057de34ad70df003552b2b41495de74dfd77657aed3f27182aae",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_form_session.cpp.obj": "b002bd41441fc27be26b91c9512ae72f96af36ca2bab7ead105dc1fd9fdbd325",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_frame_clock.cpp.obj": "881beb53d965a8944ec84bbdac3814713a346ec97d7b84fa9587fb5447521445",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_input.cpp.obj": "c4c6101cf32a4f048b9d16419433aa21e5d820da3e798515278a15eb543628b2",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_input_engine.cpp.obj": "8e5b1262da02a994dbe998f75a1f6eab3e1671058bad2b8424f2486ad1df3de0",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_input_switch.cpp.obj": "5e58c97e52b4ac3d68cb04d09e06f5af9682b7658492669948b5ff6ba292f16a",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_loop.cpp.obj": "95212b62456c1213dd62b8bc72025f2c879545b29c712f2f772137ee6a6650d7",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_loop_switch.cpp.obj": "9bffb2e8029726125e89b62049f0aa0dee0a32f187a5ade2b28f1a86d0ca917a",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_skin.cpp.obj": "a90f54d612e456e0cb49750c41b07faec1e50449a3f5ee5edb5b7c90e5837d39",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_stored_state.cpp.obj": "a96d381ce5294246c70ea3bc650bdb0f7e8df733fb67872920676810b4fcff02",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_surfaces.cpp.obj": "cb9d5fc424aa1d08887cba014e45724127a1400d266b7326d336d3b99801b273",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_text.cpp.obj": "bd257c92164cd293d29d7b49f5bdafa2ec8c23e0bef60ad69115ca36a273e081",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_text_asset.cpp.obj": "a92e00c11b08ca70307172dd6c68c69732cde9031f7280f9ca5b16eae4a0f5c5",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_text_backend.cpp.obj": "e6b9a3f43743be2b8b0429a0a87a295ca5aa94faff1b1227f7fbd13d51779905",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_texture.cpp.obj": "d721aba6ef6ccbd8cf15fade791b07eaf33f768b15421b41a6440d1f2b3091d3",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\offscreen_backend.cpp.obj": "e74c168f933cbc01fd9db8f3ad41bdd3e253cb2edf6bb90ff2639526db039bc0",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\offscreen_scope.cpp.obj": "4e3700f82e07db061d1e5176480876e5dfeef8c607e28d2d1954ada447b1c1fc",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\original_game.cpp.obj": "2d4c6a3a4ef29e145f404c76f9c019fcea0490b3c3aa2942e1dcfeb516cf9537",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\output_paths_backend.cpp.obj": "bc06c8833da410ffdaec04ab55a4d77352dc16fad30eca5082bc983aae8aadf9",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\platform_3g.cpp.obj": "5a4c2e0dce1a0fda03fb32b1c26536575f8677177550f3c563cad1d22a258d7f",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\platform_globals.cpp.obj": "7d6e16508c8e1e41928ed90798cd27a03fb731ba15d91b7a50013079db10b632",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\platform_switch.cpp.obj": "c56aa6731b933c68a03b018ca48c0b82d180627dd6a2673f84829a105bc916f1",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\shadow_texture_backend.cpp.obj": "e3f355543a3b0f130708f76e3e354cec10c3b8008cc70a589461632ce1b1dc9b",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\skin_pipeline.cpp.obj": "8d2a19f243f670d7e19189ba9b3b50b26f8e47425f099e9d15b24be052fa2d2a",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\DevConsole.cpp.obj": "194492dcc244676d7e29afa81127952469aa199cfc3774cd747680dff00b307b",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffect.cpp.obj": "8331976384bf96aea40b431bfb9498bdc1f7f2ca1a47ff6ac28f8d8f795139e8",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectBigBoom.cpp.obj": "44ab483fc70736607827bf20973448cf366cf53650f1873f6150441e55e07e7e",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectBillboard.cpp.obj": "7efd3ce3ac1230bb4e4db685b402b4b01cb28a2e60e10466bfad20a78c95a47b",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectDust.cpp.obj": "30f52a9d18e2b42d1c3c75109d0a7b7daf35098e48bc3e2897d03d97b8290583",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectElevatorField.cpp.obj": "6bd7091a649a1acbab6be9ef207d0da5ae9d0e0ad0bff6bad105799d3743fb88",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectExplosion.cpp.obj": "46e03757ce23ac6f6d657d820176980fadf1778d8f895aac32bfe9347b5fc0be",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectFirePlasma.cpp.obj": "24208b7bca83617bc2b4e7b07b615127b4a2885bdfeb939b2c40d4c85db0aed5",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectFlame.cpp.obj": "94edcb509c76c601e210dca0a8911dbf16aa4dc3bcda300e9a39171f9dcbcf87",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectKonus.cpp.obj": "7374cccc630e94a7a6f2066ffd5debdf6d851c00598e43875719219905cb32ce",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectLandscapeSpot.cpp.obj": "73f4a13cdd434733083b9408b8b5d757513c25334e38dc9096a52dab4e0ac2d8",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectLightening.cpp.obj": "a2281967e56cae2cbfe5aa41ceb3c595659bea2d450b1205651d7b1f7931f5f4",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectMoveTo.cpp.obj": "a0fc33322b5341b95662454d361bb945f90de88b137effc1eb6b597fd47595ca",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectMovingObject.cpp.obj": "f0cbeaa58204c6a54dd60963c7f20925aca3f012c76faa8099eb34ae5376539d",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectPath.cpp.obj": "740471b26b7596721c838a8326fdcb6cca5a7c82bae8434fd9a52d5ebdcff38a",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectPointLight.cpp.obj": "d01666536609d4baf434ad9c87fa9eccca98c2d5ad4214db64ab297827a9e471",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectRepair.cpp.obj": "e0a3dc3a7831f4d5047dc31cf52602a7b50acdbc4e3871ba5e6d1190d7f21b20",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectSelection.cpp.obj": "2d8fd0a147b415af19cfa897d13ea027a3217fb6abe897488ced3b54e8f582ba",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectShleif.cpp.obj": "d27169fc364eaed493640ba84abfaa251c77fe769fadae92144aa2161f88c3fd",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectSmokeAndFire.cpp.obj": "485b89d37147ebfee71eb3789ed4aa962be5909e3ed6368ebcede4b9cf5ba104",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectWeapon.cpp.obj": "f01d6b1eecde3ed9d2ec8877d6d1ff9d5d0ba71157ba8aa6115421462f5278df",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectZahvat.cpp.obj": "34a3ca8b75279a01748060d2aafcb5225a48405ee4a17a3e8729c25e62b20e83",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\GameDefaultsNative.cpp.obj": "39e0fd750316dcd1cd7031f7d2f555bf5a31d32848c3782f9d02506b4527c560",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\GameStaticResources.cpp.obj": "23a9dfb987380439651d931844af677d810a72e979992453f3fae9d60863511c",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\input.cpp.obj": "f1cb151ef2ea1b743d017e9243faebbfc7bfebf8a644415cd156792f8db37e74",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CAnimation.cpp.obj": "14c11c2fa1486b129923b30c7bf46132f99f57b824b04150e19ab1ed04dee450",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CConstructor.cpp.obj": "78fb563188ca6c1f1fe454e95d59c6a6fe5791a01d0f84a3187538328854d57b",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CCounter.cpp.obj": "88b4eb2966bad35ba745a7371aa93fcd39fb7820136dc4250f0f3d8163f8c264",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CHistory.cpp.obj": "262edb65d499e5b9fb8d108b02cd2de7cb31e58744caaeea1b58f2ad68372723",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CIFaceButton.cpp.obj": "0ddfb316c34b9348cc87d7a92360a795b6353b7e538064effbaccba53c5bbcc2",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CIFaceElement.cpp.obj": "a6949bf6b4fcea5f56f87f2a807196e708b18746983dca1ddeb2a746750efe6a",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CIFaceImage.cpp.obj": "419a71d498ad8d82dc31c4a1d79c506f356272552e939d1679e41674c70c2ef7",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CIFaceMenu.cpp.obj": "0b0ffd430b1e33579ce9f7ea0fcfc34f84a273bd370c86c2882ceb2824f49fe9",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CIFaceStatic.cpp.obj": "2f83a3c2c23e72846c4703d1a4a80c4df1b3b6d9707cb7deefe3f7183959bc4e",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CInterface.cpp.obj": "055c0b87cd65fa727d0662565df644a570865018007b476b1ca9ceee10c53848",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\MatrixHint.cpp.obj": "aa8ba6006878fea6625c38358bef2f2ee200c53e64811c9583e8fc5e68d6bfbe",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Logic\\MatrixAIGroup.cpp.obj": "b1e8c99b10d0b21a8f5078bd10a1bdf5c141cc445dc355bb50d40f08ac048e18",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Logic\\MatrixEnvironment.cpp.obj": "1feadc010da73ca4909ae2a4c767c2bae183847ae80d327988caafef935763b0",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixCamera.cpp.obj": "929c7bbdd4da3ba33873d4d7dc003e245cfdbbb1aa29a84d17acfa418bbac5d1",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixConfig.cpp.obj": "14a34ebfc6e85abef0fb449faa7fb959e0acce9aff776f7b519d6cb5512f6249",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixCursor.cpp.obj": "d71c56a420e4e68933c71b8c24d2bf6e855d685f00df7c0e19aefe4e744e9656",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixDebugInfo.cpp.obj": "b10bd731ccca9a39cfd81959617963970a72b5757129601b56dd6a4ad7a43506",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixFlyer.cpp.obj": "3cf15835877e0021caa3d9b272f98846e18d9b82f3585fb94f6629bc83cd2a7a",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixGame.cpp.obj": "dad59994e0964f79f0384a264fafedb823146181cb2b2c4925ed8797866ce828",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixGamePathUtils.cpp.obj": "00ca1a69f9c2934509cd86fc81a89c0f0068c289aa952dfbb94dfcd3e57b1aa3",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixInstantDraw.cpp.obj": "48381d7eb36e86b378a637a37c3c69c122375d57d7feb35844b54d09d6ff0cf5",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixLoadProgress.cpp.obj": "324c21516738040c34c798933ce63ec694c08785d7fa792d7d9976e2651e7367",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixLogic.cpp.obj": "8058d6654b8097b53b140032b2e26b1f59865a4678ee6f05399d80330a60a74f",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixMap.cpp.obj": "7cb7373fa4b1bb42d7e3171ba2dbea9caa318c985e4f59509aac23eb9dba7f12",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixMapGroup.cpp.obj": "0a2480b18f581a44746ca2eca923b9b92e312b3158c9d0754218c19f56037598",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixMapStatic.cpp.obj": "f65b60d70937f262ae3f7a35659ad0690f0518128b58cc54322910220ecb83ff",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixMapTexture.cpp.obj": "da28906591b83229de6bc5d2587ea7b723703b479cd3839181bcd69bf6216987",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixMapTrace.cpp.obj": "cd79aeabeab91b9470bfb56546df542b1403d06e51eab087fdca6890ca64d129",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixMinimap.cpp.obj": "2e673b8f1911467f238ba4c500def20db9d442980d548c5314fc64919fe6d2b1",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixMultiSelection.cpp.obj": "002cde344de45509637fcc2b6a5e57f4d7f9ae9d9a18199ae9313f737dad3d7e",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixObject.cpp.obj": "7b346776f1a31164ac5652fa09d79460125bad74185c48cfa44d958f23f8d212",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixObjectBuilding.cpp.obj": "d390dd363c4620bf2ec97b2c8c88c79198afc731b67c4dac144f5891a5bb7762",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixObjectCannon.cpp.obj": "1c00d2807eb9fc557e8825a55a650be0c9f118c0e847b86a42c48757ee36f699",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixObjectRobot.cpp.obj": "f30c2ce07606b0b3144d7c20632f88487679d13ccb62285ab0b8a98c851895c8",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixProgressBar.cpp.obj": "a14ba552393030694a4880bea4facb519f609245f562983b3a5f63ab0f8d1cf0",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixRenderPipeline.cpp.obj": "161ea6519a3ca4c94987a1f139c6176945f605683da31a1f801a16a963bc606b",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixRobot.cpp.obj": "7d44aa5b1477dc006212c9e8d793ca2c9c486eaf6281d9caa51bd8a2e6b8b40b",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixSampleStateManager.cpp.obj": "f72a2b0296ecda8760077842ce4531727272f04dc96cdec8ac1873b578db6bdd",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixShadowManager.cpp.obj": "f712571953f75a2a9a27e5478099e9c8c99991aba3baad469708e9332b5284eb",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixSide.cpp.obj": "7916c8facd279ee3156f62a4a99dc5a3581171c39e177776b55158fd8e378b1d",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixSkinManager.cpp.obj": "ef663974011f4de16d39cc6887fbfa05529a0cb1ef8ed5f00866dd32964a16b3",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixSoundManager.cpp.obj": "de822ad5e3118e42ceca6d5009569d781c4804881ccde8d63ffba0d7ac452351",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixTerSurface.cpp.obj": "3b0e0ab3d3d3a60e5342ba2de4f7d6d7d6b3d6a134701a8f0bc016d094302e08",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixVisiCalc.cpp.obj": "3bca6642136e23907c05e3ceb8fa33ed4934489ee69ee45fedc169ee281b5b80",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixWater.cpp.obj": "0df1cea50a43f6aaa14c1342cefafc4ef7f3b3c43d12b1119f1b41808cc8ee52",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\OriginalMapPrepare.cpp.obj": "2875b57965eb5324d0deb8f466560644f9327e7524ee0e50f5042e45d8a67fa3",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\OriginalNativeForm.cpp.obj": "a6597dd4d5361ffddb2043f274081d2781b3b39e0eb790fee99e25a88eb75689",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\OriginalRendererOps.cpp.obj": "7e0715dfae73f94a08f4ece62d3a811d0809bc94ec6b0edc4a5b32e825f0bde4",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\OriginalTextureUnions.cpp.obj": "48bf89f863267ca98022add1b327faac525bc9bb434cf398f6e37610246fd2fa",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\OriginalTransition.cpp.obj": "b29ceb230137de581472660860c3bd8fa33517da927407cf9ea8915172a32d3f",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Text\\Font.cpp.obj": "9e0984a178bcadfd0becde5725383d371ac261a3593c2670ab30904b6e6f0209",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Text\\Parser.cpp.obj": "1d0b05c839fdcfe850ff06a013c9915326263aba3a563fbf48991502a0d3b417",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Text\\Render.cpp.obj": "0fdfa4add3b2ecfd918305ad80c96e827839b2ddd28ab1c17dfbafe938ce640b",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\CBillboard.cpp.obj": "9dda51dd9ab50a6dee834bb0244cda8678d815df097629a7ea9d759c3cdaf2e1",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\DeviceState.cpp.obj": "bc86f5ac472e0a5fa8dfcd21a2e96da14ccbfae98d5e761be9e7bab79545fc8b",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\OriginalManagedTexture.cpp.obj": "027c2edd73f57470ff55bc6fbd06660b3b4c500f96c8938926e217b84aebad83",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\OriginalNativeLoop.cpp.obj": "aceb9150a9636341f3b317f2e546c2ac6e380d71f54e1ff7461c9543e252b7c5",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\OriginalShadowProjection.cpp.obj": "06d87b2b966cce16e76ad186a0c95080a753043365a82698a0904a5a09e73a57",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\OriginalShadowTexture.cpp.obj": "68ac66687c12ec14646780159b151c7588978c2488862e49968122e9e2071aef",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\OriginalUnmanagedTexture.cpp.obj": "e669986f02455cd554e84c005f55583788682e9564ced9578277aa32b2a360f6",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\OriginalVectorAnim.cpp.obj": "e5cf8d6c96e29c0017f2690b58e09213fd28d140f5835e2fd6bb14c5f38f5e18",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\OriginalVectorGroup.cpp.obj": "66cc31ddbc997d17e4341f2186a6eb5e44ca437ec31edb604054eea5f189faf2",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\OriginalVectorPicking.cpp.obj": "32d9f0389339ba5ead5a6cb66e77687ce07a7b261912a40310f7c209038648a3",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\ShadowProj.cpp.obj": "b66cfd7a3dad51d35a1a51330b9af5fd11f517dbcc924616069c7c3066faa6f4",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\ShadowStencil.cpp.obj": "c9fb0734c8f652c6e93f7b6c16862999f7f0f3d127de309e5ff9890d234e64de",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\text_backend.cpp.obj": "22536960437335888e1bf396aa05b0ec89bbe903cca6e3757b075afe23012cbe",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\transition_backend.cpp.obj": "06d9fc1126a372500d88e490775a68c601afa891e5716c00920be2cae7d57f37",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\unmanaged_texture_backend.cpp.obj": "3102327d41a77cbcca1fc6b8e7b1f1a0016bb2ce8d6d840892d1bb309bfc8e41",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-entry.dir\\D_\\repos\\space_rangers_hd_a_war_apart_port\\tests\\probe_matrixgame_native_entry.cpp.obj": "e71f326b9038f485adbc9d466c915524648b99688579e287ac5ed27d56c0c8e1",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-navigation.dir\\source\\MatrixGame\\src\\Logic\\MatrixRoadNetwork.cpp.obj": "7261cb9f2a1422c28b0e910c06a7546e1a4911671ab3d3d3842b4458b11f4f0e",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-vector-object.dir\\core\\source\\VectorObjectAnimNative.cpp.obj": "c22aeb7797a7968d69751aa576429f35e6b8c6a475554e4f83c38a2377819021",
+        "build\\matrixgame\\e2e538-selection\\sdk\\CMakeFiles\\matrixgame-native-vector-object.dir\\core\\source\\VectorObjectCpu.cpp.obj": "7f89a855047028bf92a12ecc7015ae19c4f748a253275bddf9d0711ff871847b",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\buffer_geometry.cpp.obj": "81b990abb4016e643ae03962d5439d69fb553099f735a7413f052c71d877997c",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\buffer_resources.cpp.obj": "89329c0e9191cb72f05e2c3442073474a9e5c67fd28b0e5bdbed5267e430fa80",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\cbuf_utf16.cpp.obj": "e6b0b0f712123169dd447bdfc392f7cc58a571aea22a1d5411348699815fa580",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\D_\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\platform\\package.cpp.obj": "0ac878113a18f245a9b3c9ed43b9eebf774fb17e12474d650534a025ca513231",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\exception_native.cpp.obj": "9dd937e5f66853f6a11c8e08f9feac4e6a9155ae9f40025bc664ea91d4b7c36a",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\file_native.cpp.obj": "51f189b10b9ad63c073b0af77f8d74d4acf69dff25484f9b5765f4c4d03a1e8d",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\heap_native.cpp.obj": "3d1d769baa5cc203e234882d63f71b6ce031d1f21c71cebb01e4f7ba96e1c2fe",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\jpeg_texture.cpp.obj": "a83e4578984a7e517059b318fac4886312963f6ccaed6e4ed280dc8c698fd556",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\skin_callbacks.cpp.obj": "4a943a0fbef81441eff7524a718e3e47c5d63fa02cb464022c16d6745621167c",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\BC.cpp.obj": "93fe1487c23177c66d4dacfb9036fe2209b9f56bcab20c74b6f457d69e41133b",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CBitmap.cpp.obj": "6c78778ad538aeadeb41da48e4286d0182ccba6e09b548b09a81b21dab502b63",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CBlockPar.cpp.obj": "021213293e271b8dfd774ef9a6370944a902e025500581b69da2eac10aa80a23",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CBuf.cpp.obj": "8e08778088cdf4efc4ac9a5cd72785b75333ea3e2af72d7f2fe70343f341759e",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CBuf_file.cpp.obj": "18dd2e501e6fceb4a454b366d3a43dd4b3e1c1300224aed08883c90802ae5abc",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CList.cpp.obj": "a4bf074f40ef3177390da9c02a69068bf314ccd12a9e5de90f0ccd76bbfb0845",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CMain.cpp.obj": "264f8202408bd3f7320ff04d7343510a876fba347399029b9018b57f0f487075",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CRC32.cpp.obj": "4e04b316ff0472e0ab5c2991108668d40b8eaf0d9b31ef45aa1dfe1d712dd560",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CReminder.cpp.obj": "57793212f6056114ece9d7bbbe0663ebac49365bbcaa90d529d6f401e1aa1fe0",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CStorage.cpp.obj": "ff4ec3a62500c5f8c21aa4b9d01be3efa9783ee6625c53aa5e2cc768b2ba97df",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CStorage_blockpar.cpp.obj": "981fbd494f66a1e8b884cabd5d27d0f433a4e627b84b466bd1c1c33bf798919b",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\FilePNG.cpp.obj": "452d699f441b4719c35e54ba3d8255e721cfc7db79e13a7d10c8436b281ffc42",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\Form.cpp.obj": "e9328a8740aab362d44c596f6aab4f918a14e2bc9c6f4aa9286860e7d0f25b63",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\Math3D.cpp.obj": "f8e8b55abb48757928c5ec99fb76a05ae17ecaad5bcfda97eb5443cbfea953bd",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\random.cpp.obj": "a3cccdccee11b64be5971ebba48084d67bcadc9d3c0594659c8eeb91ef05712e",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\TextureFlags.cpp.obj": "b8aca5849ec30e5700030c06ccbcdb7340e793e78e67993783370b2f98c7b454",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\texture_asset.cpp.obj": "79d54b04e19f32a258587af02d4964fd6f4f5e6247e6a8a9d738e4d87e15bd08",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\texture_mips.cpp.obj": "4707351325c5a9fbe26e39f234893ab5fbccfef0cb78dda17254f81d22e5082b",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\texture_request.cpp.obj": "b2e373e0e90c4cd94b0c5d584a67705c246a10c987b8d459ec6442b21d16ce74",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\vector_geometry.cpp.obj": "b8bc75e3ae2c91da603fd7af4a9353d7b8f33063f3954ef07b6f30839dbc5c13",
+        "build\\matrixgame\\e2e538-selection\\sdk\\core\\libmatrixgame-native-core.a": "60d15a9c86086b50efd81e77cb7c911dbfa1846f1d54bbcd96307fdfde185574",
+        "build\\matrixgame\\e2e538-selection\\sdk\\debug-font\\original-font.o": "0030fb4f69219a92e45c8818cd43235bc5100c0cd2618c6180a95d5954d5ded7",
+        "build\\matrixgame\\e2e538-selection\\sdk\\libmatrixgame-material-combiner.a": "4e67e2ffed830804a34a05b4ed52f31e3b9c40f391c9f358fb7f56ec8aebcda9",
+        "build\\matrixgame\\e2e538-selection\\sdk\\libmatrixgame-native-cache.a": "4d5a17e22fb7f88f1d20471ef53323805a92b6cf61c45e0431354e0b00bf7cfb",
+        "build\\matrixgame\\e2e538-selection\\sdk\\libmatrixgame-native-navigation.a": "15b81125384c906ba04a4ec1618b9378301ef77e0cdb9d426993d11d36753343",
+        "build\\matrixgame\\e2e538-selection\\sdk\\libmatrixgame-native-vector-object.a": "cb16c7d2f0a50cb74293ab43e61e466cd6575c7d8fe0ab81791b7d7c02465620",
+        "build\\matrixgame\\e2e538-selection\\sdk\\text-font\\font0.o": "450cb5e6716a0e8f72dcef366de53fcc8affec1d76dc097282b0db536636cb22",
+        "build\\matrixgame\\e2e538-selection\\sdk\\text-font\\font1.o": "bf01def0ffa64bb853eb81a701288482837f691b4d97ce093dd69e00f38b048d",
+        "build\\matrixgame\\e2e538-selection\\sdk\\text-font\\font2.o": "79b55ba18edcd831166edc2d7edd0c9d157334c312b3885bc1d7f0d89bfc0405",
+        "build\\matrixgame\\e2e538-selection\\sdk\\text-font\\font3.o": "649dd99dc881e14afe8d7fcb71aba19bc7ea02fd9765dfe82cc27e353f8da2ee"
+      },
+      "original_generated_files_unchanged": 255,
+      "source_sha256": {
+        "port/matrixgame/native-engine/native_text_backend.cpp": "06193a56905906a5bd270434237e31d91521ec87e8aa42d9b13c68b38bc93c37",
+        "tests/matrixgame_actual_draw_state.hpp": "9c19170ee954501558b9046b22f2396061e262d2810bf91119f029db9af1c88b",
+        "port/matrixgame/native-engine/native_device_state.hpp": "d16899551271b310ac8ce54f6789afd10acd848b4507f138a1d19b8ed1dbd2c5",
+        "port/matrixgame/native-engine/native_text.hpp": "037e827b36fb6d1024fd756516700725d9ece90e227bd92a4438552ac167fa68",
+        "port/matrixgame/deko/stencil_state.hpp": "5f2866f229b71b8c15904e160fb6ee26c976a69295d535cd1476295ded66c5ce",
+        "port/matrixgame/native-engine/native_text.cpp": "9980ecd25c9db62865db3202c71e46091ef798565ef226e6f5e890263e61298d",
+        "port/matrixgame/native-engine/map_device_backend.cpp": "2685c067a26df9e698a168e14bfada49d7c5a1e3fe4c29f483aa36e5b927406b",
+        "tests/test_matrixgame_actual_draw_replay.cpp": "5e5b7a23d93092b088bc0f0ed3adbbcb54c0dfda642a86213362e4c5b837a54a",
+        "port/matrixgame/deko/fixed_vertex.cpp": "fe6380e0afad245492acdc2b602c67d21d81141430db11e08650f54bdbdb0c01",
+        "port/matrixgame/deko/material_combiner.hpp": "1ff9ebd13f1e8db5c89a60d33e70cdb9801fb48e944ac27026634f15ec44dcf7",
+        "port/matrixgame/deko/legacy_raster_viewport.hpp": "6bd4098e0faafd1b69c37270c59f7892fdda995111de1b4b6c9f66eb6f50df1a",
+        "port/matrixgame/native-engine/native_input_engine.hpp": "cc7ceafe12967ec82c1d1e4749a3c730780f0ce0438cf63ffd970977ec70bc07",
+        "port/matrixgame/native-engine/native_input.hpp": "49627283ea63bb0fe60782f979501188610b6b1a3a52635ccc15c05f08ec203d",
+        "port/matrixgame/native-engine/shadow_texture_backend.cpp": "346786710db3770522ee395d3213e554fbfb33f75fb52e83ae539b438a792db9",
+        "port/matrixgame/deko/pixel_fog.hpp": "891301d1c55594003438c6c2ce9ea82aefe6f82501c9acd043badd8d9e60cfba",
+        "port/matrixgame/native-engine/platform_win32.hpp": "3cd6fc6d8470c43faee7fdfbd7abef2437256e4f2996d25d5c9947a4e6e186cd",
+        "port/matrixgame/native-engine/native_input_engine.cpp": "5a0967c840b6dcd3fc184c8387fc228a800b815f0594e3e51aa32eaacd69a74c",
+        "port/matrixgame/deko/fixed_vertex.hpp": "83fb922974571fcc209bd5b90de8f7aacb2552b0e2e656803bcb2959a2a5b810",
+        "port/matrixgame/native-engine/native_text_asset.cpp": "07083d37fe2802d818ef85e8b2c57cc913ce5fee7de3579f7f1ae87e110e3c45",
+        "port/matrixgame/native-engine/platform_switch.cpp": "9f41efc588409ae170cc4832de2ccb9e4263c34a0176678ef0c94472e19fa05e",
+        "port/matrixgame/native-engine/native_input.cpp": "c9befeb047caca88c3f5c042625e5582f5b2a2763b83be0537411803416b5b37",
+        "tests/matrixgame_actual_draw_windows.cpp": "b8cd252bf3e2a322ed129835cd7e0573609944e0b6ba333b0ff2c65237c96d8b",
+        "port/matrixgame/native-engine/native_device_state.cpp": "0e5a0252ee4c34435633f793b966d5ea13fc0d6603a2ad40c6006ec44c5fc17c",
+        "port/matrixgame/deko/material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+        "port/matrixgame/native-engine/text_backend.cpp": "e7fa94aad3f0b38a14e22a1b4494479c73d97c41fbf5ccfd4b4361ba018ef29b",
+        "tests/matrixgame_actual_draw_audit.hpp": "67999d2512d33cad3edac347ae8a93cef604b8a40e3ea1e289c025f1ce4dbf64",
+        "port/matrixgame/native-engine/debug_font_backend.cpp": "2d7d840c29b6956dab0dcd8223e0fef061e10c5259ca233c1b894f6142489b02"
+      },
+      "capture_sha256": {}
+    }
+  },
+  "source_sha256": {
+    "build\\matrixgame\\e2e521\\source\\MatrixGame\\src\\input.cpp": "fa237ded3e940dac71f68531f5d3ed8fbbdfd071bdae713f8ff286c540330e0b",
+    "build\\matrixgame\\e2e521\\source\\MatrixLib\\3G\\Form.cpp": "574623bd04c5e7a56dd82a2d34a0b2717da839e19afd4ba038bd8e32d02cb660",
+    "build\\matrixgame\\e2e538-selection\\map-state\\windows\\driver.cpp": "80add2d9cb31aace9ccc8982f8c25922530b039389ccb1d6f51c06c8f0583a69",
+    "build\\matrixgame\\e2e538-selection\\map-state\\windows\\matrixgame_windows_frame_main.cpp": "f263de2c8849ccf20b871da5ced8b4dcdefe3ebf1e18a2fbcd8de8725a86885d",
+    "docs/matrixgame-init-sequence.md": "7c98cd6b2e61d4ef1acc556f18e7ef68c0e7d2f6982a8af4116c82f57fe66f58",
+    "docs/matrixgame-readiness-plan.md": "bfe26c1bc825c1cd73c0d15ce1ec4449eb6c2cfb3f54978ce62f16660929b9b1",
+    "port/matrixgame/deko/fixed_vertex.cpp": "fe6380e0afad245492acdc2b602c67d21d81141430db11e08650f54bdbdb0c01",
+    "port/matrixgame/deko/fixed_vertex.hpp": "83fb922974571fcc209bd5b90de8f7aacb2552b0e2e656803bcb2959a2a5b810",
+    "port/matrixgame/deko/legacy_raster_viewport.hpp": "6bd4098e0faafd1b69c37270c59f7892fdda995111de1b4b6c9f66eb6f50df1a",
+    "port/matrixgame/deko/material.frag.glsl": "0c4f8124be91e64065fe0eeb7fb8ed4292a8871739c07dd7fe753d9f48c5f3cc",
+    "port/matrixgame/deko/material.vert.glsl": "bf501b53eb352b861792eba18b1ed02b91f346e6f1c21d2deca696258e74dfb2",
+    "port/matrixgame/deko/material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+    "port/matrixgame/deko/material_combiner.hpp": "1ff9ebd13f1e8db5c89a60d33e70cdb9801fb48e944ac27026634f15ec44dcf7",
+    "port/matrixgame/deko/pixel_fog.hpp": "891301d1c55594003438c6c2ce9ea82aefe6f82501c9acd043badd8d9e60cfba",
+    "port/matrixgame/deko/stencil_state.hpp": "5f2866f229b71b8c15904e160fb6ee26c976a69295d535cd1476295ded66c5ce",
+    "port/matrixgame/native-core/buffer_resources.cpp": "aefc5bf2f13738d858c9feddeb8361501c64683692257d535cb85616a139cf61",
+    "port/matrixgame/native-engine/debug_font_backend.cpp": "2d7d840c29b6956dab0dcd8223e0fef061e10c5259ca233c1b894f6142489b02",
+    "port/matrixgame/native-engine/map_device_backend.cpp": "2685c067a26df9e698a168e14bfada49d7c5a1e3fe4c29f483aa36e5b927406b",
+    "port/matrixgame/native-engine/native_device_state.cpp": "0e5a0252ee4c34435633f793b966d5ea13fc0d6603a2ad40c6006ec44c5fc17c",
+    "port/matrixgame/native-engine/native_device_state.hpp": "d16899551271b310ac8ce54f6789afd10acd848b4507f138a1d19b8ed1dbd2c5",
+    "port/matrixgame/native-engine/native_input.cpp": "c9befeb047caca88c3f5c042625e5582f5b2a2763b83be0537411803416b5b37",
+    "port/matrixgame/native-engine/native_input.hpp": "49627283ea63bb0fe60782f979501188610b6b1a3a52635ccc15c05f08ec203d",
+    "port/matrixgame/native-engine/native_input_engine.cpp": "5a0967c840b6dcd3fc184c8387fc228a800b815f0594e3e51aa32eaacd69a74c",
+    "port/matrixgame/native-engine/native_input_engine.hpp": "cc7ceafe12967ec82c1d1e4749a3c730780f0ce0438cf63ffd970977ec70bc07",
+    "port/matrixgame/native-engine/native_state_layout.hpp": "3bace2c54f4942abff62eeabc8fb83e1efaa53dc74793ac8ef3bc6e33a300f52",
+    "port/matrixgame/native-engine/native_text.cpp": "9980ecd25c9db62865db3202c71e46091ef798565ef226e6f5e890263e61298d",
+    "port/matrixgame/native-engine/native_text.hpp": "037e827b36fb6d1024fd756516700725d9ece90e227bd92a4438552ac167fa68",
+    "port/matrixgame/native-engine/native_text_asset.cpp": "07083d37fe2802d818ef85e8b2c57cc913ce5fee7de3579f7f1ae87e110e3c45",
+    "port/matrixgame/native-engine/native_text_backend.cpp": "06193a56905906a5bd270434237e31d91521ec87e8aa42d9b13c68b38bc93c37",
+    "port/matrixgame/native-engine/platform_switch.cpp": "9f41efc588409ae170cc4832de2ccb9e4263c34a0176678ef0c94472e19fa05e",
+    "port/matrixgame/native-engine/platform_win32.hpp": "3cd6fc6d8470c43faee7fdfbd7abef2437256e4f2996d25d5c9947a4e6e186cd",
+    "port/matrixgame/native-engine/shadow_texture_backend.cpp": "346786710db3770522ee395d3213e554fbfb33f75fb52e83ae539b438a792db9",
+    "port/matrixgame/native-engine/text_backend.cpp": "e7fa94aad3f0b38a14e22a1b4494479c73d97c41fbf5ccfd4b4361ba018ef29b",
+    "port\\matrixgame\\deko\\fixed_vertex.cpp": "fe6380e0afad245492acdc2b602c67d21d81141430db11e08650f54bdbdb0c01",
+    "port\\matrixgame\\deko\\material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+    "port\\matrixgame\\native-engine\\cursor_backend.hpp": "782b056a19ac3eedd1c18c119e9f39707f0aa36d716009f984217a2087389f44",
+    "port\\matrixgame\\native-engine\\debug_font_backend.cpp": "2d7d840c29b6956dab0dcd8223e0fef061e10c5259ca233c1b894f6142489b02",
+    "port\\matrixgame\\native-engine\\map_device_backend.cpp": "2685c067a26df9e698a168e14bfada49d7c5a1e3fe4c29f483aa36e5b927406b",
+    "port\\matrixgame\\native-engine\\native_cursor.cpp": "28c01811fa235b6d6282c08e6a7f42a553fa116e646e74c2877da2e67fa88527",
+    "port\\matrixgame\\native-engine\\native_cursor.hpp": "d4ec84c19826f8760be03cfb2c291fdb04e345deabf9b25d96373853daa4599f",
+    "port\\matrixgame\\native-engine\\native_device_state.cpp": "0e5a0252ee4c34435633f793b966d5ea13fc0d6603a2ad40c6006ec44c5fc17c",
+    "port\\matrixgame\\native-engine\\native_input.cpp": "c9befeb047caca88c3f5c042625e5582f5b2a2763b83be0537411803416b5b37",
+    "port\\matrixgame\\native-engine\\native_input.hpp": "49627283ea63bb0fe60782f979501188610b6b1a3a52635ccc15c05f08ec203d",
+    "port\\matrixgame\\native-engine\\native_input_engine.cpp": "5a0967c840b6dcd3fc184c8387fc228a800b815f0594e3e51aa32eaacd69a74c",
+    "port\\matrixgame\\native-engine\\native_input_engine.hpp": "cc7ceafe12967ec82c1d1e4749a3c730780f0ce0438cf63ffd970977ec70bc07",
+    "port\\matrixgame\\native-engine\\native_input_switch.hpp": "234523020c46b52a60e98ae700deaf7cd13ea0a80d6c979f05740196a0871bd2",
+    "port\\matrixgame\\native-engine\\offscreen_backend.cpp": "05e99e3d2d362fbf9318f1d9eba0229734b8bbe1c2bdb8e3f3e7774a22d94a76",
+    "port\\matrixgame\\native-engine\\original_game.cpp": "c3d7b3976359c8eab970c8d031194dc387fad9cfdbe05270247d9fe78d3a5cbd",
+    "port\\matrixgame\\native-engine\\platform_switch.hpp": "316c1995ddee90880bd2865d97abba2a6eda77a76585b28bf5fe70fc7da586dc",
+    "port\\matrixgame\\native-engine\\platform_win32.cpp": "3a42edbbf020c229f13da897fe9bfe236a2e08f00968ca1cdd8045f999da2ae8",
+    "port\\matrixgame\\native-engine\\shadow_texture_backend.cpp": "346786710db3770522ee395d3213e554fbfb33f75fb52e83ae539b438a792db9",
+    "port\\matrixgame\\native-engine\\text_backend.cpp": "e7fa94aad3f0b38a14e22a1b4494479c73d97c41fbf5ccfd4b4361ba018ef29b",
+    "port\\matrixgame\\native-engine\\transition_backend.cpp": "231f2f8a8d92c2c956a938c589cf5aac74d8964ad630fe8126a97e185924127c",
+    "port\\matrixgame\\native-engine\\unmanaged_texture_backend.cpp": "57c3c86ff044fcc4d31d99dc828d639932cf3f70ea0458541fcb593612cb0f33",
+    "reports/matrixgame-e2e538-selection.md": "11dc6c6b8db7a579d90cdc5b00fec6c8d843669bb22b126f307ca3876cdc4d52",
+    "reports/matrixgame-text-current.md": "232b1b5fe0adfe874976aab534d91d1dd1d90174d7dacd98915c402454e830df",
+    "tests/matrixgame_actual_draw_audit.hpp": "67999d2512d33cad3edac347ae8a93cef604b8a40e3ea1e289c025f1ce4dbf64",
+    "tests/matrixgame_actual_draw_state.hpp": "9c19170ee954501558b9046b22f2396061e262d2810bf91119f029db9af1c88b",
+    "tests/matrixgame_actual_draw_windows.cpp": "b8cd252bf3e2a322ed129835cd7e0573609944e0b6ba333b0ff2c65237c96d8b",
+    "tests/matrixgame_fog_windows.cpp": "6e0f930bb584943e9b3c8a6f214701211c9e5b134e25aad613cce1c2e597d2f4",
+    "tests/matrixgame_line_windows.cpp": "86d6b3dc932f70743f18ed84e1a49537baa29d5bb4e17bc7636fb627fb8f4173",
+    "tests/matrixgame_material_gl_reference.hpp": "8f9e1970934691e449142b1dbe9c987f27eb36d05d2944edfef22df3d21ca335",
+    "tests/matrixgame_windows_form_loop.cpp": "668ac9eb07bdfb956e7d0e096527665c4ed4e84b03f084cba672ce95a5baa781",
+    "tests/matrixgame_windows_frame_main.cpp": "811b483fe62d2879b8bf9dbf0a936a31751eaef37f13e7ca6af671cae477e5b2",
+    "tests/test_matrixgame_actual_draw_replay.cpp": "5e5b7a23d93092b088bc0f0ed3adbbcb54c0dfda642a86213362e4c5b837a54a",
+    "tests/test_matrixgame_line_state.cpp": "8733a2d51ae417e71a301c4089cc1992655e0ebebb0e2d1b8b8bc28c8ec393e1",
+    "tests\\matrixgame_actual_draw_windows.cpp": "b8cd252bf3e2a322ed129835cd7e0573609944e0b6ba333b0ff2c65237c96d8b",
+    "tests\\matrixgame_windows_selection.cpp": "e412932981518525ef0037889ea9b28a000056b819ffd64cf1973f52ec5f6f31",
+    "tests\\matrixgame_windows_stored_slots.cpp": "76643e6e1e9019bc714d38958a52a41256a386590635b8554cb6827ee293e5eb",
+    "tests\\test_matrixgame_native_cursor_input.cpp": "b1e09bcc5f4fe79c448f40218f5eb156d7c72188bb0ea95e97f70a9dcb1f9d0a",
+    "tools/matrixgame_actual_draw_checks.py": "b6cd38a2bad0ebd9adffb5aabc3f561bd906251129fe1f9f0d09bace7dead302",
+    "tools/matrixgame_cursor_checks.py": "2a8b9eab0cc9ccd325b675ff9ddf56ac2bba91326f0acbb2c280475d9f3c6b10",
+    "tools/matrixgame_selection_audit.py": "fa74f6a6185c242e7b0d74bd580c8a82004757a5531a13520337892d1c5bdc18",
+    "tools/matrixgame_text_recheck_audit.py": "741c70b7b73aa1e444dad2cd3e5e41445244504df2787b9de61ab5041e0b0c38",
+    "tools\\matrixgame_cursor_checks.py": "2a8b9eab0cc9ccd325b675ff9ddf56ac2bba91326f0acbb2c280475d9f3c6b10"
+  },
+  "actual_draws": 227586,
+  "unique_snapshots": 159694,
+  "actual_line_cases": 114,
+  "compared_RGBA_pixels": 54720000,
+  "failing_line_cases": 0,
+  "max_channel_delta": 0,
+  "line_baseline_failure_preserved": true,
+  "line_capture_payloads_unchanged": true,
+  "original_robot_movement": [
+    18.483131,
+    18.483131
+  ],
+  "baseline_failure_preserved": true,
+  "text_evidence": "reports/matrixgame-text-current-evidence.json",
+  "original_generated_files_unchanged": 255,
+  "native_map_loaded": false,
+  "native_frame_presented": false,
+  "Switch_hardware": "NOT RUN / HARDWARE_PENDING",
+  "first_native_runtime_blocker": "NOT OBSERVED: no Switch execution",
+  "closed_software_blocker": "CMinimap::Draw closed LINESTRIP after robot movement: implicit logical viewport clip preserved alongside half-pixel physical viewport",
+  "NRO_created": false,
+  "commit": false,
+  "push": false,
+  "open_gates": [
+    "P0",
+    "GI repeating-text causality unproven",
+    "manual-publish ENOENT",
+    "Switch hangs",
+    "E2E-5.34 raw HAL retry FAIL"
+  ]
+}

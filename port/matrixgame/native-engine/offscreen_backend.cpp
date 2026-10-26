@@ -7,6 +7,13 @@
 #include "platform_win32.hpp"
 #endif
 #include "offscreen_backend.hpp"
+#include "native_map_queries.hpp"
+#ifndef _WIN32
+#include "native_surfaces.hpp"
+#include "native_texture.hpp"
+#endif
+#include "native_frame_scope.hpp"
+#include <cstring>
 namespace srhd_awa::matrixgame::offscreen {
 using namespace platform3g;
 #ifdef _WIN32
@@ -24,7 +31,7 @@ DeviceResult Readback(IDirect3DSurface9* source,IDirect3DSurface9* destination) 
 #ifdef _WIN32
     return ActualDevice().GetRenderTargetData(source,destination);
 #else
-    (void)source;(void)destination;(void)ReadyDevice();throw Unsupported("offscreen GPU readback unavailable");
+    try{native_surfaces::Copy(source,destination,true);return 0;}catch(const native_texture::ResidencyExhausted&){return native_texture::OutOfVideoMemory;}catch(const std::bad_alloc&){return native_texture::OutOfMemory;}
 #endif
 }
 DeviceResult CreateTarget(std::uint32_t width,std::uint32_t height,std::uint32_t format,std::uint32_t multisample,
@@ -32,8 +39,8 @@ DeviceResult CreateTarget(std::uint32_t width,std::uint32_t height,std::uint32_t
 #ifdef _WIN32
     return ActualDevice().CreateRenderTarget(width,height,static_cast<D3DFORMAT>(format),static_cast<D3DMULTISAMPLE_TYPE>(multisample),quality,lockable,output,reinterpret_cast<HANDLE*>(shared));
 #else
-    (void)width;(void)height;(void)format;(void)multisample;(void)quality;(void)lockable;(void)output;(void)shared;
-    (void)ReadyDevice();throw Unsupported("offscreen render target unavailable");
+    if(!output || shared)throw std::invalid_argument("native offscreen target output/shared");*output=nullptr;
+    try{auto session=native_surfaces::Active();native_surfaces::Expose(session->Create({format,multisample,quality,width,height},false,lockable),output);return 0;}catch(const native_texture::ResidencyExhausted&){return native_texture::OutOfVideoMemory;}catch(const std::bad_alloc&){return native_texture::OutOfMemory;}
 #endif
 }
 DeviceResult CreateDepth(std::uint32_t width,std::uint32_t height,std::uint32_t format,std::uint32_t multisample,
@@ -41,36 +48,36 @@ DeviceResult CreateDepth(std::uint32_t width,std::uint32_t height,std::uint32_t 
 #ifdef _WIN32
     return ActualDevice().CreateDepthStencilSurface(width,height,static_cast<D3DFORMAT>(format),static_cast<D3DMULTISAMPLE_TYPE>(multisample),quality,discard,output,nullptr);
 #else
-    (void)width;(void)height;(void)format;(void)multisample;(void)quality;(void)discard;(void)output;
-    (void)ReadyDevice();throw Unsupported("offscreen depth target unavailable");
+    if(!output)throw std::invalid_argument("native depth output");*output=nullptr;(void)discard;
+    try{auto session=native_surfaces::Active();native_surfaces::Expose(session->Create({format,multisample,quality,width,height},true,false),output);return 0;}catch(const native_texture::ResidencyExhausted&){return native_texture::OutOfVideoMemory;}catch(const std::bad_alloc&){return native_texture::OutOfMemory;}
 #endif
 }
 DeviceResult GetDepth(IDirect3DSurface9** output) {
 #ifdef _WIN32
     return ActualDevice().GetDepthStencilSurface(output);
 #else
-    (void)output;(void)ReadyDevice();throw Unsupported("offscreen depth query unavailable");
+    if(!output)throw std::invalid_argument("native depth query output");*output=nullptr;auto session=native_surfaces::Active();if(!session->depth)return static_cast<std::int32_t>(0x88760866u);native_surfaces::Expose(session->depth,output);return 0;
 #endif
 }
 DeviceResult SetDepth(IDirect3DSurface9* surface) {
 #ifdef _WIN32
     return ActualDevice().SetDepthStencilSurface(surface);
 #else
-    (void)surface;(void)ReadyDevice();throw Unsupported("offscreen depth binding unavailable");
+    native_surfaces::Active()->Depth(surface?native_surfaces::Find(surface):nullptr);return 0;
 #endif
 }
 DeviceResult GetTarget(std::uint32_t index,IDirect3DSurface9** output) {
 #ifdef _WIN32
     return ActualDevice().GetRenderTarget(index,output);
 #else
-    (void)index;(void)output;(void)ReadyDevice();throw Unsupported("offscreen target query unavailable");
+    if(!output || index)throw std::invalid_argument("native target query index/output");*output=nullptr;auto session=native_surfaces::Active();if(!session->color)throw Unsupported("native presentation surface unavailable");native_surfaces::Expose(session->color,output);return 0;
 #endif
 }
 DeviceResult SetTarget(std::uint32_t index,IDirect3DSurface9* surface) {
 #ifdef _WIN32
     return ActualDevice().SetRenderTarget(index,surface);
 #else
-    (void)index;(void)surface;(void)ReadyDevice();throw Unsupported("offscreen target binding unavailable");
+    if(index)throw std::invalid_argument("native target binding index");native_surfaces::Active()->Color(native_surfaces::Find(surface));return 0;
 #endif
 }
 DeviceResult Describe(IDirect3DSurface9* surface,SurfaceDesc* output) {
@@ -80,7 +87,7 @@ DeviceResult Describe(IDirect3DSurface9* surface,SurfaceDesc* output) {
     if(SUCCEEDED(result))*output={static_cast<std::uint32_t>(value.Format),static_cast<std::uint32_t>(value.MultiSampleType),value.MultiSampleQuality,value.Width,value.Height};
     return result;
 #else
-    throw Unsupported("offscreen surface description unavailable");
+    auto value=native_surfaces::Find(surface);if(value->session.lock()!=native_surfaces::Active() || (!value->System() && !value->resource))throw Unsupported("native surface descriptor device expired");*output=value->desc;return 0;
 #endif
 }
 DeviceResult Lock(IDirect3DSurface9* surface,legacy_texture::LockedRect* output,std::nullptr_t,std::uint32_t flags) {
@@ -89,7 +96,7 @@ DeviceResult Lock(IDirect3DSurface9* surface,legacy_texture::LockedRect* output,
     D3DLOCKED_RECT value{};const auto result=surface->LockRect(&value,nullptr,flags);
     if(SUCCEEDED(result))*output={value.Pitch,value.pBits};return result;
 #else
-    (void)flags;throw Unsupported("offscreen surface lock unavailable");
+    return native_surfaces::Lock(surface,output,flags);
 #endif
 }
 DeviceResult Unlock(IDirect3DSurface9* surface) {
@@ -97,36 +104,42 @@ DeviceResult Unlock(IDirect3DSurface9* surface) {
 #ifdef _WIN32
     return surface->UnlockRect();
 #else
-    throw Unsupported("offscreen surface unlock unavailable");
+    return native_surfaces::Unlock(surface);
 #endif
 }
 void Release(IDirect3DSurface9* surface)noexcept {
 #ifdef _WIN32
     if(surface)surface->Release();
 #else
-    if(surface)std::terminate();
+    native_surfaces::Release(surface);
 #endif
 }
 DeviceResult Clear(std::uint32_t count,const void* rectangles,std::uint32_t flags,std::uint32_t color,float depth,std::uint32_t stencil) {
-    if(count || rectangles)throw std::invalid_argument("offscreen clear supports original full target call only");
 #ifdef _WIN32
+    if(count || rectangles)throw std::invalid_argument("offscreen clear supports original full target call only");
     return ActualDevice().Clear(0,nullptr,flags,color,depth,stencil);
 #else
-    (void)flags;(void)color;(void)depth;(void)stencil;(void)ReadyDevice();throw Unsupported("offscreen clear unavailable");
+    if(count>4096 || bool(count)!=bool(rectangles))throw std::invalid_argument("native clear rectangle count/pointer");
+    auto* provider=dynamic_cast<NativeFrameProvider*>(&ReadyDevice());if(!provider)throw Unsupported("native clear provider unavailable");
+    std::vector<ClearRectangle> copied(count);
+    if(count)std::memcpy(copied.data(),rectangles,std::size_t(count)*sizeof(ClearRectangle));
+    return provider->NativeClear(copied,flags,color,depth,stencil);
 #endif
 }
 DeviceResult BeginScene() {
 #ifdef _WIN32
     return ActualDevice().BeginScene();
 #else
-    (void)ReadyDevice();throw Unsupported("offscreen begin scene unavailable");
+    auto* provider=dynamic_cast<NativeFrameProvider*>(&ReadyDevice());if(!provider)throw Unsupported("native scene provider unavailable");
+    return provider->NativeBeginScene();
 #endif
 }
 DeviceResult EndScene() {
 #ifdef _WIN32
     return ActualDevice().EndScene();
 #else
-    (void)ReadyDevice();throw Unsupported("offscreen end scene unavailable");
+    auto* provider=dynamic_cast<NativeFrameProvider*>(&ReadyDevice());if(!provider)throw Unsupported("native scene provider unavailable");
+    return provider->NativeEndScene();
 #endif
 }
 DeviceResult GetViewport(VideoViewport* output) {
@@ -136,7 +149,9 @@ DeviceResult GetViewport(VideoViewport* output) {
     if(SUCCEEDED(result))*output={value.X,value.Y,value.Width,value.Height,value.MinZ,value.MaxZ};
     return result;
 #else
-    throw Unsupported("offscreen viewport query unavailable");
+    auto* provider=dynamic_cast<NativeMapQueries*>(&ReadyDevice());
+    if(!provider)throw Unsupported("offscreen native viewport provider unavailable");
+    *output=provider->NativeReadViewport();return 0;
 #endif
 }
 DeviceResult SetViewportValue(const VideoViewport& value) {
@@ -144,7 +159,7 @@ DeviceResult SetViewportValue(const VideoViewport& value) {
     const D3DVIEWPORT9 viewport{value.X,value.Y,value.Width,value.Height,value.MinZ,value.MaxZ};
     return ActualDevice().SetViewport(&viewport);
 #else
-    (void)value;(void)ReadyDevice();throw Unsupported("offscreen viewport submission unavailable");
+    return ReadyDevice().SetVideoViewport(value);
 #endif
 }
 }

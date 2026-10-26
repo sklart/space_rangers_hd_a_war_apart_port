@@ -70,13 +70,15 @@ struct SProjData;''')
         throw std::invalid_argument("VO load flags");
     if ((olf==OLF_SIMPLE || olf==OLF_AUTO) && !sg)
         throw std::invalid_argument("VO skin provider required");
-    if (olf!=OLF_NO_TEX && sg && (sg!=srhd_awa::matrixgame::AcquireOwnedSkin || !srhd_awa::matrixgame::SkinProviderBound()))
+    if (olf!=OLF_NO_TEX && sg &&
+        !(sg==srhd_awa::matrixgame::AcquireOwnedSkin && srhd_awa::matrixgame::SkinProviderBound()) &&
+        !srhd_awa::matrixgame::BorrowedSkinProviderBound(sg))
         throw std::logic_error("UNSUPPORTED: unowned skin provider");
     Unload();
 
     CStorage stor(g_CacheHeap);''')
     selected=selected.replace('void CVectorObject::Unload() {',
-        'void CVectorObject::Unload() {\n    m_NativeSkinOwners.clear();')
+        'void CVectorObject::Unload() {\n    srhd_awa::matrixgame::ForgetBorrowedSkinOwner(this);\n    m_NativeSkinOwners.clear();')
     old_skin='''    for (int i = 0; i < m_Geometry.m_SurfacesCnt; ++i) {
         SVOSurface *s = m_Geometry.m_Surfaces + i;
         s->skin = sg(s->texname.c_str(), gsp);
@@ -85,7 +87,11 @@ struct SProjData;''')
     selected=selected.replace(old_skin,'''    try {
         if(!sg)throw std::invalid_argument("VO skin provider required");
 '''+old_skin.replace('        s->skin = sg(s->texname.c_str(), gsp);',
-        '        s->skin = sg(s->texname.c_str(), gsp);\n        m_NativeSkinOwners.push_back(srhd_awa::matrixgame::TakeOwnedSkin(s->skin));')+'''
+        '''        s->skin = sg(s->texname.c_str(), gsp);
+        if(sg==srhd_awa::matrixgame::AcquireOwnedSkin)
+            m_NativeSkinOwners.push_back(srhd_awa::matrixgame::TakeOwnedSkin(s->skin));
+        else
+            srhd_awa::matrixgame::TrackBorrowedSkinOwner(this,sg);''')+'''
     } catch(...) {Unload();throw;}
 ''')
     selected = selected.replace('''#ifdef _DEBUG
@@ -149,6 +155,7 @@ std::vector<srhd_awa::matrixgame::MeshRange> CVectorObject::PrepareNativeFrame(i
 }
 '''
     before_draw=function(c,'void CVectorObject::BeforeDraw(').replace('DTRACE();','')
+    before_draw=before_draw.replace('{','{\n    srhd_awa::matrixgame::CheckBorrowedSkinOwner(this);',1)
     actual_draw=function(c,'void CVectorObject::Draw(int noframe,')
     actual_draw=re.sub(r'#ifdef SHOW_PICK_OBJECTS.*?#endif', '',actual_draw,flags=re.S)
     begin=actual_draw.index('#ifdef _DEBUG')
@@ -166,6 +173,7 @@ std::vector<srhd_awa::matrixgame::MeshRange> CVectorObject::PrepareNativeFrame(i
     actual_draw=actual_draw.replace('            again |=',
         '            if(!ss || !ss->m_SetupStages || !ss->m_SetupTex || !ss->m_SetupClear)\n                throw std::logic_error("VO draw has no complete skin callbacks");\n            again |=',1)
     actual_draw=actual_draw.replace('DTRACE();','').replace('DWORD','std::uint32_t')
+    actual_draw=actual_draw.replace('{','{\n    srhd_awa::matrixgame::CheckBorrowedSkinOwner(this);',1)
     draw_payload='void CVectorObject::Draw(int noframe, std::uint32_t user_param,'
     if actual_draw.count(draw_payload)!=1:raise ValueError('Original VO draw payload changed')
     actual_draw=actual_draw.replace(draw_payload,'void CVectorObject::Draw(int noframe, uintptr_t user_param,')

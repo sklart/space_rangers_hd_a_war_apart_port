@@ -12,6 +12,9 @@ def prepare_minimap(output):
     old='(CTextureManaged *)g_Cache->Get(CacheClass::TextureManaged, n.GetStrPar(0, L",").c_str())'
     if text.count(old)!=1:raise ValueError('Minimap managed lookup changed')
     text=text.replace(old,'mm_texture::GetManaged(n.GetStrPar(0, L",").c_str())')
+    if text.count('fs::path filepath{filename};')!=1 or text.count('std::filesystem::exists(filename.c_str(), ec)')!=1:raise ValueError('Minimap cache filesystem boundaries changed')
+    text=text.replace('fs::path filepath{filename};','fs::path filepath{mm_output::FilesystemPath(filename)};')
+    text=text.replace('std::filesystem::exists(filename.c_str(), ec)','std::filesystem::exists(mm_output::FilesystemPath(filename), ec)')
     text=adapt(text)
     values={'D3D_OK':'0','D3DPOOL_SYSTEMMEM':'2u','D3DPOOL_DEFAULT':'0u',
         'D3DUSAGE_RENDERTARGET':'1u','rp3g::PixelFormat::Xrgb8':'22u',
@@ -61,28 +64,111 @@ def prepare_minimap(output):
     text=text.replace('D3DCOLOR_XRGB(0, 0, 0)','0xff000000u')
     text=text.replace('light.Direction = g_MatrixMap->m_LightMain;',
         'light.Direction = {g_MatrixMap->m_LightMain.x,g_MatrixMap->m_LightMain.y,g_MatrixMap->m_LightMain.z};')
+
+    # Same original calls and draw algorithms; own every temporary across native
+    # exception exits, and keep staging data until successful resource adoption.
+    from matrixgame_vector_object_overrides import function
+    body=function(text,'void CMinimap::RestoreTexture(void)')
+    old='''    mm_texture::Release(m_TextureStore);
+    m_TextureStore = NULL;
+
+    m_Texture = mm_texture::CreateUnmanaged();
+    m_Texture->Set(newTexture);'''
+    if body.count(old)!=1:raise ValueError('Original minimap restore ownership boundary changed')
+    body=body.replace(old,'''    std::unique_ptr<CTexture, MinimapCacheDeleter> candidate{mm_texture::CreateUnmanaged()};
+    candidate->Set(newTexture); newTexture.detach();
+    m_Texture = candidate.release();
+    mm_texture::Release(m_TextureStore);
+    m_TextureStore = NULL;''')
+    text=text.replace(function(text,'void CMinimap::RestoreTexture(void)'),body,1)
+    pattern=r'IDirect3DSurface9\s*\*\s*(\w+)(?:,\s*\*\s*(\w+)(?:\s*=\s*NULL)?)?\s*;'
+    text,count=re.subn(pattern,lambda m:'mm_offscreen::SurfaceOwner '+m[1]+(', '+m[2] if m[2] else '')+';',text)
+    if count!=9:raise ValueError('Minimap surface declaration count changed')
+    for name in ('surf_to','surf_from','oldZ','newZ','oldTarget','newTarget','outtgt'):
+        text=re.sub(r'&'+name+r'\b',name+'.put()',text)
+        text=text.replace('mm_offscreen::Release('+name+')',name+'.reset()')
+    text,count=re.subn(r'IDirect3DTexture9\s*\*\s*(newTexture|loaded_tex|out)\s*;',r'mm_lifetime::TextureOwner \1;',text)
+    if count!=4:raise ValueError('Minimap temporary texture declaration count changed')
+    for name in ('newTexture','loaded_tex','out'):
+        if name=='out':
+            original=function(text,'bool CMinimap::StoreMinimapToCache(')
+            body=re.sub(r'&out\b','out.put()',original)
+            text=text.replace(original,body,1)
+        else:text=re.sub(r'&'+name+r'\b',name+'.put()',text)
+        text=text.replace('mm_texture::Release('+name+')',name+'.reset()')
+    if text.count('    m_Texture->Set(newTexture);')!=1:raise ValueError('Minimap render result adoption changed')
+    text=text.replace('    m_Texture->Set(newTexture);','    m_Texture->Set(newTexture); newTexture.detach();')
+    if text.count('StoreMinimapToCache(mmname, newTexture);')!=1:raise ValueError('Minimap adopted cache save source changed')
+    text=text.replace('StoreMinimapToCache(mmname, newTexture);','StoreMinimapToCache(mmname, m_Texture->DX());')
+    early='''    if (LoadMinimapFromCache(mmname, newTexture))
+    {
+        return;
+    }'''
+    if text.count(early)!=1:raise ValueError('Minimap warm-cache adoption changed')
+    text=text.replace(early,early.replace('        return;','        newTexture.detach();\n        return;'))
+    # Any failure while creating/copying the system backup clears that incomplete
+    # slot. Success keeps it owned by the original CMinimap until restore/clear.
+    body=function(text,'void CMinimap::StoreTexture(void)')
+    marker='    mm_offscreen::SurfaceOwner surf_to, surf_from;'
+    if body.count(marker)!=1:raise ValueError('Minimap store staging owner changed')
+    body=body.replace(marker,'    mm_lifetime::TextureSlotRollback store_backup{m_TextureStore};\n'+marker)
+    body=body.replace('\nreally_lost:','\n    store_backup.Commit();\n\nreally_lost:')
+    text=text.replace(function(text,'void CMinimap::StoreTexture(void)'),body,1)
+    for signature in ('void CMinimap::RenderBackground(', 'void CMinimap::RenderObjectToBackground('):
+        original=function(text,signature);body=original
+        flag='    SETFLAG(g_MatrixMap->m_Flags, MMFLAG_DISABLE_DRAW_OBJECT_LIGHTS);'
+        if body.count(flag)!=1:raise ValueError('Minimap render flag boundary changed')
+        body=body.replace(flag,'''    mm_lifetime::FlagRollback flag_restore{g_MatrixMap->m_Flags, MMFLAG_DISABLE_DRAW_OBJECT_LIGHTS};
+    mm_offscreen::TargetScope minimap_targets;
+    mm_offscreen::SceneScope minimap_scene;
+'''+flag)
+        body=body.replace('ASSERT_DX(mm_offscreen::BeginScene());','minimap_scene.Begin();')
+        body=body.replace('ASSERT_DX(mm_offscreen::EndScene());','minimap_scene.End();')
+        viewport='    ASSERT_DX(mm_offscreen::SetViewport(&oldViewport));'
+        if body.count(viewport)!=1:raise ValueError('Minimap viewport restoration changed')
+        body=body.replace(viewport,viewport+'\n    FAILED_DX(minimap_targets.Restore());')
+        reset='    RESETFLAG(g_MatrixMap->m_Flags, MMFLAG_DISABLE_DRAW_OBJECT_LIGHTS);'
+        if body.count(reset)!=1:raise ValueError('Minimap normal flag reset changed')
+        body=body.replace(reset,reset+'\n    flag_restore.Commit();')
+        if 'RenderObjectToBackground' in signature:
+            body=body.replace('    bool f1 = g_Config.m_ShowStencilShadows;','    mm_lifetime::ValueRollback stencil_restore{g_Config.m_ShowStencilShadows};\n    mm_lifetime::ValueRollback projected_restore{g_Config.m_ShowProjShadows};\n    bool f1 = g_Config.m_ShowStencilShadows;')
+            body=body.replace('    g_Config.m_ShowProjShadows = f2;','    g_Config.m_ShowProjShadows = f2;\n    stencil_restore.Commit(); projected_restore.Commit();')
+        text=text.replace(original,body,1)
+    # SaveInPNG can throw after LockRect. The bitmap views die before the lock,
+    # then the system texture and surfaces are released in the original order.
+    lock='    mm_offscreen::Lock(outtgt, &lr, NULL, 0);'
+    if text.count(lock)!=1:raise ValueError('Minimap cache lock changed')
+    text=text.replace(lock,'    mm_offscreen::SurfaceLockScope cache_lock{outtgt,lr};')
+    text=text.replace('    mm_offscreen::Unlock(outtgt);','    cache_lock.Unlock();')
+    for prefix,expected in [('mm_offscreen::CreateDepth(',2),('mm_offscreen::GetDepth(',2),('mm_offscreen::Describe(',2),('mm_offscreen::SetDepth(',4),('mm_unmanaged::Update(',2)]:
+        text,count=re.subn(r'(?m)^(\s*)('+re.escape(prefix)+r'[^;]+\));',lambda m:m[1]+'FAILED_DX('+m[2]+');',text)
+        if count!=expected:raise ValueError('Required minimap call count changed: '+prefix+' '+str(count))
+
     prelude='''#include "Texture.hpp"
 #include "unmanaged_texture_backend.hpp"
+#include "output_paths_backend.hpp"
+#include "offscreen_scope.hpp"
+#include "minimap_lifetime.hpp"
+#include <memory>
+namespace {struct MinimapCacheDeleter {void operator()(CTexture* p)const{if(p)CCache::Destroy(p);}};}
 #include "map_device_backend.hpp"
 #include "renderer_ops.hpp"
 #include "minimap_geometry.hpp"
 #include "view_geometry.hpp"
 namespace rp3g=srhd_awa::matrixgame::platform3g;
+namespace mm_output=srhd_awa::matrixgame::output_paths;
 namespace mm_texture=srhd_awa::matrixgame::legacy_texture;
 namespace mm_unmanaged=srhd_awa::matrixgame::unmanaged_texture;
 namespace mm_offscreen=srhd_awa::matrixgame::offscreen;
 namespace mm_device=srhd_awa::matrixgame::map_device;
 namespace mm_geometry=srhd_awa::matrixgame::minimap_geometry;
+namespace mm_lifetime=srhd_awa::matrixgame::minimap_lifetime;
 '''
     marker='#define MINIMAP_Z'
     text=text.replace(marker,'''#undef FAILED_DX
 #define FAILED_DX(call) rp3g::CheckDeviceResult((call), #call)
 #undef ASSERT_DX
-#ifdef ASSERT_OFF
-#define ASSERT_DX(call) (call)
-#else
 #define ASSERT_DX(call) FAILED_DX(call)
-#endif
 '''+marker,1)
     path.write_bytes((prelude+text).encode())
-    return {name:hashlib.sha256(path.read_bytes()).hexdigest()}
+    return {'MatrixGame/src/MatrixMinimap.cpp':hashlib.sha256(path.read_bytes()).hexdigest()}

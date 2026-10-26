@@ -2,6 +2,61 @@
 
 ## Текущий статус на 25.10.2026
 
+E2E-5.21 **PARTIAL**: добавлен `InitializeNativeGame` без D3D identities/Win32 hooks,
+сохранены оригинальные Init и form Draw. Реальные SwitchWindow/DekoDevice
+(libnx window, device/queue, color/depth/swapchain) включены в отдельный SDK ELF;
+полные Init/frame dependencies связаны, strong undefined=0. Host sanitizer и
+ARM64/QEMU ранее проверили два original Init prefix/явный отказ caps/cleanup.
+Теперь `ReadCaps` реализован с проверкой настоящей загруженной shader pair;
+`AvailableTextureBytes` подключён к настоящей image-capable texture arena.
+CaptureState/restore подключены к настоящему native state store с удержанием
+texture/VB/IB bindings. Следующая известная программная граница —
+`SwitchWindow::Show(Normal)`, вызываемый из оригинального `CGame::Init`.
+Switch runtime, включая вызов новых caps, **NOT RUN**.
+[Текущее состояние, результаты и точная следующая граница](../../reports/matrixgame-e2e521-state.md).
+
+Продолжение cascade: прежние 209 alpha/null случаев разобраны; 1476 сравнений
+с D3D9 и столько же с тем же GLSL на Windows GPU прошли без расхождений.
+Подключены FVF, directional lighting/TCI и native map/VO draw routing;
+оригинальный Init/frame ELF слинкован. Native GPU draw ещё не исполнялся.
+[Результаты и оставшийся контракт](../../reports/matrixgame-e2e521-cascade.md).
+
+Texture residency: реализованы budget по реальному backing, original level
+upload/locks, registered native texture bindings и удержание image versions
+до завершения кадра. Host sanitizers, ARM64/QEMU и Windows CPU проверки прошли;
+SDK original Init/frame closure слинкован. Native allocation/upload/sampling
+и карта на Switch **NOT RUN**.
+[Текущая граница и доказательства](../../reports/matrixgame-e2e521-residency.md).
+
+Native state: ASan/UBSan, ARM64/QEMU и Windows проверили повторный restore
+без allocation, ошибки Capture/COW и lifetime snapshots/resources. SDK original
+Init/frame слинкован; два Windows Init/frame/Deinit с новым staging object прошли
+с прежними снимками. Native Capture/restore и карта на Switch **NOT RUN**.
+[Отчёт state gate](../../reports/matrixgame-e2e521-state.md).
+
+## Подтверждённый Windows reference
+
+E2E-5.20: **WINDOWS HAL RUNTIME PASS** для двух полных циклов оригинального
+`CGame::Init → CFormMatrixGame::Draw → readback → CGame::Deinit`.
+Та же карта 276×285, группы 28×29; реальные client/viewport/color/depth 800×600.
+Каждый кадр дал 1008 tracked SDK draws (1006 indexed), 111812 primitives и
+154038 RGB-цветов в framebuffer. Снимки сохранены в `build/matrixgame/e2e520/windows`.
+Проверены настоящий resize/Reset, DEFAULT-resource refusal/retry, восстановление
+окна/gamma/backbuffer/viewport и повторный вход. Большой движок повторно не
+пересобирался: адресная сборка использует проверенные прежние библиотеки.
+
+[Отчёт и доказательства E2E-5.20](../../reports/matrixgame-e2e520-first-frame.md),
+[минимальные native providers Switch](../../docs/matrixgame-native-providers.md).
+Полный Switch порт остаётся **PARTIAL**: hardware NOT RUN, исправление GPU
+alignment аппаратно не подтверждено, игра/бой/возврат хозяину ещё не приняты.
+P0 основной игры, ENOENT и hangs остаются OPEN; основная NRO не менялась.
+
+## Исторический срез E2E-5.19
+
+[Полный план подсистем и рубежей Switch](../../docs/matrixgame-readiness-plan.md).
+Исходная Windows-версия уже существует; Windows runtime ниже — контроль
+изменений при переносе, без отдельной цели выпуска Windows-продукта.
+
 E2E-5.19 остаётся **OFFLINE PARTIAL**. В общий native bootstrap включены полные
 оригинальные модули terrain/water, skin manager, effects/billboard, map groups,
 static/map objects, minimap и hints. На host ASan/UBSan и ARM64/QEMU исполнены
@@ -28,14 +83,24 @@ animator проверен независимым scalar oracle на host/ARM64. 
 и GPU texture generation ещё не выполнялись.
 Полный CGame::Init теперь линкуется. Его оригинальный начальный участок реально
 выполнен на host ASan/UBSan и ARM64/QEMU с настоящим robots.pkg и CFG: statics,
-heap, конфигурация и cache. Следующий отказ — отсутствие подключённых borrowed
-Window/Device providers для L3GInitAsDLL. Оригинальный Deinit и повторный вход
+heap, конфигурация и cache. Оригинальный Deinit и повторный вход
 проверены для отказов открытия пакета и подключения устройства.
-Успешный возврат Init, RunGameLoop, загруженный мир и бой **NOT EXECUTED**.
-[Новая граница и ограничения](../../reports/matrixgame-e2e519-original-init.md).
+Успешный возврат Init, RunGameLoop и бой **NOT EXECUTED**. Загруженный CPU-мир
+впоследствии подтверждён на Windows HAL, как описано ниже.
+[Историческая CPU-граница](../../reports/matrixgame-e2e519-original-init.md).
 
-Полный Windows x86 кандидат компилируется, но пока не линкуется: остаются L3GRun,
-path effect и две функции видимости карты. Оригинальный Ramka подключён;
+Полный Windows x86 кандидат теперь линкуется с оригинальными L3GRun, Path effect
+и обеими функциями видимости карты. Отдельная цель `matrixgame-windows-game`
+создаёт настоящее HAL-устройство и вызывает полный CGame::Init. Оригинальный
+CSkinManager::GetSkin подключён через явное заимствование с invalidation до free.
+RobotPreload/storage Load/PrepareMap реально завершились: карта 276×285,
+группы 28×29, девять VO с материалами менеджера. Два входа остановились на
+следующем вызове CGame::ApplyVideoParams → Window::ResizeOuter и чисто
+освободили ресурсы с восстановлением gamma/device/timer state.
+Первый кадр/цикл/бой не выполнялись; E2E-5.19 остаётся PARTIAL.
+[Path и полная линковка](../../reports/matrixgame-e2e519-path-full-windows.md),
+[карта, ownership и текущая граница](../../reports/matrixgame-e2e519-map-loaded.md).
+Оригинальный Ramka подключён;
 его рамки и сохранность остальных пикселей проверены на настоящем D3D9 HAL.
 [Результаты и точные оставшиеся связи](../../reports/matrixgame-e2e519-ramka.md).
 

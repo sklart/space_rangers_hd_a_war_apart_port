@@ -4,6 +4,7 @@
 #include "buffer_resources.hpp"
 #include "platform_3g.hpp"
 #include "original_game.hpp"
+#include "output_paths_backend.hpp"
 #include <memory>
 #include <optional>
 struct SRobotsSettings;
@@ -15,6 +16,7 @@ class CMatrixCamera;
 namespace Base {class CBlockPar;}
 extern Base::CHeap* g_MatrixHeap;
 namespace srhd_awa::matrixgame {
+namespace resource_paths {class NativeScope;}
 struct Cpu3GState {void* module;void* window;bool bound;};
 void L3GInitAsDLLCpuPhase(void* module,void* window);
 void L3GDeinitCpuPhase() noexcept;
@@ -30,10 +32,12 @@ public:
     void Begin(void* module,void* window);
     // Fresh full-engine entry: original Init creates its own heap/cache/statics.
     void InitializeOriginalGame(const OriginalGameOptions&);
+    void InitializeNativeGame(const NativeGameOptions&);
     bool OriginalGameReady()const noexcept;
     void AttachDevice(platform3g::Window&,platform3g::Device&);
     void BindLegacyProviders(platform3g::Window&,platform3g::Device&);
     static void EnterLegacyDll(void* module,void* window,std::uintptr_t api,std::uintptr_t device);
+    static void EnterNativePlatform(void* module,void* window);
     static void LeaveLegacyDll();
     void DetachDevice() noexcept;
     void ApplySamplerSettings(SRobotsSettings&);
@@ -69,6 +73,7 @@ public:
 private:
     friend void original_game::ObserveStatics();
     void BeginSession(void*,void*,bool original_game);
+    void AttachDeviceImpl(platform3g::Window&,platform3g::Device&,bool native);
     void FinishOriginalGame();
     std::unique_ptr<Base::CHeap> matrix_heap_;
     Base::CBlockPar* matrix_data_{};
@@ -87,5 +92,7 @@ private:
     bool game_defaults_{};
     bool cache_owned_{},cpu_owned_{};
     bool statics_owned_{};
+    std::unique_ptr<output_paths::NativeScope> output_scope_;
+    std::unique_ptr<resource_paths::NativeScope> resource_scope_;
 };
 }

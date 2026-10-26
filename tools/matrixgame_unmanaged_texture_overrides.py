@@ -30,6 +30,13 @@ def prepare_unmanaged_texture(output):
             body=body.replace(texture+'->Release()', 'lt::Release('+texture+')')
         for surface in ['from','to']:body=body.replace(surface+'->Release()', 'os::Release('+surface+')')
         body=body.replace('D3DXLoadSurfaceFromSurface(to, NULL, NULL, from, NULL, NULL, D3DX_FILTER_NONE, 0)','ut::CopySurface(to, from)')
+        # Native factories publish into empty slots; original D3D locals were uninitialized.
+        body=re.sub(r'(IDirect3DTexture9\s*\*\s*(?:tex|sm_tex))\s*;',r'\1{};',body)
+        if signature.startswith('void CTexture::MakeSolidTexture('):
+            declaration='    IDirect3DTexture9* sm_tex{};'
+            if body.count(declaration)!=1:raise ValueError('solid staging owner changed')
+            body=body.replace(declaration,declaration+'\n    struct StagingOwner {IDirect3DTexture9*& value;~StagingOwner(){lt::Release(value);}} staging_owner{sm_tex};')
+            body=body.replace('    lt::Release(sm_tex);','    lt::Release(sm_tex); sm_tex=nullptr;')
         chunks.append(body);source=source.replace(original,body,1)
     prelude='''#include "Texture.hpp"
 #include "CStorage.hpp"

@@ -7,6 +7,8 @@
 #endif
 #include "cursor_backend.hpp"
 #include <cstring>
+#include "native_cursor.hpp"
+#include <map>
 namespace srhd_awa::matrixgame::cursor {
 namespace p=platform3g;
 #ifdef _WIN32
@@ -54,10 +56,32 @@ bool ShowDeviceCursor(bool show) {
     return reinterpret_cast<IDirect3DDevice9*>(handles.device)->ShowCursor(show)!=FALSE;
 }
 #else
-void BitmapFrame::Clear()noexcept {if(bitmap_ || dc_)std::terminate();}
-void BitmapFrame::Init(){throw p::Unsupported("cursor GDI bitmap unavailable");}
-p::IconHandle CreateIcon(const IconInfo&){throw p::Unsupported("cursor system icon creation unavailable");}
-int ShowSystemCursor(bool){throw p::Unsupported("cursor system display counter unavailable");}
-bool ShowDeviceCursor(bool){(void)p::ReadyDevice();throw p::Unsupported("cursor SDK visibility unavailable");}
+namespace {
+struct Frame {unsigned width,height;std::vector<std::byte> rgba;};
+std::map<std::uintptr_t,Frame> frames;
+std::uintptr_t next_frame=1;
+native_cursor::Store& Cursors(){
+    auto* provider=dynamic_cast<native_cursor::Provider*>(&p::ReadyWindow());
+    if(!provider)throw p::Unsupported("native cursor provider unavailable");return provider->CursorStore();
+}
+}
+void BitmapFrame::Clear()noexcept {if(bitmap_){if(!frames.erase(bitmap_))std::terminate();bitmap_=0;}}
+void BitmapFrame::Init(){
+    (void)Cursors();
+    if(SizeX()<=0 || SizeY()<=0 || SizeX()>1024 || SizeY()>1024 || BytePP()!=4 || Pitch()<SizeX()*4 || !Data() ||
+       ColorMask(0)!=0xff || ColorMask(1)!=0xff00 || ColorMask(2)!=0xff0000 || ColorMask(3)!=0xff000000)
+        throw p::Unsupported("native cursor requires original RGBA bitmap");
+    Frame frame{unsigned(SizeX()),unsigned(SizeY()),std::vector<std::byte>(std::size_t(SizeX())*SizeY()*4)};
+    for(int y=0;y<SizeY();++y)std::memcpy(frame.rgba.data()+std::size_t(y)*SizeX()*4,Data()+std::size_t(y)*Pitch(),SizeX()*4);
+    const auto id=next_frame++;if(!id || !next_frame)std::terminate();
+    frames.emplace(id,std::move(frame));Clear();bitmap_=id;
+}
+p::IconHandle CreateIcon(const IconInfo& value){
+    if(value.fIcon || value.hbmMask!=value.hbmColor)throw p::Unsupported("native cursor requires original RGBA color/mask pair");
+    const auto& frame=frames.at(value.hbmColor);
+    return {Cursors().Create(frame.width,frame.height,value.xHotspot,value.yHotspot,frame.rgba)};
+}
+int ShowSystemCursor(bool show){return Cursors().Show(show);}
+bool ShowDeviceCursor(bool show){return Cursors().ShowDevice(show);}
 #endif
 }

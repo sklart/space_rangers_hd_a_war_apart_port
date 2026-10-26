@@ -2,6 +2,7 @@
 #include "CFile.hpp"
 #include "CException.hpp"
 #include "package.hpp"
+#include "resource_paths.hpp"
 #include <algorithm>
 #include <climits>
 #include <codecvt>
@@ -78,15 +79,16 @@ fs::path ResolveCase(const fs::path& path) {
     return current;
 }
 FILE* OpenDisk(const std::wstring& path, const char* mode) {
+    const auto disk_path=std::string_view(mode)=="rb"?srhd_awa::matrixgame::resource_paths::ReadDiskPath(Path(path)):Path(path);
 #ifdef _WIN32
     const auto wide_mode = Wide(mode);
-    FILE* file = _wfopen(ResolveCase(Path(path)).c_str(), wide_mode.c_str());
+    FILE* file = _wfopen(ResolveCase(disk_path).c_str(), wide_mode.c_str());
     struct _stat64 st;
     if (file && (_fstat64(_fileno(file), &st) || (st.st_mode & _S_IFMT) == _S_IFDIR)) {
         std::fclose(file); return nullptr;
     }
 #else
-    FILE* file = std::fopen(ResolveCase(Path(path)).c_str(), mode);
+    FILE* file = std::fopen(ResolveCase(disk_path).c_str(), mode);
     struct stat st;
     if (file && (fstat(fileno(file), &st) || S_ISDIR(st.st_mode))) {
         std::fclose(file); return nullptr;
@@ -126,7 +128,7 @@ std::int64_t DiskSize(FILE* f) {
 }
 bool Exists(const std::wstring& path) {
     std::error_code error;
-    return fs::exists(ResolveCase(Path(path)), error) && !error;
+    return fs::exists(ResolveCase(srhd_awa::matrixgame::resource_paths::ReadDiskPath(Path(path))), error) && !error;
 }
 std::wstring Fold(std::wstring text) {
     for (auto& ch : text) if (ch >= L'A' && ch <= L'Z') ch += L'a' - L'A';
@@ -218,7 +220,8 @@ void CFile::OpenPackFiles() {
     std::vector<std::shared_ptr<Package>> opened;
     for (const auto& slot : registry.slots) {
         auto package = std::make_shared<Package>(); std::string error;
-        if (!package->OpenUtf8(Utf8(slot.path), &error)) {
+        const auto disk_path=ResolveCase(srhd_awa::matrixgame::resource_paths::ReadDiskPath(Path(slot.path)));
+        if (!package->OpenUtf8(Utf8(PathWide(disk_path)), &error)) {
             registry.slots.clear();
             ERROR_S(L"Error opening package collection");
         }
@@ -349,7 +352,7 @@ bool CFile::FileExist(std::wstring& output, const wchar* name, const wchar* exte
     const auto list = Extensions(extensions);
     if (Exists(Normalize(plain))) { output = plain + suffix; return true; }
     const auto path = Path(Normalize(plain));
-    const auto parent = path.parent_path().empty() ? fs::path(".") : ResolveCase(path.parent_path());
+    const auto parent = ResolveCase(srhd_awa::matrixgame::resource_paths::ReadDiskPath(path.parent_path().empty()?fs::path("."):path.parent_path()));
     const auto prefix = PathWide(path.filename()) + L".";
     std::error_code error;
     for (const auto& entry : fs::directory_iterator(parent, error)) {
@@ -378,10 +381,11 @@ bool CFile::FileExist(std::wstring& output, const wchar* name, const wchar* exte
 void CFile::FindFiles(const std::wstring& folder, const wchar* pattern, ENUM_FILES callback, dword user) {
     if (!pattern || !callback) ERROR_S(L"Invalid file enumeration callback");
     std::error_code error;
-    const auto root = Path(Normalize(folder));
+    const auto logical = Path(Normalize(folder));
+    const auto root = ResolveCase(srhd_awa::matrixgame::resource_paths::ReadDiskPath(logical));
     for (const auto& entry : fs::recursive_directory_iterator(root, fs::directory_options::skip_permission_denied, error)) {
         if (entry.is_regular_file(error) && Match(PathWide(entry.path().filename()), pattern))
-            callback(PathWide(entry.path()), user);
+            callback(PathWide(logical / entry.path().lexically_relative(root)), user);
     }
 }
 } // namespace Base

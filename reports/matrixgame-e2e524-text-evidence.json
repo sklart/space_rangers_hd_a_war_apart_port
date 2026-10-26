@@ -1,0 +1,780 @@
+{
+  "stage": "E2E-5.24 ORIGINAL UI TEXT SOFTWARE PASS / FULL NATIVE INIT PARTIAL",
+  "parent": "4070b7e99e30e746a675a64c1d6451bbb475f539",
+  "upstream_head": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
+  "results": {
+    "windows": {
+      "status": "PASS",
+      "commands": [
+        {
+          "label": "build",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e524-text\\windows\\export.cmd"
+          ],
+          "exit": 0,
+          "seconds": 4.8819180999998935
+        },
+        {
+          "label": "runtime",
+          "command": [
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e524-text\\windows\\font-oracle.exe",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\upstream\\matrixgame\\MatrixGame\\Rangers.ttf",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e524-text\\windows"
+          ],
+          "exit": 0,
+          "seconds": 2.428837300016312
+        },
+        {
+          "label": "bridge-compile",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e524-text\\windows\\bridge.cmd"
+          ],
+          "exit": 0,
+          "seconds": 3.2957348999916576
+        }
+      ],
+      "hardware": "HARDWARE_PENDING",
+      "stdout": "pixel/layout cases=1164 exact\nid=0 face=Rangers logical=10 actual_height=10 ascent=8 glyphs=156 ink=3509\npixel/layout cases=5592 exact\nid=1 face=Verdana logical=12 actual_height=12 ascent=10 glyphs=894 ink=12997\npixel/layout cases=5592 exact\nid=2 face=Verdana logical=13 actual_height=13 ascent=11 glyphs=894 ink=15497\npixel/layout cases=5592 exact\nid=3 face=Verdana logical=14 actual_height=14 ascent=12 glyphs=894 ink=17817\n",
+      "assets_sha256": {
+        "build\\matrixgame\\e2e524-text\\windows\\font0.bin": "fd94410cca0c9133f98444b8d3f6a11c24ac85bc2384d069982427efb55bdabc",
+        "build\\matrixgame\\e2e524-text\\windows\\font0.golden": "6024146252e7d672027d73756a591f65a2eae397e3375ecf11e1056918b6c39d",
+        "build\\matrixgame\\e2e524-text\\windows\\font0.sfnt": "727de6500e2685ba3672bb31ea46577c70a5fe007bc020f6128263773289ee4d",
+        "build\\matrixgame\\e2e524-text\\windows\\font1.bin": "05e523df19447ea2681599d4724213f8375b2943adbbf48e30dc635c9e5bb7ea",
+        "build\\matrixgame\\e2e524-text\\windows\\font1.golden": "d441819195209343e0e6de60705793d7953474d2dfe8540056bed7e095d6c2cd",
+        "build\\matrixgame\\e2e524-text\\windows\\font1.sfnt": "6a8481fe107ee547893c018b13dba291c2020bec3de5da6525d9ac09f6bc2105",
+        "build\\matrixgame\\e2e524-text\\windows\\font2.bin": "b091a874cc4d1a35298f507c6e328f155698a25a616cf1af55e812fd1599c475",
+        "build\\matrixgame\\e2e524-text\\windows\\font2.golden": "9228fe9cd7f9a3e7be509845d14c050534e63e4b020c8bfb7cd5c11a389ae221",
+        "build\\matrixgame\\e2e524-text\\windows\\font2.sfnt": "6a8481fe107ee547893c018b13dba291c2020bec3de5da6525d9ac09f6bc2105",
+        "build\\matrixgame\\e2e524-text\\windows\\font3.bin": "4bb653fb2d14f2729aa1705c5f6ef2b722aa4fe95f7b686bf3465fa05283d9ad",
+        "build\\matrixgame\\e2e524-text\\windows\\font3.golden": "399a245e02fdb5b7c0d05e8da415cd63290cf81eec49b2ca6fd7c144f962ff86",
+        "build\\matrixgame\\e2e524-text\\windows\\font3.sfnt": "6a8481fe107ee547893c018b13dba291c2020bec3de5da6525d9ac09f6bc2105"
+      },
+      "rangers_ttf_sha256": "727de6500e2685ba3672bb31ea46577c70a5fe007bc020f6128263773289ee4d",
+      "source_sha256": {
+        "tests/test_matrixgame_native_text.cpp": "554d316f1aa3386dc0b5ba4e6e1564cc27e5e77e4a20c59501343781c69a5de8",
+        "port/matrixgame/native-engine/platform_3g.cpp": "bddda856514ae018bfb14b7d376261e1309ae4c9431532129724986a27a7c3eb",
+        "port/matrixgame/native-engine/text_backend.cpp": "e7fa94aad3f0b38a14e22a1b4494479c73d97c41fbf5ccfd4b4361ba018ef29b",
+        "port/matrixgame/native-engine/native_text.cpp": "9980ecd25c9db62865db3202c71e46091ef798565ef226e6f5e890263e61298d",
+        "port/matrixgame/native-engine/native_text_backend.cpp": "bfecb9da0d77874fc4e7ad2d53346904a321dbe3ef3c1850c9234fc5b4db2c40",
+        "port/matrixgame/native-engine/native_texture.cpp": "212483012f7b3f3ae69fadee00570bcd234b7e01304510e0598fa9036c989abf",
+        "port/matrixgame/native-engine/legacy_texture_backend.cpp": "0ef06decac187dcf70e34f98d3674145450f9de92ec045b391c68aafa024afce",
+        "build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Render.cpp": "4449868d7843c6be06e42fef2a175d7e41d099f8903e24224a7d0378e81ed07a",
+        "build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Font.cpp": "b8eb2daffe1e883b6b957e2cfe21717279b75fcfee88dd1c7e41cc5621a4ebe0",
+        "build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Parser.cpp": "728db6059ffda0284c4dd971ea31b798d280c275a913d86bef543a3fea5f7df5",
+        "port/matrixgame/native-engine/native_text.hpp": "037e827b36fb6d1024fd756516700725d9ece90e227bd92a4438552ac167fa68",
+        "port/matrixgame/native-engine/native_text_asset.cpp": "07083d37fe2802d818ef85e8b2c57cc913ce5fee7de3579f7f1ae87e110e3c45",
+        "port/matrixgame/native-engine/CMakeLists.txt": "fc9cbdcddd7ec33f9d8fd473ac8be6e18dd7a604ed2ea3c2213753e3277539e9",
+        "port/matrixgame/native-engine/platform_switch.cpp": "7611e79fd50b9b74f248d03496ca8f8e8b33606f9b6816e4e4e975720025f8ad",
+        "port/matrixgame/native-engine/platform_switch.hpp": "a844b07da348dd93a19e54cf55fbcfb130985c62ddcf728c4a2f1a21c2f2d630",
+        "tests/test_matrixgame_native_text_boundary.cpp": "b1a9365ba1f7044c99f0348da87af37f5dcf3926f386192832543982ef40d6c2",
+        "tests/matrixgame_text_font_export.cpp": "a9114800dc81bfc8874ec66c74267c249bd2b9c7872bfefd0dece81b9da28958",
+        "tools/matrixgame_text_checks.py": "350e0e4c600398f3d409f8d4e47dafb95c1ed221f0f2cbeb57a96afca7ffdbfb"
+      }
+    },
+    "host": {
+      "status": "PASS",
+      "commands": [
+        {
+          "label": "build",
+          "command": [
+            "wsl",
+            "--exec",
+            "/usr/bin/c++",
+            "-D_POSIX_C_SOURCE=200809L",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/3G",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Base",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Bitmap",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/portable-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src/Logic",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-std=gnu++20",
+            "-ffp-contract=off",
+            "-ffunction-sections",
+            "-fdata-sections",
+            "-UNDEBUG",
+            "-O1",
+            "-g",
+            "-fno-pie",
+            "-Wl,--gc-sections",
+            "-no-pie",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_native_text.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/platform_3g.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/text_backend.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_text.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_text_backend.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_texture.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/legacy_texture_backend.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Render.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Font.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Parser.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/original-init-host/libmatrixgame-native-cache.a",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-host/libmatrixgame-native-vector-object.a",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-host/core/libmatrixgame-native-core.a",
+            "/usr/lib/x86_64-linux-gnu/libpng.so",
+            "/usr/lib/x86_64-linux-gnu/libz.so",
+            "/usr/lib/x86_64-linux-gnu/libjpeg.so",
+            "-fsanitize=address,undefined",
+            "-fno-omit-frame-pointer",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e524-text/host/native-text"
+          ],
+          "exit": 0,
+          "seconds": 139.8671112000011
+        },
+        {
+          "label": "runtime",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e524-text/host/native-text",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e524-text/windows"
+          ],
+          "exit": 0,
+          "seconds": 13.868971999996575
+        }
+      ],
+      "hardware": "HARDWARE_PENDING",
+      "stdout": "original Text::Render Top/mm exact BGRA PASS; glyph/layout goldens=17940; ownership/abort/upload-failure/retry/cache-rebind/managed-reupload PASS; CPU_UPLOAD_MODEL_ONLY SWITCH_HARDWARE_NOT_RUN\n",
+      "assets_sha256": {
+        "build\\matrixgame\\e2e524-text\\windows\\font0.bin": "fd94410cca0c9133f98444b8d3f6a11c24ac85bc2384d069982427efb55bdabc",
+        "build\\matrixgame\\e2e524-text\\windows\\font0.golden": "6024146252e7d672027d73756a591f65a2eae397e3375ecf11e1056918b6c39d",
+        "build\\matrixgame\\e2e524-text\\windows\\font0.sfnt": "727de6500e2685ba3672bb31ea46577c70a5fe007bc020f6128263773289ee4d",
+        "build\\matrixgame\\e2e524-text\\windows\\font1.bin": "05e523df19447ea2681599d4724213f8375b2943adbbf48e30dc635c9e5bb7ea",
+        "build\\matrixgame\\e2e524-text\\windows\\font1.golden": "d441819195209343e0e6de60705793d7953474d2dfe8540056bed7e095d6c2cd",
+        "build\\matrixgame\\e2e524-text\\windows\\font1.sfnt": "6a8481fe107ee547893c018b13dba291c2020bec3de5da6525d9ac09f6bc2105",
+        "build\\matrixgame\\e2e524-text\\windows\\font2.bin": "b091a874cc4d1a35298f507c6e328f155698a25a616cf1af55e812fd1599c475",
+        "build\\matrixgame\\e2e524-text\\windows\\font2.golden": "9228fe9cd7f9a3e7be509845d14c050534e63e4b020c8bfb7cd5c11a389ae221",
+        "build\\matrixgame\\e2e524-text\\windows\\font2.sfnt": "6a8481fe107ee547893c018b13dba291c2020bec3de5da6525d9ac09f6bc2105",
+        "build\\matrixgame\\e2e524-text\\windows\\font3.bin": "4bb653fb2d14f2729aa1705c5f6ef2b722aa4fe95f7b686bf3465fa05283d9ad",
+        "build\\matrixgame\\e2e524-text\\windows\\font3.golden": "399a245e02fdb5b7c0d05e8da415cd63290cf81eec49b2ca6fd7c144f962ff86",
+        "build\\matrixgame\\e2e524-text\\windows\\font3.sfnt": "6a8481fe107ee547893c018b13dba291c2020bec3de5da6525d9ac09f6bc2105"
+      },
+      "rangers_ttf_sha256": "727de6500e2685ba3672bb31ea46577c70a5fe007bc020f6128263773289ee4d",
+      "source_sha256": {
+        "tests/test_matrixgame_native_text.cpp": "554d316f1aa3386dc0b5ba4e6e1564cc27e5e77e4a20c59501343781c69a5de8",
+        "port/matrixgame/native-engine/platform_3g.cpp": "bddda856514ae018bfb14b7d376261e1309ae4c9431532129724986a27a7c3eb",
+        "port/matrixgame/native-engine/text_backend.cpp": "e7fa94aad3f0b38a14e22a1b4494479c73d97c41fbf5ccfd4b4361ba018ef29b",
+        "port/matrixgame/native-engine/native_text.cpp": "9980ecd25c9db62865db3202c71e46091ef798565ef226e6f5e890263e61298d",
+        "port/matrixgame/native-engine/native_text_backend.cpp": "bfecb9da0d77874fc4e7ad2d53346904a321dbe3ef3c1850c9234fc5b4db2c40",
+        "port/matrixgame/native-engine/native_texture.cpp": "212483012f7b3f3ae69fadee00570bcd234b7e01304510e0598fa9036c989abf",
+        "port/matrixgame/native-engine/legacy_texture_backend.cpp": "0ef06decac187dcf70e34f98d3674145450f9de92ec045b391c68aafa024afce",
+        "build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Render.cpp": "4449868d7843c6be06e42fef2a175d7e41d099f8903e24224a7d0378e81ed07a",
+        "build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Font.cpp": "b8eb2daffe1e883b6b957e2cfe21717279b75fcfee88dd1c7e41cc5621a4ebe0",
+        "build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Parser.cpp": "728db6059ffda0284c4dd971ea31b798d280c275a913d86bef543a3fea5f7df5",
+        "port/matrixgame/native-engine/native_text.hpp": "037e827b36fb6d1024fd756516700725d9ece90e227bd92a4438552ac167fa68",
+        "port/matrixgame/native-engine/native_text_asset.cpp": "07083d37fe2802d818ef85e8b2c57cc913ce5fee7de3579f7f1ae87e110e3c45",
+        "port/matrixgame/native-engine/CMakeLists.txt": "fc9cbdcddd7ec33f9d8fd473ac8be6e18dd7a604ed2ea3c2213753e3277539e9",
+        "port/matrixgame/native-engine/platform_switch.cpp": "7611e79fd50b9b74f248d03496ca8f8e8b33606f9b6816e4e4e975720025f8ad",
+        "port/matrixgame/native-engine/platform_switch.hpp": "a844b07da348dd93a19e54cf55fbcfb130985c62ddcf728c4a2f1a21c2f2d630",
+        "tests/test_matrixgame_native_text_boundary.cpp": "b1a9365ba1f7044c99f0348da87af37f5dcf3926f386192832543982ef40d6c2",
+        "tests/matrixgame_text_font_export.cpp": "a9114800dc81bfc8874ec66c74267c249bd2b9c7872bfefd0dece81b9da28958",
+        "tools/matrixgame_text_checks.py": "350e0e4c600398f3d409f8d4e47dafb95c1ed221f0f2cbeb57a96afca7ffdbfb"
+      }
+    },
+    "arm64": {
+      "status": "PASS",
+      "commands": [
+        {
+          "label": "build",
+          "command": [
+            "wsl",
+            "--exec",
+            "/usr/bin/aarch64-linux-gnu-g++-15",
+            "-D_POSIX_C_SOURCE=200809L",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/3G",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Base",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Bitmap",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/portable-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src/Logic",
+            "-isystem",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+            "-isystem",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+            "-isystem",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source",
+            "-pthread",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+            "-std=gnu++20",
+            "-ffp-contract=off",
+            "-ffunction-sections",
+            "-fdata-sections",
+            "-UNDEBUG",
+            "-O1",
+            "-g",
+            "-fno-pie",
+            "-Wl,--gc-sections",
+            "-no-pie",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_native_text.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/platform_3g.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/text_backend.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_text.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_text_backend.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_texture.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/legacy_texture_backend.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Render.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Font.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Parser.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-arm64/core/libmatrixgame-native-core.a",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png/libpng16.a",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/mg-navigation-arm64/zlib/libz.a",
+            "-lm",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg/libjpeg.a",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e524-text/arm64/native-text"
+          ],
+          "exit": 0,
+          "seconds": 276.35124899999937
+        },
+        {
+          "label": "runtime",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "qemu-aarch64",
+            "-L",
+            "/usr/aarch64-linux-gnu",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e524-text/arm64/native-text",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e524-text/windows"
+          ],
+          "exit": 0,
+          "seconds": 5.649964899988845
+        }
+      ],
+      "hardware": "HARDWARE_PENDING",
+      "stdout": "original Text::Render Top/mm exact BGRA PASS; glyph/layout goldens=17940; ownership/abort/upload-failure/retry/cache-rebind/managed-reupload PASS; CPU_UPLOAD_MODEL_ONLY SWITCH_HARDWARE_NOT_RUN\n",
+      "assets_sha256": {
+        "build\\matrixgame\\e2e524-text\\windows\\font0.bin": "fd94410cca0c9133f98444b8d3f6a11c24ac85bc2384d069982427efb55bdabc",
+        "build\\matrixgame\\e2e524-text\\windows\\font0.golden": "6024146252e7d672027d73756a591f65a2eae397e3375ecf11e1056918b6c39d",
+        "build\\matrixgame\\e2e524-text\\windows\\font0.sfnt": "727de6500e2685ba3672bb31ea46577c70a5fe007bc020f6128263773289ee4d",
+        "build\\matrixgame\\e2e524-text\\windows\\font1.bin": "05e523df19447ea2681599d4724213f8375b2943adbbf48e30dc635c9e5bb7ea",
+        "build\\matrixgame\\e2e524-text\\windows\\font1.golden": "d441819195209343e0e6de60705793d7953474d2dfe8540056bed7e095d6c2cd",
+        "build\\matrixgame\\e2e524-text\\windows\\font1.sfnt": "6a8481fe107ee547893c018b13dba291c2020bec3de5da6525d9ac09f6bc2105",
+        "build\\matrixgame\\e2e524-text\\windows\\font2.bin": "b091a874cc4d1a35298f507c6e328f155698a25a616cf1af55e812fd1599c475",
+        "build\\matrixgame\\e2e524-text\\windows\\font2.golden": "9228fe9cd7f9a3e7be509845d14c050534e63e4b020c8bfb7cd5c11a389ae221",
+        "build\\matrixgame\\e2e524-text\\windows\\font2.sfnt": "6a8481fe107ee547893c018b13dba291c2020bec3de5da6525d9ac09f6bc2105",
+        "build\\matrixgame\\e2e524-text\\windows\\font3.bin": "4bb653fb2d14f2729aa1705c5f6ef2b722aa4fe95f7b686bf3465fa05283d9ad",
+        "build\\matrixgame\\e2e524-text\\windows\\font3.golden": "399a245e02fdb5b7c0d05e8da415cd63290cf81eec49b2ca6fd7c144f962ff86",
+        "build\\matrixgame\\e2e524-text\\windows\\font3.sfnt": "6a8481fe107ee547893c018b13dba291c2020bec3de5da6525d9ac09f6bc2105"
+      },
+      "rangers_ttf_sha256": "727de6500e2685ba3672bb31ea46577c70a5fe007bc020f6128263773289ee4d",
+      "source_sha256": {
+        "tests/test_matrixgame_native_text.cpp": "554d316f1aa3386dc0b5ba4e6e1564cc27e5e77e4a20c59501343781c69a5de8",
+        "port/matrixgame/native-engine/platform_3g.cpp": "bddda856514ae018bfb14b7d376261e1309ae4c9431532129724986a27a7c3eb",
+        "port/matrixgame/native-engine/text_backend.cpp": "e7fa94aad3f0b38a14e22a1b4494479c73d97c41fbf5ccfd4b4361ba018ef29b",
+        "port/matrixgame/native-engine/native_text.cpp": "9980ecd25c9db62865db3202c71e46091ef798565ef226e6f5e890263e61298d",
+        "port/matrixgame/native-engine/native_text_backend.cpp": "bfecb9da0d77874fc4e7ad2d53346904a321dbe3ef3c1850c9234fc5b4db2c40",
+        "port/matrixgame/native-engine/native_texture.cpp": "212483012f7b3f3ae69fadee00570bcd234b7e01304510e0598fa9036c989abf",
+        "port/matrixgame/native-engine/legacy_texture_backend.cpp": "0ef06decac187dcf70e34f98d3674145450f9de92ec045b391c68aafa024afce",
+        "build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Render.cpp": "4449868d7843c6be06e42fef2a175d7e41d099f8903e24224a7d0378e81ed07a",
+        "build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Font.cpp": "b8eb2daffe1e883b6b957e2cfe21717279b75fcfee88dd1c7e41cc5621a4ebe0",
+        "build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Parser.cpp": "728db6059ffda0284c4dd971ea31b798d280c275a913d86bef543a3fea5f7df5",
+        "port/matrixgame/native-engine/native_text.hpp": "037e827b36fb6d1024fd756516700725d9ece90e227bd92a4438552ac167fa68",
+        "port/matrixgame/native-engine/native_text_asset.cpp": "07083d37fe2802d818ef85e8b2c57cc913ce5fee7de3579f7f1ae87e110e3c45",
+        "port/matrixgame/native-engine/CMakeLists.txt": "fc9cbdcddd7ec33f9d8fd473ac8be6e18dd7a604ed2ea3c2213753e3277539e9",
+        "port/matrixgame/native-engine/platform_switch.cpp": "7611e79fd50b9b74f248d03496ca8f8e8b33606f9b6816e4e4e975720025f8ad",
+        "port/matrixgame/native-engine/platform_switch.hpp": "a844b07da348dd93a19e54cf55fbcfb130985c62ddcf728c4a2f1a21c2f2d630",
+        "tests/test_matrixgame_native_text_boundary.cpp": "b1a9365ba1f7044c99f0348da87af37f5dcf3926f386192832543982ef40d6c2",
+        "tests/matrixgame_text_font_export.cpp": "a9114800dc81bfc8874ec66c74267c249bd2b9c7872bfefd0dece81b9da28958",
+        "tools/matrixgame_text_checks.py": "350e0e4c600398f3d409f8d4e47dafb95c1ed221f0f2cbeb57a96afca7ffdbfb"
+      }
+    },
+    "sdk": {
+      "status": "PASS",
+      "commands": [
+        {
+          "label": "configure",
+          "command": [
+            "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+            "-S",
+            "D:/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-B",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e524-text\\sdk",
+            "-G",
+            "Ninja",
+            "-DCMAKE_MAKE_PROGRAM=C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\Ninja\\ninja.exe",
+            "-DCMAKE_TOOLCHAIN_FILE=D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\native-core\\switch-toolchain.cmake",
+            "-DMATRIXGAME_DEVKITPRO=C:/devkitPro",
+            "-DBUILD_TESTING=OFF",
+            "-DPython3_EXECUTABLE=C:\\Users\\Sklyarov\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+            "-DMATRIXGAME_DEBUG_FONT_ASSET=D:/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/font/windows/original-font.bin",
+            "-DMATRIXGAME_TEXT_FONT_ASSETS=D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e524-text\\windows"
+          ],
+          "exit": 0,
+          "seconds": 14.861865099985152
+        },
+        {
+          "label": "build",
+          "command": [
+            "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\bin\\cmake.exe",
+            "--build",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e524-text\\sdk",
+            "--target",
+            "matrixgame-native-entry",
+            "-j",
+            "4"
+          ],
+          "exit": 0,
+          "seconds": 2.894997900002636
+        },
+        {
+          "label": "symbols",
+          "command": [
+            "C:/devkitPro/devkitA64/bin/aarch64-none-elf-nm.exe",
+            "-C",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e524-text\\sdk\\matrixgame-native-entry.elf"
+          ],
+          "exit": 0,
+          "seconds": 0.27407889999449253
+        }
+      ],
+      "hardware": "HARDWARE_PENDING",
+      "strong_undefined": [],
+      "required_symbols": {
+        "CGame::Init(": [
+          "0000000000021178 T CGame::Init(void*, void*, wchar_t const*, unsigned int, SRobotsSettings const*, wchar_t const*, wchar_t const*, wchar_t const*, wchar_t const*, wchar_t const*)"
+        ],
+        "CMatrixMap::PrepareMap(": [
+          "0000000000122b08 T CMatrixMap::PrepareMap(Base::CStorage&, std::__cxx11::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> > const&)"
+        ],
+        "text_backend::DeviceIdentity()": [
+          "0000000000195c98 T srhd_awa::matrixgame::text_backend::DeviceIdentity()"
+        ],
+        "text_backend::EndScene(": [
+          "0000000000196e24 T srhd_awa::matrixgame::text_backend::EndScene(ID3DXRenderToSurface*, unsigned int)"
+        ],
+        "text_backend::native::Draw(": [
+          "00000000001d9cec T srhd_awa::matrixgame::text_backend::native::Draw(srhd_awa::matrixgame::text_backend::native::Data const&, wchar_t const*, int, srhd_awa::matrixgame::debug_font::TextRect&, unsigned int, unsigned int, std::span<std::byte, 18446744073709551615ul>, unsigned int, unsigned int, unsigned int)",
+          "00000000001df304 t __gnu_cxx::__ops::_Unary_negate<srhd_awa::matrixgame::text_backend::native::Draw(srhd_awa::matrixgame::text_backend::native::Data const&, wchar_t const*, int, srhd_awa::matrixgame::debug_font::TextRect&, unsigned int, unsigned int, std::span<std::byte, 18446744073709551615ul>, unsigned int, unsigned int, unsigned int)::{lambda(auto:1 const&)#1}>::_Unary_negate(srhd_awa::matrixgame::text_backend::native::Draw(srhd_awa::matrixgame::text_backend::native::Data const&, wchar_t const*, int, srhd_awa::matrixgame::debug_font::TextRect&, unsigned int, unsigned int, std::span<std::byte, 18446744073709551615ul>, unsigned int, unsigned int, unsigned int)::{lambda(auto:1 const&)#1})"
+        ],
+        "text_backend::native::OriginalAsset(": [
+          "00000000001e02d0 T srhd_awa::matrixgame::text_backend::native::OriginalAsset(unsigned int)"
+        ],
+        "Text::Render(": [
+          "0000000000194988 T Text::Render(std::basic_string_view<wchar_t, std::char_traits<wchar_t> >, std::basic_string_view<wchar_t, std::char_traits<wchar_t> >, unsigned int, int, int, int, int, int, int, int, Base::CRect const&, CBitmap&)",
+          "0000000000194960 t Text::Render(std::basic_string_view<wchar_t, std::char_traits<wchar_t> >, std::basic_string_view<wchar_t, std::char_traits<wchar_t> >, unsigned int, int, int, int, int, int, int, int, Base::CRect const&, CBitmap&)::UnlockOwner::~UnlockOwner()"
+        ]
+      },
+      "elf_sha256": "9315b9351005d5a10117097e57d2eed8058de178fbca7c38ed6e7c3230f7ed57",
+      "link_inputs_sha256": {
+        "build\\matrixgame\\e2e524-text\\sdk\\libmatrixgame-material-combiner.a": "34268c6b43c7b294c7df33628c97e290c5863cb13d16495f79ed3c63555c0179",
+        "build\\matrixgame\\e2e524-text\\sdk\\libmatrixgame-native-cache.a": "501cb9f0448dc5cc19ef09b10b1959bbc712b7bcc431479a154070d3869f273f",
+        "build\\matrixgame\\e2e524-text\\sdk\\libmatrixgame-native-navigation.a": "cfb7951cc30c904d60c87202683c7ff8903098f92f2939a15dfc159ef66f39c4",
+        "build\\matrixgame\\e2e524-text\\sdk\\libmatrixgame-native-vector-object.a": "85106d6ca43c8e1c631160da4c4d70151c19402adcd088967a3576dcab27a1c6",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\libmatrixgame-native-core.a": "08d84c2bcfe2e352ad50f6feff7514812c0d668d66cc1a615ef5e99f7df9486e",
+        "build\\matrixgame\\e2e524-text\\sdk\\debug-font\\original-font.o": "0030fb4f69219a92e45c8818cd43235bc5100c0cd2618c6180a95d5954d5ded7",
+        "build\\matrixgame\\e2e524-text\\sdk\\text-font\\font0.o": "450cb5e6716a0e8f72dcef366de53fcc8affec1d76dc097282b0db536636cb22",
+        "build\\matrixgame\\e2e524-text\\sdk\\text-font\\font1.o": "bf01def0ffa64bb853eb81a701288482837f691b4d97ce093dd69e00f38b048d",
+        "build\\matrixgame\\e2e524-text\\sdk\\text-font\\font2.o": "79b55ba18edcd831166edc2d7edd0c9d157334c312b3885bc1d7f0d89bfc0405",
+        "build\\matrixgame\\e2e524-text\\sdk\\text-font\\font3.o": "649dd99dc881e14afe8d7fcb71aba19bc7ea02fd9765dfe82cc27e353f8da2ee",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\buffer_geometry.cpp.obj": "81b990abb4016e643ae03962d5439d69fb553099f735a7413f052c71d877997c",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\buffer_resources.cpp.obj": "89329c0e9191cb72f05e2c3442073474a9e5c67fd28b0e5bdbed5267e430fa80",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\cbuf_utf16.cpp.obj": "cddf7d63525fca4368e57b0e1b456be2041394267c9cbd1a39e88752bd531085",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\exception_native.cpp.obj": "9dd937e5f66853f6a11c8e08f9feac4e6a9155ae9f40025bc664ea91d4b7c36a",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\file_native.cpp.obj": "51f189b10b9ad63c073b0af77f8d74d4acf69dff25484f9b5765f4c4d03a1e8d",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\heap_native.cpp.obj": "3d1d769baa5cc203e234882d63f71b6ce031d1f21c71cebb01e4f7ba96e1c2fe",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\jpeg_texture.cpp.obj": "a83e4578984a7e517059b318fac4886312963f6ccaed6e4ed280dc8c698fd556",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\skin_callbacks.cpp.obj": "4a943a0fbef81441eff7524a718e3e47c5d63fa02cb464022c16d6745621167c",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\texture_asset.cpp.obj": "48f156c2ca44c103b51dcc26d1e0fe61cd0828cae71038ad7656937c16075fe4",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\texture_mips.cpp.obj": "4707351325c5a9fbe26e39f234893ab5fbccfef0cb78dda17254f81d22e5082b",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\texture_request.cpp.obj": "b2e373e0e90c4cd94b0c5d584a67705c246a10c987b8d459ec6442b21d16ce74",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\vector_geometry.cpp.obj": "01b7aafcf57bf41cf3adb8608c4301de59f1afd135d5f229e3fdd19fc0726834",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\BC.cpp.obj": "01d18678e48311ae56d31e4ac45ac03af32cf2a40eca2c96926fc664db1df89d",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CBitmap.cpp.obj": "f43c7608f8f1716587e69b52df78e50d6ca38ba96a3bd6fed06bfd7fc44aa051",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CBlockPar.cpp.obj": "63ee4dc9230ad28885c737d92e8c2639ac4f1f34265f1368c2c39a6624d579da",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CBuf.cpp.obj": "8e08778088cdf4efc4ac9a5cd72785b75333ea3e2af72d7f2fe70343f341759e",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CBuf_file.cpp.obj": "18dd2e501e6fceb4a454b366d3a43dd4b3e1c1300224aed08883c90802ae5abc",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CList.cpp.obj": "a4bf074f40ef3177390da9c02a69068bf314ccd12a9e5de90f0ccd76bbfb0845",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CMain.cpp.obj": "264f8202408bd3f7320ff04d7343510a876fba347399029b9018b57f0f487075",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CRC32.cpp.obj": "4e04b316ff0472e0ab5c2991108668d40b8eaf0d9b31ef45aa1dfe1d712dd560",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CReminder.cpp.obj": "57793212f6056114ece9d7bbbe0663ebac49365bbcaa90d529d6f401e1aa1fe0",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CStorage.cpp.obj": "9ed0ef55f40c5d53b196c21e310e6ae5479e81977dbb9feed5b2858967f0babd",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\CStorage_blockpar.cpp.obj": "3ac108559c0967099d1822cf50a8fe01befb34d0be4ead4ab5e7cbea8abcd4bb",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\FilePNG.cpp.obj": "452d699f441b4719c35e54ba3d8255e721cfc7db79e13a7d10c8436b281ffc42",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\Form.cpp.obj": "e9328a8740aab362d44c596f6aab4f918a14e2bc9c6f4aa9286860e7d0f25b63",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\Math3D.cpp.obj": "096ba5cefe976d827c22f9e9157c0d8774a58191b9eb7303fdbf3d641ee3bf70",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\random.cpp.obj": "589afb8d7aa8dbd816e3e5ff9bd9c1a9d515872709c9b4d7f6ef1415898bd2fe",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\source\\TextureFlags.cpp.obj": "b8aca5849ec30e5700030c06ccbcdb7340e793e78e67993783370b2f98c7b454",
+        "build\\matrixgame\\e2e524-text\\sdk\\core\\CMakeFiles\\matrixgame-native-core.dir\\D_\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\platform\\package.cpp.obj": "0ac878113a18f245a9b3c9ed43b9eebf774fb17e12474d650534a025ca513231",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\applet_engine_events.cpp.obj": "c457b8c815870b2a2457f2dd3f44df02a5601abac4a6bfb2d684c9466482e6d9",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\applet_window_lifecycle.cpp.obj": "defb34bdd4da1d30cbfed8bebf2feac9a56e68464ac31920e464a65d1447c6a0",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\cached_frame.cpp.obj": "42478cbb879958dea23bb1ba97a45bd6030e72b82c47da4dc5c7c21e448434d3",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\cache_owner_state.cpp.obj": "b5e6a4f5ade5c7aaad1d68b2c275945a6a621001039cc86a530bdd69537bfb45",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\cache_resources.cpp.obj": "11c49ca2fc7b89322951f29777c8b7dc5ad556e14a137cd2af7019b8deb99678",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\cursor_backend.cpp.obj": "25c85d40eb10d2baa160a1a2d7830278006f2fe23f536eec574dafac3b660d49",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\debug_font_backend.cpp.obj": "da78b214ac08bff8bcb142f0f90a5b8b1cfb216c0a77c96ffb74ba73e38d8ed0",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\init_runtime.cpp.obj": "c0d72958fd2078fd967f4a8bf705379c8d05ad6f10fcd2fd437ccbc24ce24779",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\legacy_texture_backend.cpp.obj": "9b904e1937df47a0ddfe415572c3c03bef8184c541af824253c4cb09b4f43b44",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\map_device_backend.cpp.obj": "a5b8aced13f63195f4ddce80927b00e6a58ce038d510041401929b7d5495dba5",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_cursor.cpp.obj": "6305a48d0f72710212386da7dfb4864f9a4bac2f00fa63125db7b287ea10be1a",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_debug_font.cpp.obj": "2afb3c3a98bebcd0c8768f769f526ec9ee47741ddaa172df14c5d7e05ff6d3bf",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_debug_font_asset.cpp.obj": "642361eb99a37af04618ca8514a35d5be92e47a61cc878a1f4bb4e13d7d910b8",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_device_state.cpp.obj": "3633481704b48ba54da8a42f080247d9cff739802d39ccb3dfa4a05846b9b822",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_frame_clock.cpp.obj": "881beb53d965a8944ec84bbdac3814713a346ec97d7b84fa9587fb5447521445",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_input.cpp.obj": "7c7a0fe203628051ce7cde7ab1c471ffd0064cf485503928e81f2161f2196891",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_input_engine.cpp.obj": "6c2f382602644e8fb99caa358ddc2dc7553f915ac9afea28cb3bf1b5daa61cc9",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_input_switch.cpp.obj": "7e2edb8578479ba5937a2a49d1c93e0715ed3fdf1b4deaf3034b1c19274e1c8c",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_skin.cpp.obj": "c6668d9b6688b8ebd88a46c5e39863d10cecf1aa2ae391bcd88d1933359b4802",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_text.cpp.obj": "bd257c92164cd293d29d7b49f5bdafa2ec8c23e0bef60ad69115ca36a273e081",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_texture.cpp.obj": "b0f6b9526cce5bdacf5cc90524cfa330a0f430bd38f5dce7cbfcfaf70d19ce51",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_text_asset.cpp.obj": "a92e00c11b08ca70307172dd6c68c69732cde9031f7280f9ca5b16eae4a0f5c5",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\native_text_backend.cpp.obj": "5e823ee5b833a96f40d499b38b36d902920f25572706d501f968fa9095b19f00",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\offscreen_backend.cpp.obj": "639593776123e4829f548f45c4de97f71addc1786ae2f044ec7a4ecefb3ee439",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\original_game.cpp.obj": "5003af26e5ecd055ffba96f2cf19f6807e87a8ebcab11bc217194c297f6007a5",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\output_paths_backend.cpp.obj": "75878eb8d8de9fd69fabc680b68f3cc42625fe1e838ab29c74a33cf68d651519",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\platform_3g.cpp.obj": "5a4c2e0dce1a0fda03fb32b1c26536575f8677177550f3c563cad1d22a258d7f",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\platform_globals.cpp.obj": "7d6e16508c8e1e41928ed90798cd27a03fb731ba15d91b7a50013079db10b632",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\platform_switch.cpp.obj": "0e43a65f38a2b50d3f5a5d515ec674404d9d07e19bb19be56081dd4aaea7e8a8",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\shadow_texture_backend.cpp.obj": "82cccc655927872457829b6d03038843117f41bc5ede55e769254d3229198482",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\skin_pipeline.cpp.obj": "44764ffbbc9996424c2e51a3ab8f5de95b9748c4b25dea690a3e215d79a44a5b",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\text_backend.cpp.obj": "22536960437335888e1bf396aa05b0ec89bbe903cca6e3757b075afe23012cbe",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\transition_backend.cpp.obj": "06d9fc1126a372500d88e490775a68c601afa891e5716c00920be2cae7d57f37",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\unmanaged_texture_backend.cpp.obj": "b11aad37e88c03c2e06f8dcdda6708fcdc0d5f530d6920ba07f1fa42fbdee937",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-vector-object.dir\\core\\source\\VectorObjectAnimNative.cpp.obj": "c22aeb7797a7968d69751aa576429f35e6b8c6a475554e4f83c38a2377819021",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-vector-object.dir\\core\\source\\VectorObjectCpu.cpp.obj": "1aae95b0c9274b7850aaf15e9cb0caa332865e401e16b9e09dfbfe2b87173773",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-navigation.dir\\source\\MatrixGame\\src\\Logic\\MatrixRoadNetwork.cpp.obj": "11875871507b14bf0595243e395d54ddc2bc8d6a4be80165830ce93de21b618e",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-entry.dir\\source\\MatrixGame\\src\\OriginalWindowsFrame.cpp.obj": "4c71b3c2b68c5a3c5ec1de9258bec187adf45c5359e991555316520cc6245e1e",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-entry.dir\\D_\\repos\\space_rangers_hd_a_war_apart_port\\tests\\matrixgame_native_font_probe.cpp.obj": "0cbc0305ed60abb714adb5190ebfa6fdd42e95bdee07a2d7a2afe6b312a900c9",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-entry.dir\\D_\\repos\\space_rangers_hd_a_war_apart_port\\tests\\probe_matrixgame_native_entry.cpp.obj": "f876416a1157d68bf0875aa0765d9038a20770c7819ec5cb49dff014db238cb5",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\CBillboard.cpp.obj": "9dda51dd9ab50a6dee834bb0244cda8678d815df097629a7ea9d759c3cdaf2e1",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\DeviceState.cpp.obj": "229d9a15c83302926859b24b2f22ba1c020dc910a59c96175f79748d77d67e08",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\OriginalManagedTexture.cpp.obj": "7d230ced3f4175b7408651587a8df0020e3d17e7504f0fd669f96232f8aa6013",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\OriginalShadowProjection.cpp.obj": "06d87b2b966cce16e76ad186a0c95080a753043365a82698a0904a5a09e73a57",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\OriginalShadowTexture.cpp.obj": "82c71c0ee78159e619f3fb3a74304e98ff1420565d596cd113db688f87ce4fdc",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\OriginalUnmanagedTexture.cpp.obj": "75fc774dc8b2484c664b194aa8a0d6d98067818fcae6d4b8229cfc79d6cb79dc",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\OriginalVectorAnim.cpp.obj": "e5cf8d6c96e29c0017f2690b58e09213fd28d140f5835e2fd6bb14c5f38f5e18",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\OriginalVectorGroup.cpp.obj": "4cbca0963c74d404ccaaed2334855ea95a664b03aea84f8aeeb7ccedda8df5d9",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\OriginalVectorPicking.cpp.obj": "32d9f0389339ba5ead5a6cb66e77687ce07a7b261912a40310f7c209038648a3",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\ShadowProj.cpp.obj": "f920caef1f9e98dce5de97a329d3e270ddef9ffe3e9fba2eee49ab8783fb62dd",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixLib\\3G\\ShadowStencil.cpp.obj": "c9fb0734c8f652c6e93f7b6c16862999f7f0f3d127de309e5ff9890d234e64de",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\DevConsole.cpp.obj": "0e9274635903705eb79d42ec1a5236bc7c248c5aa590b0bc71f65421ebab395c",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\GameDefaultsNative.cpp.obj": "39e0fd750316dcd1cd7031f7d2f555bf5a31d32848c3782f9d02506b4527c560",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\GameStaticResources.cpp.obj": "23a9dfb987380439651d931844af677d810a72e979992453f3fae9d60863511c",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\input.cpp.obj": "f1cb151ef2ea1b743d017e9243faebbfc7bfebf8a644415cd156792f8db37e74",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixCamera.cpp.obj": "929c7bbdd4da3ba33873d4d7dc003e245cfdbbb1aa29a84d17acfa418bbac5d1",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixConfig.cpp.obj": "14a34ebfc6e85abef0fb449faa7fb959e0acce9aff776f7b519d6cb5512f6249",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixCursor.cpp.obj": "d71c56a420e4e68933c71b8c24d2bf6e855d685f00df7c0e19aefe4e744e9656",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixDebugInfo.cpp.obj": "b10bd731ccca9a39cfd81959617963970a72b5757129601b56dd6a4ad7a43506",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixFlyer.cpp.obj": "54706e96df466d9d3590bf9d462db70ee1f704db9af2d79dc0b0e09c186a508d",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixGame.cpp.obj": "323e7c87c025449202d8ad2c5f7de73dac556be25ae2df21e6750237cfb90fbb",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixGamePathUtils.cpp.obj": "2c65e5fe266c3c12f36b2de8e685e547cf4692b4157d0aa34f06b711eb6722da",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixInstantDraw.cpp.obj": "d73db7988cdb9568dd880b7ec7595a541fca0d7772d20ab2df0df19c28cf2f8e",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixLoadProgress.cpp.obj": "324c21516738040c34c798933ce63ec694c08785d7fa792d7d9976e2651e7367",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixLogic.cpp.obj": "c89e20569435715332b3ed4a56865a8dc9ac57f59aae505e3e7d36476777e1c3",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixMap.cpp.obj": "dab74c65b954c17e7662d8c4be61c6aea7850184ff205b7a87a256da43cee80b",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixMapGroup.cpp.obj": "1e79ba2e6ddfdf77fa07f0fd77e1f80f74dd8097cb62b7665257f2f3e321e9a2",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixMapStatic.cpp.obj": "f65b60d70937f262ae3f7a35659ad0690f0518128b58cc54322910220ecb83ff",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixMapTexture.cpp.obj": "da28906591b83229de6bc5d2587ea7b723703b479cd3839181bcd69bf6216987",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixMapTrace.cpp.obj": "cd79aeabeab91b9470bfb56546df542b1403d06e51eab087fdca6890ca64d129",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixMinimap.cpp.obj": "e2ef8228b15891e30ad5cb4dbf68afd3b776fdc1c7b709b37da6725f671a9efa",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixMultiSelection.cpp.obj": "002cde344de45509637fcc2b6a5e57f4d7f9ae9d9a18199ae9313f737dad3d7e",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixObject.cpp.obj": "a945657c66d39bc8c508f0561c47428fbff47f05c3e3a835e9c56f57f23c29b3",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixObjectBuilding.cpp.obj": "0f9f32dfe4c0e3e41da63d1f28e9dc0cf500037cf62978b87503de04cea1c4a4",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixObjectCannon.cpp.obj": "92d0cd5ad716cfdfe30c3c34851530be144c94ac894d421181f401c17b79931b",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixObjectRobot.cpp.obj": "bd94341422c9506377d922944d379494813a45e249863f1c068e3300bbb8695c",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixProgressBar.cpp.obj": "a14ba552393030694a4880bea4facb519f609245f562983b3a5f63ab0f8d1cf0",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixRenderPipeline.cpp.obj": "a107054de73664e7a528e8ff20b74aff317d6fa70bbe1f70af9ccbb4bb8ab598",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixRobot.cpp.obj": "f44fa1b96529f23796e3eb9a55e75727c05d0c812a8c0e0eedb1097ba751e4d9",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixSampleStateManager.cpp.obj": "f72a2b0296ecda8760077842ce4531727272f04dc96cdec8ac1873b578db6bdd",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixShadowManager.cpp.obj": "f712571953f75a2a9a27e5478099e9c8c99991aba3baad469708e9332b5284eb",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixSide.cpp.obj": "e9a9f20651795234628d131b3a92d6c00677494acaa48405a2a55cd044cad2ac",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixSkinManager.cpp.obj": "a932d248396a80c5ed63512465f86cc8ceda0b79146e4d5b1d71e0872a0ae46f",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixSoundManager.cpp.obj": "de822ad5e3118e42ceca6d5009569d781c4804881ccde8d63ffba0d7ac452351",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixTerSurface.cpp.obj": "3b0e0ab3d3d3a60e5342ba2de4f7d6d7d6b3d6a134701a8f0bc016d094302e08",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixVisiCalc.cpp.obj": "69c7ae4570b8bdb7a6e5b326b27b7a00d0449f11780e0f88e4b5e99b52c7b6a9",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\MatrixWater.cpp.obj": "0df1cea50a43f6aaa14c1342cefafc4ef7f3b3c43d12b1119f1b41808cc8ee52",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\OriginalMapPrepare.cpp.obj": "b6ee25f653b038ba211e4e89b4e2919252875fe3195ea3ad987548aa8c7f70cf",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\OriginalRendererOps.cpp.obj": "7e0715dfae73f94a08f4ece62d3a811d0809bc94ec6b0edc4a5b32e825f0bde4",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\OriginalTextureUnions.cpp.obj": "58365fcb6406ffbbdef773c0c848dbb651b703bebcaee0742484c05db6aba9ef",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\OriginalTransition.cpp.obj": "b29ceb230137de581472660860c3bd8fa33517da927407cf9ea8915172a32d3f",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffect.cpp.obj": "8331976384bf96aea40b431bfb9498bdc1f7f2ca1a47ff6ac28f8d8f795139e8",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectBigBoom.cpp.obj": "44ab483fc70736607827bf20973448cf366cf53650f1873f6150441e55e07e7e",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectBillboard.cpp.obj": "7efd3ce3ac1230bb4e4db685b402b4b01cb28a2e60e10466bfad20a78c95a47b",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectDust.cpp.obj": "30f52a9d18e2b42d1c3c75109d0a7b7daf35098e48bc3e2897d03d97b8290583",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectElevatorField.cpp.obj": "6bd7091a649a1acbab6be9ef207d0da5ae9d0e0ad0bff6bad105799d3743fb88",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectExplosion.cpp.obj": "bc0dd3280dce8f7c26447b56ae44589111ad4a32ebd91f37d96f16c4958e68d4",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectFirePlasma.cpp.obj": "24208b7bca83617bc2b4e7b07b615127b4a2885bdfeb939b2c40d4c85db0aed5",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectFlame.cpp.obj": "94edcb509c76c601e210dca0a8911dbf16aa4dc3bcda300e9a39171f9dcbcf87",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectKonus.cpp.obj": "7374cccc630e94a7a6f2066ffd5debdf6d851c00598e43875719219905cb32ce",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectLandscapeSpot.cpp.obj": "73f4a13cdd434733083b9408b8b5d757513c25334e38dc9096a52dab4e0ac2d8",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectLightening.cpp.obj": "a2281967e56cae2cbfe5aa41ceb3c595659bea2d450b1205651d7b1f7931f5f4",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectMoveTo.cpp.obj": "a0fc33322b5341b95662454d361bb945f90de88b137effc1eb6b597fd47595ca",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectMovingObject.cpp.obj": "f0cbeaa58204c6a54dd60963c7f20925aca3f012c76faa8099eb34ae5376539d",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectPath.cpp.obj": "e359889bb4d240106cb8ecaec39be94e5044169b906db4f7175796bff1e35f34",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectPointLight.cpp.obj": "d01666536609d4baf434ad9c87fa9eccca98c2d5ad4214db64ab297827a9e471",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectRepair.cpp.obj": "e0a3dc3a7831f4d5047dc31cf52602a7b50acdbc4e3871ba5e6d1190d7f21b20",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectSelection.cpp.obj": "2d8fd0a147b415af19cfa897d13ea027a3217fb6abe897488ced3b54e8f582ba",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectShleif.cpp.obj": "d27169fc364eaed493640ba84abfaa251c77fe769fadae92144aa2161f88c3fd",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectSmokeAndFire.cpp.obj": "5728ec8735925580c773c11438bbc2272db0c689811ab81df38d592acc399714",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectWeapon.cpp.obj": "858ca1b16546d0bb70d2d43dc74661f9813ba07056705d153fd69865afe3873e",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Effects\\MatrixEffectZahvat.cpp.obj": "34a3ca8b75279a01748060d2aafcb5225a48405ee4a17a3e8729c25e62b20e83",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CAnimation.cpp.obj": "14c11c2fa1486b129923b30c7bf46132f99f57b824b04150e19ab1ed04dee450",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CConstructor.cpp.obj": "e873c94e4135771cbdb9f50276e90c61984790f0f6adaf566cd8b8ee288398cf",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CCounter.cpp.obj": "88b4eb2966bad35ba745a7371aa93fcd39fb7820136dc4250f0f3d8163f8c264",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CHistory.cpp.obj": "262edb65d499e5b9fb8d108b02cd2de7cb31e58744caaeea1b58f2ad68372723",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CIFaceButton.cpp.obj": "0ddfb316c34b9348cc87d7a92360a795b6353b7e538064effbaccba53c5bbcc2",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CIFaceElement.cpp.obj": "18ffbd1af7c6d5b679ae1a69b7755126e55d20aa9901ca2624b840475637f4fd",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CIFaceImage.cpp.obj": "419a71d498ad8d82dc31c4a1d79c506f356272552e939d1679e41674c70c2ef7",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CIFaceMenu.cpp.obj": "f5a506d54ed95181141d38486b022459cc27690bdcc969706ecd8dda35656d73",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CIFaceStatic.cpp.obj": "2f83a3c2c23e72846c4703d1a4a80c4df1b3b6d9707cb7deefe3f7183959bc4e",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\CInterface.cpp.obj": "ab26c485246c3e5b16440fc5a1ebebccfc7fff44ccb891aacb32d24e3c8f53c2",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Interface\\MatrixHint.cpp.obj": "0f94a481c7132feddaaf8ca267b157d2dddf668f119f5235db7b4b7668f2a30a",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Logic\\MatrixAIGroup.cpp.obj": "b1e8c99b10d0b21a8f5078bd10a1bdf5c141cc445dc355bb50d40f08ac048e18",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Logic\\MatrixEnvironment.cpp.obj": "1feadc010da73ca4909ae2a4c767c2bae183847ae80d327988caafef935763b0",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Text\\Font.cpp.obj": "9e0984a178bcadfd0becde5725383d371ac261a3593c2670ab30904b6e6f0209",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Text\\Parser.cpp.obj": "1d0b05c839fdcfe850ff06a013c9915326263aba3a563fbf48991502a0d3b417",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\source\\MatrixGame\\src\\Text\\Render.cpp.obj": "0fdfa4add3b2ecfd918305ad80c96e827839b2ddd28ab1c17dfbafe938ce640b",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\core\\source\\3GDeviceDefaults.cpp.obj": "f8de68d6e810bdea15662986477c2b349fa0f2179070cbf32c29549c88474cbc",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\core\\source\\3GPlatformNative.cpp.obj": "72146e95fadaea68dc07e9c3c0efc7703499b4b0eb18ecabca402a009e181f0c",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\core\\source\\CacheNative.cpp.obj": "923ce0c440c44786223ec588fcd5805be15a50c2e7d6e74e80cf8b77e1d4846e",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\core\\source\\L3GCpuPhase.cpp.obj": "af3a13da9ebed72bee43c899552f1e97db010c6a80006cb45712335e2696e1e1",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-native-cache.dir\\core\\source\\SkinResourcesNative.cpp.obj": "7bfe52f96762b857289b3b78bff3c4cfc4a89631423e5d2284503ada43306cf5",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-material-combiner.dir\\D_\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko\\fixed_vertex.cpp.obj": "749c4d455f534f6216b797ba2f805df6569f54f8da709727f427299bb3bcec10",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-material-combiner.dir\\D_\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko\\material_combiner.cpp.obj": "a76d9934fe1acd61c211f28664dfd3b4c54777decc430917fe4d0b119278499a",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-material-combiner.dir\\D_\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko\\material_program.cpp.obj": "cb174657919f569f46bcd3e11a73ce8640e97e01b2466b7bd9c401ce8b335638",
+        "build\\matrixgame\\e2e524-text\\sdk\\CMakeFiles\\matrixgame-material-combiner.dir\\D_\\repos\\space_rangers_hd_a_war_apart_port\\port\\matrixgame\\deko\\texture_store.cpp.obj": "53374ecbff1153e053e8c0eadaaa35c484f8bdd743668b33f68cf7058eb93b67"
+      },
+      "assets_sha256": {
+        "build\\matrixgame\\e2e524-text\\windows\\font0.bin": "fd94410cca0c9133f98444b8d3f6a11c24ac85bc2384d069982427efb55bdabc",
+        "build\\matrixgame\\e2e524-text\\windows\\font0.golden": "6024146252e7d672027d73756a591f65a2eae397e3375ecf11e1056918b6c39d",
+        "build\\matrixgame\\e2e524-text\\windows\\font0.sfnt": "727de6500e2685ba3672bb31ea46577c70a5fe007bc020f6128263773289ee4d",
+        "build\\matrixgame\\e2e524-text\\windows\\font1.bin": "05e523df19447ea2681599d4724213f8375b2943adbbf48e30dc635c9e5bb7ea",
+        "build\\matrixgame\\e2e524-text\\windows\\font1.golden": "d441819195209343e0e6de60705793d7953474d2dfe8540056bed7e095d6c2cd",
+        "build\\matrixgame\\e2e524-text\\windows\\font1.sfnt": "6a8481fe107ee547893c018b13dba291c2020bec3de5da6525d9ac09f6bc2105",
+        "build\\matrixgame\\e2e524-text\\windows\\font2.bin": "b091a874cc4d1a35298f507c6e328f155698a25a616cf1af55e812fd1599c475",
+        "build\\matrixgame\\e2e524-text\\windows\\font2.golden": "9228fe9cd7f9a3e7be509845d14c050534e63e4b020c8bfb7cd5c11a389ae221",
+        "build\\matrixgame\\e2e524-text\\windows\\font2.sfnt": "6a8481fe107ee547893c018b13dba291c2020bec3de5da6525d9ac09f6bc2105",
+        "build\\matrixgame\\e2e524-text\\windows\\font3.bin": "4bb653fb2d14f2729aa1705c5f6ef2b722aa4fe95f7b686bf3465fa05283d9ad",
+        "build\\matrixgame\\e2e524-text\\windows\\font3.golden": "399a245e02fdb5b7c0d05e8da415cd63290cf81eec49b2ca6fd7c144f962ff86",
+        "build\\matrixgame\\e2e524-text\\windows\\font3.sfnt": "6a8481fe107ee547893c018b13dba291c2020bec3de5da6525d9ac09f6bc2105"
+      },
+      "rangers_ttf_sha256": "727de6500e2685ba3672bb31ea46577c70a5fe007bc020f6128263773289ee4d",
+      "source_sha256": {
+        "tests/test_matrixgame_native_text.cpp": "554d316f1aa3386dc0b5ba4e6e1564cc27e5e77e4a20c59501343781c69a5de8",
+        "port/matrixgame/native-engine/platform_3g.cpp": "bddda856514ae018bfb14b7d376261e1309ae4c9431532129724986a27a7c3eb",
+        "port/matrixgame/native-engine/text_backend.cpp": "e7fa94aad3f0b38a14e22a1b4494479c73d97c41fbf5ccfd4b4361ba018ef29b",
+        "port/matrixgame/native-engine/native_text.cpp": "9980ecd25c9db62865db3202c71e46091ef798565ef226e6f5e890263e61298d",
+        "port/matrixgame/native-engine/native_text_backend.cpp": "bfecb9da0d77874fc4e7ad2d53346904a321dbe3ef3c1850c9234fc5b4db2c40",
+        "port/matrixgame/native-engine/native_texture.cpp": "212483012f7b3f3ae69fadee00570bcd234b7e01304510e0598fa9036c989abf",
+        "port/matrixgame/native-engine/legacy_texture_backend.cpp": "0ef06decac187dcf70e34f98d3674145450f9de92ec045b391c68aafa024afce",
+        "build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Render.cpp": "4449868d7843c6be06e42fef2a175d7e41d099f8903e24224a7d0378e81ed07a",
+        "build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Font.cpp": "b8eb2daffe1e883b6b957e2cfe21717279b75fcfee88dd1c7e41cc5621a4ebe0",
+        "build/matrixgame/e2e523-presentation/sdk/source/MatrixGame/src/Text/Parser.cpp": "728db6059ffda0284c4dd971ea31b798d280c275a913d86bef543a3fea5f7df5",
+        "port/matrixgame/native-engine/native_text.hpp": "037e827b36fb6d1024fd756516700725d9ece90e227bd92a4438552ac167fa68",
+        "port/matrixgame/native-engine/native_text_asset.cpp": "07083d37fe2802d818ef85e8b2c57cc913ce5fee7de3579f7f1ae87e110e3c45",
+        "port/matrixgame/native-engine/CMakeLists.txt": "fc9cbdcddd7ec33f9d8fd473ac8be6e18dd7a604ed2ea3c2213753e3277539e9",
+        "port/matrixgame/native-engine/platform_switch.cpp": "7611e79fd50b9b74f248d03496ca8f8e8b33606f9b6816e4e4e975720025f8ad",
+        "port/matrixgame/native-engine/platform_switch.hpp": "a844b07da348dd93a19e54cf55fbcfb130985c62ddcf728c4a2f1a21c2f2d630",
+        "tests/test_matrixgame_native_text_boundary.cpp": "b1a9365ba1f7044c99f0348da87af37f5dcf3926f386192832543982ef40d6c2",
+        "tests/matrixgame_text_font_export.cpp": "a9114800dc81bfc8874ec66c74267c249bd2b9c7872bfefd0dece81b9da28958",
+        "tools/matrixgame_text_checks.py": "350e0e4c600398f3d409f8d4e47dafb95c1ed221f0f2cbeb57a96afca7ffdbfb"
+      }
+    }
+  },
+  "cmake": {
+    "status": "PASS",
+    "commands": [
+      {
+        "label": "configure",
+        "command": [
+          "wsl",
+          "--exec",
+          "cmake",
+          "-S",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+          "-B",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e524-text/cmake-host",
+          "-G",
+          "Unix Makefiles",
+          "-DBUILD_TESTING=ON",
+          "-DCMAKE_BUILD_TYPE=Debug",
+          "-DCMAKE_CXX_FLAGS_DEBUG=-O1 -g -UNDEBUG",
+          "-DCORE_SANITIZERS=ON",
+          "-DMATRIXGAME_TEXT_FONT_ASSETS=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e524-text/windows"
+        ],
+        "exit": 0,
+        "seconds": 112.60186980001163
+      },
+      {
+        "label": "build",
+        "command": [
+          "wsl",
+          "--exec",
+          "cmake",
+          "--build",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e524-text/cmake-host",
+          "--target",
+          "matrixgame-native-text-test",
+          "-j",
+          "4"
+        ],
+        "exit": 0,
+        "seconds": 67.80011469998863
+      },
+      {
+        "label": "ctest",
+        "command": [
+          "wsl",
+          "--exec",
+          "env",
+          "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+          "UBSAN_OPTIONS=halt_on_error=1",
+          "ctest",
+          "--test-dir",
+          "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e524-text/cmake-host",
+          "--output-on-failure",
+          "-R",
+          "^matrixgame-native-text-contract$"
+        ],
+        "exit": 0,
+        "seconds": 15.517746200028341
+      }
+    ]
+  },
+  "source_sha256": {
+    "port/matrixgame/native-engine/native_text.hpp": "037e827b36fb6d1024fd756516700725d9ece90e227bd92a4438552ac167fa68",
+    "port/matrixgame/native-engine/native_text.cpp": "9980ecd25c9db62865db3202c71e46091ef798565ef226e6f5e890263e61298d",
+    "port/matrixgame/native-engine/native_text_backend.cpp": "bfecb9da0d77874fc4e7ad2d53346904a321dbe3ef3c1850c9234fc5b4db2c40",
+    "port/matrixgame/native-engine/native_text_asset.cpp": "07083d37fe2802d818ef85e8b2c57cc913ce5fee7de3579f7f1ae87e110e3c45",
+    "port/matrixgame/native-engine/text_backend.cpp": "e7fa94aad3f0b38a14e22a1b4494479c73d97c41fbf5ccfd4b4361ba018ef29b",
+    "port/matrixgame/native-engine/platform_switch.cpp": "7611e79fd50b9b74f248d03496ca8f8e8b33606f9b6816e4e4e975720025f8ad",
+    "port/matrixgame/native-engine/platform_switch.hpp": "a844b07da348dd93a19e54cf55fbcfb130985c62ddcf728c4a2f1a21c2f2d630",
+    "port/matrixgame/native-engine/CMakeLists.txt": "fc9cbdcddd7ec33f9d8fd473ac8be6e18dd7a604ed2ea3c2213753e3277539e9",
+    "tests/test_matrixgame_native_text.cpp": "554d316f1aa3386dc0b5ba4e6e1564cc27e5e77e4a20c59501343781c69a5de8",
+    "tests/test_matrixgame_native_text_boundary.cpp": "b1a9365ba1f7044c99f0348da87af37f5dcf3926f386192832543982ef40d6c2",
+    "tests/matrixgame_text_font_export.cpp": "a9114800dc81bfc8874ec66c74267c249bd2b9c7872bfefd0dece81b9da28958",
+    "tools/matrixgame_text_checks.py": "350e0e4c600398f3d409f8d4e47dafb95c1ed221f0f2cbeb57a96afca7ffdbfb",
+    "tools/matrixgame_text_cmake.py": "5a3fd62ea50ba0b91826d1410544dede8201adad991de6b05e0dd38e9f6c35f7",
+    "tools/matrixgame_text_audit.py": "3d6879f75193746f7d2e41fc42e4c005fc2bf9295b9677353cb0f89fe0b61d9b",
+    "docs/matrixgame-readiness-plan.md": "48fc76b2964dcae8ab34122b8d851b98b3c92eb3198ed38cc2c250448a811df3",
+    "reports/matrixgame-e2e524-text.md": "87b5cc8d4f5c6b77ff210bc377e7b45f5d20aab75fa56bba8659170a192a79d4"
+  },
+  "protected": {
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\newgame.txt": {
+      "sha256": "edebec1fbe596bfdb856719310372b9bf69ce7989394b86ae13377db847ec65c",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\QuickSave.sav": {
+      "sha256": "84509d9ab5411555c0a361d5616c94aae6ef3a5c00fa81782ea64192b5c7bd73",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Medical Center Autoclave.sav": {
+      "sha256": "d6e238a00e514712ab9eed796c40c39dd1cddc20f7036de1a7b8d25fee34e622",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\hardware-gpu-a224fa4.zip": {
+      "sha256": "1c5cfebb2696bbf6db98bd2cd598956f468ef1ca8183bbf31271148c30103429",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\Sol System.sav": {
+      "sha256": "62c35d050b256e13326ce904123c44bad3756deeb66e269dbae2a66b4f903cc0",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-2.vo": {
+      "sha256": "b7cba8a78faf0c8cf32cf942288d2fdb0d5d21b047d0e9abaa212092c11d9ccd",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\reports\\e2e5\\e2e510-artifact-provenance.json": {
+      "sha256": "eaac3d9181b12566492bda774933af6469f2b0b26104bcc83a8d266fee7759ec",
+      "unchanged": true
+    },
+    "G:\\pack.zip": {
+      "status": "UNAVAILABLE"
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e515\\big-buffer-models\\model-1.vo": {
+      "sha256": "04497dcc94ede26f183d847a4dd094d3ba05bc825d09fcfa73fa36bfae80981e",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\CFG.TXT": {
+      "sha256": "6b63a47bba893e4a33c4f92d3aaa19adf3c45c4032da7a302b140e03ab166180",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\mg-merge-host\\core\\texture-request-fixtures\\assets\\plain.png": {
+      "sha256": "d81cd93a0fccbc517719f9cb6563f6837327dc32a412f59238a95699831ba210",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\########.log": {
+      "sha256": "fef05715d095d39568aee8d9c121c1cb232a80a84e0c6e2a56712070d2f505b3",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\saves\\SpaceRangersHD\\Save\\AutoSave.sav": {
+      "sha256": "739c428d9a7f13e88e7e2fe65d6435dbf297270be35c672020b9fa7d097ac601",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce.zip": {
+      "sha256": "e1a1dec5f410b983d629ae538ad9b4ba063f89a8101af43d27ea00c6ce6a08a4",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce\\switch\\space-rangers-hd-a-war-apart\\SpaceRangersHD-perf516.nro": {
+      "sha256": "9f654daab36c71cb51940871d4a93bdcceb09edd7da8dde127ab023bfb21e789",
+      "unchanged": true
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\e2e516\\hardware-e2e516-03651ce\\debug\\SpaceRangersHD-perf516.elf": {
+      "sha256": "0ca47fa95e614167da814cf63e1bc19e0bd005e94b34763287d713d5c9989ab5",
+      "unchanged": true
+    }
+  },
+  "protected_verified": 15,
+  "hardware_inputs_verified": 107,
+  "primary_NRO": {
+    "path": "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\Space Rangers HD - A War Apart.nro",
+    "bytes": 7158064,
+    "sha256": "7e1b2b0aa7844dfb581a6d9a26dd8cc381521fa619ee46b06308699dacc32f9c",
+    "mtime_ns": 1791353165806847000,
+    "scope": "current fingerprint; no earlier primary-NRO baseline comparison claimed"
+  },
+  "extra_frozen_artifacts_verified": {
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\SpaceRangersHDAWarApartE2E4Combined-0f91c1a.nro": {
+      "bytes": 16451888,
+      "sha256": "e5fc738048c4d8798fe536992ea64224bec14af5c1c13a8725cc8a6c0c09889a"
+    },
+    "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\SpaceRangersHDAWarApartE2E4Combined-0f91c1a.elf": {
+      "bytes": 56558944,
+      "sha256": "5cc855ec17b58ee7bc720a18ce35a1011b1e10430073c27a9b15b1ec32d67801"
+    }
+  },
+  "full_native_Init_executed": false,
+  "native_map_loaded": false,
+  "native_frame_presented": false,
+  "Switch_hardware": "NOT RUN / HARDWARE PENDING",
+  "next_guard_source_trace": "CGame::Init -> CreatePoolDefaultResources(true) -> StaticPrepare2 -> RNeed(MR_ShadowProjTex) -> CVectorObject::CalcShadowTextureWOMat -> offscreen::GetTarget",
+  "next_exception": "offscreen target query unavailable",
+  "next_guard_executed_as_part_of_native_Init": false,
+  "following_blockers": [
+    "native shadow target/binding/readback/staging draw",
+    "CMinimap::RenderBackground render texture usage=1 and offscreen surfaces",
+    "StoredStateBackend during ReleasePoolDefaultResources/recreate"
+  ],
+  "font_limit": "exact original face glyph coverage; outside-face font linking and complex script shaping remain unsupported",
+  "CPU_low_level_upload_is_model": true,
+  "NRO_created": false,
+  "commit": false,
+  "push": false,
+  "P0": "OPEN",
+  "GI_repeating_text_causality": "NOT PROVEN",
+  "manual_publish_ENOENT": "OPEN",
+  "Switch_hangs": "OPEN"
+}

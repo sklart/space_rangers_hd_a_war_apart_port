@@ -13,6 +13,7 @@ enum class Pool { Default, Managed };
 enum class IndexWidth : std::uint32_t { U16=2, U32=4 };
 enum class MapMode { Normal, Discard, NoOverwrite };
 struct AllocationState;
+class BindingSnapshot;
 
 // Owned CPU staging, not a COM object or a declaration of GPU readiness. A
 // successful map/unmap publishes bytes for a later real backend upload.
@@ -36,6 +37,7 @@ protected:
     virtual ~Resource();
 private:
     friend class Context;
+    friend class BindingSnapshot;
     void Retain();
     struct Range {std::size_t first,last;};
     std::shared_ptr<AllocationState> allocation_;
@@ -82,12 +84,30 @@ public:
     VertexBinding Vertex() const noexcept { return {vertex_,offset_,stride_}; }
     const IndexBuffer* Index() const noexcept { return index_; }
     std::size_t AllocatedBytes() const noexcept;
+    BindingSnapshot CaptureBindings() const;
 private:
+    friend class BindingSnapshot;
     std::shared_ptr<AllocationState> allocation_;
     VertexBuffer* vertex_{};
     IndexBuffer* index_{};
     std::size_t offset_{},stride_{};
 };
+// Captures bindings, not buffer contents. Retains real staging resources and
+// detects destruction/replacement of the owning context before restoration.
+class BindingSnapshot {
+public:
+    BindingSnapshot()=default;
+    bool CanRestore()const noexcept;
+    bool Restore()const noexcept;
+    VertexBinding Vertex()const noexcept;
+    const IndexBuffer* Index()const noexcept;
+private:
+    struct Data;
+    std::shared_ptr<Data> data_;
+    explicit BindingSnapshot(const Context&);
+    friend class Context;
+};
+Context* BoundContext() noexcept;
 Context& Current(); // Missing engine binding is an error, never a fake device.
 class Scope {
 public:

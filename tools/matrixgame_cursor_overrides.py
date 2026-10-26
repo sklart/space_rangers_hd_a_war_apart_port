@@ -44,10 +44,24 @@ class CTextureManaged;''')
     for index in ('m_Frame','0'):
         c=c.replace('SetCursor(m_CursorIcons['+index+']);',
                     'm_CursorWindow->ExchangeCursor({m_CursorIcons['+index+'].value});')
+    visible=function(c,'void CMatrixCursor::SetVisible(bool flag)')
+    access='m_CursorWindow->ExchangeCursor({m_CursorIcons[m_Frame].value});'
+    if visible.count(access)!=1:raise ValueError('Original cursor visibility icon access changed')
+    fixed=visible.replace(access,'''// Partial Init can unwind before Select creates any cursor icons.
+            if(m_CursorIcons && m_Frame>=0 && m_Frame<m_FramesCnt)
+                m_CursorWindow->ExchangeCursor({m_CursorIcons[m_Frame].value});
+            else
+                m_CursorWindow->ExchangeCursor(m_OldCursor);''')
+    c=c.replace(visible,fixed)
     c=re.sub(r'\bHICON\b','srhd_awa::matrixgame::platform3g::IconHandle',c)
     c=c.replace('WinBitmap frame;', 'cursor_native::BitmapFrame frame;')
     c=c.replace('ICONINFO ii;', 'cursor_native::IconInfo ii;')
     c=c.replace('CreateIconIndirect(&ii)', 'cursor_native::CreateIcon(ii)')
+    # Each successfully published icon must be releasable if a later frame or
+    # native image allocation fails. Unpublished slots are null, never garbage.
+    allocation='m_CursorIcons = (srhd_awa::matrixgame::platform3g::IconHandle *)HAlloc(sizeof(srhd_awa::matrixgame::platform3g::IconHandle) * m_FramesCnt, g_MatrixHeap);'
+    if c.count(allocation)!=1:raise ValueError('Original cursor icon allocation changed')
+    c=c.replace(allocation,allocation+'\n        for(int slot=0;slot<m_FramesCnt;++slot)m_CursorIcons[slot]={};')
     c=c.replace('D3DRS_ZENABLE','static_cast<srhd_awa::matrixgame::RasterRegister>(7)')
     c=c.replace('D3DZB_FALSE','0u').replace('D3DZB_TRUE','1u')
     c='''#include "MatrixCursor.hpp"

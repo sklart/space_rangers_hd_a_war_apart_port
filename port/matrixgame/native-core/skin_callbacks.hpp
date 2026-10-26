@@ -25,6 +25,29 @@ private:
 const SSkin* AcquireOwnedSkin(const wchar_t*,std::uint32_t);
 std::shared_ptr<const SSkin> TakeOwnedSkin(const SSkin*);
 bool SkinProviderBound() noexcept;
+// Original managers own raw SSkin allocations. A scoped callback and an epoch
+// make that borrowing explicit without manufacturing a shared owner for SSkin.
+using SkinGetter=const SSkin* (*)(const wchar_t*,std::uint32_t);
+class BorrowedSkinScope {
+public:
+    explicit BorrowedSkinScope(SkinGetter);
+    ~BorrowedSkinScope();
+    BorrowedSkinScope(const BorrowedSkinScope&)=delete;
+    BorrowedSkinScope& operator=(const BorrowedSkinScope&)=delete;
+private:
+    friend bool BorrowedSkinProviderBound(SkinGetter) noexcept;
+    friend void TrackBorrowedSkinOwner(const void*,SkinGetter);
+    friend void InvalidateBorrowedSkins(SkinGetter) noexcept;
+    BorrowedSkinScope* previous_;
+    SkinGetter getter_;
+    std::shared_ptr<const int> epoch_;
+};
+bool BorrowedSkinProviderBound(SkinGetter) noexcept;
+void TrackBorrowedSkinOwner(const void*,SkinGetter);
+void CheckBorrowedSkinOwner(const void*);
+void ForgetBorrowedSkinOwner(const void*) noexcept;
+void InvalidateBorrowedSkins(SkinGetter) noexcept;
+std::size_t BorrowedSkinLeaseCount() noexcept;
 struct NativeDrawSink {
     virtual ~NativeDrawSink()=default;
     virtual void SetVertexLayout(std::uint32_t)=0;

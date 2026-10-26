@@ -8,6 +8,10 @@
 #include "platform_win32.hpp"
 #endif
 #include "unmanaged_texture_backend.hpp"
+#ifndef _WIN32
+#include "native_texture.hpp"
+#include "native_surfaces.hpp"
+#endif
 #include <limits>
 namespace srhd_awa::matrixgame::unmanaged_texture {
 using namespace platform3g;
@@ -29,7 +33,8 @@ DeviceResult Describe(IDirect3DTexture9* texture,std::uint32_t level,ResourceDes
     if(SUCCEEDED(result))*output={value.Width,value.Height,static_cast<std::uint32_t>(value.Format),static_cast<std::uint32_t>(value.Pool),value.Usage};
     return result;
 #else
-    (void)level;throw Unsupported("unmanaged texture description unavailable");
+    auto t=native_texture::Find(texture);auto& l=t->levels.at(level);
+    *output={l.width,l.height,t->format,t->pool,t->usage};return 0;
 #endif
 }
 DeviceResult Surface(IDirect3DTexture9* texture,std::uint32_t level,IDirect3DSurface9** output) {
@@ -37,7 +42,7 @@ DeviceResult Surface(IDirect3DTexture9* texture,std::uint32_t level,IDirect3DSur
 #ifdef _WIN32
     return texture->GetSurfaceLevel(level,output);
 #else
-    (void)level;throw Unsupported("unmanaged texture surface unavailable");
+    *output=nullptr;try{auto session=native_surfaces::Active();native_surfaces::Expose(session->Import(native_texture::Find(texture),level),output);return 0;}catch(const native_texture::ResidencyExhausted&){return native_texture::OutOfVideoMemory;}catch(const std::bad_alloc&){return native_texture::OutOfMemory;}
 #endif
 }
 DeviceResult Dirty(IDirect3DTexture9* texture,std::nullptr_t) {
@@ -45,21 +50,23 @@ DeviceResult Dirty(IDirect3DTexture9* texture,std::nullptr_t) {
 #ifdef _WIN32
     return texture->AddDirtyRect(nullptr);
 #else
-    throw Unsupported("unmanaged texture dirty notification unavailable");
+    auto t=native_texture::Find(texture);if(t->usage&1u)throw Unsupported("render texture cannot use AddDirtyRect");t->dirty=true;return 0;
 #endif
 }
 DeviceResult Update(IDirect3DTexture9* source,IDirect3DTexture9* destination) {
 #ifdef _WIN32
     return Device().UpdateTexture(source,destination);
 #else
-    (void)source;(void)destination;(void)ReadyDevice();throw Unsupported("unmanaged texture update unavailable");
+    try{native_texture::Update(source,destination);return 0;}
+    catch(const native_texture::ResidencyExhausted&){return native_texture::OutOfVideoMemory;}
+    catch(const std::bad_alloc&){return native_texture::OutOfMemory;}
 #endif
 }
 DeviceResult CopySurface(IDirect3DSurface9* destination,IDirect3DSurface9* source) {
 #ifdef _WIN32
     return D3DXLoadSurfaceFromSurface(destination,nullptr,nullptr,source,nullptr,nullptr,D3DX_FILTER_NONE,0);
 #else
-    (void)destination;(void)source;(void)ReadyDevice();throw Unsupported("unmanaged texture surface copy unavailable");
+    try{native_surfaces::Copy(source,destination);return 0;}catch(const native_texture::ResidencyExhausted&){return native_texture::OutOfVideoMemory;}catch(const std::bad_alloc&){return native_texture::OutOfMemory;}
 #endif
 }
 DeviceResult DecodeBitmap(const void* bytes,std::size_t size,std::uint32_t levels,IDirect3DTexture9** output) {

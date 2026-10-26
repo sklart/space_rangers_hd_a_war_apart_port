@@ -33,6 +33,7 @@ def prepare_skin_manager(output):
     fixed=clear.replace(old,old+'''
         m_Skins[gsp] = NULL;
         m_SkinsCount[gsp] = 0;''')
+    fixed=fixed.replace('{','{\n    srhd_awa::matrixgame::InvalidateBorrowedSkins(CSkinManager::GetSkin);',1)
     text=text.replace(clear,fixed)
     prelude='''#include "Texture.hpp"
 #include "render_pipeline_backend.hpp"

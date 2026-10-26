@@ -1,5 +1,13 @@
 # MatrixGame Switch plan
 
+Актуальный план на 25.10.2026: [подсистемы, подтверждения и порядок интеграции
+Switch](matrixgame-readiness-plan.md). Ниже сохранена история плана; прежние
+статусы не являются текущими блокерами. Исходная Windows-версия уже существует;
+MG-1 используется как ограниченная контрольная проверка переноса, без отдельной
+цели выпуска Windows-продукта. В E2E-5.20 Windows контрольный Init/первый кадр
+достигнут; [результаты](../reports/matrixgame-e2e520-first-frame.md).
+Первый кадр и бой на Switch остаются открытыми.
+
 Observed `MatrixGame.dll` imports: `WINMM`, `d3d9`, `d3dx9_43`, `KERNEL32`, `USER32`, `GDI32`, `ADVAPI32`, `SHELL32`. It is loaded as a separate x86 Windows binary and cannot run on ARM64 Horizon.
 
 ## Исходники в проекте

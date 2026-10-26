@@ -26,11 +26,44 @@ def prepare_effects(output):
            ('MatrixGame/src/Effects/MatrixEffectZahvat.cpp','CMatrixEffectZahvat::CMatrixEffectZahvat('),
            ('MatrixGame/src/Effects/MatrixEffectBillboard.cpp','CMatrixEffectBillboard::CMatrixEffectBillboard('),
            ('MatrixGame/src/Effects/MatrixEffectDust.cpp','CMatrixEffectDust::CMatrixEffectDust('),
-           ('MatrixGame/src/Effects/MatrixEffectMoveTo.cpp','CMatrixEffectMoveto::CMatrixEffectMoveto(')]
+           ('MatrixGame/src/Effects/MatrixEffectMoveTo.cpp','CMatrixEffectMoveto::CMatrixEffectMoveto('),
+           ('MatrixGame/src/Effects/MatrixEffectPath.cpp','CMatrixEffectPath::CMatrixEffectPath(')]
     for name,marker in units:
         path=output/name;text=path.read_text(encoding='utf-8')
         text=text.replace('(CTextureManaged *)g_Cache->Get(CacheClass::TextureManaged, ','effect_texture::GetManaged(')
         text=adapt(text)
+        if name.endswith('/MatrixEffectPath.cpp'):
+            start=text.index('    std::uint8_t *old_base = (std::uint8_t *)m_Dots;')
+            end=text.index('#undef REBASE',start)+len('#undef REBASE')
+            # realloc may move in either direction on ARM64; preserve null
+            # endpoints and rebase stored addresses without pointer subtraction
+            # across the old (freed) and new allocations or 32-bit truncation.
+            text=text[:start]+'''    // Capture every offset while the original allocation is still alive.
+    // Zero encodes nullptr; index zero is encoded as one.
+    const auto encode = [this](SPathDot *ptr) -> std::size_t {
+        return ptr ? static_cast<std::size_t>(ptr - m_Dots) + 1 : 0;
+    };
+    const auto first = encode(m_First), last = encode(m_Last);
+    std::vector<std::size_t> links;
+    links.reserve(static_cast<std::size_t>(m_DotsCnt) * 2);
+    for (int i = 0; i < m_DotsCnt; ++i) {
+        links.push_back(encode(m_Dots[i].next));
+        links.push_back(encode(m_Dots[i].prev));
+    }
+    auto *replacement = (SPathDot *)HAllocEx(m_Dots, sizeof(SPathDot) * m_DotsMax1, m_Heap);
+    m_Dots = replacement; // HAllocEx throws on failure; the old owner survives.
+    m_DotsMax = m_DotsMax1;
+    const auto decode = [this](std::size_t index) -> SPathDot * {
+        return index ? m_Dots + (index - 1) : nullptr;
+    };
+    m_First = decode(first);
+    m_Last = decode(last);
+    for (int i = 0; i < m_DotsCnt; ++i) {
+        m_Dots[i].next = decode(links[2 * i]);
+        m_Dots[i].prev = decode(links[2 * i + 1]);
+    }'''+text[end:]
+            text=text.replace('    m_DotsMax = m_DotsMax1;\n\n    // Capture', '    // Capture', 1)
+            text='#include <vector>\n'+text
         values={'D3DRS_ALPHAREF':'static_cast<srhd_awa::matrixgame::RasterRegister>(24)',
                 'D3DRS_CULLMODE':'static_cast<srhd_awa::matrixgame::RasterRegister>(22)',
                 'D3DCULL_NONE':'1u','D3DCULL_CCW':'3u','D3DPT_TRIANGLELIST':'4u',
@@ -111,7 +144,18 @@ bool srhd_awa::matrixgame::moving_object::InvokeHit(
     return MOEnum(center,object,properties);
 }
 '''
+        if name.endswith('/MatrixEffectPath.cpp'):
+            prelude='''#ifdef MATRIXGAME_PATH_TEST_ALLOCATOR
+#include <cstdlib>
+extern "C" void* matrix_path_realloc(void*,std::size_t);
+#define realloc matrix_path_realloc
+#endif
+'''+prelude
         path.write_bytes((prelude+text).encode());changes[name]=hashlib.sha256(path.read_bytes()).hexdigest()
+    name='MatrixGame/src/Effects/MatrixEffectPath.hpp';path=output/name
+    text=path.read_text(encoding='utf-8')
+    text=text.replace('    friend class CMatrixEffect;', '    friend class CMatrixEffect;\n    friend struct MatrixPathTestAccess;')
+    path.write_bytes(text.encode());changes[name]=hashlib.sha256(path.read_bytes()).hexdigest()
     # Full original Konus.cpp now owns its original statics. The earlier
     # selected defaults TU must not publish a second definition.
     name='MatrixGame/src/GameDefaultsNative.cpp';path=output/name

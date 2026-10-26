@@ -1,0 +1,52 @@
+# E2E-5.21: оригинальный Init и native providers
+
+Срез 25.10.2026. Это последовательность исходного кода, а не журнал успешного Switch Init. Native Init, PrepareMap и кадр на Switch НЕ ИСПОЛНЯЛИСЬ. Успешная SDK-линковка доказывает разрешение символов. Windows HAL полного Init/кадра — прежнее отдельное доказательство E2E-5.20/cursor; в текущем этапе выполнен только адресный font HAL.
+
+## Порядок создания и исполнения
+
+| Порядок | Исходный метод / владелец | Реальные операции, provider и граница доказательства |
+|---|---|---|
+| 1 | NativeRuntime, SwitchWindow, DekoDevice | Окно заимствует действительный NWindow. Device создаёт deko device/queue/shader pair/swapchain/color/depth/texture arena; runtime предоставляет CPU/cache/draw/skin contexts. SDK COMPILE/LINK, отдельные прежние CPU-тесты; физическое создание устройства не проверено. |
+| 2 | CGame::Init | ValidateEntry, seed, static_init, g_MatrixHeap, открытие robots.pkg, scoped CLoadProgress, чтение CFG/DAT, g_MatrixData, replacements, CacheInit, settings. Исходные алгоритмы сохранены. Ранее исполнялись в полном Windows Init; native-последовательность пока только анализ/линковка. |
+| 3 | original_game_owner::EnterPlatform → AttachDeviceImpl | AttachNative активирует HID и applet lifecycle, сохраняет baseline; ReadCaps проверяет shader pair, AvailableTextureBytes использует реальный arena budget, CaptureState выдаёт restore lease. Это отдельный lease, не реализация всех CDeviceState. Прежние адресные CPU-проверки + SDK; физические IPC/GPU/OOM ещё не проверены. |
+| 4 | CRenderPipeline; Window::Show/Update; g_Config | Выбор оригинальных material callbacks, настоящий applet pump, settings/samplers/camera configuration. Нет подстановки caps ради успешного входа. |
+| 5 | HNew CMatrixMapLogic → CMatrixMap | Члены создаются в порядке ОБЪЯВЛЕНИЯ: RoadNetwork m_RN, m_Console, m_DI, позднее transition/minimap, m_Cursor и m_Camera; строковые/контейнерные члены конструируются на своих местах. m_DI раньше m_Cursor и m_Camera независимо от записи initializer list. После членов — тело CMatrixMap, CSound::Init/настройки сложности; затем тело CMatrixMapLogic (списки/path/zones/RNG). Публикация g_MatrixMap только после возврата конструктора. |
+| 6 | CMatrixDebugInfo::CMatrixDebugInfo → df::Create → CreateFor | Реальный шрифт, немедленный upload атласа. Сейчас закрыто в native коде; оригинальный владелец ctor/T/Takt/lost/reset/dtor исполнился в host/ARM64 CPU fixture. Полный native CMatrixMap не исполнялся. |
+| 7 | CMatrixCursor; LoadSide; CIFaceList | ExchangeCursor сохраняет прежний/null cursor; исходный CIFaceList создаёт CBuf clear rects и CIFaceCounter. Владельцы — map/interface globals. Cursor/input программно принят, HARDWARE PENDING. |
+| 8 | CMatrixMap::RobotPreload | Оригинальный CVectorObject::PrepareSpecial(OLF_MULTIMATERIAL_ONLY, CSkinManager::GetSkin, GSP_SIDE) для голов/шасси/оружия/корпусов и pneumatic data. Объекты принадлежат cache, skin metadata использует cache refs. Предыдущие CPU/Windows проверки; фактический общий бюджет Switch не доказан. |
+| 9 | CGame::Init: CStorage stor; stor.Load(mapname) | Реальный package/storage parser; Map из CFG, если нет явного override. Текущий default Matrix/Map/desert1_3e.cmap найден и разобран read-only; это НЕ выполнение native stor.Load. |
+| 10 | CMatrixMap::PrepareMap | SetVideoMaterial, свойства, возможная macrotexture, UnitInit/points/moves/normals/IDs; затем BuildTexUnions. SetVideoMaterial/нужные registers подключены. Первый известный оставшийся guard выбранного пути описан ниже. |
+| 11 | PrepareMap после BuildTexUnions | GroupBuild, коэффициенты terrain, inshore/water, мосты, CTerSurface::LoadM/Load, ReloadDynamics buildings/objects/cannons/effects, RoadNetwork::Load/InitPL, group visibility, StaticPrepare и ресурсы теней/роботов. Выполнение на Switch не доказано; нельзя считать эту часть закрытой по наличию символов. |
+| 12 | CGame::Init после PrepareMap | CalcCannonPlace, LoadAIRobotType, UI configuration/history, CMatrixHint::PreloadBitmaps, popup arrays. Затем ApplyVideoParams — ПОСЛЕ PrepareMap. Далее CInterface::Load, menu/constructor buttons, transition, InitEffects, CreatePoolDefaultResources(true), InitObjectsLights, selection/cursor/dialog. CreatePoolDefaultResources вызывается непосредственно Init, не следует переносить его в CFormMatrixGame::Enter. |
+| 13 | Native entry / CFormMatrixGame | После успешного InitializeNativeGame — адресный original debug-font lost/reset cycle, затем acquire/frame и исходный form Draw. Настоящий цикл Takt/Draw, карта, изображение и battle input на Switch остаются открытыми. |
+
+## Первый известный неподдержанный путь карты
+
+CGame::Init → CMatrixMap::PrepareMap → BuildTexUnions → CBottomTextureUnion::MakeFromBitmap → CTextureManaged::LoadFromBitmap(bitmap, DXT1, 6) → legacy_texture::DecodeFormatted → native_texture::Decode.
+
+Native Decode бросает точное исключение: **native texture formatted decode conversion**. Нужен настоящий RGBA → BC1/DXT1 encode с исходной семантикой и ровно шестью box mip levels; существующая генерация полного mip chain также требует адресной адаптации для explicit level count. Подмена RGBA без компрессии не закрывает этот контракт.
+
+Реальный default cmap имеет 6 texunion arrays по 256 int cells, 1534 bottom arrays и 23 embedded bitmap arrays. Исходный TEX_BOTTOM_SIZE=64, union dim=16: составной атлас 1024×1024. Инвентаризация и SHA — font/map-inventory.json. Негативный ASan/UBSan probe передал реальный исходный PNG из package в тот же formatted native Decode с DXT1/6: Unsupported до публикации и upload (0). Он НЕ выполнял полный BuildTexUnions/PrepareMap и не доказывает исчерпывающую достижимость на устройстве. Это первый известный guard по анализу выбранного пути, при успехе предшествующих операций; IPC/память/другой ресурс могут отказать раньше.
+
+## Остальные необходимые пути: источник, provider, ownership, доказательство
+
+| Исходный потребитель / метод | Нужный native provider | Ресурс и cleanup | Что доказано / что предстоит |
+|---|---|---|---|
+| CBottomTextureUnion::MakeFromBitmap; CTextureManaged::LoadFromBitmap | native_texture formatted BC1 encode и explicit mip policy | Texture union владеет managed texture; кандидат публикуется после успешного decode. В BuildTexUnions временные CBitmap удаляются после MakeFromBitmap: failure unwind этого оригинального участка требует отдельной проверки, безопасный cleanup не объявлен доказанным. | Реальный input + точный backend guard ASan/UBSan. Encode/mip/upload карты НЕ реализованы. |
+| CDeviceState::StoreState/RestoreState, CMatrixMap resource loss/reset | map_device::StoredStateBackend | Снимок должен удерживать настоящие bindings/refcounts и восстанавливать их до уничтожения borrowed device. | NativeRuntime CaptureState уже реализован; map StateBackend по-прежнему Unsupported. Не смешивать эти контракты. |
+| CGame::ApplyVideoParams | Device::ReadCreationParameters/ReadAdapterDisplayMode/CheckMultisample/ResetPresentation; Window geometry/style/resize | Реальная presentation, swapchain/color/depth и зависимые ресурсы; lost → wait/release → recreate → reset → restore при живом устройстве. | Первая неподдержанная операция этого метода — ReadCreationParameters; метод расположен после PrepareMap. Полный Windows resize/reset ранее проверен; native аналог не закрыт. |
+| CMinimap и CMatrixMap::CreatePoolDefaultResources; CTransition | offscreen render target/depth/surface/bind/viewport/scene/readback provider | Владелец minimap/transition/map; borrowed target/depth должны удерживаться и восстанавливаться, GPU work завершаться до release. | Native texture render-target usage и соответствующие offscreen операции открыты; потребность конкретной ветки определяется после устранения предыдущего guard. |
+| CMatrixMap::StaticPrepare; projected/stencil shadow потребители | shadow texture/offscreen, stencil caps/state | Shadow texture/object/map ownership, исходные releases и восстановление прежних targets/depth. | Draw symbols/предыдущий Windows кадр не доказывают native shadow ресурсы; RasterCaps/StencilCaps query paths открыты. |
+| Text::CFont и интерфейсы/hints | text_backend::CreateTextFont/DescribeFont/MeasureSpace/CreateRenderSurface/BeginScene/EndScene | Общие text fonts/surfaces живут по original owner; release до device teardown. | Native debug font НЕ реализует произвольные UI-шрифты. Эти text операции пока Unsupported. |
+| Bitmap::DecodeBitmap/Surface/CopySurface потребители | native image conversion/readback/copy | CPU bitmap и GPU surface различаются по владельцу; явное удержание поверхности и завершение GPU copy. | Подключать только после подтверждения конкретного вызова; общего native surface backend пока нет. |
+| CMatrixMap device loss/ресурсные запросы | map_device::CooperativeLevel, RasterCaps/StencilCaps | Состояние устройства отражает реальную очередь/presentation; никаких фиктивных OK/caps. | Остались Unsupported. Native draw/transform уже маршрутизируются в NativeGraphics, но это не закрывает loss recovery. |
+
+## Cleanup и границы
+
+При constructor throw C++ разматывает только уже построенные члены; поэтому debug font должен корректно уничтожаться даже до публикации g_MatrixMap. Адресный тест исходного CMatrixDebugInfo и Session::Close/Rebind проверяет эту часть, не весь CMatrixMap unwind.
+
+NativeRuntime::FinishOriginalGame вызывает FinishLoadProgress и CGame::Deinit. В исходном Deinit: AIRobot/config → render pipeline → hints → map (Clear и деструкторы членов, включая font/cursor) → MatrixData → pneumatic data → interface/history/menu/popup arrays и оставшиеся globals. Runtime снимает свои scopes/attachment и восстанавливает lease при живом borrowed device. Внешний DekoDevice уничтожается после runtime: queue.waitIdle, font Session::Close, packets/state, texture session/arena, queue/device. NWindow остаётся собственностью хозяина. CGame::SafeFree — отдельный путь; его нельзя выдавать за вызов FinishOriginalGame.
+
+Доказано только адресное font recovery: lost/repeated lost, отказ reset/upload, повторный reset, перенос на новую session/device с теми же данными, закрытие старой session и уничтожение владельца. Физическая потеря/пересоздание Switch presentation пока HARDWARE PENDING; это потребует ещё незакрытого presentation provider.
+
+Следующий адресный этап — BC1/шесть mips для оригинальных texture unions, затем фактически достигнутые offscreen/shadow/presentation/text guard. Init завершённым НЕ объявляется.

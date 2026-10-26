@@ -8,6 +8,11 @@
 #include "platform_win32.hpp"
 #endif
 #include "debug_font_backend.hpp"
+#ifndef _WIN32
+#include "native_debug_font.hpp"
+#include "native_graphics.hpp"
+#include "staging_draw.hpp"
+#endif
 namespace srhd_awa::matrixgame::debug_font {
 namespace p=platform3g;
 #ifdef _WIN32
@@ -42,16 +47,22 @@ int DrawTextWide(ID3DXFont* font,const wchar_t* text,int count,TextRect& bounds,
 p::DeviceResult Lost(ID3DXFont* font){return static_cast<p::DeviceResult>(Font(font).OnLostDevice());}
 p::DeviceResult Reset(ID3DXFont* font){return static_cast<p::DeviceResult>(Font(font).OnResetDevice());}
 p::DeviceResult DrawPrimitiveUP(std::uint32_t type,std::uint32_t count,const void* data,std::uint32_t stride) {
-    return static_cast<p::DeviceResult>(ActualDevice(p::ReadyDevice()).DrawPrimitiveUP(
-        static_cast<D3DPRIMITIVETYPE>(type),count,data,stride));
+    const auto result=ActualDevice(p::ReadyDevice()).DrawPrimitiveUP(static_cast<D3DPRIMITIVETYPE>(type),count,data,stride);
+    if(SUCCEEDED(result))dynamic_cast<p::D3D9Device&>(p::ReadyDevice()).RecordDraw(false,count,type,data,stride);
+    return static_cast<p::DeviceResult>(result);
 }
 #else
-p::DeviceResult CreateFor(p::Device&,ID3DXFont**){throw p::Unsupported("debug font SDK creation unavailable on this backend");}
-void Release(ID3DXFont* font)noexcept {if(font)std::terminate();}
-int DrawTextWide(ID3DXFont*,const wchar_t*,int,TextRect&,std::uint32_t,std::uint32_t){throw p::Unsupported("debug font draw backend unavailable");}
-p::DeviceResult Lost(ID3DXFont*){throw p::Unsupported("debug font lost-device backend unavailable");}
-p::DeviceResult Reset(ID3DXFont*){throw p::Unsupported("debug font reset backend unavailable");}
-p::DeviceResult DrawPrimitiveUP(std::uint32_t,std::uint32_t,const void*,std::uint32_t){throw p::Unsupported("debug font immediate draw backend unavailable");}
+p::DeviceResult CreateFor(p::Device& device,ID3DXFont** out){return native::CreateFor(device,out);}
+void Release(ID3DXFont* font)noexcept {native::Release(font);}
+int DrawTextWide(ID3DXFont* font,const wchar_t* text,int count,TextRect& bounds,std::uint32_t flags,std::uint32_t color){return native::Find(font).Draw(text,count,bounds,flags,color);}
+p::DeviceResult Lost(ID3DXFont* font){native::Find(font).Lost();return 0;}
+p::DeviceResult Reset(ID3DXFont* font){native::ResetFor(p::ReadyDevice(),font);return 0;}
+p::DeviceResult DrawPrimitiveUP(std::uint32_t kind,std::uint32_t count,const void* data,std::uint32_t stride){
+    auto* graphics=dynamic_cast<p::NativeGraphics*>(&p::ReadyDevice());if(!graphics)throw p::Unsupported("debug font immediate draw requires native graphics");
+    const auto bytes=std::uint64_t(staging_draw::ElementCount(kind,count))*stride;
+    if(!data || bytes>256*1024*1024)throw std::invalid_argument("debug background geometry extent");
+    return graphics->NativeDrawUP(kind,count,{static_cast<const std::byte*>(data),std::size_t(bytes)},stride);
+}
 #endif
 p::DeviceResult Create(ID3DXFont** out) {
     try{return CreateFor(p::ReadyDevice(),out);}

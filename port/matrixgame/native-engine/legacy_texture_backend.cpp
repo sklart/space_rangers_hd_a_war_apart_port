@@ -7,6 +7,9 @@
 #include <d3dx9tex.h>
 #endif
 #include "legacy_texture_backend.hpp"
+#ifndef _WIN32
+#include "native_texture.hpp"
+#endif
 #include "texture_asset.hpp"
 #include <cstring>
 #include <exception>
@@ -97,21 +100,23 @@ p::DeviceResult DecodeFormatted(const void* bytes,std::size_t size,std::uint32_t
     *out=candidate;return static_cast<p::DeviceResult>(result);
 }
 #else
-namespace {[[noreturn]]void Unsupported(const char* call){
-    try{(void)p::ReadyDevice();}
-    catch(const p::Unsupported& error){throw p::Unsupported(std::string("original texture ")+call+": "+error.what());}
-    throw p::Unsupported(std::string("original texture ")+call+": SDK operation unavailable on this backend");
-}}
-void Release(IDirect3DTexture9* texture)noexcept {if(texture)std::terminate();}
-void Preload(IDirect3DTexture9*){Unsupported("PreLoad");}
-std::uint32_t SetPriority(IDirect3DTexture9*,std::uint32_t){Unsupported("SetPriority");}
-std::uint32_t LevelCount(IDirect3DTexture9*){Unsupported("GetLevelCount");}
-p::DeviceResult Describe(IDirect3DTexture9*,std::uint32_t,LevelDesc*){Unsupported("GetLevelDesc");}
-p::DeviceResult Lock(IDirect3DTexture9*,std::uint32_t,LockedRect*,std::nullptr_t,std::uint32_t){Unsupported("LockRect");}
-p::DeviceResult LockRegion(IDirect3DTexture9*,std::uint32_t,LockedRect*,const TextureRect&,std::uint32_t){Unsupported("LockRect region");}
-p::DeviceResult Unlock(IDirect3DTexture9*,std::uint32_t){Unsupported("UnlockRect");}
-p::DeviceResult Create(std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**,std::uintptr_t){Unsupported("CreateTexture");}
-p::DeviceResult Decode(const void*,std::size_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**){Unsupported("DecodeTexture");}
-p::DeviceResult DecodeFormatted(const void*,std::size_t,std::uint32_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**){Unsupported("DecodeFormattedTexture");}
+namespace {
+template<class F>p::DeviceResult AllocateCall(F&& call){
+    try{return call();}
+    catch(const native_texture::ResidencyExhausted&){return native_texture::OutOfVideoMemory;}
+    catch(const std::bad_alloc&){return native_texture::OutOfMemory;}
+}
+}
+void Release(IDirect3DTexture9* t)noexcept {native_texture::Release(t);}
+void Preload(IDirect3DTexture9* t){native_texture::Preload(t);}
+std::uint32_t SetPriority(IDirect3DTexture9* t,std::uint32_t v){return native_texture::Priority(t,v);}
+std::uint32_t LevelCount(IDirect3DTexture9* t){return native_texture::Levels(t);}
+p::DeviceResult Describe(IDirect3DTexture9* t,std::uint32_t l,LevelDesc* out){return native_texture::Describe(t,l,out);}
+p::DeviceResult Lock(IDirect3DTexture9* t,std::uint32_t l,LockedRect* out,std::nullptr_t,std::uint32_t f){return native_texture::Lock(t,l,out,nullptr,f);}
+p::DeviceResult LockRegion(IDirect3DTexture9* t,std::uint32_t l,LockedRect* out,const TextureRect& r,std::uint32_t f){return native_texture::Lock(t,l,out,&r,f);}
+p::DeviceResult Unlock(IDirect3DTexture9* t,std::uint32_t l){return native_texture::Unlock(t,l);}
+p::DeviceResult Create(std::uint32_t w,std::uint32_t h,std::uint32_t l,std::uint32_t u,std::uint32_t f,std::uint32_t pool,IDirect3DTexture9** out,std::uintptr_t shared){if(shared)throw p::Unsupported("shared native texture unsupported");return AllocateCall([&]{return native_texture::Create(w,h,l,u,f,pool,out);});}
+p::DeviceResult Decode(const void* b,std::size_t n,std::uint32_t l,std::uint32_t pool,IDirect3DTexture9** out){return AllocateCall([&]{return native_texture::Decode(b,n,l,0,pool,out);});}
+p::DeviceResult DecodeFormatted(const void* b,std::size_t n,std::uint32_t l,std::uint32_t f,std::uint32_t pool,IDirect3DTexture9** out){return AllocateCall([&]{return native_texture::Decode(b,n,l,f,pool,out);});}
 #endif
 }

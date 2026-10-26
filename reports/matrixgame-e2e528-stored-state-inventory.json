@@ -1,0 +1,923 @@
+{
+  "scope": "SOURCE ANALYSIS ONLY; no StoredStateBackend added, no GPU/runtime PASS",
+  "render_count": 103,
+  "sampler_count_per_slot": 13,
+  "sampler_slots": 8,
+  "light_slots": 8,
+  "material": true,
+  "render": [
+    {
+      "original_ordinal": 0,
+      "sdk_register": "D3DRS_ZENABLE",
+      "numeric_id": 7,
+      "native_setter_route": true,
+      "native_initial_raw_register": true
+    },
+    {
+      "original_ordinal": 1,
+      "sdk_register": "D3DRS_FILLMODE",
+      "numeric_id": 8,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 2,
+      "sdk_register": "D3DRS_SHADEMODE",
+      "numeric_id": 9,
+      "native_setter_route": true,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 3,
+      "sdk_register": "D3DRS_ZWRITEENABLE",
+      "numeric_id": 14,
+      "native_setter_route": true,
+      "native_initial_raw_register": true
+    },
+    {
+      "original_ordinal": 4,
+      "sdk_register": "D3DRS_ALPHATESTENABLE",
+      "numeric_id": 15,
+      "native_setter_route": true,
+      "native_initial_raw_register": true
+    },
+    {
+      "original_ordinal": 5,
+      "sdk_register": "D3DRS_LASTPIXEL",
+      "numeric_id": 16,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 6,
+      "sdk_register": "D3DRS_SRCBLEND",
+      "numeric_id": 19,
+      "native_setter_route": true,
+      "native_initial_raw_register": true
+    },
+    {
+      "original_ordinal": 7,
+      "sdk_register": "D3DRS_DESTBLEND",
+      "numeric_id": 20,
+      "native_setter_route": true,
+      "native_initial_raw_register": true
+    },
+    {
+      "original_ordinal": 8,
+      "sdk_register": "D3DRS_CULLMODE",
+      "numeric_id": 22,
+      "native_setter_route": true,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 9,
+      "sdk_register": "D3DRS_ZFUNC",
+      "numeric_id": 23,
+      "native_setter_route": true,
+      "native_initial_raw_register": true
+    },
+    {
+      "original_ordinal": 10,
+      "sdk_register": "D3DRS_ALPHAREF",
+      "numeric_id": 24,
+      "native_setter_route": true,
+      "native_initial_raw_register": true
+    },
+    {
+      "original_ordinal": 11,
+      "sdk_register": "D3DRS_ALPHAFUNC",
+      "numeric_id": 25,
+      "native_setter_route": true,
+      "native_initial_raw_register": true
+    },
+    {
+      "original_ordinal": 12,
+      "sdk_register": "D3DRS_DITHERENABLE",
+      "numeric_id": 26,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 13,
+      "sdk_register": "D3DRS_ALPHABLENDENABLE",
+      "numeric_id": 27,
+      "native_setter_route": true,
+      "native_initial_raw_register": true
+    },
+    {
+      "original_ordinal": 14,
+      "sdk_register": "D3DRS_FOGENABLE",
+      "numeric_id": 28,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 15,
+      "sdk_register": "D3DRS_SPECULARENABLE",
+      "numeric_id": 29,
+      "native_setter_route": true,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 16,
+      "sdk_register": "D3DRS_FOGCOLOR",
+      "numeric_id": 34,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 17,
+      "sdk_register": "D3DRS_FOGTABLEMODE",
+      "numeric_id": 35,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 18,
+      "sdk_register": "D3DRS_FOGSTART",
+      "numeric_id": 36,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 19,
+      "sdk_register": "D3DRS_FOGEND",
+      "numeric_id": 37,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 20,
+      "sdk_register": "D3DRS_FOGDENSITY",
+      "numeric_id": 38,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 21,
+      "sdk_register": "D3DRS_RANGEFOGENABLE",
+      "numeric_id": 48,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 22,
+      "sdk_register": "D3DRS_STENCILENABLE",
+      "numeric_id": 52,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 23,
+      "sdk_register": "D3DRS_STENCILFAIL",
+      "numeric_id": 53,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 24,
+      "sdk_register": "D3DRS_STENCILZFAIL",
+      "numeric_id": 54,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 25,
+      "sdk_register": "D3DRS_STENCILPASS",
+      "numeric_id": 55,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 26,
+      "sdk_register": "D3DRS_STENCILFUNC",
+      "numeric_id": 56,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 27,
+      "sdk_register": "D3DRS_STENCILREF",
+      "numeric_id": 57,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 28,
+      "sdk_register": "D3DRS_STENCILMASK",
+      "numeric_id": 58,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 29,
+      "sdk_register": "D3DRS_STENCILWRITEMASK",
+      "numeric_id": 59,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 30,
+      "sdk_register": "D3DRS_TEXTUREFACTOR",
+      "numeric_id": 60,
+      "native_setter_route": true,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 31,
+      "sdk_register": "D3DRS_WRAP0",
+      "numeric_id": 128,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 32,
+      "sdk_register": "D3DRS_WRAP1",
+      "numeric_id": 129,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 33,
+      "sdk_register": "D3DRS_WRAP2",
+      "numeric_id": 130,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 34,
+      "sdk_register": "D3DRS_WRAP3",
+      "numeric_id": 131,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 35,
+      "sdk_register": "D3DRS_WRAP4",
+      "numeric_id": 132,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 36,
+      "sdk_register": "D3DRS_WRAP5",
+      "numeric_id": 133,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 37,
+      "sdk_register": "D3DRS_WRAP6",
+      "numeric_id": 134,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 38,
+      "sdk_register": "D3DRS_WRAP7",
+      "numeric_id": 135,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 39,
+      "sdk_register": "D3DRS_CLIPPING",
+      "numeric_id": 136,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 40,
+      "sdk_register": "D3DRS_LIGHTING",
+      "numeric_id": 137,
+      "native_setter_route": true,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 41,
+      "sdk_register": "D3DRS_AMBIENT",
+      "numeric_id": 139,
+      "native_setter_route": true,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 42,
+      "sdk_register": "D3DRS_FOGVERTEXMODE",
+      "numeric_id": 140,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 43,
+      "sdk_register": "D3DRS_COLORVERTEX",
+      "numeric_id": 141,
+      "native_setter_route": true,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 44,
+      "sdk_register": "D3DRS_LOCALVIEWER",
+      "numeric_id": 142,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 45,
+      "sdk_register": "D3DRS_NORMALIZENORMALS",
+      "numeric_id": 143,
+      "native_setter_route": true,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 46,
+      "sdk_register": "D3DRS_DIFFUSEMATERIALSOURCE",
+      "numeric_id": 145,
+      "native_setter_route": true,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 47,
+      "sdk_register": "D3DRS_SPECULARMATERIALSOURCE",
+      "numeric_id": 146,
+      "native_setter_route": true,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 48,
+      "sdk_register": "D3DRS_AMBIENTMATERIALSOURCE",
+      "numeric_id": 147,
+      "native_setter_route": true,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 49,
+      "sdk_register": "D3DRS_EMISSIVEMATERIALSOURCE",
+      "numeric_id": 148,
+      "native_setter_route": true,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 50,
+      "sdk_register": "D3DRS_VERTEXBLEND",
+      "numeric_id": 151,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 51,
+      "sdk_register": "D3DRS_CLIPPLANEENABLE",
+      "numeric_id": 152,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 52,
+      "sdk_register": "D3DRS_POINTSIZE",
+      "numeric_id": 154,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 53,
+      "sdk_register": "D3DRS_POINTSIZE_MIN",
+      "numeric_id": 155,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 54,
+      "sdk_register": "D3DRS_POINTSPRITEENABLE",
+      "numeric_id": 156,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 55,
+      "sdk_register": "D3DRS_POINTSCALEENABLE",
+      "numeric_id": 157,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 56,
+      "sdk_register": "D3DRS_POINTSCALE_A",
+      "numeric_id": 158,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 57,
+      "sdk_register": "D3DRS_POINTSCALE_B",
+      "numeric_id": 159,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 58,
+      "sdk_register": "D3DRS_POINTSCALE_C",
+      "numeric_id": 160,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 59,
+      "sdk_register": "D3DRS_MULTISAMPLEANTIALIAS",
+      "numeric_id": 161,
+      "native_setter_route": true,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 60,
+      "sdk_register": "D3DRS_MULTISAMPLEMASK",
+      "numeric_id": 162,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 61,
+      "sdk_register": "D3DRS_PATCHEDGESTYLE",
+      "numeric_id": 163,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 62,
+      "sdk_register": "D3DRS_DEBUGMONITORTOKEN",
+      "numeric_id": 165,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 63,
+      "sdk_register": "D3DRS_POINTSIZE_MAX",
+      "numeric_id": 166,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 64,
+      "sdk_register": "D3DRS_INDEXEDVERTEXBLENDENABLE",
+      "numeric_id": 167,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 65,
+      "sdk_register": "D3DRS_COLORWRITEENABLE",
+      "numeric_id": 168,
+      "native_setter_route": true,
+      "native_initial_raw_register": true
+    },
+    {
+      "original_ordinal": 66,
+      "sdk_register": "D3DRS_TWEENFACTOR",
+      "numeric_id": 170,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 67,
+      "sdk_register": "D3DRS_BLENDOP",
+      "numeric_id": 171,
+      "native_setter_route": true,
+      "native_initial_raw_register": true
+    },
+    {
+      "original_ordinal": 68,
+      "sdk_register": "D3DRS_POSITIONDEGREE",
+      "numeric_id": 172,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 69,
+      "sdk_register": "D3DRS_NORMALDEGREE",
+      "numeric_id": 173,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 70,
+      "sdk_register": "D3DRS_SCISSORTESTENABLE",
+      "numeric_id": 174,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 71,
+      "sdk_register": "D3DRS_SLOPESCALEDEPTHBIAS",
+      "numeric_id": 175,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 72,
+      "sdk_register": "D3DRS_ANTIALIASEDLINEENABLE",
+      "numeric_id": 176,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 73,
+      "sdk_register": "D3DRS_MINTESSELLATIONLEVEL",
+      "numeric_id": 178,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 74,
+      "sdk_register": "D3DRS_MAXTESSELLATIONLEVEL",
+      "numeric_id": 179,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 75,
+      "sdk_register": "D3DRS_ADAPTIVETESS_X",
+      "numeric_id": 180,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 76,
+      "sdk_register": "D3DRS_ADAPTIVETESS_Y",
+      "numeric_id": 181,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 77,
+      "sdk_register": "D3DRS_ADAPTIVETESS_Z",
+      "numeric_id": 182,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 78,
+      "sdk_register": "D3DRS_ADAPTIVETESS_W",
+      "numeric_id": 183,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 79,
+      "sdk_register": "D3DRS_ENABLEADAPTIVETESSELLATION",
+      "numeric_id": 184,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 80,
+      "sdk_register": "D3DRS_TWOSIDEDSTENCILMODE",
+      "numeric_id": 185,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 81,
+      "sdk_register": "D3DRS_CCW_STENCILFAIL",
+      "numeric_id": 186,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 82,
+      "sdk_register": "D3DRS_CCW_STENCILZFAIL",
+      "numeric_id": 187,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 83,
+      "sdk_register": "D3DRS_CCW_STENCILPASS",
+      "numeric_id": 188,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 84,
+      "sdk_register": "D3DRS_CCW_STENCILFUNC",
+      "numeric_id": 189,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 85,
+      "sdk_register": "D3DRS_COLORWRITEENABLE1",
+      "numeric_id": 190,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 86,
+      "sdk_register": "D3DRS_COLORWRITEENABLE2",
+      "numeric_id": 191,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 87,
+      "sdk_register": "D3DRS_COLORWRITEENABLE3",
+      "numeric_id": 192,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 88,
+      "sdk_register": "D3DRS_BLENDFACTOR",
+      "numeric_id": 193,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 89,
+      "sdk_register": "D3DRS_SRGBWRITEENABLE",
+      "numeric_id": 194,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 90,
+      "sdk_register": "D3DRS_DEPTHBIAS",
+      "numeric_id": 195,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 91,
+      "sdk_register": "D3DRS_WRAP8",
+      "numeric_id": 198,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 92,
+      "sdk_register": "D3DRS_WRAP9",
+      "numeric_id": 199,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 93,
+      "sdk_register": "D3DRS_WRAP10",
+      "numeric_id": 200,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 94,
+      "sdk_register": "D3DRS_WRAP11",
+      "numeric_id": 201,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 95,
+      "sdk_register": "D3DRS_WRAP12",
+      "numeric_id": 202,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 96,
+      "sdk_register": "D3DRS_WRAP13",
+      "numeric_id": 203,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 97,
+      "sdk_register": "D3DRS_WRAP14",
+      "numeric_id": 204,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 98,
+      "sdk_register": "D3DRS_WRAP15",
+      "numeric_id": 205,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 99,
+      "sdk_register": "D3DRS_SEPARATEALPHABLENDENABLE",
+      "numeric_id": 206,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 100,
+      "sdk_register": "D3DRS_SRCBLENDALPHA",
+      "numeric_id": 207,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 101,
+      "sdk_register": "D3DRS_DESTBLENDALPHA",
+      "numeric_id": 208,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    },
+    {
+      "original_ordinal": 102,
+      "sdk_register": "D3DRS_BLENDOPALPHA",
+      "numeric_id": 209,
+      "native_setter_route": false,
+      "native_initial_raw_register": false
+    }
+  ],
+  "sampler": [
+    {
+      "original_ordinal": 0,
+      "sdk_register": "D3DSAMP_ADDRESSU",
+      "numeric_id": 1,
+      "native_setter_getter_route": true
+    },
+    {
+      "original_ordinal": 1,
+      "sdk_register": "D3DSAMP_ADDRESSV",
+      "numeric_id": 2,
+      "native_setter_getter_route": true
+    },
+    {
+      "original_ordinal": 2,
+      "sdk_register": "D3DSAMP_ADDRESSW",
+      "numeric_id": 3,
+      "native_setter_getter_route": true
+    },
+    {
+      "original_ordinal": 3,
+      "sdk_register": "D3DSAMP_BORDERCOLOR",
+      "numeric_id": 4,
+      "native_setter_getter_route": false
+    },
+    {
+      "original_ordinal": 4,
+      "sdk_register": "D3DSAMP_MAGFILTER",
+      "numeric_id": 5,
+      "native_setter_getter_route": true
+    },
+    {
+      "original_ordinal": 5,
+      "sdk_register": "D3DSAMP_MINFILTER",
+      "numeric_id": 6,
+      "native_setter_getter_route": true
+    },
+    {
+      "original_ordinal": 6,
+      "sdk_register": "D3DSAMP_MIPFILTER",
+      "numeric_id": 7,
+      "native_setter_getter_route": true
+    },
+    {
+      "original_ordinal": 7,
+      "sdk_register": "D3DSAMP_MIPMAPLODBIAS",
+      "numeric_id": 8,
+      "native_setter_getter_route": true
+    },
+    {
+      "original_ordinal": 8,
+      "sdk_register": "D3DSAMP_MAXMIPLEVEL",
+      "numeric_id": 9,
+      "native_setter_getter_route": false
+    },
+    {
+      "original_ordinal": 9,
+      "sdk_register": "D3DSAMP_MAXANISOTROPY",
+      "numeric_id": 10,
+      "native_setter_getter_route": true
+    },
+    {
+      "original_ordinal": 10,
+      "sdk_register": "D3DSAMP_SRGBTEXTURE",
+      "numeric_id": 11,
+      "native_setter_getter_route": false
+    },
+    {
+      "original_ordinal": 11,
+      "sdk_register": "D3DSAMP_ELEMENTINDEX",
+      "numeric_id": 12,
+      "native_setter_getter_route": false
+    },
+    {
+      "original_ordinal": 12,
+      "sdk_register": "D3DSAMP_DMAPOFFSET",
+      "numeric_id": 13,
+      "native_setter_getter_route": false
+    }
+  ],
+  "native_render_setter_routes": 24,
+  "missing_native_render_setter_routes": [
+    "D3DRS_FILLMODE",
+    "D3DRS_LASTPIXEL",
+    "D3DRS_DITHERENABLE",
+    "D3DRS_FOGENABLE",
+    "D3DRS_FOGCOLOR",
+    "D3DRS_FOGTABLEMODE",
+    "D3DRS_FOGSTART",
+    "D3DRS_FOGEND",
+    "D3DRS_FOGDENSITY",
+    "D3DRS_RANGEFOGENABLE",
+    "D3DRS_STENCILENABLE",
+    "D3DRS_STENCILFAIL",
+    "D3DRS_STENCILZFAIL",
+    "D3DRS_STENCILPASS",
+    "D3DRS_STENCILFUNC",
+    "D3DRS_STENCILREF",
+    "D3DRS_STENCILMASK",
+    "D3DRS_STENCILWRITEMASK",
+    "D3DRS_WRAP0",
+    "D3DRS_WRAP1",
+    "D3DRS_WRAP2",
+    "D3DRS_WRAP3",
+    "D3DRS_WRAP4",
+    "D3DRS_WRAP5",
+    "D3DRS_WRAP6",
+    "D3DRS_WRAP7",
+    "D3DRS_CLIPPING",
+    "D3DRS_FOGVERTEXMODE",
+    "D3DRS_LOCALVIEWER",
+    "D3DRS_VERTEXBLEND",
+    "D3DRS_CLIPPLANEENABLE",
+    "D3DRS_POINTSIZE",
+    "D3DRS_POINTSIZE_MIN",
+    "D3DRS_POINTSPRITEENABLE",
+    "D3DRS_POINTSCALEENABLE",
+    "D3DRS_POINTSCALE_A",
+    "D3DRS_POINTSCALE_B",
+    "D3DRS_POINTSCALE_C",
+    "D3DRS_MULTISAMPLEMASK",
+    "D3DRS_PATCHEDGESTYLE",
+    "D3DRS_DEBUGMONITORTOKEN",
+    "D3DRS_POINTSIZE_MAX",
+    "D3DRS_INDEXEDVERTEXBLENDENABLE",
+    "D3DRS_TWEENFACTOR",
+    "D3DRS_POSITIONDEGREE",
+    "D3DRS_NORMALDEGREE",
+    "D3DRS_SCISSORTESTENABLE",
+    "D3DRS_SLOPESCALEDEPTHBIAS",
+    "D3DRS_ANTIALIASEDLINEENABLE",
+    "D3DRS_MINTESSELLATIONLEVEL",
+    "D3DRS_MAXTESSELLATIONLEVEL",
+    "D3DRS_ADAPTIVETESS_X",
+    "D3DRS_ADAPTIVETESS_Y",
+    "D3DRS_ADAPTIVETESS_Z",
+    "D3DRS_ADAPTIVETESS_W",
+    "D3DRS_ENABLEADAPTIVETESSELLATION",
+    "D3DRS_TWOSIDEDSTENCILMODE",
+    "D3DRS_CCW_STENCILFAIL",
+    "D3DRS_CCW_STENCILZFAIL",
+    "D3DRS_CCW_STENCILPASS",
+    "D3DRS_CCW_STENCILFUNC",
+    "D3DRS_COLORWRITEENABLE1",
+    "D3DRS_COLORWRITEENABLE2",
+    "D3DRS_COLORWRITEENABLE3",
+    "D3DRS_BLENDFACTOR",
+    "D3DRS_SRGBWRITEENABLE",
+    "D3DRS_DEPTHBIAS",
+    "D3DRS_WRAP8",
+    "D3DRS_WRAP9",
+    "D3DRS_WRAP10",
+    "D3DRS_WRAP11",
+    "D3DRS_WRAP12",
+    "D3DRS_WRAP13",
+    "D3DRS_WRAP14",
+    "D3DRS_WRAP15",
+    "D3DRS_SEPARATEALPHABLENDENABLE",
+    "D3DRS_SRCBLENDALPHA",
+    "D3DRS_DESTBLENDALPHA",
+    "D3DRS_BLENDOPALPHA"
+  ],
+  "missing_native_sampler_routes": [
+    "D3DSAMP_BORDERCOLOR",
+    "D3DSAMP_MAXMIPLEVEL",
+    "D3DSAMP_SRGBTEXTURE",
+    "D3DSAMP_ELEMENTINDEX",
+    "D3DSAMP_DMAPOFFSET"
+  ],
+  "native_light_material_getter_adapter": "NOT IMPLEMENTED; preserve original raw values, enable state and absent Type=0 semantics",
+  "guard": "CMatrixMap::ReleasePoolDefaultResources -> map_device::StateBackend -> map stored device state backend unavailable",
+  "ownership": "CMatrixMap owns original CDeviceState allocated by HNew(g_MatrixHeap); restore/delete in CreatePoolDefaultResources or delete on map destruction",
+  "native_capture_lease_equivalent_to_original_CDeviceState": false,
+  "ordinal_numeric_id_cast_valid": false,
+  "initial_fillmode_gap": {
+    "original_ordinal": 1,
+    "sdk_register": "D3DRS_FILLMODE",
+    "numeric_id": 8,
+    "native_setter_route": false,
+    "native_initial_raw_register": false
+  },
+  "source_sha256": {
+    "upstream/matrixgame/MatrixLib/3G/DeviceState.cpp": "9eab7faecf884ee70905bd5d2fcfd1d6606c5641901a06203dfa254144d943cc",
+    "port/matrixgame/native-engine/native_device_state.cpp": "7b4c3e2f0bdc6ef2ec1d61ef59321da63040d6858282ff2bf27e1cf232bb6e23",
+    "port/matrixgame/native-engine/platform_switch.cpp": "5008f47ddb28da7ee6efade6496695981a377c28901e6b463b9b9fc4f7dbdc3e",
+    "port/matrixgame/native-engine/platform_switch.hpp": "fd238c4759e43a9252ab7e891c0a05896fa28fdd644fef5ba65dc55898fd82ef",
+    "port/matrixgame/deko/fixed_vertex.cpp": "082fb8ff6401f1a59d81243085623905ec9d6857f0d6ca81922805149bc35684",
+    "port/matrixgame/deko/raster_state.hpp": "104b4b62c0ad9073792013ff4e381eb22abd5514d73a029016630a435baf2c76",
+    "port/matrixgame/deko/sampler_state.hpp": "2c82a409d3897f027def0a68aadbd4c0a58c2a803b08b501efd7cb7f103306d9"
+  },
+  "sdk_types_path": "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\shared\\d3d9types.h",
+  "sdk_types_sha256": "ce75dc368d5f37506ada4c32062a96ab4d4894fead5d21ad5844fc9f0a2e62c2"
+}

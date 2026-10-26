@@ -49,6 +49,37 @@ def prepare_shadow_texture(output):
     text=text.replace('newTarget->UnlockRect()','shadow_surface::Unlock(newTarget)')
     for name in ['newTarget','oldTarget','newZ','oldZ']:text=text.replace(name+'->Release()','shadow_surface::Release('+name+')')
     text=text.replace('CACHE_CREATE_TEXTUREMANAGED()','shadow_texture::CreateManaged()')
+    # Keep every original operation, but own its temporary resources and restore
+    # render targets/scene on the exception-based native error path too.
+    text=text.replace('IDirect3DSurface9 *oldTarget;', 'shadow_surface::SurfaceOwner oldTarget;')
+    text=text.replace('IDirect3DSurface9 *newTarget;', 'shadow_surface::SurfaceOwner newTarget;')
+    text=text.replace('IDirect3DSurface9 *newZ, *oldZ;', 'shadow_surface::SurfaceOwner newZ, oldZ;')
+    for name in ['oldTarget','newTarget','newZ','oldZ']:
+        text=text.replace('&'+name,name+'.put()')
+        text=text.replace('shadow_surface::Release('+name+')',name+'.reset()')
+    text=text.replace('IDirect3DTexture9* newTexture;', 'ShadowTextureOwner newTexture;')
+    text=text.replace('&newTexture','newTexture.put()')
+    text=text.replace('tex_to_update->Set(newTexture, 0);','tex_to_update->Set(newTexture, 0); newTexture.detach();')
+    text=text.replace('ASSERT_DX(shadow_surface::BeginScene());','shadow_scene.Begin();')
+    text=text.replace('ASSERT_DX(shadow_surface::EndScene());','shadow_scene.End();')
+    marker='    // store old viewport'
+    if text.count(marker)!=1:raise ValueError('original shadow viewport boundary changed')
+    text=text.replace(marker,'    shadow_surface::TargetScope shadow_targets;\n    shadow_surface::SceneScope shadow_scene;\n\n'+marker)
+    text=text.replace('CTextureManaged *tm = NULL;','CTextureManaged *tm = NULL;\n    ShadowManagedOwner managed_owner{tm};')
+    if text.count('return tm;')!=1:raise ValueError('original shadow result changed')
+    text=text.replace('return tm;','auto* result=tm;tm=nullptr;return result;')
+    # These operations are required even in release builds: never continue with
+    # missing depth, failed readback or a rejected indexed draw after OOM/loss.
+    for call in ['shadow_surface::GetDepth(oldZ.put())','shadow_surface::Describe(oldZ,&d)',
+                 'shadow_surface::SetDepth(newZ)','shadow_surface::SetDepth(oldZ)',
+                 'shadow_surface::Lock(newTarget,&lor,nullptr,0)','shadow_surface::Unlock(newTarget)']:
+        if text.count(call+';')!=1:raise ValueError('original required shadow call changed: '+call)
+        text=text.replace(call+';','FAILED_DX('+call+');')
+    for prefix in ['shadow_surface::CreateDepth(', 'shadow_gpu::DrawIndexedStaging(']:
+        text,count=re.subn(r'(?m)^(\s*)('+re.escape(prefix)+r'[^;]+\));',lambda m:m[1]+'FAILED_DX('+m[2]+');',text)
+        if count!=(1 if 'CreateDepth' in prefix else 2):raise ValueError('required shadow call count changed: '+prefix)
+
+
     prelude='''// Both original CVectorObject shadow texture methods; genuine SDK path.
 #include "VectorObject.hpp"
 #include "ShadowProj.hpp"
@@ -59,7 +90,19 @@ def prepare_shadow_texture(output):
 #include "MatrixSampleStateManager.hpp"
 #include "unmanaged_texture_backend.hpp"
 #include "shadow_texture_backend.hpp"
+#include "offscreen_scope.hpp"
 namespace rp3g=srhd_awa::matrixgame::platform3g;
+namespace {
+struct ShadowTextureOwner {
+    IDirect3DTexture9* value{};
+    ~ShadowTextureOwner(){srhd_awa::matrixgame::legacy_texture::Release(value);}
+    operator IDirect3DTexture9*()const noexcept{return value;}
+    IDirect3DTexture9** put(){if(value)throw std::logic_error("shadow texture output already owned");return &value;}
+    void detach()noexcept{value=nullptr;}
+};
+struct ShadowManagedOwner {CTextureManaged*& value;~ShadowManagedOwner(){if(value)CCache::Destroy(value);}};
+}
+
 namespace shadow_device=srhd_awa::matrixgame::map_device;
 namespace shadow_surface=srhd_awa::matrixgame::offscreen;
 namespace shadow_texture=srhd_awa::matrixgame::legacy_texture;
@@ -68,11 +111,7 @@ namespace shadow_gpu=srhd_awa::matrixgame::shadow_texture;
 #undef FAILED_DX
 #define FAILED_DX(call) rp3g::CheckDeviceResult((call), #call)
 #undef ASSERT_DX
-#ifdef ASSERT_OFF
-#define ASSERT_DX(call) (call)
-#else
 #define ASSERT_DX(call) FAILED_DX(call)
-#endif
 '''
     name='MatrixLib/3G/OriginalShadowTexture.cpp';path=output/name;path.write_bytes((prelude+text+'\n').encode())
     return {name:hashlib.sha256(path.read_bytes()).hexdigest()}

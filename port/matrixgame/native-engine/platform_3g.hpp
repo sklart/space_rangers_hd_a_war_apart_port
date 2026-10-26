@@ -111,6 +111,7 @@ public:
     virtual void ResizeOuter(std::int32_t,std::int32_t){throw Unsupported("window resize requires reset-safe presentation ownership");}
     virtual void SetFullscreenStyle(){throw Unsupported("fullscreen style requires reset-safe presentation ownership");}
     virtual void MoveFullscreen(std::int32_t,std::int32_t){throw Unsupported("fullscreen move requires reset-safe presentation ownership");}
+    virtual std::unique_ptr<WindowAttachment> AttachNative(){throw Unsupported("native window attachment unavailable");}
 };
 struct State {
     void* module{};void* window_identity{};bool external{};
@@ -135,6 +136,7 @@ DeviceResult EndLoopTimerPeriod(std::uint32_t);
 // Original DLL bootstrap and WndProc/input algorithms via typed backend calls.
 // Only external/borrowed device/window mode is supported; no fake owned EXE.
 void InitAsDLL(void* module,Window&,Device&);
+void InitAsNative(Window&,Device&);
 void Deinit() noexcept;
 std::intptr_t WindowProcedure(Window&,std::uint32_t,std::uintptr_t,std::intptr_t);
 }

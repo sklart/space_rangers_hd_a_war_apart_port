@@ -27,5 +27,12 @@ public:
     virtual DeviceResult LightEnable(std::uint32_t,std::int32_t){throw Unsupported("stored light enable restore unsupported");}
     virtual DeviceResult GetMaterial(StoredMaterial*){throw Unsupported("stored material query unsupported");}
     virtual DeviceResult SetMaterial(const StoredMaterial*){throw Unsupported("stored material restore unsupported");}
+    // Capture a logical light slot, including an explicitly undefined slot.
+    // Raw SDK query methods retain their real HRESULT; this is not GetLight.
+    virtual void CaptureLightSlot(std::uint32_t index,StoredLight* light,std::int32_t* enabled){
+        if(!light || !enabled)throw std::invalid_argument("null light slot capture output");
+        CheckDeviceResult(GetLight(index,light),"capture light slot");
+        CheckDeviceResult(GetLightEnable(index,enabled),"capture light slot enable");
+    }
 };
 }

@@ -13,7 +13,8 @@ std::size_t RegistrySize()noexcept;
 CTextureManaged* CreateManaged();
 // Borrowed cache-owned entry; explicit removal follows Delete then Destroy.
 CTextureManaged* GetManaged(std::wstring_view);
-// These opaque objects are real SDK textures, never CPU cache entries.
+// Windows uses real COM textures. Native uses registered opaque resource tokens
+// backed by original CPU levels and owned GPU images; never COM impersonation.
 void Release(IDirect3DTexture9*)noexcept;
 void Preload(IDirect3DTexture9*);
 std::uint32_t SetPriority(IDirect3DTexture9*,std::uint32_t);

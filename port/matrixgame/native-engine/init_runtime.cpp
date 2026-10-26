@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "init_runtime.hpp"
+#include "native_frame_scope.hpp"
+#include "resource_paths.hpp"
+#include <cstdio>
 #include "cache_owner_state.hpp"
 #include "MatrixSampleStateManager.hpp"
 #include "device_defaults.hpp"
@@ -44,12 +47,16 @@ void NativeInitRuntime::BeginSession(void* module,void* window,bool original_gam
     } catch(...) {Deinit();throw;}
 }
 void NativeInitRuntime::AttachDevice(platform3g::Window& window,platform3g::Device& device) {
+    AttachDeviceImpl(window,device,false);
+}
+void NativeInitRuntime::AttachDeviceImpl(platform3g::Window& window,platform3g::Device& device,bool native) {
     if(active!=this || !cpu_owned_ || platform3g::Current().ready || device_snapshot_)throw std::logic_error("device attachment requires this live CPU owner");
     if(window.Identity()!=InspectCpu3GState().window)throw std::logic_error("device window differs from CPU binding");
     const auto module=InspectCpu3GState().module;
     last_restore_.reset();sampler_configured_=false;defaults_applied_=false;
     try {
-        platform3g::InitAsDLL(module,window,device);
+        if(native)platform3g::InitAsNative(window,device);
+        else platform3g::InitAsDLL(module,window,device);
         device_snapshot_=device.CaptureState();
         if(!device_snapshot_)throw std::logic_error("device returned no state lease");
         legacy_window_=&window;legacy_device_=&device;
@@ -90,7 +97,19 @@ void NativeInitRuntime::LeaveLegacyDll() {
     if(active && active->CpuReady()){active->DetachDevice();return;}
     if(platform3g::Current().ready)throw platform3g::Unsupported("legacy deinit cannot detach a foreign platform owner");
 }
+void NativeInitRuntime::EnterNativePlatform(void* module,void* window) {
+    if(!active || !active->CpuReady())throw platform3g::Unsupported("native entry requires active CPU owner");
+    auto& owner=*active;const auto cpu=InspectCpu3GState();
+    if(!owner.legacy_window_ || !owner.legacy_device_ || module!=cpu.module || window!=cpu.window ||
+       window!=owner.legacy_window_->Identity())throw std::invalid_argument("native entry owner/window mismatch");
+    owner.AttachDeviceImpl(*owner.legacy_window_,*owner.legacy_device_,true);
+}
 void NativeInitRuntime::Deinit() noexcept {
+    // Original Init itself may draw/present its transition before returning.
+    // Quiesce/cancel its acquired work before releasing map/font/resources.
+    if(auto* native=dynamic_cast<platform3g::NativeFrameRollback*>(legacy_device_)){
+        const auto result=native->AbortNativeFrame();if(result)std::fprintf(stderr,"native Init/frame cleanup failed: %08x\n",unsigned(result));
+    }
     FinishOriginalGame();
     FinishMapCamera();
     FinishLoadProgress();
@@ -108,6 +127,8 @@ void NativeInitRuntime::Deinit() noexcept {
     if(g_MatrixHeap==matrix_heap_.get())g_MatrixHeap=nullptr;
     matrix_heap_.reset();
     if(statics_owned_){Base::CMain::BaseDeInit();statics_owned_=false;}
+    output_scope_.reset(); // Original map/font/cache teardown has finished.
+    resource_scope_.reset(); // CFile package/disk owners have finished; restore legacy relative reads.
     if(active==this)active=nullptr;
 }
 void NativeInitRuntime::InitializeCursor() {
@@ -197,8 +218,8 @@ void NativeInitRuntime::ApplyVideoSettings(SRobotsSettings& settings) {
     // first creation-parameter query, before any mode/flag/presentation write.
     auto& state=platform3g::Current();
     const auto flags=state.flags;const auto presentation=state.presentation;
-    // Current providers reject every window mutation and Reset before side
-    // effects. Preserve the shared CPU values as well on that failure path.
+    // Preserve scalar configuration on failure; the owner device lease and
+    // Deinit restore the actual presentation when this session unwinds.
     try {CGame::ApplyVideoParams(settings);}
     catch(...) {state.flags=flags;state.presentation=presentation;throw;}
 }

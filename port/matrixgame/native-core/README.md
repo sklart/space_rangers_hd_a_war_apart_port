@@ -1,6 +1,11 @@
 # Оригинальная CPU-часть MatrixLib
 
-Последнее дополнение (E2E-5.16.1, 21.10.2026): исходный `CList.cpp` включён
+Дополнение E2E-5.21 (25.10.2026): BindingSnapshot удерживает настоящие staging
+vertex/index resources и восстанавливает bindings без allocations; проверяет
+время жизни Context. Host ASan/UBSan, ARM64/QEMU, Windows CPU и адресная
+Windows Init/frame регрессия прошли. [Отчёт](../../../reports/matrixgame-e2e521-state.md).
+
+Предыдущее дополнение (E2E-5.16.1, 21.10.2026): исходный `CList.cpp` включён
 в библиотеку без изменения алгоритмов; в `CList.hpp` исправлены две ошибки
 шаблонных вызовов и добавлен `<cstddef>`. Тест
 `matrixgame-native-list-compatibility` проверяет 4000 операций и `ListFree`;

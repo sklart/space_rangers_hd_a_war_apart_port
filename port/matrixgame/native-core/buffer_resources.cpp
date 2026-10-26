@@ -6,7 +6,7 @@
 #include <stdexcept>
 
 namespace srhd_awa::matrixgame::buffers {
-struct AllocationState { std::size_t budget{},bytes{}; };
+struct AllocationState { std::size_t budget{},bytes{};Context* context{}; };
 namespace {
 std::atomic<std::uint64_t> next_id{1};
 thread_local Context* active=nullptr;
@@ -82,8 +82,8 @@ VertexBuffer::VertexBuffer(std::shared_ptr<AllocationState> owner,std::size_t by
     :Resource(std::move(owner),bytes,pool,dynamic),layout_(layout) {}
 IndexBuffer::IndexBuffer(std::shared_ptr<AllocationState> owner,std::size_t bytes,IndexWidth width,Pool pool,bool dynamic)
     :Resource(std::move(owner),bytes,pool,dynamic),width_(width) {}
-Context::Context(std::size_t budget):allocation_(std::make_shared<AllocationState>(AllocationState{budget,0})) {}
-Context::~Context() { ClearBindings(); }
+Context::Context(std::size_t budget):allocation_(std::make_shared<AllocationState>(AllocationState{budget,0,this})) {}
+Context::~Context() { allocation_->context=nullptr;ClearBindings(); }
 VertexBuffer* Context::CreateVertex(std::int64_t bytes,std::uint32_t layout,Pool pool,bool dynamic) {
     const auto size=CheckedSize(bytes);
     if(!layout || (pool!=Pool::Default&&pool!=Pool::Managed) || (dynamic&&pool==Pool::Managed))
@@ -117,6 +117,35 @@ void Context::ClearBindings() noexcept {
     vertex_=nullptr;index_=nullptr;offset_=stride_=0;
 }
 std::size_t Context::AllocatedBytes() const noexcept {return allocation_->bytes;}
+struct BindingSnapshot::Data {
+    std::shared_ptr<AllocationState> owner;
+    VertexBuffer* vertex{};IndexBuffer* index{};std::size_t offset{},stride{};
+    ~Data(){if(vertex)vertex->Release();if(index)index->Release();}
+};
+BindingSnapshot::BindingSnapshot(const Context& context):data_(std::make_shared<Data>()){
+    data_->owner=context.allocation_;data_->offset=context.offset_;data_->stride=context.stride_;
+    if(context.vertex_){context.vertex_->Retain();data_->vertex=context.vertex_;}
+    if(context.index_){context.index_->Retain();data_->index=context.index_;}
+}
+BindingSnapshot Context::CaptureBindings()const{return BindingSnapshot(*this);}
+bool BindingSnapshot::CanRestore()const noexcept {
+    if(!data_)return BoundContext()==nullptr;
+    auto* context=data_->owner->context;
+    if(!context || context!=BoundContext())return false;
+    // Preflight both references before either binding is changed.
+    return (!data_->vertex || data_->vertex->refs_<std::numeric_limits<std::uint32_t>::max()) &&
+           (!data_->index || data_->index->refs_<std::numeric_limits<std::uint32_t>::max());
+}
+bool BindingSnapshot::Restore()const noexcept {
+    if(!CanRestore())return false;if(!data_)return true;
+    auto& context=*data_->owner->context;
+    if(data_->vertex)++data_->vertex->refs_;if(data_->index)++data_->index->refs_;
+    context.ClearBindings();context.vertex_=data_->vertex;context.index_=data_->index;
+    context.offset_=data_->offset;context.stride_=data_->stride;return true;
+}
+VertexBinding BindingSnapshot::Vertex()const noexcept {return data_?VertexBinding{data_->vertex,data_->offset,data_->stride}:VertexBinding{};}
+const IndexBuffer* BindingSnapshot::Index()const noexcept {return data_?data_->index:nullptr;}
+Context* BoundContext()noexcept{return active;}
 Context& Current() {if(!active) throw std::logic_error("MatrixGame buffer context is not bound");return *active;}
 Scope::Scope(Context& context):previous_(active) {
     if(active && active!=&context) throw std::logic_error("another MatrixGame buffer context is active");

@@ -67,27 +67,21 @@ p::DeviceResult EndScene(ID3DXRenderToSurface* renderer,std::uint32_t flags) {
     if(!renderer)throw std::invalid_argument("null text render surface");return renderer->EndScene(flags);
 }
 void Release(ID3DXRenderToSurface* renderer)noexcept {if(renderer)renderer->Release();}
-#else
-IDirect3DDevice9* DeviceIdentity(){(void)p::ReadyDevice();throw p::Unsupported("text SDK device unavailable");}
-void PrepareRangersFont(){throw p::Unsupported("text font resource registration unavailable");}
-void ReleaseRangersFont()noexcept {}
-p::DeviceResult CreateTextFont(IDirect3DDevice9*,std::wstring_view,std::size_t,ID3DXFont**){throw p::Unsupported("text font creation unavailable");}
-p::DeviceResult DescribeFont(ID3DXFont*,FontDesc*){throw p::Unsupported("text font descriptor unavailable");}
-bool MeasureSpace(ID3DXFont*,const wchar_t*,int,Size*){throw p::Unsupported("text space measurement unavailable");}
-p::DeviceResult GetSurface(IDirect3DTexture9*,std::uint32_t,IDirect3DSurface9**){throw p::Unsupported("text texture surface unavailable");}
-p::DeviceResult CreateRenderSurface(std::uint32_t,std::uint32_t,ID3DXRenderToSurface**){throw p::Unsupported("text render surface unavailable");}
-p::DeviceResult BeginScene(ID3DXRenderToSurface*,IDirect3DSurface9*){throw p::Unsupported("text render scene unavailable");}
-p::DeviceResult EndScene(ID3DXRenderToSurface*,std::uint32_t){throw p::Unsupported("text render end unavailable");}
-void Release(ID3DXRenderToSurface* renderer)noexcept {if(renderer)std::terminate();}
 #endif
+#ifdef _WIN32
 int DrawFontText(ID3DXFont* font,const wchar_t* text,int count,Rect* bounds,std::uint32_t flags,std::uint32_t color) {
     return debug_font::DrawTextWide(font,text,count,bounds,flags,color);
 }
 void Release(ID3DXFont* font)noexcept {debug_font::Release(font);}
+#endif
 void Release(IDirect3DTexture9* texture)noexcept {legacy_texture::Release(texture);}
+#ifdef _WIN32
 void Release(IDirect3DSurface9* surface)noexcept {offscreen::Release(surface);}
+#endif
 p::DeviceResult CreateTexture(std::uint32_t width,std::uint32_t height,IDirect3DTexture9** out){return legacy_texture::Create(width,height,0,0,21,1,out,0);}
 p::DeviceResult Lock(IDirect3DTexture9* texture,std::uint32_t level,legacy_texture::LockedRect* out){return legacy_texture::Lock(texture,level,out,nullptr,0);}
 p::DeviceResult Unlock(IDirect3DTexture9* texture,std::uint32_t level){return legacy_texture::Unlock(texture,level);}
+#ifdef _WIN32
 p::DeviceResult Clear(){return offscreen::Clear(0,nullptr,1,0,0,0);}
+#endif
 }

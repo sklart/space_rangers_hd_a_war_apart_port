@@ -1,5 +1,22 @@
 # Первый deko3d geometry pass
 
+Продолжение E2E-5.21: восьмистадийный combiner, FVF lighting/TCI, настоящая
+vertex/fragment DKSH pair и native map/VO submission включены в SDK closure.
+Прежние 209 alpha/null случаев закрыты в проверенной матрице; `ReadCaps`
+проверяет загруженную shader pair. Native Init/frame и новые GPU commands **NOT RUN**.
+[Результаты и точная граница](../../../reports/matrixgame-e2e521-cascade.md).
+
+Texture store и бюджет по настоящему image backing теперь реализованы;
+CaptureState/restore реализованы через native state store и retained bindings.
+Host/ARM64/Windows CPU и SDK link проверки прошли; native texture GPU runtime
+ещё не выполнен. [Текущий отчёт](../../../reports/matrixgame-e2e521-residency.md).
+
+Следующая исходная граница — `SwitchWindow::Show(Normal)` из оригинального Init.
+State host/ARM64/Windows и SDK link проверки прошли; Switch runtime NOT RUN.
+[CaptureState/restore и оставшиеся gates](../../../reports/matrixgame-e2e521-state.md).
+
+Ниже описан отдельный исторический standalone geometry prototype.
+
 Статус: compile/link prototype, **не GPU runtime PASS**. Это начало MG-3,
 не готовый renderer MatrixGame. Стабилизационная NRO 3772031 не менялась.
 

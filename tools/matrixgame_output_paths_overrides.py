@@ -17,4 +17,6 @@ def prepare_output_paths(output):
     for old,new in replacements.items():
         if text.count(old)!=1:raise ValueError('Original output path boundary changed: '+old)
         text=text.replace(old,new,1)
+    if text.count("    return path;")!=1:raise ValueError("Original output return boundary changed")
+    text=text.replace("    return path;","    return output_native::Finalize(std::move(path));")
     path.write_bytes(text.encode());return {name:hashlib.sha256(path.read_bytes()).hexdigest()}
