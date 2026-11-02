@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "platform_switch.hpp"
 #include "native_display_owner.hpp"
+#include "native_staging_binding.hpp"
 #include "native_diagnostic_journal.hpp"
 #include "../deko/legacy_raster_viewport.hpp"
 #include "../deko/legacy_polygon_mode.hpp"
@@ -679,10 +680,9 @@ DeviceResult DekoDevice::BindBorrowedTexture(std::uint32_t i,void* texture){
     auto& state=impl_->state.Edit();state.textures[i]=std::move(resource);state.combiner.Bind(i,true);return 0;
 }
 DeviceResult DekoDevice::BindStagingVertex(std::uint32_t stream,buffers::VertexBuffer* buffer,std::uint32_t offset,std::uint32_t stride){
-    const auto current=buffers::Current().Vertex();
-    if(stream || current.buffer!=buffer || current.offset!=offset || current.stride!=stride)throw Unsupported("native vertex binding differs from retained staging context");return 0;
+    return native_staging::BindVertex(stream,buffer,offset,stride);
 }
-DeviceResult DekoDevice::BindStagingIndex(buffers::IndexBuffer* buffer){if(buffers::Current().Index()!=buffer)throw Unsupported("native index binding differs from retained staging context");return 0;}
+DeviceResult DekoDevice::BindStagingIndex(buffers::IndexBuffer* buffer){return native_staging::BindIndex(buffer);}
 namespace {
 DkPrimitive NativePrimitive(std::uint32_t p){switch(p){case 1:return DkPrimitive_Points;case 2:return DkPrimitive_Lines;case 3:return DkPrimitive_LineStrip;case 4:return DkPrimitive_Triangles;case 5:return DkPrimitive_TriangleStrip;case 6:return DkPrimitive_TriangleFan;default:throw Unsupported("native primitive topology");}}
 }

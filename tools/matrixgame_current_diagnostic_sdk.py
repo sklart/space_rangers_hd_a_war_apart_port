@@ -36,7 +36,7 @@ def main():
    header=run(['C:/devkitPro/devkitA64/bin/aarch64-none-elf-readelf.exe','-h',elf],entry+'-header');assert 'AArch64' in header
    for font in fonts:assert font.read_bytes() in elf.read_bytes(),str(font)
    notes=run(['C:/devkitPro/devkitA64/bin/aarch64-none-elf-readelf.exe','-n',elf],entry+'-build-id');elf_id=re.search(r'Build ID: ([0-9a-f]+)',notes).group(1);nro_id=nro.read_bytes()[0x40:0x60].hex();assert nro_id==elf_id.ljust(64,'0')
-   title='MatrixGame r4 Interactive' if entry.endswith('interactive') else 'MatrixGame r4 Quick Smoke'
+   title='MatrixGame r5 Interactive' if entry.endswith('interactive') else 'MatrixGame r5 Quick Smoke'
    variants[entry]={'elf_build_id':elf_id,'nro_build_id':nro_id,'NRO':str(nro.relative_to(ROOT)),'nacp_title':title,'validation':verify_nro(nro.read_bytes(),Path('C:/devkitPro/libnx/default_icon.jpg').read_bytes(),nacp.read_bytes(),title),'strong_undefined':[],'runtime':'NOT RUN'}
    artifacts.update({str(p.relative_to(ROOT)):{'sha256':sha(p),'bytes':p.stat().st_size} for p in (elf,nro,nacp)})
   check_hashes(protected);check_hashes(prior['protected_game_sha256']);check_hashes(prior['protected_frozen_sha256']);assert sha(archive)==dependency['dependency_archive_sha256']

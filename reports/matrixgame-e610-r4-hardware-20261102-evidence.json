@@ -1,0 +1,167 @@
+{
+  "status": "R4 HARDWARE PARTIAL: MANAGED RESIDENCY PROGRESSES; MINIMAP VERTEX BINDING FAIL",
+  "archive": "C:/logs1.zip",
+  "archive_sha256": "edfaa750f41430d5dd8ccbd307fdd351b14f1f83dbcf8c73e9604fbbc9dc6aad",
+  "archive_bytes": 139059,
+  "source_commit": "d5af0be47d5d48b8d8f392c403272cb6f9486026",
+  "build_id": "d5af0be47d5d-65a4fae0c985699dfa07",
+  "runs": [
+    {
+      "run_id": "run-1793624935006824-0",
+      "variant": "matrixgame-e610-quick-smoke.nro",
+      "mode": "quick-four-frames",
+      "image_sha256": "2ed35cd45cda62b1fb3e6ce1e9f5378436e226e5d14d7ab5209f3b8be41f3084",
+      "journal_sha256": "47b761174a4e37a02d57bc47d2624131ef26622c07c3b9d6031cf6cdfcb30c47",
+      "records": 4699,
+      "apply_video_params_ok": true,
+      "orientation_ok": true,
+      "frame_comparison": {
+        "max_RGB_delta": 0,
+        "alpha_equal": true
+      },
+      "gpu_pressure_events": 474,
+      "counters_before_explicit_Deinit": {
+        "managed_texture_evictions": 474,
+        "native_texture_session_uploads": 1715,
+        "texture_arena_capacity": 67108864,
+        "texture_arena_free": 67108864,
+        "recorded_draw_calls": 1415,
+        "completed_presents": 4,
+        "queue_healthy": 1,
+        "SDK_warnings_total": 0
+      },
+      "full_init_ok": false,
+      "original_game_frame_count_recorded": false,
+      "failed_operations": [
+        "B.CMinimap::RenderBackground",
+        "B.interface_and_final_resources",
+        "B.CGame::Init",
+        "A.native_device_owner",
+        "A.SwitchDisplay"
+      ],
+      "exceptions": [
+        "native vertex binding differs from retained staging context"
+      ],
+      "process_exit": 10,
+      "journal_closed": true,
+      "frames": {
+        "smoke": {
+          "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+          "bytes": 3686400
+        },
+        "orientation-smoke": {
+          "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+          "bytes": 3686400
+        },
+        "gamma-smoke": {
+          "sha256": "1da62856cc442b6f62707902f6770a67c90bcadbaf7400c01ab21cd60044b98c",
+          "bytes": 3686400
+        }
+      },
+      "VI_cleanup": [
+        {
+          "operation": "VI.owner.close_window",
+          "event": "ok",
+          "result": 0
+        },
+        {
+          "operation": "VI.owner.close_layer",
+          "event": "result",
+          "result": 0
+        },
+        {
+          "operation": "VI.owner.close_display",
+          "event": "result",
+          "result": 0
+        },
+        {
+          "operation": "VI.owner.exit_service",
+          "event": "ok",
+          "result": 0
+        }
+      ]
+    },
+    {
+      "run_id": "run-1793625464003653-0",
+      "variant": "matrixgame-e610-interactive.nro",
+      "mode": "interactive",
+      "image_sha256": "178ebcef6b4c41114a647f668327cac4d93e2ccdc721accaa7fe86d28175940f",
+      "journal_sha256": "e48707cc7281ac153b6bdb6a80156bed699916f1db72d6787d26e1df38c0e8ee",
+      "records": 4699,
+      "apply_video_params_ok": true,
+      "orientation_ok": true,
+      "frame_comparison": {
+        "max_RGB_delta": 0,
+        "alpha_equal": true
+      },
+      "gpu_pressure_events": 474,
+      "counters_before_explicit_Deinit": {
+        "managed_texture_evictions": 474,
+        "native_texture_session_uploads": 1715,
+        "texture_arena_capacity": 67108864,
+        "texture_arena_free": 67108864,
+        "recorded_draw_calls": 1415,
+        "completed_presents": 4,
+        "queue_healthy": 1,
+        "SDK_warnings_total": 0
+      },
+      "full_init_ok": false,
+      "original_game_frame_count_recorded": false,
+      "failed_operations": [
+        "B.CMinimap::RenderBackground",
+        "B.interface_and_final_resources",
+        "B.CGame::Init",
+        "A.native_device_owner",
+        "A.SwitchDisplay"
+      ],
+      "exceptions": [
+        "native vertex binding differs from retained staging context"
+      ],
+      "process_exit": 10,
+      "journal_closed": true,
+      "frames": {
+        "smoke": {
+          "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+          "bytes": 3686400
+        },
+        "orientation-smoke": {
+          "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+          "bytes": 3686400
+        },
+        "gamma-smoke": {
+          "sha256": "1da62856cc442b6f62707902f6770a67c90bcadbaf7400c01ab21cd60044b98c",
+          "bytes": 3686400
+        }
+      },
+      "VI_cleanup": [
+        {
+          "operation": "VI.owner.close_window",
+          "event": "ok",
+          "result": 0
+        },
+        {
+          "operation": "VI.owner.close_layer",
+          "event": "result",
+          "result": 0
+        },
+        {
+          "operation": "VI.owner.close_display",
+          "event": "result",
+          "result": 0
+        },
+        {
+          "operation": "VI.owner.exit_service",
+          "event": "ok",
+          "result": 0
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "No completed Init or original-first.bgra",
+    "completed_presents=4 is diagnostic/status activity, not four accepted game frames",
+    "Exact staging-context root cause requires reproduction",
+    "No screenshot/physical screen orientation confirmation attached"
+  ],
+  "scope": "evidence review only; sources and NROs unchanged"
+}

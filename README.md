@@ -49,6 +49,18 @@ Build ID: `b6c18a13cef88fe757d683e18cf48fc667067bda`. Release ARM64:
 
 ## MatrixGame E610 Freeze: два запуска
 
+**Результат r4:** оба аппаратных запуска выполнили по 474 managed GPU evictions
+и дошли до CMinimap::RenderBackground. Новый отказ — staging vertex binding;
+полный Init/игровые кадры ещё не прошли.
+[Аппаратное evidence r4](reports/matrixgame-e610-r4-hardware-20261102.md).
+
+**r5:** native vertex/index binding теперь выполняет настоящий setter
+удерживаемого staging Context, затем проверяет результат. Ограничение stream 0,
+проверки владельца, locked/range/stride и snapshot lifetime сохранены.
+Декодирование для NativeDraw читает байты нового выбранного буфера.
+[Инструкция r5](docs/matrixgame-e610-staging-r5-readme.ru.md).
+Аппаратное прохождение Init этим вариантом ещё не подтверждено.
+
 **Результат r3:** аппаратные Quick/Interactive прошли VI query, ApplyVideoParams
 и побайтовое сравнение identity presentation. Поздний Init остановился на
 `original managed texture decode failed: -1`; полные игровые кадры не достигнуты.
