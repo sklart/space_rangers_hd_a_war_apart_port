@@ -62,6 +62,14 @@ Build ID: `b6c18a13cef88fe757d683e18cf48fc667067bda`. Release ARM64:
 Аппаратная причина r3 не устанавливается задним числом: там исходный код
 и ресурс не были записаны. Новый вариант требует пользовательской проверки.
 
+Финальный пакет r4: `dist/matrixgame-e610-switch-test-r4-managed-final.zip`.
+Source SHA `d5af0be47d5d48b8d8f392c403272cb6f9486026`;
+ZIP SHA256 `6cd564d1706a82b6940313efdaaa608ed240d5b57e5591059050fe2cf8d3f945`.
+Адресные Windows/host sanitizer/ARM64 QEMU проверки и SDK link/package — PASS;
+аппаратный запуск r4 — PENDING.
+[Проверки и SHA r4](reports/matrixgame-e610-managed-r4.md),
+[инструкция r4](docs/matrixgame-e610-managed-r4-readme.ru.md).
+
 **Аппаратный результат r2:** два Quick и один Interactive подтвердили BC1/gamma
 smoke и PrepareMap, затем остановились в ApplyVideoParams:
 `viOpenDefaultDisplay failed: 4722`. Полный Init и кадры карты не прошли.

@@ -1,0 +1,763 @@
+{
+  "status": "SOFTWARE PASS; R4 HARDWARE PENDING",
+  "source_commit": "d5af0be47d5d48b8d8f392c403272cb6f9486026",
+  "build_id": "d5af0be47d5d-65a4fae0c985699dfa07",
+  "old_files_unchanged": 164,
+  "own_source_hashes_verified": 685,
+  "binary_checks": {
+    "matrixgame-native-diagnostic": {
+      "SDK_default_window_definitions_absent": [
+        "nwindowGetDefault",
+        "__nx_win_init",
+        "__nx_win_exit"
+      ],
+      "SDL_accessor_bound_to_real_window": true,
+      "display_query_and_orientation_check_retained": true,
+      "nacp_title": "MatrixGame r4 Quick Smoke"
+    },
+    "matrixgame-native-interactive": {
+      "SDK_default_window_definitions_absent": [
+        "nwindowGetDefault",
+        "__nx_win_init",
+        "__nx_win_exit"
+      ],
+      "SDL_accessor_bound_to_real_window": true,
+      "display_query_and_orientation_check_retained": true,
+      "nacp_title": "MatrixGame r4 Interactive"
+    }
+  },
+  "tests": {
+    "build\\matrixgame\\e610-managed-r4-checks\\host\\2\\result.json": {
+      "sha256": "29173b3f6141639985cb63e6f6b486878b8660d16dde94d9ee52fd9a0a03b1c9",
+      "result": {
+        "status": "PASS MANAGED EVICTION/RESTORE/PINS/PRIORITY/REAL ASSET BYTES; CPU MODEL ONLY",
+        "commands": [
+          {
+            "label": "build-link",
+            "command": [
+              "wsl",
+              "--exec",
+              "/usr/bin/c++",
+              "-D_POSIX_C_SOURCE=200809L",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/3G",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Base",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Bitmap",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/portable-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src/Logic",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-std=gnu++20",
+              "-ffp-contract=off",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-UNDEBUG",
+              "-O1",
+              "-g",
+              "-fno-pie",
+              "-Wl,--gc-sections",
+              "-no-pie",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_texture.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/legacy_texture_backend.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/unmanaged_texture_backend.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/platform_3g.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_texture_residency.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/texture_mips.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-host/core/libmatrixgame-native-core.a",
+              "/usr/lib/x86_64-linux-gnu/libpng.so",
+              "/usr/lib/x86_64-linux-gnu/libz.so",
+              "/usr/lib/x86_64-linux-gnu/libjpeg.so",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/host/2/texture-residency"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "runtime",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/host/2/texture-residency",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/rgba.dds",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/bc1.dds",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/bc2.dds",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/bc3.dds",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/original.dds",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/original.png",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/original.jpg",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/original.strg"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          }
+        ],
+        "scope": "real asset decode/mips/CPU copies plus CPU residency model; NO GPU or full Init",
+        "inputs_sha256": {
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\rgba.dds": "a351630fc78178934de66ff91a4b34cfe14303361dd37b7cf8a44e1f05b6e215",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\bc1.dds": "f661cf7254a32b6d7fde0f3fbcce8e841c3eab422ff9e0b0bccb952491048325",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\bc2.dds": "54358bc912987f7a3839dd11bf35587f1dbc1c1307bfb99d9453991b3874694c",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\bc3.dds": "5f567c09911ca3c3f8f2f8426cb0eeddf333547eece3d8fa630be43629a7b29c",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.dds": "3f5532b6dc375ea9ecc70d3434c363ae8f571182ac5b33105675c9931772ef5c",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.png": "e4f52666698c28f25d94f12057eaab360378509ded50a676c371cb51fcad485d",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.jpg": "48a2e40c70edd72af611dbcdc786e13bd9816696d72199e6cc944324405f07d4",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.strg": "8f82935d2b5397246ae394811680ffd23edb190e83c69c7d793882bf81d5b69a"
+        },
+        "stdout": "REAL_ASSET_MANAGED_PRESSURE handles=40 evictions=70 CPU_BYTES_ONLY NO_GPU\ntexture residency CPU PASS allocator_steps=4000 formats=12 decoded=8 held_owner_and_frame=preserved allocation_failure=preserved GPU_NOT_RUN\n",
+        "source_sha256": {
+          "port/matrixgame/native-engine/native_texture.cpp": "f0ff89005e76d28dee9f5e2beecd09c0468c279895fac10f430bebf53c7a7c68",
+          "port/matrixgame/native-engine/native_texture.hpp": "40da73920898fa7030d71847e7384a99b403dbf15e81c8f1a64a3844f50d9617",
+          "port/matrixgame/native-core/texture_mips.cpp": "5a6b61600b0f6db0b9b57bb2321d2979aac07583003fe90afa95afbac1da0974",
+          "tests/test_matrixgame_texture_residency.cpp": "6cda6ee1d9c34001fbf3b0228b697c112cbbbef2ebdc311010924826835b988a",
+          "tools/matrixgame_managed_pressure_checks.py": "196faaf832d94cc70044f35332d8f3bb2fd88dd0cb2e9a6e610c4012cd732475"
+        }
+      }
+    },
+    "build\\matrixgame\\e610-managed-r4-checks\\arm64\\4\\result.json": {
+      "sha256": "edd77484a26cc5dba3c2c89a232d05ed974d2752e12db0fb818a176a49d4a2bc",
+      "result": {
+        "status": "PASS MANAGED EVICTION/RESTORE/PINS/PRIORITY/REAL ASSET BYTES; CPU MODEL ONLY",
+        "commands": [
+          {
+            "label": "compile-unmanaged_texture_backend",
+            "command": [
+              "wsl",
+              "--exec",
+              "/usr/bin/aarch64-linux-gnu-g++-15",
+              "-D_POSIX_C_SOURCE=200809L",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/3G",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Base",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Bitmap",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/portable-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src/Logic",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source",
+              "-pthread",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+              "-std=gnu++20",
+              "-ffp-contract=off",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-UNDEBUG",
+              "-O1",
+              "-g",
+              "-fno-pie",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-fvisibility-inlines-hidden",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/unmanaged_texture_backend.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/arm64/4/unmanaged_texture_backend.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-legacy_texture_backend",
+            "command": [
+              "wsl",
+              "--exec",
+              "/usr/bin/aarch64-linux-gnu-g++-15",
+              "-D_POSIX_C_SOURCE=200809L",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/3G",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Base",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Bitmap",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/portable-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src/Logic",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source",
+              "-pthread",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+              "-std=gnu++20",
+              "-ffp-contract=off",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-UNDEBUG",
+              "-O1",
+              "-g",
+              "-fno-pie",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-fvisibility-inlines-hidden",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/legacy_texture_backend.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/arm64/4/legacy_texture_backend.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-native_texture",
+            "command": [
+              "wsl",
+              "--exec",
+              "/usr/bin/aarch64-linux-gnu-g++-15",
+              "-D_POSIX_C_SOURCE=200809L",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/3G",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Base",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Bitmap",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/portable-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src/Logic",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source",
+              "-pthread",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+              "-std=gnu++20",
+              "-ffp-contract=off",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-UNDEBUG",
+              "-O1",
+              "-g",
+              "-fno-pie",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-fvisibility-inlines-hidden",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_texture.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/arm64/4/native_texture.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-platform_3g",
+            "command": [
+              "wsl",
+              "--exec",
+              "/usr/bin/aarch64-linux-gnu-g++-15",
+              "-D_POSIX_C_SOURCE=200809L",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/3G",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Base",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Bitmap",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/portable-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src/Logic",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source",
+              "-pthread",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+              "-std=gnu++20",
+              "-ffp-contract=off",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-UNDEBUG",
+              "-O1",
+              "-g",
+              "-fno-pie",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-fvisibility-inlines-hidden",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/platform_3g.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/arm64/4/platform_3g.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-texture_mips",
+            "command": [
+              "wsl",
+              "--exec",
+              "/usr/bin/aarch64-linux-gnu-g++-15",
+              "-D_POSIX_C_SOURCE=200809L",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/3G",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Base",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Bitmap",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/portable-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src/Logic",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source",
+              "-pthread",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+              "-std=gnu++20",
+              "-ffp-contract=off",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-UNDEBUG",
+              "-O1",
+              "-g",
+              "-fno-pie",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-fvisibility-inlines-hidden",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/texture_mips.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/arm64/4/texture_mips.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-test_matrixgame_texture_residency",
+            "command": [
+              "wsl",
+              "--exec",
+              "/usr/bin/aarch64-linux-gnu-g++-15",
+              "-D_POSIX_C_SOURCE=200809L",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/3G",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Base",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Bitmap",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/portable-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src/Logic",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/deps/zlib-1.3.2",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png-source",
+              "-isystem",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg-source",
+              "-pthread",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg",
+              "-std=gnu++20",
+              "-ffp-contract=off",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-UNDEBUG",
+              "-O1",
+              "-g",
+              "-fno-pie",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-fvisibility-inlines-hidden",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_texture_residency.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/arm64/4/test_matrixgame_texture_residency.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "link",
+            "command": [
+              "wsl",
+              "--exec",
+              "/usr/bin/aarch64-linux-gnu-g++-15",
+              "-Wl,--gc-sections",
+              "-no-pie",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-fvisibility-inlines-hidden",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/arm64/4/native_texture.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/arm64/4/legacy_texture_backend.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/arm64/4/unmanaged_texture_backend.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/arm64/4/platform_3g.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/arm64/4/test_matrixgame_texture_residency.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/arm64/4/texture_mips.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-arm64/core/libmatrixgame-native-core.a",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/png/libpng16.a",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/e2e515/mg-navigation-arm64/zlib/libz.a",
+              "-lm",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e518/arm64-normalized/jpeg/libjpeg.a",
+              "-Wl,--version-script=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/arm64/4/ubsan-local.map",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/arm64/4/texture-residency"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "runtime",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "qemu-aarch64",
+              "-L",
+              "/usr/aarch64-linux-gnu",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/arm64/4/texture-residency",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/rgba.dds",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/bc1.dds",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/bc2.dds",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/bc3.dds",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/original.dds",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/original.png",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/original.jpg",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/original.strg"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          }
+        ],
+        "scope": "real asset decode/mips/CPU copies plus CPU residency model; NO GPU or full Init",
+        "inputs_sha256": {
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\rgba.dds": "a351630fc78178934de66ff91a4b34cfe14303361dd37b7cf8a44e1f05b6e215",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\bc1.dds": "f661cf7254a32b6d7fde0f3fbcce8e841c3eab422ff9e0b0bccb952491048325",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\bc2.dds": "54358bc912987f7a3839dd11bf35587f1dbc1c1307bfb99d9453991b3874694c",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\bc3.dds": "5f567c09911ca3c3f8f2f8426cb0eeddf333547eece3d8fa630be43629a7b29c",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.dds": "3f5532b6dc375ea9ecc70d3434c363ae8f571182ac5b33105675c9931772ef5c",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.png": "e4f52666698c28f25d94f12057eaab360378509ded50a676c371cb51fcad485d",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.jpg": "48a2e40c70edd72af611dbcdc786e13bd9816696d72199e6cc944324405f07d4",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.strg": "8f82935d2b5397246ae394811680ffd23edb190e83c69c7d793882bf81d5b69a"
+        },
+        "runtime_visibility_map_sha256": "5cfa914c400acea68ac3da7d2d73ccae0e270bcd19d3009b8c1794e68b5e060a",
+        "stdout": "REAL_ASSET_MANAGED_PRESSURE handles=40 evictions=70 CPU_BYTES_ONLY NO_GPU\ntexture residency CPU PASS allocator_steps=4000 formats=12 decoded=8 held_owner_and_frame=preserved allocation_failure=preserved GPU_NOT_RUN\n",
+        "source_sha256": {
+          "port/matrixgame/native-engine/native_texture.cpp": "f0ff89005e76d28dee9f5e2beecd09c0468c279895fac10f430bebf53c7a7c68",
+          "port/matrixgame/native-engine/native_texture.hpp": "40da73920898fa7030d71847e7384a99b403dbf15e81c8f1a64a3844f50d9617",
+          "port/matrixgame/native-core/texture_mips.cpp": "5a6b61600b0f6db0b9b57bb2321d2979aac07583003fe90afa95afbac1da0974",
+          "tests/test_matrixgame_texture_residency.cpp": "6cda6ee1d9c34001fbf3b0228b697c112cbbbef2ebdc311010924826835b988a",
+          "tools/matrixgame_managed_pressure_checks.py": "1d4836be65b52026bd402d1213671cd283aafed1cf45e64ad650a7babdad9eb8"
+        }
+      }
+    },
+    "build\\matrixgame\\e610-managed-r4-checks\\windows\\2\\result.json": {
+      "sha256": "dc949da51f6f30237cf69be5e5370565a711353ec63193f87b0340079b9830ee",
+      "result": {
+        "status": "PASS MANAGED EVICTION/RESTORE/PINS/PRIORITY/REAL ASSET BYTES; CPU MODEL ONLY",
+        "commands": [
+          {
+            "label": "native_texture",
+            "command": [
+              "cmd.exe",
+              "/d",
+              "/c",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-managed-r4-checks\\windows\\2\\native_texture.cmd"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "platform_3g",
+            "command": [
+              "cmd.exe",
+              "/d",
+              "/c",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-managed-r4-checks\\windows\\2\\platform_3g.cmd"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "test_matrixgame_texture_residency",
+            "command": [
+              "cmd.exe",
+              "/d",
+              "/c",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-managed-r4-checks\\windows\\2\\test_matrixgame_texture_residency.cmd"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "texture_mips",
+            "command": [
+              "cmd.exe",
+              "/d",
+              "/c",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-managed-r4-checks\\windows\\2\\texture_mips.cmd"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "link",
+            "command": [
+              "cmd.exe",
+              "/d",
+              "/c",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-managed-r4-checks\\windows\\2\\link.cmd"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "runtime",
+            "command": [
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-managed-r4-checks\\windows\\2\\texture-residency.exe",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\residency\\host\\inputs\\rgba.dds",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\residency\\host\\inputs\\bc1.dds",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\residency\\host\\inputs\\bc2.dds",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\residency\\host\\inputs\\bc3.dds",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.dds",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.png",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.jpg",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.strg"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          }
+        ],
+        "scope": "real asset decode/mips/CPU copies plus CPU residency model; NO GPU or full Init",
+        "inputs_sha256": {
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\rgba.dds": "a351630fc78178934de66ff91a4b34cfe14303361dd37b7cf8a44e1f05b6e215",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\bc1.dds": "f661cf7254a32b6d7fde0f3fbcce8e841c3eab422ff9e0b0bccb952491048325",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\bc2.dds": "54358bc912987f7a3839dd11bf35587f1dbc1c1307bfb99d9453991b3874694c",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\bc3.dds": "5f567c09911ca3c3f8f2f8426cb0eeddf333547eece3d8fa630be43629a7b29c",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.dds": "3f5532b6dc375ea9ecc70d3434c363ae8f571182ac5b33105675c9931772ef5c",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.png": "e4f52666698c28f25d94f12057eaab360378509ded50a676c371cb51fcad485d",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.jpg": "48a2e40c70edd72af611dbcdc786e13bd9816696d72199e6cc944324405f07d4",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.strg": "8f82935d2b5397246ae394811680ffd23edb190e83c69c7d793882bf81d5b69a"
+        },
+        "stdout": "REAL_ASSET_MANAGED_PRESSURE handles=40 evictions=70 CPU_BYTES_ONLY NO_GPU\ntexture residency CPU PASS allocator_steps=4000 formats=12 decoded=8 held_owner_and_frame=preserved allocation_failure=preserved GPU_NOT_RUN\n",
+        "source_sha256": {
+          "port/matrixgame/native-engine/native_texture.cpp": "f0ff89005e76d28dee9f5e2beecd09c0468c279895fac10f430bebf53c7a7c68",
+          "port/matrixgame/native-engine/native_texture.hpp": "40da73920898fa7030d71847e7384a99b403dbf15e81c8f1a64a3844f50d9617",
+          "port/matrixgame/native-core/texture_mips.cpp": "5a6b61600b0f6db0b9b57bb2321d2979aac07583003fe90afa95afbac1da0974",
+          "tests/test_matrixgame_texture_residency.cpp": "6cda6ee1d9c34001fbf3b0228b697c112cbbbef2ebdc311010924826835b988a",
+          "tools/matrixgame_managed_pressure_checks.py": "196faaf832d94cc70044f35332d8f3bb2fd88dd0cb2e9a6e610c4012cd732475"
+        }
+      }
+    },
+    "build\\matrixgame\\e610-managed-r4-checks\\baseline\\2\\result.json": {
+      "sha256": "8b59ce5d51407b56c9962b1e8979b692c94794d2c604e0732bccdba4f9723dcb",
+      "result": {
+        "status": "PASS OLD CODE REPRODUCES UNHANDLED ARENA EXHAUSTION",
+        "commands": [
+          {
+            "label": "build-link",
+            "command": [
+              "wsl",
+              "--exec",
+              "/usr/bin/c++",
+              "-D_POSIX_C_SOURCE=200809L",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/3G",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Base",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixLib/Bitmap",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/portable-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/source/MatrixGame/src/Logic",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-std=gnu++20",
+              "-ffp-contract=off",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-UNDEBUG",
+              "-O1",
+              "-g",
+              "-fno-pie",
+              "-Wl,--gc-sections",
+              "-no-pie",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/baseline/2/r3-native_texture.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/legacy_texture_backend.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/unmanaged_texture_backend.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/platform_3g.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_texture_residency.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/texture_mips.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e519/vector-group-fresh-host/core/libmatrixgame-native-core.a",
+              "/usr/lib/x86_64-linux-gnu/libpng.so",
+              "/usr/lib/x86_64-linux-gnu/libz.so",
+              "/usr/lib/x86_64-linux-gnu/libjpeg.so",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/baseline/2/texture-residency"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "runtime",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-managed-r4-checks/baseline/2/texture-residency",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/rgba.dds",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/bc1.dds",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/bc2.dds",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/bc3.dds",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/original.dds",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/original.png",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/original.jpg",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e521/residency/host/inputs/original.strg"
+            ],
+            "exit": 6,
+            "expected_failure": true
+          }
+        ],
+        "scope": "real asset decode/mips/CPU copies plus CPU residency model; NO GPU or full Init",
+        "inputs_sha256": {
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\rgba.dds": "a351630fc78178934de66ff91a4b34cfe14303361dd37b7cf8a44e1f05b6e215",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\bc1.dds": "f661cf7254a32b6d7fde0f3fbcce8e841c3eab422ff9e0b0bccb952491048325",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\bc2.dds": "54358bc912987f7a3839dd11bf35587f1dbc1c1307bfb99d9453991b3874694c",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\bc3.dds": "5f567c09911ca3c3f8f2f8426cb0eeddf333547eece3d8fa630be43629a7b29c",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.dds": "3f5532b6dc375ea9ecc70d3434c363ae8f571182ac5b33105675c9931772ef5c",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.png": "e4f52666698c28f25d94f12057eaab360378509ded50a676c371cb51fcad485d",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.jpg": "48a2e40c70edd72af611dbcdc786e13bd9816696d72199e6cc944324405f07d4",
+          "build\\matrixgame\\e2e521\\residency\\host\\inputs\\original.strg": "8f82935d2b5397246ae394811680ffd23edb190e83c69c7d793882bf81d5b69a"
+        },
+        "baseline_source_sha256": "4acc23b994bcb81b9f1578a6b74947e24dbf3197011529a574edc05cb949a3b0",
+        "stdout": "terminate called after throwing an instance of 'srhd_awa::matrixgame::native_texture::ResidencyExhausted'\n  what():  std::bad_alloc\n",
+        "source_sha256": {
+          "port/matrixgame/native-engine/native_texture.cpp": "f0ff89005e76d28dee9f5e2beecd09c0468c279895fac10f430bebf53c7a7c68",
+          "port/matrixgame/native-engine/native_texture.hpp": "40da73920898fa7030d71847e7384a99b403dbf15e81c8f1a64a3844f50d9617",
+          "port/matrixgame/native-core/texture_mips.cpp": "5a6b61600b0f6db0b9b57bb2321d2979aac07583003fe90afa95afbac1da0974",
+          "tests/test_matrixgame_texture_residency.cpp": "6cda6ee1d9c34001fbf3b0228b697c112cbbbef2ebdc311010924826835b988a",
+          "tools/matrixgame_managed_pressure_checks.py": "196faaf832d94cc70044f35332d8f3bb2fd88dd0cb2e9a6e610c4012cd732475"
+        }
+      }
+    }
+  },
+  "package": {
+    "status": "VERIFIED E610 TWO-NRO PACKAGE; HARDWARE PENDING",
+    "source_commit": "d5af0be47d5d48b8d8f392c403272cb6f9486026",
+    "build_id": "d5af0be47d5d-65a4fae0c985699dfa07",
+    "zip": "dist\\matrixgame-e610-switch-test-r4-managed-final.zip",
+    "zip_sha256": "6cd564d1706a82b6940313efdaaa608ed240d5b57e5591059050fe2cf8d3f945",
+    "zip_bytes": 10054684,
+    "files_sha256": {
+      "build-info.json": "72b88db07d70e299e1ff4be20cd634357688c2ea95cea31979c6d9335293e2f6",
+      "manifest.json": "fe1464a31cb7c16134c0f1062cd8f33fa171ed8169c4465b429871dae1d4f056",
+      "matrixgame-e610-interactive.nro": "178ebcef6b4c41114a647f668327cac4d93e2ccdc721accaa7fe86d28175940f",
+      "matrixgame-e610-quick-smoke.nro": "2ed35cd45cda62b1fb3e6ce1e9f5378436e226e5d14d7ab5209f3b8be41f3084",
+      "README.ru.md": "f68186526eaca0a920339d2199f699b121bd57133dd623ca823333eff7c97fd8",
+      "SHA256SUMS.txt": "c898776477fb4320b3be2faed0cd46910528efbb346fec95db3a37165b1bfcb7"
+    },
+    "variants": {
+      "matrixgame-e610-quick-smoke.nro": {
+        "sha256": "2ed35cd45cda62b1fb3e6ce1e9f5378436e226e5d14d7ab5209f3b8be41f3084",
+        "bytes": 14928069,
+        "elf_sha256": "cdc468f6d6d0f8f068d016a75b5c830db000111c3104ccf51d500a3827153ba3",
+        "elf_build_id": "608668b5c018541199cae7a94006e6cf44bde0df",
+        "nro_build_id": "608668b5c018541199cae7a94006e6cf44bde0df000000000000000000000000",
+        "nro_validation": {
+          "code_size": 14905344,
+          "segments": 3,
+          "embedded_icon": {
+            "offset": 14905400,
+            "size": 6285
+          },
+          "embedded_nacp": {
+            "offset": 14911685,
+            "size": 16384
+          },
+          "romfs_required": false
+        },
+        "retained_symbols": {
+          "native_hid_poll": true,
+          "native_hold_reset": false,
+          "router_warp": true,
+          "rangers_ui_owner": false,
+          "ui_context": false,
+          "caller_lease": false,
+          "native_rgb565_presenter": false,
+          "campaign_session": false,
+          "GR_WinMessage": false
+        },
+        "entry": "standalone original native Init/Draw; no Campaign/Gov entry",
+        "runtime": "HARDWARE PENDING"
+      },
+      "matrixgame-e610-interactive.nro": {
+        "sha256": "178ebcef6b4c41114a647f668327cac4d93e2ccdc721accaa7fe86d28175940f",
+        "bytes": 14928069,
+        "elf_sha256": "04657981d4b7d5e4ccd94b8b81f03f55e6d0b447aa6a9e73a5875a13e26e58be",
+        "elf_build_id": "b8a45aa51d34b5d8b29c4c71a19f034971d04c1d",
+        "nro_build_id": "b8a45aa51d34b5d8b29c4c71a19f034971d04c1d000000000000000000000000",
+        "nro_validation": {
+          "code_size": 14905344,
+          "segments": 3,
+          "embedded_icon": {
+            "offset": 14905400,
+            "size": 6285
+          },
+          "embedded_nacp": {
+            "offset": 14911685,
+            "size": 16384
+          },
+          "romfs_required": false
+        },
+        "retained_symbols": {
+          "native_hid_poll": true,
+          "native_hold_reset": false,
+          "router_warp": true,
+          "rangers_ui_owner": false,
+          "ui_context": false,
+          "caller_lease": false,
+          "native_rgb565_presenter": false,
+          "campaign_session": false,
+          "GR_WinMessage": false
+        },
+        "entry": "standalone original native Init/Draw; no Campaign/Gov entry",
+        "runtime": "HARDWARE PENDING"
+      }
+    },
+    "package": "dist\\matrixgame-e610-switch-test-r4-managed-final"
+  },
+  "exact_generated_original_delta": [
+    "MatrixLib/3G/OriginalManagedTexture.cpp",
+    "MatrixLib/3G/Texture.cpp"
+  ],
+  "targeted_test_sources_sha256": {
+    "tests/test_matrixgame_texture_residency.cpp": "6cda6ee1d9c34001fbf3b0228b697c112cbbbef2ebdc311010924826835b988a"
+  }
+}

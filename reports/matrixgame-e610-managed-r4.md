@@ -90,3 +90,49 @@ VI owner, SDL binding, origin shader и полнокадровая identity pres
 требуют нового пользовательского запуска. При новом отказе нужны новые run.jsonl
 с именем ресурса и первичным кодом. Campaign/Gov, победа и приёмка всего игрового
 цикла остаются вне standalone-теста. Пустые изображения и обход Init не применяются.
+
+## Итоговая поставка
+
+**SOFTWARE PASS / R4 HARDWARE PENDING.** Windows/2, host/2 и arm64/4 прошли:
+40 handles, 70 evictions, полное восстановление CPU mip bytes, защита pinned/
+locked/default ресурсов, 4000 allocator operations, 12 formats, 8 decoded inputs.
+Host использует ASan/UBSan/LSan; ARM64/QEMU — полный UBSan/vptr с исправленной
+RTTI-symbol binding. Старый native_texture.cpp из r3 в baseline/2 воспроизводимо
+завершился ResidencyExhausted (expected negative control). Исторические
+link failures и ARM64 SIGSEGV из попыток 2/3 сохранены, не объявлены PASS.
+Оригинальные CPU core/codec archives не полностью инструментированы;
+это адресное доказательство изменённого resource кода и модели GPU ownership.
+
+Финальная SDK-сборка: build/matrixgame/e610-managed-r4/3.
+Source SHA: `d5af0be47d5d48b8d8f392c403272cb6f9486026`.
+Build ID: `d5af0be47d5d-65a4fae0c985699dfa07`.
+Compile/link, отсутствие неразрешённых strong symbols, NRO0/ASET/icon/NACP,
+встроенные шрифты и соответствие ELF/NRO build ID — PASS.
+Сверены 685 source hashes, ровно два разрешённых generated engine изменения,
+164 прежних файла dist/logs/saves и артефакты предыдущей SDK-попытки.
+Исходные игровые/frozen inputs и основные NRO также прошли builder hash checks.
+
+В обеих ELF сохранены Session::EvictManaged, исходная decode/upload диагностика,
+pressure journal, VI mode query и orientation checker. Старый общий строковый
+маркер original managed texture decode отсутствует. Определения SDK default
+window/startup отсутствуют, SDL привязан к настоящему окну владельца.
+
+Финальный ZIP: `dist/matrixgame-e610-switch-test-r4-managed-final.zip`, 10054684 байт.
+SHA256: `6cd564d1706a82b6940313efdaaa608ed240d5b57e5591059050fe2cf8d3f945`.
+
+| NRO | SHA256 | ELF build ID |
+| --- | --- | --- |
+| Quick Smoke | `2ed35cd45cda62b1fb3e6ce1e9f5378436e226e5d14d7ab5209f3b8be41f3084` | `608668b5c018541199cae7a94006e6cf44bde0df` |
+| Interactive | `178ebcef6b4c41114a647f668327cac4d93e2ccdc721accaa7fe86d28175940f` | `b8a45aa51d34b5d8b29c4c71a19f034971d04c1d` |
+
+ZIP содержит ровно шесть файлов (две NRO, README.ru.md, manifest.json,
+SHA256SUMS.txt, build-info.json), CRC и байты сверены с папкой пакета.
+Игровые ресурсы, сохранения и debugger в поставку не включены.
+Промежуточный ZIP r4 и прежние r2/r3 пакеты оставлены неизменными; пользователю
+предназначен только указанный **r4-managed-final.zip**.
+[Машиночитаемое evidence](matrixgame-e610-managed-r4-evidence.json).
+
+Копировать только две NRO в `/switch/matrixgame-e610-r4-test/`. Ресурсы оставить
+на прежних путях. Запустить MatrixGame r4 Quick Smoke, затем MatrixGame r4
+Interactive (Minus+Plus — выход). До пользовательских результатов r4 не заявляем
+полный Init/кадры карты или устранение точного аппаратного отказа r3.
