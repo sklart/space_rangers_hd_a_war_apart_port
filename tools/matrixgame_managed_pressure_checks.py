@@ -65,7 +65,14 @@ def main():
                 with ThreadPoolExecutor(max_workers=3) as pool:objects=list(pool.map(compile_source,sources))
                 first_archive=next(i for i,s in enumerate(command) if s.endswith('.a'))
                 libs=command[first_archive:command.index('-o')]
-                run([*command[:3],'-Wl,--gc-sections','-no-pie',*sanitize,*objects,*libs,'-o',linux(out/'texture-residency')],'link')
+                # libstdc++ explicitly marks this inline default-visible, so
+                # -fvisibility-inlines-hidden alone does not localize it.
+                # Keep its instrumentation for application callers, while the
+                # sanitizer DSO resolves its own uninstrumented C++ runtime.
+                visibility=out/'ubsan-local.map';visibility.write_text('{ local: _ZNKSt9type_infoeqERKS_; };\n')
+                result['runtime_visibility_map_sha256']=sha(visibility)
+                run([*command[:3],'-Wl,--gc-sections','-no-pie',*sanitize,*objects,*libs,
+                     '-Wl,--version-script='+linux(visibility),'-o',linux(out/'texture-residency')],'link')
             else:run(command,'build-link')
             runtime=['wsl','--exec','env','ASAN_OPTIONS=detect_leaks=1:halt_on_error=1','UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1']
             if kind=='arm64':runtime+=['qemu-aarch64','-L','/usr/aarch64-linux-gnu']

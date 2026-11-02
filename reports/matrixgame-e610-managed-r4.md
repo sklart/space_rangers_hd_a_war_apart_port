@@ -71,6 +71,13 @@ std::type_info::operator== в executable → libubsan. Ошибка воспро
 probe build — -fvisibility-inlines-hidden; vptr, все остальные UBSan checks
 и assertions остаются включены. Новый результат записывается отдельно.
 Debugger распакован только в ignored build, SDK/системная установка не менялись.
+Попытка arm64/3 показала, что libstdc++ явно помечает этот inline как DEFAULT,
+поэтому одного -fvisibility-inlines-hidden недостаточно. Подтверждённое исправление
+link map локализует ровно _ZNKSt9type_infoeqERKS_ (type_info::operator==):
+инструментированный inline остаётся для собственных вызовов, но не подменяет
+C++ runtime внутри libubsan. Повторная линковка тех же объектов (arm64/3/local-result)
+прошла все восемь real inputs с полным UBSan, включая vptr. Финальный runner
+выполняет отдельную полную компиляцию/линковку с этой картой; попытки 2/3 не затёрты.
 
 ## Аппаратная граница
 
