@@ -4,6 +4,7 @@
 #include "platform_switch.hpp"
 #include "native_debug_font.hpp"
 #include "native_texture.hpp"
+#include "native_gamma.hpp"
 #include <switch.h>
 #include <cstring>
 namespace srhd_awa::matrixgame::diagnostic {
@@ -23,7 +24,7 @@ void RenderStatus(p::DekoDevice& device,std::span<const wchar_t* const> lines){
 }
 void SaveFrame(Journal& journal,std::string_view name,unsigned width,unsigned height,std::span<const std::byte> bgra){
     Operation operation("GPU.primary.readback.write");ValidateFrame(width,height,bgra);
-    if(name!="smoke" && name!="gamma-smoke" && name!="original-first")throw std::invalid_argument("diagnostic frame filename");
+    if(name!="smoke" && name!="gamma-smoke" && name!="orientation-smoke" && name!="original-first")throw std::invalid_argument("diagnostic frame filename");
     std::array<unsigned char,32> digest{};sha256CalculateHash(digest.data(),bgra.data(),bgra.size());std::array<char,65> hex{};
     for(unsigned i=0;i<32;++i)std::snprintf(hex.data()+i*2,3,"%02x",digest[i]);
     Record("framebuffer_sha256",name,hex.data());Metric("framebuffer_width",width);Metric("framebuffer_height",height);
@@ -65,11 +66,24 @@ void RunSmoke(p::DekoDevice& device,Journal& journal){
     {Operation draw("A.debug_font.upload_draw");font=debug_font::native::Font::Create(device.DebugFontSession());
     debug_font::TextRect text{24,24,int(width)-24,56};font->Draw(L"MatrixGame diagnostic GPU smoke",-1,text,0x120,0xffffffff);}
     p::CheckDeviceResult(device.NativeEndScene(),"smoke EndScene");
+    std::vector<std::byte> source_pixels;
     {
         Operation readback("A.BC1.framebuffer_check");
         const auto surfaces=device.SurfaceSession();auto pixels=native_surfaces::ReadFor(surfaces,surfaces->primary_color);
         CheckSmokePixels(width,height,pixels);SaveFrame(journal,"smoke",width,height,pixels);
+        source_pixels=std::move(pixels);
     }
+    // Preserve an asymmetric frame through the actual presentation shader.
+    // A constant gamma LUT cannot expose a vertical/horizontal inversion.
+    device.ApplyCalibratedGamma(0,p::IdentityGamma());
+    device.RequestPresentationReadback([&journal,source=std::move(source_pixels)](auto pixels,unsigned w,unsigned h){
+        Operation check("A.orientation.presentation_check");CheckIdentityPresentation(w,h,source,pixels);SaveFrame(journal,"orientation-smoke",w,h,pixels);
+    });
+    device.PresentNativeFrame();
+    device.BeginNativeFrame(0xff152638);p::CheckDeviceResult(device.NativeBeginScene(),"gamma smoke BeginScene");
+    p::CheckDeviceResult(device.NativeDrawUP(5,2,std::as_bytes(std::span{vertices}),sizeof(SmokeVertex)),"gamma smoke diagnostic rectangle");
+    {debug_font::TextRect text{24,24,int(width)-24,56};font->Draw(L"MatrixGame diagnostic GPU smoke",-1,text,0x120,0xffffffff);}
+    p::CheckDeviceResult(device.NativeEndScene(),"gamma smoke EndScene");
     device.ApplyCalibratedGamma(0,SmokeGammaRamp());
     device.RequestPresentationReadback([&journal](auto pixels,unsigned width,unsigned height){
         Operation check("A.gamma.presentation_check");CheckGammaSmokePixels(width,height,pixels);SaveFrame(journal,"gamma-smoke",width,height,pixels);

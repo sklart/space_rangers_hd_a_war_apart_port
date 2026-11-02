@@ -29,6 +29,14 @@ inline void CheckSmokePixels(unsigned width,unsigned height,std::span<const std:
     if(bgra[center]!=std::byte{0} || bgra[center+1]!=std::byte{0} || bgra[center+2]!=std::byte{255} || bgra[center+3]!=std::byte{255})
         throw std::runtime_error("BC1 smoke framebuffer center is not opaque red");
 }
+inline void CheckIdentityPresentation(unsigned width,unsigned height,std::span<const std::byte> source,std::span<const std::byte> output){
+    ValidateFrame(width,height,source);ValidateFrame(width,height,output);
+    for(std::size_t i=0;i<source.size();++i){
+        const auto a=std::to_integer<int>(source[i]),b=std::to_integer<int>(output[i]);
+        const int tolerance=i%4==3?0:1;
+        if(b<a-tolerance || b>a+tolerance)throw std::runtime_error("identity presentation differs from source (orientation/channels)");
+    }
+}
 inline platform3g::GammaRamp SmokeGammaRamp()noexcept {
     platform3g::GammaRamp ramp;
     ramp.red.fill(16384);ramp.green.fill(32768);ramp.blue.fill(49152);return ramp;

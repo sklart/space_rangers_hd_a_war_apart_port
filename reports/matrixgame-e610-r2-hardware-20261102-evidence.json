@@ -1,0 +1,162 @@
+{
+  "status": "HARDWARE PARTIAL: GPU SMOKE AND PREPAREMAP PASS; FULL INIT FAIL; ORIENTATION DEFECT OPEN",
+  "input_archive": "C:/pack.zip",
+  "archive_sha256": "73dd88563bcbaa8f36432f7bf962a0e4c18a6fdc12a92fe225081ab342317e36",
+  "runs": [
+    {
+      "run_id": "run-1793618087072125-0",
+      "variant": "matrixgame-e610-quick-smoke.nro",
+      "image_sha256": "e662661530354e43be2c6f2b9fc62a468ef1e4098e06253a65cdd773c1d6c6d0",
+      "mode": "quick-four-frames",
+      "build_id": "8c3612d2c347-21120b4e60dc014c05ec",
+      "journal_sha256": "c35b68b725532251a9c28f782073318211b0a8dc6a5ad40aa189c5668503904c",
+      "records": 136,
+      "journal_closed": false,
+      "smoke_ok": true,
+      "prepare_map_ok": true,
+      "full_init_ok": false,
+      "failed_operations": [
+        "B.ApplyVideoParams",
+        "B.interface_and_final_resources",
+        "B.CGame::Init"
+      ],
+      "exceptions": [],
+      "process_exit": [],
+      "frames": [
+        {
+          "name": "smoke",
+          "bytes": 3686400,
+          "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+          "recorded_digest_matches": true,
+          "center_bgra": [
+            0,
+            0,
+            255,
+            255
+          ]
+        },
+        {
+          "name": "gamma-smoke",
+          "bytes": 3686400,
+          "sha256": "1da62856cc442b6f62707902f6770a67c90bcadbaf7400c01ab21cd60044b98c",
+          "recorded_digest_matches": true,
+          "center_bgra": [
+            191,
+            127,
+            64,
+            255
+          ]
+        }
+      ]
+    },
+    {
+      "run_id": "run-1793618118070492-0",
+      "variant": "matrixgame-e610-quick-smoke.nro",
+      "image_sha256": "e662661530354e43be2c6f2b9fc62a468ef1e4098e06253a65cdd773c1d6c6d0",
+      "mode": "quick-four-frames",
+      "build_id": "8c3612d2c347-21120b4e60dc014c05ec",
+      "journal_sha256": "3db082988ffdffcd8efe52e5910016f65363426a1614942ad781d5d2bc6963fe",
+      "records": 157,
+      "journal_closed": true,
+      "smoke_ok": true,
+      "prepare_map_ok": true,
+      "full_init_ok": false,
+      "failed_operations": [
+        "B.ApplyVideoParams",
+        "B.interface_and_final_resources",
+        "B.CGame::Init",
+        "A.native_device_owner"
+      ],
+      "exceptions": [
+        "viOpenDefaultDisplay failed: 4722"
+      ],
+      "process_exit": [
+        10
+      ],
+      "frames": [
+        {
+          "name": "smoke",
+          "bytes": 3686400,
+          "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+          "recorded_digest_matches": true,
+          "center_bgra": [
+            0,
+            0,
+            255,
+            255
+          ]
+        },
+        {
+          "name": "gamma-smoke",
+          "bytes": 3686400,
+          "sha256": "1da62856cc442b6f62707902f6770a67c90bcadbaf7400c01ab21cd60044b98c",
+          "recorded_digest_matches": true,
+          "center_bgra": [
+            191,
+            127,
+            64,
+            255
+          ]
+        }
+      ]
+    },
+    {
+      "run_id": "run-1793618567070007-0",
+      "variant": "matrixgame-e610-interactive.nro",
+      "image_sha256": "9db5b12edf0b47754be23812bf5f52c85b60b099db30ed688dbbed5b9827b630",
+      "mode": "interactive",
+      "build_id": "8c3612d2c347-21120b4e60dc014c05ec",
+      "journal_sha256": "96afc6311e521ae0d1dcd8ddf950e3bdb99c04e75622be6e52c3695d5d967acc",
+      "records": 157,
+      "journal_closed": true,
+      "smoke_ok": true,
+      "prepare_map_ok": true,
+      "full_init_ok": false,
+      "failed_operations": [
+        "B.ApplyVideoParams",
+        "B.interface_and_final_resources",
+        "B.CGame::Init",
+        "A.native_device_owner"
+      ],
+      "exceptions": [
+        "viOpenDefaultDisplay failed: 4722"
+      ],
+      "process_exit": [
+        10
+      ],
+      "frames": [
+        {
+          "name": "smoke",
+          "bytes": 3686400,
+          "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+          "recorded_digest_matches": true,
+          "center_bgra": [
+            0,
+            0,
+            255,
+            255
+          ]
+        },
+        {
+          "name": "gamma-smoke",
+          "bytes": 3686400,
+          "sha256": "1da62856cc442b6f62707902f6770a67c90bcadbaf7400c01ab21cd60044b98c",
+          "recorded_digest_matches": true,
+          "center_bgra": [
+            191,
+            127,
+            64,
+            255
+          ]
+        }
+      ]
+    }
+  ],
+  "photo": {
+    "name": "2026110214225800.jpg",
+    "sha256": "9d1d7192d937772a02d9644a18704f3edbdda72f504d714720719fab32aa931a",
+    "observation": "Stage B status text vertically inverted; horizontal mirroring not established"
+  },
+  "scope": "read-only hardware evidence review; no code changes, no new runtime tests",
+  "first_log_limit": "First journal stops at failed B.CGame::Init; cleanup/outcome not recorded"
+}

@@ -127,7 +127,8 @@ void Run(const char* root_arg,const char* rangers_root_arg,dg::Journal& journal)
         CheckLibnx(appletSetAppletWindowVisibility(true),"appletSetAppletWindowVisibility");
     }
     Cancellation cancel;cancel.Poll();
-    dg::Record("begin","A.SwitchWindow");p::SwitchWindow window(*nwindowGetDefault(),true);dg::Record("ok","A.SwitchWindow");
+    dg::Operation display_setup("A.SwitchDisplay");p::SwitchDisplay display;
+    dg::Record("begin","A.SwitchWindow");p::SwitchWindow window(display.NativeWindow(),true,&display);dg::Record("ok","A.SwitchWindow");
     // cancel and journal outlive window/Device/runtime, including unwind.
     window.SetWaitCheckpoint([&]{cancel.Poll();journal.RequireHealthy();});
     dg::WindowPhase diagnostic_window(window);

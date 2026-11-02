@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "platform_switch.hpp"
+#include "native_display_owner.hpp"
 #include "native_diagnostic_journal.hpp"
 #include "../deko/legacy_raster_viewport.hpp"
 #include "../deko/legacy_polygon_mode.hpp"
@@ -129,8 +130,29 @@ struct SwitchWindow::LifecycleImpl {
     NxAppletBackend backend;applet_window::Lifecycle session;
     explicit LifecycleImpl(bool visible):session(backend,events,visible){}
 };
-SwitchWindow::SwitchWindow(NWindow& window,bool owner_visible):window_(window),lifecycle_(std::make_unique<LifecycleImpl>(owner_visible)){
+struct SwitchDisplay::Impl {
+    struct Backend {
+        ViDisplay display{};ViLayer layer{};NWindow window{};
+        void InitializeService(){CheckNx(viInitialize(ViServiceType_Default),"viInitialize");}
+        void OpenDisplay(){CheckNx(viOpenDefaultDisplay(&display),"viOpenDefaultDisplay(owner)");diagnostic::Record("ok","VI.owner.open_display");}
+        void CreateLayer(){CheckNx(viCreateLayer(&display,&layer),"viCreateLayer");}
+        void ConfigureLayer(){CheckNx(viSetLayerScalingMode(&layer,ViScalingMode_FitToLayer),"viSetLayerScalingMode");}
+        void CreateWindow(){CheckNx(nwindowCreateFromLayer(&window,&layer),"nwindowCreateFromLayer");}
+        void ConfigureWindow(){CheckNx(nwindowSetDimensions(&window,1280,720),"nwindowSetDimensions(initial)");}
+        void CloseWindow()noexcept{nwindowClose(&window);diagnostic::Record("ok","VI.owner.close_window");}
+        void CloseLayer()noexcept{const auto r=viCloseLayer(&layer);diagnostic::Record(r?"failed":"result","VI.owner.close_layer",{},r);}
+        void CloseDisplay()noexcept{const auto r=viCloseDisplay(&display);diagnostic::Record(r?"failed":"result","VI.owner.close_display",{},r);}
+        void ExitService()noexcept{viExit();diagnostic::Record("ok","VI.owner.exit_service");}
+    } backend;
+    NativeDisplayOwner<Backend> owner{backend};
+};
+SwitchDisplay::SwitchDisplay():impl_(std::make_unique<Impl>()){}
+SwitchDisplay::~SwitchDisplay()=default;
+NWindow& SwitchDisplay::NativeWindow()const noexcept{return impl_->backend.window;}
+SwitchWindow::SwitchWindow(NWindow& window,bool owner_visible):SwitchWindow(window,owner_visible,nullptr){}
+SwitchWindow::SwitchWindow(NWindow& window,bool owner_visible,SwitchDisplay* display):window_(window),display_(display),lifecycle_(std::make_unique<LifecycleImpl>(owner_visible)){
     if(!nwindowIsValid(&window_))throw std::invalid_argument("invalid native libnx window");
+    if(display_ && &display_->NativeWindow()!=&window_)throw std::invalid_argument("VI display/window binding mismatch");
     (void)ReadClientRect();
 }
 SwitchWindow::~SwitchWindow(){if(lifecycle_->session.Attached() || lifecycle_->geometry_owner)std::terminate();}
@@ -561,9 +583,9 @@ CreationParameters DekoDevice::ReadCreationParameters(){
 }
 DisplayMode DekoDevice::ReadAdapterDisplayMode(std::uint32_t adapter){
     if(adapter)throw std::invalid_argument("native adapter ordinal");
-    if(&impl_->window.NativeWindow()!=nwindowGetDefault())throw Unsupported("native display query requires default NWindow or an explicit display binding");
-    impl_->window.WaitForDrawable();ViDisplay display{};CheckNx(viOpenDefaultDisplay(&display),"viOpenDefaultDisplay");
-    struct DisplayOwner {ViDisplay& display;~DisplayOwner(){const auto result=viCloseDisplay(&display);if(result)std::fprintf(stderr,"viCloseDisplay failed: %08x\n",unsigned(result));}} display_owner{display};
+    if(!impl_->window.display_)throw Unsupported("native display query requires explicit VI display/window binding");
+    impl_->window.WaitForDrawable();auto& display=impl_->window.display_->impl_->backend.display;
+    diagnostic::Record("begin","VI.owner.query_mode","reuse live display; no reopen/close");
     s32 width{},height{},after_width{},after_height{};CheckNx(viGetDisplayResolution(&display,&width,&height),"viGetDisplayResolution");
     if(width<=0 || height<=0 || width>16384 || height>16384)throw std::invalid_argument("native VI display extent");
     Event event{};CheckNx(viGetDisplayVsyncEvent(&display,&event),"viGetDisplayVsyncEvent");
@@ -580,7 +602,10 @@ DisplayMode DekoDevice::ReadAdapterDisplayMode(std::uint32_t adapter){
     else if(format==PIXEL_FORMAT_RGBX_8888)native=PixelFormat::Xrgb8;
     else if(format==PIXEL_FORMAT_RGB_565)native=PixelFormat::Rgb565;
     else throw Unsupported("native layer display format unsupported");
-    return {unsigned(width),unsigned(height),presentation::RefreshFromVblanks(timestamps),native};
+    const auto refresh=presentation::RefreshFromVblanks(timestamps);
+    diagnostic::Metric("VI.display_width",width);diagnostic::Metric("VI.display_height",height);diagnostic::Metric("VI.refresh_hz",refresh);
+    diagnostic::Record("ok","VI.owner.query_mode");
+    return {unsigned(width),unsigned(height),refresh,native};
 }
 DeviceResult DekoDevice::CheckMultisample(std::uint32_t adapter,std::uint32_t type,PixelFormat format,bool windowed,std::uint32_t samples){return presentation::Multisample(adapter,type,format,windowed,samples);}
 DeviceResult DekoDevice::ResetPresentation(Presentation& value){

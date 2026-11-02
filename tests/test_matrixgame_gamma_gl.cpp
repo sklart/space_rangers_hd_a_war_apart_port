@@ -22,6 +22,8 @@ int main(int argc,char** argv){
     const EGLint ctxattrs[]{EGL_CONTEXT_MAJOR_VERSION,4,EGL_CONTEXT_MINOR_VERSION,5,EGL_CONTEXT_OPENGL_PROFILE_MASK,EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,EGL_NONE};
     auto context=eglCreateContext(display,cfg,EGL_NO_CONTEXT,ctxattrs);assert(context!=EGL_NO_CONTEXT);assert(eglMakeCurrent(display,EGL_NO_SURFACE,EGL_NO_SURFACE,context));
     std::printf("GL_RENDERER=%s GL_VERSION=%s\n",glGetString(GL_RENDERER),glGetString(GL_VERSION));
+    // Match deko3d's actual device convention, rather than Mesa's default GL origin.
+    glClipControl(GL_UPPER_LEFT,GL_ZERO_TO_ONE);
     const auto vertex=Shader(GL_VERTEX_SHADER,argv[1]),fragment=Shader(GL_FRAGMENT_SHADER,argv[2]);const auto program=glCreateProgram();glAttachShader(program,vertex);glAttachShader(program,fragment);glLinkProgram(program);GLint ok;glGetProgramiv(program,GL_LINK_STATUS,&ok);assert(ok);glUseProgram(program);
     constexpr unsigned W=256,H=13;std::vector<unsigned char> source(W*H*4),output(source.size()),unchanged(source.size());
     for(unsigned y=0;y<H;++y)for(unsigned x=0;x<W;++x){const auto i=(y*W+x)*4;source[i]=x;source[i+1]=(x+17*y)&255;source[i+2]=(255-x+5*y)&255;source[i+3]=(x*13+y*7)&255;}

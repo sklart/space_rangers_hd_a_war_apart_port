@@ -15,10 +15,23 @@
 #include <functional>
 struct NWindow;
 namespace srhd_awa::matrixgame::platform3g {
+// Explicit VI display/layer/window lifetime for standalone native applications.
+// It must outlive SwitchWindow and every presentation resource borrowing it.
+class SwitchDisplay final {
+public:
+    SwitchDisplay();
+    ~SwitchDisplay();
+    SwitchDisplay(const SwitchDisplay&)=delete;
+    NWindow& NativeWindow()const noexcept;
+private:
+    friend class DekoDevice;
+    struct Impl;std::unique_ptr<Impl> impl_;
+};
 // Borrow a real libnx window. No HWND, Win32 message dispatch, or owned close.
 class SwitchWindow final:public Window,public native_cursor::Provider,public native_form::WindowOperations {
 public:
     explicit SwitchWindow(NWindow&,bool owner_visible);
+    SwitchWindow(NWindow&,bool owner_visible,SwitchDisplay* display);
     ~SwitchWindow();
     SwitchWindow(const SwitchWindow&)=delete;
     void* Identity()const noexcept override;
@@ -50,7 +63,7 @@ private:
     friend class DekoDevice;
     void BindGeometry(void*,std::function<void(std::int32_t,std::int32_t)>);
     void UnbindGeometry(void*)noexcept;
-    struct LifecycleImpl;NWindow& window_;std::unique_ptr<LifecycleImpl> lifecycle_;
+    struct LifecycleImpl;NWindow& window_;SwitchDisplay* display_;std::unique_ptr<LifecycleImpl> lifecycle_;
 };
 // Real device and compiled material pair. Full native Init/present remains a
 // separate gate from texture-cascade capability negotiation.

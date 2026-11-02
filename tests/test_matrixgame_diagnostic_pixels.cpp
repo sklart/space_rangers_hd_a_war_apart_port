@@ -15,5 +15,13 @@ int main(){
     pixels[center+3]=std::byte{255};Reject([&]{d::CheckSmokePixels(w,h,std::span{pixels}.first(pixels.size()-1));});
     Reject([&]{d::CheckSmokePixels(0,h,pixels);});Reject([&]{d::ValidateFrame(std::numeric_limits<unsigned>::max(),h,pixels);});
     const auto quad=d::SmokeQuad(w,h);assert(quad.size()==4 && quad[0].x<float(w/2) && quad[3].x>float(w/2) && quad[0].y<float(h/2) && quad[3].y>float(h/2));
-    std::puts("DIAGNOSTIC_PIXELS PASS clear_only_rejected wrong_channels_rejected alpha_rejected truncated_overflow_rejected CPU_CHECKER_ONLY NO_GPU_RENDER");
+    std::vector<std::byte> asymmetric(8*8*4),flipped(asymmetric.size());
+    for(unsigned y=0;y<8;++y)for(unsigned x=0;x<8;++x){const auto i=(y*8+x)*4;asymmetric[i]=std::byte(17*x);asymmetric[i+1]=std::byte(23*y);asymmetric[i+2]=std::byte(x+31*y);asymmetric[i+3]=std::byte{255};}
+    d::CheckIdentityPresentation(8,8,asymmetric,asymmetric);
+    for(unsigned y=0;y<8;++y)for(unsigned x=0;x<8;++x)for(unsigned c=0;c<4;++c)flipped[(y*8+x)*4+c]=asymmetric[((7-y)*8+x)*4+c];
+    Reject([&]{d::CheckIdentityPresentation(8,8,asymmetric,flipped);});
+    for(unsigned y=0;y<8;++y)for(unsigned x=0;x<8;++x)for(unsigned c=0;c<4;++c)flipped[(y*8+x)*4+c]=asymmetric[(y*8+7-x)*4+c];
+    Reject([&]{d::CheckIdentityPresentation(8,8,asymmetric,flipped);});
+    flipped=asymmetric;flipped[3]=std::byte{254};Reject([&]{d::CheckIdentityPresentation(8,8,asymmetric,flipped);});
+    std::puts("DIAGNOSTIC_PIXELS PASS clear_only_rejected wrong_channels_rejected alpha_rejected truncated_overflow_rejected identity_orientation XY_flip_rejected CPU_CHECKER_ONLY NO_GPU_RENDER");
 }

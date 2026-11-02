@@ -49,6 +49,19 @@ Build ID: `b6c18a13cef88fe757d683e18cf48fc667067bda`. Release ARM64:
 
 ## MatrixGame E610 Freeze: два запуска
 
+**Аппаратный результат r2:** два Quick и один Interactive подтвердили BC1/gamma
+smoke и PrepareMap, затем остановились в ApplyVideoParams:
+`viOpenDefaultDisplay failed: 4722`. Полный Init и кадры карты не прошли.
+[Анализ журналов и фото](reports/matrixgame-e610-r2-hardware-20261102.md).
+
+**r3:** исправлены повторное открытие VI display и ориентация gamma-прохода;
+добавлена полнокадровая проверка identity presentation. Один явный владелец
+создаёт VI display/layer/window и освобождает их в обратном порядке, а mode query
+переиспользует живой display. Имена в hbmenu теперь различаются явно:
+`MatrixGame r3 Quick Smoke` / `MatrixGame r3 Interactive`.
+[Инструкция r3](docs/matrixgame-e610-display-r3-readme.ru.md).
+Аппаратное подтверждение r3 ещё не получено; исторические пакеты ниже сохранены.
+
 **Уточнение r2:** для уже скопированного DATA подготовлен вариант с Rangers root
 `sdmc:/switch/space-rangers-hd-a-war-apart/game`; повторная копия всех 2+ ГБ
 в `matrixgame-diag/rangers` не нужна. [Инструкция r2](docs/matrixgame-e610-shared-data-readme.ru.md).
