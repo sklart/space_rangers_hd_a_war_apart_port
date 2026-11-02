@@ -7,6 +7,17 @@ from matrixgame_render_pipeline_overrides import adapt
 def prepare_map_static(output):
     name='MatrixGame/src/MatrixMapStatic.cpp';path=output/name
     text=path.read_text(encoding='utf-8')
+    # Original x86 object queues store pointers, not serialized dwords.
+    # Full pointer-width overlapping moves preserve their ordering on x64/ARM64.
+    shifts=(
+        ('memcpy(&objects[objects_left - 1], &objects[objects_left], sizeof(PCMatrixMapStatic) * lc);',
+         'std::memmove(&objects[objects_left - 1], &objects[objects_left], sizeof(PCMatrixMapStatic) * lc);'),
+        ('memcopy_back_dword(&objects[idx + 1], &objects[idx], rc);',
+         'std::memmove(&objects[idx + 1], &objects[idx], sizeof(PCMatrixMapStatic) * rc);'),
+    )
+    for old,new in shifts:
+        if text.count(old)!=1:raise ValueError('Original static object sorted queue shift changed')
+        text=text.replace(old,new,1)
     if text.count('CACHE_CREATE_TEXTUREMANAGED()')!=1:raise ValueError('Original portrait texture factory changed')
     text=text.replace('CACHE_CREATE_TEXTUREMANAGED()','static_texture::CreateManaged()')
     text=adapt(text)
@@ -51,7 +62,8 @@ def prepare_map_static(output):
 #endif
 '''
     text=text.replace(marker,check+'\n'+marker)
-    prelude='''#include "Texture.hpp"
+    prelude='''#include <cstring>
+#include "Texture.hpp"
 #include "offscreen_backend.hpp"
 #include "map_device_backend.hpp"
 #include "renderer_ops.hpp"

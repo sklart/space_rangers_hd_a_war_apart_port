@@ -6,7 +6,7 @@ def prepare_transition(output):
     text=(output/'MatrixGame/src/MatrixTransition.cpp').read_text(encoding='utf-8')
     text=adapt(text)
     replacements={
-        'HDC hdc = GetDC(g_Wnd);':'transition_native::CaptureDC hdc;',
+        'HDC hdc = GetDC(g_Wnd);':'',
         'RECT r;\n    GetClientRect(g_Wnd, &r);':'const auto r=transition_native::ClientRect();',
         'WinBitmap bm;':'transition_native::Bitmap bm;',
         'CreateCompatibleBitmap(':'transition_native::CompatibleBitmap(',
@@ -29,6 +29,11 @@ def prepare_transition(output):
     for old,new in replacements.items():
         if old not in text:raise ValueError('Original transition boundary changed: '+old)
         text=text.replace(old,new)
+    begin='    bm.SetHandle(transition_native::CompatibleBitmap(hdc, r.right, r.bottom));'
+    end='    bm.Save(true);'
+    if text.count(begin)!=1 or text.count(end)!=1:raise ValueError('Original transition capture block changed')
+    first=text.index(begin);last=text.index(end,first)+len(end)
+    text=text[:first]+'    transition_native::CaptureLoadingImage(bm, m_ScreenX, m_ScreenY);'+text[last:]
     prelude='''#include "Texture.hpp"
 #include "transition_backend.hpp"
 #include "offscreen_backend.hpp"

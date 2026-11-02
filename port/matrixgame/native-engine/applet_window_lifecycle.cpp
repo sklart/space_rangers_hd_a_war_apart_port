@@ -33,6 +33,7 @@ void Lifecycle::Show(bool visible){
 void Lifecycle::WaitForDrawable(){
     Update();
     if(!visible_)throw std::logic_error("show native window before drawing");
-    while(!Drawable()){backend_.Wait();Update();}
+    if(checkpoint_)checkpoint_();
+    while(!Drawable()){backend_.Wait();Update();if(checkpoint_)checkpoint_();}
 }
 }

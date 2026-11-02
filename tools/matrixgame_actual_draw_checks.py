@@ -8,11 +8,16 @@ def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def linux(p):return str(p).replace('\\','/').replace('D:/','/mnt/d/')
 def main():
  global BASE
- ap=argparse.ArgumentParser();ap.add_argument('kind',choices=['windows','host','arm64','sdk']);ap.add_argument('--output',type=Path,default=BASE);ap.add_argument('--selection',action='store_true');ap.add_argument('--reuse-compiled',action='store_true');ap.add_argument('--resource-root',type=Path);args=ap.parse_args();kind=args.kind;BASE=args.output.resolve()
+ ap=argparse.ArgumentParser();ap.add_argument('kind',choices=['windows','host','arm64','sdk']);ap.add_argument('--output',type=Path,default=BASE);ap.add_argument('--selection',action='store_true');ap.add_argument('--selection-source',type=Path);ap.add_argument('--input-source',type=Path);ap.add_argument('--reuse-compiled',action='store_true');ap.add_argument('--resource-root',type=Path);ap.add_argument('--robot-source',type=Path);ap.add_argument('--diagnostic-source',type=Path);args=ap.parse_args();kind=args.kind;BASE=args.output.resolve()
  out=BASE/kind;out.mkdir(parents=True,exist_ok=True);j={'status':'INCOMPLETE','commands':[],'Switch_hardware':'NOT RUN / HARDWARE_PENDING'}
  paths=['tests/'+n for n in ('matrixgame_actual_draw_state.hpp','matrixgame_actual_draw_audit.hpp','matrixgame_actual_draw_windows.cpp','test_matrixgame_actual_draw_replay.cpp')]
  paths+=['port/matrixgame/native-engine/'+n for n in ('platform_win32.hpp','map_device_backend.cpp','shadow_texture_backend.cpp','debug_font_backend.cpp','native_device_state.cpp','native_device_state.hpp')]
  paths+=['port/matrixgame/deko/'+n for n in ('fixed_vertex.cpp','fixed_vertex.hpp','material_combiner.cpp','material_combiner.hpp','stencil_state.hpp','pixel_fog.hpp')]
+ if args.robot_source:paths+=['tools/matrixgame_actor_overrides.py',str(args.robot_source.resolve().relative_to(ROOT))]
+ if args.diagnostic_source:
+  paths+=['port/matrixgame/native-engine/'+n for n in ('native_diagnostic_journal.hpp','native_diagnostic_journal.cpp','native_diagnostic_control.hpp','platform_switch.hpp','CMakeLists.txt')]
+  paths+=['tests/matrixgame_native_diagnostic_main.cpp']+['tools/'+n for n in ('matrixgame_original_game_overrides.py','matrixgame_video_overrides.py','matrixgame_cursor_overrides.py','matrixgame_map_prepare_overrides.py','matrixgame_minimap_overrides.py','matrixgame_diagnostic_metadata.py')]
+  paths+=['port/matrixgame/native-engine/'+n for n in ('native_diagnostic_smoke.hpp','native_diagnostic_smoke.cpp','native_diagnostic_pixels.hpp')]
  def run(cmd,label,cwd=ROOT):
   if isinstance(cmd,str):
    script=out/(label+'.cmd');script.write_text(cmd+'\n');cmd=['cmd.exe','/d','/c',script]
@@ -36,7 +41,8 @@ def main():
    body=body.replace(marker,'    matrixgame_draw_audit::Session draw_audit(device);\n'+marker)
    marker='        return 0;';assert body.count(marker)==1;body=body.replace(marker,'        draw_audit.Finish();\n'+marker)
    resource_define=''
-   if args.resource_root:resource_define='#define MATRIXGAME_FORM_TEST_RESOURCE_ROOT L"'+args.resource_root.resolve().as_posix()+'"\n'
+   if args.diagnostic_source:resource_define+='#define MATRIXGAME_FORM_TEST_JOURNAL_SHA "'+sha(ROOT/'tools/matrixgame_original_game_overrides.py')+'"\n'
+   if args.resource_root:resource_define+='#define MATRIXGAME_FORM_TEST_RESOURCE_ROOT L"'+args.resource_root.resolve().as_posix()+'"\n'
    harness=out/'driver.cpp';harness.write_text('#include "matrixgame_actual_draw_audit.hpp"\n#define MATRIXGAME_FORM_TEST_OUTPUT L"'+(out/('private-output-'+uuid.uuid4().hex)).as_posix()+'"\n'+resource_define+body,encoding='utf-8')
    main_body=(ROOT/'tests/matrixgame_windows_frame_main.cpp').read_text();marker='    return result;\n}';assert main_body.count(marker)==1
    main_body=main_body.replace(marker,'    return matrixgame_draw_audit::FinalResult(result);\n}')
@@ -45,12 +51,16 @@ def main():
    sources += [ROOT/'port/matrixgame/native-core'/n for n in ('file_native.cpp','resource_paths.cpp')]
    # FILE owners and users must use the same CRT as the refreshed CFile TU.
    sources += [ROOT/'port/switch/platform/package.cpp']
+   if args.robot_source:sources += [args.robot_source.resolve()]
+   if args.diagnostic_source:
+    sources += [ROOT/'port/matrixgame/native-engine/native_diagnostic_journal.cpp']
+    sources += [args.diagnostic_source.resolve()/'MatrixGame/src'/n for n in ('MatrixGame.cpp','OriginalMapPrepare.cpp','MatrixMinimap.cpp','MatrixCursor.cpp')]
    sources += [ROOT/'port/matrixgame/deko'/n for n in ('fixed_vertex.cpp','material_combiner.cpp')]+[ROOT/'tests'/n for n in ('matrixgame_windows_stored_slots.cpp','matrixgame_actual_draw_windows.cpp')]+[main_source,harness]
-   sources += [ROOT/'port/matrixgame/native-engine/native_input.cpp',ROOT/'port/matrixgame/native-engine/native_input_engine.cpp']
-   if args.selection:sources += [ROOT/'tests/matrixgame_windows_selection.cpp']
+   sources += [args.input_source.resolve() if args.input_source else ROOT/'port/matrixgame/native-engine/native_input.cpp',ROOT/'port/matrixgame/native-engine/native_input_engine.cpp']
+   if args.selection:sources += [args.selection_source.resolve() if args.selection_source else ROOT/'tests/matrixgame_windows_selection.cpp']
    paths += [str(p.relative_to(ROOT)) for p in sources]+['tests/matrixgame_windows_form_loop.cpp','tests/matrixgame_windows_frame_main.cpp']
    link=(prior/'link.cmd').read_text().strip();oldexe=str(prior/'form-loop.exe');assert oldexe in link
-   link=link.replace(oldexe,str(out/'actual-draw.exe')).replace(str(prior/'form-loop.map'),str(out/'actual-draw.map'))
+   link=link.replace(oldexe,str(out/'matrixgame-map-state.exe')).replace(str(prior/'form-loop.map'),str(out/'actual-draw.map'))
    previous=read(out/'result.json') if args.reuse_compiled and (out/'result.json').is_file() else {}
    headers=[p for folder in (ROOT/'port/matrixgame',ROOT/'tests',ROOT/'build/matrixgame/e2e528-minimap/source') for p in folder.rglob('*') if p.suffix in ('.h','.hpp') and p.is_file()]
    latest_header=max(p.stat().st_mtime_ns for p in headers)
@@ -63,15 +73,17 @@ def main():
     else:run(template+' /c "'+str(source)+'" /Fo"'+str(obj)+'"','build-'+source.stem)
     aliases={source.stem.lower()}
     if source.stem=='map_device_backend':aliases.add('map-device')
+    if source.stem=='MatrixGame':aliases.add('game')
+    if source.stem=='MatrixMinimap':aliases.add('matrixminimapoutputobserved')
     existing=[s for s in re.findall(r'"([^"]+\.obj)"',link,re.I) if Path(s).stem.lower() in aliases]
     assert len(existing)<=1,(source,existing)
     if existing:link=link.replace('"'+existing[0]+'"','"'+str(obj)+'"')
     else:link+=' "'+str(obj)+'"'
-   run(link,'link',ROOT/'build/matrixgame/e2e519/original-init-windows');j['binary_sha256']=sha(out/'actual-draw.exe')
+   run(link,'link',ROOT/'build/matrixgame/e2e519/original-init-windows');j['binary_sha256']=sha(out/'matrixgame-map-state.exe')
    cwd=read(ROOT/'build/matrixgame/e2e522/windows-frame/result.json')['cwd']
    if args.resource_root:
     cwd=out/'foreign-cwd';cwd.mkdir(exist_ok=True);j['resource_root']=str(args.resource_root.resolve());j['foreign_cwd']=str(cwd)
-   run([out/'actual-draw.exe',out],'runtime',cwd)
+   run([out/'matrixgame-map-state.exe',out],'runtime',cwd)
    assert j['stdout'].count('ACTUAL_MAP_NATIVE_STATE')==2 and j['stdout'].count('REAL_FORM_LOOP draws=8 elapsed=125')==2
   elif kind in ('host','arm64'):
    paths+=['port/matrixgame/native-core/buffer_resources.cpp']
@@ -88,14 +100,24 @@ def main():
    paths+=['port/matrixgame/native-core/resource_paths.hpp','port/matrixgame/native-core/resource_paths.cpp','port/matrixgame/native-core/file_native.cpp','port/matrixgame/native-core/CMakeLists.txt','port/matrixgame/native-engine/original_game.hpp','port/matrixgame/native-engine/original_game.cpp','port/matrixgame/native-engine/init_runtime.hpp','port/matrixgame/native-engine/init_runtime.cpp','tests/probe_matrixgame_native_entry.cpp']
    paths+=['port/matrixgame/native-engine/'+n for n in ('native_input.hpp','native_input.cpp','native_input_engine.hpp','native_input_engine.cpp','native_text.hpp','native_text.cpp','native_text_backend.cpp','native_text_asset.cpp','text_backend.cpp','platform_switch.cpp','native_draw_batch.hpp','native_frame_scope.hpp','native_command_memory.hpp')]+['port/matrixgame/deko/legacy_raster_viewport.hpp']
    cmd=read(ROOT/'build/matrixgame/e2e535-standalone-input/sdk/result.json')['commands'][0]['command'][:];cmd[cmd.index('-B')+1]=str(out)
-   run(cmd,'configure');run([cmd[0],'--build',out,'--target','matrixgame-native-entry','-j','4'],'build')
-   symbols=run(['C:/devkitPro/devkitA64/bin/aarch64-none-elf-nm.exe','-C',out/'matrixgame-native-entry.elf'],'symbols');j['strong_undefined']=[s for s in symbols.splitlines() if ' U ' in s];assert not j['strong_undefined'];j['elf_sha256']=sha(out/'matrixgame-native-entry.elf')
-   ninja=next(v.split('=',1)[1] for v in cmd if v.startswith('-DCMAKE_MAKE_PROGRAM='));graph=run([ninja,'-C',out,'-t','graph','matrixgame-native-entry.elf'],'link-graph');inputs=set()
+   target='matrixgame-native-diagnostic' if args.diagnostic_source else 'matrixgame-native-entry'
+   if args.diagnostic_source:cmd+=['-DMATRIXGAME_DIAGNOSTIC_DEKO_DEBUG=ON']
+   run(cmd,'configure');run([cmd[0],'--build',out,'--target',target,'-j','4'],'build')
+   elf=out/(target+'.elf');j['elf_path']=str(elf.relative_to(ROOT))
+   symbols=run(['C:/devkitPro/devkitA64/bin/aarch64-none-elf-nm.exe','-C',elf],'symbols');j['strong_undefined']=[s for s in symbols.splitlines() if ' U ' in s];assert not j['strong_undefined'];j['elf_sha256']=sha(elf)
+   ninja=next(v.split('=',1)[1] for v in cmd if v.startswith('-DCMAKE_MAKE_PROGRAM='));graph=run([ninja,'-C',out,'-t','graph',target+'.elf'],'link-graph');inputs=set()
    for label in re.findall(r'\[label="((?:\\.|[^"\\])*)"',graph):
     p=(out/Path(json.loads('"'+label+'"'))).resolve()
     if p.is_relative_to(ROOT) and p.suffix in ('.o','.obj','.a') and p.is_file():inputs.add(p)
    j['link_inputs_sha256']={str(p.relative_to(ROOT)):sha(p) for p in sorted(inputs)}
-   generated=read(out/'source/native-engine-source.json')['files_sha256'];assert generated==read(ROOT/'build/matrixgame/e2e535-standalone-input/sdk/source/native-engine-source.json')['files_sha256'];j['original_generated_files_unchanged']=len(generated)
+   generated=read(out/'source/native-engine-source.json')['files_sha256'];old=read(ROOT/'build/matrixgame/e2e535-standalone-input/sdk/source/native-engine-source.json')['files_sha256'];changed={p for p in generated if generated[p]!=old.get(p)};assert generated.keys()==old.keys()
+   if args.diagnostic_source:
+    assert changed=={'MatrixGame/src/MatrixObjectRobot.cpp','MatrixGame/src/MatrixGame.cpp','MatrixGame/src/GameStaticResources.cpp','MatrixGame/src/MatrixCursor.cpp','MatrixGame/src/MatrixMinimap.cpp','MatrixGame/src/OriginalMapPrepare.cpp'}
+    for name in changed:assert generated[name]==sha(args.diagnostic_source.resolve()/name)
+   elif args.robot_source:
+    assert changed=={'MatrixGame/src/MatrixObjectRobot.cpp'} and generated['MatrixGame/src/MatrixObjectRobot.cpp']==sha(args.robot_source.resolve())
+   else:assert not changed
+   j['original_generated_files_unchanged']=len(generated)-len(changed);j['original_generated_files_changed']=sorted(changed)
   j['status']='PASS' if kind!='sdk' else 'COMPILE/LINK PASS; SWITCH RUNTIME NOT RUN'
  finally:
   j['source_sha256']={p:sha(ROOT/p) for p in set(paths)}

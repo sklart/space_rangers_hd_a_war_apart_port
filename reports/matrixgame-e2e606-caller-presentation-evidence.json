@@ -1,0 +1,35 @@
+{
+  "status": "PASS REAL WINDOWS CALLER WINDOW/DEVICE/GAMMA HANDOFF: EXCEPTION AND NATURAL DEFEAT/RESULT/RETURN; NATIVE SDK COMPILE/LINK",
+  "gates": {
+    "Windows_exception": {
+      "path": "build\\matrixgame\\e2e606-caller-presentation\\windows\\2\\result.json",
+      "sha256": "528d6e1ebe937d7bfbe635bf3596ba62f9d94586979f839087c0326349ed5712",
+      "source_snapshot_sha256": "5e73f9467b48cefd30c725b7a50f230c7516265dc5758eecc9c6cd54472eb2ee",
+      "status": "PASS REAL WINDOWS HWND/D3D9 CALLER LEASE HANDOFF/DEVICE/GAMMA/EXCEPTION/SNAPSHOT/CLEANUP; PARTIAL ASAN",
+      "journal_sha256": "8ba1babd156a772c6f8781ad5049ec42a189608df6475967d8210cb2be763d94"
+    },
+    "Windows_natural": {
+      "path": "build\\matrixgame\\e2e602-campaign-frun\\windows-difficulty3-economy-campaign0-winter1_1e-heavy-squad-caller-lease\\1\\result.json",
+      "sha256": "a8ef54ede1fe7b536e479c42e9f858796e2b2ad52975f65ccbdbb5ebda8c046e",
+      "source_snapshot_sha256": "1e27329369ac4b0f068ad0a150a9d57b9ee5ffda19c1b779c2c7d8ae8ae9da91",
+      "status": "PASS; PARTIAL WINDOWS ASAN ORIGINAL CAMPAIGN/GOV/FRUN/NATURAL OUTCOME/HISTORY/RETURN; UI AUTOSAVE HANDLER NOT RUN",
+      "journal_sha256": "adb85ea08ef4a9cb7d316cea242899aec1471a7c07205fb0c1f64babc8849ac3"
+    },
+    "SDK": {
+      "path": "build\\matrixgame\\e2e606-caller-presentation\\sdk\\2\\result.json",
+      "sha256": "392c58805b55b82c98b3685806bf7919ce315782cdfdbc3e3382ca5df12be32c",
+      "source_snapshot_sha256": "edfc1a66aab6a0446da173c0c0e1fdd4f6d63bd394918abd2105a70138321e05",
+      "status": "PASS PRODUCTION FRUN CALLER DISPATCH/NATIVE OWNER SDK COMPILE/RETAINED LINK; ZERO STRONG UNDEFINED; NOT RUN"
+    }
+  },
+  "Windows_instrumentation": "PARTIAL MSVC ASAN",
+  "native_GPU_runtime": "NOT RUN",
+  "native_full_Gov_context": "NOT RUN",
+  "natural_victory": "NOT PROVEN",
+  "new_NRO": false,
+  "E604_package_preserved_sha256": "3c6332447084b827b7ecf078bb2b7a5eb40618fc7f9b67a319355e9c779a6af7",
+  "protected_inputs_and_upstream_pins": "VERIFIED",
+  "commit": false,
+  "push": false,
+  "audit_sha256": "c086a3da0fc6cd4a318728c4d3bfed1d13f0937849b4e379f60351f3ce5eb898"
+}

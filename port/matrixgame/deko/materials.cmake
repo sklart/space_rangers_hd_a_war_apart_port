@@ -21,6 +21,16 @@ if(MATRIXGAME_DEVKITPRO)
             "${PORT_ROOT}/tools/matrixgame_material_shader_build.py" VERBATIM)
     add_custom_target(matrixgame-material-shaders DEPENDS "${MATRIXGAME_MATERIAL_SHADER_DIR}/material_shaders.hpp")
     add_dependencies(matrixgame-material-combiner matrixgame-material-shaders)
+    target_sources(matrixgame-material-combiner PRIVATE "${MATRIXGAME_MATERIAL_DIR}/gamma_program.cpp")
+    add_custom_command(OUTPUT "${MATRIXGAME_MATERIAL_SHADER_DIR}/gamma_shaders.hpp"
+            "${MATRIXGAME_MATERIAL_SHADER_DIR}/gamma.vert.dksh" "${MATRIXGAME_MATERIAL_SHADER_DIR}/gamma.frag.dksh"
+            "${MATRIXGAME_MATERIAL_SHADER_DIR}/gamma-shader-build.json"
+        COMMAND "${Python3_EXECUTABLE}" "${PORT_ROOT}/tools/matrixgame_gamma_shader_build.py"
+            --sdk "${MATRIXGAME_DEVKITPRO}" --output "${MATRIXGAME_MATERIAL_SHADER_DIR}"
+        DEPENDS "${MATRIXGAME_MATERIAL_DIR}/gamma.vert.glsl" "${MATRIXGAME_MATERIAL_DIR}/gamma.frag.glsl"
+            "${PORT_ROOT}/tools/matrixgame_gamma_shader_build.py" VERBATIM)
+    add_custom_target(matrixgame-gamma-shaders DEPENDS "${MATRIXGAME_MATERIAL_SHADER_DIR}/gamma_shaders.hpp")
+    add_dependencies(matrixgame-material-combiner matrixgame-gamma-shaders)
 endif()
 if(BUILD_TESTING AND NOT CMAKE_CROSSCOMPILING)
     set(MATRIXGAME_MATERIAL_FIXTURE "${CMAKE_CURRENT_BINARY_DIR}/material-callbacks")

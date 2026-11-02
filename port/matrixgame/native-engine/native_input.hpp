@@ -23,8 +23,12 @@ public:
     void Extent(unsigned,unsigned);
     void Feed(Source,const Sample&,std::uint64_t milliseconds);
     void Focus(bool);
+    // Physical keyboard typematic; pad actions retain held state without
+    // generating repeated toggle/menu commands. Keyboard ownership has its
+    // own delay even when a pad already holds the same virtual key.
     void Repeat(std::uint64_t milliseconds);
     void Reset()noexcept;
+    void Warp(int,int);
     int X()const noexcept{return x_;}int Y()const noexcept{return y_;}
     bool Active()const noexcept{return active_;}
 private:

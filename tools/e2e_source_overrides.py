@@ -159,7 +159,8 @@ FUNCTIONS: dict[str, dict[str, str]] = {
         }
         const auto wave = srhd_awa::platform::e2e4_wav::Parse(
             SourceBuffer->Data, static_cast<std::size_t>(SourceBuffer->DataSize),
-            static_cast<std::size_t>(SourceBuffer->Position));
+            static_cast<std::size_t>(SourceBuffer->Position),
+            srhd_awa::platform::e2e4_wav::RiffSizePolicy::LegacyTotalBytes);
         if (!wave) {
             GR_Main::RaiseWideMessage(u"WAVE format"_wref.get());
             return;
@@ -423,7 +424,7 @@ def generated_source(source: Path, destination: Path, build_git: str = "",
         return destination
     if audio_on:
         overrides.update(AUDIO_ON_FUNCTIONS.get(source.name, {}))
-    if not overrides and source.name != "EC_CacheGI.cpp" and source.name not in ('fGameMenu.cpp', 'ab_WorldLine.cpp', 'ThreadCalc.cpp', 'aEFilm.cpp', 'aCalc.cpp', 'fPanelMain.cpp', 'fFilmFile.cpp', 'fGov.cpp', 'fStarMap.cpp', 'EC_File.cpp', 'ab_Global.cpp', 'EC_Cache.cpp', 'EC_CacheBuf.cpp', 'fGalaxy2.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_Edit.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameLoad.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
+    if not overrides and source.name not in ("Robot.cpp", "aPlanet.cpp", "aRanger.cpp", "EC_Ether.cpp", "aGalaxyEvent.cpp", "EC_Expression.cpp") and source.name not in ("EC_CacheGI.cpp", "EC_BlockPar.cpp") and source.name not in ('fGameMenu.cpp', 'ab_WorldLine.cpp', 'ThreadCalc.cpp', 'aEFilm.cpp', 'aCalc.cpp', 'fPanelMain.cpp', 'fFilmFile.cpp', 'fGov.cpp', 'fStarMap.cpp', 'EC_File.cpp', 'ab_Global.cpp', 'EC_Cache.cpp', 'EC_CacheBuf.cpp', 'fGalaxy2.cpp', 'ab_MainForm.cpp', 'aModsInfo.cpp', 'aMyFunction.cpp') and source.name not in ("EC_Buf.cpp", "EC_Mem.cpp", "Rangers.cpp", "Globals.cpp", "GI_GAI.cpp", "GI_GI.cpp", "GI_MessageLoop.cpp", "GI_Edit.cpp", "GI_GraphButton.cpp", "GR_Main.cpp", "GR_GraphBuf.cpp", "EC_CacheGAI.cpp", "EC_Data.cpp", "EC_FileStream.cpp", "EC_Thread.cpp", "GI_GAIFile.cpp", "aGalaxy.cpp", "aPirate.cpp", "aPlayer.cpp", "aSaveLoad.cpp", "aScript.cpp", "aScriptFun.cpp", "aShip.cpp", "fAbout.cpp", "fCfgSettings.cpp", "fGameLoad.cpp", "fGameSettings.cpp", "fGameSettings2.cpp", "fHangar.cpp", "fIntroduction.cpp", "fLoad.cpp", "fMainForm.cpp", "fSaveManager.cpp", "fShip2.cpp", "fRuinsTalk.cpp", "fTalk.cpp", "program.cpp"):
         return source
     text = PROGRAM_SOURCE if source.name == "program.cpp" else source.read_text(encoding="utf-8")
     if source.name == "EC_Cache.cpp":
@@ -2531,6 +2532,11 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
 #endif''', 1, source.name)
         text = '#include "e2e_generation_probe_host.hpp"\n' + text
     if source.name == "fGameSettings.cpp":
+        if __package__:
+            from .matrixgame_campaign_overrides import apply as campaign_allocations
+        else:
+            from matrixgame_campaign_overrides import apply as campaign_allocations
+        text = campaign_allocations(text)
         seed_end = "            GR_Main::NewGameSeedText = pas::WideString();"
         text = _replace_exact(text, seed_end, seed_end + '''
 #if defined(E2E5_HOST_SDL_WINDOW)
@@ -3508,6 +3514,38 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
 #if defined(__SWITCH__) || defined(SRHD_PORTABLE_RENDERER)
         srhd_awa::platform::renderer_platform::PreserveCapturedBackground();
 #endif''' + text[end:]
+    from e2e_dat_cleanup import apply as apply_dat_cleanup
+    text = apply_dat_cleanup(text, source.name)
+    if __package__:
+        from .matrixgame_campaign_cleanup_overrides import apply as campaign_cleanup
+    else:
+        from matrixgame_campaign_cleanup_overrides import apply as campaign_cleanup
+    text = campaign_cleanup(source.name, text)
+    if __package__:
+        from .matrixgame_campaign_snapshot_overrides import apply as snapshot_cleanup
+    else:
+        from matrixgame_campaign_snapshot_overrides import apply as snapshot_cleanup
+    text = snapshot_cleanup(source.name, text)
+    if __package__:
+        from .matrixgame_campaign_revolution_overrides import apply as revolution_seed
+    else:
+        from matrixgame_campaign_revolution_overrides import apply as revolution_seed
+    text = revolution_seed(source.name, text)
+    if __package__:
+        from .matrixgame_campaign_exception_overrides import apply as battle_exception
+    else:
+        from matrixgame_campaign_exception_overrides import apply as battle_exception
+    text = battle_exception(source.name, text)
+    if __package__:
+        from .matrixgame_campaign_caller_overrides import apply as caller_presentation
+    else:
+        from matrixgame_campaign_caller_overrides import apply as caller_presentation
+    text = caller_presentation(source.name, text)
+    if __package__:
+        from .matrixgame_native_ui_input_overrides import apply as native_ui_input
+    else:
+        from matrixgame_native_ui_input_overrides import apply as native_ui_input
+    text = native_ui_input(source.name, text)
     destination.parent.mkdir(parents=True, exist_ok=True)
     if not destination.exists() or destination.read_text(encoding="utf-8") != text:
         destination.write_text(text, encoding="utf-8")

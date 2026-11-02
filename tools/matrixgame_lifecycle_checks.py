@@ -9,8 +9,8 @@ SOURCES=['port/matrixgame/native-engine/applet_window_lifecycle.cpp',
 
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('kind',choices=('host','arm64','windows','sdk'));kind=ap.parse_args().kind
-    out=BASE/kind;out.mkdir(parents=True,exist_ok=True);report={'status':'INCOMPLETE','commands':[],'Switch_runtime':False}
+    ap=argparse.ArgumentParser();ap.add_argument('kind',choices=('host','arm64','windows','sdk'));ap.add_argument('--output',type=Path,default=BASE);args=ap.parse_args();kind=args.kind
+    out=args.output.resolve()/kind;out.mkdir(parents=True,exist_ok=True);report={'status':'INCOMPLETE','commands':[],'Switch_runtime':False}
     def run(cmd,label,cwd=ROOT):
         proc=subprocess.run(list(map(str,cmd)),cwd=cwd,capture_output=True,text=True,encoding='utf-8',errors='replace',
             env=dict(os.environ,DEVKITPRO='C:/devkitPro',DEVKITA64='C:/devkitPro/devkitA64'))

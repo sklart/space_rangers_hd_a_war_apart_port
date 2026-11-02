@@ -149,6 +149,9 @@ def source_map() -> tuple[list[tuple[Path, Path]], dict[str, str]]:
                   ROOT / "tools/e2e5_ui_width_overrides.py",
                   ROOT / "tools/e2e5_cachegi_trace.py")
     generators += (ROOT / 'tools/e2e516_stop_overrides.py',)
+    generators += tuple(ROOT / 'tools' / name for name in (
+        'matrixgame_campaign_overrides.py', 'matrixgame_campaign_cleanup_overrides.py',
+        'matrixgame_campaign_snapshot_overrides.py', 'matrixgame_campaign_revolution_overrides.py', 'matrixgame_campaign_exception_overrides.py', 'matrixgame_campaign_caller_overrides.py', 'matrixgame_native_ui_input_overrides.py'))
     generator_hashes = {path.name: hashlib.sha256(path.read_bytes()).hexdigest()
                         for path in generators}
     try:

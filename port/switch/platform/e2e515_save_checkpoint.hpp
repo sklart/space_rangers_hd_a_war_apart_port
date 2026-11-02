@@ -38,7 +38,7 @@ inline std::uint64_t Rng(aGalaxy::TGalaxy* galaxy) {
         rows.push_back({1, star->Id, star->RandomState});
         for (int j = 0; j < pas::list_count(star->Ships); ++j) {
             const auto* ship = pas::list_at<aShip::TShip>(star->Ships, j);
-            rows.push_back({3, ship->Id, ship->RandomState});
+            rows.push_back({3, static_cast<std::uint32_t>(ship->Id), ship->RandomState});
         }
     }
     for (int i = 0; i < pas::list_count(galaxy->Planets); ++i) {
@@ -47,7 +47,7 @@ inline std::uint64_t Rng(aGalaxy::TGalaxy* galaxy) {
     }
     for (int i = 0; i < pas::list_count(galaxy->ShipsInTransit); ++i) {
         const auto* ship = pas::list_at<aShip::TShip>(galaxy->ShipsInTransit, i);
-        rows.push_back({3, ship->Id, ship->RandomState});
+        rows.push_back({3, static_cast<std::uint32_t>(ship->Id), ship->RandomState});
     }
     std::sort(rows.begin(), rows.end());
     Hash hash; hash.Word(rows.size());

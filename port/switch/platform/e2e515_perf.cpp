@@ -4,6 +4,9 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 #endif
+#if defined(_WIN32)
+#include <windows.h>
+#endif
 #include "e2e_clock.hpp"
 #include <array>
 #include <atomic>
@@ -164,10 +167,17 @@ void Writer(std::filesystem::path root) {
     WriteImage(root,log);
     const auto now=Now();
     if((now>=next||done) && Mode()) {
+#if defined(_WIN32)
+      const int time_rc=0;
+      const auto real_ms=std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
+#else
       timespec real{};const int time_rc=clock_gettime(CLOCK_REALTIME,&real);
+      const auto real_ms=time_rc? -1LL:static_cast<long long>(real.tv_sec)*1000+real.tv_nsec/1000000;
+#endif
       const auto after=Now();char line[640]{};
       std::snprintf(line,sizeof(line),"anchor,%llu,%lld,%llu,-1,%d,%d,0",
-        static_cast<unsigned long long>(now),time_rc? -1LL:static_cast<long long>(real.tv_sec)*1000+real.tv_nsec/1000000,
+        static_cast<unsigned long long>(now),static_cast<long long>(real_ms),
         static_cast<unsigned long long>(after-now),screen.load(),time_rc);perf.Write(line);
       const auto last=last_frame.load();const auto since=active_since.load();
       std::snprintf(line,sizeof(line),"heartbeat,%llu,-1,%llu,-1,%d,%llu,%llu",
@@ -297,6 +307,13 @@ std::int64_t CpuMicros() {
   u64 ticks{};
   if(R_FAILED(svcGetInfo(&ticks,InfoType_ThreadTickCount,CUR_THREAD_HANDLE,TickCountInfo_Total)))return -1;
   return armTicksToNs(ticks)/1000;
+#elif defined(_WIN32)
+  FILETIME created{},exited{},kernel{},user{};
+  if(!GetThreadTimes(GetCurrentThread(),&created,&exited,&kernel,&user))return -1;
+  const auto ticks=[](const FILETIME& t) {
+    return (static_cast<std::uint64_t>(t.dwHighDateTime)<<32)|t.dwLowDateTime;
+  };
+  return static_cast<std::int64_t>((ticks(kernel)+ticks(user))/10);
 #else
   timespec t{};if(clock_gettime(CLOCK_THREAD_CPUTIME_ID,&t))return -1;
   return static_cast<std::int64_t>(t.tv_sec)*1000000+t.tv_nsec/1000;

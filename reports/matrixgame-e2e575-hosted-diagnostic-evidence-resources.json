@@ -1,0 +1,193 @@
+{
+  "status": "READ-ONLY COPY PLAN; NO FILE TRANSFER PERFORMED",
+  "profile": "default Russian/no selected mods; original install package order retained",
+  "matrix_root": "sdmc:/switch/matrixgame-diag/game",
+  "rangers_root": "sdmc:/switch/matrixgame-diag/rangers",
+  "private_user_root": "current run log directory/rangers-user",
+  "resource_files": [
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\DATA\\robots.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/game/DATA/robots.pkg",
+      "bytes": 232546988,
+      "sha256": "8a22f856a27a8937ef28ac61274ffdb85cc2ff865492bd4d3ddeb2a6054011f0",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\upstream\\matrixgame\\MatrixGame\\CFG\\robots\\data.txt",
+      "destination": "sdmc:/switch/matrixgame-diag/game/CFG/robots/data.txt",
+      "bytes": 134462,
+      "sha256": "9579962ecdf9eef7dfca4dc70a3c96cbec9aa0fd2db2347ccb76e8e400b7b27c",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\upstream\\matrixgame\\MatrixGame\\CFG\\robots\\iface.txt",
+      "destination": "sdmc:/switch/matrixgame-diag/game/CFG/robots/iface.txt",
+      "bytes": 276786,
+      "sha256": "4c1f221f4bf2e4c69f2acdbf414bb07714670e144cceccd684674822e15076ec",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\INSTALL.TXT",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/INSTALL.TXT",
+      "bytes": 641,
+      "sha256": "96cd293308a9b1f872235c307976f21010b68ca86df0d23f007428722acb8b8b",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\INSTALL_RUSSIAN.TXT",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/INSTALL_RUSSIAN.TXT",
+      "bytes": 254,
+      "sha256": "e343ce3bf3d4024796fedf286ee28626a0ecd439c6a78ac6dc2b66318a4fa85c",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\CFG\\Main.dat",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/CFG/Main.dat",
+      "bytes": 96526,
+      "sha256": "2544c91df96508a0e94b383b980d2344d792534f8d2c502ada30d6a99a44281a",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\CFG\\CacheData.dat",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/CFG/CacheData.dat",
+      "bytes": 49951,
+      "sha256": "85a7ed400188bad9e6b22aef28adc456fad78a85d3cb343ecd7e1e6a1c463c32",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\CFG\\Rus\\Lang.dat",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/CFG/Rus/Lang.dat",
+      "bytes": 907540,
+      "sha256": "57404cb0a8c58eb869faf60b305dae4bf519c1a46994fd2d59f5df955e2d4943",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\Mods\\ModCFG.txt",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/Mods/ModCFG.txt",
+      "bytes": 13,
+      "sha256": "a725614b606dca552d2984011a50d9739f104c6c18dc9b1586f47e98fe1a1bc3",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\russian.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/russian.pkg",
+      "bytes": 885662,
+      "sha256": "dbdfd1ba964e2e7d34bbc81cf6db9b4de69663940907f329ef932b3a0e7f7e09",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\questsRus.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/questsRus.pkg",
+      "bytes": 3890240,
+      "sha256": "92590bfe1501fefb725884ffb0d0297899888afe28144a23f970f873610f3470",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\voicesRus.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/voicesRus.pkg",
+      "bytes": 4493828,
+      "sha256": "8cbd1fc82281d7dc4260c70a38b451c2a1d79953c295f657336a9fc571a4272c",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\arcade.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/arcade.pkg",
+      "bytes": 28754849,
+      "sha256": "f6e188c3305bd6e4425dc276e6dd1e0e233f4a4e90e9f7ca9f4038893ff860b1",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\background.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/background.pkg",
+      "bytes": 74692926,
+      "sha256": "ef9d0abb2ea7e1ce4266d6b59e1367815b295fc604424962e255f05f90b079d2",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\common.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/common.pkg",
+      "bytes": 307754405,
+      "sha256": "1d50bb76b7685604e9562832a8e5c2b8d16c8a78bee1e89ab63a67400d75e7fd",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\forms.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/forms.pkg",
+      "bytes": 189030655,
+      "sha256": "62f19e614b8014dc4916868c04660a4e42577ae6feb004c60a72237e16044505",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\items.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/items.pkg",
+      "bytes": 72559655,
+      "sha256": "c82ee75094717a74f4964d521278f227aa697742c9b1eddf7e1d92ae37a08995",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\locations.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/locations.pkg",
+      "bytes": 484864877,
+      "sha256": "5d3317e6a8f2d6dfc74ccf89413f433b252d1ab33c33abeb505d5ac416e11f8d",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\mainmenu.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/mainmenu.pkg",
+      "bytes": 207068233,
+      "sha256": "b1eef6673e617a44303eb0b7aabad4d8e7b7573beb95ca5efaa69dfb8fb2fee0",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\music.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/music.pkg",
+      "bytes": 326493360,
+      "sha256": "c2fc40dbf494a478a06ea1b71e36c431ba2264e80f207f136a85bd25487597a9",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\PQI.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/PQI.pkg",
+      "bytes": 39987580,
+      "sha256": "e825e8dbc7cdd42fd4e491cebd476d54a4b7ccdb8ad277f8e6f8952ff37830b1",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\robots.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/robots.pkg",
+      "bytes": 232546988,
+      "sha256": "8a22f856a27a8937ef28ac61274ffdb85cc2ff865492bd4d3ddeb2a6054011f0",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\scripts.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/scripts.pkg",
+      "bytes": 153632,
+      "sha256": "1b9048fca97bec92023183b0f9234322c2820b5cd2786a72bbfdacd9e043bd54",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\ships.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/ships.pkg",
+      "bytes": 175612589,
+      "sha256": "c34cd407443743451d8432b4af18488129abd1ea2b068321a7bd9a2e8f65dd50",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\sound.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/sound.pkg",
+      "bytes": 48553456,
+      "sha256": "d3a6c37dff1148b5aa39b793b9b99c34fdd6f30b8694e5cbd1df118b8783a510",
+      "included_in_NRO": false
+    },
+    {
+      "source": "D:\\repos\\space_rangers_hd_a_war_apart_port\\windows\\Space Rangers HD A War Apart\\data\\WSE.pkg",
+      "destination": "sdmc:/switch/matrixgame-diag/rangers/data/WSE.pkg",
+      "bytes": 24876614,
+      "sha256": "69d29e419b8527e4242131f1e09ac0da134ff1584db76640d84b322cca00173a",
+      "included_in_NRO": false
+    }
+  ],
+  "bytes_for_two_default_roots": 2456232710,
+  "resources_bundled": false
+}

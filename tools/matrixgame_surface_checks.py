@@ -5,7 +5,7 @@ ROOT=Path(__file__).resolve().parents[1];BASE=ROOT/'build/matrixgame/e2e525-surf
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def linux(p):return str(p).replace('\\','/').replace('D:/','/mnt/d/')
 def main():
- ap=argparse.ArgumentParser();ap.add_argument('kind',choices=['sdk','host','arm64','solid-host','solid-arm64']);kind=ap.parse_args().kind;out=BASE/kind;out.mkdir(parents=True,exist_ok=True);j={'status':'INCOMPLETE','commands':[]}
+ ap=argparse.ArgumentParser();ap.add_argument('kind',choices=['sdk','host','arm64','solid-host','solid-arm64']);ap.add_argument('--output',type=Path,default=BASE);args=ap.parse_args();kind=args.kind;out=args.output.resolve()/kind;out.mkdir(parents=True,exist_ok=True);j={'status':'INCOMPLETE','commands':[]}
  def run(cmd,label,env=None):
   start=time.monotonic();p=subprocess.run(list(map(str,cmd)),cwd=ROOT,env=env,capture_output=True,text=True,encoding='utf-8',errors='replace');(out/(label+'.log')).write_text(p.stdout+p.stderr,encoding='utf-8');j['commands'].append({'label':label,'command':list(map(str,cmd)),'exit':p.returncode,'seconds':time.monotonic()-start});print(label,p.returncode,(p.stdout+p.stderr)[-2400:] if label!='symbols' else 'saved',flush=True);assert p.returncode==0;return p.stdout
  try:

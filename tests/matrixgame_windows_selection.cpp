@@ -53,7 +53,21 @@ void RunOriginalSelectionScenario(mg::platform3g::Device&,CFormMatrixGame& form)
  Need(expected_arcade && expected_arcade->IsLiveRobot(),"original current group object is not a live robot");
  native_input::Sample keyboard;
  auto action=[&](EKeyAction key,bool down){const auto vk=g_Config.m_KeyActions[key];Need(vk!=0,"unbound original direct control action");keyboard.keys.set(vk,down);router.Feed(native_input::Source::Keyboard,keyboard,now+=25);};
+#ifdef MATRIXGAME_PAD_HOLD_PROBE
+ native_input::Sample pad_enter;pad_enter.keys.set(g_Config.m_KeyActions[KA_UNIT_ENTER]);
+ router.Feed(native_input::Source::Pad,pad_enter,now+=25);
+ Need(side->IsRobotMode() && side->GetArcadedObject()==expected_arcade,"pad X did not enter the actual selected robot");
+ unsigned held_frames{};
+ for(unsigned i=0;i<32;++i){now+=25;router.Repeat(now);frame();++held_frames;
+  if(!side->IsRobotMode() || side->GetArcadedObject()!=expected_arcade){
+   std::printf("PAD_HELD_UNIT_ENTER unexpected_mode_change=1 held_ms=%u frames=%u\n",held_frames*25,held_frames);
+   Need(false,"holding gamepad X repeated original robot-mode toggle");}}
+ router.Feed(native_input::Source::Pad,{},now+=25);
+ Need(side->IsRobotMode() && side->GetArcadedObject()==expected_arcade,"pad X release changed robot mode");
+ std::printf("PAD_HELD_UNIT_ENTER held_ms=800 frames=%u unexpected_mode_change=0 original_robot_retained=1\n",held_frames);
+#else
  action(KA_UNIT_ENTER,true);action(KA_UNIT_ENTER,false);
+#endif
  std::printf("REAL_ARCADE_ENTRY robot_mode=%u expected=%p actual=%p selection=%d ordering=%u\n",unsigned(side->IsRobotMode()),expected_arcade,side->GetArcadedObject(),int(side->m_CurrSel),unsigned(bool(g_IFaceList->m_IfListFlags&ORDERING_MODE)));
  Need(side->IsRobotMode() && side->GetArcadedObject()==expected_arcade,"original Keyboard did not enter current selected robot");frame();
  auto* robot=expected_arcade->AsRobot();const float start_x=robot->m_PosX,start_y=robot->m_PosY;

@@ -1,14 +1,15 @@
 # Local upstream mirrors
 
 The working repository keeps public upstream URLs in `.gitmodules` for CI and
-other contributors. Local bare mirrors are a recovery path only; their paths
-are never committed.
+other contributors. Local bare mirrors are a recovery path only, stored in
+the ignored `.local/mirrors/` directory inside this repository. Their machine
+specific URLs are written only to local Git configuration.
 
 | mirror | public upstream | pinned revision | retained ref |
 | --- | --- | --- | --- |
-| `D:\repos\mirrors\SpaceRangersHD_CPP.git` | `pakompom/SpaceRangersHD_CPP` | `57fa689c630193a66fdea6ca4c79a188814991cd` | `refs/archive/space-rangers-hd-port/cpp` |
-| `D:\repos\mirrors\okgf.git` | `pakompom/okgf` | `c01aa7a168a6f1772541501074b7bba1b96550ef` | `refs/archive/space-rangers-hd-port/okgf` |
-| `D:\repos\mirrors\SpaceRangersHD_decomp.git` | `pakompom/SpaceRangersHD_decomp` | `730bdf6` | `refs/archive/space-rangers-hd-port/decomp-release` |
+| `.local/mirrors/SpaceRangersHD_CPP.git` | `pakompom/SpaceRangersHD_CPP` | `57fa689c630193a66fdea6ca4c79a188814991cd` | `refs/archive/space-rangers-hd-port/cpp` |
+| `.local/mirrors/okgf.git` | `pakompom/okgf` | `c01aa7a168a6f1772541501074b7bba1b96550ef` | `refs/archive/space-rangers-hd-port/okgf` |
+| `.local/mirrors/SpaceRangersHD_decomp.git` | `pakompom/SpaceRangersHD_decomp` | `730bdf6` | `refs/archive/space-rangers-hd-port/decomp-release` |
 
 To refresh an available mirror, use `git -C <mirror> fetch --prune origin`.
 Do not delete `refs/archive/space-rangers-hd-port/*`; those refs retain the

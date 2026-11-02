@@ -44,6 +44,8 @@ public:
     void Viewport(const platform3g::VideoViewport&);
     platform3g::VideoViewport Viewport()const noexcept;
     std::vector<Vertex> Decode(std::span<const std::byte>,std::uint32_t stride)const;
+    // Exact one-record equivalent of Decode, without a temporary heap vector.
+    Vertex DecodeOne(std::span<const std::byte>,std::uint32_t stride)const;
     VertexUniforms Prepare()const;
 private:
     std::uint32_t fvf_{2},stride_{12};

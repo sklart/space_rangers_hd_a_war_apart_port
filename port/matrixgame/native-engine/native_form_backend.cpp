@@ -25,5 +25,4 @@ void ClipCursorToWindow(){
     throw platform3g::Unsupported("form cursor clipping provider unavailable");
 #endif
 }
-[[noreturn]] void Screenshot(){throw platform3g::Unsupported("CFormMatrixGame::Keyboard F9: native screenshot provider unavailable");}
 }

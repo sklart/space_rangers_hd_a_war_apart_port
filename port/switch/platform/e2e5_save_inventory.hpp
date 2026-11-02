@@ -72,12 +72,12 @@ inline Classification classify(aGalaxy::TGalaxy* galaxy, aScript::TScript* scrip
     if (script != nullptr) {
         if (script->CurrentShip != nullptr &&
             value == reinterpret_cast<std::uintptr_t>(script->CurrentShip))
-            return {"STABLE_OBJECT_ID", "ship", script->CurrentShip->Id};
+            return {"STABLE_OBJECT_ID", "ship", static_cast<std::uint32_t>(script->CurrentShip->Id)};
         for (std::int32_t i = 0; i < pas::list_count(script->Ships); ++i) {
             auto* binding = pas::list_at<aScript::TScriptShip>(script->Ships, i);
             if (binding->Ship != nullptr &&
                 value == reinterpret_cast<std::uintptr_t>(binding->Ship))
-                return {"STABLE_OBJECT_ID", "ship", binding->Ship->Id};
+                return {"STABLE_OBJECT_ID", "ship", static_cast<std::uint32_t>(binding->Ship->Id)};
         }
         for (std::int32_t i = 0; i < pas::list_count(script->Places); ++i) {
             auto* binding = pas::list_at<aScript::TScriptPlace>(script->Places, i);

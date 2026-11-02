@@ -1,0 +1,36 @@
+{
+  "status": "PASS ORIGINAL READONLY UI CONTEXT/REAL LATE ALLOCATION ROLLBACK/HOST SANITIZERS/WINDOWS/ARM64/SDK LINK",
+  "gates": {
+    "host": {
+      "path": "build\\matrixgame\\e2e607-ui-context\\host\\2\\result.json",
+      "sha256": "facb08a7670835eb46e66394f7665b97888c733c16de76f6dd1c624d0679168e",
+      "status": "PASS HOST ASAN/UBSAN/LSAN ORIGINAL UI CONTEXT TWO CYCLES/LATE ALLOCATION FAILURE/CLEANUP",
+      "private_runtime_files": []
+    },
+    "ARM64": {
+      "path": "build\\matrixgame\\e2e607-ui-context\\arm64\\1\\result.json",
+      "sha256": "3c61297f838a031a9648b1fd490218da6c70e19b2b9c7fe1f4799132d07d436d",
+      "status": "PASS ARM64/QEMU ORIGINAL UI CONTEXT TWO CYCLES/LATE ALLOCATION FAILURE/CLEANUP",
+      "private_runtime_files": []
+    },
+    "Windows": {
+      "path": "build\\matrixgame\\e2e607-ui-context\\windows\\2\\result.json",
+      "sha256": "145c75a780569960bce731d94c3d83e93b783347ca57ce813d396c2ee2e40765",
+      "status": "PASS WINDOWS ASAN ORIGINAL CFG/TCC/CANVAS/DEPTH/PALETTE/CURSORS/SCRIPT/GLOBAL UI TWO CYCLES/CLEANUP; PARTIAL INSTRUMENTATION",
+      "private_runtime_files": []
+    },
+    "SDK": {
+      "path": "build\\matrixgame\\e2e607-ui-context\\sdk\\1\\result.json",
+      "sha256": "74c52b79e169601d946e041ac438d7f9ae87f29fcc0b82b4a6c3f623d086686d",
+      "status": "PASS SDK REAL READONLY UI CONTEXT/RENDERER ROLLBACK/RETAINED UI-CALLER-CAMPAIGN ELF; ZERO STRONG UNDEFINED; NOT RUN"
+    }
+  },
+  "GPU_runtime": "NOT RUN",
+  "full_native_Gov_entry": "NOT RUN",
+  "new_NRO": false,
+  "E604_package_preserved_sha256": "3c6332447084b827b7ecf078bb2b7a5eb40618fc7f9b67a319355e9c779a6af7",
+  "protected_inputs_and_upstream_pins": "VERIFIED",
+  "commit": false,
+  "push": false,
+  "audit_sha256": "e2e452879ca8588325996132bc818d59d4513b4d20ea1f44ba24ef25737d21d8"
+}

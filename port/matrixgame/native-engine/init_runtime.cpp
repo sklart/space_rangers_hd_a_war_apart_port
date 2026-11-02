@@ -2,6 +2,7 @@
 #include "init_runtime.hpp"
 #include "native_frame_scope.hpp"
 #include "resource_paths.hpp"
+#include "native_rangers_services.hpp"
 #include <cstdio>
 #include "cache_owner_state.hpp"
 #include "MatrixSampleStateManager.hpp"
@@ -129,6 +130,7 @@ void NativeInitRuntime::Deinit() noexcept {
     if(statics_owned_){Base::CMain::BaseDeInit();statics_owned_=false;}
     output_scope_.reset(); // Original map/font/cache teardown has finished.
     resource_scope_.reset(); // CFile package/disk owners have finished; restore legacy relative reads.
+    services_scope_.reset(); // Original sound/text/map teardown may still call the host above.
     if(active==this)active=nullptr;
 }
 void NativeInitRuntime::InitializeCursor() {

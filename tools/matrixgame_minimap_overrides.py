@@ -116,6 +116,8 @@ def prepare_minimap(output):
     text=text.replace(function(text,'void CMinimap::StoreTexture(void)'),body,1)
     for signature in ('void CMinimap::RenderBackground(', 'void CMinimap::RenderObjectToBackground('):
         original=function(text,signature);body=original
+        if signature=='void CMinimap::RenderBackground(':
+            brace=body.index('{');body=body[:brace+1]+'\n    srhd_awa::matrixgame::diagnostic::Operation trace("B.CMinimap::RenderBackground");'+body[brace+1:]
         flag='    SETFLAG(g_MatrixMap->m_Flags, MMFLAG_DISABLE_DRAW_OBJECT_LIGHTS);'
         if body.count(flag)!=1:raise ValueError('Minimap render flag boundary changed')
         body=body.replace(flag,'''    mm_lifetime::FlagRollback flag_restore{g_MatrixMap->m_Flags, MMFLAG_DISABLE_DRAW_OBJECT_LIGHTS};
@@ -170,5 +172,5 @@ namespace mm_lifetime=srhd_awa::matrixgame::minimap_lifetime;
 #undef ASSERT_DX
 #define ASSERT_DX(call) FAILED_DX(call)
 '''+marker,1)
-    path.write_bytes((prelude+text).encode())
+    path.write_bytes(('#include "native_diagnostic_journal.hpp"\n'+prelude+text).encode())
     return {'MatrixGame/src/MatrixMinimap.cpp':hashlib.sha256(path.read_bytes()).hexdigest()}

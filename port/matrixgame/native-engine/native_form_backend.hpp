@@ -2,6 +2,7 @@
 #pragma once
 #include "platform_3g.hpp"
 #include "BaseDef.hpp"
+#include "native_screenshot.hpp"
 class CFormMatrixGame;
 namespace srhd_awa::matrixgame::native_form {
 class WindowOperations {
@@ -12,7 +13,6 @@ public:
 };
 void ClientPointToScreen(Base::CPoint&);
 void ClipCursorToWindow();
-[[noreturn]] void Screenshot();
 // Same HNew(NULL)/FormChange/HDelete ownership as the original launcher.
 // Destroy before CGame::Deinit and before detaching platform providers.
 class Session {

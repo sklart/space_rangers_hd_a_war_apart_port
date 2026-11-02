@@ -1,0 +1,32 @@
+{
+  "status": "PASS WINDOWS REAL INIT/DRAW/C++ EXCEPTION/CALLER AND SNAPSHOT RESTORE/CLEANUP; SDK PRODUCTION COMPILE/LINK",
+  "gates": {
+    "Windows": {
+      "path": "build\\matrixgame\\e2e603-campaign-exception\\windows\\1\\result.json",
+      "sha256": "d83d36fa8dea7c4b8383fd16e8d173713faae0b659ada2baf7a1e44468e59298",
+      "status": "PASS REAL WINDOWS INIT/DRAW/TYPED EXCEPTION/CALLER RESTORE/MEMORY SNAPSHOT/CLEANUP; PARTIAL ASAN"
+    },
+    "SDK": {
+      "path": "build\\matrixgame\\e2e603-campaign-exception\\sdk\\1\\result.json",
+      "sha256": "5ff1f43e83fbc4aab3883290591fc1f30aa23c9e45a00ac3fa76ec982e5bcff3",
+      "status": "PASS TWO PRODUCTION GENERATED SDK UNITS/ARCHIVE/RETAINED CAMPAIGN API LINK; ZERO STRONG UNDEFINED; NOT RUN"
+    }
+  },
+  "journal_sha256": "a213de15e08b8dc2438c4ab003694b4163c7c44baaacff643bc0767ab14b9bc2",
+  "natural_victory": "NOT PROVEN",
+  "natural_outcome_in_this_test": "NOT CLAIMED",
+  "instrumentation": "PARTIAL Windows MSVC ASAN; original dependency corpus not fully instrumented",
+  "SDK_runtime": "NOT RUN",
+  "native_deko_FRun": "NOT RUN",
+  "Switch": "NOT RUN",
+  "new_NRO": false,
+  "protected_inputs_and_previous_NRO": "HASHES VERIFIED AGAINST E601 MANIFEST",
+  "clean_upstream_pins": {
+    "matrixgame": "218115a72fa9c5d43269f4ca84a8596a0bcb82f1",
+    "cpp": "57fa689c630193a66fdea6ca4c79a188814991cd",
+    "okgf": "c01aa7a168a6f1772541501074b7bba1b96550ef"
+  },
+  "commit": false,
+  "push": false,
+  "audit_sha256": "41fd5dd60a81997c69d600a5c153cca2ad6f317934a55d8ca5ab992b44560a91"
+}

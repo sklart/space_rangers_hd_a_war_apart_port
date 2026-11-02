@@ -82,7 +82,11 @@ void Expose(const std::shared_ptr<Surface>& s,IDirect3DSurface9** out){if(!out)t
 void Release(IDirect3DSurface9* token)noexcept{if(!token)return;auto i=handles.find(token);if(i==handles.end() || !i->second->references)std::terminate();if(!--i->second->references)handles.erase(i);}
 std::size_t HandleCount()noexcept{return handles.size();}
 std::vector<std::byte> Read(const std::shared_ptr<Surface>& s){
- Live(*s);auto session=Active();if(session!=s->session.lock() || s->depth || s->locked || (s->texture && s->texture->levels.at(s->level).locked))throw std::invalid_argument("native surface read ownership/lock/type");
+ if(!s)throw std::invalid_argument("null native surface read");Live(*s);return ReadFor(Active(),s);
+}
+std::vector<std::byte> ReadFor(const std::shared_ptr<Session>& session,const std::shared_ptr<Surface>& s){
+ if(!session || !session->live || !s)throw std::invalid_argument("native surface read session/surface");
+ Live(*s);if(session!=s->session.lock() || s->depth || s->locked || (s->texture && s->texture->levels.at(s->level).locked))throw std::invalid_argument("native surface read ownership/lock/type");
  auto bytes=s->System()?s->texture->levels.at(s->level).bytes:session->read?session->read(s):throw p::Unsupported("native surface readback unavailable");
  if(bytes.size()!=std::size_t(s->desc.Width)*PixelBytes(s->desc.Format)*s->desc.Height)throw std::runtime_error("native surface readback byte count");return bytes;
 }

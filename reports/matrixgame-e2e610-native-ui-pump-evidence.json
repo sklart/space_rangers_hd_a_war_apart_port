@@ -1,0 +1,47 @@
+{
+  "status": "PASS PRODUCTION UI OWNER/ORIGINAL GI PUMP/SHARED KEY CURSOR IMPORTS/HOST SANITIZERS/ARM64/SDK LINK",
+  "gates": {
+    "primitives": {
+      "path": "build\\matrixgame\\e2e610-native-ui-pump\\cpu\\1\\result.json",
+      "sha256": "b57990e775c5d5720287a995f81c12c9540b781afd83d9ff68267fcd3dae390f",
+      "source_snapshot_sha256": "c0165e8a818c4f0928ac79c48b24325cfd8aca1da2ba52ac7740482b9e85f3b7",
+      "status": "PASS HOST ASAN/UBSAN/LSAN AND ARM64 QEMU UBSAN; CPU INPUT ONLY"
+    },
+    "Windows": {
+      "path": "build\\matrixgame\\e2e610-native-ui-pump\\windows\\6\\result.json",
+      "sha256": "323b7489e4a18dccc0305bc6ba68fb1af2fed9117fde76b2298ffcb44517c1ac",
+      "source_snapshot_sha256": "ac7edadc6f5f5f087e31ea00e1aed4b601ea1c1b2042decd225d02e5050d46cd",
+      "status": "PASS WINDOWS ASAN NATIVE UI PUMP/ORIGINAL GI/SHARED KEY CURSOR IMPORTS/HANDOFF/CLEANUP; PARTIAL INSTRUMENTATION"
+    },
+    "host_owner": {
+      "path": "build\\matrixgame\\e2e610-native-ui-pump\\host-owner\\4\\result.json",
+      "sha256": "751cdfacafb4ab55b13812c4dd4733302b9840a3be9f05691a49f6b0ead6c12b",
+      "source_snapshot_sha256": "cccc79160496635ede5dee509363f0e33205accb8d335e2dbbb4bd1da5233684",
+      "status": "PASS HOST ASAN/UBSAN/LSAN ACTUAL ORIGINAL GI/NATIVE UI PUMP/IMPORTS/OWNER CLEANUP; SCRIPTED INPUT BOUNDARY"
+    },
+    "ARM64_owner": {
+      "path": "build\\matrixgame\\e2e610-native-ui-pump\\arm64-owner\\4\\result.json",
+      "sha256": "8240667b1627baf0816d5a40dd2dea3237d7617be5bf5f9dc6c73413d57e472d",
+      "source_snapshot_sha256": "75d47e2f58df52a714ce56776c75bffb1b25d45d7caffc06ea4058c53aeb7e65",
+      "status": "PASS ARM64/QEMU ACTUAL ORIGINAL GI/NATIVE UI PUMP/IMPORTS/OWNER CLEANUP; SCRIPTED INPUT BOUNDARY"
+    },
+    "SDK": {
+      "path": "build\\matrixgame\\e2e610-native-ui-pump\\sdk\\6\\result.json",
+      "sha256": "5501ed56b9d542227ad3f955df797e2c532047cc6164c475e2b8bbe420ab912e",
+      "source_snapshot_sha256": "da9ba255d4af2363212db8088a0ed297c0845890660edd82a310829d9452780e",
+      "status": "PASS PRODUCTION NATIVE UI PUMP/HID WINDOW/WARP/SHARED IMPORTS/CALLER HANDOFF SDK COMPILE AND RETAINED LINK; ZERO STRONG UNDEFINED; NOT RUN"
+    }
+  },
+  "production_GR_Main_comparison": "IDENTICAL UTF8 TEXT AFTER CRLF/LF NORMALIZATION; SEPARATE BYTE HASHES RETAINED",
+  "runtime_input_boundary": "SCRIPTED BACKEND; NO PHYSICAL HID OR SWITCHWINDOW RUNTIME CLAIM",
+  "Windows_instrumentation": "PARTIAL MSVC ASAN",
+  "protected_inputs_and_upstream_pins": "VERIFIED",
+  "private_runtime_files": [],
+  "E604_package_preserved_sha256": "3c6332447084b827b7ecf078bb2b7a5eb40618fc7f9b67a319355e9c779a6af7",
+  "native_GPU_HID_runtime": "NOT RUN",
+  "full_native_Gov_entry": "NOT RUN",
+  "new_NRO": false,
+  "commit": false,
+  "push": false,
+  "audit_sha256": "f5e36448655949efe5d94ec58ef7d9fcb34f02281ba07f7930945927c16168a2"
+}

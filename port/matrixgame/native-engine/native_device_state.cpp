@@ -34,8 +34,7 @@ NativeRenderState::NativeRenderState(){
 }
 void NativeRenderState::Render(std::uint32_t id,std::uint32_t value){
     const auto& word=Word(id);LogicalValue(word,value);
-    if(id==161){if(value)throw Unsupported("native MSAA requires multisample targets/resolve pipeline");}
-    else if(id==60)combiner.Factor(value);
+    if(id==60)combiner.Factor(value);
     else if(vertex.Render(id,value)){}
     else if(id==22){if(value<1 || value>3)throw Unsupported("native cull mode");cull=value;}
     else if(id==9){if(value!=1 && value!=2)throw Unsupported("native shading mode outside FLAT/GOURAUD");shade=value;}
@@ -71,7 +70,11 @@ void NativeRenderState::ValidateClear()const{
 materials::PixelFogUniforms NativeRenderState::PixelFog()const{
     return materials::PreparePixelFog(Render(28)!=0,Render(35),std::bit_cast<float>(Render(36)),std::bit_cast<float>(Render(37)),std::bit_cast<float>(Render(38)),Render(34),vertex.Transform(3));
 }
-void NativeRenderState::ValidateDraw(bool points,bool lines)const{
+void NativeRenderState::ValidateDraw(bool points,bool lines,std::uint32_t samples,std::uint32_t quality)const{
+    // D3D9's enable and write-mask registers have no raster effect on a
+    // single-sample target, but remain observable/restorable logical state.
+    // A true multisample attachment still needs a separate pipeline/resolve.
+    if(samples || quality)throw Unsupported("native multisample target/resolve pipeline unavailable");
     ValidateClear();
     (void)PixelFog();
     (void)Stencil();
@@ -79,13 +82,12 @@ void NativeRenderState::ValidateDraw(bool points,bool lines)const{
     for(const auto& word:NativeRenderWords){const auto n=word.name;const auto v=Render(word.id);
         if(Is(n,{"DITHERENABLE","VERTEXBLEND","CLIPPLANEENABLE","INDEXEDVERTEXBLENDENABLE","ENABLEADAPTIVETESSELLATION","SRGBWRITEENABLE"}) || n.starts_with("WRAP"))require(n,v==0);
         if(n=="CLIPPING")require(n,v==1);
-        if(n=="FILLMODE")require(n,v==3);
-        if(n=="MULTISAMPLEMASK")require(n,v==0xffffffffu);
+        if(n=="FILLMODE")require(n,v==2 || v==3);
         if(Is(n,{"SLOPESCALEDEPTHBIAS","DEPTHBIAS"}))require(n,std::bit_cast<float>(v)==0);
         if(n=="SEPARATEALPHABLENDENABLE" && raster.blend_enable)require(n,v==0);
     }
     require("point rasterization",!points);
-    if(lines){
+    if(lines || Render(8)==2){
         // Original minimap/selection use solid one-pixel aliased lines with
         // LASTPIXEL=TRUE. The SDK has no independent last-pixel toggle; do not
         // claim the unrepresented FALSE or antialiased modes are supported.

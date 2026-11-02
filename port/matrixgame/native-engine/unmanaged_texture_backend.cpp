@@ -77,7 +77,9 @@ DeviceResult DecodeBitmap(const void* bytes,std::size_t size,std::uint32_t level
         D3DFMT_UNKNOWN,D3DPOOL_DEFAULT,D3DX_FILTER_TRIANGLE|D3DX_FILTER_DITHER,D3DX_FILTER_BOX,
         0,nullptr,nullptr,output);
 #else
-    (void)levels;(void)ReadyDevice();throw Unsupported("unmanaged bitmap SDK decode unavailable");
+    try{return native_texture::DecodeBitmap(bytes,size,levels,output);}
+    catch(const native_texture::ResidencyExhausted&){return native_texture::OutOfVideoMemory;}
+    catch(const std::bad_alloc&){return native_texture::OutOfMemory;}
 #endif
 }
 }

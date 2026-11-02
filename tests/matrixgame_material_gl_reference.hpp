@@ -13,7 +13,7 @@
 #include <filesystem>
 struct MaterialMeshOptions {
     srhd_awa::matrixgame::MeshStencilState stencil;
-    unsigned shade{2},cull{1},primitive{4};bool preserve{},last_pixel{true};
+    unsigned shade{2},cull{1},primitive{4},fill{3};bool preserve{},last_pixel{true};
     float clear_depth{.5f};unsigned clear_stencil{};
 };
 class MaterialGlReference {
@@ -167,7 +167,9 @@ void main(){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);gl_Position=vec4(p*2-1
         glAlphaFunc(GL_NEVER+unsigned(raster.alpha_compare)-1,float(raster.alpha_reference)/255);if(raster.alpha_test)glEnable(GL_ALPHA_TEST);
         glUseProgram(mesh_program_);glBindBuffer(0x8892,mesh_buffer_);glBufferData(0x8892,vertices.size_bytes(),vertices.data(),0x88e0);
         for(unsigned i=0;i<12;++i){glEnableVertexAttribArray(i);glVertexAttribPointer(i,4,GL_FLOAT,FALSE,sizeof(mat::Vertex),reinterpret_cast<const void*>(std::uintptr_t(i*16)));}
-        if(options.primitive==2 || options.primitive==3){glLineWidth(1);glDisable(GL_LINE_SMOOTH);glDisable(GL_LINE_STIPPLE);}
+        if(options.fill!=2 && options.fill!=3)throw std::invalid_argument("reference polygon fill mode");
+        glPolygonMode(GL_FRONT_AND_BACK,options.fill==2?GL_LINE:GL_FILL);
+        if(options.primitive==2 || options.primitive==3 || options.fill==2){glLineWidth(1);glDisable(GL_LINE_SMOOTH);glDisable(GL_LINE_STIPPLE);}
         glDrawArrays(options.primitive==1?GL_POINTS:options.primitive==2?GL_LINES:options.primitive==3?GL_LINE_STRIP:options.primitive==4?GL_TRIANGLES:options.primitive==5?GL_TRIANGLE_STRIP:GL_TRIANGLE_FAN,0,int(vertices.size()));std::vector<unsigned> bottom(width*height);glReadPixels(0,0,width,height,GL_RGBA,GL_UNSIGNED_BYTE,bottom.data());
         for(unsigned i=0;i<12;++i)glDisableVertexAttribArray(i);
         std::vector<unsigned> out(width*height);for(unsigned y=0;y<height;++y)for(unsigned x=0;x<width;++x){auto rgba=bottom[y*width+x];out[y*width+x]=(rgba&0xff00ff00u)|((rgba&255)<<16)|((rgba>>16)&255);}

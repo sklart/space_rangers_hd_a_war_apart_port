@@ -6,6 +6,7 @@
 #include "skin_callbacks.hpp"
 #include <cassert>
 #include <cstdio>
+#include <limits>
 using namespace srhd_awa::matrixgame;
 namespace p=platform3g;
 struct Window final:p::Window {
@@ -39,6 +40,10 @@ int main(){
     Window window;Device device;
     for(int i=0;i<2;++i){
         NativeInitRuntime runtime;NativeGameOptions options{window,device};options.seed=37;
+        auto requested=SRobotsSettings::generate_default_settings();
+        requested.m_SkyBox=0;requested.m_IzvratMS=true;requested.m_AFDegree=24;
+        requested.m_Brightness=.625f;requested.m_Contrast=.375f;
+        if(i)options.settings=&requested; // Same original Init prefix with copied caller settings.
         // Binding only: fixture stops before any filesystem creation.
 #ifdef _WIN32
         options.output_root=L"C:/matrixgame-native-entry-test-output";
@@ -51,7 +56,25 @@ int main(){
         assert(!output_paths::NativeBound());
         assert(!g_MatrixHeap && !g_MatrixMap && !g_MatrixData && !g_Cache && !g_CacheHeap);
         assert(!window.attachments && !window.win32_calls && !device.identities && !BorrowedSkinLeaseCount());
+        assert(requested.m_ResolutionX==0 && requested.m_ResolutionY==0 && requested.m_AFDegree==24 && requested.m_Brightness==.625f);
     }
     assert(device.capabilities==2);
+    unsigned early_rejections{};
+    for(unsigned which=0;which<7;++which){
+        NativeInitRuntime runtime;NativeGameOptions options{window,device};auto requested=SRobotsSettings::generate_default_settings();
+        options.settings=&requested;options.output_root=L""; // Would fail its own binding if preflight happened too late.
+        if(which==0)requested.FDirect3D=reinterpret_cast<void*>(std::uintptr_t(1));
+        if(which==1)requested.FD3DDevice=reinterpret_cast<void*>(std::uintptr_t(1));
+        if(which==2){requested.m_ResolutionX=800;requested.m_ResolutionY=600;}
+        if(which==3)requested.m_ResolutionX=1280;
+        if(which==4)requested.m_Brightness=std::numeric_limits<float>::quiet_NaN();
+        if(which==5)requested.m_Contrast=std::numeric_limits<float>::infinity();
+        if(which==6)requested.m_MaxDistance=-std::numeric_limits<float>::infinity();
+        bool rejected=false;try{runtime.InitializeNativeGame(options);}catch(const std::invalid_argument& error){
+            const std::string what=error.what();rejected=what.starts_with("native settings") || what=="nonfinite native game settings";}
+        assert(rejected && !runtime.CpuReady() && !output_paths::NativeBound() && !device.identities && device.capabilities==2);
+        assert(!g_MatrixHeap && !g_MatrixData && !g_MatrixMap && !g_Cache && !g_CacheHeap && !window.attachments);++early_rejections;
+    }
+    std::printf("native settings provided_entry=1 rejected_before_Init=%u caller_unchanged=PASS\n",early_rejections);
     std::puts("native entry executed original Init to material caps with explicit output binding; no D3D identities/Win32 hooks; two original cleanup cycles/output unbind PASS; native GPU NOT RUN");
 }

@@ -1,0 +1,22 @@
+{
+  "status": "FIRST HARDWARE RUN FAILED BEFORE ORIGINAL INIT",
+  "archive_path": "G:\\logs.zip",
+  "archive_sha256": "4864aaeacc3432b5895360610496cee51e2bd7ccbc8dfc8f7c01a739b32cc2fa",
+  "journal_sha256": "8a5d272a921011d3582124dfa314186b6fb7d8cc9a874b41b20b74748b4a8455",
+  "run_id": "run-1793012722082021-0",
+  "build_id": "82034333146d-018b15457d85deaf526d",
+  "binary_matches_delivered_manifest": true,
+  "records": 57,
+  "last_record_time_us": 617847,
+  "last_successful_stage": "A.BC1.upload",
+  "exception": "native applet window not attached",
+  "source_method": "applet_window::Lifecycle::Update",
+  "original_Init_reached": false,
+  "GPU_draw_or_Present_proven": false,
+  "process_exit": 10,
+  "journal_closed": true,
+  "hardware_cleanup_scope": "abort/restore=0 and D.DekoDevice.impl_body ok; hbmenu return not independently observed",
+  "new_NRO_created": false,
+  "commit": false,
+  "push": false
+}

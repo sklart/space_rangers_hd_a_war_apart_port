@@ -1,0 +1,95 @@
+{
+  "status": "E2E-5.27 DIAGNOSTIC PREPARATION COMPLETE; SWITCH HARDWARE NOT RUN",
+  "nro": "D:\\repos\\space_rangers_hd_a_war_apart_port\\dist\\matrixgame-e2e527-diag\\matrixgame-e2e527-diag.nro",
+  "nro_sha256": "54fa67f6351eaadc52cfc838bd9b501929116346a92e6759c3ae92972fd68867",
+  "nro_bytes": 6924485,
+  "build_id": "82034333146d-018b15457d85deaf526d",
+  "package_files_sha256": {
+    "build-inputs.json": "0a6376f7ba3fc27e8974c9d4065c49e83a38d9054340de694a6531ee4700f69e",
+    "control.nacp": "57555b84d3f5c3fb3f8c0ea0f5f472b0cbc88e6d3037bfc9544ce24505715a7e",
+    "manifest.json": "6980b4e1186c7befa075a1096510b4cfe3e8a81e381290c0ed2355db7030b470",
+    "matrixgame-e2e527-diag.nro": "54fa67f6351eaadc52cfc838bd9b501929116346a92e6759c3ae92972fd68867",
+    "README.md": "b032e3b0148781bc31af3d95cd3618ffdd1979ad6875a1b9d90cb12e60cc14fc",
+    "resources.json": "a5753e9b7b0c988bc41a211df7f9ca8726e33fbad2220b1d3731cda188692b82",
+    "SHA256SUMS.txt": "ac091a1f01a8c61606b7a0ac103c1c7e566cf2fe053dd8ded0c348f18cbe0e5b"
+  },
+  "nro_validation": {
+    "code_size": 6901760,
+    "segments": 3,
+    "embedded_icon": {
+      "offset": 6901816,
+      "size": 6285
+    },
+    "embedded_nacp": {
+      "offset": 6908101,
+      "size": 16384
+    },
+    "romfs_required": false
+  },
+  "embedded_shader_sha256": {
+    "build\\matrixgame\\e2e544-smoke\\sdk\\material-shaders\\material.frag.dksh": "d7844a65d7aae07afbd7c4320a2ad72b0452fdbc6f625cbd3496581db08f6e25",
+    "build\\matrixgame\\e2e544-smoke\\sdk\\material-shaders\\material.vert.dksh": "55a19f5cabd9034935c9ccef3508a25d7d3795260920dfbbf075cf9408337399"
+  },
+  "embedded_font_sha256": {
+    "build\\matrixgame\\e2e544-smoke\\sdk\\debug-font\\original-font.bin": "70f87b96e2e26605fb97a7618f2bad38cc20ce7dc41f319c29ca95e0dec48dac",
+    "build\\matrixgame\\e2e544-smoke\\sdk\\text-font\\font0.bin": "fd94410cca0c9133f98444b8d3f6a11c24ac85bc2384d069982427efb55bdabc",
+    "build\\matrixgame\\e2e544-smoke\\sdk\\text-font\\font1.bin": "05e523df19447ea2681599d4724213f8375b2943adbbf48e30dc635c9e5bb7ea",
+    "build\\matrixgame\\e2e544-smoke\\sdk\\text-font\\font2.bin": "b091a874cc4d1a35298f507c6e328f155698a25a616cf1af55e812fd1599c475",
+    "build\\matrixgame\\e2e544-smoke\\sdk\\text-font\\font3.bin": "4bb653fb2d14f2729aa1705c5f6ef2b722aa4fe95f7b686bf3465fa05283d9ad"
+  },
+  "source_input_set_complete": true,
+  "current_software_evidence_sha256": "e7364d23991e8c427e2753cdc1b6a542aae4ecf5d680aff5e2eb10a44b03b59b",
+  "historical_dependency_evidence": {
+    "e2e527-output": {
+      "path": "reports\\matrixgame-e2e527-output-evidence.json",
+      "sha256": "ee0c90b856a478a847aae764e7b6f68610ded2860bd24b73331001ec29d8b750",
+      "historical_only": true,
+      "status": "E2E-5.27 OUTPUT/CACHE PROVIDER SOFTWARE PASS / FULL NATIVE INIT PARTIAL"
+    },
+    "e2e528-minimap": {
+      "path": "reports\\matrixgame-e2e528-minimap-evidence.json",
+      "sha256": "ce7fc0d190929b4d3201ced0abce0f311838f0786e2870b937e5abf411d1e759",
+      "historical_only": true,
+      "status": "E2E-5.28 MINIMAP LIFETIME/CACHE SOFTWARE PASS / FULL NATIVE INIT PARTIAL"
+    },
+    "e2e529-stored-state": {
+      "path": "reports\\matrixgame-e2e529-stored-state-evidence.json",
+      "sha256": "29cd49fe89329d052f71d4bce51e12ac86a7f34d65c347a0f87f7a2b1fa451d7",
+      "historical_only": true,
+      "status": "E2E-5.29 STORED SCALAR STATE SOFTWARE PASS / FULL NATIVE INIT PARTIAL"
+    },
+    "e2e534-reset-owners": {
+      "path": "reports\\matrixgame-e2e534-reset-owners-evidence.json",
+      "sha256": "478a50d2c9b000e7d8ab6bbab08454b99a68e04b41c9d1c0ab9d9882ff8f8f2b",
+      "historical_only": true,
+      "status": "E2E-5.34 PARTIAL: NATIVE OWNERSHIP SOFTWARE PASS; WINDOWS HAL RETRY FAIL; SWITCH RUNTIME NOT RUN"
+    },
+    "e2e542-pneumatic": {
+      "path": "reports\\matrixgame-e2e542-pneumatic-evidence.json",
+      "sha256": "1847d86b0d50da51f99f17ec86fe2f76f38cb451db1be0f6f7a629d02db3e089",
+      "historical_only": true,
+      "status": "E2E-5.42 PNEUMATIC RELEASE / REPEATED WINDOWS INIT PASS; SWITCH HARDWARE PENDING"
+    },
+    "e2e543-journal": {
+      "path": "reports\\matrixgame-e2e543-journal-evidence.json",
+      "sha256": "b24887992362d832dcbc5f6a3c98e56b73e1eb20381d78707fd075158cbea9bf",
+      "historical_only": true,
+      "status": "E2E-5.43 JOURNAL HOST/ARM64/WINDOWS/SDK PASS; DIAGNOSTIC NRO PREPARATION PARTIAL"
+    }
+  },
+  "protected_verified": 15,
+  "hardware_inputs_verified": 107,
+  "COMPILE_LINK": "PASS; strong undefined=0; 186 reachable inputs",
+  "HOST": "ASan/UBSan PASS; CPU/FILESYSTEM ONLY",
+  "ARM64_QEMU": "PASS; CPU/FILESYSTEM ONLY",
+  "WINDOWS_HAL": "historical E543 full Init/Draw/recovery/two sessions PASS; not repeated",
+  "SWITCH_HARDWARE": "NOT RUN / HARDWARE_PENDING",
+  "native_Init_executed": false,
+  "native_frame_presented": false,
+  "first_hardware_failure": "NOT OBSERVED; inspect first manual run journal",
+  "hardware_runs": 0,
+  "new_NRO_count": 1,
+  "commit": false,
+  "push": false,
+  "report_sha256": "8d25500377c67d2324c91256150027bb320d9d99902132b2d9c085c9d6bc85f3"
+}

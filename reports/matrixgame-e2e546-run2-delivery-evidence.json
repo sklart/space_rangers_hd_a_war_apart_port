@@ -1,0 +1,46 @@
+{
+  "status": "SECOND DIAGNOSTIC NRO READY FOR MANUAL RUN; CANDIDATE HARDWARE PENDING",
+  "nro": "D:\\repos\\space_rangers_hd_a_war_apart_port\\dist\\matrixgame-e2e527-diag-run2\\matrixgame-e2e527-diag-run2.nro",
+  "nro_sha256": "2ef94558387af0e719ff577110bbf0825ba06a674356ae9b0ed43230451e5916",
+  "nro_bytes": 6932677,
+  "build_id": "82034333146d-bef33ef232ece20af853",
+  "package_files_sha256": {
+    "build-inputs.json": "38695e2d9777f182c270284fb60b50f2166a4b0affab0db2651aeec2e66aa38d",
+    "control.nacp": "7120b8c1e535f81bcb308f489999b09de1f2e4c2155d7bc363010d9a9a1e96ed",
+    "manifest.json": "28547309d6c31a1504b1bf0fa03b9394f36cecab865977f476c285ee3675a7fe",
+    "matrixgame-e2e527-diag-run2.nro": "2ef94558387af0e719ff577110bbf0825ba06a674356ae9b0ed43230451e5916",
+    "README.md": "16aa53c3db45bb818cf2e701da3b576e19ec4fd61b51e434678709e09c3546da",
+    "resources.json": "a5753e9b7b0c988bc41a211df7f9ca8726e33fbad2220b1d3731cda188692b82",
+    "SHA256SUMS.txt": "44b6ccbe784651d577f1fbf6a07614737db62943aa9dd74d75a70dbfd766f549"
+  },
+  "embedded_shaders_sha256": {
+    "build\\matrixgame\\e2e546-window-handoff\\sdk\\material-shaders\\material.frag.dksh": "d7844a65d7aae07afbd7c4320a2ad72b0452fdbc6f625cbd3496581db08f6e25",
+    "build\\matrixgame\\e2e546-window-handoff\\sdk\\material-shaders\\material.vert.dksh": "55a19f5cabd9034935c9ccef3508a25d7d3795260920dfbbf075cf9408337399"
+  },
+  "nro_structure": {
+    "code_size": 6909952,
+    "segments": 3,
+    "embedded_icon": {
+      "offset": 6910008,
+      "size": 6285
+    },
+    "embedded_nacp": {
+      "offset": 6916293,
+      "size": 16384
+    },
+    "romfs_required": false
+  },
+  "original_generated_inputs_unchanged": true,
+  "HOST": "ASan/UBSan PASS; real Lifecycle and InitAsNative/Deinit; IPC model only",
+  "ARM64_QEMU": "same CPU ownership PASS",
+  "COMPILE_LINK": "PASS; no unresolved strong symbols",
+  "WINDOWS_HAL": "not repeated; common contracts unchanged",
+  "candidate_Switch_runtime": "NOT RUN / HARDWARE_PENDING",
+  "protected_verified": 15,
+  "hardware_inputs_verified": 107,
+  "first_package_preserved": true,
+  "source_and_checks_evidence_sha256": "02e95fb3dd6e592ccd198fb6c80680d41663849394d687ca8e583e3a8fc29772",
+  "report_sha256": "78c959346df011b14fcc9cba050ee66483171d188b6794d1af22a0b18b6b9ef1",
+  "commit": false,
+  "push": false
+}

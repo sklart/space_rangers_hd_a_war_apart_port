@@ -59,6 +59,8 @@ std::size_t HandleCount()noexcept;
 platform3g::DeviceResult Lock(IDirect3DSurface9*,legacy_texture::LockedRect*,unsigned);
 platform3g::DeviceResult Unlock(IDirect3DSurface9*);
 std::vector<std::byte> Read(const std::shared_ptr<Surface>&);
+// Explicit native owner for pre-Init diagnostics; never publishes ReadyDevice.
+std::vector<std::byte> ReadFor(const std::shared_ptr<Session>&,const std::shared_ptr<Surface>&);
 void Write(const std::shared_ptr<Surface>&,std::span<const std::byte>);
 void Copy(IDirect3DSurface9* source,IDirect3DSurface9* destination,bool render_readback=false);
 }

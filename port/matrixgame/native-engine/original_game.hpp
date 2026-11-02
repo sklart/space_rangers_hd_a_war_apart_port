@@ -2,6 +2,7 @@
 #pragma once
 #include "platform_3g.hpp"
 struct SRobotsSettings;
+struct SMGDRangersInterface;
 namespace Base {class CBlockPar;}
 namespace srhd_awa::matrixgame {
 struct NativeDrawSink;
@@ -14,6 +15,8 @@ struct NativeGameOptions {
     const wchar_t* win_text{};const wchar_t* loss_text{};const wchar_t* planet{};
     const wchar_t* output_root{}; // Explicit private native cache/screenshots root; borrowed only during entry.
     const wchar_t* resource_root{}; // Existing read-only game tree; never changes cwd or write destinations.
+    const SRobotsSettings* settings{}; // Borrowed during entry, copied; null selects original defaults.
+    const SMGDRangersInterface* services{}; // Full table copied; callback host must outlive Deinit. Null preserves existing caller binding.
 };
 struct OriginalGameOptions {
     void* module{};void* window{};

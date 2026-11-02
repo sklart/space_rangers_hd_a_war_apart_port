@@ -1,4 +1,5 @@
 /build/
+/.local/mirrors/
 **/build/
 /upstream/*
 !/upstream/cpp/
@@ -12,3 +13,8 @@ e2e4-*-build-report.json
 __pycache__/
 
 /dist/switch/
+
+# Local diagnostic packages and raw user/device captures are not source files.
+/dist/
+/logs/
+/saves/

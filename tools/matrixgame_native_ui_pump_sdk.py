@@ -1,0 +1,45 @@
+"""Production native UI pump/window/HID/import closure, ordinary SDK compile/link."""
+import json,os,shlex,shutil,subprocess
+from pathlib import Path
+from matrixgame_standard_nro_audit import ROOT,read,sha,check_hashes
+from matrixgame_legacy_wav_sdk_dependency import members
+from e2e4_script_width_overrides import prepare_script_source_overlay
+from e2e_source_overrides import generated_source
+
+def main():
+ parent=ROOT/'build/matrixgame/e2e610-native-ui-pump/sdk';parent.mkdir(parents=True,exist_ok=True);i=1
+ while (parent/str(i)).exists():i+=1
+ out=parent/str(i);out.mkdir();reference=ROOT/'build/matrixgame/e2e604-current-diagnostic/1';saved=read(reference/'result.json');check_hashes(saved['all_link_inputs_sha256']);check_hashes(saved['protected_previous_NRO_sha256'])
+ prior=read(ROOT/'build/matrixgame/e2e607-ui-context/sdk/1/result.json');check_hashes(prior['dependency_objects_sha256']);old_original=ROOT/prior['archive_path'];assert sha(old_original)==prior['dependency_archive_sha256'];entries=read(reference/'compile_commands.json')
+ env=dict(os.environ,DEVKITPRO='C:/devkitPro',DEVKITA64='C:/devkitPro/devkitA64');result={'status':'INCOMPLETE','commands':[],'Switch':'NOT RUN','new_NRO':False};sources=[]
+ def run(command,label,cwd=ROOT):
+  command=list(map(str,command));p=subprocess.run(command,cwd=cwd,env=env,capture_output=True,text=True,encoding='utf-8',errors='replace');log=p.stdout+p.stderr;(out/(label+'.log')).write_text(log,encoding='utf-8');result['commands'].append({'label':label,'command':command,'exit':p.returncode});print(label,p.returncode,log[-6000:] if p.returncode else '',flush=True);assert p.returncode==0,label;return log
+ def compile_own(source,like,obj):
+  entry=next(e for e in entries if e['file'].replace('\\','/').endswith('/'+like));command=[s.strip('"') for s in shlex.split(entry['command'],posix=False)];command[command.index('-c')+1]=str(source);command[command.index('-o')+1]=str(obj);command[:1]=[command[0],'-I'+str(ROOT/'port/matrixgame/native'),'-I'+str(ROOT/'port/matrixgame/native-engine'),'-I'+str(ROOT/'port/switch/platform')];run(command,'compile-'+source.stem,entry['directory']);sources.append(source);return obj
+ try:
+  cache_objects=[compile_own(ROOT/'port/matrixgame/native-engine'/name,'platform_switch.cpp' if name=='platform_switch.cpp' else 'native_input_engine.cpp',out/(name+'.obj')) for name in ('platform_switch.cpp','native_input.cpp','native_input_switch.cpp','native_input_engine.cpp')]
+  owner=compile_own(ROOT/'port/matrixgame/native/rangers_native_input.cpp','rangers_global_ui_session.cpp',out/'rangers_native_input.o')
+  context=compile_own(ROOT/'port/matrixgame/native/rangers_ui_context.cpp','rangers_global_ui_session.cpp',out/'rangers_ui_context.o')
+  factory=compile_own(ROOT/'port/matrixgame/native-engine/rangers_input_switch.cpp','native_input_engine.cpp',out/'rangers_input_switch.cpp.obj')
+  caller=compile_own(ROOT/'port/matrixgame/native-engine/rangers_caller_presentation.cpp','native_rangers_interface.cpp',out/'rangers_caller_presentation.cpp.obj')
+  ar='C:/devkitPro/devkitA64/bin/aarch64-none-elf-ar.exe';cache=out/'libmatrixgame-native-cache.a';shutil.copyfile(reference/'libmatrixgame-native-cache.a',cache);run([ar,'rs',cache,*cache_objects],'replace-native-input-window');before=members(reference/'libmatrixgame-native-cache.a');after=members(cache);assert set(before)==set(after);assert sorted(k for k in before if before[k]!=after[k])==sorted(p.name for p in cache_objects)
+  old_interface=ROOT/'build/matrixgame/e2e606-caller-presentation/sdk/2/libmatrixgame-native-rangers-interface.a';interface=out/'libmatrixgame-native-rangers-interface.a';shutil.copyfile(old_interface,interface);run([ar,'rs',interface,caller,factory],'integrate-caller-input-factory')
+  overlay=out/'source-overlay';prepare_script_source_overlay(ROOT/'upstream/cpp/src',overlay);grmain=out/'GR_Main.cpp';assert generated_source(overlay/'GR_Main.cpp',grmain,audio_on=True,e2e5_profile=True,script_width=True)==grmain;assert 'rangers_ui_input::installed' in grmain.read_text(encoding='utf-8')
+  flags=read(ROOT/'build/matrixgame/e2e572-rangers-host-sdk/fresh/upstream/GR_Main.build.json')['inputs']['flags'];grmain_obj=out/'GR_Main.o';run([flags['compiler'],*flags['flags'],'-c',grmain,'-o',grmain_obj],'compile-production-GR_Main');sources.append(grmain)
+  portable_flags=read(ROOT/'build/matrixgame/e2e572-rangers-host-sdk/fresh/platform/win32_compat_messages.build.json')['inputs']['flags'];portable=[]
+  for name in ('win32_compat_messages','win32_compat_gdi','win32_compat_window'):
+   source=ROOT/'port/switch/platform'/(name+'.cpp');obj=out/(name+'.o');run([portable_flags['compiler'],*portable_flags['flags'],'-c',source,'-o',obj],'compile-'+name);portable.append(obj);sources.append(source)
+  original=out/'liboriginal-rangers-host-native-ui.a';shutil.copyfile(old_original,original);run([ar,'rs',original,grmain_obj,*portable],'integrate-GR_Main-input-imports');before_original=members(old_original);after_original=members(original);assert set(before_original)==set(after_original);assert sorted(k for k in before_original if before_original[k]!=after_original[k])==sorted(p.name for p in (grmain_obj,*portable))
+  context_library=out/'libmatrixgame-rangers-ui-context.a';run([ar,'rs',context_library,context],'archive-ui-context-user-root')
+  library=out/'libmatrixgame-rangers-native-input.a';run([ar,'rs',library,owner],'archive-native-input-owner')
+  nm='C:/devkitPro/devkitA64/bin/aarch64-none-elf-nm.exe';symbols=run([nm,'-g','--defined-only',owner,factory],'input-owner-symbols');roots=sorted({line.split()[-1] for line in symbols.splitlines() if len(line.split())>=3 and line.split()[-2]=='T' and any(s in line.split()[-1] for s in ('RangersNativeInput','MakeSwitchRangersInputBackend'))});assert len(roots)>=5
+  command=next(c['command'] for c in prior['commands'] if c['label']=='link-retained-ui-caller-campaign')[:];elf=out/'matrixgame-native-ui-pump.elf';command[command.index('-o')+1]=str(elf);assert command.count(str(old_original))==1 and command.count(str(old_interface))==1
+  command=[str(context_library) if Path(s.replace('\\','/')).name=='libmatrixgame-rangers-ui-context.a' else str(original) if s==str(old_original) else str(interface) if s==str(old_interface) else str(cache) if Path(s.replace('\\','/')).name=='libmatrixgame-native-cache.a' else ('-Wl,-Map='+str(out/'native-ui-pump.map')) if s.startswith('-Wl,-Map=') else s for s in command];command.insert(command.index('-Wl,--start-group')+1,str(library));command+=['-Wl,--undefined='+root for root in roots];run(command,'link-retained-native-ui-pump-caller-campaign',ROOT/'build/matrixgame/e2e592-native-rangers-interface/sdk')
+  linked=run([nm,'-g',elf],'symbols');assert not any(' U ' in line for line in linked.splitlines()) and all(root in linked for root in roots);assert 'AArch64' in run(['C:/devkitPro/devkitA64/bin/aarch64-none-elf-readelf.exe','-h',elf],'header')
+  headers=[ROOT/'port/matrixgame/native-engine'/n for n in ('native_input_switch.hpp','native_input_gate.hpp','native_input.hpp','native_ui_target.hpp','rangers_input_queue.hpp','platform_switch.hpp')];headers += [ROOT/'port/matrixgame/native/rangers_native_input.hpp',ROOT/'port/switch/platform/rangers_ui_input.hpp',ROOT/'port/switch/platform/ui_control_cancel.hpp',ROOT/'port/switch/platform/controller_screen_context.hpp',ROOT/'tools/matrixgame_native_ui_input_overrides.py',ROOT/'tools/e2e_source_overrides.py',ROOT/'tools/e2e5_host_game_build.py',ROOT/'port/matrixgame/native/CMakeLists.txt',ROOT/'port/matrixgame/native-engine/CMakeLists.txt',Path(__file__).resolve()]
+  hashes={k:v for k,v in prior['dependency_objects_sha256'].items() if Path(k).name not in ('GR_Main.o',*[p.name for p in portable])};hashes.update({str(p.relative_to(ROOT)):sha(p) for p in (grmain_obj,*portable)});check_hashes(hashes)
+  result.update(status='PASS PRODUCTION NATIVE UI PUMP/HID WINDOW/WARP/SHARED IMPORTS/CALLER HANDOFF SDK COMPILE AND RETAINED LINK; ZERO STRONG UNDEFINED; NOT RUN',sources_sha256={str(p.relative_to(ROOT)):sha(p) for p in sources+headers},retained_input_symbols=roots,dependency_objects_sha256=hashes,archive_path=str(original.relative_to(ROOT)),dependency_archive_sha256=sha(original),archive_members_sha256=after_original,changed_original_members=sorted(p.name for p in (grmain_obj,*portable)),changed_cache_members=sorted(p.name for p in cache_objects),cache_members_sha256=after,interface_members_sha256=members(interface),artifacts={str(p.relative_to(ROOT)):{'sha256':sha(p),'bytes':p.stat().st_size} for p in (*cache_objects,owner,context,factory,caller,grmain_obj,*portable,cache,interface,original,context_library,library,elf,out/'native-ui-pump.map')},preserved_E604_link_inputs_sha256=saved['all_link_inputs_sha256'],preserved_previous_NRO_sha256=saved['protected_previous_NRO_sha256'])
+  check_hashes(result['sources_sha256']);check_hashes(saved['all_link_inputs_sha256']);check_hashes(saved['protected_previous_NRO_sha256'])
+ finally:(out/'result.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
+
+if __name__=='__main__':main()

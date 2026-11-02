@@ -1,5 +1,12 @@
 # MatrixGame: нативный перенос и Windows x86 reference
 
+> Актуальный freeze на 02.11.2026: **E610 SOFTWARE PASS / HARDWARE PENDING**.
+> Standalone Quick Smoke и Interactive собираются отдельно, без Campaign/Gov entry.
+> [Два ручных запуска и сбор журналов](../../docs/matrixgame-e610-switch-test-readme.ru.md),
+> [точная граница E610](../../reports/matrixgame-e2e610-native-ui-pump.md).
+> Приведённые ниже ранние этапы сохраняют исторические границы своих ревизий.
+
+
 ## Текущий статус на 25.10.2026
 
 E2E-5.21 **PARTIAL**: добавлен `InitializeNativeGame` без D3D identities/Win32 hooks,

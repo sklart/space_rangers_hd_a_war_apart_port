@@ -1,0 +1,27 @@
+"""Read-only UI context + exception-safe renderer SDK compile and retained closure."""
+import json,os,shlex,shutil,subprocess
+from pathlib import Path
+from matrixgame_standard_nro_audit import ROOT,read,sha,check_hashes
+from matrixgame_legacy_wav_sdk_dependency import members
+
+def main():
+ parent=ROOT/'build/matrixgame/e2e607-ui-context/sdk';parent.mkdir(parents=True,exist_ok=True);i=1
+ while (parent/str(i)).exists():i+=1
+ out=parent/str(i);out.mkdir();reference=ROOT/'build/matrixgame/e2e604-current-diagnostic/1';prior_path=ROOT/'build/matrixgame/e2e606-caller-presentation/sdk/2/result.json';prior=read(prior_path);assert prior['status'].startswith('PASS');check_hashes(prior['dependency_objects_sha256']);old_archive=ROOT/prior['archive_path'];assert sha(old_archive)==prior['dependency_archive_sha256'];old=read(reference/'result.json');check_hashes(old['all_link_inputs_sha256']);check_hashes(old['protected_previous_NRO_sha256'])
+ env=dict(os.environ,DEVKITPRO='C:/devkitPro',DEVKITA64='C:/devkitPro/devkitA64');result={'status':'INCOMPLETE','commands':[],'Switch':'NOT RUN','GPU_runtime':'NOT RUN','new_NRO':False}
+ def run(command,label,cwd=ROOT):
+  command=list(map(str,command));p=subprocess.run(command,cwd=cwd,env=env,capture_output=True,text=True,encoding='utf-8',errors='replace');log=p.stdout+p.stderr;(out/(label+'.log')).write_text(log,encoding='utf-8');result['commands'].append({'label':label,'command':command,'exit':p.returncode});print(label,p.returncode,log[-6500:] if p.returncode else '',flush=True);assert p.returncode==0,label;return log
+ try:
+  entries=read(reference/'compile_commands.json');entry=next(v for v in entries if v['file'].replace('\\','/').endswith('/rangers_global_ui_session.cpp'));command=[s.strip('"') for s in shlex.split(entry['command'],posix=False)];source=ROOT/'port/matrixgame/native/rangers_ui_context.cpp';obj=out/'rangers_ui_context.o';command[command.index('-c')+1]=str(source);command[command.index('-o')+1]=str(obj);command.insert(1,'-I'+str(ROOT/'port/switch/platform'));run(command,'compile-real-ui-context',entry['directory'])
+  ar='C:/devkitPro/devkitA64/bin/aarch64-none-elf-ar.exe';library=out/'libmatrixgame-rangers-ui-context.a';run([ar,'rs',library,obj],'archive-ui-context')
+  flags=read(ROOT/'build/matrixgame/e2e572-rangers-host-sdk/fresh/platform/renderer_platform.build.json')['inputs']['flags'];renderer_source=ROOT/'port/switch/platform/renderer_platform.cpp';renderer=out/'renderer_platform.o';run([flags['compiler'],*flags['flags'],'-c',renderer_source,'-o',renderer],'compile-renderer-rollback')
+  archive=out/'liboriginal-rangers-host-ui-context.a';shutil.copyfile(old_archive,archive);run([ar,'rs',archive,renderer],'replace-renderer');before=members(old_archive);after=members(archive);assert set(before)==set(after);assert sorted(k for k in before if before[k]!=after[k])==['renderer_platform.o']
+  nm='C:/devkitPro/devkitA64/bin/aarch64-none-elf-nm.exe';symbols=run([nm,'-g','--defined-only',library],'UI-symbols');roots=sorted({line.split()[-1] for line in symbols.splitlines() if len(line.split())>=3 and line.split()[-2]=='T' and 'RangersUiContext' in line.split()[-1]});assert len(roots)>=5
+  command=next(c['command'] for c in prior['commands'] if c['label']=='link-retained-native-caller-and-campaign')[:];elf=out/'matrixgame-ui-context.elf';command[command.index('-o')+1]=str(elf);assert command.count(str(old_archive))==1;command=[str(archive) if s==str(old_archive) else ('-Wl,-Map='+str(out/'ui-context.map')) if s.startswith('-Wl,-Map=') else s for s in command];command.insert(command.index('-Wl,--start-group')+1,str(library));command+=['-Wl,--undefined='+root for root in roots];run(command,'link-retained-ui-caller-campaign',ROOT/'build/matrixgame/e2e592-native-rangers-interface/sdk')
+  symbols=run([nm,'-g',elf],'symbols');assert not any(' U ' in line for line in symbols.splitlines()) and all(root in symbols for root in roots);header=run(['C:/devkitPro/devkitA64/bin/aarch64-none-elf-readelf.exe','-h',elf],'header');assert 'AArch64' in header
+  hashes={k:v for k,v in prior['dependency_objects_sha256'].items() if Path(k).name!='renderer_platform.o'};hashes[str(renderer.relative_to(ROOT))]=sha(renderer);check_hashes(hashes);sources=[source,renderer_source,ROOT/'port/matrixgame/native/rangers_ui_context.hpp',ROOT/'port/matrixgame/native/CMakeLists.txt',Path(__file__).resolve()]
+  result.update(status='PASS SDK REAL READONLY UI CONTEXT/RENDERER ROLLBACK/RETAINED UI-CALLER-CAMPAIGN ELF; ZERO STRONG UNDEFINED; NOT RUN',sources_sha256={str(p.relative_to(ROOT)):sha(p) for p in sources},dependency_objects_sha256=hashes,archive_path=str(archive.relative_to(ROOT)),dependency_archive_sha256=sha(archive),archive_members_sha256=after,changed_members=['renderer_platform.o'],retained_UI_symbols=roots,artifacts={str(p.relative_to(ROOT)):{'sha256':sha(p),'bytes':p.stat().st_size} for p in (obj,renderer,library,archive,elf,out/'ui-context.map')},preserved_E604_link_inputs_sha256=old['all_link_inputs_sha256'],preserved_previous_NRO_sha256=old['protected_previous_NRO_sha256'])
+  check_hashes(result['sources_sha256']);check_hashes(old['all_link_inputs_sha256']);check_hashes(old['protected_previous_NRO_sha256']);assert sha(old_archive)==prior['dependency_archive_sha256']
+ finally:(out/'result.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
+
+if __name__=='__main__':main()

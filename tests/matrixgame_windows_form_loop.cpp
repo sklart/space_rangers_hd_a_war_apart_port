@@ -16,6 +16,9 @@
 #include "input.hpp"
 #include "CException.hpp"
 #include "resource_paths.hpp"
+#ifdef MATRIXGAME_FORM_TEST_JOURNAL_SHA
+#include "native_diagnostic_journal.hpp"
+#endif
 #include <cstdio>
 #include <codecvt>
 #include <locale>
@@ -53,6 +56,10 @@ int RunOriginalWindowsGame(void* module,void* hwnd,std::uintptr_t api,std::uintp
     mg::platform3g::Window& window,mg::platform3g::Device& device){
     using namespace mg;
     output_paths::NativeScope private_outputs(MATRIXGAME_FORM_TEST_OUTPUT);
+#ifdef MATRIXGAME_FORM_TEST_JOURNAL_SHA
+    diagnostic::Journal journal(std::filesystem::path(MATRIXGAME_FORM_TEST_OUTPUT)/"diagnostic-logs","Windows-HAL-test",MATRIXGAME_FORM_TEST_JOURNAL_SHA);
+    diagnostic::Binding journal_binding(journal);
+#endif
     auto settings=SRobotsSettings::generate_default_settings();settings.FDirect3D=reinterpret_cast<void*>(api);settings.FD3DDevice=reinterpret_cast<void*>(raw);
     settings.m_ResolutionX=800;settings.m_ResolutionY=600;
     NativeInitRuntime runtime;OriginalGameOptions options;options.module=module;options.window=hwnd;options.seed=37;options.window_provider=&window;options.device_provider=&device;options.settings=&settings;

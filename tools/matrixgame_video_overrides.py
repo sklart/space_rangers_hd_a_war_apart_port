@@ -9,6 +9,7 @@ def prepare_video(output):
     source=path.read_text(encoding='utf-8')
     original=function(source,'void CGame::ApplyVideoParams(SRobotsSettings &set)')
     body=original
+    brace=body.index('{');body=body[:brace+1]+'\n    srhd_awa::matrixgame::diagnostic::Operation video_trace("B.ApplyVideoParams");'+body[brace+1:]
     body=body.replace('::srhd_awa::matrixgame::ZeroTrivialBytes', 'ZeroMemory')
     body=body.replace('::srhd_awa::matrixgame::Viewport', 'p::VideoViewport')
     replacements={
@@ -72,7 +73,7 @@ def prepare_video(output):
     source=source.replace('CMatrixMapLogic *g_MatrixMap;', 'extern CMatrixMapLogic *g_MatrixMap;')
     if source.count('logger_type lgr{"test.log"};')!=1:raise ValueError('Original game logger changed')
     source=source.replace('logger_type lgr{"test.log"};','logger_type lgr{std::clog};')
-    prelude='#include "platform_3g.hpp"\n#include <iostream>\nnamespace p=srhd_awa::matrixgame::platform3g;\n'
+    prelude='#include "platform_3g.hpp"\n#include "native_diagnostic_journal.hpp"\n#include <iostream>\nnamespace p=srhd_awa::matrixgame::platform3g;\n'
     path.write_bytes((prelude+source).encode())
     # The full original TU now supplies the called method. Retire only this
     # previously managed generated file, never a user source or upstream file.

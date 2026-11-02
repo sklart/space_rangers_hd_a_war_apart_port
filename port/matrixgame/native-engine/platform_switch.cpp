@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "platform_switch.hpp"
+#include "native_diagnostic_journal.hpp"
 #include "../deko/legacy_raster_viewport.hpp"
+#include "../deko/legacy_polygon_mode.hpp"
+#include "../deko/sampler_deko.hpp"
 #include "../deko/stencil_deko.hpp"
 #include <switch.h>
 #include <deko3d.hpp>
@@ -11,18 +14,30 @@
 #include "../deko/texture_store.hpp"
 #include "../deko/alpha_target.hpp"
 #include "material_shaders.hpp"
+#include "gamma_shaders.hpp"
+#include "../deko/gamma_program.hpp"
 #include "staging_draw.hpp"
 #include "native_device_state.hpp"
 #include "native_presentation.hpp"
 #include "native_reset_resources.hpp"
 #include "native_draw_batch.hpp"
+#include "native_draw_upload.hpp"
 #include "native_command_memory.hpp"
 #include "applet_window_lifecycle.hpp"
+#include "native_applet_message.hpp"
 #include "applet_engine_events.hpp"
 #include "native_input_switch.hpp"
 #include <cstdio>
 namespace srhd_awa::matrixgame::platform3g {
 namespace {
+std::atomic<std::uint64_t> diagnostic_sdk_warnings{};
+void DiagnosticSdkReport(void*,const char* context,DkResult result,const char* message)noexcept{
+    if(result==DkResult_Success && diagnostic_sdk_warnings.fetch_add(1)>=32)return;
+    char operation[97];std::snprintf(operation,sizeof(operation),"deko3d.%s",context?context:"unknown");
+    diagnostic::Record(result==DkResult_Success?"warning":"sdk_error",operation,message?message:"",result);
+    // Return to the SDK's existing policy. In debug SDK builds,
+    // RaiseError invokes its original fatal handler if this callback returns.
+}
 struct NativeAttachment final:WindowAttachment {
     applet_window::Lifecycle& lifecycle;native_input::SwitchInput& input;native_cursor::Store& cursor;
     native_cursor::Store::State saved;bool live{true};
@@ -32,6 +47,7 @@ struct NativeAttachment final:WindowAttachment {
     }
     ~NativeAttachment(){Restore();}
     void Restore()noexcept override{if(live){const auto result=lifecycle.Detach();input.Detach();
+        diagnostic::Record(result?"failed":"result","window.attachment.detach",{},result);
         try{cursor.Restore(saved);}catch(...){std::terminate();}live=false;
         if(result)std::fprintf(stderr,"applet visibility restore failed: 0x%08x\n",unsigned(result));}}
 };
@@ -43,6 +59,8 @@ std::uint32_t AllocationSize(std::uint64_t bytes){
 }
 // libnx applet notification hooks run synchronously on the message-pump thread.
 // All provider operations, including any owner's pump, must use that thread.
+static_assert(applet_window::MessageTimedOut==KERNELRESULT(TimedOut));
+static_assert(applet_window::MessageQueueEmpty==MAKERESULT(128,3));
 class NxAppletBackend final:public applet_window::Backend {
     AppletHookCookie cookie_{};
     inline static NxAppletBackend* owner_{};
@@ -82,10 +100,11 @@ public:
     bool Next(applet_window::Event& event)override{
         if(overflow_)throw std::runtime_error("applet notification queue overflow or invalid focus");
         if(count_){event=events_[first_];first_=(first_+1)%events_.size();--count_;return true;}
-        u32 message{};const Result result=appletGetMessage(&message);
-        if(result==MAKERESULT(128,3))return false; // libnx AM: no messages.
-        CheckNx(result,"appletGetMessage");
-        if(!appletProcessMessage(message))exit_=true;
+        const auto processed=applet_window::PollMessage(
+            [](std::uint32_t* message){return appletGetMessage(message);},
+            [](std::uint32_t message){return appletProcessMessage(message);});
+        if(!processed)return false;
+        if(!*processed)exit_=true;
         if(count_){event=events_[first_];first_=(first_+1)%events_.size();--count_;}
         else event=Read();
         return true;
@@ -142,6 +161,9 @@ std::unique_ptr<WindowAttachment> SwitchWindow::Attach(MessageHandler){throw Uns
 void SwitchWindow::Show(Visibility value){lifecycle_->session.Show(value!=Visibility::Minimized);}
 void SwitchWindow::Update(){lifecycle_->session.Update();const auto r=ReadClientRect();lifecycle_->input.Poll(r.right,r.bottom,Drawable());}
 void SwitchWindow::WaitForDrawable(){lifecycle_->session.WaitForDrawable();const auto r=ReadClientRect();lifecycle_->input.Poll(r.right,r.bottom,Drawable());}
+void SwitchWindow::WarpInputCursor(int x,int y){const auto r=ReadClientRect();lifecycle_->input.Warp(x,y,r.right,r.bottom);}
+void SwitchWindow::CancelHeldInput(){lifecycle_->input.CancelHeldInput();}
+void SwitchWindow::SetWaitCheckpoint(std::function<void()> checkpoint){lifecycle_->session.SetWaitCheckpoint(std::move(checkpoint));}
 bool SwitchWindow::Drawable()const noexcept{return lifecycle_->session.Drawable();}
 std::uint32_t SwitchWindow::LastVisibilityRestoreResult()const noexcept{return lifecycle_->session.RestoreResult();}
 CursorHandle SwitchWindow::ExchangeCursor(CursorHandle value){return {lifecycle_->cursor.Exchange(value.value)};}
@@ -164,7 +186,9 @@ struct DekoDevice::Impl: presentation::Driver {
     dk::UniqueQueue queue;
     WindowRect extent,baseline_extent;
     std::uint32_t baseline_interval{};BqRect baseline_crop{};
-    struct DisplayImages {dk::UniqueMemBlock color_memory[3],depth_memory;dk::Image color[3],depth;unsigned count{};};
+    // The original backbuffer is sampled without modification. Separate
+    // swapchain images receive the display LUT; cache/readback stays pre-gamma.
+    struct DisplayImages {dk::UniqueMemBlock color_memory[3],scene_memory[3],depth_memory;dk::Image color[3],scene[3],depth;unsigned count{};};
     struct TargetSet final:presentation::Targets {
         std::shared_ptr<DisplayImages> images=std::make_shared<DisplayImages>();dk::UniqueSwapchain swapchain;
         std::shared_ptr<native_surfaces::Surface> color_surface,depth_surface;
@@ -190,9 +214,15 @@ struct DekoDevice::Impl: presentation::Driver {
         dk::ImageLayoutMaker{device}.setFlags(DkImageFlags_UsageRender).setFormat(depth_format)
             .setDimensions(p.BackBufferWidth,p.BackBufferHeight).initialize(depth_layout);
         const auto color_bytes=AllocationSize(color_layout.getSize()),depth_bytes=AllocationSize(depth_layout.getSize());
-        if(std::uint64_t(color_bytes)*p.BackBufferCount+depth_bytes>256*1024*1024)throw std::bad_alloc();
+        diagnostic::Metric("image_width",p.BackBufferWidth);diagnostic::Metric("image_height",p.BackBufferHeight);
+        diagnostic::Metric("color_image_bytes",color_layout.getSize());diagnostic::Metric("color_image_alignment",color_layout.getAlignment());
+        diagnostic::Metric("depth_image_bytes",depth_layout.getSize());diagnostic::Metric("depth_image_alignment",depth_layout.getAlignment());
+        diagnostic::Operation image_trace("GPU.color_depth_allocation");
+        if(std::uint64_t(color_bytes)*p.BackBufferCount*2+depth_bytes>256*1024*1024)throw std::bad_alloc();
         for(unsigned i=0;i<p.BackBufferCount;++i){next->images->color_memory[i]=dk::MemBlockMaker{device,color_bytes}.setFlags(DkMemBlockFlags_GpuCached|DkMemBlockFlags_Image).create();
-            if(!next->images->color_memory[i])throw std::bad_alloc();next->images->color[i].initialize(color_layout,next->images->color_memory[i],0);}
+            if(!next->images->color_memory[i])throw std::bad_alloc();next->images->color[i].initialize(color_layout,next->images->color_memory[i],0);
+            next->images->scene_memory[i]=dk::MemBlockMaker{device,color_bytes}.setFlags(DkMemBlockFlags_GpuCached|DkMemBlockFlags_Image).create();
+            if(!next->images->scene_memory[i])throw std::bad_alloc();next->images->scene[i].initialize(color_layout,next->images->scene_memory[i],0);}
         next->images->depth_memory=dk::MemBlockMaker{device,depth_bytes}.setFlags(DkMemBlockFlags_GpuCached|DkMemBlockFlags_Image).create();
         if(!next->images->depth_memory)throw std::bad_alloc();next->images->depth.initialize(depth_layout,next->images->depth_memory,0);next->images->count=p.BackBufferCount;
         auto color=std::make_shared<SurfaceResource>();color->display=next->images;
@@ -206,6 +236,7 @@ struct DekoDevice::Impl: presentation::Driver {
         if(!Healthy())throw Unsupported("native Reset queue completion failed");ReleaseCompleted();batch.Retired();
     }
     void Attach(presentation::Targets& value)override{
+        diagnostic::Operation trace("GPU.swapchain_attach");
         auto& next=static_cast<TargetSet&>(value);const DkImage* images[]{&next.images->color[0],&next.images->color[1],&next.images->color[2]};
         next.swapchain=dk::SwapchainMaker{device,&window.NativeWindow(),images,next.value.BackBufferCount}.create();
         if(!next.swapchain)throw std::runtime_error("native swapchain recreation failed");
@@ -213,6 +244,7 @@ struct DekoDevice::Impl: presentation::Driver {
         CheckNx(nwindowSetCrop(&window.NativeWindow(),0,0,0,0),"native presentation full crop");
     }
     void Detach(presentation::Targets& value)override{
+        screenshot_frame.Invalidate();
         auto& old=static_cast<TargetSet&>(value);old.swapchain=nullptr;
         // SDK destruction releases buffers too, but discards the Result. Check
         // explicitly so a failed IPC is never converted into Reset success.
@@ -225,6 +257,10 @@ struct DekoDevice::Impl: presentation::Driver {
     }
 
     std::unique_ptr<materials::DekoCombinerProgram> programs;
+    std::unique_ptr<DekoGammaProgram> gamma_program;
+    NativeGammaStore gamma;
+    native_form::ScreenshotFrame screenshot_frame;
+    DekoGammaProgram::Packet gamma_packet;
     NativeStateStore state;
     std::unique_ptr<native_texture::DekoTextureStore> texture_store;
     std::shared_ptr<native_texture::Session> texture_session;
@@ -234,13 +270,12 @@ struct DekoDevice::Impl: presentation::Driver {
         std::shared_ptr<native_texture::Texture> texture;unsigned level{};
         const std::shared_ptr<native_texture::Texture>* ResetTextureReference()const noexcept override{return &texture;}
         std::shared_ptr<native_texture::DekoTextureStore::ResidentImage> Resolve()const{if(!texture)return allocation;auto image=std::dynamic_pointer_cast<native_texture::DekoTextureStore::ResidentImage>(native_texture::Resident(texture));if(!image)throw std::invalid_argument("foreign texture image backend");return image;}
-        const dk::Image& Image(int slot)const{if(texture || allocation)return Resolve()->image;if(!display)throw Unsupported("offscreen image expired");if(depth)return display->depth;if(slot<0 || unsigned(slot)>=display->count)throw std::logic_error("primary surface requires acquired display image");return display->color[slot];}
+        const dk::Image& Image(int slot)const{if(texture || allocation)return Resolve()->image;if(!display)throw Unsupported("offscreen image expired");if(depth)return display->depth;if(slot<0 || unsigned(slot)>=display->count)throw std::logic_error("primary surface requires acquired display image");return display->scene[slot];}
     };
     std::shared_ptr<debug_font::native::Session> font_session;
     struct FontAtlas final:debug_font::native::Atlas {std::shared_ptr<native_texture::Texture> texture;};
     std::shared_ptr<const native_cursor::Icon> cursor_icon;
     std::shared_ptr<native_texture::Texture> cursor_texture;
-    dk::UniqueCmdBuf commands;
     dk::UniqueMemBlock command_memory,command_discard;
     struct CommandDriver {
         using Command=DkCmdBuf;using Block=dk::UniqueMemBlock;Impl& self;
@@ -252,13 +287,16 @@ struct DekoDevice::Impl: presentation::Driver {
         }
     };
     NativeCommandMemory<CommandDriver> command_pages{CommandDriver{*this}};
+    // Constructor unwind skips ~Impl: destroy the recorder before every page
+    // it can reference, including persistent base/discard and dynamic spills.
+    dk::UniqueCmdBuf commands;
     static_assert(NativeCommandMemory<CommandDriver>::Alignment==DK_MEMBLOCK_ALIGNMENT);
     static_assert(NativeCommandMemory<CommandDriver>::Alignment%DK_CMDMEM_ALIGNMENT==0);
     static void RefillCommands(void* context,DkCmdBuf command,std::size_t minimum)noexcept{
         static_cast<Impl*>(context)->command_pages.Refill(command,minimum);
     }
     struct DrawPacket {
-        dk::UniqueMemBlock vertices,indices,sampler_descriptors,image_descriptors;
+        NativeDrawUpload upload;
         std::array<std::shared_ptr<native_texture::Image>,8> images;
         materials::DekoCombinerProgram::Packet material;
         std::uint32_t bytes{};
@@ -269,18 +307,25 @@ struct DekoDevice::Impl: presentation::Driver {
     std::vector<std::shared_ptr<native_surfaces::Surface>> surface_packets;
     std::vector<std::shared_ptr<native_texture::Image>> target_images;
     static constexpr unsigned command_bytes=NativeCommandMemory<CommandDriver>::BaseBytes,frame_budget=NativeDrawBatch::ByteLimit;
+    DekoDevice::DiagnosticCounters diagnostics;
+    DekoDevice::PrimaryReadback primary_readback;
+    DekoDevice::PrimaryReadback presentation_readback;
     dk::UniqueMemBlock Allocate(std::uint64_t bytes){
         auto value=dk::MemBlockMaker{device,AllocationSize(bytes)}.setFlags(DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached).create();
-        if(!value)throw std::bad_alloc();return value;
+        if(!value)throw std::bad_alloc();++diagnostics.buffer_allocations;diagnostics.buffer_bytes_total+=AllocationSize(bytes);return value;
     }
     bool presenting{};const dk::Image* bound_color{};const dk::Image* bound_depth{};
     void StartRecording(){
         if(recording){command_pages.Check();return;}if(!Healthy())throw Unsupported("native render queue lost");
-        if(!frame){window.WaitForDrawable();queue.waitIdle();if(!Healthy())throw Unsupported("native render queue completion failed");packets.clear();surface_packets.clear();target_images.clear();batch.Retired();frame.Acquire();state.Frame(true);}
+        if(!frame){window.WaitForDrawable();queue.waitIdle();if(!Healthy())throw Unsupported("native render queue completion failed");packets.clear();surface_packets.clear();target_images.clear();batch.Retired();screenshot_frame.Invalidate();frame.Acquire();state.Frame(true);}
         command_pages.Retire([&]()noexcept{commands.clear();commands.addMemory(command_memory,0,command_bytes);});bound_color=bound_depth=nullptr;recording=true;
     }
     void AcquirePrimary(){
-        if(image_slot>=0)return;if(!presentation_state.Ready())throw Unsupported("native presentation requires successful Reset");window.WaitForDrawable();const auto size=window.ReadClientRect();
+        if(image_slot>=0)return;if(!presentation_state.Ready())throw Unsupported("native presentation requires successful Reset");
+        // StartRecording pumps focus before opening the frame. Pumping again
+        // here would reenter original resource teardown/minimap readback inside it.
+        // Process newly queued events at the next idle frame boundary instead.
+        frame.RequireBatch();const auto size=window.ReadClientRect();
         if(size.right!=extent.right || size.bottom!=extent.bottom)throw Unsupported("native drawable extent changed; recreation required");
         image_slot=queue.acquireImage(Targets().swapchain);if(image_slot<0 || unsigned(image_slot)>=Targets().value.BackBufferCount)throw std::runtime_error("native swapchain acquire failed");
     }
@@ -299,16 +344,18 @@ struct DekoDevice::Impl: presentation::Driver {
         command_pages.Check();
     }
     void SubmitAndWait(){
+        diagnostic::Operation trace("GPU.batch_submit_wait");
         if(!recording)throw std::logic_error("native batch submission without recording");
         command_pages.Check();
         commands.barrier(DkBarrier_Full,DkInvalidateFlags_Image|DkInvalidateFlags_L2Cache);
         const auto list=command_pages.FinishForSubmission([&]{return commands.finishList();});
-        queue.submitCommands(list);queue.flush();queue.waitIdle();
+        queue.submitCommands(list);++diagnostics.queue_submissions;queue.flush();queue.waitIdle();
         if(!Healthy())throw Unsupported("native draw batch queue completion failed");
     }
     void ReleaseCompleted()noexcept{
         command_pages.Retire([&]()noexcept{if(commands){commands.clear();commands.addMemory(command_memory,0,command_bytes);}});recording=false;bound_color=bound_depth=nullptr;
         packets.clear();surface_packets.clear();target_images.clear();
+        gamma_packet={};
     }
     void DrainBatch(){DrainNativeDrawBatch(frame,batch,*this);}
     void FlushRecording(){
@@ -335,18 +382,25 @@ struct DekoDevice::Impl: presentation::Driver {
     Impl(SwitchWindow& window,std::uint32_t texture_bytes):window(window),extent(window.ReadClientRect()),baseline_extent(extent),baseline_interval(window.NativeWindow().swap_interval),baseline_crop(window.NativeWindow().crop){
         // Do not adopt or disrupt a swapchain belonging to the main game.
         if(window.NativeWindow().slots_configured)throw std::logic_error("native window already has configured display buffers");
+        diagnostic_sdk_warnings.store(0);
         struct Rollback {Impl& self;bool committed{};~Rollback(){if(!committed){try{if(self.queue)self.presentation_state.Release();}catch(...){std::fprintf(stderr,"native construction presentation rollback failed\n");}self.RestoreWindow();}}} rollback{*this};
-        device=dk::DeviceMaker{}.setFlags(DkDeviceFlags_DepthZeroToOne|DkDeviceFlags_OriginUpperLeft).create();
-        if(!device)throw std::runtime_error("deko device creation failed");
+        {diagnostic::Operation trace("A.deko.Device");
+        device=dk::DeviceMaker{}.setCbDebug(DiagnosticSdkReport).setFlags(DkDeviceFlags_DepthZeroToOne|DkDeviceFlags_OriginUpperLeft).create();
+        if(!device)throw std::runtime_error("deko device creation failed");}
+        {diagnostic::Operation trace("A.deko.Queue");
         queue=dk::QueueMaker{device}.setFlags(DkQueueFlags_Graphics).create();
-        if(!queue)throw std::runtime_error("deko queue creation failed");
+        if(!queue)throw std::runtime_error("deko queue creation failed");}
+        {diagnostic::Operation trace("A.material_shader_pair");
         programs=std::make_unique<materials::DekoCombinerProgram>(device,
             std::as_bytes(std::span{materials::compiled::frag}),std::as_bytes(std::span{materials::compiled::vert}));
-        if(!programs->VertexReady())throw Unsupported("native material shader pair did not initialize");
+        if(!programs->VertexReady())throw Unsupported("native material shader pair did not initialize");}
+        {diagnostic::Operation trace("A.gamma_shader_pair");
+        gamma_program=std::make_unique<DekoGammaProgram>(device,std::as_bytes(std::span{gamma_compiled::vert}),std::as_bytes(std::span{gamma_compiled::frag}));}
         state.Edit().vertex.Viewport({0,0,std::uint32_t(extent.right),std::uint32_t(extent.bottom),0,1});
+        {diagnostic::Operation trace("A.command_backing");
         command_memory=Allocate(command_bytes);
         command_discard=Allocate(NativeCommandMemory<CommandDriver>::QuotaBytes);
-        commands=dk::CmdBufMaker{device}.setUserData(this).setCbAddMem(RefillCommands).create();if(!commands)throw std::bad_alloc();
+        commands=dk::CmdBufMaker{device}.setUserData(this).setCbAddMem(RefillCommands).create();if(!commands)throw std::bad_alloc();}
         Presentation initial{};initial.BackBufferWidth=extent.right;initial.BackBufferHeight=extent.bottom;
         initial.BackBufferFormat=PixelFormat::Argb8;initial.hDeviceWindow=window.Identity();initial.Windowed=true;initial.SwapEffect=1;
         initial.EnableAutoDepthStencil=true;initial.AutoDepthStencilFormat=PixelFormat::Depth24Stencil8;initial.PresentationInterval=1;initial.Flags=2;
@@ -354,7 +408,7 @@ struct DekoDevice::Impl: presentation::Driver {
         CheckDeviceResult(presentation_state.Reset(initial),"native initial presentation");
         texture_store=std::make_unique<native_texture::DekoTextureStore>(device,queue,texture_bytes);
         texture_session=std::make_shared<native_texture::Session>();
-        texture_session->upload=[this](const native_texture::Texture& t){return texture_store->Upload(t);};
+        texture_session->upload=[this](const native_texture::Texture& t){auto image=texture_store->Upload(t);++diagnostics.session_uploads;return image;};
         SurfaceCallbacks();
         rollback.committed=true;
     }
@@ -375,46 +429,43 @@ struct DekoDevice::Impl: presentation::Driver {
                   DkIdxFormat index_format,std::uint32_t count,std::int32_t base,DkPrimitive primitive,const NativeRenderState* override_state=nullptr){
         if(!frame)throw Unsupported("original draw requires a live native acquire/frame scope");
         const auto& saved_state=override_state?*override_state:state.Read();
-        saved_state.ValidateDraw(primitive==DkPrimitive_Points,primitive==DkPrimitive_Lines || primitive==DkPrimitive_LineStrip);
+        frame.RequireDraw(override_state!=nullptr);
+        const auto target=presenting?surface_session->primary_color:surface_session->color;
+        if(!target)throw std::logic_error("native draw has no color attachment");
+        saved_state.ValidateDraw(primitive==DkPrimitive_Points,primitive==DkPrimitive_Lines || primitive==DkPrimitive_LineStrip,
+            target->desc.MultiSampleType,target->desc.MultiSampleQuality);
         const auto stencil=saved_state.Stencil();const auto stencil_depth=presenting?surface_session->primary_depth:surface_session->depth;
         RequireStencilAttachment(stencil,bool(stencil_depth),stencil_depth?stencil_depth->desc.Format:0);
-        frame.RequireDraw(override_state!=nullptr);
         const auto& vertex=saved_state.vertex;const auto& combiner=saved_state.combiner;
         const auto& textures=saved_state.textures;const auto& samplers=saved_state.samplers;
-        const auto target=presenting?surface_session->primary_color:surface_session->color;const bool alpha_target=target->desc.Format==28;
+        const bool alpha_target=target->desc.Format==28;
         const auto raster=alpha_target?AlphaTargetRaster(saved_state.raster):saved_state.raster;const auto cull=saved_state.cull;
         const auto uniforms=vertex.Prepare();const auto fog=saved_state.PixelFog();
         const std::uint64_t bytes=std::uint64_t(AllocationSize(vertices.size_bytes()))+(indices.empty()?0:AllocationSize(indices.size()))+
             AllocationSize(sizeof(materials::Uniforms))+AllocationSize(sizeof(materials::VertexUniforms))+AllocationSize(8*sizeof(DkSamplerDescriptor))+AllocationSize(8*sizeof(DkImageDescriptor));
         if(batch.NeedsDrain(bytes) || command_pages.NeedsDrain())DrainBatch();
         BindTargets(presenting);
-        DrawPacket packet;packet.vertices=Allocate(vertices.size_bytes());std::memcpy(packet.vertices.getCpuAddr(),vertices.data(),vertices.size_bytes());
-        if(!indices.empty()){packet.indices=Allocate(indices.size());std::memcpy(packet.indices.getCpuAddr(),indices.data(),indices.size());}
-        packet.sampler_descriptors=Allocate(8*sizeof(DkSamplerDescriptor));
-        packet.image_descriptors=Allocate(8*sizeof(DkImageDescriptor));
-        std::memset(packet.image_descriptors.getCpuAddr(),0,8*sizeof(DkImageDescriptor));
+        const auto upload_layout=NativeDrawUpload::Plan(vertices.size_bytes(),indices.size());
+        DrawPacket packet;packet.upload=NativeDrawUpload{Allocate(upload_layout.bytes),std::as_bytes(vertices),indices};
         for(unsigned i=0;i<8;++i)if(textures[i]){
             if(target->texture==textures[i])throw Unsupported("render target texture feedback is invalid");
             packet.images[i]=native_texture::Resident(textures[i]);
             auto image=std::dynamic_pointer_cast<native_texture::DekoTextureStore::ResidentImage>(packet.images[i]);
             if(!image)throw std::logic_error("native texture image belongs to another backend");
-            std::memcpy(static_cast<std::byte*>(packet.image_descriptors.getCpuAddr())+i*sizeof(DkImageDescriptor),&image->descriptor,sizeof(DkImageDescriptor));
+            packet.upload.WriteImage(i,image->descriptor);
         }
-        for(unsigned i=0;i<8;++i){const auto& s=samplers[i];s.Validate();
-            auto filter=[](TextureFilter f){return f==TextureFilter::Point?DkFilter_Nearest:DkFilter_Linear;};
-            auto wrap=[](TextureAddress a){return a==TextureAddress::Clamp?DkWrapMode_ClampToEdge:DkWrapMode_Repeat;};
-            dk::Sampler sampler;sampler.setFilter(filter(s.min),filter(s.mag),s.mip==TextureMipFilter::None?DkMipFilter_None:s.mip==TextureMipFilter::Point?DkMipFilter_Nearest:DkMipFilter_Linear)
-                .setWrapMode(wrap(s.u),wrap(s.v),wrap(s.w)).setLodBias(s.lod_bias).setMaxAnisotropy(s.min==TextureFilter::Anisotropic?float(s.max_anisotropy):1.f);
-            dk::SamplerDescriptor descriptor;descriptor.initialize(sampler);std::memcpy(static_cast<std::byte*>(packet.sampler_descriptors.getCpuAddr())+i*sizeof(descriptor),&descriptor,sizeof(descriptor));}
+        for(unsigned i=0;i<8;++i){const auto sampler=MakeDekoSampler(samplers[i]);
+            dk::SamplerDescriptor descriptor;descriptor.initialize(sampler);packet.upload.WriteSampler(i,descriptor);}
         std::array<DkResHandle,8> handles;for(unsigned i=0;i<8;++i)handles[i]=dkMakeTextureHandle(i,i);
         packet.material=programs->Prepare(combiner,handles,&uniforms,alpha_target,&fog,saved_state.shade);
-        packets.push_back(std::move(packet));auto& saved=packets.back();batch.Add(bytes);
+        packets.push_back(std::move(packet));auto& saved=packets.back();batch.Add(bytes);++diagnostics.recorded_draws;
         const auto raster_viewport=LegacyRasterViewport(uniforms.viewport);
         commands.setViewports(0,{{raster_viewport[0],raster_viewport[1],raster_viewport[2],raster_viewport[3],0,1}});
         const auto clip=LegacyRasterClip(uniforms.viewport);
         commands.setScissors(0,{{clip[0],clip[1],clip[2],clip[3]}});
-        dk::RasterizerState rs;rs.setFrontFace(DkFrontFace_CW).setProvokingVertex(DkProvokingVertex_First).setCullMode(cull==1?DkFace_None:cull==2?DkFace_Front:DkFace_Back);commands.bindRasterizerState(rs);
-        if(primitive==DkPrimitive_Lines || primitive==DkPrimitive_LineStrip){
+        dk::RasterizerState rs;rs.setFrontFace(DkFrontFace_CW).setProvokingVertex(DkProvokingVertex_First).setCullMode(cull==1?DkFace_None:cull==2?DkFace_Front:DkFace_Back);
+        ApplyLegacyPolygonMode(rs,saved_state.Render(8));commands.bindRasterizerState(rs);
+        if(primitive==DkPrimitive_Lines || primitive==DkPrimitive_LineStrip || saved_state.Render(8)==2){
             // Bind actual aliased line state on every draw; neither inherited
             // width nor a foreign line stipple may alter original one-pixel UI.
             commands.setLineWidth(1.f);commands.setLineStipple(false,1,0xffff);
@@ -427,10 +478,10 @@ struct DekoDevice::Impl: presentation::Driver {
             .setOps(static_cast<DkBlendOp>(raster.operation),static_cast<DkBlendOp>(raster.operation));
         commands.bindMultisampleState(dk::MultisampleState{});commands.bindColorState(color);commands.bindColorWriteState(write);commands.bindDepthStencilState(depth);commands.bindBlendStates(0,{blend});commands.setAlphaRef(float(raster.alpha_reference)/255);
         std::array<DkVtxAttribState,12> attributes;for(unsigned i=0;i<12;++i)attributes[i]={0,0,i*16,DkVtxAttribSize_4x32,DkVtxAttribType_Float,0};
-        commands.bindVtxAttribState(attributes);commands.bindVtxBufferState({{sizeof(materials::Vertex),0}});commands.bindVtxBuffer(0,saved.vertices.getGpuAddr(),vertices.size_bytes());
-        commands.bindImageDescriptorSet(saved.image_descriptors.getGpuAddr(),8);commands.bindSamplerDescriptorSet(saved.sampler_descriptors.getGpuAddr(),8);
+        commands.bindVtxAttribState(attributes);commands.bindVtxBufferState({{sizeof(materials::Vertex),0}});commands.bindVtxBuffer(0,saved.upload.Vertices(),vertices.size_bytes());
+        commands.bindImageDescriptorSet(saved.upload.Images(),8);commands.bindSamplerDescriptorSet(saved.upload.Samplers(),8);
         programs->Bind(commands,saved.material);commands.barrier(DkBarrier_None,DkInvalidateFlags_Shader|DkInvalidateFlags_Descriptors|DkInvalidateFlags_L2Cache);
-        if(!indices.empty()){commands.bindIdxBuffer(index_format,saved.indices.getGpuAddr());commands.drawIndexed(primitive,count,1,0,base,0);}else commands.draw(primitive,count,1,0,0);
+        if(!indices.empty()){commands.bindIdxBuffer(index_format,saved.upload.Indices());commands.drawIndexed(primitive,count,1,0,base,0);}else commands.draw(primitive,count,1,0,0);
         command_pages.Check();
     }
     void DrawCursor(){
@@ -483,11 +534,16 @@ struct DekoDevice::Impl: presentation::Driver {
         font_session=session;return session;
     }
     ~Impl(){
-        lifetime->owner=nullptr;if(queue)queue.waitIdle();commands=nullptr;packets.clear();surface_packets.clear();target_images.clear();
+        diagnostic::Record("begin","D.DekoDevice.impl_body");
+        bool cleanup_ok=Healthy();
+        lifetime->owner=nullptr;if(queue)queue.waitIdle();
+        if(queue && !Healthy()){cleanup_ok=false;queue=nullptr;} // Failed wait cannot retire GPU resource owners; close the channel first.
+        commands=nullptr;packets.clear();surface_packets.clear();target_images.clear();gamma_packet={};gamma.Close();
         if(surface_session)surface_session->Close();surface_session.reset();
-        try{presentation_state.Release();}catch(...){std::fprintf(stderr,"native presentation teardown failed\n");}
+        try{presentation_state.Release();}catch(...){cleanup_ok=false;std::fprintf(stderr,"native presentation teardown failed\n");}
         if(font_session)font_session->Close();font_session.reset();cursor_texture.reset();cursor_icon.reset();
-        state.Close();if(texture_session)texture_session->Shutdown();texture_session.reset();texture_store.reset();queue=nullptr;RestoreWindow();
+        state.Close();if(texture_session)texture_session->Shutdown();texture_session.reset();queue=nullptr;texture_store.reset();RestoreWindow();
+        diagnostic::Record(cleanup_ok?"ok":"failed","D.DekoDevice.impl_body","device/member destruction follows this body",cleanup_ok?0:-1);
     }
 };
 DekoDevice::DekoDevice(SwitchWindow& window,std::uint32_t bytes):impl_(std::make_unique<Impl>(window,bytes)){
@@ -605,7 +661,7 @@ DeviceResult DekoDevice::NativeDrawIndexed(std::uint32_t kind,int base,std::uint
     std::vector<materials::Vertex> vertices(count);std::vector<bool> decoded(count);
     for(std::size_t i=0;i<elements;++i){std::uint32_t value{};if(width==2){std::uint16_t v;std::memcpy(&v,indices.data()+i*2,2);value=v;}else std::memcpy(&value,indices.data()+i*4,4);
         const auto local=value-minimum;if(!decoded.at(local)){const auto offset=binding.offset+std::uint64_t(std::int64_t(base)+value)*binding.stride;
-            vertices[local]=impl_->state.Read().vertex.Decode(binding.buffer->Storage().subspan(offset,binding.stride),binding.stride).at(0);decoded[local]=true;}}
+            vertices[local]=impl_->state.Read().vertex.DecodeOne(binding.buffer->Storage().subspan(offset,binding.stride),binding.stride);decoded[local]=true;}}
     // Binding begins at the declared minimum; indices and their order stay
     // unchanged. The GPU base compensates this upload view's byte origin.
     impl_->Record(vertices,indices,width==2?DkIdxFormat_Uint16:DkIdxFormat_Uint32,elements,-int(minimum),NativePrimitive(kind));return 0;
@@ -626,15 +682,70 @@ void DekoDevice::BeginNativeFrame(std::uint32_t argb){
     v.command_pages.Check();
 }
 void DekoDevice::PresentNativeFrame(){
+    diagnostic::Operation trace("GPU.Present.submit_wait");
     auto& v=*impl_;v.frame.RequirePresent();v.BindTargets(true);
     struct PresentScope {bool& flag;explicit PresentScope(bool& f):flag(f){flag=true;}~PresentScope(){flag=false;}} scope{v.presenting};v.DrawCursor();
+    if(v.primary_readback){
+        diagnostic::Operation readback("GPU.primary.before_Present");
+        auto callback=std::move(v.primary_readback);v.primary_readback={};
+        // Read while image_slot still names the acquired image. Reading after
+        // Present would select slot zero and could capture an unrelated image.
+        const auto pixels=v.surface_session->read(v.surface_session->primary_color);
+        callback(pixels,v.Targets().value.BackBufferWidth,v.Targets().value.BackBufferHeight);
+        v.BindTargets(true); // Readback completed/flushed recording, not this frame.
+    }
+    {diagnostic::Operation gamma_trace("GPU.presentation_gamma");
+    v.gamma_packet=v.gamma_program->Prepare(v.Targets().images->scene[v.image_slot],v.gamma.Read(0));
+    const auto& p=v.Targets().value;
+    v.gamma_program->Record(v.commands,v.gamma_packet,v.Targets().images->color[v.image_slot],p.BackBufferWidth,p.BackBufferHeight);}
     v.command_pages.Check();v.commands.barrier(DkBarrier_Full,DkInvalidateFlags_L2Cache);
     const auto list=v.command_pages.FinishForSubmission([&]{return v.commands.finishList();});
-    v.queue.submitCommands(list);v.frame.Submitted();v.queue.presentImage(v.Targets().swapchain,v.image_slot);v.image_slot=-1;v.queue.flush();v.queue.waitIdle();if(!v.Healthy())throw std::runtime_error("native presentation queue error");
+    v.queue.submitCommands(list);++v.diagnostics.queue_submissions;v.frame.Submitted();
+    if(v.presentation_readback){
+        diagnostic::Operation readback("GPU.presentation.after_gamma");
+        auto callback=std::move(v.presentation_readback);v.presentation_readback={};
+        v.queue.flush();v.queue.waitIdle();if(!v.Healthy())throw std::runtime_error("native gamma readback queue error");
+        const auto& p=v.Targets().value;
+        if(p.BackBufferFormat!=PixelFormat::Argb8 && p.BackBufferFormat!=PixelFormat::Xrgb8)throw Unsupported("diagnostic presentation readback requires 32-bit color");
+        auto pixels=v.texture_store->ReadImage(v.Targets().images->color[v.image_slot],p.BackBufferWidth,p.BackBufferHeight,4);
+        for(std::size_t i=0;i<pixels.size();i+=4)std::swap(pixels[i],pixels[i+2]);
+        callback(pixels,p.BackBufferWidth,p.BackBufferHeight);
+    }
+    const auto completed_slot=v.image_slot;
+    v.queue.presentImage(v.Targets().swapchain,v.image_slot);v.image_slot=-1;v.queue.flush();v.queue.waitIdle();if(!v.Healthy())throw std::runtime_error("native presentation queue error");++v.diagnostics.presents;
+    v.screenshot_frame.Presented(completed_slot,v.Targets().value.BackBufferCount);
     v.ReleaseCompleted();v.batch.Retired();v.frame.Presented();v.state.Frame(false);
 }
+DekoDevice::DiagnosticCounters DekoDevice::Diagnostics()const noexcept{
+    auto result=impl_->diagnostics;result.queue_healthy=impl_->Healthy();
+    result.sdk_warnings=diagnostic_sdk_warnings.load();
+    if(impl_->texture_store){result.texture_capacity=impl_->texture_store->Capacity();result.texture_free=impl_->texture_store->Free();}
+    return result;
+}
+void DekoDevice::RequestPrimaryReadback(PrimaryReadback callback){
+    if(!callback || impl_->primary_readback)throw std::logic_error("invalid/duplicate pending primary readback");
+    impl_->primary_readback=std::move(callback);
+}
+void DekoDevice::RequestPresentationReadback(PrimaryReadback callback){
+    if(!callback || impl_->presentation_readback)throw std::logic_error("invalid/duplicate pending presentation readback");
+    impl_->presentation_readback=std::move(callback);
+}
+native_form::ScreenshotPixels DekoDevice::CaptureScreenshot(){
+    auto& v=*impl_;
+    if(!v.presentation_state.Ready())throw Unsupported("screenshot requires active native presentation");
+    const int slot=v.screenshot_frame.Require(v.Busy() || v.recording,v.Healthy());
+    v.queue.waitIdle();if(!v.Healthy())throw Unsupported("screenshot queue completion failed");
+    const auto& p=v.Targets().value;
+    const auto format=p.BackBufferFormat==PixelFormat::Rgb565?native_form::ScreenshotFormat::Rgb565:native_form::ScreenshotFormat::Rgba8;
+    const unsigned bpp=format==native_form::ScreenshotFormat::Rgb565?2:4;
+    native_form::ScreenshotPixels image{p.BackBufferWidth,p.BackBufferHeight,p.BackBufferWidth*bpp,format,{}};
+    image.bytes=v.texture_store->ReadImage(v.Targets().images->scene[slot],image.width,image.height,bpp);
+    return image;
+}
 DeviceResult DekoDevice::AbortNativeFrame()noexcept{
-    auto& v=*impl_;if(!v.queue || !v.Healthy())return presentation::DeviceLost;
+    // Both callbacks borrow frame/session state. Cancel before every early
+    // return too, so a failed frame cannot deliver a stale request after recovery.
+    auto& v=*impl_;v.screenshot_frame.Invalidate();v.primary_readback={};v.presentation_readback={};if(!v.queue || !v.Healthy())return presentation::DeviceLost;
     try{
         if(v.frame || v.image_slot>=0 || v.recording){v.queue.waitIdle();if(!v.Healthy())return presentation::DeviceLost;
             if(v.image_slot>=0){NvMultiFence fence{};const auto result=nwindowCancelBuffer(&v.window.NativeWindow(),v.image_slot,&fence);if(result)return static_cast<DeviceResult>(result);}
@@ -662,8 +773,14 @@ DeviceCaps DekoDevice::ReadCaps(){
     if(!impl_->programs || !impl_->programs->VertexReady())throw Unsupported("native material shader pair unavailable");
     return {false,8,16,1,8}; // Eight implemented cascade/sampler slots; one actual swapchain.
 }
-GammaRamp DekoDevice::ReadGamma(std::uint32_t){throw Unsupported("native display gamma readback unavailable");}
-void DekoDevice::RestoreGamma(std::uint32_t,const GammaRamp&)noexcept{std::terminate();}
+GammaRamp DekoDevice::ReadGamma(std::uint32_t index){return impl_->gamma.Read(index);}
+void DekoDevice::ApplyCalibratedGamma(std::uint32_t index,const GammaRamp& value){
+    if(!impl_->Healthy())throw Unsupported("native gamma submission on lost queue");
+    // No system/monitor calibrator is installed in this application provider.
+    // Apply the supplied WORD ramp directly, as the original CALIBRATE fallback.
+    impl_->gamma.Apply(index,value);
+}
+void DekoDevice::RestoreGamma(std::uint32_t index,const GammaRamp& value)noexcept{impl_->gamma.Restore(index,value);}
 std::uint64_t DekoDevice::AvailableTextureBytes(){return impl_->texture_store->Available();}
 std::span<const std::byte> DekoDevice::TextFontAsset(unsigned id){return text_backend::native::OriginalAsset(id);}
 std::shared_ptr<native_surfaces::Session> DekoDevice::SurfaceSession(){return impl_->surface_session;}
@@ -671,16 +788,17 @@ std::shared_ptr<native_texture::Session> DekoDevice::TextureSession(){return imp
 std::shared_ptr<debug_font::native::Session> DekoDevice::DebugFontSession(){return impl_->Fonts();}
 namespace {
 class TargetAndRenderLease final:public DeviceStateLease {
-    std::unique_ptr<DeviceStateLease> targets_,render_;
+    std::unique_ptr<DeviceStateLease> targets_,render_,gamma_;
 public:
-    TargetAndRenderLease(std::unique_ptr<DeviceStateLease> targets,std::unique_ptr<DeviceStateLease> render):targets_(std::move(targets)),render_(std::move(render)){}
-    DeviceResult Restore()noexcept override{const auto result=targets_->Restore();return result?result:render_->Restore();}
+    TargetAndRenderLease(std::unique_ptr<DeviceStateLease> targets,std::unique_ptr<DeviceStateLease> render,std::unique_ptr<DeviceStateLease> gamma):targets_(std::move(targets)),render_(std::move(render)),gamma_(std::move(gamma)){}
+    DeviceResult Restore()noexcept override{const auto result=targets_->Restore();const auto state_result=result?result:render_->Restore();const auto gamma_result=gamma_->Restore();return state_result?state_result:gamma_result;}
 };
 }
 std::unique_ptr<DeviceStateLease> DekoDevice::CaptureState(){
     if(!impl_->presentation_state.Ready())throw Unsupported("capture requires live native presentation");
     auto targets=impl_->surface_session->Capture();auto render=impl_->state.Capture();
-    return std::make_unique<presentation::RestoreLease>(impl_->lifetime,impl_->Targets().value,std::make_unique<TargetAndRenderLease>(std::move(targets),std::move(render)));
+    auto gamma=impl_->gamma.Capture();
+    return std::make_unique<presentation::RestoreLease>(impl_->lifetime,impl_->Targets().value,std::make_unique<TargetAndRenderLease>(std::move(targets),std::move(render),std::move(gamma)));
 }
 std::size_t DekoDevice::OutstandingStateLeases()const{return impl_->state.Outstanding();}
 }

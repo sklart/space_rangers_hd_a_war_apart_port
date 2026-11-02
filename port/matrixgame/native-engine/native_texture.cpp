@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "native_texture.hpp"
 #include "texture_asset.hpp"
+#include "unmanaged_bitmap_filter.hpp"
 #include <algorithm>
 #include <bit>
 #include <cstring>
@@ -77,17 +78,8 @@ p::DeviceResult Create(std::shared_ptr<Session> session,std::uint32_t w,std::uin
     t->session->textures.push_back(t);auto* key=t.get();handles.emplace(key,std::move(t));*out=reinterpret_cast<IDirect3DTexture9*>(key);return 0;
 }
 p::DeviceResult Create(std::uint32_t w,std::uint32_t h,std::uint32_t levels,std::uint32_t usage,std::uint32_t format,std::uint32_t pool,IDirect3DTexture9** out){return Create(Active(),w,h,levels,usage,format,pool,out);}
-p::DeviceResult Decode(std::shared_ptr<Session> session,const void* input,std::size_t size,std::uint32_t levels,std::uint32_t format,std::uint32_t pool,IDirect3DTexture9** out){
-    if(!out)throw std::invalid_argument("null native texture decode output");*out=nullptr;
-    if(!input || !size)throw std::invalid_argument("native texture decode input");
-    auto asset=TextureAsset::Decode({static_cast<const std::byte*>(input),size});
-    if(format==0x31545844u && asset.format==TextureFormat::RGBA8){
-        // Original formatted loader loads/encodes level zero with FILTER_NONE,
-        // then generates BOX mips from the compressed previous level.
-        asset.PrepareMips(TextureMipPolicy::OneLevel);
-        asset.CompressBC1();
-    }
-    asset.PrepareMips(levels==1?TextureMipPolicy::OneLevel:TextureMipPolicy::CompleteBox,64*1024*1024,levels);
+namespace {
+p::DeviceResult Publish(std::shared_ptr<Session> session,TextureAsset asset,std::uint32_t format,std::uint32_t pool,IDirect3DTexture9** out){
     std::uint32_t natural=asset.format==TextureFormat::RGBA8?21u:asset.format==TextureFormat::BC1?0x31545844u:asset.format==TextureFormat::BC2?0x33545844u:0x35545844u;
     if(!format)format=natural;
     if(format!=natural && (natural!=21 || (format!=22 && format!=23 && format!=25 && format!=26)))throw p::Unsupported("native texture formatted decode conversion");
@@ -105,6 +97,26 @@ p::DeviceResult Decode(std::shared_ptr<Session> session,const void* input,std::s
     if(pool!=2)(void)Resident(t); // Complete original payload before GPU publication.
     *out=candidate;owner.t=nullptr;return 0;
 }
+}
+p::DeviceResult Decode(std::shared_ptr<Session> session,const void* input,std::size_t size,std::uint32_t levels,std::uint32_t format,std::uint32_t pool,IDirect3DTexture9** out){
+    if(!out)throw std::invalid_argument("null native texture decode output");*out=nullptr;
+    if(!input || !size)throw std::invalid_argument("native texture decode input");
+    auto asset=TextureAsset::Decode({static_cast<const std::byte*>(input),size});
+    if(format==0x31545844u && asset.format==TextureFormat::RGBA8){
+        // Original formatted loader loads/encodes level zero with FILTER_NONE,
+        // then generates BOX mips from the compressed previous level.
+        asset.PrepareMips(TextureMipPolicy::OneLevel);asset.CompressBC1();
+    }
+    asset.PrepareMips(levels==1?TextureMipPolicy::OneLevel:TextureMipPolicy::CompleteBox,64*1024*1024,levels);
+    return Publish(std::move(session),std::move(asset),format,pool,out);
+}
+p::DeviceResult DecodeBitmap(std::shared_ptr<Session> session,const void* input,std::size_t size,std::uint32_t levels,IDirect3DTexture9** out){
+    if(!out || *out || !input || !size)throw std::invalid_argument("invalid native bitmap decode input/output");
+    std::uint32_t format;auto asset=bitmap_filter::Decode({static_cast<const std::byte*>(input),size},format);
+    asset.PrepareMips(levels==1?TextureMipPolicy::OneLevel:TextureMipPolicy::CompleteBox,64*1024*1024,levels);
+    return Publish(std::move(session),std::move(asset),format,0,out);
+}
+p::DeviceResult DecodeBitmap(const void* b,std::size_t n,std::uint32_t l,IDirect3DTexture9** out){return DecodeBitmap(Active(),b,n,l,out);}
 p::DeviceResult Decode(const void* b,std::size_t n,std::uint32_t l,std::uint32_t f,std::uint32_t pool,IDirect3DTexture9** out){return Decode(Active(),b,n,l,f,pool,out);}
 void Update(void* source,void* destination){auto src=Find(source),dst=Find(destination);Live(*src);Live(*dst);
     if(src->session!=dst->session || src->pool!=2 || dst->pool!=0 || src->format!=dst->format || src->levels.size()!=dst->levels.size())throw p::Unsupported("native UpdateTexture resource compatibility");

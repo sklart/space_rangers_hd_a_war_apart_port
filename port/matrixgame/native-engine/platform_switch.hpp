@@ -32,6 +32,9 @@ public:
     void Show(Visibility)override;
     void Update()override;
     void WaitForDrawable();
+    void WarpInputCursor(int,int);
+    void CancelHeldInput();
+    void SetWaitCheckpoint(std::function<void()>);
     bool Drawable()const noexcept;
     std::uint32_t LastVisibilityRestoreResult()const noexcept;
     CursorHandle ExchangeCursor(CursorHandle)override;
@@ -51,7 +54,7 @@ private:
 };
 // Real device and compiled material pair. Full native Init/present remains a
 // separate gate from texture-cascade capability negotiation.
-class DekoDevice final:public Device,public NativeGraphics,public NativeDrawSink,public native_texture::Provider,public debug_font::native::Provider,public text_backend::native::Provider,public NativeMapQueries,public NativeFrameProvider,public NativeFrameRollback,public native_surfaces::Provider,public NativeStoredStateBackend {
+class DekoDevice final:public Device,public NativeGraphics,public NativeDrawSink,public native_texture::Provider,public debug_font::native::Provider,public text_backend::native::Provider,public NativeMapQueries,public NativeFrameProvider,public NativeFrameRollback,public native_surfaces::Provider,public NativeStoredStateBackend,public native_form::ScreenshotProvider {
 public:
     using NativeStoredStateBackend::SetRenderState;
     using NativeStoredStateBackend::SetSamplerState;
@@ -64,6 +67,7 @@ public:
     DeviceResult CheckMultisample(std::uint32_t,std::uint32_t,PixelFormat,bool,std::uint32_t)override;
     DeviceResult ResetPresentation(Presentation&)override;
     GammaRamp ReadGamma(std::uint32_t)override;
+    void ApplyCalibratedGamma(std::uint32_t,const GammaRamp&)override;
     void RestoreGamma(std::uint32_t,const GammaRamp&)noexcept override;
     std::uint64_t AvailableTextureBytes()override;
     std::unique_ptr<DeviceStateLease> CaptureState()override;
@@ -111,6 +115,18 @@ public:
     void BeginNativeFrame(std::uint32_t clear_argb);
     void PresentNativeFrame();
     DeviceResult AbortNativeFrame()noexcept override;
+    struct DiagnosticCounters {
+        std::uint64_t buffer_allocations{},buffer_bytes_total{},recorded_draws{},queue_submissions{},presents{},session_uploads{};
+        std::uint64_t texture_capacity{},texture_free{};
+        std::uint64_t sdk_warnings{};
+        bool queue_healthy{};
+    };
+    DiagnosticCounters Diagnostics()const noexcept;
+    using PrimaryReadback=std::function<void(std::span<const std::byte>,unsigned,unsigned)>;
+    void RequestPrimaryReadback(PrimaryReadback);
+    native_form::ScreenshotPixels CaptureScreenshot()override;
+    // Diagnostic view of the final swapchain image, after the display LUT.
+    void RequestPresentationReadback(PrimaryReadback);
 private:
     NativeStateStore& StoredStates()override;
     struct Impl;std::unique_ptr<Impl> impl_;

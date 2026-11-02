@@ -26,6 +26,7 @@ class CTextureManaged;''')
      m_CursorIcons(nullptr),m_OldCursor{},m_FramesCnt(0),m_FrameInc(0),m_Frame(0),m_NextCursorTime(0),
      m_CursorTimePeriod(0),m_CursorInTexLine(0),m_TexSizeXInversed(0),m_TexSizeYInversed(0),
      m_u0(0),m_v0(0),m_u1(0),m_v1(0),m_Time(0),m_CursorWindow(&srhd_awa::matrixgame::platform3g::ReadyWindow()) {
+    srhd_awa::matrixgame::diagnostic::Operation trace("B.cursor.constructor");
     m_OldCursor=m_CursorWindow->ExchangeCursor({});
 }
 '''
@@ -64,7 +65,8 @@ class CTextureManaged;''')
     c=c.replace(allocation,allocation+'\n        for(int slot=0;slot<m_FramesCnt;++slot)m_CursorIcons[slot]={};')
     c=c.replace('D3DRS_ZENABLE','static_cast<srhd_awa::matrixgame::RasterRegister>(7)')
     c=c.replace('D3DZB_FALSE','0u').replace('D3DZB_TRUE','1u')
-    c='''#include "MatrixCursor.hpp"
+    c='''#include "native_diagnostic_journal.hpp"
+#include "MatrixCursor.hpp"
 #include "Texture.hpp"
 #include "renderer_ops.hpp"
 #include "cursor_backend.hpp"

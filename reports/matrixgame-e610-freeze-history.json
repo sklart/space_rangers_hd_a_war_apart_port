@@ -1,0 +1,332 @@
+{
+  "status": "HISTORICAL E591-E610 RECORDS REVIEWED; VERSION SCOPES RETAINED",
+  "stages": [
+    {
+      "stage": "E591",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e591-native-rangers-run-evidence.json",
+          "sha256": "79667b3d4072ac05717fdb0003dc0d8ca99521f09ecc09eb128e1f90b24aa290",
+          "bytes": 797762,
+          "historical_status": "PARTIAL; REAL TYPED RUN SLOT IMPLEMENTED; THREE WINDOWS HAL MISSION LOSSES UNDER PARTIAL ASAN; SDK API LINK PASS; FULL GALAXY CALLER NOT RUN"
+        },
+        {
+          "path": "reports\\matrixgame-e2e591-native-rangers-run.md",
+          "sha256": "759b15c7764b86bb53bc8644dbcd2e7cfcc2361b3e5ccae789e35df815636813",
+          "bytes": 11200
+        }
+      ]
+    },
+    {
+      "stage": "E592",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e592-native-rangers-interface-evidence.json",
+          "sha256": "49d3552de74060c8c384272afc7262a8e8f37b57b73c0f05205e556befd4fb01",
+          "bytes": 401809,
+          "historical_status": "PARTIAL; COMPLETE REAL NATIVE ROBOT INTERFACE LIFECYCLE AND SUPPORT PASS; ORIGINAL FINALIZE CALLER AND FULL MISSION PASS; GALAXY RETURN NOT RUN"
+        },
+        {
+          "path": "reports\\matrixgame-e2e592-native-rangers-interface.md",
+          "sha256": "8ac482c8bb247b22688e89aa17579f287b9e50b983b68fce769a0524d5074d93",
+          "bytes": 8267
+        }
+      ]
+    },
+    {
+      "stage": "E593",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e593-rangers-caller-reset-evidence.json",
+          "sha256": "8032e7c5dfcd7db344c58d309d761d18db58d32f17d4cad7f6c847382fc5686b",
+          "bytes": 476834,
+          "historical_status": "PARTIAL; ORIGINAL FRUN FULL MISSION/RESULT/SDK RESET AND REAL BASE GI INVALIDATION PASS; TF GOV/GALAXY NOT RUN"
+        },
+        {
+          "path": "reports\\matrixgame-e2e593-rangers-caller-reset.md",
+          "sha256": "dc396579c8136a23d445c1b141528f3b67be337e50fa4f358c9aa44733e9d3cb",
+          "bytes": 10426
+        }
+      ]
+    },
+    {
+      "stage": "E594",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e594-government-session-evidence.json",
+          "sha256": "150ffc83de3b942c0b86020c0235b21dfb53c1babaa818b79703a76dc4376af2",
+          "bytes": 309486,
+          "historical_status": "PARTIAL; REAL GOVERNMENT TREE/LAYOUT/ROLLBACK PASS; ONOPEN/PLAYER/GALAXY TRANSITION NOT RUN"
+        },
+        {
+          "path": "reports\\matrixgame-e2e594-government-session.md",
+          "sha256": "f83285baf46ada23d4d96bb4b2c7b7426f0c8bd82993d803a66f551317d39359",
+          "bytes": 8821
+        }
+      ]
+    },
+    {
+      "stage": "E595",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e595-script-session-evidence.json",
+          "sha256": "fc392d2edc18460051de9ecb007460b8aee3ed59fdbd9579500927c9dd8fed42",
+          "bytes": 290703,
+          "historical_status": "PARTIAL; SCRIPT VM/TWO WORKERS/14 EVENTS/PATH/BUILTIN CONTAINERS PASS; GALAXY NOT CREATED"
+        },
+        {
+          "path": "reports\\matrixgame-e2e595-script-session.md",
+          "sha256": "d6523fbdf8aeee472179408900f37b9a25b8a0d5af8ef391f83d2415504a3c8d",
+          "bytes": 7830
+        }
+      ]
+    },
+    {
+      "stage": "E596",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e596-galaxy-prerequisites-evidence.json",
+          "sha256": "3b70a422d43da7478246763fd01c095d2ae76c9bf76b222522ab0a127c04e953",
+          "bytes": 294000,
+          "historical_status": "PARTIAL; ORIGINAL HANGAR/TCC/GALAXY CONSTRUCTOR/DESTRUCTOR PASS; CAMPAIGN/PLAYER NOT GENERATED"
+        },
+        {
+          "path": "reports\\matrixgame-e2e596-galaxy-prerequisites.md",
+          "sha256": "5e4de4ee3d09cc24804b2fd608f7f8db90b3649b295f1a63dddefb81b7eb11e0",
+          "bytes": 7927
+        }
+      ]
+    },
+    {
+      "stage": "E597",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e597-global-ui-evidence.json",
+          "sha256": "73fd100de86aed5d67dbaba4464569007ec899684c510ed558acd8594e1f68ae",
+          "bytes": 286907,
+          "historical_status": "PARTIAL; FULL ORIGINAL GLOBAL UI/GAMEPLAY INITIALIZATION PASS; CAMPAIGN/PLAYER NOT GENERATED"
+        },
+        {
+          "path": "reports\\matrixgame-e2e597-global-ui.md",
+          "sha256": "668e1a7eb4d920888ad692930352b5e4d1a1b4078cf1c07abe3c71fca66b8f25",
+          "bytes": 9538
+        }
+      ]
+    },
+    {
+      "stage": "E598",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e598-campaign-evidence.json",
+          "sha256": "4a3df94ec0a152ad3ca21eacf4f80d55b9172d5a99794b76855a2811eef0a1f7",
+          "bytes": 348632,
+          "historical_status": "PARTIAL; ORIGINAL CAMPAIGN EXECUTED; HOST LEAKSANITIZER FAILED; BATTLE/GOV RETURN NOT RUN"
+        },
+        {
+          "path": "reports\\matrixgame-e2e598-campaign.md",
+          "sha256": "c6251556e7d634bd406e13606a72e6267ef96b8ab5f0fb44ab8abcd2308f65f0",
+          "bytes": 9493
+        }
+      ]
+    },
+    {
+      "stage": "E599",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e599-campaign-cleanup-evidence.json",
+          "sha256": "b5baa9415212c64b013696756362ee5b2cedf18fdf442c7c0cc36a2529dcbec8",
+          "bytes": 464149,
+          "historical_status": "PASS SCOPED CAMPAIGN CLEANUP GATES; FULL BATTLE/GOV RETURN NOT RUN"
+        },
+        {
+          "path": "reports\\matrixgame-e2e599-campaign-cleanup.md",
+          "sha256": "6d19db9c95c1f08c7eaf8e70bbccc43fecbdabfb5c832ff5962789ec5b65004f",
+          "bytes": 6065
+        }
+      ]
+    },
+    {
+      "stage": "E600",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e600-campaign-navigation.md",
+          "sha256": "530b2031a6eb0549441e6c8b657851e4e8c1717c9a851095ea4fe058fa24fd30",
+          "bytes": 9429
+        }
+      ]
+    },
+    {
+      "stage": "E601",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e601-revolution-seed-evidence.json",
+          "sha256": "7dcca8b31b05e217fa7d74ff9f9a412fe6e8a42024d23477fdfef90d7a325f20",
+          "bytes": 632242,
+          "historical_status": "PASS COMPONENT SNAPSHOT/CLEANUP/GENERATOR/SDK CLOSURE; ARM64 FULL RUNTIME PRE-SEED VERSION"
+        },
+        {
+          "path": "reports\\matrixgame-e2e601-revolution-seed.md",
+          "sha256": "9ebc3a7880e7ee9de3ab5a01270e1cd6207ed728c68c2b5769cbec420579bfff",
+          "bytes": 5083
+        }
+      ]
+    },
+    {
+      "stage": "E602",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e602-campaign-frun-evidence.json",
+          "sha256": "9044906c1f56914217a337bc7b20888104788b0d18ec07df512ebcb80a9d8e29",
+          "bytes": 473079,
+          "historical_status": "PASS INTEGRATED WINDOWS GOV/FRUN/NATURAL DEFEAT ONLY/REAL HISTORY/REWARD/RETURN"
+        },
+        {
+          "path": "reports\\matrixgame-e2e602-campaign-frun-strategy-evidence.json",
+          "sha256": "654570b51d8f6ba3ea81c658e2baf7c9108201d2855b774834feb51a1324add5",
+          "bytes": 1354289,
+          "historical_status": "PASS INTEGRATED WINDOWS GOV/FRUN/NATURAL DEFEAT ONLY/REAL HISTORY/REWARD/RETURN"
+        },
+        {
+          "path": "reports\\matrixgame-e2e602-campaign-frun.md",
+          "sha256": "3f29e1f837788b81377d3220d63671c23a4059883e0be6f035a73d6d394ea0bf",
+          "bytes": 13598
+        }
+      ]
+    },
+    {
+      "stage": "E603",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e603-campaign-exception-evidence.json",
+          "sha256": "d39dd0b3ada719da9e0b7ae74bee22c17e32d69448cf65ff7a1f7111861daf08",
+          "bytes": 1579,
+          "historical_status": "PASS WINDOWS REAL INIT/DRAW/C++ EXCEPTION/CALLER AND SNAPSHOT RESTORE/CLEANUP; SDK PRODUCTION COMPILE/LINK"
+        },
+        {
+          "path": "reports\\matrixgame-e2e603-campaign-exception.md",
+          "sha256": "2d84f7ee02b8d63f858c3dd6fd49482ef5144e16a0b11d0a8986b9ca94654330",
+          "bytes": 7119
+        }
+      ]
+    },
+    {
+      "stage": "E604",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e604-current-diagnostic.md",
+          "sha256": "71de84bd9cbe1b89c7b98ffd81844512e51a19ac278963b64ca575569f9e222b",
+          "bytes": 4586
+        },
+        {
+          "path": "reports\\matrixgame-e2e604-normal-return-evidence.json",
+          "sha256": "79e899fd595d379d7eb90cf89978a77e0a71fbc337c0e63a08f803dffc961985",
+          "bytes": 739042,
+          "historical_status": "PASS INTEGRATED WINDOWS GOV/FRUN/NATURAL DEFEAT ONLY/REAL HISTORY/REWARD/RETURN"
+        }
+      ]
+    },
+    {
+      "stage": "E605",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e605-rangers-canvas-evidence.json",
+          "sha256": "899d7e727aa84c3b02eb2c4cd0c20d3241dc0477f200d4c3668e719b3e30f219",
+          "bytes": 1474,
+          "historical_status": "PASS CPU SANITIZERS/WINDOWS/ARM64 QEMU/REAL NATIVE PRESENTER SDK COMPILE AND LINK; GPU RUNTIME NOT RUN"
+        },
+        {
+          "path": "reports\\matrixgame-e2e605-rangers-canvas.md",
+          "sha256": "11713595ba2e7ed9cf4dd39944cac7db35d2ebee9206e9c1e7b4277b4bf2e157",
+          "bytes": 7585
+        }
+      ]
+    },
+    {
+      "stage": "E606",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e606-caller-presentation-evidence.json",
+          "sha256": "276a3c724548f2a7ff3fc672cb74befbdfe972e9f6bc65b21bdd05811ad3e3f2",
+          "bytes": 2170,
+          "historical_status": "PASS REAL WINDOWS CALLER WINDOW/DEVICE/GAMMA HANDOFF: EXCEPTION AND NATURAL DEFEAT/RESULT/RETURN; NATIVE SDK COMPILE/LINK"
+        },
+        {
+          "path": "reports\\matrixgame-e2e606-caller-presentation.md",
+          "sha256": "fc5c0142b12771851c31f985e099b55c2d2eff454a04341a82a50daad9f7eda2",
+          "bytes": 8520
+        }
+      ]
+    },
+    {
+      "stage": "E607",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e607-ui-context-evidence.json",
+          "sha256": "d4ba76f7ecf50307cc286c3bc1e5362e3466d51451dc5211edbf4254ba307397",
+          "bytes": 1853,
+          "historical_status": "PASS ORIGINAL READONLY UI CONTEXT/REAL LATE ALLOCATION ROLLBACK/HOST SANITIZERS/WINDOWS/ARM64/SDK LINK"
+        },
+        {
+          "path": "reports\\matrixgame-e2e607-ui-context.md",
+          "sha256": "d6cd866edbd9cb40858d15d361403d0d0c8a522b58ca487a26f445d2915dedfa",
+          "bytes": 4732
+        }
+      ]
+    },
+    {
+      "stage": "E608",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e608-ui-campaign-evidence.json",
+          "sha256": "f9f12d33639fa1ccffdcadffa50fc597ed5a526e918be2071b7d7c64b3b2f8fc",
+          "bytes": 285766,
+          "historical_status": "PASS WINDOWS PRODUCTION UI CONTEXT/ORIGINAL CAMPAIGN/FRUN/NATURAL OUTCOME/GOV RESULT RETURN/CLEANUP"
+        },
+        {
+          "path": "reports\\matrixgame-e2e608-ui-campaign.md",
+          "sha256": "179f49aa51a1b56b8da6f9d19b75cd94bceaa24feaee0aa336ff7064a22a790b",
+          "bytes": 5920
+        }
+      ]
+    },
+    {
+      "stage": "E609",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e609-rangers-input-evidence.json",
+          "sha256": "09640f87bf81068d7eac13813c4a128a79d092d4688847a10bd06d8e4fb4699a",
+          "bytes": 1862,
+          "historical_status": "PASS INPUT QUEUE/ENGINE ROUTING/REAL ORIGINAL GI DISPATCH/HOST SANITIZERS/ARM64 QEMU/SDK LINK"
+        },
+        {
+          "path": "reports\\matrixgame-e2e609-rangers-input.md",
+          "sha256": "b637cb106f3c7b560fc799e04bbaee16571be8313f1b495857cf7a19fd53fc9b",
+          "bytes": 6172
+        }
+      ]
+    },
+    {
+      "stage": "E610",
+      "records": [
+        {
+          "path": "reports\\matrixgame-e2e610-native-ui-pump-evidence.json",
+          "sha256": "0dba146a69c4247ab32e3963f65a3522213eb33e829b0a09a4a96be8801375b6",
+          "bytes": 2916,
+          "historical_status": "PASS PRODUCTION UI OWNER/ORIGINAL GI PUMP/SHARED KEY CURSOR IMPORTS/HOST SANITIZERS/ARM64/SDK LINK"
+        },
+        {
+          "path": "reports\\matrixgame-e2e610-native-ui-pump.md",
+          "sha256": "6f36cb2b90a3d085a219409c7fb86c8c7f8a2958c7af87a96e5357b2b12cdbbf",
+          "bytes": 9639
+        }
+      ]
+    }
+  ],
+  "interpretation": {
+    "E598": "Historical leak failure retained; E599/E601 supply later cleanup evidence",
+    "E600": "Partial snapshot/seed limits retained in report; E601 is later host cleanup/seed evidence",
+    "E602_E608": "Windows natural defeat and Gov return; victory not proven",
+    "E610": "SOFTWARE PASS / HARDWARE PENDING; final gates verified separately"
+  },
+  "runtime_tests_rerun": false
+}

@@ -1,4 +1,5 @@
 #include "win32_compat_window.hpp"
+#include "rangers_ui_input.hpp"
 
 #include "e2e_stage.hpp"
 #include "win32_compat_messages.hpp"
@@ -171,6 +172,9 @@ std::int32_t AdjustWindowRect(Types::TRect* rect, std::uint32_t, std::int32_t) {
 }
 
 std::int32_t ClientToScreen(std::uint32_t token, Types::TPoint* point) {
+  // The native caller's virtual UI screen is its borderless logical canvas;
+  // physical aspect-fit coordinates are converted by the native input source.
+  if(auto* source=rangers_ui_input::Current();source && source->OwnsWindow(token) && point){SetLastError(kErrorSuccess);return 1;}
   const auto state = Lookup(token);
   if (!state || !point) { SetLastError(kErrorInvalidParameter); return 0; }
   point->X += state->x; point->Y += state->y;
@@ -178,6 +182,7 @@ std::int32_t ClientToScreen(std::uint32_t token, Types::TPoint* point) {
   return 1;
 }
 std::int32_t ScreenToClient(std::uint32_t token, Types::TPoint* point) {
+  if(auto* source=rangers_ui_input::Current();source && source->OwnsWindow(token) && point){SetLastError(kErrorSuccess);return 1;}
   const auto state = Lookup(token);
   if (!state || !point) { SetLastError(kErrorInvalidParameter); return 0; }
   point->X -= state->x; point->Y -= state->y;

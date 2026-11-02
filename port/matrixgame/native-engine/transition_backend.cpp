@@ -10,6 +10,44 @@
 #include "native_frame_scope.hpp"
 namespace srhd_awa::matrixgame::transition {
 namespace p=platform3g;
+namespace {LoadingCaptureScope* loading_capture{};}
+LoadingCaptureScope::LoadingCaptureScope(native_form::ScreenshotProvider& provider){
+    if(loading_capture)throw std::logic_error("loading capture scope already bound");
+    image_=provider.CaptureScreenshot();
+    native_form::ValidateScreenshotPixels(image_);
+    loading_capture=this;
+}
+LoadingCaptureScope::~LoadingCaptureScope(){
+    if(loading_capture!=this)std::terminate();
+    loading_capture=nullptr;
+}
+void CaptureLoadingImage(Bitmap& bitmap,int width,int height){
+    if(width<=0 || height<=0)throw std::invalid_argument("loading capture extent");
+    if(loading_capture){
+        auto& source=*loading_capture;
+        if(source.consumed_)throw std::logic_error("loading capture already consumed");
+        if(source.image_.width!=unsigned(width) || source.image_.height!=unsigned(height))
+            throw p::Unsupported("loading capture extent changed after snapshot");
+        native_form::CopyScreenshotPixels(bitmap,source.image_);
+        source.consumed_=true;
+        std::vector<std::byte>().swap(source.image_.bytes);
+        return;
+    }
+#ifdef _WIN32
+    CaptureDC source;
+    bitmap.SetHandle(CompatibleBitmap(source,width,height));
+    bitmap.SetDC(CompatibleDC(source));
+    if(!bitmap.GetHandle() || !bitmap.GetDC() || !SelectBitmap(bitmap.GetDC(),bitmap.GetHandle()))
+        throw std::runtime_error("transition compatible bitmap/DC selection failed");
+    if(!CopyPixels(bitmap.GetDC(),0,0,width,height,source,0,0,0x00cc0020u))
+        throw std::runtime_error("transition window BitBlt failed");
+    source.Release();bitmap.Save(true);
+    if(!bitmap.Data() || bitmap.SizeX()!=width || bitmap.SizeY()!=height)
+        throw std::runtime_error("transition window bitmap readback failed");
+#else
+    throw p::Unsupported("native loading capture scope unavailable");
+#endif
+}
 p::WindowRect ClientRect(){return p::ReadyWindow().ReadClientRect();}
 #ifdef _WIN32
 CaptureDC::CaptureDC(){

@@ -36,6 +36,7 @@ std::uint64_t DekoTextureStore::Free()const noexcept{return arena_->residency.Fr
 std::uint64_t DekoTextureStore::Capacity()const noexcept{return arena_->residency.Capacity();}
 std::shared_ptr<Image> DekoTextureStore::Upload(const Texture& texture){
     ValidateUpload(texture);
+    if(dkQueueIsInErrorState(queue_))throw std::runtime_error("native texture upload queue lost");
     dk::ImageLayout layout;const auto& top=texture.levels.front();
     dk::ImageLayoutMaker{device_}.setFlags(texture.usage&1u?DkImageFlags_UsageRender:0).setFormat(Format(texture.format)).setDimensions(top.width,top.height)
         .setMipLevels(texture.levels.size()).initialize(layout);
@@ -52,7 +53,7 @@ std::shared_ptr<Image> DekoTextureStore::Upload(const Texture& texture){
     // Independent transfer command buffer. Previously recorded draw packets
     // keep their old image version; writes never mutate an in-flight image.
     for(unsigned i=0;i<texture.levels.size();++i){const auto& level=texture.levels[i];
-        auto staging=dk::MemBlockMaker{device_,Align(level.bytes.size())}.setFlags(DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached).create();
+        dk::UniqueMemBlock staging=dk::MemBlockMaker{device_,Align(level.bytes.size())}.setFlags(DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached).create();
         if(!staging)throw std::bad_alloc();std::memcpy(staging.getCpuAddr(),level.bytes.data(),level.bytes.size());
         commands_.clear();commands_.addMemory(command_memory_,0,DK_MEMBLOCK_ALIGNMENT);
         dk::ImageView destination{image->image};destination.setMipLevels(i,1);
@@ -60,14 +61,13 @@ std::shared_ptr<Image> DekoTextureStore::Upload(const Texture& texture){
         commands_.barrier(DkBarrier_None,DkInvalidateFlags_L2Cache);
         commands_.copyBufferToImage(source,destination,rect);
         commands_.barrier(DkBarrier_Full,DkInvalidateFlags_Image|DkInvalidateFlags_L2Cache);
-        dkQueueSubmitCommands(queue_,commands_.finishList());dkQueueFlush(queue_);dkQueueWaitIdle(queue_);
-        if(dkQueueIsInErrorState(queue_))throw std::runtime_error("native texture upload queue error");
-        commands_.clear();
+        SubmitAndWait(staging,"native texture upload queue lost","native texture upload queue error");
     }
     return image;
 }
 std::shared_ptr<DekoTextureStore::ResidentImage> DekoTextureStore::AllocateTarget(std::uint32_t w,std::uint32_t h,std::uint32_t format){
     if(!w || !h || w>8192 || h>8192 || (format!=21 && format!=22 && format!=23 && format!=28 && format!=75 && format!=77 && format!=80))throw platform3g::Unsupported("deko offscreen target extent/format");
+    if(dkQueueIsInErrorState(queue_))throw std::runtime_error("offscreen target allocation queue lost");
     dk::ImageLayout layout;dk::ImageLayoutMaker{device_}.setFlags(DkImageFlags_UsageRender).setFormat(Format(format)).setDimensions(w,h).initialize(layout);
     if(!layout.getSize() || layout.getSize()>UINT32_MAX)throw std::length_error("deko offscreen GPU extent");
     auto image=std::make_shared<ResidentImage>();image->arena=arena_;image->range=arena_->residency.Allocate(std::uint32_t(layout.getSize()),layout.getAlignment());
@@ -76,21 +76,31 @@ std::shared_ptr<DekoTextureStore::ResidentImage> DekoTextureStore::AllocateTarge
 std::vector<std::byte> DekoTextureStore::ReadImage(const dk::Image& image,std::uint32_t w,std::uint32_t h,std::uint32_t pixel_bytes,std::uint32_t level){
     const std::uint64_t bytes=std::uint64_t(w)*h*pixel_bytes;if(!w || !h || w>8192 || h>8192 || (pixel_bytes!=1 && pixel_bytes!=2 && pixel_bytes!=4) || bytes>64*1024*1024)throw std::invalid_argument("offscreen readback extent");
     if(dkQueueIsInErrorState(queue_))throw std::runtime_error("offscreen readback queue lost");
-    auto staging=dk::MemBlockMaker{device_,Align(bytes)}.setFlags(DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached).create();if(!staging)throw std::bad_alloc();
+    dk::UniqueMemBlock staging=dk::MemBlockMaker{device_,Align(bytes)}.setFlags(DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached).create();if(!staging)throw std::bad_alloc();
     std::vector<std::byte> result(bytes);commands_.clear();commands_.addMemory(command_memory_,0,DK_MEMBLOCK_ALIGNMENT);
     dk::ImageView source{image};source.setMipLevels(level,1);DkCopyBuf destination{staging.getGpuAddr(),0,0};DkImageRect rect{0,0,0,w,h,1};
     commands_.barrier(DkBarrier_Full,DkInvalidateFlags_Image|DkInvalidateFlags_L2Cache);commands_.copyImageToBuffer(source,rect,destination);
-    commands_.barrier(DkBarrier_Full,DkInvalidateFlags_L2Cache);dkQueueSubmitCommands(queue_,commands_.finishList());dkQueueFlush(queue_);dkQueueWaitIdle(queue_);
-    if(dkQueueIsInErrorState(queue_))throw std::runtime_error("offscreen readback queue error");commands_.clear();std::memcpy(result.data(),staging.getCpuAddr(),bytes);return result;
+    commands_.barrier(DkBarrier_Full,DkInvalidateFlags_L2Cache);SubmitAndWait(staging,"offscreen readback queue lost","offscreen readback queue error");std::memcpy(result.data(),staging.getCpuAddr(),bytes);return result;
 }
 void DekoTextureStore::WriteImage(const dk::Image& image,std::uint32_t w,std::uint32_t h,std::uint32_t pixel_bytes,std::span<const std::byte> bytes,std::uint32_t level){
     const std::uint64_t size=std::uint64_t(w)*h*pixel_bytes;if(!w || !h || w>8192 || h>8192 || (pixel_bytes!=1 && pixel_bytes!=2 && pixel_bytes!=4) || size>64*1024*1024 || size!=bytes.size())throw std::invalid_argument("offscreen writeback extent");
     if(dkQueueIsInErrorState(queue_))throw std::runtime_error("offscreen writeback queue lost");
-    auto staging=dk::MemBlockMaker{device_,Align(size)}.setFlags(DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached).create();if(!staging)throw std::bad_alloc();std::memcpy(staging.getCpuAddr(),bytes.data(),size);
+    dk::UniqueMemBlock staging=dk::MemBlockMaker{device_,Align(size)}.setFlags(DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached).create();if(!staging)throw std::bad_alloc();std::memcpy(staging.getCpuAddr(),bytes.data(),size);
     commands_.clear();commands_.addMemory(command_memory_,0,DK_MEMBLOCK_ALIGNMENT);dk::ImageView destination{image};destination.setMipLevels(level,1);DkCopyBuf source{staging.getGpuAddr(),0,0};DkImageRect rect{0,0,0,w,h,1};
     commands_.barrier(DkBarrier_Full,DkInvalidateFlags_Image|DkInvalidateFlags_L2Cache);commands_.copyBufferToImage(source,destination,rect);
-    commands_.barrier(DkBarrier_Full,DkInvalidateFlags_Image|DkInvalidateFlags_L2Cache);dkQueueSubmitCommands(queue_,commands_.finishList());dkQueueFlush(queue_);dkQueueWaitIdle(queue_);
-    if(dkQueueIsInErrorState(queue_))throw std::runtime_error("offscreen writeback queue error");commands_.clear();
+    commands_.barrier(DkBarrier_Full,DkInvalidateFlags_Image|DkInvalidateFlags_L2Cache);SubmitAndWait(staging,"offscreen writeback queue lost","offscreen writeback queue error");
+}
+void DekoTextureStore::SubmitAndWait(dk::UniqueMemBlock& staging,const char* lost,const char* failed){
+    const auto list=commands_.finishList();
+    // A live queue at API entry can fail while staging/recording the transfer.
+    // Never dispatch a list after observing that error; this is not recovery.
+    if(dkQueueIsInErrorState(queue_))throw std::runtime_error(lost);
+    const auto submitted_error=[&]{if(dkQueueIsInErrorState(queue_)){
+        failed_staging_=std::move(staging);throw std::runtime_error(failed);
+    }};
+    dkQueueSubmitCommands(queue_,list);submitted_error();
+    dkQueueFlush(queue_);submitted_error();dkQueueWaitIdle(queue_);submitted_error();
+    commands_.clear();
 }
 
 }

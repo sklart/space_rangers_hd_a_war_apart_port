@@ -88,6 +88,15 @@ std::vector<Vertex> FixedVertexState::Decode(std::span<const std::byte> bytes,st
     }
     return out;
 }
+Vertex FixedVertexState::DecodeOne(std::span<const std::byte> bytes,std::uint32_t stride)const{
+    if(stride<stride_ || bytes.size()!=stride)throw std::invalid_argument("FVF staging single vertex stride/range");
+    Vertex v;auto* p=bytes.data();
+    auto floats=[&](float* to,unsigned count){std::memcpy(to,p,count*4);p+=count*4;for(unsigned j=0;j<count;++j)Finite(to[j]);};
+    floats(v.position.data(),(fvf_&0xe)==4?4:3);if(fvf_&0x10)floats(v.normal.data(),3);
+    for(auto pair:{std::pair{0x40u,&v.diffuse},std::pair{0x80u,&v.specular}})if(fvf_&pair.first){std::uint32_t c;std::memcpy(&c,p,4);p+=4;*pair.second=Argb(c);}
+    for(unsigned j=0;j<8;++j){v.uv[j]={0,0,0,1};if(dimensions_[j])floats(v.uv[j].data(),dimensions_[j]);}
+    return v;
+}
 VertexUniforms FixedVertexState::Prepare()const{
     auto out=values_;out.camera=Multiply(world_,view_);out.clip=Multiply(out.camera,projection_);
     bool needs_normal=out.controls[0] && !(out.controls[3]&4);

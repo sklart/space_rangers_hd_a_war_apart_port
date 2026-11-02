@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "status": "SOFTWARE AUDIT PASS; CI PENDING; HARDWARE PENDING",
+  "build_git": "0f91c1ab48328f187e10f58682d318b2487176bd",
+  "build_dirty": false,
+  "elf_build_id": "66fe12e24ac4d5aca97d337380a63356eaeca7cf",
+  "final": {
+    "nro": {
+      "path": "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\SpaceRangersHDAWarApartE2E4Combined-0f91c1a.nro",
+      "bytes": 16451888,
+      "sha256": "E5FC738048C4D8798FE536992EA64224BEC14AF5C1C13A8725CC8A6C0C09889A"
+    },
+    "elf": {
+      "path": "D:\\repos\\space_rangers_hd_a_war_apart_port\\port\\switch\\build\\e2e-game-combined-experiment\\SpaceRangersHDAWarApartE2E4Combined-0f91c1a.elf",
+      "bytes": 56558944,
+      "sha256": "5CC855EC17B58EE7BC720A18CE35A1011B1E10430073C27A9B15B1EC32D67801"
+    }
+  },
+  "arm64_link": "PASS",
+  "undefined_symbols": 0,
+  "required_stubs": [],
+  "startup_unimplemented": 0,
+  "link_objects": 379,
+  "compiled_objects_this_run": 326,
+  "reused_objects_this_run": 54,
+  "disk_save_enabled": false,
+  "compile_fingerprint_sha256": "10AAED902B3420317C4A8BC863BCE1FFBAD5BB44C25B5515FBBFD03F6949035C",
+  "build_report_sha256": "fbb3e0b3459e3f48b87b53604f1a050b11ba947bfd019d8b099443abadfa9e1a",
+  "effective_source_map_sha256": "1c9bcb9f791aeb4c0e864972b99e2f0c9f6100cf93c1e2cc2f3e799f1ce0bb9e",
+  "ci_head": "0f91c1ab48328f187e10f58682d318b2487176bd",
+  "ci_url": "https://github.com/sklart/space_rangers_hd_a_war_apart_port/actions/runs/38903149347",
+  "new_hardware": "PENDING",
+  "preserved_baseline_nro_sha256": "32177A3F856B5A59F2252DEE17432670A192D55DD24B8CD7C00EAB6D78C7DE9D"
+}

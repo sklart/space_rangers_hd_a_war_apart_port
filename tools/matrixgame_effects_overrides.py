@@ -32,6 +32,12 @@ def prepare_effects(output):
         path=output/name;text=path.read_text(encoding='utf-8')
         text=text.replace('(CTextureManaged *)g_Cache->Get(CacheClass::TextureManaged, ','effect_texture::GetManaged(')
         text=adapt(text)
+        if name.endswith('/MatrixEffectFlame.cpp'):
+            # The outer flame owner already carries a pointer-width cookie.
+            # Its per-enumeration stack record must preserve that width too.
+            old='    std::uint32_t uvalue;'
+            if text.count(old)!=1:raise ValueError('Original FlameData callback cookie changed')
+            text=text.replace(old,'    uintptr_t uvalue;',1)
         if name.endswith('/MatrixEffectPath.cpp'):
             start=text.index('    std::uint8_t *old_base = (std::uint8_t *)m_Dots;')
             end=text.index('#undef REBASE',start)+len('#undef REBASE')

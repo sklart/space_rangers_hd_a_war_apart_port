@@ -24,5 +24,12 @@ def patch_engine_sampler(files):
         text=text.replace('g_D3DDCaps.MaxAnisotropy','srhd_awa::matrixgame::platform3g::Current().caps.max_anisotropy')
         text=text.replace('g_D3DD->SetSamplerState','srhd_awa::matrixgame::platform3g::ReadyDevice().SetSamplerState')
         for old,new in names.items():text=re.sub(r'\b'+old+r'\b',lambda m:new,text)
+        if name.endswith('.cpp'):
+            original='    return (type == srhd_awa::matrixgame::SamplerRegister::MipFilter) || (type == srhd_awa::matrixgame::SamplerRegister::MagFilter) || (type == srhd_awa::matrixgame::SamplerRegister::MinFilter);'
+            assert text.count(original)==1,'original sampler anisotropy policy changed'
+            text=text.replace(original,'#ifdef _WIN32\n'+original+'\n#else\n'
+                '    // Native GPU supports anisotropic minification. Preserve the original\n'
+                '    // requested MAG/MIP filters; ANISOTROPIC is undefined for MIPFILTER.\n'
+                '    return type == srhd_awa::matrixgame::SamplerRegister::MinFilter;\n#endif')
         if name.endswith('.hpp'):text=text.replace('#define MATRIX_SAMPLER_INCLUDE','#define MATRIX_SAMPLER_INCLUDE\n#include "platform_3g.hpp"')
         files[name]=text.encode()

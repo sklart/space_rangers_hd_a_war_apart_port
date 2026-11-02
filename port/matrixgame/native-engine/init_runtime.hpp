@@ -8,6 +8,7 @@
 #include <memory>
 #include <optional>
 struct SRobotsSettings;
+struct SRobotGameState;
 class CMatrixCursor;
 class CLoadProgress;
 class CTextureManaged;
@@ -16,6 +17,7 @@ class CMatrixCamera;
 namespace Base {class CBlockPar;}
 extern Base::CHeap* g_MatrixHeap;
 namespace srhd_awa::matrixgame {
+class NativeRangersServicesScope;
 namespace resource_paths {class NativeScope;}
 struct Cpu3GState {void* module;void* window;bool bound;};
 void L3GInitAsDLLCpuPhase(void* module,void* window);
@@ -34,6 +36,9 @@ public:
     void InitializeOriginalGame(const OriginalGameOptions&);
     void InitializeNativeGame(const NativeGameOptions&);
     bool OriginalGameReady()const noexcept;
+    // Original CGame::SaveResult while this full-game owner is alive. A snapshot
+    // does not imply victory/completion; the caller preserves the original exit state.
+    void SaveOriginalGameResult(SRobotGameState&)const;
     void AttachDevice(platform3g::Window&,platform3g::Device&);
     void BindLegacyProviders(platform3g::Window&,platform3g::Device&);
     static void EnterLegacyDll(void* module,void* window,std::uintptr_t api,std::uintptr_t device);
@@ -94,5 +99,6 @@ private:
     bool statics_owned_{};
     std::unique_ptr<output_paths::NativeScope> output_scope_;
     std::unique_ptr<resource_paths::NativeScope> resource_scope_;
+    std::unique_ptr<NativeRangersServicesScope> services_scope_;
 };
 }

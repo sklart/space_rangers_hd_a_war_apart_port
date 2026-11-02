@@ -24,10 +24,16 @@ public:
     std::uint64_t Available()const noexcept;
     std::uint64_t Free()const noexcept;
     std::uint64_t Capacity()const noexcept;
+    bool HasFailedTransfer()const noexcept{return bool(failed_staging_);}
 private:
+    void SubmitAndWait(dk::UniqueMemBlock&,const char* lost,const char* failed);
     DkDevice device_;DkQueue queue_;
     std::shared_ptr<Arena> arena_;
-    dk::UniqueCmdBuf commands_;
     dk::UniqueMemBlock command_memory_;
+    // A failed queue wait is not a completion proof. Queue owner must destroy
+    // that channel before this store, keeping these submitted bytes alive.
+    dk::UniqueMemBlock failed_staging_;
+    // Members are destroyed in reverse order: command backing outlives its user.
+    dk::UniqueCmdBuf commands_;
 };
 }

@@ -28,10 +28,7 @@ static_assert(sizeof(p::VideoLight)==104 && sizeof(p::VideoMaterial)==68 && size
 inline p::NativeRenderState Build(const State& s){
  p::NativeRenderState n;
  for(unsigned i=0;i<p::NativeRenderWords.size();++i){const auto id=p::NativeRenderWords[i].id;
-  // HAL's MSAA enable defaults to TRUE even with non-multisampled targets.
-  // No MSAA semantics exist in that target; do not misclassify this raw SDK
-  // default as an actual native request to allocate a multisample pipeline.
-  if(id==161 && !s.multisample)n.Render(id,0);else n.Render(id,s.render[i]);
+  n.Render(id,s.render[i]);
  }
  n.vertex.Layout(s.fvf);n.vertex.Viewport(s.viewport);n.vertex.Material(s.material);
  for(unsigned i=0;i<TransformKeys.size();++i)n.vertex.Transform(TransformKeys[i],s.transform[i]);
@@ -47,7 +44,7 @@ inline p::NativeRenderState Build(const State& s){
  return n;
 }
 inline void Validate(const State& s){
- auto n=Build(s);n.ValidateDraw(s.topology==1,s.topology==2 || s.topology==3);
+ auto n=Build(s);n.ValidateDraw(s.topology==1,s.topology==2 || s.topology==3,s.multisample);
  srhd_awa::matrixgame::RequireStencilAttachment(n.Stencil(),s.depth_format!=0,s.depth_format);
  (void)n.vertex.Prepare();(void)n.combiner.Prepare();(void)n.PixelFog();
  for(const auto& sampler:n.samplers)sampler.Validate();

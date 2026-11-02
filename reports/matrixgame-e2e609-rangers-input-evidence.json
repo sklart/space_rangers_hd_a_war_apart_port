@@ -1,0 +1,34 @@
+{
+  "status": "PASS INPUT QUEUE/ENGINE ROUTING/REAL ORIGINAL GI DISPATCH/HOST SANITIZERS/ARM64 QEMU/SDK LINK",
+  "gates": {
+    "cpu": {
+      "path": "build\\matrixgame\\e2e609-rangers-input\\cpu\\1\\result.json",
+      "sha256": "6b519409a52b68a43f9bcc138bb45e11e78c58f1e97505e0396ce6dd780be3b7",
+      "source_snapshot_sha256": "2bcef9a17e2f9d545f79e7d058efd5a8c8d63b2c5386192f18ad9ecfa1e7f70d",
+      "status": "PASS HOST ASAN/UBSAN/LSAN AND ARM64 QEMU UBSAN; CPU INPUT ONLY"
+    },
+    "windows": {
+      "path": "build\\matrixgame\\e2e609-rangers-input\\windows\\1\\result.json",
+      "sha256": "d6e07d65bb826e99ea09ba85a1485d7441aafc285a0805094157d9342166c2be",
+      "source_snapshot_sha256": "4a01f4e2372045c88dbe74c4c1a89adf1fcfd14173d93cd8cd8a33f48d43e5c0",
+      "status": "PASS WINDOWS ASAN REAL GI MESSAGE DISPATCH/SCOPED NATIVE INPUT ROUTING/ENGINE KEYS/CLEANUP; PARTIAL INSTRUMENTATION"
+    },
+    "sdk": {
+      "path": "build\\matrixgame\\e2e609-rangers-input\\sdk\\1\\result.json",
+      "sha256": "d9bf63e41968fd892bfc3a4f2ebc48b9d120527a8ba4f8d5b1585e84b8527eaa",
+      "source_snapshot_sha256": "9a8766224d054fff1ef41a824de2b2d6ce61974cf723680f79600387cd18c23d",
+      "status": "PASS SDK CURRENT ENGINE INPUT/QUEUE COMPILE/RETAINED UI-CALLER-CAMPAIGN LINK; ZERO STRONG UNDEFINED; NOT RUN"
+    }
+  },
+  "Windows_instrumentation": "PARTIAL MSVC ASAN",
+  "private_Windows_runtime_files": [],
+  "protected_inputs_and_upstream_pins": "VERIFIED",
+  "E604_package_preserved_sha256": "3c6332447084b827b7ecf078bb2b7a5eb40618fc7f9b67a319355e9c779a6af7",
+  "native_UI_poll_owner": "NOT INTEGRATED",
+  "native_HID_runtime": "NOT RUN",
+  "full_native_Gov_entry": "NOT RUN",
+  "new_NRO": false,
+  "commit": false,
+  "push": false,
+  "audit_sha256": "5ad86e56941cf79cae9910c72532ff2ba471644ec3b9121c0e6316110a460014"
+}

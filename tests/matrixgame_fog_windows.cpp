@@ -43,6 +43,7 @@ struct Hal {
             for(unsigned i=0;i<8;++i){const auto& s=material->stages[i];for(unsigned r=1;r<=6;++r)HR(device->SetTextureStageState(i,D3DTEXTURESTAGESTATETYPE(r),r<=3?s.color[r-1]:s.alpha[r-4]));HR(device->SetTextureStageState(i,D3DTSS_RESULTARG,s.color[3]));}}
         HR(device->SetFVF(fvf));if(!options.preserve)HR(device->Clear(0,nullptr,D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER|D3DCLEAR_STENCIL,0x70492795,options.clear_depth,options.clear_stencil));
         HR(device->SetRenderState(D3DRS_LASTPIXEL,options.last_pixel));
+        HR(device->SetRenderState(D3DRS_FILLMODE,options.fill));
         if(custom_viewport)HR(device->SetViewport(custom_viewport));
         const auto count=unsigned(bytes.size()/stride);const auto primitives=options.primitive==1?count:options.primitive==2?count/2:options.primitive==3?count-1:options.primitive==4?count/3:count-2;
         HR(device->BeginScene());HR(device->DrawPrimitiveUP(D3DPRIMITIVETYPE(options.primitive),primitives,bytes.data(),stride));HR(device->EndScene());return ReadColor();
@@ -51,6 +52,7 @@ struct Hal {
         D3DLOCKED_RECT lock;HR(readback->LockRect(&lock,nullptr,D3DLOCK_READONLY));std::vector<unsigned> out(width*height);for(unsigned y=0;y<height;++y)std::memcpy(out.data()+y*width,static_cast<const std::byte*>(lock.pBits)+y*lock.Pitch,width*4);HR(readback->UnlockRect());return out;
     }
     std::vector<unsigned char> ReadStencil(){
+        HR(device->SetRenderState(D3DRS_FILLMODE,D3DFILL_SOLID));
         for(auto pair:{std::pair{D3DRS_ZENABLE,0u},std::pair{D3DRS_LIGHTING,0u},std::pair{D3DRS_FOGENABLE,0u},std::pair{D3DRS_CULLMODE,1u},std::pair{D3DRS_ALPHATESTENABLE,0u},std::pair{D3DRS_ALPHABLENDENABLE,1u},std::pair{D3DRS_SRCBLEND,2u},std::pair{D3DRS_DESTBLEND,2u},std::pair{D3DRS_BLENDOP,1u},std::pair{D3DRS_COLORWRITEENABLE,15u},std::pair{D3DRS_STENCILENABLE,1u},std::pair{D3DRS_TWOSIDEDSTENCILMODE,0u},std::pair{D3DRS_STENCILFUNC,6u},std::pair{D3DRS_STENCILREF,0u},std::pair{D3DRS_STENCILWRITEMASK,0u},std::pair{D3DRS_STENCILFAIL,1u},std::pair{D3DRS_STENCILZFAIL,1u},std::pair{D3DRS_STENCILPASS,1u}})HR(device->SetRenderState(pair.first,pair.second));
         HR(device->SetTextureStageState(0,D3DTSS_COLOROP,2));HR(device->SetTextureStageState(0,D3DTSS_COLORARG1,3));HR(device->SetTextureStageState(0,D3DTSS_ALPHAOP,2));HR(device->SetTextureStageState(0,D3DTSS_ALPHAARG1,3));HR(device->SetTextureStageState(1,D3DTSS_COLOROP,1));
         struct V{float x,y,z,w;unsigned color;};const V quad[]{{-.5f,-.5f,0,1,0},{15.5f,-.5f,0,1,0},{-.5f,15.5f,0,1,0},{15.5f,15.5f,0,1,0}};HR(device->SetFVF(D3DFVF_XYZRHW|D3DFVF_DIFFUSE));HR(device->Clear(0,nullptr,D3DCLEAR_TARGET,0,1,0));

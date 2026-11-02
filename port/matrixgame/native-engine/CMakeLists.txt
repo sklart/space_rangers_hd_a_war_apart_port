@@ -30,6 +30,7 @@ add_library(matrixgame-native-vector-object STATIC "${CMAKE_CURRENT_BINARY_DIR}/
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/VectorObjectAnimNative.cpp")
 target_link_libraries(matrixgame-native-vector-object PUBLIC matrixgame-native-core)
 add_library(matrixgame-native-cache STATIC
+    native_diagnostic_journal.cpp
     "${ENGINE_SOURCE}/MatrixGame/src/OriginalTextureUnions.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/CacheNative.cpp" cache_resources.cpp cache_owner_state.cpp platform_globals.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/core/source/L3GCpuPhase.cpp" init_runtime.cpp original_game.cpp cached_frame.cpp
@@ -107,7 +108,7 @@ add_library(matrixgame-native-cache STATIC
     "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixDebugInfo.cpp"
-    "${ENGINE_SOURCE}/MatrixGame/src/OriginalTransition.cpp" transition_backend.cpp
+    "${ENGINE_SOURCE}/MatrixGame/src/OriginalTransition.cpp" transition_backend.cpp native_screenshot.cpp
     "${ENGINE_SOURCE}/MatrixGame/src/input.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/GameStaticResources.cpp"
     "${CMAKE_CURRENT_BINARY_DIR}/source/MatrixGame/src/MatrixLoadProgress.cpp"
@@ -211,7 +212,7 @@ set_property(SOURCE "${ENGINE_SOURCE}/MatrixGame/src/MatrixGame.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/DevConsole.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixSoundManager.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixDebugInfo.cpp"
-    "${ENGINE_SOURCE}/MatrixGame/src/OriginalTransition.cpp" transition_backend.cpp
+    "${ENGINE_SOURCE}/MatrixGame/src/OriginalTransition.cpp" transition_backend.cpp native_screenshot.cpp
     "${ENGINE_SOURCE}/MatrixGame/src/Logic/MatrixRoadNetwork.cpp"
     "${ENGINE_SOURCE}/MatrixGame/src/MatrixRenderPipeline.cpp" APPEND PROPERTY COMPILE_OPTIONS
     "$<$<CXX_COMPILER_ID:MSVC>:/Gy>" "$<$<CXX_COMPILER_ID:MSVC>:/Gw>"
@@ -355,27 +356,122 @@ if(MATRIXGAME_DEVKITPRO)
         target_sources(matrixgame-native-cache PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/text-font/font${id}.o")
     endforeach()
     target_sources(matrixgame-native-cache PRIVATE native_text_asset.cpp)
-    target_sources(matrixgame-native-cache PRIVATE platform_switch.cpp applet_window_lifecycle.cpp applet_engine_events.cpp
+    target_sources(matrixgame-native-cache PRIVATE platform_switch.cpp native_rangers_canvas.cpp native_diagnostic_smoke.cpp applet_window_lifecycle.cpp applet_engine_events.cpp
         native_input_switch.cpp native_input_engine.cpp native_input.cpp native_form_backend.cpp native_form_session.cpp
         native_loop.cpp native_loop_switch.cpp
         "${ENGINE_SOURCE}/MatrixLib/3G/OriginalNativeLoop.cpp"
         "${ENGINE_SOURCE}/MatrixGame/src/OriginalNativeForm.cpp")
     target_include_directories(matrixgame-native-cache PRIVATE "${MATRIXGAME_DEVKITPRO}/libnx/include")
     target_link_directories(matrixgame-native-cache PUBLIC "${MATRIXGAME_DEVKITPRO}/libnx/lib")
-    target_link_libraries(matrixgame-native-cache PUBLIC deko3d nx)
+    option(MATRIXGAME_DIAGNOSTIC_DEKO_DEBUG "Use installed debug SDK for the isolated diagnostic build" OFF)
+    if(MATRIXGAME_DIAGNOSTIC_DEKO_DEBUG)
+        set(MATRIXGAME_DEKO_LIBRARY deko3dd)
+    else()
+        set(MATRIXGAME_DEKO_LIBRARY deko3d)
+    endif()
+    target_link_libraries(matrixgame-native-cache PUBLIC ${MATRIXGAME_DEKO_LIBRARY} nx)
     # Full original Init/form/loop target, separate from the minimal bootstrap.
     # Font creation/draw happens through the original map debug-info path;
     # standalone font diagnostics are not mandatory steps of the game launcher.
     add_executable(matrixgame-native-entry EXCLUDE_FROM_ALL "${PORT_ROOT}/tests/probe_matrixgame_native_entry.cpp")
+    option(MATRIXGAME_DIAGNOSTIC_RANGERS_HOST "Bind real owning Rangers services in the separate diagnostic" OFF)
+    set(DIAGNOSTIC_RANGERS_METADATA_ARGS)
+    if(MATRIXGAME_DIAGNOSTIC_RANGERS_HOST)
+        set(BRIDGE_BUILD_HOST_LINK_PROBE OFF CACHE BOOL "Separate host-only link probe" FORCE)
+        set(BRIDGE_BUILD_LINK_PROBE OFF CACHE BOOL "Separate bridge-only link probe" FORCE)
+        foreach(input BRIDGE_RANGERS_HOST_ARCHIVE BRIDGE_RANGERS_OKGF_ARCHIVE BRIDGE_RANGERS_SOFTFLOAT_ARCHIVE MATRIXGAME_RANGERS_DEPENDENCY_MANIFEST)
+            if(NOT EXISTS "${${input}}")
+                message(FATAL_ERROR "Real diagnostic host requires verified ${input}; use tools/matrixgame_hosted_diagnostic_sdk.py")
+            endif()
+        endforeach()
+        add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../native" "${CMAKE_CURRENT_BINARY_DIR}/rangers")
+        set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${BRIDGE_RANGERS_HOST_ARCHIVE}"
+            "${BRIDGE_RANGERS_OKGF_ARCHIVE}" "${BRIDGE_RANGERS_SOFTFLOAT_ARCHIVE}" "${MATRIXGAME_RANGERS_DEPENDENCY_MANIFEST}")
+        list(APPEND DIAGNOSTIC_RANGERS_METADATA_ARGS --rangers-host
+            --rangers-archive "${BRIDGE_RANGERS_HOST_ARCHIVE}" --rangers-archive "${BRIDGE_RANGERS_OKGF_ARCHIVE}"
+            --rangers-archive "${BRIDGE_RANGERS_SOFTFLOAT_ARCHIVE}" --rangers-manifest "${MATRIXGAME_RANGERS_DEPENDENCY_MANIFEST}")
+    endif()
+    file(GLOB_RECURSE DIAGNOSTIC_SOURCE_INPUTS CONFIGURE_DEPENDS
+        "${PORT_ROOT}/port/matrixgame/*.cpp" "${PORT_ROOT}/port/matrixgame/*.hpp"
+        "${PORT_ROOT}/port/matrixgame/*.h" "${PORT_ROOT}/port/matrixgame/*.inc"
+        "${PORT_ROOT}/port/matrixgame/*.inl" "${PORT_ROOT}/port/matrixgame/*.glsl"
+        "${PORT_ROOT}/port/matrixgame/*.cmake" "${PORT_ROOT}/port/matrixgame/*.txt")
+    file(GLOB DIAGNOSTIC_TOOLS CONFIGURE_DEPENDS "${PORT_ROOT}/tools/matrixgame_*.py")
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${DIAGNOSTIC_SOURCE_INPUTS}
+        ${DIAGNOSTIC_TOOLS} "${PORT_ROOT}/tests/probe_matrixgame_native_entry.cpp"
+        "${PORT_ROOT}/tests/matrixgame_native_diagnostic_main.cpp")
+    execute_process(COMMAND "${Python3_EXECUTABLE}" "${PORT_ROOT}/tools/matrixgame_diagnostic_metadata.py"
+        --engine-source "${ENGINE_SOURCE}" --devkitpro "${MATRIXGAME_DEVKITPRO}"
+        --deko-library "${MATRIXGAME_DEKO_LIBRARY}"
+        ${DIAGNOSTIC_RANGERS_METADATA_ARGS}
+        --output "${CMAKE_CURRENT_BINARY_DIR}/native-diagnostic-build.hpp"
+        RESULT_VARIABLE DIAGNOSTIC_METADATA_RESULT)
+    if(NOT DIAGNOSTIC_METADATA_RESULT EQUAL 0)
+        message(FATAL_ERROR "Diagnostic source fingerprint preparation failed")
+    endif()
+    target_include_directories(matrixgame-native-entry PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
     target_include_directories(matrixgame-native-entry PRIVATE "${MATRIXGAME_DEVKITPRO}/libnx/include")
     target_link_libraries(matrixgame-native-entry PRIVATE matrixgame-native-cache)
     target_link_options(matrixgame-native-entry PRIVATE "-specs=${MATRIXGAME_DEVKITPRO}/libnx/switch.specs" -Wl,--gc-sections)
     set_target_properties(matrixgame-native-entry PROPERTIES SUFFIX ".elf")
+    function(matrixgame_diagnostic_entry target map_name)
+        add_executable(${target} EXCLUDE_FROM_ALL "${PORT_ROOT}/tests/matrixgame_native_diagnostic_main.cpp")
+        target_include_directories(${target} PRIVATE "${MATRIXGAME_DEVKITPRO}/libnx/include" "${CMAKE_CURRENT_BINARY_DIR}")
+        target_link_libraries(${target} PRIVATE matrixgame-native-cache)
+        if(MATRIXGAME_DIAGNOSTIC_RANGERS_HOST)
+            target_compile_definitions(${target} PRIVATE MATRIXGAME_DIAGNOSTIC_RANGERS_HOST=1)
+            target_include_directories(${target} PRIVATE "${PORT_ROOT}/port/switch/platform")
+            target_link_directories(${target} PRIVATE "${MATRIXGAME_DEVKITPRO}/portlibs/switch/lib")
+            target_link_libraries(${target} PRIVATE -Wl,--start-group
+                matrixgame-native-cache matrixgame-engine-callbacks matrixgame-rangers-bridge matrixgame-native-core
+                "${BRIDGE_RANGERS_HOST_ARCHIVE}" "${BRIDGE_RANGERS_OKGF_ARCHIVE}" "${BRIDGE_RANGERS_SOFTFLOAT_ARCHIVE}"
+                png z jpeg vorbisfile vorbis ogg m SDL2 EGL glapi drm_nouveau nx pthread -Wl,--end-group)
+            target_link_options(${target} PRIVATE "-Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${map_name}")
+        endif()
+        target_link_options(${target} PRIVATE "-specs=${MATRIXGAME_DEVKITPRO}/libnx/switch.specs" -Wl,--gc-sections)
+        set_target_properties(${target} PROPERTIES SUFFIX ".elf")
+    endfunction()
+    matrixgame_diagnostic_entry(matrixgame-native-diagnostic hosted-diagnostic.map)
+    matrixgame_diagnostic_entry(matrixgame-native-interactive hosted-interactive.map)
+    target_compile_definitions(matrixgame-native-interactive PRIVATE MATRIXGAME_DIAGNOSTIC_MANUAL=1)
+    # SDK packaging is opt-in through an explicit target, never part of ALL or
+    # the main game NRO. Keep every generated file inside this binary directory.
+    option(MATRIXGAME_DIAGNOSTIC_NRO "Expose the standalone diagnostic NRO target" ON)
+    if(MATRIXGAME_DIAGNOSTIC_NRO)
+        find_program(MATRIXGAME_NACPTOOL NAMES nacptool nacptool.exe
+            PATHS "${MATRIXGAME_DEVKITPRO}/tools/bin" NO_DEFAULT_PATH REQUIRED)
+        find_program(MATRIXGAME_ELF2NRO NAMES elf2nro elf2nro.exe
+            PATHS "${MATRIXGAME_DEVKITPRO}/tools/bin" NO_DEFAULT_PATH REQUIRED)
+        function(matrixgame_diagnostic_package entry package name title)
+        set(DIAGNOSTIC_PACKAGE_DIR "${CMAKE_CURRENT_BINARY_DIR}/${package}")
+        set(DIAGNOSTIC_NACP "${DIAGNOSTIC_PACKAGE_DIR}/control.nacp")
+        set(DIAGNOSTIC_NRO "${DIAGNOSTIC_PACKAGE_DIR}/${name}.nro")
+        set(DIAGNOSTIC_ICON "${MATRIXGAME_DEVKITPRO}/libnx/default_icon.jpg")
+        add_custom_command(OUTPUT "${DIAGNOSTIC_NACP}"
+            COMMAND "${CMAKE_COMMAND}" -E make_directory "${DIAGNOSTIC_PACKAGE_DIR}"
+            COMMAND "${MATRIXGAME_NACPTOOL}" --create "${title}"
+                "SRHD AWA port" "0.1.0" "${DIAGNOSTIC_NACP}"
+            DEPENDS "${MATRIXGAME_NACPTOOL}" "${CMAKE_CURRENT_LIST_FILE}" VERBATIM)
+        add_custom_command(OUTPUT "${DIAGNOSTIC_NRO}"
+            COMMAND "${MATRIXGAME_ELF2NRO}" "$<TARGET_FILE:${entry}>"
+                "${DIAGNOSTIC_NRO}" "--icon=${DIAGNOSTIC_ICON}" "--nacp=${DIAGNOSTIC_NACP}"
+            DEPENDS ${entry} "${DIAGNOSTIC_NACP}"
+                "${DIAGNOSTIC_ICON}" "${MATRIXGAME_ELF2NRO}" VERBATIM)
+        add_custom_target(${entry}-nro DEPENDS "${DIAGNOSTIC_NRO}")
+        endfunction()
+        matrixgame_diagnostic_package(matrixgame-native-diagnostic diagnostic-nro matrixgame-native-diagnostic "MatrixGame diagnostic")
+        matrixgame_diagnostic_package(matrixgame-native-interactive interactive-nro matrixgame-native-interactive "MatrixGame diagnostic manual")
+    endif()
 endif()
 if(NOT WIN32)
     target_sources(matrixgame-native-cache PRIVATE native_frame_clock.cpp)
 endif()
 if(BUILD_TESTING AND NOT MATRIXGAME_DEVKITPRO)
+    add_executable(matrixgame-rangers-canvas-pixels "${PORT_ROOT}/tests/test_matrixgame_rangers_canvas.cpp")
+    target_compile_features(matrixgame-rangers-canvas-pixels PRIVATE cxx_std_20)
+    target_compile_options(matrixgame-rangers-canvas-pixels PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/UNDEBUG>
+        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-UNDEBUG>)
+    add_test(NAME matrixgame-rangers-canvas-pixels COMMAND matrixgame-rangers-canvas-pixels)
     if(NOT WIN32)
         add_executable(matrixgame-native-bc1 "${PORT_ROOT}/tests/test_matrixgame_bc1.cpp"
             "${PORT_ROOT}/tests/matrixgame_allocation_fault.cpp")
@@ -567,6 +663,30 @@ target_include_directories(matrixgame-native-navigation PUBLIC "${ENGINE_SOURCE}
 # Match the original release navigation path. GPU debug helpers remain separate.
 target_compile_definitions(matrixgame-native-navigation PRIVATE _RELDEBUG)
 option(NAVIGATION_BUILD_LINK_PROBE "Build a navigation CPU executable; does not execute CGame" OFF)
+option(MATRIXGAME_BUILD_RANGERS_RUN "Build the typed native Run slot for a real Rangers caller" OFF)
+if(MATRIXGAME_BUILD_RANGERS_RUN)
+    if(NOT TARGET matrixgame-engine-callbacks)
+        add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../native" "${CMAKE_CURRENT_BINARY_DIR}/rangers-run-bridge")
+    endif()
+    if(NOT MATRIXGAME_INIT_BUILD_LINK_PROBE)
+        target_sources(matrixgame-native-cache PRIVATE native_form_backend.cpp native_form_session.cpp
+            native_loop.cpp native_input_engine.cpp native_input.cpp applet_engine_events.cpp
+            "${ENGINE_SOURCE}/MatrixLib/3G/OriginalNativeLoop.cpp"
+            "${ENGINE_SOURCE}/MatrixGame/src/OriginalNativeForm.cpp")
+    endif()
+    add_library(matrixgame-native-rangers-run STATIC native_rangers_run.cpp)
+    target_include_directories(matrixgame-native-rangers-run PUBLIC "${CMAKE_CURRENT_LIST_DIR}"
+        "${PORT_ROOT}/upstream/cpp/src" "${PORT_ROOT}/upstream/cpp/runtime")
+    target_link_libraries(matrixgame-native-rangers-run PUBLIC matrixgame-native-cache matrixgame-engine-callbacks)
+    add_library(matrixgame-native-rangers-interface STATIC native_rangers_interface.cpp native_rangers_support.cpp rangers_caller_presentation.cpp)
+    if(MATRIXGAME_DEVKITPRO)
+        target_sources(matrixgame-native-rangers-interface PRIVATE rangers_input_switch.cpp)
+    endif()
+    if(WIN32)
+        target_sources(matrixgame-native-rangers-interface PRIVATE rangers_legacy_presentation_win32.cpp)
+    endif()
+    target_link_libraries(matrixgame-native-rangers-interface PUBLIC matrixgame-native-rangers-run)
+endif()
 if(BUILD_TESTING OR NAVIGATION_BUILD_LINK_PROBE)
     add_executable(matrixgame-native-navigation-test "${PORT_ROOT}/tests/test_matrixgame_navigation.cpp")
     target_link_libraries(matrixgame-native-navigation-test PRIVATE matrixgame-native-navigation)

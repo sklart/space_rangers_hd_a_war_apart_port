@@ -6,6 +6,7 @@
 namespace srhd_awa::matrixgame::native_input {
 void Router::Extent(unsigned w,unsigned h){if(!w || !h || w>32768 || h>32768)throw std::invalid_argument("native input extent");width_=w;height_=h;x_=std::clamp(x_,0,int(w)-1);y_=std::clamp(y_,0,int(h)-1);}
 void Router::Reset()noexcept{sources_={};keys_.reset();buttons_=mouse_keys_=0;clicks_={};repeat_={};active_=false;sink_.ReconcileMouseKeys(keys_,0);}
+void Router::Warp(int x,int y){x_=std::clamp(x,0,int(width_)-1);y_=std::clamp(y,0,int(height_)-1);sink_.Move(x_,y_);}
 void Router::Focus(bool active){
     if(active_==active)return;
     if(!active){
@@ -19,12 +20,19 @@ void Router::Focus(bool active){
 void Router::Feed(Source source,const Sample& sample,std::uint64_t time){
     if(unsigned(source)>=sources_.size() || (sample.buttons&~7u))throw std::invalid_argument("native input source/buttons");
     if(!active_)return;
+    const auto keyboard_pressed=source==Source::Keyboard?sample.keys&~sources_[unsigned(Source::Keyboard)].keys:std::bitset<256>{};
     sources_[unsigned(source)]=sample;
     if(sample.point){const int x=std::clamp(sample.x,0,int(width_)-1),y=std::clamp(sample.y,0,int(height_)-1);
         if(x!=x_ || y!=y_){x_=x;y_=y;sink_.Move(x_,y_);}}
     std::bitset<256> keys;unsigned buttons{};
     for(const auto& item:sources_){keys|=item.keys;buttons|=item.buttons;}
-    for(unsigned k=0;k<256;++k)if(keys[k]!=keys_[k]){keys_[k]=keys[k];repeat_[k]=time+500;sink_.Key(keys[k],std::uint8_t(k));}
+    for(unsigned k=0;k<256;++k){
+        // Typematic belongs to the physical keyboard source, even if another
+        // source already owns the same virtual key. Controller actions are
+        // edge events; their held bits still drive original per-frame actions.
+        if(keyboard_pressed[k])repeat_[k]=time+500;
+        if(keys[k]!=keys_[k]){keys_[k]=keys[k];sink_.Key(keys[k],std::uint8_t(k));}
+    }
     for(unsigned i=0;i<3;++i)if((buttons^buttons_)&(1u<<i)){
         const bool down=buttons&(1u<<i);const int vk=i==0?1:i==1?2:4;
         if(down){auto& click=clicks_[i];const bool twice=click.valid && time>=click.time && time-click.time<=500 && std::abs(x_-click.x)<=4 && std::abs(y_-click.y)<=4;
@@ -38,7 +46,8 @@ void Router::Feed(Source source,const Sample& sample,std::uint64_t time){
 }
 void Router::Repeat(std::uint64_t time){
     if(!active_)return;
-    for(unsigned k=0;k<256;++k)if(keys_[k] && k!=16 && k!=17 && k!=18 && k!=91 && k!=92 && time>=repeat_[k]){
+    const auto& keyboard=sources_[unsigned(Source::Keyboard)].keys;
+    for(unsigned k=0;k<256;++k)if(keyboard[k] && keys_[k] && k!=16 && k!=17 && k!=18 && k!=91 && k!=92 && time>=repeat_[k]){
         // Native typematic defaults: 500 ms / 30 Hz; bound catch-up after a stall.
         unsigned count=0;while(time>=repeat_[k] && count++<4){repeat_[k]+=33;sink_.Key(true,std::uint8_t(k));}
         if(time>=repeat_[k])repeat_[k]=time+33;

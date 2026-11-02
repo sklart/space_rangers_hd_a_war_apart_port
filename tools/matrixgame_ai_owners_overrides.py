@@ -16,10 +16,17 @@ def prepare_ai_owners(output):
             shifts={
                 'CopyMemory(m_BadPlace, m_BadPlace + 1, (8 - 1) * sizeof(int));':'std::memmove(m_BadPlace, m_BadPlace + 1, (8 - 1) * sizeof(m_BadPlace[0]));',
                 'CopyMemory(m_BadCoord, m_BadCoord + 1, (16 - 1) * sizeof(int));':'std::memmove(m_BadCoord, m_BadCoord + 1, (16 - 1) * sizeof(m_BadCoord[0]));',
+                'CopyMemory(m_Ignore, m_Ignore + 1, (16 - 1) * sizeof(CMatrixMapStatic *));':'std::memmove(m_Ignore, m_Ignore + 1, (16 - 1) * sizeof(m_Ignore[0]));',
+                'CopyMemory(m_IgnoreTime, m_IgnoreTime + 1, (16 - 1) * sizeof(int));':'std::memmove(m_IgnoreTime, m_IgnoreTime + 1, (16 - 1) * sizeof(m_IgnoreTime[0]));',
             }
             for before,after in shifts.items():
                 if text.count(before)!=1:raise ValueError('Original AI FIFO shift changed: '+before)
                 text=text.replace(before,after)
+            # Both arrays move as a pair. The appended identity must receive
+            # the current timestamp, just like the original non-full branch.
+            append='        m_Ignore[m_IgnoreCnt - 1] = ms;'
+            if text.count(append)!=1:raise ValueError('Original AI ignore append changed')
+            text=text.replace(append,append+'\n        m_IgnoreTime[m_IgnoreCnt - 1] = g_MatrixMap->GetTime();')
         if name.endswith('/MatrixSide.cpp'):
             clock='std::uint32_t ctime = timeGetTime();'
             if text.count(clock)!=1:raise ValueError('Original side statistics clock changed')

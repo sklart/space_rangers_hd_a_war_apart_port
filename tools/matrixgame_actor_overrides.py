@@ -12,6 +12,24 @@ def prepare_actors(output):
                         ('MatrixGame/src/MatrixRobot.cpp','CMatrixRobotAI::CMatrixRobotAI()'),
                         ('MatrixGame/src/MatrixObjectCannon.cpp','CMatrixCannon::CMatrixCannon(void)')]:
         path=output/name;text=path.read_text(encoding='utf-8')
+        if name.endswith('/MatrixObjectRobot.cpp'):
+            # Deinit also runs when a later Init fails before RobotPreload.
+            # Keep the original allocation/algorithm, but retire its static
+            # owner so that this failure path cannot free the prior session.
+            release='''void CMatrixRobot::DestroyPneumaticData(void) {
+    if (m_Pneumaic)
+        HFree(m_Pneumaic, g_MatrixHeap);
+}'''
+            if text.count(release)!=1:raise ValueError('Original pneumatic release boundary changed')
+            text=text.replace(release,release[:-1]+'''    m_Pneumaic = nullptr;
+    g_fcnt = 0;
+}''')
+        if name.endswith('/MatrixRobot.cpp'):
+            removal='memcpy(m_OrdersList + pos, m_OrdersList + pos + 1, sizeof(SOrder) * (m_OrdersInPool - pos));'
+            rotation='MoveMemory(&m_OrdersList[0], &m_OrdersList[1], sizeof(SOrder) * m_OrdersInPool - 1);'
+            if text.count(removal)!=1 or text.count(rotation)!=1:raise ValueError('Original robot order shifts changed')
+            text=text.replace(removal,'if (pos < m_OrdersInPool)\n        std::memmove(m_OrdersList + pos, m_OrdersList + pos + 1, sizeof(m_OrdersList[0]) * (m_OrdersInPool - pos));')
+            text=text.replace(rotation,'std::memmove(&m_OrdersList[0], &m_OrdersList[1], sizeof(m_OrdersList[0]) * (m_OrdersInPool - 1));')
         text=text.replace('(CTextureManaged *)g_Cache->Get(CacheClass::TextureManaged,','actor_texture::GetManaged(')
         text=re.sub(r'\*\(\(LPDWORD\)\(&([^\)]+)\)\)',r'std::bit_cast<std::uint32_t>(\1)',text)
         text=adapt(text)

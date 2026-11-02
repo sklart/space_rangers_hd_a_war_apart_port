@@ -41,6 +41,7 @@ static_assert(sizeof(SRobotGameState)==6*sizeof(std::int32_t));
 EngineCallbacks::EngineCallbacks(const Robot::TRobotCallbacks& callbacks){std::lock_guard lock(binding_mutex);if(!active.expired())throw std::logic_error("MatrixGame callbacks already bound");context_=std::make_shared<EngineCallbackContext>(callbacks);active=context_;}
 EngineCallbacks::~EngineCallbacks(){std::lock_guard lock(binding_mutex);if(active.lock()==context_)active.reset();}
 SMGDRangersInterface* EngineCallbacks::Table() noexcept{return &table;}
+bool EngineCallbacks::Bound() noexcept{std::lock_guard lock(binding_mutex);return !active.expired();}
 SRobotsSettings ToEngineSettings(const DisplaySettings& v){SRobotsSettings out{};
  out.FDirect3D=v.direct3d;out.FD3DDevice=v.device;out.m_ShowStencilShadows=v.stencil_shadows;out.m_ShowProjShadows=v.projected_shadows;out.m_IzvratMS=v.selection_ex;out.m_LandTexturesGloss=v.terrain_gloss;out.m_ObjTexturesGloss=v.object_gloss;out.m_SoftwareCursor=v.software_cursor;out.m_SkyBox=v.sky;out.m_RobotShadow=v.robot_shadow;
  out.m_BPP=v.color_depth;out.m_ResolutionX=v.width;out.m_ResolutionY=v.height;out.m_RefreshRate=v.refresh_rate;out.m_Brightness=v.brightness;out.m_Contrast=v.contrast;out.m_FSAASamples=v.fsaa_samples;out.m_AFDegree=v.anisotropy;out.m_MaxDistance=v.max_distance;out.m_VSync=v.vsync;return out;

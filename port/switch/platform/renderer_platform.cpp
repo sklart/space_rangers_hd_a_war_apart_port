@@ -1,4 +1,5 @@
 #include "renderer_platform.hpp"
+#include "rgb565_presentation.hpp"
 #include "e2e_clock.hpp"
 #include "e2e_stage.hpp"
 #include "e2e5_stage_profiler.hpp"
@@ -441,6 +442,7 @@ bool InitializeSoftwareRenderer(const RendererConfig& config, std::string* error
     if (error) *error = "invalid software renderer dimensions";
     return false;
   }
+  try {
   ClearSoftwareGlobals();
   GR_Main::GameScreenWidth = config.game_width;
   GR_Main::GameScreenHeight = config.game_height;
@@ -515,6 +517,13 @@ bool InitializeSoftwareRenderer(const RendererConfig& config, std::string* error
   GR_DX::PendingPoints.set_length(GR_DX::PendingPointCapacity);
   g_initialized = true;
   return true;
+  } catch (...) {
+    // All published buffers below belong to this failed initialization.
+    // Release them even though g_initialized was never committed.
+    ClearSoftwareGlobals();
+    g_initialized = false;
+    throw;
+  }
 }
 
 bool InitializeReleaseCompatibleDefaults(std::string* error) {
@@ -693,6 +702,10 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
 #endif
   presentation_profile.Measure(40, e2e_clock::Microseconds() - present_start_us);
   g_presentation_diagnostics = {};
+  if(auto* native=CurrentRgb565Presenter()) {
+    g_presentation_diagnostics=native->Present(pixels,pitch,width,height);
+    if(!g_presentation_diagnostics.present_succeeded)return PresentationFailure("native RGB565 presenter");
+  } else {
 #if defined(__SWITCH__)
   if (!g_native_window) return PresentationFailure("SDL window missing");
   if (!g_sdl_renderer) {
@@ -758,6 +771,7 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
 #else
   g_presentation_diagnostics.present_succeeded = true;
 #endif
+  }
   ++g_presentation_count;
 #if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
   perf515::Frame(GlobalsV::CurrentScreenId);

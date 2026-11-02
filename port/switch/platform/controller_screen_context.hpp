@@ -8,6 +8,7 @@
 #include "types/GI_Panel.hpp"
 #include "types/ab_MainForm.hpp"
 #include "controller_ui.hpp"
+#include "ui_control_cancel.hpp"
 
 namespace srhd_awa::platform::controller_screen_context {
 // Original Run pops on its normal return only. An exception must remove the
@@ -66,19 +67,6 @@ inline controller_actions::Context ForLoop(const GI_MessageLoop::TMessageLoopGI*
 inline void Refresh(GI_MessageLoop::TMessageLoopGI* loop) {
   win32_compat::UpdateActiveInputContext(loop, ForLoop(loop));
   controller_ui::Refresh(loop);
-}
-
-inline void CancelMomentaryButtons(GI_MessageLoop::TObjectGI* object) {
-  if (!object) return;
-  if (auto* button = pas::class_cast_if<GI_GraphButton::TGraphButtonGI*>(object)) {
-    if (button->Down && (button->Kind == GI_GraphButton::gbkNormal ||
-                         button->Kind == GI_GraphButton::gbkDisable)) {
-      button->Down = false;
-      if (button->MessageLoop) button->UpdateStateVisuals();
-    }
-  }
-  for (auto* child = object->FirstChild; child; child = child->NextSibling)
-    CancelMomentaryButtons(child);
 }
 
 // Cancel without ProcessLeftButtonUp: that method may invoke UpCallback and

@@ -15,9 +15,9 @@ def prepare_native_form(output):
   path=output/name;path.write_bytes(text.encode());changes[name]=hashlib.sha256(path.read_bytes()).hexdigest()
  source=(output/'MatrixGame/src/MatrixFormGame.cpp').read_text(encoding='utf-8')
  screenshot=function(source,'void make_screenshot()')
- # Keep the full screenshot algorithm in the original TU. This native-only TU
- # explicitly rejects the still-unported F9 path; it never reports a saved file.
- text=source.replace(screenshot,'void make_screenshot(){native_form::Screenshot();}',1)
+ # Original Windows TU retains its capture algorithm. Native capture reads the
+ # completed scene, then uses the original CBitmap PNG writer/private outputs.
+ text=source.replace(screenshot,'void make_screenshot(){const auto filename=native_form::Screenshot();g_MatrixMap->m_DI.T((L"Screen shot has been saved into " + filename).c_str(), L"");}',1)
  text=text.replace('#include <sys/timeb.h>','').replace('#include <format>','')
  # The extracted native draw uses all original branches, routed to typed APIs.
  frame=(output/'MatrixGame/src/OriginalWindowsFrame.cpp').read_text(encoding='utf-8')

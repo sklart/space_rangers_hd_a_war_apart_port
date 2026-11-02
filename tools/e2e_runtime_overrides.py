@@ -1,11 +1,11 @@
-"""Create a disposable ARM64 runtime header with portable named heaps."""
+"""Create disposable portable runtime headers and named heaps."""
 
 from pathlib import Path
 import filecmp
 import shutil
 
 
-def generated_windows_header(source: Path, destination: Path) -> Path:
+def generated_windows_header(source: Path, destination: Path, portable_windows_host: bool = False) -> Path:
     text = source.read_text(encoding="utf-8")
     original_loader = '''inline auto resolve_import(const char *library, const char *) -> void (*)() {
   throw std::runtime_error(std::string("DLL import requires a Win32 host: ") +
@@ -119,16 +119,36 @@ inline bool heap_free(Cardinal heap, Cardinal flags, void *data) {
     if not helper_copy.exists() or not filecmp.cmp(helper, helper_copy, shallow=False):
         shutil.copyfile(helper, helper_copy)
     rendered = '#include "e2e510_heap_reserve.hpp"\n' + prefix + replacement + suffix
+    if portable_windows_host:
+        # Explicit test mode must use the port's real handle adapters on a
+        # Windows host too; native Windows without this mode is unchanged.
+        rendered = rendered.replace('#ifdef _WIN32', '#if defined(_WIN32) && !defined(E2E_HOST_RESOLVER_TEST)')
+        rendered = rendered.replace('#ifndef _WIN32', '#if !defined(_WIN32) || defined(E2E_HOST_RESOLVER_TEST)')
     if not destination.exists() or destination.read_text(encoding="utf-8") != rendered:
         destination.write_text(rendered, encoding="utf-8")
     return destination
 
 
-def prepare_runtime_overlay(runtime_root: Path, overlay: Path) -> Path:
-    generated_windows_header(runtime_root / "windows.hpp", overlay / "windows.hpp")
-    for name in ("float_text.hpp", "graphics.hpp", "locale.hpp"):
+def prepare_runtime_overlay(runtime_root: Path, overlay: Path, portable_windows_host: bool = False) -> Path:
+    generated_windows_header(runtime_root / "windows.hpp", overlay / "windows.hpp", portable_windows_host)
+    names = [path.name for path in runtime_root.glob("*.hpp") if path.name != "windows.hpp"] if portable_windows_host else ("float_text.hpp", "graphics.hpp", "locale.hpp")
+    for name in names:
         source = runtime_root / name
         destination = overlay / name
         if not destination.exists() or not filecmp.cmp(source, destination, shallow=False):
             shutil.copyfile(source, destination)
+    if portable_windows_host:
+        # MSVC searches the active quoted-include stack before /I paths. A
+        # complete private runtime keeps nested headers on the same overlay.
+        shutil.copyfile(runtime_root / "runtime.cpp", overlay / "runtime.cpp")
+        shutil.copyfile(runtime_root.parent / "src/runtime_support.hpp", overlay / "runtime_support.hpp")
+        # The upstream Win32 storage describes 32-bit CRITICAL_SECTION (24
+        # bytes). The Windows x64 ABI requires 40 bytes, aligned to a pointer.
+        # Keep the real native API and only correct its private host storage.
+        sync = (runtime_root / "sync.hpp").read_text(encoding="utf-8")
+        old = "alignas(4) std::byte section[24]{};"
+        if sync.count(old) != 1:
+            raise RuntimeError("upstream native critical-section layout changed")
+        sync = sync.replace(old, "alignas(sizeof(void*)) std::byte section[sizeof(void*) == 8 ? 40 : 24]{};", 1)
+        (overlay / "sync.hpp").write_text(sync, encoding="utf-8")
     return overlay

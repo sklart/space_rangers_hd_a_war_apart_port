@@ -1,4 +1,5 @@
 #include "win32_compat_messages.hpp"
+#include "rangers_ui_input.hpp"
 
 #include "e2e_clock.hpp"
 #include "controller_messages.hpp"
@@ -469,6 +470,7 @@ std::uint32_t MsgWait(std::uint32_t count, const std::uint32_t* tokens,
 }
 
 std::int16_t GetAsyncKeyState(std::int32_t vk) {
+  if(auto* source=rangers_ui_input::Current())return vk>=0 && vk<256 && source->KeyHeld(std::uint8_t(vk))?static_cast<std::int16_t>(0x8000):0;
   if (vk < 0 || vk >= static_cast<std::int32_t>(g_keys.size())) return 0;
   std::lock_guard lock(g_mutex);
   return g_keys[vk] ? static_cast<std::int16_t>(0x8000) : 0;

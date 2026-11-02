@@ -2,7 +2,7 @@
 
 Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Статус на 25.10.2026: аппаратный прогон E2E-5.16 выполнен 23 октября; подтверждённые P0-дефекты остаются открытыми. MatrixGame E2E-5.19 — OFFLINE PARTIAL.** Повторяющиеся фоны, ошибки ручного сохранения и зависания ещё не устранены на Switch. Игра не готова к прохождению или релизу.
+> **Статус на 02.11.2026: MatrixGame E610 — SOFTWARE PASS / HARDWARE PENDING.** Подготовка текущих standalone Quick Smoke и Interactive NRO выполняется отдельно от основной игры. Аппаратные результаты старых версий не подтверждают текущую сборку. Для основной игры сохраняются ранее найденные ошибки фонов, ручного сохранения и зависания; проект не готов к полноценному прохождению или релизу.
 
 ## Последние результаты
 
@@ -10,11 +10,11 @@
 - **Сохранения:** в аппаратных данных остаются две ошибки `manual-publish ENOENT`; конкретные syscall и пути из старого журнала восстановить не удалось. Реальные host save/load с именем `Солнце`, отказами и восстановлением прошли. Добавлена диагностика фаз, errno и UTF-8 путей; аппаратное исправление не подтверждено. Формат порта — `RSG64/v168`; Windows `RSG/v167` отклоняется.
 - **Повторяющиеся фоны:** текст генерации подтверждён на других экранах, включая планету. Установлен фактический ресурс `GI,Bm.FormRuins.2RCbg`, но владелец ошибочного растра в CPU-композиции ещё не найден. Адресные host-проверки ресурса дефект не воспроизвели; исправленным он не объявляется.
 - **Зависания карты и выхода:** рассматриваются отдельно. Добавлены малозатратные thread/phase/progress markers и границы OSK; исправлен порядок остановки script worker перед освобождением данных. Host shutdown проверен, причина полного зависания консоли не доказана. Длительное сохранение может включать ожидание экранной клавиатуры.
-- **OSK и GPU smoke:** `SwkbdType_All` и исправление GPU alignment проверены офлайн. Старый аппаратный GPU smoke завершился до draw; успешного запуска исправленного кандидата на Switch ещё нет.
-- **MatrixGame:** в общий bootstrap включены оригинальные cache/material/texture owners, renderer, terrain/water, effects, группы, миникарта, hints и map-object module. Оригинальный ShadowStencil строит volume реальной VO-модели: геометрия, staging и cleanup проверены на host/ARM64. Host ASan/UBSan и ARM64/QEMU проверяют доступные пути и cleanup/reentry; devkitA64 подтверждает compile/link. На настоящем Windows D3D9 HAL проверены texture loss/reset notifications, offscreen targets и GPU readback. Полные `CGame::Init`, игровой цикл, мир и планетарный бой ещё не запускались. MatrixGame не входит в основную NRO.
+- **OSK и GPU smoke:** результаты относятся к конкретным ревизиям. Данные старого основного порта и отдельных MatrixGame smoke не означают аппаратный PASS текущего E610; физический HID/GPU и поздние Init-исправления ожидают двух новых пользовательских запусков.
+- **MatrixGame E591–E610:** полный оригинальный Init/Takt/Draw, естественное поражение и настоящий возврат результата в Gov проверены на Windows. Host sanitizers, ARM64/QEMU и devkitA64 compile/link подтвердили соответствующие программные компоненты; их границы и исторические неполные проверки сохранены в отчётах. Реализованы native providers, владение UI/script/campaign, окно/caller handoff и общий источник UI-ввода. Единая native Campaign/Gov entry и естественная победа ещё не подтверждены. MatrixGame не входит в основную NRO.
 - **Артефакты:** основная NRO, matching ELF и оба аппаратных ZIP сохранены неизменными. Новые offline-кандидаты находятся отдельно; позднейшие исходники и коммиты не включены в старые комплекты автоматически.
 
-Подробности: [MatrixGame: оригинальный Init и точная граница](reports/matrixgame-e2e519-original-init.md),
+Исторические срезы и данные основного порта: [MatrixGame: оригинальный Init и прежняя граница](reports/matrixgame-e2e519-original-init.md),
 [аппаратный анализ 23 октября](reports/e2e5/hardware-20261023-analysis.md),
 [офлайн-стабилизация и открытые причины](reports/e2e5/hardware-20261023-stabilization.md),
 [MatrixGame: актуальная граница bootstrap](reports/matrixgame-e2e519-engine-bootstrap.md),
@@ -46,6 +46,44 @@ Build ID: `b6c18a13cef88fe757d683e18cf48fc667067bda`. Release ARM64:
 пропуск дня и приказ перемещения на копии готового сейва;
 сохранение после перелёта с Unicode-именем и загрузка после перезапуска.
 Инструкция сбора логов и оставшиеся gates приведены в отчёте E2E-5.16.
+
+## MatrixGame E610 Freeze: два запуска
+
+Текущий программный этап заморожен перед аппаратной проверкой. Новую функциональность
+Campaign/Gov для этого пакета не добавляем. Все результаты на Switch до новых
+пользовательских наблюдений — **HARDWARE PENDING**.
+
+- **Quick Smoke:** существующая standalone entry, настоящий native/deko3d Init,
+  карта, четыре завершённых видимых кадра карты, cleanup. Загрузочные кадры и
+  синтетический smoke не подменяют карту.
+- **Interactive:** тот же Init и до 120 секунд ручного original native loop после
+  Init; курсор/Joy-Con, меню/пауза, камера и доступные робот/звук/стрельба.
+  Штатный запрос выхода — **Minus+Plus**.
+- Это standalone-проверки. Они не создают RangersNativeInput/UiContext/Campaign
+  owners и не вызывают Galaxy/Gov → Robot::FRun; присутствие компонента в dependency
+  archive или ELF не доказывает его вызов.
+
+Локальный пакет: `dist/matrixgame-e610-switch-test.zip`. Это не опубликованный
+GitHub Release; исходники и отчёты находятся в контрольной ветке. SHA исходников,
+обеих NRO и build ID приводятся в manifest.json пакета и итоговом freeze-отчёте.
+
+[Инструкция: копирование, ресурсы, управление, два запуска и сбор журналов](docs/matrixgame-e610-switch-test-readme.ru.md).
+[Точная программная граница E610](reports/matrixgame-e2e610-native-ui-pump.md).
+[Состояние Init](docs/matrixgame-init-sequence.md).
+
+Воспроизведение на подготовленном локальном SDK/dependency state (создаёт новую
+папку сборки, не меняет основную NRO и старые тесты):
+
+```powershell
+python tools/matrixgame_current_diagnostic_sdk.py --output-root build/matrixgame/e610-switch-freeze
+```
+
+Проверенные dependency manifests и существующие оригинальные SDK archives нужны
+локально; одна загрузка исходников не заменяет эту подготовку. Точные входные
+хеши и configure/build команды сохраняются с каждой сборкой. Игровые ресурсы,
+пользовательские сохранения, сырые captures/logs и бинарные dist-пакеты в Git
+не включаются. После подготовки пакета разработка остановлена до результатов
+двух аппаратных запусков.
 
 ## Что уже работает
 
@@ -126,9 +164,9 @@ git submodule update --init --recursive
 - CMake и Python 3;
 - Git.
 
-Linux host-регрессии выполняет GitHub Actions `ubuntu-24.04`. Локальный WSL используется для дополнительных проверок исходных методов на x86 и ARM64/QEMU; они не заменяют полный CI и запуск на Switch. Windows working copy допустима как источник WIP, а ARM64-сборку нужно выполнять в отдельном clean clone через devkitPro MSYS.
+Linux host-регрессии выполняет GitHub Actions `ubuntu-24.04`. Локальный WSL используется для дополнительных проверок исходных методов на x86 и ARM64/QEMU; они не заменяют полный CI и запуск на Switch. Для основной ARM64 NRO используется devkitPro MSYS. Отдельные MatrixGame CMake targets также проверяются Windows devkitA64 через указанный выше Python builder; их provenance сохраняется отдельно.
 
-Сборку Switch ARM64 нужно запускать из оболочки devkitPro MSYS, а не из обычного `cmd.exe`.
+Основную сборку через Makefile ниже запускайте из оболочки devkitPro MSYS. Это отдельный путь от диагностических MatrixGame CMake targets.
 
 ```bash
 cd port/switch

@@ -53,6 +53,8 @@ void Configure(Routing& d){auto& s=d.state.Edit();
     s.Render(36,std::bit_cast<std::uint32_t>(3.5f));s.Render(37,std::bit_cast<std::uint32_t>(220.f));
     s.Render(57,123);s.Render(58,0x37);s.Render(59,0x81); // Stencil parameters, disabled.
     s.Render(190,7);s.Render(193,0x11335779); // Target2 mask and blend constant.
+    s.Render(161,1);s.Render(162,0); // Observable state, no effect on a single-sample target.
+    s.Render(8,2); // Real optional selection pass must also survive original state restore.
     s.vertex.Render(137,1);s.vertex.Render(143,1); // Query must read actual shader state, not a stale mirror.
     p::VideoMaterial m{};m.Diffuse={.2f,.3f,.4f,.7f};m.Ambient={.1f,.2f,.3f,.4f};m.Specular={.8f,.6f,.4f,.2f};m.Emissive={.01f,.02f,.03f,.04f};m.Power=37.5f;s.vertex.Material(m);
     for(unsigned i=0;i<8;++i){s.samplers[i].Apply(SamplerRegister::MaxAnisotropy,i+1);s.Sampler(i,4,0xaabbcc00+i);s.Sampler(i,8,std::bit_cast<std::uint32_t>(-.125f*float(i)));
@@ -108,11 +110,13 @@ int main(){Routing d;p::Current().device=&d;p::Current().ready=true;
     auto& s=d.state.Edit();s.ValidateDraw();s.Render(28,1);Reject([&]{s.ValidateDraw();});s.Render(28,0);
     s.Render(174,1);Reject([&]{s.ValidateClear();});s.Render(174,0);
     s.Render(52,1);s.ValidateDraw();assert(s.Stencil().enabled);s.Render(52,0);
-    s.Render(162,0);Reject([&]{s.ValidateDraw();});s.Render(162,~0u);
+    s.Render(162,0);s.ValidateDraw();assert(s.Render(161)==1 && s.Render(162)==0);
+    Reject([&]{s.ValidateDraw(false,false,2);});s.Render(162,~0u);
     s.combiner.Set(0,1,4);s.combiner.Set(0,2,2);s.combiner.Set(0,3,0);s.combiner.Bind(0,true);
     s.Sampler(0,9,2);Reject([&]{s.ValidateDraw();});s.Sampler(0,9,0);s.ValidateDraw();
     s.Sampler(0,11,1);Reject([&]{s.ValidateDraw();});s.Sampler(0,11,0);s.ValidateDraw();
-    Reject([&]{s.ValidateDraw(true);});Reject([&]{s.ValidateDraw(false,true);});
+    Reject([&]{s.ValidateDraw(true);});s.ValidateDraw(false,true);
+    s.Render(16,0);Reject([&]{s.ValidateDraw(false,true);});s.Render(16,1);
     auto material=s.vertex.Material();material.Power=std::bit_cast<float>(0x7fc00000u);Reject([&]{s.vertex.Material(material);});assert(s.vertex.Material().Power==37.5f);
     p::Current().device=nullptr;p::Current().ready=false;
     std::puts("original CDeviceState/native scalar PASS render=103 samplers=13x8 lights=8 material=full argb_cases=1024 shader_uniforms=1328_exact restore/reset=3 no_texture_buffer_retention absent_light=original failed_recapture=guarded active_unsupported=refused CPU_SCALAR_ONLY NO_NATIVE_INIT NO_GPU SWITCH_HARDWARE_NOT_RUN");

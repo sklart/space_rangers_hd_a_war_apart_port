@@ -81,5 +81,7 @@ platform3g::DeviceResult Create(std::shared_ptr<Session>,std::uint32_t,std::uint
 platform3g::DeviceResult Create(std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**);
 platform3g::DeviceResult Decode(const void*,std::size_t,std::uint32_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**);
 platform3g::DeviceResult Decode(std::shared_ptr<Session>,const void*,std::size_t,std::uint32_t,std::uint32_t,std::uint32_t,IDirect3DTexture9**);
+platform3g::DeviceResult DecodeBitmap(const void*,std::size_t,std::uint32_t,IDirect3DTexture9**);
+platform3g::DeviceResult DecodeBitmap(std::shared_ptr<Session>,const void*,std::size_t,std::uint32_t,IDirect3DTexture9**);
 void Update(void*,void*);
 }

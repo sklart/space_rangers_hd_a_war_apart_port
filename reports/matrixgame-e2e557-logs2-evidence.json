@@ -1,0 +1,78 @@
+{
+  "status": "USER HARDWARE LOG VERIFIED; GPU SMOKE PASS; ORIGINAL INIT FAIL AT CALIBRATED GAMMA",
+  "archive_path": "D:/logs2.7z",
+  "archive_sha256": "0b6cd8d561c88ddddd58ea16e117a592f91c28b9a2c2146525f554b8453fd994",
+  "inputs_sha256": {
+    "build\\matrixgame\\hardware-logs2-20261026\\logs2\\run-1793027984068936-0\\run.jsonl": "8137bfd996493f07de3928eceff83ef866e0c59c4cb7dd9ecef3daa022bf821e",
+    "build\\matrixgame\\hardware-logs2-20261026\\logs2\\run-1793027984068936-0\\smoke.bgra": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9"
+  },
+  "events": 114,
+  "run_id": "run-1793027984068936-0",
+  "build_id": "82034333146d-3ceba50c0e188afa9ce6",
+  "source_sha256": "3ceba50c0e188afa9ce68784c05ad22dac9041b284b30fb4c65dc99c18f2790e",
+  "NRO_sha256": "5e1dcd00e33e8d956fabf9b4f4cc2128be3ccefc00c2bec821c338ceaeeb2de1",
+  "smoke": {
+    "width": 1280,
+    "height": 720,
+    "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+    "center_BGRA": [
+      0,
+      0,
+      255,
+      255
+    ]
+  },
+  "confirmed_ok": {
+    "A.BC1.upload": 44,
+    "A.BC1.draw": 48,
+    "A.debug_font.upload_draw": 50,
+    "A.BC1.framebuffer_check": 59,
+    "GPU.Present.submit_wait": 61,
+    "A.real_GPU_smoke": 62,
+    "B.CFile::OpenPackFiles": 90,
+    "B.config.text": 92,
+    "B.CacheInit": 94,
+    "B.platform_attachment": 96
+  },
+  "Init_failed_event": {
+    "schema": 1,
+    "seq": 97,
+    "time_us": 1098163,
+    "run_id": "run-1793027984068936-0",
+    "build_id": "82034333146d-3ceba50c0e188afa9ce6",
+    "source_sha256": "3ceba50c0e188afa9ce68784c05ad22dac9041b284b30fb4c65dc99c18f2790e",
+    "event": "failed",
+    "operation": "B.CGame::Init",
+    "last_ok": "B.platform_attachment",
+    "detail": "",
+    "detail_truncated": false,
+    "result": null,
+    "elapsed_us": 155400,
+    "value": 0
+  },
+  "exception_event": {
+    "schema": 1,
+    "seq": 112,
+    "time_us": 3211748,
+    "run_id": "run-1793027984068936-0",
+    "build_id": "82034333146d-3ceba50c0e188afa9ce6",
+    "source_sha256": "3ceba50c0e188afa9ce68784c05ad22dac9041b284b30fb4c65dc99c18f2790e",
+    "event": "exception",
+    "operation": "std::exception",
+    "last_ok": "diagnostic.status_screen",
+    "detail": "backend calibrated gamma submission unsupported",
+    "detail_truncated": false,
+    "result": null,
+    "elapsed_us": 0,
+    "value": 0
+  },
+  "process_exit": 10,
+  "journal_closed": true,
+  "full_Init_returned": false,
+  "map_PrepareMap_reached": false,
+  "map_frame_presented": false,
+  "runtime_source_changed": false,
+  "new_NRO_created": false,
+  "commit": false,
+  "push": false
+}

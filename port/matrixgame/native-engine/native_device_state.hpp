@@ -25,7 +25,7 @@ struct NativeRenderState {
     std::uint32_t Render(std::uint32_t)const;
     void Sampler(std::uint32_t,std::uint32_t,std::uint32_t);
     std::uint32_t Sampler(std::uint32_t,std::uint32_t)const;
-    void ValidateDraw(bool points=false,bool lines=false)const;
+    void ValidateDraw(bool points=false,bool lines=false,std::uint32_t samples=0,std::uint32_t quality=0)const;
     void ValidateClear()const;
     materials::PixelFogUniforms PixelFog()const;
     MeshStencilState Stencil()const;

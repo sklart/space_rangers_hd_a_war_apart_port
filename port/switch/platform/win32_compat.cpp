@@ -30,6 +30,14 @@
 
 namespace srhd_awa::platform::win32_compat {
 namespace {
+#if defined(_WIN32)
+// Windows reference uses the real host locale, just like the original runtime.
+// Direct imports retain normal process lifetime and allocate no port handles.
+extern "C" {
+__declspec(dllimport) int __stdcall GetLocaleInfoA(unsigned long,unsigned long,char*,int);
+__declspec(dllimport) unsigned long __stdcall GetThreadLocale();
+}
+#endif
 std::atomic<std::uint32_t> g_resolved{0};
 std::atomic<std::uint32_t> g_unmapped{0};
 std::atomic<std::uint32_t> g_optional{0};
@@ -101,6 +109,10 @@ ImportAddress KnownImport(const std::string& dll, std::string_view symbol) {
   if (const auto file = ResolveFileImport(dll, symbol)) return file;
   if (const auto sync = ResolveSyncImport(dll, symbol)) return sync;
   if (dll == "kernel32.dll") {
+#if defined(_WIN32)
+    if (symbol == "GetLocaleInfoA") return Address(&GetLocaleInfoA);
+    if (symbol == "GetThreadLocale") return Address(&GetThreadLocale);
+#endif
     if (symbol == "GetSystemTime") return Address(&GetSystemTimeThunk);
     if (symbol == "GetLocalTime") return Address(&GetLocalTimeThunk);
     if (symbol == "QueryPerformanceCounter") return Address(&QueryPerformanceCounterThunk);

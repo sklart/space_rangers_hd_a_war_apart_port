@@ -1,0 +1,55 @@
+{
+  "status": "SOURCE AUDIT ONLY; NO NEW RUNTIME PASS; E558 HARDWARE PENDING",
+  "sdk_sources": [
+    {
+      "path": "build\\matrixgame\\e2e560-boundary\\sdk-source\\dk_private.h",
+      "git_blob_sha": "04f3036c5d568137eb927c896336f4115585d769",
+      "sha256": "3484cb04f34f9791e0eef68be4e563505ce15acb4432fc9339047fa23b21f71c",
+      "url": "https://github.com/devkitPro/deko3d/blob/v0.5.0/source/dk_private.h"
+    },
+    {
+      "path": "build\\matrixgame\\e2e560-boundary\\sdk-source\\gpu_3d_vbo.cpp",
+      "git_blob_sha": "d95ba5da95efd4285204059b4e0d4e8cc192ffe7",
+      "sha256": "d41d695053f273e6012a499c7c09e88d11d3e32672aed7ca088246affec5e427",
+      "url": "https://github.com/devkitPro/deko3d/blob/v0.5.0/source/maxwell/gpu_3d_vbo.cpp"
+    }
+  ],
+  "zero_count_vertex_bindings": "Accepted by v0.5.0 source checks; no SDK API execution or GPU proof",
+  "sampler_ApplySettings": "Scalar cap clamp only; no provider dispatch in this method",
+  "generated_sources_sha256": {
+    "MatrixGame/src/MatrixGame.cpp": "1aa95e2a2caf26af3bcac22d4c479faf74af52ec56f3a571ff5be14c1a786bf9",
+    "MatrixGame/src/MatrixSampleStateManager.cpp": "ebbb4acbcb1c2ff9fd80919a9eb31d393b6e88ebdf747bef03416523e3f01806",
+    "MatrixGame/src/MatrixMapTexture.cpp": "95a0fd88474817cacf878414f52ec3d8c45f84d3e55dd0df461d759dc75a74ad",
+    "MatrixGame/src/OriginalTransition.cpp": "def3a388ad0fff3a9e7bf0e99c579f7d93dcf8c8d541f808ab5c6061e65549f4",
+    "MatrixLib/3G/OriginalUnmanagedTexture.cpp": "74d462c9e9e941edc04c259d1c4f3f275939d09f88bfe6fd3e3ccb5fdb762895"
+  },
+  "unmanaged_decode": "Existing Unsupported guard remains. No single-argument bitmap loader call found in inspected original Init/map/transition paths; not established as next required Init blocker. This is not a complete indirect call graph.",
+  "runtime_code_changes": false,
+  "large_tests_rerun": false,
+  "E558_NRO_preserved": {
+    "path": "build\\matrixgame\\e2e558-gamma\\sdk\\diagnostic-nro\\matrixgame-native-diagnostic.nro",
+    "sha256": "2fb8689975480771e690cd764b89af803c6e2d2cd234fe24904c18cb7c86fdd1",
+    "bytes": 6961349,
+    "validation": {
+      "code_size": 6938624,
+      "segments": 3,
+      "embedded_icon": {
+        "offset": 6938680,
+        "size": 6285
+      },
+      "embedded_nacp": {
+        "offset": 6944965,
+        "size": 16384
+      },
+      "romfs_required": false
+    }
+  },
+  "protected_verified": 15,
+  "new_user_hardware_log": false,
+  "last_hardware_run_id": "run-1793027984068936-0",
+  "last_hardware_failure": "backend calibrated gamma submission unsupported",
+  "source_work_boundary": "No new required code defect reproduced by this audit. Full native Init/PrepareMap/first map frame require the user-run E558 candidate to identify the next runtime issue.",
+  "new_NRO_created": false,
+  "commit": false,
+  "push": false
+}

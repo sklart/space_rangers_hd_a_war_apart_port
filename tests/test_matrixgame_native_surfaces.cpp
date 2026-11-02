@@ -46,7 +46,29 @@ struct Routing:p::Device,p::NativeMapQueries,p::NativeFrameProvider,ns::Provider
  p::DeviceResult NativePresent()override{throw p::Unsupported("surface CPU model cannot present");}
 };
 #ifndef MATRIXGAME_SURFACE_DRIVER_ONLY
-int main(){Routing device;p::Current().ready=true;p::Current().device=&device;auto session=device.session;assert(ns::HandleCount()==0 && !session->DefaultResourcesLive());
+int main(){Routing device;
+ // Early diagnostic smoke must read its actual surface session before the
+ // original engine has negotiated ReadyDevice. Never pretend that Init ran.
+ assert(!p::Current().ready && !p::Current().device);
+ {
+  const auto session=device.session;const auto color=session->primary_color;
+  bool baseline=false;try{(void)ns::Read(color);}catch(const p::Unsupported& e){baseline=std::string(e.what())=="3G device negotiation not complete";}assert(baseline);
+  auto image=std::dynamic_pointer_cast<Image>(color->resource);image->bytes[0]=std::byte{0x5a};image->bytes[3]=std::byte{0xff};
+  assert(ns::ReadFor(session,color)==image->bytes);assert(!p::Current().ready && !p::Current().device);
+  Reject([&]{ns::ReadFor({},color);});Reject([&]{ns::ReadFor(session,{});});
+  auto foreign=std::make_shared<ns::Session>();const auto before=device.reads;
+  Reject([&]{ns::ReadFor(foreign,color);});Reject([&]{ns::ReadFor(session,session->primary_depth);});
+  color->locked=true;Reject([&]{ns::ReadFor(session,color);});color->locked=false;assert(device.reads==before);
+  device.bad_read=true;Reject([&]{ns::ReadFor(session,color);});device.bad_read=false;
+  auto callback=session->read;session->read=[](const auto&){return std::vector<std::byte>(1);};Reject([&]{ns::ReadFor(session,color);});session->read={};Reject([&]{ns::ReadFor(session,color);});session->read=std::move(callback);
+  assert(ns::ReadFor(session,color)==image->bytes);image->bytes[0]=image->bytes[3]=std::byte{};
+  // An old presentation surface must not become readable under a new owner.
+  device.Primary(800,600);Reject([&]{ns::ReadFor(session,color);});
+  auto dead=std::make_shared<ns::Session>();auto stale=dead->Make({21,0,0,8,8},false,false,true,std::make_shared<Image>(nullptr,256));dead->Presentation(stale,{});dead->Close();Reject([&]{ns::ReadFor(dead,stale);});
+  assert(!p::Current().ready && !p::Current().device);
+  std::puts("PRE_INIT_READBACK PASS baseline_ReadyDevice_guard reproduced explicit_owner no_global_ready null_foreign_depth_locked_read_failure_bad_bytes_stale_closed CPU_DRIVER_MODEL_ONLY");
+ }
+ p::Current().ready=true;p::Current().device=&device;auto session=device.session;assert(ns::HandleCount()==0 && !session->DefaultResourcesLive());
  // The original D3D callers pass uninitialized output slots. Do not read them.
  IDirect3DSurface9* old;assert(os::GetTarget(0,&old)==0);IDirect3DSurface9* again;assert(os::GetTarget(0,&again)==0 && again==old);assert(ns::Find(old)->references==2);os::Release(again);assert(session->DefaultResourcesLive());assert(!device.frame);
  os::SurfaceDesc desc{};assert(os::Describe(old,&desc)==0 && desc.Width==800 && desc.Format==21);m::legacy_texture::LockedRect lock{};Reject([&]{os::Lock(old,&lock,nullptr,0);});

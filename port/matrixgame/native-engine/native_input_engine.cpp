@@ -1,18 +1,22 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "native_input_engine.hpp"
+#include "native_ui_target.hpp"
 #include "3g.hpp"
 #include "input.hpp"
 namespace srhd_awa::matrixgame::native_input {
 namespace {bool Active(){return g_FormCur && (g_Flags&GFLAG_APPACTIVE) && !(g_Flags&GFLAG_APPCLOSE);}}
 void EngineSink::Key(bool down,std::uint8_t key){
+    if(auto* target=CurrentUiTarget()){target->Key(down,key);return;}
     if(down)Input::onKeyDown(key);else Input::onKeyUp(key);
     if(Active())g_FormCur->Keyboard(down,key);
 }
-void EngineSink::Move(int x,int y){if(Active())g_FormCur->MouseMove(x,y);}
+void EngineSink::Move(int x,int y){if(auto* target=CurrentUiTarget()){target->Move(x,y);return;}if(Active())g_FormCur->MouseMove(x,y);}
 void EngineSink::Mouse(Button event,int key,int x,int y){
+    if(auto* target=CurrentUiTarget()){target->Mouse(event,key,x,y);return;}
     if(Active())g_FormCur->MouseKey(event==Button::Down?B_DOWN:event==Button::Up?B_UP:event==Button::Double?B_DOUBLE:B_WHEEL,key,x,y);
 }
 void EngineSink::ReconcileMouseKeys(const std::bitset<256>& keys,unsigned buttons)noexcept{
+    if(auto* target=CurrentUiTarget()){target->ReconcileMouseKeys(keys,buttons);return;}
     const bool mouse_active=Active();
     for(unsigned i=0;i<3;++i){const std::uint8_t vk=i==0?1:i==1?2:4;
         if(keys[vk] || (mouse_active && (buttons&(1u<<i))))Input::onKeyDown(vk);else Input::onKeyUp(vk);

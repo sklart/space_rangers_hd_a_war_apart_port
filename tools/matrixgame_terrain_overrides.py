@@ -11,6 +11,18 @@ def prepare_terrain(output):
     h=h.replace(declaration,'class CTextureManaged;\n'+declaration);hp.write_bytes(h.encode())
     name='MatrixGame/src/MatrixTerSurface.cpp';path=output/name
     text=path.read_text(encoding='utf-8')
+    # The pinned x86 queue shifts pointer entries. Its dword count is not a
+    # pointer count on AArch64/Windows x64; partial copies corrupt the queue.
+    # Both directions overlap, so preserve the original ordering with memmove.
+    shifts=(
+        ('memcpy(&m_SurfacesDraw[m_SurfaceLeft - 1], &m_SurfacesDraw[m_SurfaceLeft], sizeof(CTerSurface *) * lc);',
+         'std::memmove(&m_SurfacesDraw[m_SurfaceLeft - 1], &m_SurfacesDraw[m_SurfaceLeft], sizeof(CTerSurface *) * lc);'),
+        ('memcopy_back_dword(&m_SurfacesDraw[idx + 1], &m_SurfacesDraw[idx], rc);',
+         'std::memmove(&m_SurfacesDraw[idx + 1], &m_SurfacesDraw[idx], sizeof(CTerSurface *) * rc);'),
+    )
+    for old,new in shifts:
+        if text.count(old)!=1:raise ValueError('Original terrain sorted queue shift changed')
+        text=text.replace(old,new,1)
     values={'D3DRS_ALPHABLENDENABLE':27,'D3DRS_ZWRITEENABLE':14,
             'D3DRS_FILLMODE':8,'D3DRS_TEXTUREFACTOR':60}
     for key,value in values.items():
@@ -31,7 +43,8 @@ def prepare_terrain(output):
     m_SurfaceLeft = m_SurfaceRite = 0;
 '''+clear[end:]
     text=text.replace(clear,fixed)
-    prelude='''#include "Texture.hpp"
+    prelude='''#include <cstring>
+#include "Texture.hpp"
 #include "map_device_backend.hpp"
 namespace terrain_platform=srhd_awa::matrixgame::platform3g;
 namespace terrain_device=srhd_awa::matrixgame::map_device;

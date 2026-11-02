@@ -2,6 +2,8 @@
 #pragma once
 #include <cstdint>
 #include <stdexcept>
+#include <functional>
+#include <utility>
 namespace srhd_awa::matrixgame::applet_window {
 enum class Focus {Foreground,Unfocused,Background};
 struct Event {Focus focus;bool exit{};};
@@ -36,12 +38,16 @@ public:
     void Show(bool);
     void Update();
     void WaitForDrawable();
+    // Optional owning-thread policy. The diagnostic entry supplies its real
+    // deadline/input poll; normal game windows retain their original behavior.
+    void SetWaitCheckpoint(std::function<void()> checkpoint){checkpoint_=std::move(checkpoint);}
     bool Attached()const noexcept{return attached_;}
     bool Drawable()const noexcept{return attached_ && visible_ && foreground_ && !exit_;}
     std::uint32_t RestoreResult()const noexcept{return restore_result_;}
 private:
     void Accept(Event);
     Backend& backend_;Observer& observer_;
+    std::function<void()> checkpoint_;
     bool baseline_,visible_,attached_{},known_{},foreground_{},exit_{};
     std::uint32_t restore_result_{};
 };

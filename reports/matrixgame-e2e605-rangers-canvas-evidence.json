@@ -1,0 +1,28 @@
+{
+  "status": "PASS CPU SANITIZERS/WINDOWS/ARM64 QEMU/REAL NATIVE PRESENTER SDK COMPILE AND LINK; GPU RUNTIME NOT RUN",
+  "gates": {
+    "host_ARM64": {
+      "path": "build\\matrixgame\\e2e605-rangers-canvas\\cpu\\1\\result.json",
+      "sha256": "c7a57ff907e6810e4591354f24c2c555f7b9553225361180dd6d10af741c5527",
+      "status": "PASS HOST ASAN/UBSAN/LSAN AND ARM64 QEMU UBSAN; CPU PIXELS ONLY"
+    },
+    "Windows": {
+      "path": "build\\matrixgame\\e2e605-rangers-canvas\\windows\\1\\result.json",
+      "sha256": "9aadaa3d597b3f6774fc36c2bfa739ce6a3423f14177db61e71bc589e101ec1f",
+      "status": "PASS WINDOWS RENDERER DISPATCH COMPILE AND PIXEL TEST ASAN; GPU NOT RUN"
+    },
+    "SDK": {
+      "path": "build\\matrixgame\\e2e605-rangers-canvas\\sdk\\4\\result.json",
+      "sha256": "b0edf6218d28fbb26d368a2633f66da5459784a4175f2e90739a12bf02fe4c6a",
+      "status": "PASS REAL DEKO RGB565 PRESENTER/NATIVE INTERFACE OWNER/ORIGINAL DISPATCH COMPILE/RETAINED SDK LINK; ZERO STRONG UNDEFINED; GPU NOT RUN"
+    }
+  },
+  "native_interface_canvas_owner": "IMPLEMENTED AND RETAINED SDK LINKED; NOT EXECUTED",
+  "native_Gov_FRun_return": "NOT RUN; D3D9 caller restore adaptation remains open",
+  "hardware": "HARDWARE_PENDING",
+  "new_NRO": false,
+  "E604_package_preserved_sha256": "3c6332447084b827b7ecf078bb2b7a5eb40618fc7f9b67a319355e9c779a6af7",
+  "protected_game_frozen_and_NRO": "HASHES VERIFIED",
+  "commit": false,
+  "push": false
+}

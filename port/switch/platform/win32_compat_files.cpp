@@ -254,7 +254,11 @@ bool FillFindData(const std::filesystem::directory_entry& entry, Data* output) {
   output->nFileSizeHigh = static_cast<std::uint32_t>(size >> 32);
   const auto write = entry.last_write_time(error);
   if (!error) {
+#if defined(_MSC_VER)
+    const auto system = std::chrono::clock_cast<std::chrono::system_clock>(write);
+#else
     const auto system = std::chrono::file_clock::to_sys(write);
+#endif
     const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(
         system.time_since_epoch()).count();
     output->ftLastWriteTime = UnixMillisToFileTime(milliseconds);

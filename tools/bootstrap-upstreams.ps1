@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [switch]$ForceLocal,
-    [string]$MirrorRoot = 'D:\repos\mirrors'
+    [string]$MirrorRoot = (Join-Path $PSScriptRoot '..\.local\mirrors')
 )
 
 $ErrorActionPreference = 'Stop'

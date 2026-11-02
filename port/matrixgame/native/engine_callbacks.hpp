@@ -14,6 +14,7 @@ class EngineCallbacks {
   EngineCallbacks(const EngineCallbacks&)=delete;
   EngineCallbacks& operator=(const EngineCallbacks&)=delete;
   static SMGDRangersInterface* Table() noexcept;
+  static bool Bound() noexcept;
  private:
   std::shared_ptr<EngineCallbackContext> context_;
 };

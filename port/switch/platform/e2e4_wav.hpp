@@ -6,6 +6,7 @@
 namespace srhd_awa::platform::e2e4_wav {
 
 inline constexpr std::size_t kMaxPcmBytes = 64u * 1024u * 1024u;
+enum class RiffSizePolicy {Strict,LegacyTotalBytes};
 
 struct WaveData {
     const char* error = "invalid RIFF/WAVE";
@@ -16,6 +17,7 @@ struct WaveData {
     std::uint16_t bits = 0;
     std::uint16_t block_align = 0;
     std::uint32_t rate = 0;
+    bool legacy_riff_size = false;
     explicit operator bool() const { return error == nullptr; }
 };
 
@@ -39,17 +41,22 @@ inline bool FourCC(const std::uint8_t* p, const char* id) {
 
 // Offsets are relative to the complete source buffer, whose current position
 // may point at a RIFF object embedded in a game package.
-inline WaveData Parse(const void* buffer, std::size_t length, std::size_t start = 0) {
+inline WaveData Parse(const void* buffer, std::size_t length, std::size_t start = 0,
+                      RiffSizePolicy size_policy = RiffSizePolicy::Strict) {
     WaveData out;
     if (buffer == nullptr || start > length || length - start < 12) return out;
     const auto* data = static_cast<const std::uint8_t*>(buffer);
     if (!FourCC(data + start, "RIFF") || !FourCC(data + start + 8, "WAVE")) return out;
     const std::size_t riff_bytes = Read32(data + start + 4);
-    if (riff_bytes < 4 || riff_bytes > length - start - 8) {
+    // Some original Rangers PCM assets encode the complete file length here.
+    // Opt in only at the legacy loader; never clamp an arbitrary oversized RIFF.
+    out.legacy_riff_size = size_policy == RiffSizePolicy::LegacyTotalBytes &&
+                           riff_bytes == length - start;
+    if (riff_bytes < 4 || (!out.legacy_riff_size && riff_bytes > length - start - 8)) {
         out.error = "truncated RIFF";
         return out;
     }
-    const std::size_t end = start + 8 + riff_bytes;
+    const std::size_t end = out.legacy_riff_size ? length : start + 8 + riff_bytes;
     bool have_fmt = false;
     bool have_data = false;
     for (std::size_t pos = start + 12; pos < end;) {

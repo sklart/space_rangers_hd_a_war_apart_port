@@ -8,6 +8,7 @@
 #include "platform_win32.hpp"
 #endif
 #include "debug_font_backend.hpp"
+#include "native_diagnostic_journal.hpp"
 #ifndef _WIN32
 #include "native_debug_font.hpp"
 #include "native_graphics.hpp"
@@ -30,12 +31,14 @@ ID3DXFont& Font(ID3DXFont* font) {
 static_assert((DT_NOCLIP|DT_LEFT|DT_VCENTER|DT_SINGLELINE)==0x124);
 }
 p::DeviceResult CreateFor(p::Device& device,ID3DXFont** out) {
+    diagnostic::Operation trace("B.debug_font.CreateFor");
     if(!out || *out)throw std::invalid_argument("debug font output must be empty");
     // Exact original CMatrixDebugInfo constructor request.
     const auto result=D3DXCreateFontW(&ActualDevice(device),25,0,FW_NORMAL,1,FALSE,
         DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,PROOF_QUALITY,DEFAULT_PITCH,L"MS Sans Serif",out);
     if(result==D3D_OK && !*out)throw std::runtime_error("D3DXCreateFontW returned no font");
     if(result!=D3D_OK && *out){(*out)->Release();*out=nullptr;}
+    if(result<0)trace.Fail(result);
     return static_cast<p::DeviceResult>(result);
 }
 void Release(ID3DXFont* font)noexcept {if(font)font->Release();}
@@ -52,7 +55,7 @@ p::DeviceResult DrawPrimitiveUP(std::uint32_t type,std::uint32_t count,const voi
     return static_cast<p::DeviceResult>(result);
 }
 #else
-p::DeviceResult CreateFor(p::Device& device,ID3DXFont** out){return native::CreateFor(device,out);}
+p::DeviceResult CreateFor(p::Device& device,ID3DXFont** out){diagnostic::Operation trace("B.debug_font.CreateFor");const auto result=native::CreateFor(device,out);if(result<0)trace.Fail(result);return result;}
 void Release(ID3DXFont* font)noexcept {native::Release(font);}
 int DrawTextWide(ID3DXFont* font,const wchar_t* text,int count,TextRect& bounds,std::uint32_t flags,std::uint32_t color){return native::Find(font).Draw(text,count,bounds,flags,color);}
 p::DeviceResult Lost(ID3DXFont* font){native::Find(font).Lost();return 0;}

@@ -2,10 +2,23 @@
 #include "cache_resources.hpp"
 #include "texture_request.hpp"
 #include "CException.hpp"
+#include "cache_owner_state.hpp"
 #include <stdexcept>
 
 namespace srhd_awa::matrixgame {
-namespace {std::size_t cache_bytes{},cache_entries{};}
+namespace {
+std::size_t cache_bytes{},cache_entries{};
+OriginalTextureFactoryScope::Factory original_texture_factory{};
+}
+OriginalTextureFactoryScope::OriginalTextureFactoryScope(Factory factory):factory_(factory) {
+    if(!factory || original_texture_factory || !NativeCacheFactoryBound())
+        throw std::logic_error("original texture factory requires a live exclusive cache owner");
+    original_texture_factory=factory;
+}
+OriginalTextureFactoryScope::~OriginalTextureFactoryScope() {
+    if(original_texture_factory!=factory_)std::terminate();
+    original_texture_factory=nullptr;
+}
 struct CacheTextureState {
     CCacheData* owner{};
     std::shared_ptr<const TextureAsset> asset;
@@ -54,6 +67,9 @@ CCacheData* CreateCacheTexture(CacheClass type) {
         throw std::logic_error("UNSUPPORTED: legacy CTexture consumer has no typed native cache session");
     if(type!=CacheClass::Texture && type!=CacheClass::TextureManaged)
         throw std::invalid_argument("native cache texture class");
+    if(original_texture_factory)return original_texture_factory(type);
+    if(cache_owner_detail::OriginalGameOwner())
+        throw std::logic_error("original game texture factory unavailable");
     return HNew(g_CacheHeap) CacheTexture(type);
 }
 MaterialTexture BorrowMaterialTexture(CCacheData& data) {

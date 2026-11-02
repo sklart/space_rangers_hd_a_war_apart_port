@@ -1,4 +1,5 @@
 #include "win32_compat_gdi.hpp"
+#include "rangers_ui_input.hpp"
 
 #include "win32_compat_window.hpp"
 #include "win32_compat_messages.hpp"
@@ -139,6 +140,7 @@ std::int32_t ShowCursor(std::int32_t show) {
 }
 
 std::int32_t SetCursorPos(std::int32_t x, std::int32_t y) {
+  if(auto* source=rangers_ui_input::Current()){source->Warp(x,y);SetLastError(kErrorSuccess);return 1;}
   std::lock_guard lock(g_mutex);
   if (g_has_clip) {
     x = std::clamp(x, g_clip.Left, g_clip.Right - 1);
@@ -150,6 +152,7 @@ std::int32_t SetCursorPos(std::int32_t x, std::int32_t y) {
 }
 std::int32_t GetCursorPos(Types::TPoint* output) {
   if (!output) { SetLastError(kErrorInvalidParameter); return 0; }
+  if(auto* source=rangers_ui_input::Current()){const auto point=source->Cursor();output->X=point.first;output->Y=point.second;SetLastError(kErrorSuccess);return 1;}
   InputCursor(&output->X, &output->Y);
   return 1;
 }

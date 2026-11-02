@@ -26,6 +26,18 @@ private:
     std::weak_ptr<CacheTextureState> state_;
 };
 CCacheData* CreateCacheTexture(CacheClass);
+// Full original consumers require actual CTexture/CTextureManaged objects.
+// Their constructors/backend remain in the engine TU, separate from the
+// explicit CPU-only material cache used by the minimal native resource API.
+class OriginalTextureFactoryScope {
+public:
+    using Factory=CCacheData*(*)(CacheClass);
+    explicit OriginalTextureFactoryScope(Factory);
+    ~OriginalTextureFactoryScope();
+    OriginalTextureFactoryScope(const OriginalTextureFactoryScope&)=delete;
+    OriginalTextureFactoryScope& operator=(const OriginalTextureFactoryScope&)=delete;
+private:Factory factory_;
+};
 MaterialTexture BorrowMaterialTexture(CCacheData&);
 // Size of retained decoded texture data in the cache, not GPU residency/VRAM.
 std::size_t CachedTextureBytes() noexcept;

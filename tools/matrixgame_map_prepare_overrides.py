@@ -90,6 +90,7 @@ def prepare_map_prepare(output):
         checked='if(!'+call[:-1]+')throw std::runtime_error("original union PNG decode failed");'
         helper=helper.replace(call,checked+'\n                    input.Decoded('+mask+','+index+',*'+bitmap+');')
     wrapper='''static int BuildTexUnions(CStorage &stor,int lp1,int lp2) {
+    srhd_awa::matrixgame::diagnostic::Operation trace("B.BuildTexUnions");
     srhd_awa::matrixgame::TextureUnionInput input;
     input.dimension=g_MatrixMap->m_TexUnionDim;input.cells=g_MatrixMap->m_TexUnionSize;
     input.id_count=g_MatrixMap->IdsGetCount();input.ids=g_MatrixMap;
@@ -118,7 +119,8 @@ void TextureUnionInput::Decoded(bool mask,int id,const CBitmap& bitmap)const {
 }
 '''+helper+'\n}\n'
     (output/helper_name).write_bytes(helper_text.encode())
-    prelude='''#include "Texture.hpp"
+    prelude='''#include "native_diagnostic_journal.hpp"
+#include "Texture.hpp"
 #include "bitmap_array_owner.hpp"
 #include "original_texture_unions.hpp"
 #include "map_device_backend.hpp"

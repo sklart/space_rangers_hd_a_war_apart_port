@@ -9,6 +9,10 @@
 #include "skin_callbacks.hpp"
 #include "map_device_backend.hpp"
 #include "resource_paths.hpp"
+#include "native_game_settings.hpp"
+#include "native_rangers_services.hpp"
+#include "native_diagnostic_journal.hpp"
+#include "transition_backend.hpp"
 #ifdef _WIN32
 #include "platform_win32.hpp"
 #endif
@@ -18,6 +22,15 @@ namespace {
 thread_local bool native_entry{};
 thread_local NativeDrawSink* native_sink{};
 std::unique_ptr<BorrowedSkinScope> original_skin_scope;
+std::unique_ptr<OriginalTextureFactoryScope> original_texture_scope;
+std::unique_ptr<transition::LoadingCaptureScope> original_loading_capture;
+CCacheData* CreateOriginalTexture(CacheClass type) {
+    switch(type) {
+    case CacheClass::Texture:return HNew(g_CacheHeap) CTexture;
+    case CacheClass::TextureManaged:return HNew(g_CacheHeap) CTextureManaged;
+    default:throw std::invalid_argument("original cache texture class");
+    }
+}
 struct OriginalWindowsSink final:NativeDrawSink {
     void SetVertexLayout(std::uint32_t layout)override {
         platform3g::CheckDeviceResult(platform3g::ReadyDevice().SetFixedVertexLayout(layout),"original VO FVF");
@@ -33,6 +46,7 @@ std::unique_ptr<NativeDrawScope> original_draw_scope;
 namespace original_game {
 void EnterPlatform(void* module,Base::CBlockPar& config,const wchar_t* name,const wchar_t* title,
                    void* window,std::uintptr_t api,std::uintptr_t device){
+    diagnostic::Operation trace("B.platform_attachment");
     if(!native_entry){L3GInitAsDLL(module,config,name,title,window,api,device);return;}
     if(api || device)throw std::invalid_argument("native entry rejects legacy D3D identities");
     NativeInitRuntime::EnterNativePlatform(module,window);
@@ -66,7 +80,14 @@ void NativeInitRuntime::InitializeOriginalGame(const OriginalGameOptions& option
     if(options.resource_root)input=std::make_unique<resource_paths::NativeScope>(options.resource_root);
     BeginSession(options.module,options.window,true);
     try{
+        original_texture_scope=std::make_unique<OriginalTextureFactoryScope>(CreateOriginalTexture);
         original_skin_scope=std::make_unique<BorrowedSkinScope>(CSkinManager::GetSkin);
+        // Preserve the actual pre-Init status image before original video reset
+        // discards its presentation slot. CPU caps-refusal fixtures have no
+        // capture provider; the later transition branch then remains explicit.
+        if(native_entry && g_RangersInterface && options.device_provider)
+            if(auto* source=dynamic_cast<native_form::ScreenshotProvider*>(options.device_provider))
+                original_loading_capture=std::make_unique<transition::LoadingCaptureScope>(*source);
         if(options.window_provider){
             if(native_entry)BindLegacyProviders(*options.window_provider,*options.device_provider);
             else AttachDevice(*options.window_provider,*options.device_provider);
@@ -99,11 +120,11 @@ void NativeInitRuntime::InitializeNativeGame(const NativeGameOptions& options){
     const auto width=std::int64_t(rect.right)-rect.left,height=std::int64_t(rect.bottom)-rect.top;
     if(!options.window.Identity() || width<=0 || height<=0 || width>32768 || height>32768)
         throw std::invalid_argument("native drawable extent/identity invalid");
+    auto settings=PrepareNativeGameSettings(options.settings,rect);
+    std::unique_ptr<NativeRangersServicesScope> services;
+    if(options.services)services=std::make_unique<NativeRangersServicesScope>(*options.services);
     std::unique_ptr<output_paths::NativeScope> output;
     if(options.output_root)output=std::make_unique<output_paths::NativeScope>(options.output_root);
-    auto settings=SRobotsSettings::generate_default_settings();
-    settings.FDirect3D=nullptr;settings.FD3DDevice=nullptr;
-    settings.m_ResolutionX=static_cast<int>(width);settings.m_ResolutionY=static_cast<int>(height);
     OriginalGameOptions original;
     original.window=options.window.Identity();original.settings=&settings;original.map=options.map;original.seed=options.seed;
     original.language=options.language;original.start_text=options.start_text;original.win_text=options.win_text;
@@ -116,9 +137,17 @@ void NativeInitRuntime::InitializeNativeGame(const NativeGameOptions& options){
     } scope(options.draw_sink);
     InitializeOriginalGame(original);
     output_scope_=std::move(output); // Keep original cache/output binding through frames and Deinit.
+    services_scope_=std::move(services); // Keep host calls bound through original resource teardown.
 }
 bool NativeInitRuntime::OriginalGameReady()const noexcept{
     return cache_owner_detail::OriginalGameOwner()==this && cache_owner_detail::OriginalGameInitialized();
+}
+void NativeInitRuntime::SaveOriginalGameResult(SRobotGameState& output)const{
+    if(!OriginalGameReady() || !g_MatrixMap || !g_MatrixMap->GetPlayerSide())
+        throw std::logic_error("original result requires this live fully initialized game owner");
+    SRobotGameState snapshot{};
+    CGame::SaveResult(&snapshot);
+    output=snapshot;
 }
 void NativeInitRuntime::FinishOriginalGame(){
     if(cache_owner_detail::OriginalGameOwner()!=this)return;
@@ -129,6 +158,8 @@ void NativeInitRuntime::FinishOriginalGame(){
     cache_owned_=g_Cache || g_CacheHeap;
     original_draw_scope.reset();
     original_skin_scope.reset();
+    original_texture_scope.reset();
+    original_loading_capture.reset();
     cache_owner_detail::OriginalGameInitialized()=false;
     cache_owner_detail::OriginalGameOwner()=nullptr;
 }

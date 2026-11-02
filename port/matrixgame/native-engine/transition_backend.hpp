@@ -2,6 +2,7 @@
 #pragma once
 #include "platform_3g.hpp"
 #include "CBitmap.hpp"
+#include "native_screenshot.hpp"
 namespace srhd_awa::matrixgame::transition {
 class CaptureDC {
 public:
@@ -23,6 +24,20 @@ public:
     void SetDC(std::uintptr_t value)noexcept{dc_=value;}
 private:std::uintptr_t bitmap_{},dc_{};
 };
+// Own real completed-frame pixels before Init/reset invalidates their GPU slot.
+// One original loading transition consumes the snapshot; no stale-frame reuse.
+class LoadingCaptureScope {
+public:
+    explicit LoadingCaptureScope(native_form::ScreenshotProvider&);
+    ~LoadingCaptureScope();
+    LoadingCaptureScope(const LoadingCaptureScope&)=delete;
+    LoadingCaptureScope& operator=(const LoadingCaptureScope&)=delete;
+private:
+    friend void CaptureLoadingImage(Bitmap&,int,int);
+    native_form::ScreenshotPixels image_;
+    bool consumed_{};
+};
+void CaptureLoadingImage(Bitmap&,int width,int height);
 platform3g::WindowRect ClientRect();
 std::uintptr_t CompatibleBitmap(std::uintptr_t,int,int);
 std::uintptr_t CompatibleDC(std::uintptr_t);
