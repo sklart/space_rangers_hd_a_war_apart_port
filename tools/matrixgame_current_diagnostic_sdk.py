@@ -24,7 +24,11 @@ def main():
  try:
   run(command,'configure');run([command[0],'--build',out,'--target','matrixgame-native-interactive-nro','matrixgame-native-diagnostic-nro','-j','4'],'build-standard-NRO-targets')
   metadata=read(out/'native-diagnostic-build.json');check_hashes(metadata['own_source_sha256']);check_hashes(metadata['generated_original_sha256'],out/'source');check_hashes(metadata['rangers_host']['archives_sha256']);assert metadata['rangers_host']['dependency_manifest_sha256']==sha(dependency_path)
-  assert metadata['generated_original_sha256']==read(baseline/'native-diagnostic-build.json')['generated_original_sha256']
+  original_baseline=read(baseline/'native-diagnostic-build.json')['generated_original_sha256']
+  generated=metadata['generated_original_sha256'];assert generated.keys()==original_baseline.keys()
+  changed={name for name in generated if generated[name]!=original_baseline[name]}
+  assert changed=={'MatrixLib/3G/OriginalManagedTexture.cpp','MatrixLib/3G/Texture.cpp'},changed
+  result['generated_original_changes_vs_E601']=sorted(changed)
   artifacts={};variants={};fonts=[out/'debug-font/original-font.bin',*[out/f'text-font/font{i}.bin' for i in range(4)]]
   for entry,folder in (('matrixgame-native-interactive','interactive-nro'),('matrixgame-native-diagnostic','diagnostic-nro')):
    elf=out/(entry+'.elf');nro=out/folder/(entry+'.nro');nacp=out/folder/'control.nacp';symbols=run(['C:/devkitPro/devkitA64/bin/aarch64-none-elf-nm.exe','-C',elf],entry+'-symbols');assert not any(' U ' in line for line in symbols.splitlines())
@@ -32,7 +36,7 @@ def main():
    header=run(['C:/devkitPro/devkitA64/bin/aarch64-none-elf-readelf.exe','-h',elf],entry+'-header');assert 'AArch64' in header
    for font in fonts:assert font.read_bytes() in elf.read_bytes(),str(font)
    notes=run(['C:/devkitPro/devkitA64/bin/aarch64-none-elf-readelf.exe','-n',elf],entry+'-build-id');elf_id=re.search(r'Build ID: ([0-9a-f]+)',notes).group(1);nro_id=nro.read_bytes()[0x40:0x60].hex();assert nro_id==elf_id.ljust(64,'0')
-   title='MatrixGame r3 Interactive' if entry.endswith('interactive') else 'MatrixGame r3 Quick Smoke'
+   title='MatrixGame r4 Interactive' if entry.endswith('interactive') else 'MatrixGame r4 Quick Smoke'
    variants[entry]={'elf_build_id':elf_id,'nro_build_id':nro_id,'NRO':str(nro.relative_to(ROOT)),'nacp_title':title,'validation':verify_nro(nro.read_bytes(),Path('C:/devkitPro/libnx/default_icon.jpg').read_bytes(),nacp.read_bytes(),title),'strong_undefined':[],'runtime':'NOT RUN'}
    artifacts.update({str(p.relative_to(ROOT)):{'sha256':sha(p),'bytes':p.stat().st_size} for p in (elf,nro,nacp)})
   check_hashes(protected);check_hashes(prior['protected_game_sha256']);check_hashes(prior['protected_frozen_sha256']);assert sha(archive)==dependency['dependency_archive_sha256']

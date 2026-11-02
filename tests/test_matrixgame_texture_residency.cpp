@@ -43,8 +43,60 @@ void Allocations(){
         std::uint64_t used=0;for(auto r:live)used+=r.size;assert(a.Free()+used==4096);}
     for(auto r:live)a.Release(r);assert(a.Free()==4096 && a.Largest()==4096);
 }
+void ManagedPressure(){
+    nt::Residency arena(512);auto session=std::make_shared<nt::Session>();
+    session->upload=[&](const nt::Texture& t){return std::make_shared<CpuImage>(arena,t);};
+    const auto handles=nt::HandleCount();std::vector<IDirect3DTexture9*> tokens;
+    auto create=[&](unsigned pool=1){IDirect3DTexture9* t{};nt::Create(session,2,2,1,0,21,pool,&t);tokens.push_back(t);return nt::Find(t);};
+    {
+        auto a=create();lt::LockedRect lock{};nt::Lock(tokens[0],0,&lock,nullptr,0);
+        std::fill_n(static_cast<std::byte*>(lock.pBits),16,std::byte{0xa5});nt::Unlock(tokens[0],0);nt::Preload(tokens[0]);
+        const auto pixels=a->levels[0].bytes;auto b=create();auto c=create();
+        assert(!a->image && b->image && c->image && a->levels[0].bytes==pixels);
+        (void)nt::Resident(a);assert(a->image && !b->image);
+        assert(std::dynamic_pointer_cast<CpuImage>(a->image)->levels[0].bytes==pixels);
+        auto pinned=nt::Resident(a);auto d=create();assert(!c->image && a->image==pinned);
+        auto pinned_d=nt::Resident(d);const auto count=nt::HandleCount();IDirect3DTexture9* denied{};
+        Reject([&]{nt::Create(session,2,2,1,0,21,1,&denied);});assert(!denied && count==nt::HandleCount());
+        pinned_d.reset();auto e=create();assert(!d->image && pinned==a->image);
+        pinned.reset();nt::Lock(tokens[0],0,&lock,nullptr,16);auto f=create();assert(a->image && !e->image);nt::Unlock(tokens[0],0);
+        auto target=create(0);assert(target->image);auto h=create();assert(!f->image && target->image);
+        auto pinned_h=nt::Resident(h);Reject([&]{nt::Create(session,2,2,1,0,21,1,&denied);});assert(!denied && target->image);
+        assert(session->managed_evictions>=6 && arena.Free()==0);
+    }
+    for(auto token:tokens)nt::Release(token);session->Shutdown();assert(arena.Free()==512 && nt::HandleCount()==handles);
+    nt::Residency priorities(768);auto ranked=std::make_shared<nt::Session>();
+    ranked->upload=[&](const nt::Texture& t){return std::make_shared<CpuImage>(priorities,t);};
+    tokens.clear();
+    for(unsigned i=0;i<4;++i){IDirect3DTexture9* t{};nt::Create(ranked,1,1,1,0,21,1,&t);tokens.push_back(t);
+        if(i==2){nt::Priority(tokens[0],50);nt::Priority(tokens[1],1);nt::Priority(tokens[2],1);nt::Preload(tokens[1]);}}
+    assert(nt::Find(tokens[0])->image && nt::Find(tokens[1])->image && !nt::Find(tokens[2])->image && nt::Find(tokens[3])->image);
+    for(auto token:tokens)nt::Release(token);ranked->Shutdown();assert(priorities.Free()==768 && nt::HandleCount()==handles);
+}
+struct PayloadImage final:nt::Image {
+    nt::Residency& arena;nt::Residency::Range range;std::vector<nt::Level> levels;
+    static unsigned Size(const nt::Texture& t){unsigned bytes=0;for(const auto& l:t.levels)bytes+=unsigned(l.bytes.size());return (bytes+255)&~255u;}
+    PayloadImage(nt::Residency& a,const nt::Texture& t):arena(a),range(a.Allocate(Size(t),256)),levels(t.levels){}
+    ~PayloadImage(){arena.Release(range);}
+};
+void RealAssetPressure(int argc,char** argv){
+    if(argc<2)return;
+    std::vector<std::vector<char>> files;unsigned largest=256;
+    for(int i=1;i<argc;++i){std::ifstream f(argv[i],std::ios::binary);assert(f);files.emplace_back(std::istreambuf_iterator<char>(f),std::istreambuf_iterator<char>());
+        auto asset=TextureAsset::Decode(std::as_bytes(std::span(files.back())));asset.PrepareMips(TextureMipPolicy::CompleteBox);
+        unsigned n=0;for(auto& l:asset.levels)n+=unsigned(l.bytes.size());largest=std::max(largest,(n+255)&~255u);}
+    nt::Residency arena(largest*2);auto session=std::make_shared<nt::Session>();
+    session->upload=[&](const nt::Texture& t){return std::make_shared<PayloadImage>(arena,t);};
+    std::vector<IDirect3DTexture9*> tokens;const auto baseline=nt::HandleCount();
+    for(unsigned repeat=0;repeat<5;++repeat)for(const auto& file:files){IDirect3DTexture9* token{};nt::Decode(session,file.data(),file.size(),0,0,1,&token);tokens.push_back(token);}
+    assert(session->managed_evictions);
+    for(auto token:tokens){auto t=nt::Find(token);auto image=std::dynamic_pointer_cast<PayloadImage>(nt::Resident(t));
+        assert(image->levels.size()==t->levels.size());for(unsigned i=0;i<t->levels.size();++i)assert(image->levels[i].bytes==t->levels[i].bytes);}
+    for(auto token:tokens)nt::Release(token);session->Shutdown();assert(nt::HandleCount()==baseline && arena.Free()==arena.Capacity());
+    std::printf("REAL_ASSET_MANAGED_PRESSURE handles=%zu evictions=%llu CPU_BYTES_ONLY NO_GPU\n",tokens.size(),static_cast<unsigned long long>(session->managed_evictions));
+}
 int main(int argc,char** argv){
-    Allocations();nt::Residency arena(4096);auto session=std::make_shared<nt::Session>();bool fail=false;unsigned uploads=0;
+    ManagedPressure();RealAssetPressure(argc,argv);Allocations();nt::Residency arena(4096);auto session=std::make_shared<nt::Session>();bool fail=false;unsigned uploads=0;
     session->upload=[&](const nt::Texture& t)->std::shared_ptr<nt::Image>{if(fail)throw std::bad_alloc();++uploads;return std::make_shared<CpuImage>(arena,t);};
     auto count=nt::HandleCount();IDirect3DTexture9* token{};
     fail=true;Reject([&]{nt::Create(session,7,5,0,0,21,1,&token);});assert(!token && nt::HandleCount()==count && arena.Free()==4096);fail=false;

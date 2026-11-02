@@ -1,0 +1,166 @@
+{
+  "status": "R3 HARDWARE PARTIAL: VI QUERY AND ORIENTATION READBACK PASS; LATE INIT MANAGED TEXTURE FAIL",
+  "archive": "C:/logs.zip",
+  "archive_bytes": 110771,
+  "archive_sha256": "45ed38dca547d0dce8b9f3b7750fa98a9bdeb056d4f21dc3d8b1ec3faa519cc8",
+  "build_id": "d09b7859e693-5d20b97d35db625e284d",
+  "source_commit": "d09b7859e693bc6d33d0c8328ecd5bbc50839c52",
+  "runs": [
+    {
+      "run_id": "run-1793620797003608-0",
+      "variant": "matrixgame-e610-quick-smoke.nro",
+      "image_sha256": "08193b93e6935edb29e98cb91c09c86b6b63be0aeeac018e2cea75264a117ca2",
+      "journal_sha256": "fc679e0e07e4d9b14fab78175a91d2b80d5b6aea8e1ea7e4fc55ba71ceccfca7",
+      "records": 1356,
+      "session_mode": "quick-four-frames",
+      "display_query_ok": true,
+      "display_metrics": {
+        "VI.display_width": 1280,
+        "VI.display_height": 720,
+        "VI.refresh_hz": 60
+      },
+      "orientation_ok": true,
+      "independent_frame_comparison": {
+        "max_RGB_delta": 0,
+        "alpha_equal": true
+      },
+      "apply_video_params_ok": true,
+      "full_init_ok": false,
+      "frames": {
+        "smoke": {
+          "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+          "bytes": 3686400
+        },
+        "orientation-smoke": {
+          "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+          "bytes": 3686400
+        },
+        "gamma-smoke": {
+          "sha256": "1da62856cc442b6f62707902f6770a67c90bcadbaf7400c01ab21cd60044b98c",
+          "bytes": 3686400
+        }
+      },
+      "failed_operations": [
+        "B.interface_and_final_resources",
+        "B.CGame::Init",
+        "A.native_device_owner",
+        "A.SwitchDisplay"
+      ],
+      "exceptions": [
+        "original managed texture decode failed: -1"
+      ],
+      "process_exit": 10,
+      "journal_closed": true,
+      "VI_cleanup": [
+        {
+          "operation": "VI.owner.close_window",
+          "event": "ok",
+          "result": 0
+        },
+        {
+          "operation": "VI.owner.close_layer",
+          "event": "result",
+          "result": 0
+        },
+        {
+          "operation": "VI.owner.close_display",
+          "event": "result",
+          "result": 0
+        },
+        {
+          "operation": "VI.owner.exit_service",
+          "event": "ok",
+          "result": 0
+        }
+      ]
+    },
+    {
+      "run_id": "run-1793620969003202-0",
+      "variant": "matrixgame-e610-interactive.nro",
+      "image_sha256": "93f4623d1bd7f1009233026048c59e4f3027640e097fa567a1220e31ab3f14cb",
+      "journal_sha256": "a300badcedce47cb0f9cbb0d4aa4829fde5e8c5e1b8e8fe2e03d8babfb4af976",
+      "records": 1356,
+      "session_mode": "interactive",
+      "display_query_ok": true,
+      "display_metrics": {
+        "VI.display_width": 1280,
+        "VI.display_height": 720,
+        "VI.refresh_hz": 60
+      },
+      "orientation_ok": true,
+      "independent_frame_comparison": {
+        "max_RGB_delta": 0,
+        "alpha_equal": true
+      },
+      "apply_video_params_ok": true,
+      "full_init_ok": false,
+      "frames": {
+        "smoke": {
+          "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+          "bytes": 3686400
+        },
+        "orientation-smoke": {
+          "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+          "bytes": 3686400
+        },
+        "gamma-smoke": {
+          "sha256": "1da62856cc442b6f62707902f6770a67c90bcadbaf7400c01ab21cd60044b98c",
+          "bytes": 3686400
+        }
+      },
+      "failed_operations": [
+        "B.interface_and_final_resources",
+        "B.CGame::Init",
+        "A.native_device_owner",
+        "A.SwitchDisplay"
+      ],
+      "exceptions": [
+        "original managed texture decode failed: -1"
+      ],
+      "process_exit": 10,
+      "journal_closed": true,
+      "VI_cleanup": [
+        {
+          "operation": "VI.owner.close_window",
+          "event": "ok",
+          "result": 0
+        },
+        {
+          "operation": "VI.owner.close_layer",
+          "event": "result",
+          "result": 0
+        },
+        {
+          "operation": "VI.owner.close_display",
+          "event": "result",
+          "result": 0
+        },
+        {
+          "operation": "VI.owner.exit_service",
+          "event": "ok",
+          "result": 0
+        }
+      ]
+    }
+  ],
+  "older_runs_present": [
+    {
+      "path": "logs/run-1793618087072125-0/run.jsonl",
+      "sha256": "c35b68b725532251a9c28f782073318211b0a8dc6a5ad40aa189c5668503904c",
+      "build_id": "8c3612d2c347-21120b4e60dc014c05ec"
+    },
+    {
+      "path": "logs/run-1793618118070492-0/run.jsonl",
+      "sha256": "3db082988ffdffcd8efe52e5910016f65363426a1614942ad781d5d2bc6963fe",
+      "build_id": "8c3612d2c347-21120b4e60dc014c05ec"
+    },
+    {
+      "path": "logs/run-1793618567070007-0/run.jsonl",
+      "sha256": "96afc6311e521ae0d1dcd8ddf950e3bdb99c04e75622be6e52c3695d5d967acc",
+      "build_id": "8c3612d2c347-21120b4e60dc014c05ec"
+    }
+  ],
+  "cause_limit": "-1 is local null-m_Tex guard; failing asset, format and underlying failure not logged",
+  "visual_screen_orientation": "NOT independently confirmed; no new screenshot attached",
+  "scope": "evidence review only; no source/NRO changes or new runtime tests"
+}

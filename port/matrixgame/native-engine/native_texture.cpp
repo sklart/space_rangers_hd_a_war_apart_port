@@ -36,13 +36,39 @@ void ValidateUpload(const Texture& t){
 }
 void Session::Invalidate()noexcept {for(auto& w:textures)if(auto t=w.lock())t->image.reset();}
 void Session::Shutdown()noexcept {upload={};Invalidate();textures.clear();}
+bool Session::EvictManaged(const Texture* exclude){
+    std::shared_ptr<Texture> victim;
+    for(auto& weak:textures){
+        auto candidate=weak.lock();
+        if(!candidate || candidate.get()==exclude || candidate->pool!=1 || candidate->usage ||
+           !candidate->image || candidate->image.use_count()!=1)continue;
+        if(std::any_of(candidate->levels.begin(),candidate->levels.end(),[](const Level& l){return l.locked;}))continue;
+        if(!victim || candidate->priority<victim->priority ||
+           (candidate->priority==victim->priority && candidate->last_use<victim->last_use))victim=std::move(candidate);
+    }
+    if(!victim)return false;
+    victim->image.reset();++managed_evictions;return true;
+}
+namespace {
+std::shared_ptr<Image> UploadResident(const Texture& texture,const Texture* exclude){
+    for(;;){
+        try{return texture.session->upload(texture);}
+        catch(const ResidencyExhausted&){
+            // Only actual arena exhaustion permits eviction/retry. General CPU
+            // OOM, decoder and GPU/queue failures retain their original failure.
+            if(!texture.session->EvictManaged(exclude))throw;
+        }
+    }
+}
+}
 void Release(void* token)noexcept {if(!token)return;auto it=handles.find(token);if(it==handles.end())std::terminate();handles.erase(it);}
 std::shared_ptr<Image> Resident(const std::shared_ptr<Texture>& t){
     if(!t)throw std::invalid_argument("null native texture");Live(*t);
     if(t->pool==2)throw p::Unsupported("system memory texture cannot be sampled");
     for(const auto& l:t->levels)if(l.locked)throw std::logic_error("native texture still locked");
     if((t->usage&1u) && t->render_initialized && (t->dirty || !t->image))throw p::Unsupported("render texture contents require original recreation/restore");
-    if(t->dirty || !t->image){ValidateUpload(*t);auto next=t->session->upload(*t);if(!next)throw std::runtime_error("native texture upload returned no image");t->image=std::move(next);t->dirty=false;if(t->usage&1u)t->render_initialized=true;}
+    if(t->dirty || !t->image){ValidateUpload(*t);auto next=UploadResident(*t,t.get());if(!next)throw std::runtime_error("native texture upload returned no image");t->image=std::move(next);t->dirty=false;if(t->usage&1u)t->render_initialized=true;}
+    t->last_use=++t->session->residency_clock;
     return t->image;
 }
 void Preload(void* token){(void)Resident(Find(token));}
@@ -122,7 +148,7 @@ void Update(void* source,void* destination){auto src=Find(source),dst=Find(desti
     if(src->session!=dst->session || src->pool!=2 || dst->pool!=0 || src->format!=dst->format || src->levels.size()!=dst->levels.size())throw p::Unsupported("native UpdateTexture resource compatibility");
     for(unsigned i=0;i<src->levels.size();++i)if(src->levels[i].locked || dst->levels[i].locked || src->levels[i].width!=dst->levels[i].width || src->levels[i].height!=dst->levels[i].height)throw std::invalid_argument("native UpdateTexture levels");
     auto next=*dst;for(unsigned i=0;i<src->levels.size();++i)next.levels[i].bytes=src->levels[i].bytes;next.dirty=true;
-    auto ready=dst->session->upload(next);if(!ready)throw std::runtime_error("native update returned no image");
+    auto ready=UploadResident(next,dst.get());if(!ready)throw std::runtime_error("native update returned no image");
     dst->levels.swap(next.levels);dst->image=std::move(ready);dst->dirty=false;
 }
 }

@@ -22,6 +22,7 @@ struct Texture {
     std::vector<Level> levels;
     std::shared_ptr<Image> image;
     bool dirty{true},render_initialized{};
+    std::uint64_t last_use{};
 };
 // Borrow fields that contain device-owned shared_ptr references. Never retain
 // the resources, allocate, or infer ownership from a raw pointer alone. The
@@ -46,6 +47,10 @@ public:
 struct Session {
     std::function<std::shared_ptr<Image>(const Texture&)> upload;
     std::vector<std::weak_ptr<Texture>> textures;
+    std::uint64_t residency_clock{},managed_evictions{};
+    // CPU mip data and handles survive eviction. Image references held by
+    // recorded/in-flight draws, surfaces or callers pin that exact GPU version.
+    bool EvictManaged(const Texture* exclude);
     bool DefaultResourcesLive()const noexcept{
         for(const auto& weak:textures)if(auto texture=weak.lock();texture && texture->pool==0)return true;
         return false;

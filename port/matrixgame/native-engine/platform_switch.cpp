@@ -443,7 +443,16 @@ struct DekoDevice::Impl: presentation::Driver {
         CheckDeviceResult(presentation_state.Reset(initial),"native initial presentation");
         texture_store=std::make_unique<native_texture::DekoTextureStore>(device,queue,texture_bytes);
         texture_session=std::make_shared<native_texture::Session>();
-        texture_session->upload=[this](const native_texture::Texture& t){auto image=texture_store->Upload(t);++diagnostics.session_uploads;return image;};
+        texture_session->upload=[this](const native_texture::Texture& t){
+            try{auto image=texture_store->Upload(t);++diagnostics.session_uploads;return image;}
+            catch(const native_texture::ResidencyExhausted&){
+                diagnostic::Record("pressure","texture.arena_exhausted","managed residency may reclaim unpinned images",native_texture::OutOfVideoMemory);
+                diagnostic::Metric("texture.arena_free",texture_store->Free());diagnostic::Metric("texture.arena_largest",texture_store->Available());
+                diagnostic::Metric("texture.request_width",t.levels.front().width);diagnostic::Metric("texture.request_height",t.levels.front().height);
+                diagnostic::Metric("texture.request_format",t.format);diagnostic::Metric("texture.managed_evictions",texture_session->managed_evictions);
+                throw;
+            }
+        };
         SurfaceCallbacks();
         rollback.committed=true;
     }

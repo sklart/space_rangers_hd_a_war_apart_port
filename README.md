@@ -49,6 +49,19 @@ Build ID: `b6c18a13cef88fe757d683e18cf48fc667067bda`. Release ARM64:
 
 ## MatrixGame E610 Freeze: два запуска
 
+**Результат r3:** аппаратные Quick/Interactive прошли VI query, ApplyVideoParams
+и побайтовое сравнение identity presentation. Поздний Init остановился на
+`original managed texture decode failed: -1`; полные игровые кадры не достигнуты.
+[Аппаратный отчёт r3](reports/matrixgame-e610-r3-hardware-20261102.md).
+
+**r4:** добавлено безопасное вытеснение managed GPU images при исчерпании
+фиксированной арены; CPU mip data и handles сохраняются, изображения,
+удерживаемые записанными draw/surface/caller references, не вытесняются.
+Учитываются priority и последнее использование. Ошибки загрузки сохраняют
+имя ресурса, размер входа и исходный код вместо общего -1.
+Аппаратная причина r3 не устанавливается задним числом: там исходный код
+и ресурс не были записаны. Новый вариант требует пользовательской проверки.
+
 **Аппаратный результат r2:** два Quick и один Interactive подтвердили BC1/gamma
 smoke и PrepareMap, затем остановились в ApplyVideoParams:
 `viOpenDefaultDisplay failed: 4722`. Полный Init и кадры карты не прошли.

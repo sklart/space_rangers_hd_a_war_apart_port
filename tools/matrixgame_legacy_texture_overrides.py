@@ -87,6 +87,18 @@ def prepare_legacy_texture(output):
                                                    D3DX_FILTER_NONE, D3DX_FILTER_BOX, 0, NULL, NULL, &ret)'''
             if old not in body:raise ValueError('Original encoded loader changed')
             body=body.replace('FAILED('+old+')','(lt::Decode(buf.Get(), buf.Len(), FLAG(m_Flags, TF_NOMIPMAP) ? 1 : 0, pool, &ret) < 0)')
+            failed='''    if ((lt::Decode(buf.Get(), buf.Len(), FLAG(m_Flags, TF_NOMIPMAP) ? 1 : 0, pool, &ret) < 0)) {
+        return NULL;
+    }'''
+            checked='''    try {
+        const auto result=lt::Decode(buf.Get(),buf.Len(),FLAG(m_Flags,TF_NOMIPMAP)?1:0,pool,&ret);
+        tp::CheckDeviceResult(result,"managed texture decode/upload");
+    }catch(const std::exception& error){
+        throw std::runtime_error("managed texture ["+::matrixgame::native::ConfigUtf8(m_Name)+"] bytes="+
+            std::to_string(buf.Len())+" pool="+std::to_string(pool)+": "+error.what());
+    }'''
+            if body.count(failed)!=1:raise ValueError('Original managed decode failure boundary changed')
+            body=body.replace(failed,checked)
             body=body.replace('CTextureManaged *tex = CACHE_CREATE_TEXTUREMANAGED();',
                 '''CTextureManaged *tex = lt::CreateManaged();
         struct TemporaryOwner {CTextureManaged* texture;~TemporaryOwner(){CCache::Destroy(texture);}} temporary{tex};''')
@@ -94,7 +106,7 @@ def prepare_legacy_texture(output):
         if signature=='void CTextureManaged::Init(bool to16)':
             needle='''    lt::LevelDesc desc;
     lt::Describe(m_Tex, 0, &desc);'''
-            replacement='''    if(!m_Tex)throw tp::DeviceError("original managed texture decode", -1);
+            replacement='''    if(!m_Tex)throw std::runtime_error("original managed texture ["+::matrixgame::native::ConfigUtf8(m_Name)+"] returned no texture");
     lt::LevelDesc desc;
     try {tp::CheckDeviceResult(lt::Describe(m_Tex, 0, &desc), "GetLevelDesc");}
     catch(...) {lt::Release(m_Tex);m_Tex=nullptr;throw;}'''
@@ -106,6 +118,7 @@ def prepare_legacy_texture(output):
 #include "CFile.hpp"
 #include "CStorage.hpp"
 #include "legacy_texture_backend.hpp"
+#include "config_unicode.hpp"
 #include <list>
 namespace lt=srhd_awa::matrixgame::legacy_texture;
 namespace tp=srhd_awa::matrixgame::platform3g;
@@ -142,7 +155,7 @@ CTextureManaged* GetManaged(std::wstring_view name) {
     # Same exact adapted definitions stay in full Texture.cpp, rather than a
     # second ABI/body when the remaining full TU is eventually ported.
     for signature,body in zip(signatures,chunks):source=source.replace(extract(source,signature),body,1)
-    source='#include "legacy_texture_backend.hpp"\nnamespace lt=srhd_awa::matrixgame::legacy_texture;\nnamespace tp=srhd_awa::matrixgame::platform3g;\n'+source
+    source='#include "legacy_texture_backend.hpp"\n#include "config_unicode.hpp"\nnamespace lt=srhd_awa::matrixgame::legacy_texture;\nnamespace tp=srhd_awa::matrixgame::platform3g;\n'+source
     path.write_bytes(source.encode());changes[name]=hashlib.sha256(path.read_bytes()).hexdigest()
     hname='MatrixLib/3G/Texture.hpp';header=(output/hname).read_text(encoding='utf-8')
     header=header.replace('struct _D3DLOCKED_RECT;','#include "legacy_texture_backend.hpp"')
