@@ -16,7 +16,7 @@
    собственный default display до main, когда default_window.o включён в ELF;
    такой скрытый второй владелец несовместим с нашим прежним повторным OpenDisplay.
    Новый standalone использует стандартные публичные SDK calls для своего окна,
-   без замены функций SDK и без изменения SDK/upstream.
+   без изменения SDK/upstream.
    При первом link обнаружено, что SDL_switchvideo.o также подтягивает
    nwindowGetDefault. Для двух standalone целей добавлен стандартный linker
    --wrap=nwindowGetDefault: SDL получает настоящее окно SwitchDisplay.
@@ -80,3 +80,38 @@ NACP title. Эта попытка не публикуется как PASS. Кр�
 SDK default_window.o из SDL_switchvideo.o. Последующая попытка использует
 явную SDL binding и проверяет ожидаемые новые titles, сохраняя проверку NACP,
 его размер и точное соответствие встроенного ресурса.
+
+## Итоговая сборка и поставка
+
+Source commit: `d09b7859e693bc6d33d0c8328ecd5bbc50839c52`.
+Каталог: `build/matrixgame/e610-display-r3/2`.
+Build ID: `d09b7859e693-5d20b97d35db625e284d`.
+Configure, devkitA64 compile/link, отсутствие strong undefined, ELF/NRO build ID,
+NRO0/ASET/icon/NACP и встроенные шрифты — PASS. Проверены все 684 входных
+source hashes, 150 прежних локальных файлов dist/logs/saves, основная/старые NRO
+и оригинальные/frozen inputs. Пользовательский C:/pack.zip также неизменен.
+
+В обеих ELF отсутствуют определения nwindowGetDefault, __nx_win_init,
+__nx_win_exit; сохранён __wrap_nwindowGetDefault с реальным NWindow владельца.
+VI.owner.query_mode и A.orientation.presentation_check сохранены в обеих ELF.
+NACP titles точно соответствуют Quick Smoke / Interactive; отдельный negative
+test отверг неверный title, проверки структуры и встроенных ресурсов сохранены.
+
+ZIP: `dist/matrixgame-e610-switch-test-r3-display.zip`, 10052545 байт.
+SHA256: `e0cd5e91e6a241be8ca3fcd92b24eff90d05334833c0982da74dbe5e71863632`.
+
+| NRO | SHA256 | ELF build ID |
+| --- | --- | --- |
+| Quick Smoke | `08193b93e6935edb29e98cb91c09c86b6b63be0aeeac018e2cea75264a117ca2` | `ee8239b7e850d88d4e6043968fbcb73de6526b19` |
+| Interactive | `93f4623d1bd7f1009233026048c59e4f3027640e097fa567a1220e31ab3f14cb` | `6d06edc355f85777d82fe569623f2ff1f58727c5` |
+
+Проверены CRC, ровно шесть файлов и побайтовое соответствие папке пакета.
+Две NRO, README.ru.md, manifest.json, SHA256SUMS.txt и build-info.json;
+игровые ресурсы и сохранения в пакет не включены.
+[Полное машинное evidence](matrixgame-e610-display-r3-evidence.json).
+
+Скопировать две NRO в `/switch/matrixgame-e610-r3-test/`, оставив ресурсы
+по путям r2. Сначала MatrixGame r3 Quick Smoke; затем MatrixGame r3 Interactive,
+выход Minus+Plus. Передать два новых run directories и фото, если возникнет FAIL
+или переворот. Эта сборка ещё не исполнялась на Switch: **SOFTWARE PASS /
+HARDWARE PENDING**. Дальнейшие исправления определяются результатами этого запуска.

@@ -62,6 +62,11 @@ smoke и PrepareMap, затем остановились в ApplyVideoParams:
 [Инструкция r3](docs/matrixgame-e610-display-r3-readme.ru.md).
 Аппаратное подтверждение r3 ещё не получено; исторические пакеты ниже сохранены.
 
+Проверенный пакет r3: `dist/matrixgame-e610-switch-test-r3-display.zip`.
+Source SHA `d09b7859e693bc6d33d0c8328ecd5bbc50839c52`;
+ZIP SHA256 `e0cd5e91e6a241be8ca3fcd92b24eff90d05334833c0982da74dbe5e71863632`.
+[Проверки и контрольные суммы r3](reports/matrixgame-e610-display-r3.md).
+
 **Уточнение r2:** для уже скопированного DATA подготовлен вариант с Rangers root
 `sdmc:/switch/space-rangers-hd-a-war-apart/game`; повторная копия всех 2+ ГБ
 в `matrixgame-diag/rangers` не нужна. [Инструкция r2](docs/matrixgame-e610-shared-data-readme.ru.md).

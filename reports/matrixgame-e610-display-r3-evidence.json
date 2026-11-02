@@ -1,0 +1,357 @@
+{
+  "status": "SOFTWARE PASS; R3 HARDWARE PENDING",
+  "source_commit": "d09b7859e693bc6d33d0c8328ecd5bbc50839c52",
+  "build_id": "d09b7859e693-5d20b97d35db625e284d",
+  "old_files_unchanged": 150,
+  "own_source_hashes_verified": 684,
+  "binary_checks": {
+    "matrixgame-native-diagnostic": {
+      "SDK_default_window_definitions_absent": [
+        "nwindowGetDefault",
+        "__nx_win_init",
+        "__nx_win_exit"
+      ],
+      "SDL_accessor_bound_to_real_window": true,
+      "display_query_and_orientation_check_retained": true,
+      "nacp_title": "MatrixGame r3 Quick Smoke"
+    },
+    "matrixgame-native-interactive": {
+      "SDK_default_window_definitions_absent": [
+        "nwindowGetDefault",
+        "__nx_win_init",
+        "__nx_win_exit"
+      ],
+      "SDL_accessor_bound_to_real_window": true,
+      "display_query_and_orientation_check_retained": true,
+      "nacp_title": "MatrixGame r3 Interactive"
+    }
+  },
+  "tests": {
+    "build\\matrixgame\\e610-display-r3-checks\\cpu-result.json": {
+      "sha256": "d832dd29392b0891dc625eaee235b5cd1ec02968da706ea618ba2179a0496d0b",
+      "result": [
+        {
+          "test": "display_owner",
+          "exit": 0,
+          "stdout": "DISPLAY_OWNER PASS six acquisition/config failures reverse cleanup exactly once; no SDK runtime\n"
+        },
+        {
+          "test": "diagnostic_pixels",
+          "exit": 0,
+          "stdout": "DIAGNOSTIC_PIXELS PASS clear_only_rejected wrong_channels_rejected alpha_rejected truncated_overflow_rejected identity_orientation XY_flip_rejected CPU_CHECKER_ONLY NO_GPU_RENDER\n"
+        }
+      ]
+    },
+    "build\\matrixgame\\e610-display-r3-checks\\sanitizer-arm64-result.json": {
+      "sha256": "0ac21f78659c02d8ac18a045d46a0a756a1a86b2e98b119f9f5a82cb006f9f42",
+      "result": {
+        "status": "PASS TARGETED HOST ASAN/UBSAN/LSAN AND ARM64 QEMU UBSAN; NO VI/GPU HARDWARE",
+        "checks": [
+          {
+            "kind": "host",
+            "test": "display_owner",
+            "build": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-fno-pie",
+              "-no-pie",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_display_owner.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-display-r3-checks/host-display_owner"
+            ],
+            "runtime": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-display-r3-checks/host-display_owner"
+            ],
+            "exit": 0,
+            "stdout": "DISPLAY_OWNER PASS six acquisition/config failures reverse cleanup exactly once; no SDK runtime\n"
+          },
+          {
+            "kind": "host",
+            "test": "diagnostic_pixels",
+            "build": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-fno-pie",
+              "-no-pie",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_diagnostic_pixels.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-display-r3-checks/host-diagnostic_pixels"
+            ],
+            "runtime": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-display-r3-checks/host-diagnostic_pixels"
+            ],
+            "exit": 0,
+            "stdout": "DIAGNOSTIC_PIXELS PASS clear_only_rejected wrong_channels_rejected alpha_rejected truncated_overflow_rejected identity_orientation XY_flip_rejected CPU_CHECKER_ONLY NO_GPU_RENDER\n"
+          },
+          {
+            "kind": "arm64",
+            "test": "display_owner",
+            "build": [
+              "wsl",
+              "--exec",
+              "aarch64-linux-gnu-g++-15",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-fno-pie",
+              "-no-pie",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_display_owner.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-display-r3-checks/arm64-display_owner"
+            ],
+            "runtime": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "qemu-aarch64",
+              "-L",
+              "/usr/aarch64-linux-gnu",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-display-r3-checks/arm64-display_owner"
+            ],
+            "exit": 0,
+            "stdout": "DISPLAY_OWNER PASS six acquisition/config failures reverse cleanup exactly once; no SDK runtime\n"
+          },
+          {
+            "kind": "arm64",
+            "test": "diagnostic_pixels",
+            "build": [
+              "wsl",
+              "--exec",
+              "aarch64-linux-gnu-g++-15",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-fno-pie",
+              "-no-pie",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_diagnostic_pixels.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-display-r3-checks/arm64-diagnostic_pixels"
+            ],
+            "runtime": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "qemu-aarch64",
+              "-L",
+              "/usr/aarch64-linux-gnu",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-display-r3-checks/arm64-diagnostic_pixels"
+            ],
+            "exit": 0,
+            "stdout": "DIAGNOSTIC_PIXELS PASS clear_only_rejected wrong_channels_rejected alpha_rejected truncated_overflow_rejected identity_orientation XY_flip_rejected CPU_CHECKER_ONLY NO_GPU_RENDER\n"
+          }
+        ]
+      }
+    },
+    "build\\matrixgame\\e610-display-r3-checks\\gl-result.json": {
+      "sha256": "34195d1af6a44b3e33a3694312bc3224163f391cb4e3044446021293616a6a28",
+      "result": {
+        "status": "PASS NEW GLSL UPPER LEFT; OLD GLSL REJECTED",
+        "commands": [
+          {
+            "label": "gl-build",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_gamma_gl.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-display-r3-checks/gamma-gl",
+              "-lEGL",
+              "-lGL"
+            ],
+            "exit": 0,
+            "stdout": ""
+          },
+          {
+            "label": "gl-upper-left",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "LIBGL_ALWAYS_SOFTWARE=1",
+              "MESA_GL_VERSION_OVERRIDE=4.6",
+              "MESA_GLSL_VERSION_OVERRIDE=460",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-display-r3-checks/gamma-gl",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/gamma.vert.glsl",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/gamma.frag.glsl",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e558-gamma/host/ramps.bin"
+            ],
+            "exit": 0,
+            "stdout": "GL_RENDERER=llvmpipe (LLVM 21.1.8, 256 bits) GL_VERSION=4.6 (Core Profile) Mesa 26.0.8-1ubuntu0.3\nEXACT production GLSL ramps=21 pixels=69888 alpha/source/framebuffer orientation PASS; Mesa only SWITCH_NOT_RUN\nlibEGL warning: failed to open /dev/dri/card0: Permission denied\n\n"
+          },
+          {
+            "label": "gl-old-shader-negative",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "LIBGL_ALWAYS_SOFTWARE=1",
+              "MESA_GL_VERSION_OVERRIDE=4.6",
+              "MESA_GLSL_VERSION_OVERRIDE=460",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-display-r3-checks/gamma-gl",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-display-r3-checks/prior-gamma.vert.glsl",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/gamma.frag.glsl",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e558-gamma/host/ramps.bin"
+            ],
+            "exit": 6,
+            "stdout": "libEGL warning: failed to open /dev/dri/card0: Permission denied\n\ngamma-gl: /mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_gamma_gl.cpp:37: int main(int, char**): Assertion `std::abs(int(output[i+c])-int(expected))<=1' failed.\n"
+          }
+        ]
+      }
+    },
+    "build\\matrixgame\\e610-display-r3-checks\\nacp-validator-result.json": {
+      "sha256": "27de172465aba07178b96048b6357eb0582199bf1790f4653553f8a6f5cad4a8",
+      "result": [
+        {
+          "title": "MatrixGame r3 Quick Smoke",
+          "correct_title_pass": true,
+          "wrong_title_rejected": true
+        },
+        {
+          "title": "MatrixGame r3 Interactive",
+          "correct_title_pass": true,
+          "wrong_title_rejected": true
+        }
+      ]
+    }
+  },
+  "package": {
+    "status": "VERIFIED E610 TWO-NRO PACKAGE; HARDWARE PENDING",
+    "source_commit": "d09b7859e693bc6d33d0c8328ecd5bbc50839c52",
+    "build_id": "d09b7859e693-5d20b97d35db625e284d",
+    "zip": "dist\\matrixgame-e610-switch-test-r3-display.zip",
+    "zip_sha256": "e0cd5e91e6a241be8ca3fcd92b24eff90d05334833c0982da74dbe5e71863632",
+    "zip_bytes": 10052545,
+    "files_sha256": {
+      "build-info.json": "75ec381541b1ceb59fecb19d0ae0829d80d607a353c158611330d1c23f00e844",
+      "manifest.json": "f3471b24f441c084ddaa7d59db289c712214077fe6c88fcfaea0cee16d15e9c5",
+      "matrixgame-e610-interactive.nro": "93f4623d1bd7f1009233026048c59e4f3027640e097fa567a1220e31ab3f14cb",
+      "matrixgame-e610-quick-smoke.nro": "08193b93e6935edb29e98cb91c09c86b6b63be0aeeac018e2cea75264a117ca2",
+      "README.ru.md": "973194a90da72cd5b57e8a5eb86e3034cb713108960d832bd1fb164d27c53c16",
+      "SHA256SUMS.txt": "5a78824c295c2210c440b940ed4ce9d7ccb160411544fae59b9d787cf64a8c0f"
+    },
+    "variants": {
+      "matrixgame-e610-quick-smoke.nro": {
+        "sha256": "08193b93e6935edb29e98cb91c09c86b6b63be0aeeac018e2cea75264a117ca2",
+        "bytes": 14923973,
+        "elf_sha256": "7014d6f7f88ca262a4a0f467bdcca92d80b52413b6813664e0801651ff4786eb",
+        "elf_build_id": "ee8239b7e850d88d4e6043968fbcb73de6526b19",
+        "nro_build_id": "ee8239b7e850d88d4e6043968fbcb73de6526b19000000000000000000000000",
+        "nro_validation": {
+          "code_size": 14901248,
+          "segments": 3,
+          "embedded_icon": {
+            "offset": 14901304,
+            "size": 6285
+          },
+          "embedded_nacp": {
+            "offset": 14907589,
+            "size": 16384
+          },
+          "romfs_required": false
+        },
+        "retained_symbols": {
+          "native_hid_poll": true,
+          "native_hold_reset": false,
+          "router_warp": true,
+          "rangers_ui_owner": false,
+          "ui_context": false,
+          "caller_lease": false,
+          "native_rgb565_presenter": false,
+          "campaign_session": false,
+          "GR_WinMessage": false
+        },
+        "entry": "standalone original native Init/Draw; no Campaign/Gov entry",
+        "runtime": "HARDWARE PENDING"
+      },
+      "matrixgame-e610-interactive.nro": {
+        "sha256": "93f4623d1bd7f1009233026048c59e4f3027640e097fa567a1220e31ab3f14cb",
+        "bytes": 14923973,
+        "elf_sha256": "77fefdb682fa5fd9fa8cb96be3e732e0c55b827c9f8d5ad7702e936d94abb52a",
+        "elf_build_id": "6d06edc355f85777d82fe569623f2ff1f58727c5",
+        "nro_build_id": "6d06edc355f85777d82fe569623f2ff1f58727c5000000000000000000000000",
+        "nro_validation": {
+          "code_size": 14901248,
+          "segments": 3,
+          "embedded_icon": {
+            "offset": 14901304,
+            "size": 6285
+          },
+          "embedded_nacp": {
+            "offset": 14907589,
+            "size": 16384
+          },
+          "romfs_required": false
+        },
+        "retained_symbols": {
+          "native_hid_poll": true,
+          "native_hold_reset": false,
+          "router_warp": true,
+          "rangers_ui_owner": false,
+          "ui_context": false,
+          "caller_lease": false,
+          "native_rgb565_presenter": false,
+          "campaign_session": false,
+          "GR_WinMessage": false
+        },
+        "entry": "standalone original native Init/Draw; no Campaign/Gov entry",
+        "runtime": "HARDWARE PENDING"
+      }
+    },
+    "package": "dist\\matrixgame-e610-switch-test-r3-display"
+  },
+  "previous_attempt": "build/matrixgame/e610-display-r3/1; SDK compile/link completed; package title gate failed; hidden SDL default display found; retained unmodified",
+  "targeted_test_sources_sha256": {
+    "tests/test_matrixgame_display_owner.cpp": "858f029df9ff671e171fbbb199e041262a088a25c701c7bc943c8c744485d9b5",
+    "tests/test_matrixgame_diagnostic_pixels.cpp": "5108df5ee19bdccac883fbd08f26e499bf878ad995f4291eb97ae76f3fe78ba4",
+    "tests/test_matrixgame_gamma_gl.cpp": "c43abb72703c08a7083439afb272401326620c67e3daf29990507b9a17c3255b"
+  }
+}
