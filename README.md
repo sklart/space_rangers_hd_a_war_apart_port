@@ -1,8 +1,8 @@
 # Space Rangers HD: A War Apart — Nintendo Switch
 
-Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
+Неофициальный исходный homebrew-порт **Space Rangers HD: A War Apart** для Nintendo Switch (ARM64, libnx, SDL2; MatrixGame использует deko3d). Это проект переноса технических подсистем игры, а не готовый игровой релиз.
 
-> **Статус на 02.11.2026: MatrixGame E610 — SOFTWARE PASS / HARDWARE PENDING.** Подготовка текущих standalone Quick Smoke и Interactive NRO выполняется отдельно от основной игры. Аппаратные результаты старых версий не подтверждают текущую сборку. Для основной игры сохраняются ранее найденные ошибки фонов, ручного сохранения и зависания; проект не готов к полноценному прохождению или релизу.
+> **Статус на 02.11.2026: MatrixGame E610 — SOFTWARE PASS / HARDWARE PENDING.** Две актуальные standalone Quick Smoke и Interactive NRO собраны и проверены отдельно от основной игры. Аппаратные результаты старых версий не подтверждают текущую сборку. Для основной игры сохраняются ранее найденные ошибки фонов, ручного сохранения и зависания; проект не готов к полноценному прохождению или релизу.
 
 ## Последние результаты
 
@@ -65,7 +65,18 @@ Campaign/Gov для этого пакета не добавляем. Все ре
 
 Локальный пакет: `dist/matrixgame-e610-switch-test.zip`. Это не опубликованный
 GitHub Release; исходники и отчёты находятся в контрольной ветке. SHA исходников,
-обеих NRO и build ID приводятся в manifest.json пакета и итоговом freeze-отчёте.
+обеих NRO и build ID приводятся в manifest.json пакета и [итоговом freeze-отчёте](reports/matrixgame-e610-switch-freeze.md).
+
+Исходники сборки: `6f1df1628984c8c0ac49549e8a7bf9d0aab10a4a`,
+ветка `codex/matrixgame-e610-freeze-20261102`.
+Build ID исходников: `6f1df1628984-7b76555a72b8e4dda20c`.
+Последующий коммит README и итоговых отчётов не меняет входы этой сборки.
+
+| Файл | SHA256 |
+| --- | --- |
+| `matrixgame-e610-quick-smoke.nro` | `ad5b2f074787e97199efa2b0ba56554dda6a929db9e2ad406459f515d4b6e2bd` |
+| `matrixgame-e610-interactive.nro` | `f0f30407c0b2516696b01aefbab31039dfa8e13f758e640cd6e0d3f69402484a` |
+| `matrixgame-e610-switch-test.zip` | `edf634dce3a4e722a0a2819b560b45aa84885607676eb5b9eb9294201f818e21` |
 
 [Инструкция: копирование, ресурсы, управление, два запуска и сбор журналов](docs/matrixgame-e610-switch-test-readme.ru.md).
 [Точная программная граница E610](reports/matrixgame-e2e610-native-ui-pump.md).

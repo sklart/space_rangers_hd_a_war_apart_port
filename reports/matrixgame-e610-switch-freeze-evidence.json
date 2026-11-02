@@ -1,0 +1,130 @@
+{
+  "status": "SOFTWARE PASS / HARDWARE PENDING",
+  "date": "2026-11-02",
+  "source_commit": "6f1df1628984c8c0ac49549e8a7bf9d0aab10a4a",
+  "branch": "codex/matrixgame-e610-freeze-20261102",
+  "build_id": "6f1df1628984-7b76555a72b8e4dda20c",
+  "scope": "Standalone native diagnostics; no Galaxy/Campaign/Gov runtime acceptance",
+  "package": {
+    "status": "VERIFIED E610 TWO-NRO PACKAGE; HARDWARE PENDING",
+    "source_commit": "6f1df1628984c8c0ac49549e8a7bf9d0aab10a4a",
+    "build_id": "6f1df1628984-7b76555a72b8e4dda20c",
+    "zip": "dist\\matrixgame-e610-switch-test.zip",
+    "zip_sha256": "edf634dce3a4e722a0a2819b560b45aa84885607676eb5b9eb9294201f818e21",
+    "zip_bytes": 10047451,
+    "files_sha256": {
+      "build-info.json": "cd2ac512ac02018378d094e4257805f2b2a33f8f8a8dd37945b661e1d0deb42c",
+      "manifest.json": "436c97f8e7cc78298d9c37e7d885cc9cd96c8c3640c7b24f75c1453a675b09b9",
+      "matrixgame-e610-interactive.nro": "f0f30407c0b2516696b01aefbab31039dfa8e13f758e640cd6e0d3f69402484a",
+      "matrixgame-e610-quick-smoke.nro": "ad5b2f074787e97199efa2b0ba56554dda6a929db9e2ad406459f515d4b6e2bd",
+      "README.ru.md": "bc840b950479830d17e88332911d0b6d94c9deadb5812435215a03e011630029",
+      "SHA256SUMS.txt": "c9a46db1cb5aa855337e229cb3e996772849c48a1370682755bf0252d85dd8b3"
+    },
+    "variants": {
+      "matrixgame-e610-quick-smoke.nro": {
+        "sha256": "ad5b2f074787e97199efa2b0ba56554dda6a929db9e2ad406459f515d4b6e2bd",
+        "bytes": 14915781,
+        "elf_sha256": "eadcfa90913279b680c7bb05bc724e04daecf2fa2fda8bfec26ac87cc75abb46",
+        "elf_build_id": "1dbf134977ab004c296fed84d6b4bbd17b498d0b",
+        "nro_build_id": "1dbf134977ab004c296fed84d6b4bbd17b498d0b000000000000000000000000",
+        "nro_validation": {
+          "code_size": 14893056,
+          "segments": 3,
+          "embedded_icon": {
+            "offset": 14893112,
+            "size": 6285
+          },
+          "embedded_nacp": {
+            "offset": 14899397,
+            "size": 16384
+          },
+          "romfs_required": false
+        },
+        "retained_symbols": {
+          "native_hid_poll": true,
+          "native_hold_reset": false,
+          "router_warp": true,
+          "rangers_ui_owner": false,
+          "ui_context": false,
+          "caller_lease": false,
+          "native_rgb565_presenter": false,
+          "campaign_session": false,
+          "GR_WinMessage": false
+        },
+        "entry": "standalone original native Init/Draw; no Campaign/Gov entry",
+        "runtime": "HARDWARE PENDING"
+      },
+      "matrixgame-e610-interactive.nro": {
+        "sha256": "f0f30407c0b2516696b01aefbab31039dfa8e13f758e640cd6e0d3f69402484a",
+        "bytes": 14915781,
+        "elf_sha256": "644f96991857dcdfe3e71e73176220c0ba352cfa9d277705c1d2bc8e34d4e2fa",
+        "elf_build_id": "9abe960b8c4d1d87ede1a9176f93fad5cec195fc",
+        "nro_build_id": "9abe960b8c4d1d87ede1a9176f93fad5cec195fc000000000000000000000000",
+        "nro_validation": {
+          "code_size": 14893056,
+          "segments": 3,
+          "embedded_icon": {
+            "offset": 14893112,
+            "size": 6285
+          },
+          "embedded_nacp": {
+            "offset": 14899397,
+            "size": 16384
+          },
+          "romfs_required": false
+        },
+        "retained_symbols": {
+          "native_hid_poll": true,
+          "native_hold_reset": false,
+          "router_warp": true,
+          "rangers_ui_owner": false,
+          "ui_context": false,
+          "caller_lease": false,
+          "native_rgb565_presenter": false,
+          "campaign_session": false,
+          "GR_WinMessage": false
+        },
+        "entry": "standalone original native Init/Draw; no Campaign/Gov entry",
+        "runtime": "HARDWARE PENDING"
+      }
+    },
+    "package": "dist\\matrixgame-e610-switch-test"
+  },
+  "build_status": "PASS TWO SEPARATE STANDARD LIBNX/DEKO3D SDK NRO TARGETS; PACKAGE/LINK ONLY; HARDWARE_PENDING",
+  "cpu_status": "PASS CURRENT CPU DIAGNOSTIC SESSION POLICY; NO HARDWARE",
+  "checks": {
+    "build_and_cpu_commands_exit_zero": true,
+    "current_own_source_hash_count": 683,
+    "old_dist_logs_saves_unchanged_file_count": 136,
+    "zip_crc_and_exact_six_files": true,
+    "zip_and_extracted_file_hashes": true,
+    "hardware_execution": "NOT RUN",
+    "large_battle_regressions_repeated": false
+  },
+  "evidence_files": {
+    "build/matrixgame/e610-switch-freeze/1/result.json": {
+      "sha256": "c1fce594db8b25f0e86a63814f4c849a08e6d010b5b51d3c96fd41d2d9c5644f",
+      "bytes": 49190
+    },
+    "build/matrixgame/e610-switch-freeze/1/native-diagnostic-build.json": {
+      "sha256": "e317ba65a8c5c964b21dcf808ef72ac65cd2d87a0c8239f4bae6168a19aa80ce",
+      "bytes": 112670
+    },
+    "build/matrixgame/e610-switch-freeze/1/freeze-package-result.json": {
+      "sha256": "2daa9c9bf8e436484241f333300767fe36225f77fa040bbed20c26e3769f0357",
+      "bytes": 3404
+    },
+    "build/matrixgame/e610-freeze-20261102/session-check/result.json": {
+      "sha256": "3702af33e1877add24a1b173943301500deac9fae63f192183c90896954d250e",
+      "bytes": 1633
+    },
+    "build/matrixgame/e2e610-native-ui-pump/e610-freeze-recheck-20261102.json": {
+      "sha256": "0dba146a69c4247ab32e3963f65a3522213eb33e829b0a09a4a96be8801375b6",
+      "bytes": 2916
+    },
+    "reports/matrixgame-e610-freeze-history.json": {
+      "sha256": "d4c45f96066273fbe21ed15f10a0e49f0235f73b54c537fab09a1df539a11e46",
+      "bytes": 13016
+    }
+  }
+}
