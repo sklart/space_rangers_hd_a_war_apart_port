@@ -41,7 +41,7 @@ def package(build,commit,output,readme=None,rangers_root='sdmc:/switch/matrixgam
   elf=build/(entry+'.elf');symbols=subprocess.check_output([nm,'-C',str(elf)],text=True);assert not any(' U ' in line for line in symbols.splitlines())
   present={key:any(needle in line and not re.search(r'\bU\b',line) for line in symbols.splitlines()) for key,needle in checks.items()}
   assert present['native_hid_poll'] and present['router_warp']
-  nacp=source.parent/'control.nacp';validation=verify_nro(dest.read_bytes(),Path('C:/devkitPro/libnx/default_icon.jpg').read_bytes(),nacp.read_bytes())
+  nacp=source.parent/'control.nacp';validation=verify_nro(dest.read_bytes(),Path('C:/devkitPro/libnx/default_icon.jpg').read_bytes(),nacp.read_bytes(),gate['variants'][entry].get('nacp_title','MatrixGame diagnostic'))
   variants[name]={'sha256':sha(dest),'bytes':dest.stat().st_size,'elf_sha256':sha(elf),'elf_build_id':gate['variants'][entry]['elf_build_id'],'nro_build_id':gate['variants'][entry]['nro_build_id'],'nro_validation':validation,'retained_symbols':present,'entry':'standalone original native Init/Draw; no Campaign/Gov entry','runtime':'HARDWARE PENDING'}
   assert dest.read_bytes()[0x40:0x60].hex()==variants[name]['nro_build_id']
  template=readme or ROOT/'docs/matrixgame-e610-switch-test-readme.ru.md';(folder/'README.ru.md').write_bytes(template.read_bytes())

@@ -29,6 +29,16 @@
 #include "applet_engine_events.hpp"
 #include "native_input_switch.hpp"
 #include <cstdio>
+#include <atomic>
+namespace {std::atomic<NWindow*> matrixgame_sdl_window{};}
+// SDL2's Switch video TU references the SDK default-window accessor even when
+// only audio is initialized. The two standalone link targets wrap that accessor
+// to borrow the actual window owned below; no second SDK startup owner is linked.
+extern "C" NWindow* __wrap_nwindowGetDefault(void){
+    auto* window=matrixgame_sdl_window.load();
+    if(!window)diagAbortWithResult(MAKERESULT(Module_Libnx,LibnxError_NotInitialized));
+    return window;
+}
 namespace srhd_awa::matrixgame::platform3g {
 namespace {
 std::atomic<std::uint64_t> diagnostic_sdk_warnings{};
@@ -146,8 +156,11 @@ struct SwitchDisplay::Impl {
     } backend;
     NativeDisplayOwner<Backend> owner{backend};
 };
-SwitchDisplay::SwitchDisplay():impl_(std::make_unique<Impl>()){}
-SwitchDisplay::~SwitchDisplay()=default;
+SwitchDisplay::SwitchDisplay(){
+    if(matrixgame_sdl_window.load())throw std::logic_error("standalone VI display owner already active");
+    impl_=std::make_unique<Impl>();matrixgame_sdl_window.store(&impl_->backend.window);
+}
+SwitchDisplay::~SwitchDisplay(){matrixgame_sdl_window.store(nullptr);}
 NWindow& SwitchDisplay::NativeWindow()const noexcept{return impl_->backend.window;}
 SwitchWindow::SwitchWindow(NWindow& window,bool owner_visible):SwitchWindow(window,owner_visible,nullptr){}
 SwitchWindow::SwitchWindow(NWindow& window,bool owner_visible,SwitchDisplay* display):window_(window),display_(display),lifecycle_(std::make_unique<LifecycleImpl>(owner_visible)){

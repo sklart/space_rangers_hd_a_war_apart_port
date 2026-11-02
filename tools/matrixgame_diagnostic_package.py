@@ -5,7 +5,7 @@ from matrixgame_draw_budget_checks import ROOT,sha
 BASE=ROOT/'build/matrixgame/e2e544-smoke'
 PACKAGE=ROOT/'dist/matrixgame-e2e527-diag'
 def read(p):return json.loads(p.read_text(encoding='utf-8'))
-def verify_nro(data,icon,nacp):
+def verify_nro(data,icon,nacp,expected_title='MatrixGame diagnostic'):
  assert data[0x10:0x14]==b'NRO0','NRO magic'
  size=struct.unpack_from('<I',data,0x18)[0];assert 0x80<=size<=len(data)
  previous=0
@@ -23,7 +23,7 @@ def verify_nro(data,icon,nacp):
   assert data[size+off:size+off+length]==expected,'embedded asset differs'
   sections.append(dict(offset=size+off,size=length))
  assert sections[0]['offset']+sections[0]['size']<=sections[1]['offset']
- assert len(nacp)==0x4000 and b'MatrixGame diagnostic' in nacp
+ assert len(nacp)==0x4000 and expected_title.encode('utf-8') in nacp,'unexpected diagnostic NACP title'
  return dict(code_size=size,segments=3,embedded_icon=sections[0],embedded_nacp=sections[1],romfs_required=False)
 def main():
  global BASE,PACKAGE

@@ -433,6 +433,10 @@ if(MATRIXGAME_DEVKITPRO)
     endfunction()
     matrixgame_diagnostic_entry(matrixgame-native-diagnostic hosted-diagnostic.map)
     matrixgame_diagnostic_entry(matrixgame-native-interactive hosted-interactive.map)
+    # Route SDL2's default-window reference to this entry's real VI owner.
+    # This prevents default_window.o's automatic second display at startup.
+    target_link_options(matrixgame-native-diagnostic PRIVATE -Wl,--wrap=nwindowGetDefault)
+    target_link_options(matrixgame-native-interactive PRIVATE -Wl,--wrap=nwindowGetDefault)
     target_compile_definitions(matrixgame-native-interactive PRIVATE MATRIXGAME_DIAGNOSTIC_MANUAL=1)
     # SDK packaging is opt-in through an explicit target, never part of ALL or
     # the main game NRO. Keep every generated file inside this binary directory.
