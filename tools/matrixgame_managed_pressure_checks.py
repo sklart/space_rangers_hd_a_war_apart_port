@@ -1,5 +1,6 @@
 """Fresh targeted managed-residency tests; real codecs, CPU upload model only."""
 import argparse,hashlib,json,os,subprocess
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def read(p):return json.loads(p.read_text(encoding='utf-8'))
@@ -43,13 +44,29 @@ def main():
             command[command.index('-o')+1]=linux(out/'texture-residency')
             first_archive=next(i for i,c in enumerate(command) if c.endswith('.a'))
             command.insert(first_archive,linux(ROOT/'port/matrixgame/native-core/texture_mips.cpp'))
-            if kind=='arm64':command+=['-fsanitize=undefined','-fno-sanitize-recover=undefined']
+            if kind=='arm64':command+=['-fsanitize=undefined','-fno-sanitize-recover=undefined','-fvisibility-inlines-hidden']
             if kind=='baseline':
                 data=subprocess.check_output(['C:/Program Files/Git/cmd/git.exe','show','d09b7859e693bc6d33d0c8328ecd5bbc50839c52:port/matrixgame/native-engine/native_texture.cpp'])
                 previous=out/'r3-native_texture.cpp';previous.write_bytes(data)
                 command=[linux(previous) if c==linux(ROOT/'port/matrixgame/native-engine/native_texture.cpp') else c for c in command]
                 result['baseline_source_sha256']=sha(previous)
-            run(command,'build-link')
+            if kind=='arm64':
+                # Keep every UBSan check, including vptr. Do not export the
+                # instrumented std::type_info inline into libubsan/libstdc++:
+                # that interposition recurses through checkDynamicType.
+                sources=[s for s in command if s.endswith('.cpp')]
+                first_source=min(command.index(s) for s in sources)
+                flags=[s for s in command[3:first_source] if s not in ('-Wl,--gc-sections','-no-pie')]
+                sanitize=['-fsanitize=undefined','-fno-sanitize-recover=undefined','-fvisibility-inlines-hidden']
+                def compile_source(source):
+                    obj=out/(Path(source).stem+'.o')
+                    run([*command[:3],*flags,*sanitize,'-c',source,'-o',linux(obj)],'compile-'+obj.stem)
+                    return linux(obj)
+                with ThreadPoolExecutor(max_workers=3) as pool:objects=list(pool.map(compile_source,sources))
+                first_archive=next(i for i,s in enumerate(command) if s.endswith('.a'))
+                libs=command[first_archive:command.index('-o')]
+                run([*command[:3],'-Wl,--gc-sections','-no-pie',*sanitize,*objects,*libs,'-o',linux(out/'texture-residency')],'link')
+            else:run(command,'build-link')
             runtime=['wsl','--exec','env','ASAN_OPTIONS=detect_leaks=1:halt_on_error=1','UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1']
             if kind=='arm64':runtime+=['qemu-aarch64','-L','/usr/aarch64-linux-gnu']
             result['stdout']=run([*runtime,linux(out/'texture-residency'),*map(linux,files)],'runtime',kind=='baseline')

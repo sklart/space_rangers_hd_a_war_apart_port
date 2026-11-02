@@ -63,6 +63,15 @@ ARM64/QEMU UBSan и negative control проверяются отдельно; и
 texture_mips.cpp; прежние результаты не перезаписываются.
 Большие Windows боевые сценарии и полные регрессии не запускались.
 
+Вторая ARM64 попытка с актуальным mip-кодом прошла link, но QEMU завершился
+SIGSEGV. Она сохранена в arm64/2. gdb-multiarch локализовал рекурсию
+libubsan checkDynamicType → libstdc++ __dynamic_cast → инструментированный
+std::type_info::operator== в executable → libubsan. Ошибка воспроизводилась
+без ресурсов в первом make_shared<Session>, до texture load. Исправление
+probe build — -fvisibility-inlines-hidden; vptr, все остальные UBSan checks
+и assertions остаются включены. Новый результат записывается отдельно.
+Debugger распакован только в ignored build, SDK/системная установка не менялись.
+
 ## Аппаратная граница
 
 VI owner, SDL binding, origin shader и полнокадровая identity presentation
