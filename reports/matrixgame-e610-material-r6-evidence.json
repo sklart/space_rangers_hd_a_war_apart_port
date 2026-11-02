@@ -1,0 +1,627 @@
+{
+  "status": "SOFTWARE PASS; R6 HARDWARE PENDING",
+  "source_commit": "7036820f4c818fb8fce4fb94f6a98a7a822a5142",
+  "build_id": "7036820f4c81-2be9a052b1f566893f12",
+  "old_external_pack_zip": "NOT AVAILABLE; historical external input not rechecked",
+  "old_files_unchanged": 178,
+  "own_source_hashes_verified": 690,
+  "binary_checks": {
+    "matrixgame-native-diagnostic": {
+      "deko_link_provenance": {
+        "expected_library": "deko3dd",
+        "actual_objects": {
+          "deko3d": [],
+          "deko3dd": [
+            "cmd_bind_common.o",
+            "codesegmgr.o",
+            "dk_cmdbuf.o",
+            "dk_device.o",
+            "dk_fence.o",
+            "dk_image.o",
+            "dk_memblock.o",
+            "dk_queue.o",
+            "dk_shader.o",
+            "dk_swapchain.o",
+            "gpu_3d_base.o",
+            "gpu_3d_ibo.o",
+            "gpu_3d_ms.o",
+            "gpu_3d_state.o",
+            "gpu_3d_vbo.o",
+            "gpu_3d_zcull.o",
+            "gpu_base.o",
+            "gpu_error.o",
+            "gpu_transfer.o",
+            "image_formats.o",
+            "queue_workbuf.o",
+            "tic_generate.o",
+            "tsc_generate.o"
+          ]
+        },
+        "mixed_variants": false
+      },
+      "SDK_default_window_definitions_absent": [
+        "nwindowGetDefault",
+        "__nx_win_init",
+        "__nx_win_exit"
+      ],
+      "SDL_accessor_bound_to_real_window": true,
+      "display_query_and_orientation_check_retained": true,
+      "nacp_title": "MatrixGame r6 Quick Smoke"
+    },
+    "matrixgame-native-interactive": {
+      "deko_link_provenance": {
+        "expected_library": "deko3dd",
+        "actual_objects": {
+          "deko3d": [],
+          "deko3dd": [
+            "cmd_bind_common.o",
+            "codesegmgr.o",
+            "dk_cmdbuf.o",
+            "dk_device.o",
+            "dk_fence.o",
+            "dk_image.o",
+            "dk_memblock.o",
+            "dk_queue.o",
+            "dk_shader.o",
+            "dk_swapchain.o",
+            "gpu_3d_base.o",
+            "gpu_3d_ibo.o",
+            "gpu_3d_ms.o",
+            "gpu_3d_state.o",
+            "gpu_3d_vbo.o",
+            "gpu_3d_zcull.o",
+            "gpu_base.o",
+            "gpu_error.o",
+            "gpu_transfer.o",
+            "image_formats.o",
+            "queue_workbuf.o",
+            "tic_generate.o",
+            "tsc_generate.o"
+          ]
+        },
+        "mixed_variants": false
+      },
+      "SDK_default_window_definitions_absent": [
+        "nwindowGetDefault",
+        "__nx_win_init",
+        "__nx_win_exit"
+      ],
+      "SDL_accessor_bound_to_real_window": true,
+      "display_query_and_orientation_check_retained": true,
+      "nacp_title": "MatrixGame r6 Interactive"
+    }
+  },
+  "tests": {
+    "build\\matrixgame\\e610-material-r6-checks\\host\\1\\result.json": {
+      "sha256": "cfa1f8a61cdfbc77f44380d1d8ff85071172137346db32b080b5f4820a48c40e",
+      "result": {
+        "status": "PASS UNIFORM PACKET BYTES/64 DRAW BATCH/ORDER/RETIREMENT/FAILURE OWNERS; CPU ONLY",
+        "commands": [
+          {
+            "label": "material_uniform_packet-build",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-fno-pie",
+              "-no-pie",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/c/devkitPro/libnx/include",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-material-r6-checks/host/1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_material_uniform_packet.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-material-r6-checks/host/1/material_uniform_packet"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "material_uniform_packet-runtime",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-material-r6-checks/host/1/material_uniform_packet"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "native_draw_batch-build",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-fno-pie",
+              "-no-pie",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/c/devkitPro/libnx/include",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-material-r6-checks/host/1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_native_draw_batch.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-material-r6-checks/host/1/native_draw_batch"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "native_draw_batch-runtime",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-material-r6-checks/host/1/native_draw_batch",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e539-batches/baseline-windows/frame-cost-0.csv",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e539-batches/baseline-windows/frame-cost-1.csv"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          }
+        ],
+        "scope": "real packet bytes and CPU queue/ownership model; no GPU/Init; no Windows battle rerun",
+        "capture_oracle": {
+          "frames": 92,
+          "split_frames": 92,
+          "peak_frame": 4038,
+          "submissions": 3310
+        },
+        "captures_sha256": {
+          "build\\matrixgame\\e2e539-batches\\baseline-windows\\frame-cost-0.csv": "ba3e2bf496ff35b7bc617261066f2dbd71790cbe5480488540ee13df570c86f9",
+          "build\\matrixgame\\e2e539-batches\\baseline-windows\\frame-cost-1.csv": "ba3e2bf496ff35b7bc617261066f2dbd71790cbe5480488540ee13df570c86f9"
+        },
+        "R5_wrong_debug_provenance_rejected": true,
+        "material_uniform_packet_stdout": "MATERIAL_PACKET PASS one_4096_block fragment/fog/raster/vertex bytes_exact independent_packets padding_zero aligned_ranges short_invalid_rejected CPU_ONLY NO_GPU\n",
+        "native_draw_batch_stdout": "native batch policy PASS original_frames=92 primary_draws=208808 split_frames=92 max_frame=4038 max_batch=64 submissions=3310 order_exact owner_release_after_completion failure_retains_owners byte_quota scene_preserved CPU_QUEUE_MODEL_ONLY NO_SWITCH_GPU\n",
+        "source_sha256": {
+          "port/matrixgame/deko/material_uniform_packet.hpp": "6059ffdfbdb0f97646c103b7d74d0d6d9a3411e744f0a3152aa77af1c8d624b4",
+          "port/matrixgame/deko/material_program.cpp": "020a5756011f393908411cae4fae99efbc1a9819a59b2ec28e7ec03581bd0715",
+          "port/matrixgame/native-engine/native_draw_batch.hpp": "db2ff81a05b8ea603b1423ed68b250aaa619d8ef0279b6c80afc59000e0a4beb",
+          "tests/test_matrixgame_material_uniform_packet.cpp": "0fb2ad21f3df3871cc05c07d5e1f7255ed2d4f68b315848dd432ffeb9d2697b6",
+          "tests/test_matrixgame_native_draw_batch.cpp": "35c696e2f7c3c04e124e00849dc88f64f2973e0986ad94abc8411282b9bcdd73",
+          "tools/matrixgame_material_batch_checks.py": "02a24afead6f9ddfcb39b73684608949096a27b2df72ae47937dafd651aa90ba",
+          "tools/matrixgame_sdk_link_provenance.py": "5a156013ed7ce5ae6498d950500d94bd70cdb86f70a73d47246c89eb4ca9e0eb"
+        }
+      }
+    },
+    "build\\matrixgame\\e610-material-r6-checks\\arm64\\1\\result.json": {
+      "sha256": "882593efe3139691e5bfb92d9befe1c4dcc8bfafefc4b122ec68bcfe4f7737eb",
+      "result": {
+        "status": "PASS UNIFORM PACKET BYTES/64 DRAW BATCH/ORDER/RETIREMENT/FAILURE OWNERS; CPU ONLY",
+        "commands": [
+          {
+            "label": "material_uniform_packet-build",
+            "command": [
+              "wsl",
+              "--exec",
+              "aarch64-linux-gnu-g++-15",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-fno-pie",
+              "-no-pie",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/c/devkitPro/libnx/include",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-material-r6-checks/arm64/1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_material_uniform_packet.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-material-r6-checks/arm64/1/material_uniform_packet"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "material_uniform_packet-runtime",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "qemu-aarch64",
+              "-L",
+              "/usr/aarch64-linux-gnu",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-material-r6-checks/arm64/1/material_uniform_packet"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "native_draw_batch-build",
+            "command": [
+              "wsl",
+              "--exec",
+              "aarch64-linux-gnu-g++-15",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-fno-pie",
+              "-no-pie",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/c/devkitPro/libnx/include",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-material-r6-checks/arm64/1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_native_draw_batch.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-material-r6-checks/arm64/1/native_draw_batch"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "native_draw_batch-runtime",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "qemu-aarch64",
+              "-L",
+              "/usr/aarch64-linux-gnu",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-material-r6-checks/arm64/1/native_draw_batch",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e539-batches/baseline-windows/frame-cost-0.csv",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e539-batches/baseline-windows/frame-cost-1.csv"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          }
+        ],
+        "scope": "real packet bytes and CPU queue/ownership model; no GPU/Init; no Windows battle rerun",
+        "capture_oracle": {
+          "frames": 92,
+          "split_frames": 92,
+          "peak_frame": 4038,
+          "submissions": 3310
+        },
+        "captures_sha256": {
+          "build\\matrixgame\\e2e539-batches\\baseline-windows\\frame-cost-0.csv": "ba3e2bf496ff35b7bc617261066f2dbd71790cbe5480488540ee13df570c86f9",
+          "build\\matrixgame\\e2e539-batches\\baseline-windows\\frame-cost-1.csv": "ba3e2bf496ff35b7bc617261066f2dbd71790cbe5480488540ee13df570c86f9"
+        },
+        "R5_wrong_debug_provenance_rejected": true,
+        "material_uniform_packet_stdout": "MATERIAL_PACKET PASS one_4096_block fragment/fog/raster/vertex bytes_exact independent_packets padding_zero aligned_ranges short_invalid_rejected CPU_ONLY NO_GPU\n",
+        "native_draw_batch_stdout": "native batch policy PASS original_frames=92 primary_draws=208808 split_frames=92 max_frame=4038 max_batch=64 submissions=3310 order_exact owner_release_after_completion failure_retains_owners byte_quota scene_preserved CPU_QUEUE_MODEL_ONLY NO_SWITCH_GPU\n",
+        "source_sha256": {
+          "port/matrixgame/deko/material_uniform_packet.hpp": "6059ffdfbdb0f97646c103b7d74d0d6d9a3411e744f0a3152aa77af1c8d624b4",
+          "port/matrixgame/deko/material_program.cpp": "020a5756011f393908411cae4fae99efbc1a9819a59b2ec28e7ec03581bd0715",
+          "port/matrixgame/native-engine/native_draw_batch.hpp": "db2ff81a05b8ea603b1423ed68b250aaa619d8ef0279b6c80afc59000e0a4beb",
+          "tests/test_matrixgame_material_uniform_packet.cpp": "0fb2ad21f3df3871cc05c07d5e1f7255ed2d4f68b315848dd432ffeb9d2697b6",
+          "tests/test_matrixgame_native_draw_batch.cpp": "35c696e2f7c3c04e124e00849dc88f64f2973e0986ad94abc8411282b9bcdd73",
+          "tools/matrixgame_material_batch_checks.py": "02a24afead6f9ddfcb39b73684608949096a27b2df72ae47937dafd651aa90ba",
+          "tools/matrixgame_sdk_link_provenance.py": "5a156013ed7ce5ae6498d950500d94bd70cdb86f70a73d47246c89eb4ca9e0eb"
+        }
+      }
+    },
+    "build\\matrixgame\\e610-material-r6-checks\\windows\\1\\result.json": {
+      "sha256": "1f03152c6029266f6225fdcdab1108014c875d80739f41e6e9d36e6b82415714",
+      "result": {
+        "status": "PASS UNIFORM PACKET BYTES/64 DRAW BATCH/ORDER/RETIREMENT/FAILURE OWNERS; CPU ONLY",
+        "commands": [
+          {
+            "label": "material_uniform_packet-build",
+            "command": [
+              "cmd.exe",
+              "/d",
+              "/c",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-material-r6-checks\\windows\\1\\material_uniform_packet.cmd"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "material_uniform_packet-runtime",
+            "command": [
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-material-r6-checks\\windows\\1\\material_uniform_packet.exe"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "native_draw_batch-build",
+            "command": [
+              "cmd.exe",
+              "/d",
+              "/c",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-material-r6-checks\\windows\\1\\native_draw_batch.cmd"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "native_draw_batch-runtime",
+            "command": [
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-material-r6-checks\\windows\\1\\native_draw_batch.exe",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e539-batches\\baseline-windows\\frame-cost-0.csv",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e2e539-batches\\baseline-windows\\frame-cost-1.csv"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          }
+        ],
+        "scope": "real packet bytes and CPU queue/ownership model; no GPU/Init; no Windows battle rerun",
+        "capture_oracle": {
+          "frames": 92,
+          "split_frames": 92,
+          "peak_frame": 4038,
+          "submissions": 3310
+        },
+        "captures_sha256": {
+          "build\\matrixgame\\e2e539-batches\\baseline-windows\\frame-cost-0.csv": "ba3e2bf496ff35b7bc617261066f2dbd71790cbe5480488540ee13df570c86f9",
+          "build\\matrixgame\\e2e539-batches\\baseline-windows\\frame-cost-1.csv": "ba3e2bf496ff35b7bc617261066f2dbd71790cbe5480488540ee13df570c86f9"
+        },
+        "R5_wrong_debug_provenance_rejected": true,
+        "material_uniform_packet_stdout": "MATERIAL_PACKET PASS one_4096_block fragment/fog/raster/vertex bytes_exact independent_packets padding_zero aligned_ranges short_invalid_rejected CPU_ONLY NO_GPU\n",
+        "native_draw_batch_stdout": "native batch policy PASS original_frames=92 primary_draws=208808 split_frames=92 max_frame=4038 max_batch=64 submissions=3310 order_exact owner_release_after_completion failure_retains_owners byte_quota scene_preserved CPU_QUEUE_MODEL_ONLY NO_SWITCH_GPU\n",
+        "source_sha256": {
+          "port/matrixgame/deko/material_uniform_packet.hpp": "6059ffdfbdb0f97646c103b7d74d0d6d9a3411e744f0a3152aa77af1c8d624b4",
+          "port/matrixgame/deko/material_program.cpp": "020a5756011f393908411cae4fae99efbc1a9819a59b2ec28e7ec03581bd0715",
+          "port/matrixgame/native-engine/native_draw_batch.hpp": "db2ff81a05b8ea603b1423ed68b250aaa619d8ef0279b6c80afc59000e0a4beb",
+          "tests/test_matrixgame_material_uniform_packet.cpp": "0fb2ad21f3df3871cc05c07d5e1f7255ed2d4f68b315848dd432ffeb9d2697b6",
+          "tests/test_matrixgame_native_draw_batch.cpp": "35c696e2f7c3c04e124e00849dc88f64f2973e0986ad94abc8411282b9bcdd73",
+          "tools/matrixgame_material_batch_checks.py": "02a24afead6f9ddfcb39b73684608949096a27b2df72ae47937dafd651aa90ba",
+          "tools/matrixgame_sdk_link_provenance.py": "5a156013ed7ce5ae6498d950500d94bd70cdb86f70a73d47246c89eb4ca9e0eb"
+        }
+      }
+    },
+    "build\\matrixgame\\e610-material-r6-checks\\baseline\\2\\result.json": {
+      "sha256": "f81ebf2bcffddd01ec9b95b24b7ff1ac489c8f2e633485732aa7557f0c51900a",
+      "result": {
+        "status": "PASS OLD 2048 BATCH POLICY REJECTED",
+        "commands": [
+          {
+            "label": "native_draw_batch-build",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-fno-pie",
+              "-no-pie",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-DMATRIXGAME_BATCH_BASELINE=1",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/c/devkitPro/libnx/include",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-material-r6-checks/baseline/2",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_native_draw_batch.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-material-r6-checks/baseline/2/native_draw_batch"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "native_draw_batch-runtime",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-material-r6-checks/baseline/2/native_draw_batch",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e539-batches/baseline-windows/frame-cost-0.csv",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e539-batches/baseline-windows/frame-cost-1.csv"
+            ],
+            "exit": 6,
+            "expected_failure": true
+          }
+        ],
+        "scope": "real packet bytes and CPU queue/ownership model; no GPU/Init; no Windows battle rerun",
+        "capture_oracle": {
+          "frames": 92,
+          "split_frames": 92,
+          "peak_frame": 4038,
+          "submissions": 3310
+        },
+        "captures_sha256": {
+          "build\\matrixgame\\e2e539-batches\\baseline-windows\\frame-cost-0.csv": "ba3e2bf496ff35b7bc617261066f2dbd71790cbe5480488540ee13df570c86f9",
+          "build\\matrixgame\\e2e539-batches\\baseline-windows\\frame-cost-1.csv": "ba3e2bf496ff35b7bc617261066f2dbd71790cbe5480488540ee13df570c86f9"
+        },
+        "R5_wrong_debug_provenance_rejected": true,
+        "baseline_header_sha256": "ea55366a2ba74af9f37432928224820066152174effd17b2c97f4a242383b8b5",
+        "native_draw_batch_stdout": "native_draw_batch: /mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_native_draw_batch.cpp:59: int main(int, char**): Assertion `frames==92 && split_frames==92 && peak==4038 && maximum_batch==64 && submissions==3310' failed.\n",
+        "source_sha256": {
+          "port/matrixgame/deko/material_uniform_packet.hpp": "6059ffdfbdb0f97646c103b7d74d0d6d9a3411e744f0a3152aa77af1c8d624b4",
+          "port/matrixgame/deko/material_program.cpp": "020a5756011f393908411cae4fae99efbc1a9819a59b2ec28e7ec03581bd0715",
+          "port/matrixgame/native-engine/native_draw_batch.hpp": "db2ff81a05b8ea603b1423ed68b250aaa619d8ef0279b6c80afc59000e0a4beb",
+          "tests/test_matrixgame_material_uniform_packet.cpp": "0fb2ad21f3df3871cc05c07d5e1f7255ed2d4f68b315848dd432ffeb9d2697b6",
+          "tests/test_matrixgame_native_draw_batch.cpp": "35c696e2f7c3c04e124e00849dc88f64f2973e0986ad94abc8411282b9bcdd73",
+          "tools/matrixgame_material_batch_checks.py": "ebd66db69ad6ab382344800ca4f0409209d47a4b94d21a10cef03fbdbd64371f",
+          "tools/matrixgame_sdk_link_provenance.py": "5a156013ed7ce5ae6498d950500d94bd70cdb86f70a73d47246c89eb4ca9e0eb"
+        }
+      }
+    }
+  },
+  "package": {
+    "status": "VERIFIED E610 TWO-NRO PACKAGE; HARDWARE PENDING",
+    "source_commit": "7036820f4c818fb8fce4fb94f6a98a7a822a5142",
+    "build_id": "7036820f4c81-2be9a052b1f566893f12",
+    "zip": "dist\\matrixgame-e610-switch-test-r6-material.zip",
+    "zip_sha256": "378f7e33e24ac50d53d2407366f7014d90b3cefc5276d4053902f51410874426",
+    "zip_bytes": 10067846,
+    "files_sha256": {
+      "build-info.json": "661da31357b3c569b468aedf88aefe64dc4514482ca6b43fe07c607293ebe126",
+      "manifest.json": "bc90777b66351e676beac2f129481ecc982f20834be8b8ff956e00131265f1cf",
+      "matrixgame-e610-interactive.nro": "32b17bf757e215fd73e5e025a49af0908a1be7c14c261adbf1a9baff84076465",
+      "matrixgame-e610-quick-smoke.nro": "0a6b9297b6b60a438887e9dc1fa6217773ca8af8f402d905ae47e7060c608151",
+      "README.ru.md": "aa581c5dff48544959f80a761abd46669b2758f40f17aec96bcc0db9a84ed9d7",
+      "SHA256SUMS.txt": "c9f8ac9206f6391a7f188948ea660499a4a7239c6e7c76099c0755702e030213"
+    },
+    "variants": {
+      "matrixgame-e610-quick-smoke.nro": {
+        "sha256": "0a6b9297b6b60a438887e9dc1fa6217773ca8af8f402d905ae47e7060c608151",
+        "bytes": 14948549,
+        "elf_sha256": "5f9460545132033c3bbf0f6220f6ed3ce85e6bac45e2764bd66fa9d03d07a471",
+        "elf_build_id": "e356dd405f71a4156acb1d373c56f2161fd2f7ea",
+        "nro_build_id": "e356dd405f71a4156acb1d373c56f2161fd2f7ea000000000000000000000000",
+        "nro_validation": {
+          "code_size": 14925824,
+          "segments": 3,
+          "embedded_icon": {
+            "offset": 14925880,
+            "size": 6285
+          },
+          "embedded_nacp": {
+            "offset": 14932165,
+            "size": 16384
+          },
+          "romfs_required": false
+        },
+        "retained_symbols": {
+          "native_hid_poll": true,
+          "native_hold_reset": false,
+          "router_warp": true,
+          "rangers_ui_owner": false,
+          "ui_context": false,
+          "caller_lease": false,
+          "native_rgb565_presenter": false,
+          "campaign_session": false,
+          "GR_WinMessage": false
+        },
+        "entry": "standalone original native Init/Draw; no Campaign/Gov entry",
+        "runtime": "HARDWARE PENDING",
+        "deko_link_provenance": {
+          "expected_library": "deko3dd",
+          "actual_objects": {
+            "deko3d": [],
+            "deko3dd": [
+              "cmd_bind_common.o",
+              "codesegmgr.o",
+              "dk_cmdbuf.o",
+              "dk_device.o",
+              "dk_fence.o",
+              "dk_image.o",
+              "dk_memblock.o",
+              "dk_queue.o",
+              "dk_shader.o",
+              "dk_swapchain.o",
+              "gpu_3d_base.o",
+              "gpu_3d_ibo.o",
+              "gpu_3d_ms.o",
+              "gpu_3d_state.o",
+              "gpu_3d_vbo.o",
+              "gpu_3d_zcull.o",
+              "gpu_base.o",
+              "gpu_error.o",
+              "gpu_transfer.o",
+              "image_formats.o",
+              "queue_workbuf.o",
+              "tic_generate.o",
+              "tsc_generate.o"
+            ]
+          },
+          "mixed_variants": false
+        },
+        "nacp_title": "MatrixGame r6 Quick Smoke"
+      },
+      "matrixgame-e610-interactive.nro": {
+        "sha256": "32b17bf757e215fd73e5e025a49af0908a1be7c14c261adbf1a9baff84076465",
+        "bytes": 14952645,
+        "elf_sha256": "07345fef71313a9240967ac96af9405d95ec140ff8ef10ad39ead2fa5ed3192e",
+        "elf_build_id": "6aaf390eda29914a6654250646ecbf98ca9a7391",
+        "nro_build_id": "6aaf390eda29914a6654250646ecbf98ca9a7391000000000000000000000000",
+        "nro_validation": {
+          "code_size": 14929920,
+          "segments": 3,
+          "embedded_icon": {
+            "offset": 14929976,
+            "size": 6285
+          },
+          "embedded_nacp": {
+            "offset": 14936261,
+            "size": 16384
+          },
+          "romfs_required": false
+        },
+        "retained_symbols": {
+          "native_hid_poll": true,
+          "native_hold_reset": false,
+          "router_warp": true,
+          "rangers_ui_owner": false,
+          "ui_context": false,
+          "caller_lease": false,
+          "native_rgb565_presenter": false,
+          "campaign_session": false,
+          "GR_WinMessage": false
+        },
+        "entry": "standalone original native Init/Draw; no Campaign/Gov entry",
+        "runtime": "HARDWARE PENDING",
+        "deko_link_provenance": {
+          "expected_library": "deko3dd",
+          "actual_objects": {
+            "deko3d": [],
+            "deko3dd": [
+              "cmd_bind_common.o",
+              "codesegmgr.o",
+              "dk_cmdbuf.o",
+              "dk_device.o",
+              "dk_fence.o",
+              "dk_image.o",
+              "dk_memblock.o",
+              "dk_queue.o",
+              "dk_shader.o",
+              "dk_swapchain.o",
+              "gpu_3d_base.o",
+              "gpu_3d_ibo.o",
+              "gpu_3d_ms.o",
+              "gpu_3d_state.o",
+              "gpu_3d_vbo.o",
+              "gpu_3d_zcull.o",
+              "gpu_base.o",
+              "gpu_error.o",
+              "gpu_transfer.o",
+              "image_formats.o",
+              "queue_workbuf.o",
+              "tic_generate.o",
+              "tsc_generate.o"
+            ]
+          },
+          "mixed_variants": false
+        },
+        "nacp_title": "MatrixGame r6 Interactive"
+      }
+    },
+    "package": "dist\\matrixgame-e610-switch-test-r6-material"
+  },
+  "exact_generated_original_delta": [
+    "MatrixLib/3G/OriginalManagedTexture.cpp",
+    "MatrixLib/3G/Texture.cpp"
+  ],
+  "targeted_test_sources_sha256": {
+    "tests/test_matrixgame_material_uniform_packet.cpp": "0fb2ad21f3df3871cc05c07d5e1f7255ed2d4f68b315848dd432ffeb9d2697b6",
+    "tests/test_matrixgame_native_draw_batch.cpp": "35c696e2f7c3c04e124e00849dc88f64f2973e0986ad94abc8411282b9bcdd73"
+  }
+}

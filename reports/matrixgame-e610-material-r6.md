@@ -69,3 +69,36 @@ VI owner/SDL binding и orientation readback. Пакет standalone: Campaign/Go
 возврат результата в Galaxy и победа не проверяются. Полный Init/миникарта,
 четыре видимых игровых кадра, GPU/HID и FPS требуют ручного запуска r6.
 [Инструкция](../docs/matrixgame-e610-material-r6-readme.ru.md).
+
+## Итог сборки и доставки
+
+Source commit: `7036820f4c818fb8fce4fb94f6a98a7a822a5142`.
+Build ID: `7036820f4c81-2be9a052b1f566893f12`.
+
+ZIP: `dist\matrixgame-e610-switch-test-r6-material.zip` (10067846 байт).
+ZIP SHA256: `378f7e33e24ac50d53d2407366f7014d90b3cefc5276d4053902f51410874426`.
+
+| NRO | SHA256 | ELF build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `0a6b9297b6b60a438887e9dc1fa6217773ca8af8f402d905ae47e7060c608151` | `e356dd405f71a4156acb1d373c56f2161fd2f7ea` |
+| matrixgame-e610-interactive.nro | `32b17bf757e215fd73e5e025a49af0908a1be7c14c261adbf1a9baff84076465` | `6aaf390eda29914a6654250646ecbf98ca9a7391` |
+
+Итог: **SOFTWARE PASS / HARDWARE PENDING**. devkitA64 compile/link и структура
+обеих NRO прошли; strong undefined отсутствуют. В каждом map 23 настоящих
+object members deko3dd, 0 deko3d; debug error path подтверждён nm.
+690 SHA исходников совпали с metadata, generated original совпал с r5/r4;
+сохранены pinned upstream, игровые ресурсы, frozen и основная NRO.
+178 контрольных сумм прежних локальных файлов/пакетов совпали.
+Текущий C:/pack111.zip проверен по SHA; старый внешний C:/pack.zip сейчас
+отсутствует, его неизменность заново не утверждается.
+
+SDK: libnx `4.12.0-1`, deko3d `0.5.0-1`; selected library `deko3dd`.
+CPU tests: Windows MSVC, host ASan/UBSan/LSan, ARM64/QEMU UBSan — PASS;
+negative r5 batch/provenance controls — ожидаемый отказ.
+[Полное evidence](matrixgame-e610-material-r6-evidence.json).
+
+Ручной план: Quick Smoke до автоматического завершения/первой ошибки,
+затем Interactive до 120 секунд с выходом Minus+Plus. Получить два каталога
+журналов и фактические наблюдения. До них Init completion, четыре игровых
+кадра, физические GPU/HID и FPS не приняты. Campaign/Gov и победа не охвачены.
+Дальнейшая разработка остановлена до новых аппаратных результатов.

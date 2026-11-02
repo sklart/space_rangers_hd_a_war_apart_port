@@ -409,3 +409,11 @@ python tools/e2e5_report.py --output reports/e2e5/summary.json
 Код порта распространяется в рамках лицензий данного репозитория и его подмодулей. Торговые марки, игровой контент и оригинальные assets принадлежат соответствующим правообладателям.
 
 В отчёте об ошибке укажите commit, SHA-256 NRO, способ развёртывания, структуру папки на SD (без игровых файлов) и оба лога. Не прикладывайте коммерческие assets.
+
+### MatrixGame E610 r6: проверенный тестовый пакет
+
+Актуальный отдельный пакет: `dist/matrixgame-e610-switch-test-r6-material.zip`; source `7036820f4c818fb8fce4fb94f6a98a7a822a5142`, build `7036820f4c81-2be9a052b1f566893f12`.
+
+Две NRO называются в hbmenu **MatrixGame r6 Quick Smoke** и **MatrixGame r6 Interactive**. SDK/CPU/package checks: SOFTWARE PASS; аппаратное исполнение: HARDWARE PENDING.
+
+[Инструкция двух запусков](docs/matrixgame-e610-material-r6-readme.ru.md) · [SHA256 и результаты проверок](reports/matrixgame-e610-material-r6.md) · [Evidence](reports/matrixgame-e610-material-r6-evidence.json).
