@@ -1,0 +1,106 @@
+{
+  "status": "SDK/PACKAGE PASS; HARDWARE PENDING; FAIL TEXT ORIENTATION OPEN",
+  "source_commit": "8c3612d2c347ffcc26d76bf12632f5d2d58d78b0",
+  "build_id": "8c3612d2c347-21120b4e60dc014c05ec",
+  "rangers_root": "sdmc:/switch/space-rangers-hd-a-war-apart/game",
+  "matrix_root": "sdmc:/switch/matrixgame-diag/game",
+  "logs": "sdmc:/switch/matrixgame-diag/logs",
+  "current_source_hashes_verified": 683,
+  "previous_local_files_and_E610_package_unchanged": 143,
+  "default_paths_present_in_both_ELFs": true,
+  "large_tests_rerun": false,
+  "graphics_orientation_fix": false,
+  "hardware_observation": {
+    "source": "user message",
+    "versions": "previous two E610 NROs",
+    "resources": "not prepared",
+    "visible": "FAIL text mirrored horizontally and vertically",
+    "test_picture": "not observed",
+    "cause": "UNCONFIRMED; run.jsonl not provided"
+  },
+  "package": {
+    "status": "VERIFIED E610 TWO-NRO PACKAGE; HARDWARE PENDING",
+    "source_commit": "8c3612d2c347ffcc26d76bf12632f5d2d58d78b0",
+    "build_id": "8c3612d2c347-21120b4e60dc014c05ec",
+    "zip": "dist\\matrixgame-e610-switch-test-r2-shared-data.zip",
+    "zip_sha256": "1925e0942bfa77a157720424bef3b4d0dedde29b7d88fc909a0d74741f313ad2",
+    "zip_bytes": 10046459,
+    "files_sha256": {
+      "build-info.json": "37ab78ae12b133aee6a69569d7bb46669ea40f75c3cfcdb41153ef814e095983",
+      "manifest.json": "c2b6440239f5bc08274ea2c41fa8d374172388b69aad0b90d545a36b96769035",
+      "matrixgame-e610-interactive.nro": "9db5b12edf0b47754be23812bf5f52c85b60b099db30ed688dbbed5b9827b630",
+      "matrixgame-e610-quick-smoke.nro": "e662661530354e43be2c6f2b9fc62a468ef1e4098e06253a65cdd773c1d6c6d0",
+      "README.ru.md": "6a5068c41aa9c7ff48572e30a7b70071da41fb8acd6683ef15e11a080b0fe249",
+      "SHA256SUMS.txt": "dad69c8d0cbf8a93284e9f6fd3437aab05fe85a2cb3aeb0b958998fce6224b6d"
+    },
+    "variants": {
+      "matrixgame-e610-quick-smoke.nro": {
+        "sha256": "e662661530354e43be2c6f2b9fc62a468ef1e4098e06253a65cdd773c1d6c6d0",
+        "bytes": 14915781,
+        "elf_sha256": "45031a4819e236ea62a6f938e07cc8eeda67480517bd66817b71f939f575718b",
+        "elf_build_id": "35950aa532b8993a44afe213aaf80f5d8e2a721f",
+        "nro_build_id": "35950aa532b8993a44afe213aaf80f5d8e2a721f000000000000000000000000",
+        "nro_validation": {
+          "code_size": 14893056,
+          "segments": 3,
+          "embedded_icon": {
+            "offset": 14893112,
+            "size": 6285
+          },
+          "embedded_nacp": {
+            "offset": 14899397,
+            "size": 16384
+          },
+          "romfs_required": false
+        },
+        "retained_symbols": {
+          "native_hid_poll": true,
+          "native_hold_reset": false,
+          "router_warp": true,
+          "rangers_ui_owner": false,
+          "ui_context": false,
+          "caller_lease": false,
+          "native_rgb565_presenter": false,
+          "campaign_session": false,
+          "GR_WinMessage": false
+        },
+        "entry": "standalone original native Init/Draw; no Campaign/Gov entry",
+        "runtime": "HARDWARE PENDING"
+      },
+      "matrixgame-e610-interactive.nro": {
+        "sha256": "9db5b12edf0b47754be23812bf5f52c85b60b099db30ed688dbbed5b9827b630",
+        "bytes": 14915781,
+        "elf_sha256": "1b29871d57a33c81e5cf968700171200fccbb3ecac0e9642897581049ead9663",
+        "elf_build_id": "5ff043a2568797afa0e2ab421ea66b7e5f04938f",
+        "nro_build_id": "5ff043a2568797afa0e2ab421ea66b7e5f04938f000000000000000000000000",
+        "nro_validation": {
+          "code_size": 14893056,
+          "segments": 3,
+          "embedded_icon": {
+            "offset": 14893112,
+            "size": 6285
+          },
+          "embedded_nacp": {
+            "offset": 14899397,
+            "size": 16384
+          },
+          "romfs_required": false
+        },
+        "retained_symbols": {
+          "native_hid_poll": true,
+          "native_hold_reset": false,
+          "router_warp": true,
+          "rangers_ui_owner": false,
+          "ui_context": false,
+          "caller_lease": false,
+          "native_rgb565_presenter": false,
+          "campaign_session": false,
+          "GR_WinMessage": false
+        },
+        "entry": "standalone original native Init/Draw; no Campaign/Gov entry",
+        "runtime": "HARDWARE PENDING"
+      }
+    },
+    "package": "dist\\matrixgame-e610-switch-test-r2-shared-data"
+  }
+}
