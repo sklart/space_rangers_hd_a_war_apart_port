@@ -3,6 +3,7 @@ import argparse,json,os,re,subprocess
 from pathlib import Path
 from matrixgame_standard_nro_audit import ROOT,read,sha,check_hashes
 from matrixgame_diagnostic_package import verify_nro
+from matrixgame_sdk_link_provenance import deko_link_provenance
 
 def main():
  parser=argparse.ArgumentParser();parser.add_argument('--output-root',type=Path,default=ROOT/'build/matrixgame/e2e604-current-diagnostic');args=parser.parse_args()
@@ -36,8 +37,14 @@ def main():
    header=run(['C:/devkitPro/devkitA64/bin/aarch64-none-elf-readelf.exe','-h',elf],entry+'-header');assert 'AArch64' in header
    for font in fonts:assert font.read_bytes() in elf.read_bytes(),str(font)
    notes=run(['C:/devkitPro/devkitA64/bin/aarch64-none-elf-readelf.exe','-n',elf],entry+'-build-id');elf_id=re.search(r'Build ID: ([0-9a-f]+)',notes).group(1);nro_id=nro.read_bytes()[0x40:0x60].hex();assert nro_id==elf_id.ljust(64,'0')
-   title='MatrixGame r5 Interactive' if entry.endswith('interactive') else 'MatrixGame r5 Quick Smoke'
+   link_map=out/('hosted-interactive.map' if entry.endswith('interactive') else 'hosted-diagnostic.map')
+   provenance=deko_link_provenance(link_map,metadata['deko_library'])
+   if metadata['deko_library']=='deko3dd':
+    assert 'dk::detail::SetContextForDebug(' in symbols and 'dk::detail::RaiseError(DkResult, char const*)' in symbols
+    assert 'dk::detail::RaiseError(DkResult)\n' not in symbols
+   title='MatrixGame r6 Interactive' if entry.endswith('interactive') else 'MatrixGame r6 Quick Smoke'
    variants[entry]={'elf_build_id':elf_id,'nro_build_id':nro_id,'NRO':str(nro.relative_to(ROOT)),'nacp_title':title,'validation':verify_nro(nro.read_bytes(),Path('C:/devkitPro/libnx/default_icon.jpg').read_bytes(),nacp.read_bytes(),title),'strong_undefined':[],'runtime':'NOT RUN'}
+   variants[entry]['deko_link_provenance']=provenance
    artifacts.update({str(p.relative_to(ROOT)):{'sha256':sha(p),'bytes':p.stat().st_size} for p in (elf,nro,nacp)})
   check_hashes(protected);check_hashes(prior['protected_game_sha256']);check_hashes(prior['protected_frozen_sha256']);assert sha(archive)==dependency['dependency_archive_sha256']
   result.update(status='PASS TWO SEPARATE STANDARD LIBNX/DEKO3D SDK NRO TARGETS; PACKAGE/LINK ONLY; HARDWARE_PENDING',new_NRO=True,variants=variants,artifacts=artifacts,metadata_sha256=sha(out/'native-diagnostic-build.json'),embedded_fonts_sha256={str(p.relative_to(ROOT)):sha(p) for p in fonts},all_link_inputs_sha256={str(p.relative_to(ROOT)):sha(p) for p in out.rglob('*') if p.is_file() and p.suffix in ('.a','.o','.obj')})

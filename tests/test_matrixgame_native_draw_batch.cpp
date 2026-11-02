@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
+#ifdef MATRIXGAME_BATCH_BASELINE
+#include "r5-native_draw_batch.hpp"
+#else
 #include "native_draw_batch.hpp"
+#endif
 #include <cassert>
 #include <cstdio>
 #include <fstream>
@@ -50,7 +54,9 @@ int main(int argc,char** argv){
    assert(driver.releases==driver.submissions);submissions+=driver.submissions;split_frames+=driver.submissions>1;total+=primary;peak=std::max(peak,primary);++frames;
   }
  }
- assert(frames==92 && split_frames==40 && peak==4038 && maximum_batch==2048);
+ // Independent totals recomputed from the saved 92 Windows capture rows for
+ // the 64-packet policy; these remain exact acceptance checks, not GPU proof.
+ assert(frames==92 && split_frames==92 && peak==4038 && maximum_batch==64 && submissions==3310);
  // Byte quota, exact boundary and oversize preflight must not mutate existing
  // owners/counters or start a queue operation.
  {

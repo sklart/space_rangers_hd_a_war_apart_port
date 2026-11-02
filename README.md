@@ -49,6 +49,19 @@ Build ID: `b6c18a13cef88fe757d683e18cf48fc667067bda`. Release ARM64:
 
 ## MatrixGame E610 Freeze: два запуска
 
+**Результат r5:** прежний binding guard пройден, но оба запуска завершились
+SDK fatal break в material uniform MemBlock при DrawLandscape миникарты.
+DkResult_Fail не означает доказанный OutOfMemory. Обнаружено расхождение
+metadata deko3dd и фактического libdeko3d.a; прежний gate его не проверял.
+[Разбор matching ELF/crash reports](reports/matrixgame-e610-r5-hardware-20261102.md).
+
+**r6:** единый SDK selector и проверка фактических archive objects по map;
+один material uniform GPU block вместо двух; до 64 живых draw packets с release
+после подтверждённого completion. Все draw calls сохраняются. CPU packet bytes,
+порядок и lifetime прошли адресные Windows/host sanitizer/ARM64 QEMU проверки.
+[Инструкция r6](docs/matrixgame-e610-material-r6-readme.ru.md).
+Аппаратное прохождение этого варианта ещё не подтверждено.
+
 **Результат r4:** оба аппаратных запуска выполнили по 474 managed GPU evictions
 и дошли до CMinimap::RenderBackground. Новый отказ — staging vertex binding;
 полный Init/игровые кадры ещё не прошли.

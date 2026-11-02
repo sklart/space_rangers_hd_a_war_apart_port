@@ -75,6 +75,7 @@ void Counters(p::DekoDevice& device){
     dg::Metric("gpu_buffer_bytes_cumulative",s.buffer_bytes_total);dg::Metric("recorded_draw_calls",s.recorded_draws);
     dg::Metric("queue_submission_calls",s.queue_submissions);dg::Metric("completed_presents",s.presents);
     dg::Metric("native_texture_session_uploads",s.session_uploads);dg::Metric("texture_arena_capacity",s.texture_capacity);
+    dg::Metric("batch_drains",s.batch_drains);dg::Metric("max_live_draw_packets",s.max_live_draw_packets);dg::Metric("max_live_draw_bytes",s.max_live_draw_bytes);
     dg::Metric("managed_texture_evictions",device.TextureSession()->managed_evictions);
     dg::Metric("texture_arena_free",s.texture_free);dg::Metric("queue_healthy",s.queue_healthy);Memory();
     dg::Metric("SDK_warnings_total",s.sdk_warnings);dg::Metric("SDK_warning_records_suppressed",s.sdk_warnings>32?s.sdk_warnings-32:0);

@@ -3,6 +3,7 @@
 #include "material_combiner.hpp"
 #include "fixed_vertex.hpp"
 #include "pixel_fog.hpp"
+#include "material_uniform_packet.hpp"
 #include <deko3d.hpp>
 #include <memory>
 #include <span>
@@ -15,7 +16,7 @@ class DekoCombinerProgram {
 public:
     struct Packet {
         dk::UniqueMemBlock uniforms;
-        dk::UniqueMemBlock vertex_uniforms;
+        bool has_vertex{};
         std::array<DkResHandle,8> textures;
     };
     DekoCombinerProgram(dk::Device,std::span<const std::byte> fragment_dksh,std::span<const std::byte> vertex_dksh={});

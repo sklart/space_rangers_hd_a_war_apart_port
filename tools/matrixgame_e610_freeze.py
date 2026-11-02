@@ -3,6 +3,7 @@ import argparse,json,re,shutil,subprocess,zipfile
 from pathlib import Path
 from matrixgame_standard_nro_audit import ROOT,read,sha,check_hashes
 from matrixgame_diagnostic_package import verify_nro
+from matrixgame_sdk_link_provenance import deko_link_provenance
 GIT='C:/Program Files/Git/cmd/git.exe'
 
 def history(output):
@@ -39,11 +40,16 @@ def package(build,commit,output,readme=None,rangers_root='sdmc:/switch/matrixgam
  for entry,name in (('matrixgame-native-diagnostic','matrixgame-e610-quick-smoke.nro'),('matrixgame-native-interactive','matrixgame-e610-interactive.nro')):
   source=ROOT/gate['variants'][entry]['NRO'];dest=folder/name;shutil.copyfile(source,dest);assert sha(source)==sha(dest)
   elf=build/(entry+'.elf');symbols=subprocess.check_output([nm,'-C',str(elf)],text=True);assert not any(' U ' in line for line in symbols.splitlines())
+  link_map=build/('hosted-interactive.map' if entry.endswith('interactive') else 'hosted-diagnostic.map')
+  provenance=deko_link_provenance(link_map,metadata['deko_library'])
+  assert provenance==gate['variants'][entry]['deko_link_provenance']
   present={key:any(needle in line and not re.search(r'\bU\b',line) for line in symbols.splitlines()) for key,needle in checks.items()}
   assert present['native_hid_poll'] and present['router_warp']
   nacp=source.parent/'control.nacp';validation=verify_nro(dest.read_bytes(),Path('C:/devkitPro/libnx/default_icon.jpg').read_bytes(),nacp.read_bytes(),gate['variants'][entry].get('nacp_title','MatrixGame diagnostic'))
   variants[name]={'sha256':sha(dest),'bytes':dest.stat().st_size,'elf_sha256':sha(elf),'elf_build_id':gate['variants'][entry]['elf_build_id'],'nro_build_id':gate['variants'][entry]['nro_build_id'],'nro_validation':validation,'retained_symbols':present,'entry':'standalone original native Init/Draw; no Campaign/Gov entry','runtime':'HARDWARE PENDING'}
   assert dest.read_bytes()[0x40:0x60].hex()==variants[name]['nro_build_id']
+  variants[name]['deko_link_provenance']=provenance
+  variants[name]['nacp_title']=gate['variants'][entry]['nacp_title']
  template=readme or ROOT/'docs/matrixgame-e610-switch-test-readme.ru.md';(folder/'README.ru.md').write_bytes(template.read_bytes())
  dependency=read(ROOT/gate['dependency_result_path']);assert sha(ROOT/gate['dependency_result_path'])==gate['dependency_result_sha256']
  build_info={'source_commit':commit,'build_id':metadata['build_id'],'source_sha256':metadata['source_sha256'],'sdk_versions':{'libnx':metadata['libnx_package_version'],'deko3d':metadata['deko_package_version']},'deko_library':metadata['deko_library'],'dependency_manifest_sha256':gate['dependency_result_sha256'],'original_dependency_sha256':dependency['dependency_archive_sha256'],'commands':gate['commands'],'build_result_sha256':sha(build/'result.json'),'build_metadata_sha256':sha(build/'native-diagnostic-build.json')}

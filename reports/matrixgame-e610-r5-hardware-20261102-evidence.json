@@ -1,0 +1,474 @@
+{
+  "status": "R5 HARDWARE FATAL: DEKO MEMBLOCK FAIL IN MINIMAP LANDSCAPE DRAW; INIT NOT COMPLETE",
+  "archive": "C:/pack111.zip",
+  "archive_sha256": "4d09ca7f3000fd86c7652bfd6eabed6d98be98605d3113b98105da109b8da754",
+  "archive_bytes": 200701,
+  "source_commit": "937eccd13fc2b8911863459ae6e0ee734c31adca",
+  "build_id": "937eccd13fc2-7a9c102056ba1fc5c8a2",
+  "runs": [
+    {
+      "run_id": "run-1793627904004033-0",
+      "mode": "quick-four-frames",
+      "variant": "matrixgame-e610-quick-smoke.nro",
+      "image_sha256": "9ae039508821491b9c59cb02cee6ff29a3bfb8b1dbdb26cd01bee09f600947cd",
+      "journal_sha256": "009d5dc650a55ec8e0106f613e8e7c5edae7cffc22e33675f1e6718cda866fc7",
+      "records": 4644,
+      "full_init_ok": false,
+      "journal_closed": false,
+      "exception_recorded": false,
+      "tail": [
+        {
+          "seq": 4638,
+          "event": "pressure",
+          "operation": "texture.arena_exhausted",
+          "detail": "managed residency may reclaim unpinned images",
+          "result": -2005532292,
+          "value": 0
+        },
+        {
+          "seq": 4639,
+          "event": "metric",
+          "operation": "texture.arena_free",
+          "detail": "",
+          "result": 0,
+          "value": 284160
+        },
+        {
+          "seq": 4640,
+          "event": "metric",
+          "operation": "texture.arena_largest",
+          "detail": "",
+          "result": 0,
+          "value": 130048
+        },
+        {
+          "seq": 4641,
+          "event": "metric",
+          "operation": "texture.request_width",
+          "detail": "",
+          "result": 0,
+          "value": 512
+        },
+        {
+          "seq": 4642,
+          "event": "metric",
+          "operation": "texture.request_height",
+          "detail": "",
+          "result": 0,
+          "value": 512
+        },
+        {
+          "seq": 4643,
+          "event": "metric",
+          "operation": "texture.request_format",
+          "detail": "",
+          "result": 0,
+          "value": 827611204
+        },
+        {
+          "seq": 4644,
+          "event": "metric",
+          "operation": "texture.managed_evictions",
+          "detail": "",
+          "result": 0,
+          "value": 473
+        }
+      ],
+      "frames": {
+        "smoke": {
+          "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+          "bytes": 3686400
+        },
+        "orientation-smoke": {
+          "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+          "bytes": 3686400
+        },
+        "gamma-smoke": {
+          "sha256": "1da62856cc442b6f62707902f6770a67c90bcadbaf7400c01ab21cd60044b98c",
+          "bytes": 3686400
+        }
+      },
+      "orientation_identity_bytes_equal": true
+    },
+    {
+      "run_id": "run-1793627999004117-0",
+      "mode": "interactive",
+      "variant": "matrixgame-e610-interactive.nro",
+      "image_sha256": "2cfb5d13c71149bd53736eed7281eb85ef2f26970fddab17051f525bd172113c",
+      "journal_sha256": "8f42025432476a9a98d32f213670d07bb358bd2ab4c366611b3c25b14db2f8e7",
+      "records": 4644,
+      "full_init_ok": false,
+      "journal_closed": false,
+      "exception_recorded": false,
+      "tail": [
+        {
+          "seq": 4638,
+          "event": "pressure",
+          "operation": "texture.arena_exhausted",
+          "detail": "managed residency may reclaim unpinned images",
+          "result": -2005532292,
+          "value": 0
+        },
+        {
+          "seq": 4639,
+          "event": "metric",
+          "operation": "texture.arena_free",
+          "detail": "",
+          "result": 0,
+          "value": 284160
+        },
+        {
+          "seq": 4640,
+          "event": "metric",
+          "operation": "texture.arena_largest",
+          "detail": "",
+          "result": 0,
+          "value": 130048
+        },
+        {
+          "seq": 4641,
+          "event": "metric",
+          "operation": "texture.request_width",
+          "detail": "",
+          "result": 0,
+          "value": 512
+        },
+        {
+          "seq": 4642,
+          "event": "metric",
+          "operation": "texture.request_height",
+          "detail": "",
+          "result": 0,
+          "value": 512
+        },
+        {
+          "seq": 4643,
+          "event": "metric",
+          "operation": "texture.request_format",
+          "detail": "",
+          "result": 0,
+          "value": 827611204
+        },
+        {
+          "seq": 4644,
+          "event": "metric",
+          "operation": "texture.managed_evictions",
+          "detail": "",
+          "result": 0,
+          "value": 473
+        }
+      ],
+      "frames": {
+        "smoke": {
+          "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+          "bytes": 3686400
+        },
+        "orientation-smoke": {
+          "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+          "bytes": 3686400
+        },
+        "gamma-smoke": {
+          "sha256": "1da62856cc442b6f62707902f6770a67c90bcadbaf7400c01ab21cd60044b98c",
+          "bytes": 3686400
+        }
+      },
+      "orientation_identity_bytes_equal": true
+    }
+  ],
+  "matching_crashes": [
+    {
+      "report": "crash_reports/01793627967_0100ba4026e94000.log",
+      "sha256": "a5c974795cb03cb3e00cf2c65ecb7812e79f85943a3a84362b4f1465d91036ad",
+      "entry": "matrixgame-native-diagnostic",
+      "module_id_matches_NRO": true,
+      "elf_sha256": "f428fbdd1315897066a74bd583924fd5cae6b13276feb626ffcb4096658157ad",
+      "result": "0x367",
+      "result_module": 359,
+      "DkResult": 1,
+      "DkResult_name": "Fail",
+      "exception_type": "User Break",
+      "stack": [
+        {
+          "return_offset": "0x87f508",
+          "symbol": "dk::detail::RaiseError(DkResult)",
+          "location": "/home/davem/projects/devkitpro/pacman-packages/deko3d/src/deko3d-0.5.0/source/dk_device.cpp:246"
+        },
+        {
+          "return_offset": "0x87b744",
+          "symbol": "dkMemBlockCreate",
+          "location": "/home/davem/projects/devkitpro/pacman-packages/deko3d/src/deko3d-0.5.0/source/dk_memblock.cpp:167"
+        },
+        {
+          "return_offset": "0x2287f8",
+          "symbol": "dk::MemBlockMaker::create() const",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x872074",
+          "symbol": "srhd_awa::matrixgame::materials::DekoCombinerProgram::Prepare(srhd_awa::matrixgame::materials::Combiner const&, std::array<unsigned int, 8ul> const&, srhd_awa::matrixgame::materials::VertexUniforms const*, bool, srhd_awa::matrixgame::materials::PixelFogUniforms const*, unsigned int) const",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x23400c",
+          "symbol": "srhd_awa::matrixgame::platform3g::DekoDevice::Impl::Record(std::span<srhd_awa::matrixgame::materials::Vertex const, 18446744073709551615ul>, std::span<std::byte const, 18446744073709551615ul>, DkIdxFormat, unsigned int, int, DkPrimitive, srhd_awa::matrixgame::platform3g::NativeRenderState const*)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x23899c",
+          "symbol": "srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x4ea54",
+          "symbol": "srhd_awa::matrixgame::map_device::DrawIndexedPrimitive(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x191378",
+          "symbol": "CMatrixMapGroup::Draw()",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x793b0",
+          "symbol": "CMatrixMap::DrawLandscape(bool)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x1b3b58",
+          "symbol": "CMinimap::RenderBackground(std::__cxx11::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> > const&, unsigned int)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x19c6b0",
+          "symbol": "CMatrixMap::CreatePoolDefaultResources(bool)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x64b44",
+          "symbol": "CGame::Init(void*, void*, wchar_t const*, unsigned int, SRobotsSettings const*, wchar_t const*, wchar_t const*, wchar_t const*, wchar_t const*, wchar_t const*)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x4abd4",
+          "symbol": "srhd_awa::matrixgame::NativeInitRuntime::InitializeOriginalGame(srhd_awa::matrixgame::OriginalGameOptions const&)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x4b22c",
+          "symbol": "srhd_awa::matrixgame::NativeInitRuntime::InitializeNativeGame(srhd_awa::matrixgame::NativeGameOptions const&)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x378c0",
+          "symbol": "(anonymous namespace)::Run(char const*, char const*, srhd_awa::matrixgame::diagnostic::Journal&)",
+          "location": "matrixgame_native_diagnostic_main.cpp:?"
+        },
+        {
+          "return_offset": "0x38b30",
+          "symbol": "main",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x18a00",
+          "symbol": "_GLOBAL__sub_D.00090_globals_io.cc",
+          "location": "globals_io.o:?"
+        },
+        {
+          "return_offset": "0x3355c",
+          "symbol": "_GLOBAL__sub_I_eh_globals.cc",
+          "location": "eh_globals.o:?"
+        }
+      ],
+      "symbolizer_command": [
+        "C:/devkitPro/devkitA64/bin/aarch64-none-elf-addr2line.exe",
+        "-C",
+        "-f",
+        "-e",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-staging-r5\\1\\matrixgame-native-diagnostic.elf",
+        "0x87f504",
+        "0x87b740",
+        "0x2287f4",
+        "0x872070",
+        "0x234008",
+        "0x238998",
+        "0x4ea50",
+        "0x191374",
+        "0x793ac",
+        "0x1b3b54",
+        "0x19c6ac",
+        "0x64b40",
+        "0x4abd0",
+        "0x4b228",
+        "0x378bc",
+        "0x38b2c",
+        "0x189fc",
+        "0x33558"
+      ]
+    },
+    {
+      "report": "crash_reports/01793628063_0100ba4026e94000.log",
+      "sha256": "3a2b402942f99f8168785cd4f9e3d76142597e24b44742baa4a3de311897c37e",
+      "entry": "matrixgame-native-interactive",
+      "module_id_matches_NRO": true,
+      "elf_sha256": "95ba26a0fcca59418c25bdd850de9daa870e9b593a7647665741e238d035fb01",
+      "result": "0x367",
+      "result_module": 359,
+      "DkResult": 1,
+      "DkResult_name": "Fail",
+      "exception_type": "User Break",
+      "stack": [
+        {
+          "return_offset": "0x87f508",
+          "symbol": "dk::detail::RaiseError(DkResult)",
+          "location": "/home/davem/projects/devkitpro/pacman-packages/deko3d/src/deko3d-0.5.0/source/dk_device.cpp:246"
+        },
+        {
+          "return_offset": "0x87b744",
+          "symbol": "dkMemBlockCreate",
+          "location": "/home/davem/projects/devkitpro/pacman-packages/deko3d/src/deko3d-0.5.0/source/dk_memblock.cpp:167"
+        },
+        {
+          "return_offset": "0x2287f8",
+          "symbol": "dk::MemBlockMaker::create() const",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x872074",
+          "symbol": "srhd_awa::matrixgame::materials::DekoCombinerProgram::Prepare(srhd_awa::matrixgame::materials::Combiner const&, std::array<unsigned int, 8ul> const&, srhd_awa::matrixgame::materials::VertexUniforms const*, bool, srhd_awa::matrixgame::materials::PixelFogUniforms const*, unsigned int) const",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x23400c",
+          "symbol": "srhd_awa::matrixgame::platform3g::DekoDevice::Impl::Record(std::span<srhd_awa::matrixgame::materials::Vertex const, 18446744073709551615ul>, std::span<std::byte const, 18446744073709551615ul>, DkIdxFormat, unsigned int, int, DkPrimitive, srhd_awa::matrixgame::platform3g::NativeRenderState const*)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x23899c",
+          "symbol": "srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x4ea54",
+          "symbol": "srhd_awa::matrixgame::map_device::DrawIndexedPrimitive(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x191378",
+          "symbol": "CMatrixMapGroup::Draw()",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x793b0",
+          "symbol": "CMatrixMap::DrawLandscape(bool)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x1b3b58",
+          "symbol": "CMinimap::RenderBackground(std::__cxx11::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t> > const&, unsigned int)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x19c6b0",
+          "symbol": "CMatrixMap::CreatePoolDefaultResources(bool)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x64b44",
+          "symbol": "CGame::Init(void*, void*, wchar_t const*, unsigned int, SRobotsSettings const*, wchar_t const*, wchar_t const*, wchar_t const*, wchar_t const*, wchar_t const*)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x4abd4",
+          "symbol": "srhd_awa::matrixgame::NativeInitRuntime::InitializeOriginalGame(srhd_awa::matrixgame::OriginalGameOptions const&)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x4b22c",
+          "symbol": "srhd_awa::matrixgame::NativeInitRuntime::InitializeNativeGame(srhd_awa::matrixgame::NativeGameOptions const&)",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x378c0",
+          "symbol": "(anonymous namespace)::Run(char const*, char const*, srhd_awa::matrixgame::diagnostic::Journal&)",
+          "location": "matrixgame_native_diagnostic_main.cpp:?"
+        },
+        {
+          "return_offset": "0x38b30",
+          "symbol": "main",
+          "location": "??:?"
+        },
+        {
+          "return_offset": "0x18a00",
+          "symbol": "_GLOBAL__sub_D.00090_globals_io.cc",
+          "location": "globals_io.o:?"
+        },
+        {
+          "return_offset": "0x3355c",
+          "symbol": "_GLOBAL__sub_I_eh_globals.cc",
+          "location": "eh_globals.o:?"
+        }
+      ],
+      "symbolizer_command": [
+        "C:/devkitPro/devkitA64/bin/aarch64-none-elf-addr2line.exe",
+        "-C",
+        "-f",
+        "-e",
+        "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-staging-r5\\1\\matrixgame-native-interactive.elf",
+        "0x87f504",
+        "0x87b740",
+        "0x2287f4",
+        "0x872070",
+        "0x234008",
+        "0x238998",
+        "0x4ea50",
+        "0x191374",
+        "0x793ac",
+        "0x1b3b54",
+        "0x19c6ac",
+        "0x64b40",
+        "0x4abd0",
+        "0x4b228",
+        "0x378bc",
+        "0x38b2c",
+        "0x189fc",
+        "0x33558"
+      ]
+    }
+  ],
+  "declared_deko_library": "deko3dd",
+  "actual_link_map_objects": {
+    "libdeko3d.a": [
+      "cmd_bind_common.o",
+      "codesegmgr.o",
+      "dk_cmdbuf.o",
+      "dk_device.o",
+      "dk_fence.o",
+      "dk_image.o",
+      "dk_memblock.o",
+      "dk_queue.o",
+      "dk_shader.o",
+      "dk_swapchain.o",
+      "gpu_3d_base.o",
+      "gpu_3d_ibo.o",
+      "gpu_3d_ms.o",
+      "gpu_3d_state.o",
+      "gpu_3d_vbo.o",
+      "gpu_3d_zcull.o",
+      "gpu_base.o",
+      "gpu_error.o",
+      "gpu_transfer.o",
+      "image_formats.o",
+      "queue_workbuf.o",
+      "tic_generate.o",
+      "tsc_generate.o"
+    ],
+    "libdeko3dd.a": []
+  },
+  "limits": [
+    "Fail is not proven OutOfMemory; NV map/address-space cause not recorded",
+    "No journal_close or normal cleanup proof",
+    "Full Init and original map frames not reached",
+    "Other program crash logs in ZIP excluded from analysis"
+  ],
+  "scope": "read-only evidence and matching ELF symbolization; source/NRO unchanged"
+}

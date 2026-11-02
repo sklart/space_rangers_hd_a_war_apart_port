@@ -13,7 +13,7 @@ add_library(matrixgame-native-deko STATIC mesh_renderer.cpp png_texture.cpp buff
 target_include_directories(matrixgame-native-deko PUBLIC "${CMAKE_CURRENT_LIST_DIR}"
   "${MATRIXGAME_DEVKITPRO}/libnx/include")
 target_link_directories(matrixgame-native-deko PUBLIC "${MATRIXGAME_DEVKITPRO}/libnx/lib")
-target_link_libraries(matrixgame-native-deko PUBLIC matrixgame-native-core deko3d nx)
+target_link_libraries(matrixgame-native-deko PUBLIC matrixgame-native-core ${MATRIXGAME_DEKO_LIBRARY} nx)
 add_executable(matrixgame-deko-mesh-probe "${PORT_ROOT}/tests/probe_matrixgame_deko_link.cpp")
 target_include_directories(matrixgame-deko-mesh-probe PRIVATE "${MATRIXGAME_SHADER_DIR}")
 target_link_libraries(matrixgame-deko-mesh-probe PRIVATE matrixgame-native-deko)

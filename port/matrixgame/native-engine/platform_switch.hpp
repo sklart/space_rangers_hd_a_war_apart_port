@@ -130,6 +130,7 @@ public:
     DeviceResult AbortNativeFrame()noexcept override;
     struct DiagnosticCounters {
         std::uint64_t buffer_allocations{},buffer_bytes_total{},recorded_draws{},queue_submissions{},presents{},session_uploads{};
+        std::uint64_t batch_drains{},max_live_draw_packets{},max_live_draw_bytes{};
         std::uint64_t texture_capacity{},texture_free{};
         std::uint64_t sdk_warnings{};
         bool queue_healthy{};

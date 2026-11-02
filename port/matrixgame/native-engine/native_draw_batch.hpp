@@ -8,7 +8,10 @@ namespace srhd_awa::matrixgame::platform3g {
 class NativeDrawBatch {
  std::uint64_t draws_{},bytes_{},draw_limit_,byte_limit_;
 public:
- static constexpr std::uint64_t DrawLimit=2048,ByteLimit=256ull*1024*1024;
+ // Count is an independent SDK-object bound: small uniform uploads can exhaust
+ // mapping resources long before the byte budget is reached. Draws are drained,
+ // never discarded; the logical frame/scene remains live.
+ static constexpr std::uint64_t DrawLimit=64,ByteLimit=256ull*1024*1024;
  explicit NativeDrawBatch(std::uint64_t draws=DrawLimit,std::uint64_t bytes=ByteLimit):draw_limit_(draws),byte_limit_(bytes){
   if(!draws || !bytes)throw std::invalid_argument("native draw batch limits");
  }

@@ -393,7 +393,7 @@ struct DekoDevice::Impl: presentation::Driver {
         packets.clear();surface_packets.clear();target_images.clear();
         gamma_packet={};
     }
-    void DrainBatch(){DrainNativeDrawBatch(frame,batch,*this);}
+    void DrainBatch(){DrainNativeDrawBatch(frame,batch,*this);++diagnostics.batch_drains;}
     void FlushRecording(){
         if(frame)frame.RequirePresent();if(recording)DrainBatch();
         if(image_slot<0){frame.Abort();state.Frame(false);}
@@ -486,11 +486,10 @@ struct DekoDevice::Impl: presentation::Driver {
         const bool alpha_target=target->desc.Format==28;
         const auto raster=alpha_target?AlphaTargetRaster(saved_state.raster):saved_state.raster;const auto cull=saved_state.cull;
         const auto uniforms=vertex.Prepare();const auto fog=saved_state.PixelFog();
-        const std::uint64_t bytes=std::uint64_t(AllocationSize(vertices.size_bytes()))+(indices.empty()?0:AllocationSize(indices.size()))+
-            AllocationSize(sizeof(materials::Uniforms))+AllocationSize(sizeof(materials::VertexUniforms))+AllocationSize(8*sizeof(DkSamplerDescriptor))+AllocationSize(8*sizeof(DkImageDescriptor));
+        const auto upload_layout=NativeDrawUpload::Plan(vertices.size_bytes(),indices.size());
+        const std::uint64_t bytes=std::uint64_t(upload_layout.bytes)+materials::uniform_packet::Bytes;
         if(batch.NeedsDrain(bytes) || command_pages.NeedsDrain())DrainBatch();
         BindTargets(presenting);
-        const auto upload_layout=NativeDrawUpload::Plan(vertices.size_bytes(),indices.size());
         DrawPacket packet;packet.upload=NativeDrawUpload{Allocate(upload_layout.bytes),std::as_bytes(vertices),indices};
         for(unsigned i=0;i<8;++i)if(textures[i]){
             if(target->texture==textures[i])throw Unsupported("render target texture feedback is invalid");
@@ -504,6 +503,8 @@ struct DekoDevice::Impl: presentation::Driver {
         std::array<DkResHandle,8> handles;for(unsigned i=0;i<8;++i)handles[i]=dkMakeTextureHandle(i,i);
         packet.material=programs->Prepare(combiner,handles,&uniforms,alpha_target,&fog,saved_state.shade);
         packets.push_back(std::move(packet));auto& saved=packets.back();batch.Add(bytes);++diagnostics.recorded_draws;
+        diagnostics.max_live_draw_packets=std::max(diagnostics.max_live_draw_packets,batch.Draws());
+        diagnostics.max_live_draw_bytes=std::max(diagnostics.max_live_draw_bytes,batch.Bytes());
         const auto raster_viewport=LegacyRasterViewport(uniforms.viewport);
         commands.setViewports(0,{{raster_viewport[0],raster_viewport[1],raster_viewport[2],raster_viewport[3],0,1}});
         const auto clip=LegacyRasterClip(uniforms.viewport);
