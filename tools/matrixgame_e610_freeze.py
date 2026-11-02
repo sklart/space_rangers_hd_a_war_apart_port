@@ -21,7 +21,7 @@ def history(output):
  with output.open('x',encoding='utf-8') as f:json.dump(data,f,indent=2);f.write('\n')
  print(data['status'])
 
-def package(build,commit,output):
+def package(build,commit,output,readme=None,rangers_root='sdmc:/switch/matrixgame-diag/rangers'):
  build=build.resolve();output=output.resolve();assert build.is_relative_to(ROOT/'build') and output.is_relative_to(ROOT/'dist') and output.suffix=='.zip'
  assert not output.exists();folder=output.with_suffix('');assert not folder.exists()
  gate=read(build/'result.json');metadata=read(build/'native-diagnostic-build.json');assert gate['status'].startswith('PASS') and gate['new_NRO'] and all(c['exit']==0 for c in gate['commands'])
@@ -44,7 +44,7 @@ def package(build,commit,output):
   nacp=source.parent/'control.nacp';validation=verify_nro(dest.read_bytes(),Path('C:/devkitPro/libnx/default_icon.jpg').read_bytes(),nacp.read_bytes())
   variants[name]={'sha256':sha(dest),'bytes':dest.stat().st_size,'elf_sha256':sha(elf),'elf_build_id':gate['variants'][entry]['elf_build_id'],'nro_build_id':gate['variants'][entry]['nro_build_id'],'nro_validation':validation,'retained_symbols':present,'entry':'standalone original native Init/Draw; no Campaign/Gov entry','runtime':'HARDWARE PENDING'}
   assert dest.read_bytes()[0x40:0x60].hex()==variants[name]['nro_build_id']
- template=ROOT/'docs/matrixgame-e610-switch-test-readme.ru.md';(folder/'README.ru.md').write_bytes(template.read_bytes())
+ template=readme or ROOT/'docs/matrixgame-e610-switch-test-readme.ru.md';(folder/'README.ru.md').write_bytes(template.read_bytes())
  dependency=read(ROOT/gate['dependency_result_path']);assert sha(ROOT/gate['dependency_result_path'])==gate['dependency_result_sha256']
  build_info={'source_commit':commit,'build_id':metadata['build_id'],'source_sha256':metadata['source_sha256'],'sdk_versions':{'libnx':metadata['libnx_package_version'],'deko3d':metadata['deko_package_version']},'deko_library':metadata['deko_library'],'dependency_manifest_sha256':gate['dependency_result_sha256'],'original_dependency_sha256':dependency['dependency_archive_sha256'],'commands':gate['commands'],'build_result_sha256':sha(build/'result.json'),'build_metadata_sha256':sha(build/'native-diagnostic-build.json')}
  (folder/'build-info.json').write_text(json.dumps(build_info,indent=2)+'\n',encoding='utf-8')
@@ -52,6 +52,8 @@ def package(build,commit,output):
  for source,dest in (('windows/Space Rangers HD A War Apart/DATA/robots.pkg','game/DATA/robots.pkg'),('upstream/matrixgame/MatrixGame/CFG/robots/data.txt','game/CFG/robots/data.txt'),('upstream/matrixgame/MatrixGame/CFG/robots/iface.txt','game/CFG/robots/iface.txt')):
   p=ROOT/source;external.append({'destination':'sdmc:/switch/matrixgame-diag/'+dest,'bytes':p.stat().st_size,'sha256':sha(p),'included':False})
  manifest={'status':'SOFTWARE PASS / HARDWARE PENDING','source_commit':commit,'build_id':metadata['build_id'],'source_sha256':metadata['source_sha256'],'variants':variants,'external_resources':external,'additional_external_resources':'rangers/install.txt, install_russian.txt, CFG and DATA from the same legal test copy; packages named by install files','hardware_runs':0,'Campaign_Gov_entry':False,'victory':'NOT PROVEN','full_native_UI_pump_invoked':False,'coverage_note':'Standalone calls native HID/MatrixGame input; it does not construct RangersNativeInput/UiContext/Caller/Campaign owners. Retention alone is not execution.','files_sha256':{p.name:sha(p) for p in sorted(folder.iterdir()) if p.is_file()}}
+ manifest['rangers_resource_root']=rangers_root
+ manifest['additional_external_resources']=rangers_root+'/install.txt, install_russian.txt, CFG and DATA from the same legal test copy; packages named by install files'
  (folder/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
  hashes={p.name:sha(p) for p in sorted(folder.iterdir()) if p.is_file()};(folder/'SHA256SUMS.txt').write_text(''.join(digest+'  '+name+'\n' for name,digest in hashes.items()),encoding='utf-8')
  expected={*hashes,'SHA256SUMS.txt'};assert len(expected)==6
@@ -68,8 +70,8 @@ def package(build,commit,output):
 def main():
  parser=argparse.ArgumentParser();sub=parser.add_subparsers(dest='mode',required=True)
  h=sub.add_parser('history');h.add_argument('--output',type=Path,required=True)
- p=sub.add_parser('package');p.add_argument('--build',type=Path,required=True);p.add_argument('--source-commit',required=True);p.add_argument('--output',type=Path,default=ROOT/'dist/matrixgame-e610-switch-test.zip')
+ p=sub.add_parser('package');p.add_argument('--build',type=Path,required=True);p.add_argument('--source-commit',required=True);p.add_argument('--output',type=Path,default=ROOT/'dist/matrixgame-e610-switch-test.zip');p.add_argument('--readme',type=Path);p.add_argument('--rangers-root',default='sdmc:/switch/matrixgame-diag/rangers')
  args=parser.parse_args()
  if args.mode=='history':history(args.output)
- else:package(args.build,args.source_commit,args.output)
+ else:package(args.build,args.source_commit,args.output,args.readme,args.rangers_root)
 if __name__=='__main__':main()

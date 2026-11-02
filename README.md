@@ -49,6 +49,14 @@ Build ID: `b6c18a13cef88fe757d683e18cf48fc667067bda`. Release ARM64:
 
 ## MatrixGame E610 Freeze: два запуска
 
+**Уточнение r2:** для уже скопированного DATA подготовлен вариант с Rangers root
+`sdmc:/switch/space-rangers-hd-a-war-apart/game`; повторная копия всех 2+ ГБ
+в `matrixgame-diag/rangers` не нужна. [Инструкция r2](docs/matrixgame-e610-shared-data-readme.ru.md).
+Отдельный MatrixGame root с robots.pkg и двумя текстовыми CFG сохранён.
+Пользователь наблюдал перевёрнутый по обеим осям текст FAIL в прежних двух NRO;
+причина FAIL и ориентация ожидают анализа run.jsonl. Исправление графики не заявляется.
+Старый E610 ZIP сохраняет свои исходники, пути и SHA, указанные ниже.
+
 Текущий программный этап заморожен перед аппаратной проверкой. Новую функциональность
 Campaign/Gov для этого пакета не добавляем. Все результаты на Switch до новых
 пользовательских наблюдений — **HARDWARE PENDING**.

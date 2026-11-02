@@ -225,7 +225,7 @@ int main(int argc,char** argv){
         journal=std::make_unique<dg::Journal>("sdmc:/switch/matrixgame-diag/logs",matrixgame_diagnostic_build::Id,matrixgame_diagnostic_build::SourceSha256);
         binding=std::make_unique<dg::Binding>(*journal);ImageFingerprint(argc?argv[0]:nullptr);
         const char* resources=argc>1 && argv[1] && *argv[1]?argv[1]:"sdmc:/switch/matrixgame-diag/game";
-        const char* rangers_resources=argc>2 && argv[2] && *argv[2]?argv[2]:"sdmc:/switch/matrixgame-diag/rangers";
+        const char* rangers_resources=argc>2 && argv[2] && *argv[2]?argv[2]:"sdmc:/switch/space-rangers-hd-a-war-apart/game";
         dg::Record("metadata","resource_root",resources);
         dg::Record("metadata","session_mode",Interactive?"interactive":"quick-four-frames");
         dg::Record("metadata","exit_controls",Interactive?"Minus+Plus; B/Plus remain game input":"B or Plus");
