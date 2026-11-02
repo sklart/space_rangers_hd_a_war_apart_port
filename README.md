@@ -61,6 +61,12 @@ Build ID: `b6c18a13cef88fe757d683e18cf48fc667067bda`. Release ARM64:
 [Инструкция r5](docs/matrixgame-e610-staging-r5-readme.ru.md).
 Аппаратное прохождение Init этим вариантом ещё не подтверждено.
 
+Проверенный пакет r5: `dist/matrixgame-e610-switch-test-r5-staging.zip`.
+Source SHA `937eccd13fc2b8911863459ae6e0ee734c31adca`;
+ZIP SHA256 `f4daff97e481550fa0bff3bd5b8cd78053963c4ebd9a90d9926fb69407f8da68`.
+Windows/host sanitizer/ARM64 QEMU и SDK/package checks — PASS;
+аппаратный r5 — PENDING. [Отчёт и SHA r5](reports/matrixgame-e610-staging-r5.md).
+
 **Результат r3:** аппаратные Quick/Interactive прошли VI query, ApplyVideoParams
 и побайтовое сравнение identity presentation. Поздний Init остановился на
 `original managed texture decode failed: -1`; полные игровые кадры не достигнуты.

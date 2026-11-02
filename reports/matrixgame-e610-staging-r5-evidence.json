@@ -1,0 +1,801 @@
+{
+  "status": "SOFTWARE PASS; R5 HARDWARE PENDING",
+  "source_commit": "937eccd13fc2b8911863459ae6e0ee734c31adca",
+  "build_id": "937eccd13fc2-7a9c102056ba1fc5c8a2",
+  "old_files_unchanged": 171,
+  "own_source_hashes_verified": 687,
+  "binary_checks": {
+    "matrixgame-native-diagnostic": {
+      "SDK_default_window_definitions_absent": [
+        "nwindowGetDefault",
+        "__nx_win_init",
+        "__nx_win_exit"
+      ],
+      "SDL_accessor_bound_to_real_window": true,
+      "display_query_and_orientation_check_retained": true,
+      "nacp_title": "MatrixGame r5 Quick Smoke"
+    },
+    "matrixgame-native-interactive": {
+      "SDK_default_window_definitions_absent": [
+        "nwindowGetDefault",
+        "__nx_win_init",
+        "__nx_win_exit"
+      ],
+      "SDL_accessor_bound_to_real_window": true,
+      "display_query_and_orientation_check_retained": true,
+      "nacp_title": "MatrixGame r5 Interactive"
+    }
+  },
+  "tests": {
+    "build\\matrixgame\\e610-staging-r5-checks\\host\\1\\result.json": {
+      "sha256": "d541d2867830abc60fb85fc26683ddd36ae73ca1f66d063e95c1849738e4c87f",
+      "result": {
+        "status": "PASS REAL STAGING SETTERS/DECODE/LEASE/LIFETIME/INVALID INPUTS; NO GPU",
+        "commands": [
+          {
+            "label": "compile-fixed_vertex",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/fixed_vertex.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1/fixed_vertex.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-buffer_resources",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/buffer_resources.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1/buffer_resources.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-native_device_state",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_device_state.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1/native_device_state.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-material_combiner",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_combiner.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1/material_combiner.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-test_matrixgame_staging_binding",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_staging_binding.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1/test_matrixgame_staging_binding.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "link",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-no-pie",
+              "-Wl,--gc-sections",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1/native_device_state.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1/buffer_resources.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1/fixed_vertex.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1/material_combiner.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1/test_matrixgame_staging_binding.o",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1/binding"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "runtime",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/host/1/binding"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          }
+        ],
+        "scope": "actual buffers/fixed vertex decoding/state snapshots; NO GPU or original Init",
+        "stdout": "STAGING_BINDING PASS switch/offset/stride/null/index decode_actual_bytes snapshot_restore retain/release foreign/locked/stream/range_rejected CPU_ONLY NO_GPU\n",
+        "source_sha256": {
+          "port/matrixgame/native-engine/native_device_state.cpp": "11fe560658c72e83d164b21b1b31e474392467dab400fc50f65c925126d4a8e9",
+          "port/matrixgame/native-core/buffer_resources.cpp": "aefc5bf2f13738d858c9feddeb8361501c64683692257d535cb85616a139cf61",
+          "port/matrixgame/deko/fixed_vertex.cpp": "c2394c37e96738367b7730c5dfa3927158de7aad6081304e7a8bf2f53e305d35",
+          "port/matrixgame/deko/material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+          "tests/test_matrixgame_staging_binding.cpp": "d897de39eba3888a66d9e6c256f6042c43472bba014bd672f3bb24eda0976709",
+          "port/matrixgame/native-engine/native_staging_binding.hpp": "c588da95806945733b69898e23524f876c5a63ca1b79a04bb08a4659820c28a8",
+          "port/matrixgame/native-engine/platform_switch.cpp": "5fc721a128e7a6654ec0d0fdc865d7f96b1994d33dbff8080e12af19d0c29d0a",
+          "port/matrixgame/native-core/buffer_resources.hpp": "d599d99b580f59500a2477a7dad917263165db1cb47a459850b1d6fbdae1751b",
+          "tools/matrixgame_staging_binding_checks.py": "98db0bd52a167fac7af99227025484ec6225d838874c06b5edae33aeafa96eba"
+        }
+      }
+    },
+    "build\\matrixgame\\e610-staging-r5-checks\\arm64\\1\\result.json": {
+      "sha256": "33856928c5b4443f7d6b064df4cc9b4b2d721336fb225551eb82c6d3cf84a5c4",
+      "result": {
+        "status": "PASS REAL STAGING SETTERS/DECODE/LEASE/LIFETIME/INVALID INPUTS; NO GPU",
+        "commands": [
+          {
+            "label": "compile-fixed_vertex",
+            "command": [
+              "wsl",
+              "--exec",
+              "aarch64-linux-gnu-g++-15",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-fvisibility-inlines-hidden",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/fixed_vertex.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1/fixed_vertex.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-buffer_resources",
+            "command": [
+              "wsl",
+              "--exec",
+              "aarch64-linux-gnu-g++-15",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-fvisibility-inlines-hidden",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/buffer_resources.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1/buffer_resources.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-native_device_state",
+            "command": [
+              "wsl",
+              "--exec",
+              "aarch64-linux-gnu-g++-15",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-fvisibility-inlines-hidden",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_device_state.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1/native_device_state.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-material_combiner",
+            "command": [
+              "wsl",
+              "--exec",
+              "aarch64-linux-gnu-g++-15",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-fvisibility-inlines-hidden",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_combiner.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1/material_combiner.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-test_matrixgame_staging_binding",
+            "command": [
+              "wsl",
+              "--exec",
+              "aarch64-linux-gnu-g++-15",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-fvisibility-inlines-hidden",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_staging_binding.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1/test_matrixgame_staging_binding.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "link",
+            "command": [
+              "wsl",
+              "--exec",
+              "aarch64-linux-gnu-g++-15",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1",
+              "-fsanitize=undefined",
+              "-fno-sanitize-recover=undefined",
+              "-fvisibility-inlines-hidden",
+              "-no-pie",
+              "-Wl,--gc-sections",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1/native_device_state.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1/buffer_resources.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1/fixed_vertex.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1/material_combiner.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1/test_matrixgame_staging_binding.o",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1/binding",
+              "-Wl,--version-script=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1/ubsan-local.map"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "runtime",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "qemu-aarch64",
+              "-L",
+              "/usr/aarch64-linux-gnu",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/arm64/1/binding"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          }
+        ],
+        "scope": "actual buffers/fixed vertex decoding/state snapshots; NO GPU or original Init",
+        "stdout": "STAGING_BINDING PASS switch/offset/stride/null/index decode_actual_bytes snapshot_restore retain/release foreign/locked/stream/range_rejected CPU_ONLY NO_GPU\n",
+        "source_sha256": {
+          "port/matrixgame/native-engine/native_device_state.cpp": "11fe560658c72e83d164b21b1b31e474392467dab400fc50f65c925126d4a8e9",
+          "port/matrixgame/native-core/buffer_resources.cpp": "aefc5bf2f13738d858c9feddeb8361501c64683692257d535cb85616a139cf61",
+          "port/matrixgame/deko/fixed_vertex.cpp": "c2394c37e96738367b7730c5dfa3927158de7aad6081304e7a8bf2f53e305d35",
+          "port/matrixgame/deko/material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+          "tests/test_matrixgame_staging_binding.cpp": "d897de39eba3888a66d9e6c256f6042c43472bba014bd672f3bb24eda0976709",
+          "port/matrixgame/native-engine/native_staging_binding.hpp": "c588da95806945733b69898e23524f876c5a63ca1b79a04bb08a4659820c28a8",
+          "port/matrixgame/native-engine/platform_switch.cpp": "5fc721a128e7a6654ec0d0fdc865d7f96b1994d33dbff8080e12af19d0c29d0a",
+          "port/matrixgame/native-core/buffer_resources.hpp": "d599d99b580f59500a2477a7dad917263165db1cb47a459850b1d6fbdae1751b",
+          "tools/matrixgame_staging_binding_checks.py": "98db0bd52a167fac7af99227025484ec6225d838874c06b5edae33aeafa96eba"
+        }
+      }
+    },
+    "build\\matrixgame\\e610-staging-r5-checks\\windows\\1\\result.json": {
+      "sha256": "ffd2217e750108885b78f20554968eed70148ba3df95a891fb0ddf097ace4756",
+      "result": {
+        "status": "PASS REAL STAGING SETTERS/DECODE/LEASE/LIFETIME/INVALID INPUTS; NO GPU",
+        "commands": [
+          {
+            "label": "build",
+            "command": [
+              "cmd.exe",
+              "/d",
+              "/c",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-staging-r5-checks\\windows\\1\\build.cmd"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "runtime",
+            "command": [
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-staging-r5-checks\\windows\\1\\binding.exe"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          }
+        ],
+        "scope": "actual buffers/fixed vertex decoding/state snapshots; NO GPU or original Init",
+        "stdout": "STAGING_BINDING PASS switch/offset/stride/null/index decode_actual_bytes snapshot_restore retain/release foreign/locked/stream/range_rejected CPU_ONLY NO_GPU\n",
+        "source_sha256": {
+          "port/matrixgame/native-engine/native_device_state.cpp": "11fe560658c72e83d164b21b1b31e474392467dab400fc50f65c925126d4a8e9",
+          "port/matrixgame/native-core/buffer_resources.cpp": "aefc5bf2f13738d858c9feddeb8361501c64683692257d535cb85616a139cf61",
+          "port/matrixgame/deko/fixed_vertex.cpp": "c2394c37e96738367b7730c5dfa3927158de7aad6081304e7a8bf2f53e305d35",
+          "port/matrixgame/deko/material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+          "tests/test_matrixgame_staging_binding.cpp": "d897de39eba3888a66d9e6c256f6042c43472bba014bd672f3bb24eda0976709",
+          "port/matrixgame/native-engine/native_staging_binding.hpp": "c588da95806945733b69898e23524f876c5a63ca1b79a04bb08a4659820c28a8",
+          "port/matrixgame/native-engine/platform_switch.cpp": "5fc721a128e7a6654ec0d0fdc865d7f96b1994d33dbff8080e12af19d0c29d0a",
+          "port/matrixgame/native-core/buffer_resources.hpp": "d599d99b580f59500a2477a7dad917263165db1cb47a459850b1d6fbdae1751b",
+          "tools/matrixgame_staging_binding_checks.py": "98db0bd52a167fac7af99227025484ec6225d838874c06b5edae33aeafa96eba"
+        }
+      }
+    },
+    "build\\matrixgame\\e610-staging-r5-checks\\baseline\\1\\result.json": {
+      "sha256": "c8ed0cd2af731274794e909ffe03c7c03ec10181ef9a0ed028ca96af74e877fc",
+      "result": {
+        "status": "PASS R4 BINDING FAILURE REPRODUCED",
+        "commands": [
+          {
+            "label": "compile-fixed_vertex",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-DMATRIXGAME_BINDING_BASELINE=1",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/fixed_vertex.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1/fixed_vertex.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-buffer_resources",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-DMATRIXGAME_BINDING_BASELINE=1",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/buffer_resources.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1/buffer_resources.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-native_device_state",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-DMATRIXGAME_BINDING_BASELINE=1",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_device_state.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1/native_device_state.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-material_combiner",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-DMATRIXGAME_BINDING_BASELINE=1",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_combiner.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1/material_combiner.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "compile-test_matrixgame_staging_binding",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-DMATRIXGAME_BINDING_BASELINE=1",
+              "-c",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_staging_binding.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1/test_matrixgame_staging_binding.o"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "link",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O1",
+              "-g",
+              "-UNDEBUG",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-fno-pie",
+              "-ffp-contract=off",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1",
+              "-fsanitize=address,undefined",
+              "-fno-omit-frame-pointer",
+              "-DMATRIXGAME_BINDING_BASELINE=1",
+              "-no-pie",
+              "-Wl,--gc-sections",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1/native_device_state.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1/buffer_resources.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1/fixed_vertex.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1/material_combiner.o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1/test_matrixgame_staging_binding.o",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1/binding"
+            ],
+            "exit": 0,
+            "expected_failure": false
+          },
+          {
+            "label": "runtime",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-staging-r5-checks/baseline/1/binding"
+            ],
+            "exit": 6,
+            "expected_failure": true
+          }
+        ],
+        "scope": "actual buffers/fixed vertex decoding/state snapshots; NO GPU or original Init",
+        "baseline_extracted_sha256": "0f85b86362750211d113d7c1273a417d6b8005d43b88974b16727b213efdd9a2",
+        "stdout": "terminate called after throwing an instance of 'srhd_awa::matrixgame::platform3g::Unsupported'\n  what():  native vertex binding differs from retained staging context\n",
+        "source_sha256": {
+          "port/matrixgame/native-engine/native_device_state.cpp": "11fe560658c72e83d164b21b1b31e474392467dab400fc50f65c925126d4a8e9",
+          "port/matrixgame/native-core/buffer_resources.cpp": "aefc5bf2f13738d858c9feddeb8361501c64683692257d535cb85616a139cf61",
+          "port/matrixgame/deko/fixed_vertex.cpp": "c2394c37e96738367b7730c5dfa3927158de7aad6081304e7a8bf2f53e305d35",
+          "port/matrixgame/deko/material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+          "tests/test_matrixgame_staging_binding.cpp": "d897de39eba3888a66d9e6c256f6042c43472bba014bd672f3bb24eda0976709",
+          "port/matrixgame/native-engine/native_staging_binding.hpp": "c588da95806945733b69898e23524f876c5a63ca1b79a04bb08a4659820c28a8",
+          "port/matrixgame/native-engine/platform_switch.cpp": "5fc721a128e7a6654ec0d0fdc865d7f96b1994d33dbff8080e12af19d0c29d0a",
+          "port/matrixgame/native-core/buffer_resources.hpp": "d599d99b580f59500a2477a7dad917263165db1cb47a459850b1d6fbdae1751b",
+          "tools/matrixgame_staging_binding_checks.py": "98db0bd52a167fac7af99227025484ec6225d838874c06b5edae33aeafa96eba"
+        }
+      }
+    }
+  },
+  "package": {
+    "status": "VERIFIED E610 TWO-NRO PACKAGE; HARDWARE PENDING",
+    "source_commit": "937eccd13fc2b8911863459ae6e0ee734c31adca",
+    "build_id": "937eccd13fc2-7a9c102056ba1fc5c8a2",
+    "zip": "dist\\matrixgame-e610-switch-test-r5-staging.zip",
+    "zip_sha256": "f4daff97e481550fa0bff3bd5b8cd78053963c4ebd9a90d9926fb69407f8da68",
+    "zip_bytes": 10054895,
+    "files_sha256": {
+      "build-info.json": "45b970b5d7644c47349233b3e50acc0aec224d93344f3d502b69bdd2ee9950dc",
+      "manifest.json": "9f32227ad606fa08ac796184d2a7ad15bf98f25731938e44a2a7bdb561e02ec1",
+      "matrixgame-e610-interactive.nro": "2cfb5d13c71149bd53736eed7281eb85ef2f26970fddab17051f525bd172113c",
+      "matrixgame-e610-quick-smoke.nro": "9ae039508821491b9c59cb02cee6ff29a3bfb8b1dbdb26cd01bee09f600947cd",
+      "README.ru.md": "38036efe8f5191e2e7d300dab44fa3d9dbd2da5015f2fb3b65e76e35e7adca35",
+      "SHA256SUMS.txt": "d42adb723b2879514bf367c811bdc7fb635c04555615f56855924529c4896d24"
+    },
+    "variants": {
+      "matrixgame-e610-quick-smoke.nro": {
+        "sha256": "9ae039508821491b9c59cb02cee6ff29a3bfb8b1dbdb26cd01bee09f600947cd",
+        "bytes": 14928069,
+        "elf_sha256": "f428fbdd1315897066a74bd583924fd5cae6b13276feb626ffcb4096658157ad",
+        "elf_build_id": "1f472634190be2fb310d77b3c1558e64a7630828",
+        "nro_build_id": "1f472634190be2fb310d77b3c1558e64a7630828000000000000000000000000",
+        "nro_validation": {
+          "code_size": 14905344,
+          "segments": 3,
+          "embedded_icon": {
+            "offset": 14905400,
+            "size": 6285
+          },
+          "embedded_nacp": {
+            "offset": 14911685,
+            "size": 16384
+          },
+          "romfs_required": false
+        },
+        "retained_symbols": {
+          "native_hid_poll": true,
+          "native_hold_reset": false,
+          "router_warp": true,
+          "rangers_ui_owner": false,
+          "ui_context": false,
+          "caller_lease": false,
+          "native_rgb565_presenter": false,
+          "campaign_session": false,
+          "GR_WinMessage": false
+        },
+        "entry": "standalone original native Init/Draw; no Campaign/Gov entry",
+        "runtime": "HARDWARE PENDING"
+      },
+      "matrixgame-e610-interactive.nro": {
+        "sha256": "2cfb5d13c71149bd53736eed7281eb85ef2f26970fddab17051f525bd172113c",
+        "bytes": 14928069,
+        "elf_sha256": "95ba26a0fcca59418c25bdd850de9daa870e9b593a7647665741e238d035fb01",
+        "elf_build_id": "c202a2ae22cfc08dbda5b245727870ed066de427",
+        "nro_build_id": "c202a2ae22cfc08dbda5b245727870ed066de427000000000000000000000000",
+        "nro_validation": {
+          "code_size": 14905344,
+          "segments": 3,
+          "embedded_icon": {
+            "offset": 14905400,
+            "size": 6285
+          },
+          "embedded_nacp": {
+            "offset": 14911685,
+            "size": 16384
+          },
+          "romfs_required": false
+        },
+        "retained_symbols": {
+          "native_hid_poll": true,
+          "native_hold_reset": false,
+          "router_warp": true,
+          "rangers_ui_owner": false,
+          "ui_context": false,
+          "caller_lease": false,
+          "native_rgb565_presenter": false,
+          "campaign_session": false,
+          "GR_WinMessage": false
+        },
+        "entry": "standalone original native Init/Draw; no Campaign/Gov entry",
+        "runtime": "HARDWARE PENDING"
+      }
+    },
+    "package": "dist\\matrixgame-e610-switch-test-r5-staging"
+  },
+  "exact_generated_original_delta": [
+    "MatrixLib/3G/OriginalManagedTexture.cpp",
+    "MatrixLib/3G/Texture.cpp"
+  ],
+  "targeted_test_sources_sha256": {
+    "tests/test_matrixgame_staging_binding.cpp": "d897de39eba3888a66d9e6c256f6042c43472bba014bd672f3bb24eda0976709"
+  }
+}

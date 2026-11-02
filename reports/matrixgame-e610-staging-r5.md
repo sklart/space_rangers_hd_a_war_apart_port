@@ -62,3 +62,39 @@ null unbind, nested snapshot restore, retain/release после Release влад
 полный RenderBackground, Init, карту, GPU/HID или бой на Switch. Campaign/Gov
 entry и естественная победа остаются вне standalone покрытия. Старые NRO/ZIP,
 основная NRO, ресурсы, сохранения, upstream и frozen-комплекты сохраняются.
+
+## Итоговая сборка и пакет
+
+**SOFTWARE PASS / R5 HARDWARE PENDING.**
+Source commit: `937eccd13fc2b8911863459ae6e0ee734c31adca`.
+Каталог SDK: build/matrixgame/e610-staging-r5/1.
+Build ID: `937eccd13fc2-7a9c102056ba1fc5c8a2`.
+Configure и compile/link двух стандартных целей завершились с 0. Проверены
+отсутствие strong undefined, AArch64 ELF, NRO0/ASET/icon/NACP, встроенные шрифты
+и соответствие ELF/NRO build ID. Все 687 собственных source hashes совпали.
+Generated original engine побайтово совпадает с r4; 171 ранее существовавший
+файл dist/logs/saves и прежние SDK-артефакты прошли сверку SHA.
+Основная/root NRO, оригинальные ресурсы и frozen inputs проверены builder guards.
+
+В обеих ELF сохранены проверки постусловий vertex/index setters; прежний
+comparison-only error marker отсутствует. Managed eviction, VI query и
+orientation checker сохранены; автоматический SDK default-window startup не
+включён, SDL accessor по-прежнему связан с реальным окном владельца.
+
+Пакет: `dist/matrixgame-e610-switch-test-r5-staging.zip`, 10054895 байт.
+SHA256: `f4daff97e481550fa0bff3bd5b8cd78053963c4ebd9a90d9926fb69407f8da68`.
+
+| NRO | SHA256 | ELF build ID |
+| --- | --- | --- |
+| Quick Smoke | `9ae039508821491b9c59cb02cee6ff29a3bfb8b1dbdb26cd01bee09f600947cd` | `1f472634190be2fb310d77b3c1558e64a7630828` |
+| Interactive | `2cfb5d13c71149bd53736eed7281eb85ef2f26970fddab17051f525bd172113c` | `c202a2ae22cfc08dbda5b245727870ed066de427` |
+
+ZIP содержит ровно шесть файлов: две NRO, README.ru.md, manifest.json,
+SHA256SUMS.txt и build-info.json. CRC, SHA и побайтовое соответствие папке
+пакета проверены. Игровые данные и сохранения в ZIP не включены.
+[Машиночитаемое evidence](matrixgame-e610-staging-r5-evidence.json).
+
+Копировать две NRO в `/switch/matrixgame-e610-r5-test/`; DATA/CFG оставить на
+прежних местах. Сначала Quick Smoke, затем Interactive с выходом Minus+Plus.
+При отказе передать новые папки run directories и фото экрана. До этих результатов
+полный Init и четыре настоящих игровых кадра r5 не объявляются пройденными.
