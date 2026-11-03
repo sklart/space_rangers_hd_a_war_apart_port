@@ -480,4 +480,9 @@ SOFTWARE PASS / HARDWARE PENDING; ресурсы, сохранения, осно
 не меняются. Итоговый host результат: 111.4 → 89.0 мс / 100000 draw,
 −20.1% CPU-подготовки, не FPS Switch. [Проверки и измерения](reports/matrixgame-e610-register-r14.md),
 [инструкция](docs/matrixgame-e610-register-r14-readme.ru.md).
-Новые отдельные NRO готовятся; HARDWARE PENDING.
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r14-register.zip`; source
+`573cae7b5d968e5c68e9ecd643865141c295fb2b`, build `573cae7b5d96-c2a97dc7ba02cac1ba0d`.
+В hbmenu **MatrixGame r14 Quick Smoke** / **MatrixGame r14 Interactive**.
+4197 cases, COW/OOM/restore, host ASan/UBSan, ARM64/QEMU UBSan, Windows O2
+и SDK/link/package — PASS. [SHA256 и evidence](reports/matrixgame-e610-register-r14.md).
+SOFTWARE PASS / HARDWARE PENDING. Ресурсы, saves, основная NRO и старые пакеты сохранены.

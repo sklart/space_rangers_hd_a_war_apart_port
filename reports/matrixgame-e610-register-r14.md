@@ -75,3 +75,53 @@ Final benchmark/2: frozen 110255/111397/113082 мкс, candidate
 Evidence paths: build/matrixgame/e610-register-r14-checks/{host,arm64,windows}/1,
 {host-ownership,arm64-ownership,windows-ownership}/1 и benchmark/2.
 Поддерживаемый runner: tools/matrixgame_register_walk_checks.py.
+
+
+Проверка воспроизводимости выявила EOL-only остаток после отклонённого Multiply:
+fixed_vertex.cpp был восстановлен с CRLF вместо исходного LF. Файл затем
+побайтово восстановлен до r13 SHA c2394c37e96738367b7730c5dfa3927158de7aad6081304e7a8bf2f53e305d35.
+Проверенный CPU snapshot CRLF сохранён в compiled-fixed-vertex-crlf.cpp, его
+нормализованные bytes точно равны итоговому LF файлу (eol-proof.json).
+Остальные проверенные source bytes совпадают точно. CPU логи не переписаны.
+SDK build /1 успешно скомпилировался, но source hash gate правильно отклонил
+изменённый input; эта попытка сохранена, NRO из неё не выдаются. Итоговый пакет
+строится в /2 из окончательных исходников с новым fingerprint/build ID.
+
+## Проверенная доставка r14
+
+Source commit: `573cae7b5d968e5c68e9ecd643865141c295fb2b`.
+Build ID: `573cae7b5d96-c2a97dc7ba02cac1ba0d`.
+
+Итоговые стандартные SDK targets — build/matrixgame/e610-register-r14/2.
+DevkitA64 compile/link — PASS; unresolved strong symbols отсутствуют.
+ELF/NRO build IDs, headers/segments, icon/NACP, встроенные fonts/shaders и
+source fingerprints проверены. PrepareDraw реально связан с обеими NRO;
+standalone entry и границы Campaign/Gov не изменены.
+
+Compiler provenance: 321 configured TUs, RelWithDebInfo/O2/UNDEBUG, assertions и exceptions retained, без fast-math.
+Неизменённый prebuilt Rangers/UI archive не пересобирался и не объявляется
+оптимизированным. В каждом link map 23 объекта deko3dd, без deko3d; реальные
+SDK debug context/RaiseError retained. Generated originals побайтово совпадают
+с r13; относительно E601 остаются только прежние три overlay delta.
+
+Проверены 703 own source hashes и 234 прежних защищённых файла; ресурсы,
+saves, frozen/upstream pins, основная NRO, старые NRO/ZIP не изменены.
+[Полное машинное evidence](matrixgame-e610-register-r14-evidence.json).
+
+ZIP: `dist/matrixgame-e610-switch-test-r14-register.zip`, 10161875 bytes.
+SHA256: `ba6abd2e629dd023a83b1e7cd4e9d5dade8dac1cecbc9fd2832641f83df34cdb`.
+
+| NRO | SHA256 | ELF build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `862ea63e1a49f0229ac0f17ce4da2e0d49934bb1082355312265cb5709d87fe3` | `7a4385fbf133b45261e9b7899fc4464a8c5241ed` |
+| matrixgame-e610-interactive.nro | `e24212ca2a5e906338c61de690c339558509e97ee833a9cae7bab5580a9dbd54` | `37fc018feb7a6f86fa573055ea1d1419c26979bd` |
+
+Архив содержит две NRO, README.ru.md, manifest.json, SHA256SUMS.txt и
+build-info.json. Ресурсов и сохранений нет. Копирование NRO — в отдельную
+папку `/switch/matrixgame-e610-r14-test/`, roots DATA/CFG прежние.
+В hbmenu **MatrixGame r14 Quick Smoke** и **MatrixGame r14 Interactive**.
+Запустить Quick, затем Interactive в Application Mode; выход Minus+Plus.
+Передать два новых каталога `/switch/matrixgame-diag/logs/<run-id>/` и фото.
+
+**SOFTWARE PASS / HARDWARE PENDING.** Адресная оптимизация завершена;
+следующие изменения — по новому аппаратному профилю.
