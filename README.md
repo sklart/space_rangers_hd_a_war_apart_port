@@ -465,9 +465,19 @@ CPU сравнение с frozen r12 охватывает 4173 случая и �
 итоговый host замер 127.0 → 108.9 мс / 100000 draw (−14.2% времени
 участка, не FPS Switch). [Изменение и проверки](reports/matrixgame-e610-prepare-r13.md),
 [два ручных запуска](docs/matrixgame-e610-prepare-r13-readme.ru.md).
-Актуальный пакет: `dist/matrixgame-e610-switch-test-r13-prepare.zip`; source
+Пакет r13: `dist/matrixgame-e610-switch-test-r13-prepare.zip`; source
 `a6ec23bbf0b0a5d5a651816dc92adeebc01af5f0`, build `a6ec23bbf0b0-a31acd8c06fd944a1dac`.
 В hbmenu **MatrixGame r13 Quick Smoke** / **MatrixGame r13 Interactive**.
 Host ASan/UBSan, ARM64/QEMU UBSan, Windows O2, SDK/link/package — PASS.
 [SHA256 и evidence](reports/matrixgame-e610-prepare-r13.md).
 SOFTWARE PASS / HARDWARE PENDING; ресурсы, сохранения, основная NRO и старые пакеты не менялись.
+
+
+### MatrixGame E610 r14: упорядоченное чтение logical registers
+
+В PrepareDraw один проход std::map заменяет повторный поиск каждого raw value.
+Все 103 logical reads и порядок ошибок сохранены; layout/COW/restore и ресурсы
+не меняются. Итоговый host результат: 111.4 → 89.0 мс / 100000 draw,
+−20.1% CPU-подготовки, не FPS Switch. [Проверки и измерения](reports/matrixgame-e610-register-r14.md),
+[инструкция](docs/matrixgame-e610-register-r14-readme.ru.md).
+Новые отдельные NRO готовятся; HARDWARE PENDING.

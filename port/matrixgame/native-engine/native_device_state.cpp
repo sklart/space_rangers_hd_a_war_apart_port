@@ -29,6 +29,8 @@ const NativeStateWord& Word(std::uint32_t id){
     return NativeRenderWords[Lookup(id).word-1];
 }
 constexpr bool Is(std::string_view name,std::initializer_list<std::string_view> names){return std::find(names.begin(),names.end(),name)!=names.end();}
+// The draw walk below relies on the original ordinal IDs being sorted.
+static_assert([](){for(unsigned i=1;i<NativeRenderWords.size();++i)if(NativeRenderWords[i-1].id>=NativeRenderWords[i].id)return false;return true;}());
 enum class DrawRule {None,Zero,One,Fill,FloatZero,SeparateAlpha};
 constexpr auto DrawRules=[](){
     std::array<DrawRule,NativeRenderWords.size()> rules{};
@@ -110,7 +112,16 @@ PreparedDrawState NativeRenderState::PrepareDraw(bool points,bool lines,std::uin
     // Read EVERY logical word in the original order, including inactive words:
     // missing/corrupt state must still fail. Only metadata search/classification
     // is precomputed; no validation result is cached across draws or setters.
-    for(unsigned i=0;i<NativeRenderWords.size();++i){const auto& word=NativeRenderWords[i];const auto n=word.name;const auto v=Render(word.id);
+    auto logical=registers.begin();
+    auto read=[&](std::uint32_t id){
+        const auto& kind=RenderLookup[id];
+        if(kind.vertex || kind.raster || id==9 || id==22 || id==60)return Render(id);
+        while(logical!=registers.end() && logical->first<id)++logical;
+        // Preserve std::map::at's platform-specific exception on a missing word.
+        if(logical==registers.end() || logical->first!=id)return registers.at(id);
+        return logical->second;
+    };
+    for(unsigned i=0;i<NativeRenderWords.size();++i){const auto& word=NativeRenderWords[i];const auto n=word.name;const auto v=read(word.id);
         switch(DrawRules[i]){
         case DrawRule::None:break;
         case DrawRule::Zero:require(n,v==0);break;
