@@ -34,13 +34,61 @@ def prepare_transition(output):
     if text.count(begin)!=1 or text.count(end)!=1:raise ValueError('Original transition capture block changed')
     first=text.index(begin);last=text.index(end,first)+len(end)
     text=text[:first]+'    transition_native::CaptureLoadingImage(bm, m_ScreenX, m_ScreenY);'+text[last:]
+    old='''    CBlockPar *tra = g_MatrixData->BlockGetNE(L"Transitions");
+    if (tra == NULL)
+        return;
+    tra = tra->BlockGetNE(utils::format(L"%d.%d", m_ScreenX, m_ScreenY).c_str());
+
+    if (tra == NULL)
+        return;'''
+    new='''    diagnostic::Operation geometry_trace("B.transition.BuildTexture");
+    CBlockPar *transitions = g_MatrixData->BlockGetNE(L"Transitions");
+    if (!transitions) throw rp3g::Unsupported("missing authored transition data");
+    const auto geometry=transition_native::ResolveGeometry(m_ScreenX,m_ScreenY,
+        [&](const std::wstring& name){return transitions->BlockGetNE(name);});
+    CBlockPar *tra=geometry.block;
+    diagnostic::Record("metadata","B.transition.geometry",
+        geometry.width==m_ScreenX && geometry.height==m_ScreenY?"exact authored layout":"scaled authored layout");
+    diagnostic::Metric("transition.source_width",geometry.width);
+    diagnostic::Metric("transition.source_height",geometry.height);
+    diagnostic::Metric("transition.target_width",m_ScreenX);
+    diagnostic::Metric("transition.target_height",m_ScreenY);
+    diagnostic::Metric("transition.geometry_count",tra->ParCount());'''
+    if text.count(old)!=1:raise ValueError('Original transition layout lookup changed')
+    text=text.replace(old,new)
+    # Scale authored coordinates BEFORE deriving UVs for the native screenshot.
+    # Scale velocity too: target resize must not change animation duration.
+    for axis,field in ((0,'x'),(1,'y')):
+        pattern=r'(?m)^(\s*m_Geom\[i\]\.verts\[[0-3]\]\.p\.'+field+r' = [^\r\n;]+);$'
+        text,count=re.subn(pattern,r'\1 * geometry.'+field+'_scale;',text)
+        if count!=4:raise ValueError('Original transition coordinates changed')
+    marker='        m_Geom[i].dir *= (float)tra->ParGetName(i).GetStrPar(1, L",").GetDouble();'
+    if text.count(marker)!=1:raise ValueError('Original transition velocity changed')
+    text=text.replace(marker,marker+'\n        m_Geom[i].dir.x *= geometry.x_scale;\n        m_Geom[i].dir.y *= geometry.y_scale;')
+    # Capture can fail before m_Tex is published. Always release partial geometry
+    # during the existing Clear/Deinit path, including that failure case.
+    old='''        HFree(m_Geom, g_MatrixHeap);
+        m_Geom = NULL;
+        m_GeomCnt = 0;
+    }
+}'''
+    new='''    }
+    if(m_Geom) HFree(m_Geom, g_MatrixHeap);
+    m_Geom = NULL;
+    m_GeomCnt = 0;
+}'''
+    if text.count(old)!=1:raise ValueError('Original transition cleanup changed')
+    text=text.replace(old,new)
     prelude='''#include "Texture.hpp"
 #include "transition_backend.hpp"
+#include "transition_geometry.hpp"
+#include "native_diagnostic_journal.hpp"
 #include "offscreen_backend.hpp"
 #include "renderer_ops.hpp"
 namespace rp3g=srhd_awa::matrixgame::platform3g;
 namespace transition_native=srhd_awa::matrixgame::transition;
 namespace transition_offscreen=srhd_awa::matrixgame::offscreen;
+namespace diagnostic=srhd_awa::matrixgame::diagnostic;
 #undef ASSERT_DX
 #ifdef ASSERT_OFF
 #define ASSERT_DX(call) (call)

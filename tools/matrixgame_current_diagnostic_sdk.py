@@ -32,7 +32,7 @@ def main():
   original_baseline=read(baseline/'native-diagnostic-build.json')['generated_original_sha256']
   generated=metadata['generated_original_sha256'];assert generated.keys()==original_baseline.keys()
   changed={name for name in generated if generated[name]!=original_baseline[name]}
-  assert changed=={'MatrixLib/3G/OriginalManagedTexture.cpp','MatrixLib/3G/Texture.cpp'},changed
+  assert changed=={'MatrixLib/3G/OriginalManagedTexture.cpp','MatrixLib/3G/Texture.cpp','MatrixGame/src/OriginalTransition.cpp'},changed
   result['generated_original_changes_vs_E601']=sorted(changed)
   artifacts={};variants={};fonts=[out/'debug-font/original-font.bin',*[out/f'text-font/font{i}.bin' for i in range(4)]]
   for entry,folder in (('matrixgame-native-interactive','interactive-nro'),('matrixgame-native-diagnostic','diagnostic-nro')):
@@ -46,7 +46,7 @@ def main():
    if metadata['deko_library']=='deko3dd':
     assert 'dk::detail::SetContextForDebug(' in symbols and 'dk::detail::RaiseError(DkResult, char const*)' in symbols
     assert 'dk::detail::RaiseError(DkResult)\n' not in symbols
-   title='MatrixGame r9 Interactive' if entry.endswith('interactive') else 'MatrixGame r9 Quick Smoke'
+   title='MatrixGame r10 Interactive' if entry.endswith('interactive') else 'MatrixGame r10 Quick Smoke'
    variants[entry]={'elf_build_id':elf_id,'nro_build_id':nro_id,'NRO':str(nro.relative_to(ROOT)),'nacp_title':title,'validation':verify_nro(nro.read_bytes(),Path('C:/devkitPro/libnx/default_icon.jpg').read_bytes(),nacp.read_bytes(),title),'strong_undefined':[],'runtime':'NOT RUN'}
    variants[entry]['deko_link_provenance']=provenance
    artifacts.update({str(p.relative_to(ROOT)):{'sha256':sha(p),'bytes':p.stat().st_size} for p in (elf,nro,nacp)})
