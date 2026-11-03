@@ -734,7 +734,7 @@ DeviceResult DekoDevice::NativeDrawIndexed(std::uint32_t kind,int base,std::uint
     std::vector<materials::Vertex> vertices(count);std::vector<bool> decoded(count);
     for(std::size_t i=0;i<elements;++i){std::uint32_t value{};if(width==2){std::uint16_t v;std::memcpy(&v,indices.data()+i*2,2);value=v;}else std::memcpy(&value,indices.data()+i*4,4);
         const auto local=value-minimum;if(!decoded.at(local)){const auto offset=binding.offset+std::uint64_t(std::int64_t(base)+value)*binding.stride;
-            vertices[local]=impl_->state.Read().vertex.DecodeOne(binding.buffer->Storage().subspan(offset,binding.stride),binding.stride);decoded[local]=true;}}
+            impl_->state.Read().vertex.DecodeTo(vertices[local],binding.buffer->Storage().subspan(offset,binding.stride),binding.stride);decoded[local]=true;}}
     // Binding begins at the declared minimum; indices and their order stay
     // unchanged. The GPU base compensates this upload view's byte origin.
     timing.Stop();impl_->Record(vertices,indices,width==2?DkIdxFormat_Uint16:DkIdxFormat_Uint32,elements,-int(minimum),NativePrimitive(kind));return 0;

@@ -46,6 +46,10 @@ public:
     std::vector<Vertex> Decode(std::span<const std::byte>,std::uint32_t stride)const;
     // Exact one-record equivalent of Decode, without a temporary heap vector.
     Vertex DecodeOne(std::span<const std::byte>,std::uint32_t stride)const;
+    // Decode into private unpublished storage without the 192-byte return copy.
+    // Destination must not overlap input; on failure it may be partially written.
+    // Callers must discard it on failure and must not publish a failed draw.
+    void DecodeTo(Vertex&,std::span<const std::byte>,std::uint32_t stride)const;
     VertexUniforms Prepare()const;
 private:
     std::uint32_t fvf_{2},stride_{12};
