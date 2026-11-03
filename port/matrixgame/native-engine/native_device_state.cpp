@@ -95,13 +95,17 @@ materials::PixelFogUniforms NativeRenderState::PixelFog()const{
     return materials::PreparePixelFog(Render(28)!=0,Render(35),std::bit_cast<float>(Render(36)),std::bit_cast<float>(Render(37)),std::bit_cast<float>(Render(38)),Render(34),vertex.Transform(3));
 }
 void NativeRenderState::ValidateDraw(bool points,bool lines,std::uint32_t samples,std::uint32_t quality)const{
+    (void)PrepareDraw(points,lines,samples,quality);
+}
+PreparedDrawState NativeRenderState::PrepareDraw(bool points,bool lines,std::uint32_t samples,std::uint32_t quality)const{
     // D3D9's enable and write-mask registers have no raster effect on a
     // single-sample target, but remain observable/restorable logical state.
     // A true multisample attachment still needs a separate pipeline/resolve.
     if(samples || quality)throw Unsupported("native multisample target/resolve pipeline unavailable");
     ValidateClear();
-    (void)PixelFog();
-    (void)Stencil();
+    PreparedDrawState draw;
+    draw.fog=PixelFog();
+    draw.stencil=Stencil();
     auto require=[&](std::string_view name,bool ok){if(!ok)throw Unsupported("native draw requires "+std::string(name));};
     // Read EVERY logical word in the original order, including inactive words:
     // missing/corrupt state must still fail. Only metadata search/classification
@@ -124,11 +128,12 @@ void NativeRenderState::ValidateDraw(bool points,bool lines,std::uint32_t sample
         require("LASTPIXEL=TRUE native lines",Render(16)==1);
         require("aliased native lines",Render(176)==0);
     }
-    const auto prepared=combiner.Prepare();
-    for(unsigned slot=0;slot<8;++slot)if(prepared.stages[slot].alpha[3]&1u){
+    draw.combiner=combiner.Prepare();
+    for(unsigned slot=0;slot<8;++slot)if(draw.combiner.stages[slot].alpha[3]&1u){
         for(unsigned i=1;i<ExtraSamplerRegisters.size();++i)
             if(sampler_extra[slot][i])throw Unsupported("native sampled texture requires "+std::string(NativeSamplerWords[ExtraSamplerRegisters[i]-1].name));
     }
+    return draw;
 }
 MeshStencilState NativeRenderState::Stencil()const{return ReadStencilState([&](unsigned id){return Render(id);});}
 struct NativeStateStore::Control {

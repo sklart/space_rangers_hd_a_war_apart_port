@@ -22,6 +22,9 @@ public:
     DekoCombinerProgram(dk::Device,std::span<const std::byte> fragment_dksh,std::span<const std::byte> vertex_dksh={});
     bool VertexReady()const noexcept;
     Packet Prepare(const Combiner&,const std::array<DkResHandle,8>&,const VertexUniforms* vertex=nullptr,bool alpha_target=false,const PixelFogUniforms* fog=nullptr,std::uint32_t shade=2,dk::UniqueMemBlock completed_uniforms={})const;
+    // Consumes the combiner value already validated by NativeRenderState::PrepareDraw
+    // for this draw. Shader, shade, allocation and packet checks still run.
+    Packet PrepareUniforms(Uniforms,const std::array<DkResHandle,8>&,const VertexUniforms*,bool,const PixelFogUniforms*,std::uint32_t,dk::UniqueMemBlock)const;
     // Packet, descriptor sets, textures and this program must outlive queue
     // completion; this does not steal another renderer's queue or submit it.
     void Bind(dk::CmdBuf,const Packet&)const;

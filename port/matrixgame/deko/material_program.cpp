@@ -38,7 +38,11 @@ DekoCombinerProgram::DekoCombinerProgram(dk::Device device,std::span<const std::
 bool DekoCombinerProgram::VertexReady()const noexcept{return vertex_code_ && dkShaderIsValid(&vertex_shader_) && dkShaderIsValid(&shader_);}
 DekoCombinerProgram::Packet DekoCombinerProgram::Prepare(const Combiner& state,const std::array<DkResHandle,8>& textures,const VertexUniforms* vertex,bool alpha_target,const PixelFogUniforms* fog,std::uint32_t shade,dk::UniqueMemBlock completed_uniforms)const{
     if(shade!=1 && shade!=2)throw Incomplete("native material shading mode outside FLAT/GOURAUD");
-    auto value=state.Prepare();AlphaTarget(value,alpha_target); // Reject before allocation or publication.
+    return PrepareUniforms(state.Prepare(),textures,vertex,alpha_target,fog,shade,std::move(completed_uniforms));
+}
+DekoCombinerProgram::Packet DekoCombinerProgram::PrepareUniforms(Uniforms value,const std::array<DkResHandle,8>& textures,const VertexUniforms* vertex,bool alpha_target,const PixelFogUniforms* fog,std::uint32_t shade,dk::UniqueMemBlock completed_uniforms)const{
+    if(shade!=1 && shade!=2)throw Incomplete("native material shading mode outside FLAT/GOURAUD");
+    AlphaTarget(value,alpha_target); // Validated per-draw value, before allocation or publication.
     if(vertex && !VertexReady())throw Incomplete("material vertex program unavailable");
     if(completed_uniforms && completed_uniforms.getSize()!=uniform_packet::Bytes)throw std::invalid_argument("material reusable uniform block extent");
     if(!completed_uniforms)completed_uniforms=dk::MemBlockMaker{device_,uniform_packet::Bytes}

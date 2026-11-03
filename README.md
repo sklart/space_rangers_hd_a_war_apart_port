@@ -454,4 +454,15 @@ Bounded best-fit и cached immutable size/CPU/GPU addresses уменьшают S
 
 Immutable metadata и правила render state вычисляются при компиляции; все 103 чтения, порядок проверок и ошибки сохранены. 4039 случаев совпали с frozen r11. Host ValidateDraw+Prepare: 103.7 → 23.3 мс / 20000 checks, около 4.45x конкретного CPU участка, не FPS. [Профиль/изменение](reports/matrixgame-e610-state-r12.md), [инструкция](docs/matrixgame-e610-state-r12-readme.ru.md). HARDWARE PENDING.
 
-Актуальный пакет: `dist/matrixgame-e610-switch-test-r12-state.zip`; source `2bba518c902cea71df7320277f4380a88ffa7996`, build `2bba518c902c-8a2b24fe3b49770a447b`. В hbmenu **MatrixGame r12 Quick Smoke** / **MatrixGame r12 Interactive**. Содержит r10/r11 fixes. [SHA256 и evidence](reports/matrixgame-e610-state-r12.md). SOFTWARE PASS / HARDWARE PENDING.
+Пакет r12: `dist/matrixgame-e610-switch-test-r12-state.zip`; source `2bba518c902cea71df7320277f4380a88ffa7996`, build `2bba518c902c-8a2b24fe3b49770a447b`. В hbmenu **MatrixGame r12 Quick Smoke** / **MatrixGame r12 Interactive**. Содержит r10/r11 fixes. [SHA256 и evidence](reports/matrixgame-e610-state-r12.md). SOFTWARE PASS / HARDWARE PENDING.
+
+
+### MatrixGame E610 r13: однократная подготовка draw
+
+Fog, stencil и combiner теперь готовятся один раз на draw при сохранении
+проверок и порядка ошибок. Между draw calls результат не кешируется.
+CPU сравнение с frozen r12 охватывает 4173 случая и точные 4096 байт пакета;
+итоговый host замер 127.0 → 108.9 мс / 100000 draw (−14.2% времени
+участка, не FPS Switch). [Изменение и проверки](reports/matrixgame-e610-prepare-r13.md),
+[два ручных запуска](docs/matrixgame-e610-prepare-r13-readme.ru.md).
+Новые NRO готовятся отдельно. HARDWARE PENDING; ресурсы и сохранения не меняются.

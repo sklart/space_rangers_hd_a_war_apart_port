@@ -10,6 +10,11 @@
 namespace srhd_awa::matrixgame::platform3g {
 // All mutable state consumed by DekoDevice::Record. Shader programs and owned
 // presentation targets have a separate restore lease; acquire/submit is not snapshot state.
+struct PreparedDrawState {
+    materials::PixelFogUniforms fog;
+    MeshStencilState stencil;
+    materials::Uniforms combiner;
+};
 struct NativeRenderState {
     materials::Combiner combiner;
     materials::FixedVertexState vertex;
@@ -26,6 +31,8 @@ struct NativeRenderState {
     void Sampler(std::uint32_t,std::uint32_t,std::uint32_t);
     std::uint32_t Sampler(std::uint32_t,std::uint32_t)const;
     void ValidateDraw(bool points=false,bool lines=false,std::uint32_t samples=0,std::uint32_t quality=0)const;
+    // Per-draw value, never cached across mutations or draws.
+    PreparedDrawState PrepareDraw(bool points=false,bool lines=false,std::uint32_t samples=0,std::uint32_t quality=0)const;
     void ValidateClear()const;
     materials::PixelFogUniforms PixelFog()const;
     MeshStencilState Stencil()const;

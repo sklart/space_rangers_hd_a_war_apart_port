@@ -489,16 +489,17 @@ struct DekoDevice::Impl: presentation::Driver {
         frame.RequireDraw(override_state!=nullptr);
         const auto target=presenting?surface_session->primary_color:surface_session->color;
         if(!target)throw std::logic_error("native draw has no color attachment");
+        PreparedDrawState prepared;
         {ProfileScope validation_timing(diagnostics.state_validation);
-        saved_state.ValidateDraw(primitive==DkPrimitive_Points,primitive==DkPrimitive_Lines || primitive==DkPrimitive_LineStrip,
+        prepared=saved_state.PrepareDraw(primitive==DkPrimitive_Points,primitive==DkPrimitive_Lines || primitive==DkPrimitive_LineStrip,
             target->desc.MultiSampleType,target->desc.MultiSampleQuality);}
-        const auto stencil=saved_state.Stencil();const auto stencil_depth=presenting?surface_session->primary_depth:surface_session->depth;
+        const auto& stencil=prepared.stencil;const auto stencil_depth=presenting?surface_session->primary_depth:surface_session->depth;
         RequireStencilAttachment(stencil,bool(stencil_depth),stencil_depth?stencil_depth->desc.Format:0);
-        const auto& vertex=saved_state.vertex;const auto& combiner=saved_state.combiner;
+        const auto& vertex=saved_state.vertex;
         const auto& textures=saved_state.textures;const auto& samplers=saved_state.samplers;
         const bool alpha_target=target->desc.Format==28;
         const auto raster=alpha_target?AlphaTargetRaster(saved_state.raster):saved_state.raster;const auto cull=saved_state.cull;
-        const auto uniforms=vertex.Prepare();const auto fog=saved_state.PixelFog();
+        const auto uniforms=vertex.Prepare();const auto& fog=prepared.fog;
         const auto upload_layout=NativeDrawUpload::Plan(vertices.size_bytes(),indices.size());
         auto upload_reuse=PlanUploadReuse(completed_blocks,upload_layout.bytes,materials::uniform_packet::Bytes,frame_budget);
         if(batch.NeedsDrain(upload_reuse.total) || command_pages.NeedsDrain()){
@@ -520,7 +521,7 @@ struct DekoDevice::Impl: presentation::Driver {
         for(unsigned i=0;i<8;++i){const auto sampler=MakeDekoSampler(samplers[i]);
             dk::SamplerDescriptor descriptor;descriptor.initialize(sampler);packet.upload.WriteSampler(i,descriptor);}
         std::array<DkResHandle,8> handles;for(unsigned i=0;i<8;++i)handles[i]=dkMakeTextureHandle(i,i);
-        packet.material=programs->Prepare(combiner,handles,&uniforms,alpha_target,&fog,saved_state.shade,DrawMemory(materials::uniform_packet::Bytes));
+        packet.material=programs->PrepareUniforms(prepared.combiner,handles,&uniforms,alpha_target,&fog,saved_state.shade,DrawMemory(materials::uniform_packet::Bytes));
         if(packet.upload.StorageBytes()+std::uint64_t(materials::uniform_packet::Bytes)!=upload_reuse.total)throw std::logic_error("native reusable upload capacity changed before publication");
         packets.push_back(std::move(packet));auto& saved=packets.back();batch.Add(upload_reuse.total);++diagnostics.recorded_draws;
         diagnostics.upload_requested_bytes+=upload_layout.bytes;diagnostics.upload_reserved_bytes+=saved.upload.StorageBytes();
