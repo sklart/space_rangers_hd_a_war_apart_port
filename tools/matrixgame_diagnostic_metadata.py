@@ -4,7 +4,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main():
- ap=argparse.ArgumentParser();ap.add_argument('--engine-source',type=Path,required=True);ap.add_argument('--output',type=Path,required=True);ap.add_argument('--devkitpro',type=Path,required=True);ap.add_argument('--deko-library',choices=('deko3d','deko3dd'),default='deko3d');ap.add_argument('--rangers-host',action='store_true');ap.add_argument('--rangers-archive',type=Path,action='append',default=[]);ap.add_argument('--rangers-manifest',type=Path);args=ap.parse_args()
+ ap=argparse.ArgumentParser();ap.add_argument('--engine-source',type=Path,required=True);ap.add_argument('--output',type=Path,required=True);ap.add_argument('--devkitpro',type=Path,required=True);ap.add_argument('--deko-library',choices=('deko3d','deko3dd'),default='deko3d');ap.add_argument('--rangers-host',action='store_true');ap.add_argument('--rangers-archive',type=Path,action='append',default=[]);ap.add_argument('--rangers-manifest',type=Path);ap.add_argument('--build-type',default='');ap.add_argument('--cxx-flags',default='');ap.add_argument('--c-flags',default='');args=ap.parse_args()
  files={str(p.relative_to(ROOT)).replace('\\','/'):sha(p) for p in sorted((ROOT/'port/matrixgame').rglob('*')) if p.is_file() and p.suffix in ('.cpp','.hpp','.h','.inc','.inl','.cmake','.glsl','.txt')}
  for p in [*sorted((ROOT/'tools').glob('matrixgame_*.py')),ROOT/'tests/probe_matrixgame_native_entry.cpp',ROOT/'tests/matrixgame_native_diagnostic_main.cpp']:files[str(p.relative_to(ROOT)).replace('\\','/')]=sha(p)
  engine=json.loads((args.engine_source/'native-engine-source.json').read_text());git=r'C:\Program Files\Git\cmd\git.exe'
@@ -19,6 +19,7 @@ def main():
  if args.rangers_host:
   assert len(args.rangers_archive)==3 and args.rangers_manifest and args.rangers_manifest.is_file()
   manifest['rangers_host']={'enabled':True,'archives_sha256':{str(p):sha(p) for p in args.rangers_archive},'dependency_manifest':str(args.rangers_manifest),'dependency_manifest_sha256':sha(args.rangers_manifest)}
+ manifest['compiler_profile']={'build_type':args.build_type,'cxx_flags':args.cxx_flags,'c_flags':args.c_flags}
  encoded=json.dumps(manifest,sort_keys=True,separators=(',',':')).encode();digest=hashlib.sha256(encoded).hexdigest();build_id=parent[:12]+'-'+digest[:20]
  content=f'''// Generated from exact current source inputs. This is NOT an ELF/NRO digest.
 #pragma once

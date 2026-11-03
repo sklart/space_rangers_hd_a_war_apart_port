@@ -395,9 +395,13 @@ if(MATRIXGAME_DEVKITPRO)
     set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${DIAGNOSTIC_SOURCE_INPUTS}
         ${DIAGNOSTIC_TOOLS} "${PORT_ROOT}/tests/probe_matrixgame_native_entry.cpp"
         "${PORT_ROOT}/tests/matrixgame_native_diagnostic_main.cpp")
+    string(TOUPPER "${CMAKE_BUILD_TYPE}" DIAGNOSTIC_CONFIG_UPPER)
     execute_process(COMMAND "${Python3_EXECUTABLE}" "${PORT_ROOT}/tools/matrixgame_diagnostic_metadata.py"
         --engine-source "${ENGINE_SOURCE}" --devkitpro "${MATRIXGAME_DEVKITPRO}"
         --deko-library "${MATRIXGAME_DEKO_LIBRARY}"
+        "--build-type=${CMAKE_BUILD_TYPE}"
+        "--cxx-flags=${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${DIAGNOSTIC_CONFIG_UPPER}}"
+        "--c-flags=${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${DIAGNOSTIC_CONFIG_UPPER}}"
         ${DIAGNOSTIC_RANGERS_METADATA_ARGS}
         --output "${CMAKE_CURRENT_BINARY_DIR}/native-diagnostic-build.hpp"
         RESULT_VARIABLE DIAGNOSTIC_METADATA_RESULT)
@@ -458,8 +462,8 @@ if(MATRIXGAME_DEVKITPRO)
                 "${DIAGNOSTIC_ICON}" "${MATRIXGAME_ELF2NRO}" VERBATIM)
         add_custom_target(${entry}-nro DEPENDS "${DIAGNOSTIC_NRO}")
         endfunction()
-        matrixgame_diagnostic_package(matrixgame-native-diagnostic diagnostic-nro matrixgame-native-diagnostic "MatrixGame r8 Quick Smoke")
-        matrixgame_diagnostic_package(matrixgame-native-interactive interactive-nro matrixgame-native-interactive "MatrixGame r8 Interactive")
+        matrixgame_diagnostic_package(matrixgame-native-diagnostic diagnostic-nro matrixgame-native-diagnostic "MatrixGame r9 Quick Smoke")
+        matrixgame_diagnostic_package(matrixgame-native-interactive interactive-nro matrixgame-native-interactive "MatrixGame r9 Interactive")
     endif()
 endif()
 if(NOT WIN32)

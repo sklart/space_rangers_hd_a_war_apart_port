@@ -4,6 +4,7 @@ from pathlib import Path
 from matrixgame_standard_nro_audit import ROOT,read,sha,check_hashes
 from matrixgame_diagnostic_package import verify_nro
 from matrixgame_sdk_link_provenance import deko_link_provenance
+from matrixgame_optimization_provenance import optimized_compiler_provenance
 GIT='C:/Program Files/Git/cmd/git.exe'
 
 def history(output):
@@ -26,6 +27,9 @@ def package(build,commit,output,readme=None,rangers_root='sdmc:/switch/matrixgam
  build=build.resolve();output=output.resolve();assert build.is_relative_to(ROOT/'build') and output.is_relative_to(ROOT/'dist') and output.suffix=='.zip'
  assert not output.exists();folder=output.with_suffix('');assert not folder.exists()
  gate=read(build/'result.json');metadata=read(build/'native-diagnostic-build.json');assert gate['status'].startswith('PASS') and gate['new_NRO'] and all(c['exit']==0 for c in gate['commands'])
+ compiler=optimized_compiler_provenance(build);assert compiler==gate['compiler_provenance']
+ assert metadata['compiler_profile']['build_type']=='RelWithDebInfo'
+ assert '-O2' in metadata['compiler_profile']['cxx_flags'] and '-UNDEBUG' in metadata['compiler_profile']['cxx_flags']
  assert re.fullmatch('[0-9a-f]{40}',commit) and metadata['parent']==commit
  assert subprocess.check_output([GIT,'rev-parse',commit],text=True).strip()==commit
  check_hashes(metadata['own_source_sha256']);check_hashes(metadata['generated_original_sha256'],build/'source');check_hashes(metadata['rangers_host']['archives_sha256']);check_hashes(gate['all_link_inputs_sha256']);check_hashes(gate['protected_previous_NRO_sha256'])
@@ -53,11 +57,13 @@ def package(build,commit,output,readme=None,rangers_root='sdmc:/switch/matrixgam
  template=readme or ROOT/'docs/matrixgame-e610-switch-test-readme.ru.md';(folder/'README.ru.md').write_bytes(template.read_bytes())
  dependency=read(ROOT/gate['dependency_result_path']);assert sha(ROOT/gate['dependency_result_path'])==gate['dependency_result_sha256']
  build_info={'source_commit':commit,'build_id':metadata['build_id'],'source_sha256':metadata['source_sha256'],'sdk_versions':{'libnx':metadata['libnx_package_version'],'deko3d':metadata['deko_package_version']},'deko_library':metadata['deko_library'],'dependency_manifest_sha256':gate['dependency_result_sha256'],'original_dependency_sha256':dependency['dependency_archive_sha256'],'commands':gate['commands'],'build_result_sha256':sha(build/'result.json'),'build_metadata_sha256':sha(build/'native-diagnostic-build.json')}
+ build_info['compiler_profile']=metadata['compiler_profile'];build_info['compiler_provenance']=compiler
  (folder/'build-info.json').write_text(json.dumps(build_info,indent=2)+'\n',encoding='utf-8')
  external=[]
  for source,dest in (('windows/Space Rangers HD A War Apart/DATA/robots.pkg','game/DATA/robots.pkg'),('upstream/matrixgame/MatrixGame/CFG/robots/data.txt','game/CFG/robots/data.txt'),('upstream/matrixgame/MatrixGame/CFG/robots/iface.txt','game/CFG/robots/iface.txt')):
   p=ROOT/source;external.append({'destination':'sdmc:/switch/matrixgame-diag/'+dest,'bytes':p.stat().st_size,'sha256':sha(p),'included':False})
  manifest={'status':'SOFTWARE PASS / HARDWARE PENDING','source_commit':commit,'build_id':metadata['build_id'],'source_sha256':metadata['source_sha256'],'variants':variants,'external_resources':external,'additional_external_resources':'rangers/install.txt, install_russian.txt, CFG and DATA from the same legal test copy; packages named by install files','hardware_runs':0,'Campaign_Gov_entry':False,'victory':'NOT PROVEN','full_native_UI_pump_invoked':False,'coverage_note':'Standalone calls native HID/MatrixGame input; it does not construct RangersNativeInput/UiContext/Caller/Campaign owners. Retention alone is not execution.','files_sha256':{p.name:sha(p) for p in sorted(folder.iterdir()) if p.is_file()}}
+ manifest['compiler_profile']=metadata['compiler_profile'];manifest['compiler_provenance']=compiler
  manifest['rangers_resource_root']=rangers_root
  manifest['additional_external_resources']=rangers_root+'/install.txt, install_russian.txt, CFG and DATA from the same legal test copy; packages named by install files'
  (folder/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')

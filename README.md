@@ -431,3 +431,7 @@ python tools/e2e5_report.py --output reports/e2e5/summary.json
 Bounded reuse завершённых SDK blocks; порядок draw, completion guards и критерии smoke сохранены. На host journal replay медиана 14.44 → 1.31 с, 7747 → 671 records с сохранённым fsync. CPU-model pool: 417616 block allocations → 128 initial + 417488 reuse hits на 92 сохранённых frame counts. Эти числа не являются Switch FPS. [Изменения/измерения](reports/matrixgame-e610-perf-r8.md), [инструкция](docs/matrixgame-e610-perf-r8-readme.ru.md). R8 HARDWARE PENDING.
 
 Актуальный пакет: `dist/matrixgame-e610-switch-test-r8-perf.zip`; source `470184466ed857bd1e67b2072ce0ead6d6f22356`, build `470184466ed8-2a6f525547eec077fa9f`. В hbmenu **MatrixGame r8 Quick Smoke** / **MatrixGame r8 Interactive**. [SHA256 и evidence](reports/matrixgame-e610-perf-r8.md). SOFTWARE PASS / HARDWARE PENDING.
+
+### MatrixGame E610 r9: оптимизированная native сборка
+
+[Новые аппаратные журналы r8](reports/matrixgame-e610-r8-hardware-20261103.md) подтвердили улучшение Draw 2.53 → 1.61 с, но transition timeout сохранился. Native compile commands оказались без optimization. R9 включает **-O2 с assertions, exceptions и debug deko3dd**, проверяет реальные compile commands и fingerprints compiler profile. [CPU сравнение и проверки](reports/matrixgame-e610-opt-r9.md), [инструкция](docs/matrixgame-e610-opt-r9-readme.ru.md). HARDWARE PENDING; host speedup не равен Switch FPS.

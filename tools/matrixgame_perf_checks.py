@@ -5,8 +5,8 @@ ROOT=Path(__file__).resolve().parents[1]
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def linux(p):return str(p).replace('\\','/').replace('D:/','/mnt/d/').replace('C:/','/mnt/c/')
 def main():
-    ap=argparse.ArgumentParser();ap.add_argument('kind',choices=('host','arm64','windows'));kind=ap.parse_args().kind
-    parent=ROOT/'build/matrixgame/e610-perf-r8-checks'/kind;parent.mkdir(parents=True,exist_ok=True);i=1
+    ap=argparse.ArgumentParser();ap.add_argument('kind',choices=('host','arm64','windows'));ap.add_argument('--optimization',choices=('O1','O2'),default='O1');ap.add_argument('--output-root',type=Path,default=ROOT/'build/matrixgame/e610-perf-r8-checks');args=ap.parse_args();kind=args.kind
+    parent=args.output_root.resolve()/kind;assert parent.is_relative_to(ROOT/'build');parent.mkdir(parents=True,exist_ok=True);i=1
     while (parent/str(i)).exists():i+=1
     out=parent/str(i);out.mkdir();result={'status':'INCOMPLETE','commands':[],'scope':'CPU ownership/data/real file IO; no Switch GPU, no battle rerun'}
     source=(ROOT/'port/matrixgame/native-engine/platform_switch.cpp').read_text(encoding='utf-8')
@@ -34,7 +34,7 @@ def main():
                 cmd=f'call "{vs}" -no_logo -arch=x64 -host_arch=x64 && cl /nologo /MT /EHsc /std:c++20 /O2 /UNDEBUG '+' '.join('/I"'+str(p)+'"' for p in includes)+' '+' '.join('"'+str(ROOT/p)+'"' for p in files)+f' /Fo"{out.as_posix()}/" /Fe"{exe}.exe"'
                 script=out/(name+'.cmd');script.write_text(cmd+'\n');run(['cmd.exe','/d','/c',script],name+'-build');runtime=[str(exe)+'.exe']
             else:
-                flags=['-std=c++20','-O1','-g','-UNDEBUG','-fno-pie','-no-pie','-fno-omit-frame-pointer','-fsanitize=address,undefined' if kind=='host' else '-fsanitize=undefined']
+                flags=['-std=c++20','-'+args.optimization,'-g','-UNDEBUG','-ffp-contract=off','-fno-pie','-no-pie','-fno-omit-frame-pointer','-fsanitize=address,undefined' if kind=='host' else '-fsanitize=undefined']
                 if kind=='arm64':
                     version=out/'local-typeinfo.map';version.write_text('{ local: _ZNKSt9type_infoeqERKS_; };\n');flags+=['-Wl,--version-script='+linux(version)]
                 run(['wsl','--exec','g++' if kind=='host' else 'aarch64-linux-gnu-g++-15',*flags,*['-I'+linux(p) for p in includes],*[linux(ROOT/p) for p in files],'-o',linux(exe)],name+'-build')
