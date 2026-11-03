@@ -34,3 +34,74 @@ Benchmark: 10 млн Map/write/Unmap на full initialized buffer и 10 млн �
 основная NRO и прежние пакеты сохраняются. HARDWARE PENDING. Standalone entry
 не охватывает Campaign/Gov, естественную победу и возврат Galaxy.
 [Два ручных запуска](../docs/matrixgame-e610-unmap-r20-readme.ru.md).
+
+## Итоговый CPU замер
+
+Benchmark/2 ABBAAB: full frozen 118255/117177/118671 мкс,
+candidate 45139/46704/46221; median 118255 → 46221 мкс (−60.9%, 2.56×).
+Partial frozen 122544/116117/114783; candidate 44761/47058/44784;
+median 116117 → 44784 мкс (−61.4%, 2.59×). Checksum
+4264432143182133122 совпадает во всех шести runs. Предварительная серия /1
+дала близкий результат; runner затем сократил link inputs до actual Resource,
+финальная серия /2 использует неизменённые tested source/tool hashes.
+Это экономия порядка 7 нс на covered update в этом host probe; весь кадр
+таким коэффициентом не ускоряется. Доля Map/Unmap на Switch ещё не измерена.
+
+Semantic /2 и ownership /1 — PASS на трёх платформах. Неуспешные /1 и исходная
+fixture сохранены в checks/rejected-fixture; причина — отсутствовавший Scope.
+Ошибки не подавлялись, assertions не удалялись. Map/version overflow guard
+сохранён побайтово; искусственный перебор 2^64 versions не выполнялся.
+
+## SDK и пакет
+
+Source commit: `33356be5cf30e47513ec66bb8ce7a885c3bcfa8d`.
+Build ID: `33356be5cf30-1755ce5ff8d0dfeaf5a5`.
+`devkitA64 compile/link` обеих NRO — PASS, strong undefined = 0.
+321 configured translation units, O2/UNDEBUG, exceptions, без fast-math;
+prebuilt Rangers archive сохранён и не выдаётся за пересобранный O2.
+23 настоящих debug deko3dd object members / 0 release deko3d, mixed=false.
+Встроенные fonts/shaders, NRO assets/segments/NACP/ELF→NRO build IDs проверены.
+Generated original files идентичны r19 (всего 3 исторических delta vs E601).
+710 own source hashes проверены; единственное поведенческое production
+изменение — 5 строк guard в Unmap. Ещё изменены две r20 NACP titles и добавлен
+CPU runner. Остальные build inputs r19 сохранены.
+
+В каждой ELF 34 настоящих call sites Resource::Unmap. ARM64 disassembly
+подтвердил covered comparison → strb unlock/add+str version/ret без calls
+и sort; r19 indexed input hoist и direct DecodeTo сохранены в actual ELF.
+276 прежних защищённых артефактов проверены по SHA, unchanged.
+Основная NRO, game/frozen hashes проверены SDK/package gate.
+
+ZIP: `dist/matrixgame-e610-switch-test-r20-unmap.zip` (10162444 bytes).
+SHA256: `3394e28fd2f4506aa2d01b78d11fc2b5cc71660dcf1ce718dd09d6f8897dd14f`.
+В архиве ровно две NRO + README.ru.md + manifest.json + SHA256SUMS.txt +
+build-info.json. Ресурсов и saves нет. Manifest связывает source commit,
+ELF/NRO/build IDs, inputs и runtime HARDWARE PENDING.
+
+| NRO | SHA256 | ELF Build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `aa2193cdf2aa7ead5aa76fdf694fdb92fb8bf061aded4ef46ca4a1e70aca8a6e` | `9f7867fed0330c22da0df035270f1199f315cced` |
+| matrixgame-e610-interactive.nro | `d737a59f7cfd1d8992431955f6e6064bfa36b5dd263bded23cca7b1e6257494a` | `ad404ada2d1d2ae5ca546948e995d131f281980f` |
+
+## Воспроизведение
+
+CPU: `python tools/matrixgame_unmap_checks.py host` (также arm64/windows,
+отдельно `--ownership`); `python tools/matrixgame_unmap_checks.py benchmark`.
+Требуются те же установленные WSL g++, ARM64 GCC15/QEMU и MSVC2022.
+SDK: `python tools/matrixgame_current_diagnostic_sdk.py --output-root
+build/matrixgame/e610-unmap-r20` (новый numbered каталог, прежний не заменяется).
+Package: `python tools/matrixgame_e610_freeze.py package --build
+build/matrixgame/e610-unmap-r20/1 --source-commit 33356be5cf30e47513ec66bb8ce7a885c3bcfa8d
+--output dist/matrixgame-e610-switch-test-r20-unmap.zip --readme
+docs/matrixgame-e610-unmap-r20-readme.ru.md --rangers-root
+sdmc:/switch/space-rangers-hd-a-war-apart/game` (для нового output использовать новое имя).
+Не запускать сборку/профилирование параллельно с timing probe.
+Локальный повторный gate: build/matrixgame/e610-unmap-r20-checks/verify_delivery.py
+с source commit как аргументом; evidence хранит commands/source hashes/disassembly.
+[Полный evidence](matrixgame-e610-unmap-r20-evidence.json).
+
+SOFTWARE PASS / HARDWARE PENDING. Следующий пользовательский замер должен
+проверить Quick → 4 реальные map frames и Interactive → управление/выход.
+Init, Draw, физические HID/GPU/audio и переход на карту пока не приняты.
+Единая Campaign/Gov, естественная победа и возврат результата в Galaxy этим
+standalone пакетом не проверяются. Новая разработка на этом шаге остановлена.
