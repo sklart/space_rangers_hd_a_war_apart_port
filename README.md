@@ -562,4 +562,10 @@ inputs после validation/allocations. Decoder, проверки/ошибки
 [два запуска](docs/matrixgame-e610-input-r19-readme.ru.md).
 9872 cases, COW/OOM/restore — PASS на host/ARM64-QEMU/Windows. Host CPU
 gather 410.6 → 377.0 мс / 4096 synthetic draws (−8.2%, не FPS Switch).
-Отдельные NRO готовятся; HARDWARE PENDING. Ресурсы и saves не меняются.
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r19-input.zip`; source
+`a2f87f3a40d72153a10b76a0fb4193535c935a9f`, build `a2f87f3a40d7-0a8972578dd5db930f98`.
+В hbmenu **MatrixGame r19 Quick Smoke** / **MatrixGame r19 Interactive**.
+Host ASan/UBSan, ARM64/QEMU UBSan, Windows O2, SDK/link/package — PASS.
+ARM64 code подтвердил Read/Storage вне decode-loop.
+[SHA256 и evidence](reports/matrixgame-e610-input-r19.md).
+SOFTWARE PASS / HARDWARE PENDING. Ресурсы, saves, основная NRO и старые пакеты сохранены.

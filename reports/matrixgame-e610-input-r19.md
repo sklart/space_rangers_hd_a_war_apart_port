@@ -72,3 +72,45 @@ control 225382 → 215217 мкс; code не менялся, это вариац�
 Финальные source bytes совпадают точно. Все exploratory runs сохранены.
 Автопроверка разрешения первого финального запуска завершилась тайм-аутом;
 одна повторная попытка успешно выполнила замер, ограничения не обходились.
+
+## Проверенная доставка r19
+
+Source commit: `a2f87f3a40d72153a10b76a0fb4193535c935a9f`.
+Build ID: `a2f87f3a40d7-0a8972578dd5db930f98`.
+
+Свежие SDK targets в build/matrixgame/e610-input-r19/1 — PASS. Strong undefined
+symbols отсутствуют; ELF/NRO build IDs, segments, icon/NACP, встроенные fonts/
+shaders проверены. Actual ARM64 NativeDrawIndexed в обеих NRO содержит 0 calls
+к NativeStateStore::Read и Resource::Storage в decode backedge против r18 по
+1 call site каждого. State Read выполняется один раз до loop; Storage дважды
+в caller (IB и VB), оба вне decode-loop. Scope/адреса записаны в evidence.
+R18 coverage implementation и r17 DecodeTo без 192-byte return copy сохранены.
+Это target instruction proof, не измерение GPU/консоли.
+
+Compiler provenance: 321 configured TUs, RelWithDebInfo/O2/UNDEBUG, assertions/exceptions on, fast-math off.
+Неизменённый prebuilt Rangers/UI archive не пересобирался и не объявляется
+оптимизированным. По 23 deko3dd objects в link maps, без deko3d; SDK debug
+SetContext/RaiseError retained. Generated originals совпадают с r18,
+относительно E601 остаются те же три прежние overlay delta.
+
+709 own source hashes и финальные CPU inputs совпали точно. 269 прежних
+защищённых файлов, upstream/frozen, ресурсы, saves, основная NRO и старые
+NRO/ZIP не изменены. [Машинное evidence](matrixgame-e610-input-r19-evidence.json).
+
+ZIP: `dist/matrixgame-e610-switch-test-r19-input.zip`, 10162353 bytes.
+SHA256: `8e8133756b33d4b404c51c28efb08ff3005297828de44c97d93456de58ac8ddf`.
+
+| NRO | SHA256 | ELF build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `a56e0c15da048c11bb6d3e1d3e6b1803dc2adf5be3ba033db56d4b2b6787ebfb` | `1dcda8f1b867245e11fc0834334cbed79ae5b60d` |
+| matrixgame-e610-interactive.nro | `7ba15e32860c0cc54823995f1157a71210d94b531450053d966ffc8e1b827a3d` | `035de985f6a9b540d3e5efc4ef9e229422a6b780` |
+
+В ZIP две NRO, README.ru.md, manifest.json, SHA256SUMS.txt и build-info.json.
+Ресурсов/сохранений нет. SD-папка `/switch/matrixgame-e610-r19-test/`,
+DATA/CFG roots прежние. В hbmenu **MatrixGame r19 Quick Smoke** /
+**MatrixGame r19 Interactive**. Application Mode, Quick затем Interactive,
+выход Minus+Plus. Передать два новых каталога
+`/switch/matrixgame-diag/logs/<run-id>/` и фото фактического результата.
+
+**SOFTWARE PASS / HARDWARE PENDING.** Адресное изменение завершено;
+следующие исправления — по новому аппаратному профилю.
