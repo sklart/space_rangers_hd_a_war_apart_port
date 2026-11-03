@@ -412,7 +412,7 @@ python tools/e2e5_report.py --output reports/e2e5/summary.json
 
 ### MatrixGame E610 r6: проверенный тестовый пакет
 
-Актуальный отдельный пакет: `dist/matrixgame-e610-switch-test-r6-material.zip`; source `7036820f4c818fb8fce4fb94f6a98a7a822a5142`, build `7036820f4c81-2be9a052b1f566893f12`.
+Предыдущий отдельный пакет r6: `dist/matrixgame-e610-switch-test-r6-material.zip`; source `7036820f4c818fb8fce4fb94f6a98a7a822a5142`, build `7036820f4c81-2be9a052b1f566893f12`.
 
 Две NRO называются в hbmenu **MatrixGame r6 Quick Smoke** и **MatrixGame r6 Interactive**. SDK/CPU/package checks: SOFTWARE PASS; аппаратное исполнение: HARDWARE PENDING.
 
@@ -421,3 +421,5 @@ python tools/e2e5_report.py --output reports/e2e5/summary.json
 ### MatrixGame E610 r7: граница Init → Draw
 
 Два аппаратных запуска r6 завершили настоящий Init, но отказали на диагностической CaptureState активного кадра. r7 завершает pending GPU commands и возвращает служебный image перед snapshot/loop; guard сохранён. [Аппаратный разбор r6](reports/matrixgame-e610-r6-hardware-20261103.md), [изменение и проверки r7](reports/matrixgame-e610-init-r7.md), [инструкция](docs/matrixgame-e610-init-r7-readme.ru.md). Новая сборка HARDWARE PENDING.
+
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r7-init.zip`; source `9c097a23021adc11692bf634d9b0f793245b9281`, build `9c097a23021a-4294303d9d29695f9fa3`. Две NRO: **MatrixGame r7 Quick Smoke** и **MatrixGame r7 Interactive**. Контрольные суммы и результаты — в [отчёте r7](reports/matrixgame-e610-init-r7.md); SOFTWARE PASS / HARDWARE PENDING.
