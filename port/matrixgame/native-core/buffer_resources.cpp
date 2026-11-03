@@ -55,6 +55,11 @@ void* Resource::Map(std::size_t offset,std::size_t bytes,MapMode mode) {
 }
 void Resource::Unmap() {
     if(!locked_) throw std::logic_error("buffer not mapped");
+    // Mapping a subset of an existing initialized interval cannot change the
+    // union. Map already reserved bookkeeping; retain unlock/version publish.
+    if(!initialized_.empty() && initialized_.front().first<=mapping_.first && initialized_.front().last>=mapping_.last){
+        locked_=false;++version_;return;
+    }
     initialized_.push_back(mapping_);
     std::sort(initialized_.begin(),initialized_.end(),[](Range a,Range b){return a.first<b.first;});
     std::size_t count=0;

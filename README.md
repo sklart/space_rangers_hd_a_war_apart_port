@@ -569,3 +569,18 @@ Host ASan/UBSan, ARM64/QEMU UBSan, Windows O2, SDK/link/package — PASS.
 ARM64 code подтвердил Read/Storage вне decode-loop.
 [SHA256 и evidence](reports/matrixgame-e610-input-r19.md).
 SOFTWARE PASS / HARDWARE PENDING. Ресурсы, saves, основная NRO и старые пакеты сохранены.
+
+
+### MatrixGame E610 r20: публикация уже покрытых диапазонов буфера
+
+Resource::Unmap пропускает повторную сортировку, когда запись целиком покрыта
+первым initialized interval. Unlock/version, Map reserve, Discard, ошибки и
+ownership сохранены. [Изменение и proof](reports/matrixgame-e610-unmap-r20.md),
+[два запуска](docs/matrixgame-e610-unmap-r20-readme.ru.md).
+CPU differential: 1033 updates / 4499748 coverage queries — PASS на
+host ASan/UBSan, ARM64-QEMU UBSan и Windows O2. Это локальная CPU оптимизация;
+выигрыш всего Draw/Init/FPS без аппаратного замера не заявляется.
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r20-unmap.zip`.
+В hbmenu **MatrixGame r20 Quick Smoke** / **MatrixGame r20 Interactive**.
+SOFTWARE проверки и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.
