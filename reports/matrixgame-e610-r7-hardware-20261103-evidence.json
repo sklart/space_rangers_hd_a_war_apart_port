@@ -1,0 +1,635 @@
+{
+  "status": "R7 HARDWARE PARTIAL; INIT AND ORIGINAL LOOP PRESENTATIONS; PERFORMANCE FAIL; TRANSITION NOT COMPLETED",
+  "archive": "C:/logs33.7z",
+  "archive_sha256": "d66fa6a4fae5877230d6fb6f5a21a7ac14c06a0a11eb015a6cf98f0466f77d08",
+  "r7_build_id": "9c097a23021a-4294303d9d29695f9fa3",
+  "user_observation": {
+    "both_reached_game_screen": true,
+    "very_slow": true,
+    "music": "user reports it seemed to play; no audio recording or per-stream telemetry"
+  },
+  "runs": [
+    {
+      "run_id": "run-1793703529004647-0",
+      "variant": "matrixgame-e610-quick-smoke.nro",
+      "image_sha256": "b158868eb70023bd0b368ec91f18588c5f066a261f610aec833a4ce5deb73f20",
+      "journal_sha256": "05651ac21cdfd0a44ab1669859e1416eb65bc7ac8cedab745591bf460af9cab4",
+      "records": 6025,
+      "init_seconds": 96.660948,
+      "handoff_complete": true,
+      "original_draw_calls_completed": 6,
+      "draw_span_seconds": 20.222091,
+      "observed_original_loop_present_rate": 0.29670522202674293,
+      "mean_Draw_seconds": 3.3623315,
+      "maximum_Draw_seconds": 7.994531,
+      "transition_presents": 6,
+      "accepted_map_frames": 0,
+      "metrics": {
+        "image_file_bytes": 14948549,
+        "process_memory_limit_bytes": 3343908864,
+        "process_memory_used_bytes": 3339825152,
+        "image_width": 1280,
+        "image_height": 720,
+        "color_image_bytes": 3932160,
+        "color_image_alignment": 512,
+        "depth_image_bytes": 3932160,
+        "depth_image_alignment": 65536,
+        "smoke_BC1_bytes": 8,
+        "framebuffer_width": 1280,
+        "framebuffer_height": 720,
+        "gpu_buffer_allocations": 15287,
+        "gpu_buffer_bytes_cumulative": 569524224,
+        "recorded_draw_calls": 15285,
+        "queue_submission_calls": 805,
+        "completed_presents": 11,
+        "native_texture_session_uploads": 1920,
+        "texture_arena_capacity": 67108864,
+        "batch_drains": 794,
+        "max_live_draw_packets": 64,
+        "max_live_draw_bytes": 6500352,
+        "managed_texture_evictions": 591,
+        "texture_arena_free": 2962944,
+        "queue_healthy": 1,
+        "SDK_warnings_total": 0,
+        "SDK_warning_records_suppressed": 0,
+        "VI.display_width": 1280,
+        "VI.display_height": 720,
+        "VI.refresh_hz": 60,
+        "texture.arena_free": 2946560,
+        "texture.arena_largest": 245760,
+        "texture.request_width": 512,
+        "texture.request_height": 128,
+        "texture.request_format": 21,
+        "texture.managed_evictions": 590,
+        "original_loading_presents": 6
+      },
+      "batch_scope_seconds_during_loop": 1.070263,
+      "slow_scopes_nested_not_additive": {
+        "entry.self_NRO_sha256": {
+          "count": 1,
+          "sum_seconds": 0.487864,
+          "max_seconds": 0.487864
+        },
+        "A.libnx_environment": {
+          "count": 1,
+          "sum_seconds": 0.042357,
+          "max_seconds": 0.042357
+        },
+        "A.window_attachment": {
+          "count": 1,
+          "sum_seconds": 0.005222,
+          "max_seconds": 0.005222
+        },
+        "A.deko.Device": {
+          "count": 1,
+          "sum_seconds": 0.007762,
+          "max_seconds": 0.007762
+        },
+        "A.deko.Queue": {
+          "count": 1,
+          "sum_seconds": 0.011236,
+          "max_seconds": 0.011236
+        },
+        "A.material_shader_pair": {
+          "count": 1,
+          "sum_seconds": 0.003824,
+          "max_seconds": 0.003824
+        },
+        "A.gamma_shader_pair": {
+          "count": 1,
+          "sum_seconds": 0.005537,
+          "max_seconds": 0.005537
+        },
+        "A.command_backing": {
+          "count": 1,
+          "sum_seconds": 0.008219,
+          "max_seconds": 0.008219
+        },
+        "GPU.color_depth_allocation": {
+          "count": 3,
+          "sum_seconds": 0.039244,
+          "max_seconds": 0.015732
+        },
+        "GPU.swapchain_attach": {
+          "count": 3,
+          "sum_seconds": 0.017426,
+          "max_seconds": 0.005907
+        },
+        "A.BC1.upload": {
+          "count": 1,
+          "sum_seconds": 0.007551,
+          "max_seconds": 0.007551
+        },
+        "A.frame.acquire_clear": {
+          "count": 1,
+          "sum_seconds": 0.006959,
+          "max_seconds": 0.006959
+        },
+        "A.BC1.draw": {
+          "count": 1,
+          "sum_seconds": 0.006547,
+          "max_seconds": 0.006547
+        },
+        "A.debug_font.upload_draw": {
+          "count": 1,
+          "sum_seconds": 0.067573,
+          "max_seconds": 0.067573
+        },
+        "GPU.batch_submit_wait": {
+          "count": 794,
+          "sum_seconds": 5.89449,
+          "max_seconds": 0.067238
+        },
+        "GPU.primary.readback.write": {
+          "count": 3,
+          "sum_seconds": 0.692796,
+          "max_seconds": 0.247917
+        },
+        "A.BC1.framebuffer_check": {
+          "count": 1,
+          "sum_seconds": 0.330851,
+          "max_seconds": 0.330851
+        },
+        "GPU.presentation_gamma": {
+          "count": 11,
+          "sum_seconds": 0.068123,
+          "max_seconds": 0.00934
+        },
+        "A.orientation.presentation_check": {
+          "count": 1,
+          "sum_seconds": 0.491846,
+          "max_seconds": 0.491846
+        },
+        "GPU.presentation.after_gamma": {
+          "count": 2,
+          "sum_seconds": 0.907034,
+          "max_seconds": 0.583688
+        },
+        "GPU.Present.submit_wait": {
+          "count": 11,
+          "sum_seconds": 1.289357,
+          "max_seconds": 0.608173
+        },
+        "A.gamma.presentation_check": {
+          "count": 1,
+          "sum_seconds": 0.226293,
+          "max_seconds": 0.226293
+        },
+        "A.real_GPU_smoke": {
+          "count": 1,
+          "sum_seconds": 1.468549,
+          "max_seconds": 1.468549
+        },
+        "diagnostic.status.acquire_clear": {
+          "count": 2,
+          "sum_seconds": 0.013543,
+          "max_seconds": 0.008022
+        },
+        "diagnostic.status_screen": {
+          "count": 2,
+          "sum_seconds": 0.186873,
+          "max_seconds": 0.139606
+        },
+        "B.RangersHostSession": {
+          "count": 1,
+          "sum_seconds": 1.662838,
+          "max_seconds": 1.662838
+        },
+        "B.release_diagnostic_window": {
+          "count": 1,
+          "sum_seconds": 0.011656,
+          "max_seconds": 0.011656
+        },
+        "B.CFile::OpenPackFiles": {
+          "count": 1,
+          "sum_seconds": 0.120326,
+          "max_seconds": 0.120326
+        },
+        "B.config.text": {
+          "count": 1,
+          "sum_seconds": 0.049118,
+          "max_seconds": 0.049118
+        },
+        "B.CacheInit": {
+          "count": 1,
+          "sum_seconds": 0.003354,
+          "max_seconds": 0.003354
+        },
+        "B.platform_attachment": {
+          "count": 1,
+          "sum_seconds": 0.00616,
+          "max_seconds": 0.00616
+        },
+        "B.debug_font.CreateFor": {
+          "count": 1,
+          "sum_seconds": 0.006806,
+          "max_seconds": 0.006806
+        },
+        "B.cursor.constructor": {
+          "count": 1,
+          "sum_seconds": 0.002699,
+          "max_seconds": 0.002699
+        },
+        "B.map.constructor": {
+          "count": 1,
+          "sum_seconds": 0.023129,
+          "max_seconds": 0.023129
+        },
+        "B.RobotPreload": {
+          "count": 1,
+          "sum_seconds": 0.899337,
+          "max_seconds": 0.899337
+        },
+        "B.stor.Load": {
+          "count": 1,
+          "sum_seconds": 0.192637,
+          "max_seconds": 0.192637
+        },
+        "B.BuildTexUnions": {
+          "count": 1,
+          "sum_seconds": 14.701823,
+          "max_seconds": 14.701823
+        },
+        "B.PrepareMap": {
+          "count": 1,
+          "sum_seconds": 23.047812,
+          "max_seconds": 23.047812
+        },
+        "B.ApplyVideoParams": {
+          "count": 1,
+          "sum_seconds": 0.245507,
+          "max_seconds": 0.245507
+        },
+        "B.CMinimap::RenderBackground": {
+          "count": 1,
+          "sum_seconds": 32.588161,
+          "max_seconds": 32.588161
+        },
+        "B.interface_and_final_resources": {
+          "count": 1,
+          "sum_seconds": 72.196978,
+          "max_seconds": 72.196978
+        },
+        "B.CGame::Init": {
+          "count": 1,
+          "sum_seconds": 96.660948,
+          "max_seconds": 96.660948
+        },
+        "B.complete_initialization_GPU_work": {
+          "count": 1,
+          "sum_seconds": 0.018613,
+          "max_seconds": 0.018613
+        },
+        "C.original_form.Draw": {
+          "count": 6,
+          "sum_seconds": 20.173989,
+          "max_seconds": 7.994531
+        },
+        "D.RangersHostSession.error": {
+          "count": 1,
+          "sum_seconds": 1.338871,
+          "max_seconds": 1.338871
+        },
+        "diagnostic.error_window_attachment": {
+          "count": 1,
+          "sum_seconds": 0.002902,
+          "max_seconds": 0.002902
+        }
+      },
+      "exceptions": [
+        {
+          "schema": 1,
+          "seq": 6023,
+          "time_us": 123855867,
+          "run_id": "run-1793703529004647-0",
+          "build_id": "9c097a23021a-4294303d9d29695f9fa3",
+          "source_sha256": "4294303d9d29695f9fa37c66fea5f0f1681e4f69b90849ba332110f0a51ff738",
+          "event": "exception",
+          "operation": "std::exception",
+          "last_ok": "diagnostic.error_window_attachment",
+          "detail": "diagnostic 120-second cooperative deadline exceeded",
+          "detail_truncated": false,
+          "result": null,
+          "elapsed_us": 0,
+          "value": 0
+        }
+      ],
+      "process_exit": [
+        10
+      ],
+      "journal_closed": true,
+      "sdk_errors": []
+    },
+    {
+      "run_id": "run-1793703659005706-0",
+      "variant": "matrixgame-e610-interactive.nro",
+      "image_sha256": "5651d4cbcba36d40cf952b48c6926da55096441ebe2b4c45a9c100993dd5cf4e",
+      "journal_sha256": "733ff6e6d1a75322429529b151a0d4b5771a1c252dca0543d9f9448b0b5d4d35",
+      "records": 7747,
+      "init_seconds": 95.213701,
+      "handoff_complete": true,
+      "original_draw_calls_completed": 48,
+      "draw_span_seconds": 121.789709,
+      "observed_original_loop_present_rate": 0.39412196969778457,
+      "mean_Draw_seconds": 2.5293795416666667,
+      "maximum_Draw_seconds": 7.820978,
+      "transition_presents": 48,
+      "accepted_map_frames": 0,
+      "metrics": {
+        "image_file_bytes": 14952645,
+        "process_memory_limit_bytes": 3343908864,
+        "process_memory_used_bytes": 3339825152,
+        "image_width": 1280,
+        "image_height": 720,
+        "color_image_bytes": 3932160,
+        "color_image_alignment": 512,
+        "depth_image_bytes": 3932160,
+        "depth_image_alignment": 65536,
+        "smoke_BC1_bytes": 8,
+        "framebuffer_width": 1280,
+        "framebuffer_height": 720,
+        "gpu_buffer_allocations": 62789,
+        "gpu_buffer_bytes_cumulative": 2329616384,
+        "recorded_draw_calls": 62787,
+        "queue_submission_calls": 1561,
+        "completed_presents": 53,
+        "native_texture_session_uploads": 1959,
+        "texture_arena_capacity": 67108864,
+        "batch_drains": 1508,
+        "max_live_draw_packets": 64,
+        "max_live_draw_bytes": 6500352,
+        "managed_texture_evictions": 591,
+        "texture_arena_free": 2962944,
+        "queue_healthy": 1,
+        "SDK_warnings_total": 0,
+        "SDK_warning_records_suppressed": 0,
+        "VI.display_width": 1280,
+        "VI.display_height": 720,
+        "VI.refresh_hz": 60,
+        "texture.arena_free": 2946560,
+        "texture.arena_largest": 245760,
+        "texture.request_width": 512,
+        "texture.request_height": 128,
+        "texture.request_format": 21,
+        "texture.managed_evictions": 590,
+        "original_loading_presents": 48
+      },
+      "batch_scope_seconds_during_loop": 8.225667,
+      "slow_scopes_nested_not_additive": {
+        "entry.self_NRO_sha256": {
+          "count": 1,
+          "sum_seconds": 0.470669,
+          "max_seconds": 0.470669
+        },
+        "A.libnx_environment": {
+          "count": 1,
+          "sum_seconds": 0.045013,
+          "max_seconds": 0.045013
+        },
+        "A.window_attachment": {
+          "count": 1,
+          "sum_seconds": 0.004316,
+          "max_seconds": 0.004316
+        },
+        "A.deko.Device": {
+          "count": 1,
+          "sum_seconds": 0.005703,
+          "max_seconds": 0.005703
+        },
+        "A.deko.Queue": {
+          "count": 1,
+          "sum_seconds": 0.007479,
+          "max_seconds": 0.007479
+        },
+        "A.material_shader_pair": {
+          "count": 1,
+          "sum_seconds": 0.007788,
+          "max_seconds": 0.007788
+        },
+        "A.gamma_shader_pair": {
+          "count": 1,
+          "sum_seconds": 0.004627,
+          "max_seconds": 0.004627
+        },
+        "A.command_backing": {
+          "count": 1,
+          "sum_seconds": 0.014541,
+          "max_seconds": 0.014541
+        },
+        "GPU.color_depth_allocation": {
+          "count": 3,
+          "sum_seconds": 0.046492,
+          "max_seconds": 0.015788
+        },
+        "GPU.swapchain_attach": {
+          "count": 3,
+          "sum_seconds": 0.01589,
+          "max_seconds": 0.005866
+        },
+        "A.BC1.upload": {
+          "count": 1,
+          "sum_seconds": 0.116769,
+          "max_seconds": 0.116769
+        },
+        "A.frame.acquire_clear": {
+          "count": 1,
+          "sum_seconds": 0.005549,
+          "max_seconds": 0.005549
+        },
+        "A.BC1.draw": {
+          "count": 1,
+          "sum_seconds": 0.005227,
+          "max_seconds": 0.005227
+        },
+        "A.debug_font.upload_draw": {
+          "count": 1,
+          "sum_seconds": 0.066826,
+          "max_seconds": 0.066826
+        },
+        "GPU.batch_submit_wait": {
+          "count": 1508,
+          "sum_seconds": 12.935049,
+          "max_seconds": 0.083658
+        },
+        "GPU.primary.readback.write": {
+          "count": 3,
+          "sum_seconds": 0.700146,
+          "max_seconds": 0.258559
+        },
+        "A.BC1.framebuffer_check": {
+          "count": 1,
+          "sum_seconds": 0.324109,
+          "max_seconds": 0.324109
+        },
+        "GPU.presentation_gamma": {
+          "count": 53,
+          "sum_seconds": 0.558844,
+          "max_seconds": 0.060994
+        },
+        "A.orientation.presentation_check": {
+          "count": 1,
+          "sum_seconds": 0.502291,
+          "max_seconds": 0.502291
+        },
+        "GPU.presentation.after_gamma": {
+          "count": 2,
+          "sum_seconds": 0.919981,
+          "max_seconds": 0.59355
+        },
+        "GPU.Present.submit_wait": {
+          "count": 53,
+          "sum_seconds": 3.499023,
+          "max_seconds": 0.618132
+        },
+        "A.gamma.presentation_check": {
+          "count": 1,
+          "sum_seconds": 0.227209,
+          "max_seconds": 0.227209
+        },
+        "A.real_GPU_smoke": {
+          "count": 1,
+          "sum_seconds": 1.533405,
+          "max_seconds": 1.533405
+        },
+        "diagnostic.status.acquire_clear": {
+          "count": 2,
+          "sum_seconds": 0.016812,
+          "max_seconds": 0.010457
+        },
+        "diagnostic.status_screen": {
+          "count": 2,
+          "sum_seconds": 0.129374,
+          "max_seconds": 0.085962
+        },
+        "B.RangersHostSession": {
+          "count": 1,
+          "sum_seconds": 1.70831,
+          "max_seconds": 1.70831
+        },
+        "B.release_diagnostic_window": {
+          "count": 1,
+          "sum_seconds": 0.014416,
+          "max_seconds": 0.014416
+        },
+        "B.CFile::OpenPackFiles": {
+          "count": 1,
+          "sum_seconds": 0.13709,
+          "max_seconds": 0.13709
+        },
+        "B.config.text": {
+          "count": 1,
+          "sum_seconds": 0.051763,
+          "max_seconds": 0.051763
+        },
+        "B.CacheInit": {
+          "count": 1,
+          "sum_seconds": 0.005342,
+          "max_seconds": 0.005342
+        },
+        "B.platform_attachment": {
+          "count": 1,
+          "sum_seconds": 0.008814,
+          "max_seconds": 0.008814
+        },
+        "B.debug_font.CreateFor": {
+          "count": 1,
+          "sum_seconds": 0.008,
+          "max_seconds": 0.008
+        },
+        "B.cursor.constructor": {
+          "count": 1,
+          "sum_seconds": 0.005667,
+          "max_seconds": 0.005667
+        },
+        "B.map.constructor": {
+          "count": 1,
+          "sum_seconds": 0.029787,
+          "max_seconds": 0.029787
+        },
+        "B.RobotPreload": {
+          "count": 1,
+          "sum_seconds": 1.002324,
+          "max_seconds": 1.002324
+        },
+        "B.stor.Load": {
+          "count": 1,
+          "sum_seconds": 0.195544,
+          "max_seconds": 0.195544
+        },
+        "B.BuildTexUnions": {
+          "count": 1,
+          "sum_seconds": 14.782733,
+          "max_seconds": 14.782733
+        },
+        "B.PrepareMap": {
+          "count": 1,
+          "sum_seconds": 23.101433,
+          "max_seconds": 23.101433
+        },
+        "B.ApplyVideoParams": {
+          "count": 1,
+          "sum_seconds": 0.304099,
+          "max_seconds": 0.304099
+        },
+        "B.CMinimap::RenderBackground": {
+          "count": 1,
+          "sum_seconds": 31.031409,
+          "max_seconds": 31.031409
+        },
+        "B.interface_and_final_resources": {
+          "count": 1,
+          "sum_seconds": 70.603372,
+          "max_seconds": 70.603372
+        },
+        "B.CGame::Init": {
+          "count": 1,
+          "sum_seconds": 95.213701,
+          "max_seconds": 95.213701
+        },
+        "B.complete_initialization_GPU_work": {
+          "count": 1,
+          "sum_seconds": 0.014996,
+          "max_seconds": 0.014996
+        },
+        "C.original_form.Draw": {
+          "count": 48,
+          "sum_seconds": 121.410218,
+          "max_seconds": 7.820978
+        },
+        "D.RangersHostSession.error": {
+          "count": 1,
+          "sum_seconds": 1.753264,
+          "max_seconds": 1.753264
+        },
+        "diagnostic.error_window_attachment": {
+          "count": 1,
+          "sum_seconds": 0.059166,
+          "max_seconds": 0.059166
+        }
+      },
+      "exceptions": [
+        {
+          "schema": 1,
+          "seq": 7745,
+          "time_us": 224487160,
+          "run_id": "run-1793703659005706-0",
+          "build_id": "9c097a23021a-4294303d9d29695f9fa3",
+          "source_sha256": "4294303d9d29695f9fa37c66fea5f0f1681e4f69b90849ba332110f0a51ff738",
+          "event": "exception",
+          "operation": "std::exception",
+          "last_ok": "diagnostic.error_window_attachment",
+          "detail": "diagnostic 120-second cooperative deadline exceeded",
+          "detail_truncated": false,
+          "result": null,
+          "elapsed_us": 0,
+          "value": 0
+        }
+      ],
+      "process_exit": [
+        10
+      ],
+      "journal_closed": true,
+      "sdk_errors": []
+    }
+  ]
+}
