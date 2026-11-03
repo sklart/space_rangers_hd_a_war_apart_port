@@ -24,7 +24,7 @@ def main():
     baseline_pool=subprocess.check_output(['C:/Program Files/Git/cmd/git.exe','show','dd7f6714872d1826bc35f896ee4975bc104f9ea8:port/matrixgame/native-engine/completed_block_pool.hpp'])
     (out/'baseline-exact-pool.inc').write_bytes(baseline_pool.replace(b'CompletedBlockPool',b'FrozenExactPool'))
     common=['port/matrixgame/native-engine/native_device_state.cpp','port/matrixgame/native-core/buffer_resources.cpp','port/matrixgame/deko/fixed_vertex.cpp','port/matrixgame/deko/material_combiner.cpp']
-    cases={'completed_best_fit':[], 'draw_upload':[], 'completed_pool':[], 'material_uniform_packet':[], 'native_draw_batch':[], 'init_handoff':common,'diagnostic_journal':['port/matrixgame/native-engine/native_diagnostic_journal.cpp']}
+    cases={'native_state':common, 'completed_best_fit':[], 'draw_upload':[], 'completed_pool':[], 'material_uniform_packet':[], 'native_draw_batch':[], 'init_handoff':common,'diagnostic_journal':['port/matrixgame/native-engine/native_diagnostic_journal.cpp']}
     captures=[ROOT/'build/matrixgame/e2e539-batches/baseline-windows'/('frame-cost-'+str(i)+'.csv') for i in range(2)]
     paths=set()
     def run(cmd,label):

@@ -81,6 +81,7 @@ void Counters(p::DekoDevice& device){
         std::snprintf(key,sizeof(key),"profile.%s.max_us",name);dg::Metric(key,t.maximum_us);};
     profile("draw_cpu",s.draw_cpu);profile("vertex_decode",s.vertex_decode);profile("block_create",s.block_create);
     profile("residency",s.residency);profile("command_encode",s.command_encode);profile("batch_wait",s.batch_wait);
+    profile("state_validation",s.state_validation);
     const auto io=dg::CurrentIOStats();dg::Metric("profile.journal.calls",io.calls);dg::Metric("profile.journal.bytes",io.bytes);dg::Metric("profile.journal.us",io.us);
     dg::Metric("gpu_buffer_bytes_cumulative",s.buffer_bytes_total);dg::Metric("recorded_draw_calls",s.recorded_draws);
     dg::Metric("queue_submission_calls",s.queue_submissions);dg::Metric("completed_presents",s.presents);

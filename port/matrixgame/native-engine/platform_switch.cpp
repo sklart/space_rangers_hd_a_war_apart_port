@@ -489,8 +489,9 @@ struct DekoDevice::Impl: presentation::Driver {
         frame.RequireDraw(override_state!=nullptr);
         const auto target=presenting?surface_session->primary_color:surface_session->color;
         if(!target)throw std::logic_error("native draw has no color attachment");
+        {ProfileScope validation_timing(diagnostics.state_validation);
         saved_state.ValidateDraw(primitive==DkPrimitive_Points,primitive==DkPrimitive_Lines || primitive==DkPrimitive_LineStrip,
-            target->desc.MultiSampleType,target->desc.MultiSampleQuality);
+            target->desc.MultiSampleType,target->desc.MultiSampleQuality);}
         const auto stencil=saved_state.Stencil();const auto stencil_depth=presenting?surface_session->primary_depth:surface_session->depth;
         RequireStencilAttachment(stencil,bool(stencil_depth),stencil_depth?stencil_depth->desc.Format:0);
         const auto& vertex=saved_state.vertex;const auto& combiner=saved_state.combiner;

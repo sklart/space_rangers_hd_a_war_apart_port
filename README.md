@@ -449,3 +449,7 @@ Bounded reuse завершённых SDK blocks; порядок draw, completion
 Bounded best-fit и cached immutable size/CPU/GPU addresses уменьшают SDK queries/allocations без изменения draw payload или completion ownership. Physical capacity входит в byte quota. Synthetic CPU size-sweep: 6645 → 4751 новых blocks, 1095345 → 65536 size queries; это не Switch FPS. R10 transition fix сохранён. [Изменения/проверки](reports/matrixgame-e610-reuse-r11.md), [инструкция](docs/matrixgame-e610-reuse-r11-readme.ru.md). HARDWARE PENDING.
 
 Актуальный пакет: `dist/matrixgame-e610-switch-test-r11-reuse.zip`; source `203f563d6453b9a311af432a4e14428ad2f86ce7`, build `203f563d6453-f0031abf2bd4f34eacea`. В hbmenu **MatrixGame r11 Quick Smoke** / **MatrixGame r11 Interactive**. Содержит r10 transition fix. [SHA256 и evidence](reports/matrixgame-e610-reuse-r11.md). SOFTWARE PASS / HARDWARE PENDING.
+
+### MatrixGame E610 r12: render state lookup без повторного поиска
+
+Immutable metadata и правила render state вычисляются при компиляции; все 103 чтения, порядок проверок и ошибки сохранены. 4039 случаев совпали с frozen r11. Host ValidateDraw+Prepare: 103.7 → 23.3 мс / 20000 checks, около 4.45x конкретного CPU участка, не FPS. [Профиль/изменение](reports/matrixgame-e610-state-r12.md), [инструкция](docs/matrixgame-e610-state-r12-readme.ru.md). HARDWARE PENDING.
