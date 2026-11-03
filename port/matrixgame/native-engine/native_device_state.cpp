@@ -29,7 +29,7 @@ const NativeStateWord& Word(std::uint32_t id){
     return NativeRenderWords[Lookup(id).word-1];
 }
 constexpr bool Is(std::string_view name,std::initializer_list<std::string_view> names){return std::find(names.begin(),names.end(),name)!=names.end();}
-// The draw walk below relies on the original ordinal IDs being sorted.
+// Keep the original serialized-ID order of logical-word validation stable.
 static_assert([](){for(unsigned i=1;i<NativeRenderWords.size();++i)if(NativeRenderWords[i-1].id>=NativeRenderWords[i].id)return false;return true;}());
 enum class DrawRule {None,Zero,One,Fill,FloatZero,SeparateAlpha};
 constexpr auto DrawRules=[](){
@@ -104,23 +104,27 @@ PreparedDrawState NativeRenderState::PrepareDraw(bool points,bool lines,std::uin
     // single-sample target, but remain observable/restorable logical state.
     // A true multisample attachment still needs a separate pipeline/resolve.
     if(samples || quality)throw Unsupported("native multisample target/resolve pipeline unavailable");
-    ValidateClear();
-    PreparedDrawState draw;
-    draw.fog=PixelFog();
-    draw.stencil=Stencil();
-    auto require=[&](std::string_view name,bool ok){if(!ok)throw Unsupported("native draw requires "+std::string(name));};
-    // Read EVERY logical word in the original order, including inactive words:
-    // missing/corrupt state must still fail. Only metadata search/classification
-    // is precomputed; no validation result is cached across draws or setters.
-    auto logical=registers.begin();
+    // One draw-local view of raw words. No allocation or cross-draw cache;
+    // presence is separate so even inactive missing words still fail at read.
+    static_assert(MaximumRenderId<256,"review draw-local register view stack bound");
+    std::array<std::uint32_t,MaximumRenderId+1> raw_words;
+    std::array<bool,MaximumRenderId+1> present{};
+    for(const auto& [id,value]:registers){if(id>MaximumRenderId)break;raw_words[id]=value;present[id]=true;}
+    const auto raster_words=raster.Words();
+    auto raw=[&](std::uint32_t id){return present[id]?raw_words[id]:registers.at(id);};
     auto read=[&](std::uint32_t id){
         const auto& kind=RenderLookup[id];
-        if(kind.vertex || kind.raster || id==9 || id==22 || id==60)return Render(id);
-        while(logical!=registers.end() && logical->first<id)++logical;
-        // Preserve std::map::at's platform-specific exception on a missing word.
-        if(logical==registers.end() || logical->first!=id)return registers.at(id);
-        return logical->second;
+        if(kind.vertex || id==9 || id==22 || id==60)return Render(id);
+        if(kind.raster)return raster_words[kind.raster-1];
+        return raw(id);
     };
+    // Keep the original preflight order, including true std::map::at errors.
+    if(raw(174))throw Unsupported("native SCISSORTESTENABLE requires scissor provider");
+    PreparedDrawState draw;
+    draw.fog=materials::PreparePixelFog(read(28)!=0,read(35),std::bit_cast<float>(read(36)),std::bit_cast<float>(read(37)),std::bit_cast<float>(read(38)),read(34),vertex.Transform(3));
+    draw.stencil=ReadStencilState(read);
+    auto require=[&](std::string_view name,bool ok){if(!ok)throw Unsupported("native draw requires "+std::string(name));};
+    // Read EVERY logical word in the original order, including inactive words.
     for(unsigned i=0;i<NativeRenderWords.size();++i){const auto& word=NativeRenderWords[i];const auto n=word.name;const auto v=read(word.id);
         switch(DrawRules[i]){
         case DrawRule::None:break;

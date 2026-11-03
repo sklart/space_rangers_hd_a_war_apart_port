@@ -480,9 +480,20 @@ SOFTWARE PASS / HARDWARE PENDING; ресурсы, сохранения, осно
 не меняются. Итоговый host результат: 111.4 → 89.0 мс / 100000 draw,
 −20.1% CPU-подготовки, не FPS Switch. [Проверки и измерения](reports/matrixgame-e610-register-r14.md),
 [инструкция](docs/matrixgame-e610-register-r14-readme.ru.md).
-Актуальный пакет: `dist/matrixgame-e610-switch-test-r14-register.zip`; source
+Пакет r14: `dist/matrixgame-e610-switch-test-r14-register.zip`; source
 `573cae7b5d968e5c68e9ecd643865141c295fb2b`, build `573cae7b5d96-c2a97dc7ba02cac1ba0d`.
 В hbmenu **MatrixGame r14 Quick Smoke** / **MatrixGame r14 Interactive**.
 4197 cases, COW/OOM/restore, host ASan/UBSan, ARM64/QEMU UBSan, Windows O2
 и SDK/link/package — PASS. [SHA256 и evidence](reports/matrixgame-e610-register-r14.md).
 SOFTWARE PASS / HARDWARE PENDING. Ресурсы, saves, основная NRO и старые пакеты сохранены.
+
+
+### MatrixGame E610 r15: draw-local view logical registers
+
+Временный view raw words устраняет повторные map lookups fog/stencil;
+raster words готовятся один раз на draw. Public getters, все проверки и
+COW/restore/layout сохранены. Итоговый host результат 90.9 → 77.5 мс /
+100000 draw, −14.8% времени CPU-подготовки, не FPS Switch.
+[Изменение и proof](reports/matrixgame-e610-logical-r15.md),
+[два запуска](docs/matrixgame-e610-logical-r15-readme.ru.md).
+Новые отдельные NRO готовятся; HARDWARE PENDING. Ресурсы и saves не меняются.
