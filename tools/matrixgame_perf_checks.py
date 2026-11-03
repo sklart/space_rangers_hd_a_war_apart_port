@@ -19,8 +19,12 @@ def main():
         return source[a:b]
     for name,signature in [('flush-recording','    void FlushRecording()'),('complete-init','void DekoDevice::CompleteNativeInitializationWork()')]:
         (out/(name+'.inc')).write_text(('void FlushRecording()' if name=='flush-recording' else 'void CompleteNativeInitializationWork()')+body(signature)+'\n',encoding='utf-8')
+    (out/'allocation-size.inc').write_text('std::uint32_t AllocationSize(std::uint64_t bytes)'+body('std::uint32_t AllocationSize(')+'\n',encoding='utf-8')
+    baseline_upload=ROOT/'build/matrixgame/e2e554-draw-upload/baseline-upload.inc';(out/'baseline-upload.inc').write_bytes(baseline_upload.read_bytes())
+    baseline_pool=subprocess.check_output(['C:/Program Files/Git/cmd/git.exe','show','dd7f6714872d1826bc35f896ee4975bc104f9ea8:port/matrixgame/native-engine/completed_block_pool.hpp'])
+    (out/'baseline-exact-pool.inc').write_bytes(baseline_pool.replace(b'CompletedBlockPool',b'FrozenExactPool'))
     common=['port/matrixgame/native-engine/native_device_state.cpp','port/matrixgame/native-core/buffer_resources.cpp','port/matrixgame/deko/fixed_vertex.cpp','port/matrixgame/deko/material_combiner.cpp']
-    cases={'completed_pool':[], 'material_uniform_packet':[], 'native_draw_batch':[], 'init_handoff':common,'diagnostic_journal':['port/matrixgame/native-engine/native_diagnostic_journal.cpp']}
+    cases={'completed_best_fit':[], 'draw_upload':[], 'completed_pool':[], 'material_uniform_packet':[], 'native_draw_batch':[], 'init_handoff':common,'diagnostic_journal':['port/matrixgame/native-engine/native_diagnostic_journal.cpp']}
     captures=[ROOT/'build/matrixgame/e2e539-batches/baseline-windows'/('frame-cost-'+str(i)+'.csv') for i in range(2)]
     paths=set()
     def run(cmd,label):
@@ -44,9 +48,9 @@ def main():
             if name in ('completed_pool','native_draw_batch'):runtime+=[str(p) if kind=='windows' else linux(p) for p in captures]
             if name=='diagnostic_journal':runtime+=[str(out/'filesystem') if kind=='windows' else linux(out/'filesystem')]
             result[name+'_stdout']=run(runtime,name+'-runtime')
-        result['status']='PASS R8 POOL/EXACT PACKET/BATCH ORDER/INIT HANDOFF/JOURNAL FAILURES; CPU ONLY'
+        result['status']='PASS BOUNDED BEST FIT/CACHED SIZE/PHYSICAL QUOTA/EXACT UPLOAD/PACKET/BATCH ORDER/INIT HANDOFF/JOURNAL FAILURES; CPU ONLY'
     finally:
-        paths.update(['port/matrixgame/native-engine/'+n for n in ('completed_block_pool.hpp','native_profile.hpp','native_draw_batch.hpp','native_frame_scope.hpp','native_draw_upload.hpp','platform_switch.cpp','platform_switch.hpp','native_diagnostic_journal.hpp')])
+        paths.update(['port/matrixgame/native-engine/'+n for n in ('completed_block_pool.hpp','native_upload_reuse.hpp','native_profile.hpp','native_draw_batch.hpp','native_frame_scope.hpp','native_draw_upload.hpp','platform_switch.cpp','platform_switch.hpp','native_diagnostic_journal.hpp')])
         paths.update(['port/matrixgame/deko/material_program.cpp','port/matrixgame/deko/material_program.hpp','port/matrixgame/deko/material_uniform_packet.hpp','tools/matrixgame_perf_checks.py','tests/matrixgame_native_diagnostic_main.cpp'])
-        result['source_sha256']={p:sha(ROOT/p) for p in sorted(paths)};result['captures_sha256']={str(p.relative_to(ROOT)):sha(p) for p in captures};(out/'result.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
+        result['source_sha256']={p:sha(ROOT/p) for p in sorted(paths)};result['captures_sha256']={str(p.relative_to(ROOT)):sha(p) for p in captures};result['test_inputs_sha256']={str(p.relative_to(ROOT)):sha(p) for p in out.glob('*.inc')};result['baseline_upload_sha256']=sha(baseline_upload);(out/'result.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
 if __name__=='__main__':main()

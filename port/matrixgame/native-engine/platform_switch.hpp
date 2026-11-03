@@ -134,6 +134,7 @@ public:
         std::uint64_t buffer_allocations{},buffer_bytes_total{},recorded_draws{},queue_submissions{},presents{},session_uploads{};
         std::uint64_t batch_drains{},max_live_draw_packets{},max_live_draw_bytes{};
         std::uint64_t block_pool_hits{},block_pool_misses{},block_pool_bytes{},texture_pressure_events{};
+        std::uint64_t block_pool_larger_hits{},upload_requested_bytes{},upload_reserved_bytes{};
         ProfileTotals draw_cpu,vertex_decode,block_create,residency,command_encode,batch_wait;
         std::uint64_t texture_capacity{},texture_free{};
         std::uint64_t sdk_warnings{};

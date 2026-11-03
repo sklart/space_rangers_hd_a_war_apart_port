@@ -35,11 +35,13 @@ public:
     NativeDrawUpload(dk::UniqueMemBlock memory,std::span<const std::byte> vertices,std::span<const std::byte> indices)
         :layout_(Plan(vertices.size(),indices.size())),memory_(std::move(memory)){
         if(!memory_)throw std::bad_alloc();
-        if(memory_.getSize()<layout_.bytes)throw std::invalid_argument("short native draw upload block");
-        auto* cpu=static_cast<std::byte*>(memory_.getCpuAddr());
-        std::memcpy(cpu,vertices.data(),vertices.size());
-        if(!indices.empty())std::memcpy(cpu+layout_.indices,indices.data(),indices.size());
-        std::memset(cpu+layout_.images,0,Slots*sizeof(DkImageDescriptor));
+        capacity_=memory_.getSize();
+        if(capacity_<layout_.bytes)throw std::invalid_argument("short native draw upload block");
+        cpu_=static_cast<std::byte*>(memory_.getCpuAddr());gpu_=memory_.getGpuAddr();
+        if(!cpu_)throw std::invalid_argument("native upload memory is not CPU accessible");
+        std::memcpy(cpu_,vertices.data(),vertices.size());
+        if(!indices.empty())std::memcpy(cpu_+layout_.indices,indices.data(),indices.size());
+        std::memset(cpu_+layout_.images,0,Slots*sizeof(DkImageDescriptor));
     }
     NativeDrawUpload(NativeDrawUpload&&)=default;
     NativeDrawUpload& operator=(NativeDrawUpload&&)=default;
@@ -51,7 +53,8 @@ public:
     DkGpuAddr Indices(){return Address(layout_.indices);}
     DkGpuAddr Images(){return Address(layout_.images);}
     DkGpuAddr Samplers(){return Address(layout_.samplers);}
-    dk::UniqueMemBlock TakeCompletedMemory()noexcept{return std::move(memory_);}
+    std::uint32_t StorageBytes()const noexcept{return memory_?capacity_:0;}
+    dk::UniqueMemBlock TakeCompletedMemory()noexcept{capacity_=0;cpu_=nullptr;gpu_=0;return std::move(memory_);}
 private:
     static_assert(DK_MEMBLOCK_ALIGNMENT%DK_IMAGE_DESCRIPTOR_ALIGNMENT==0);
     static_assert(DK_MEMBLOCK_ALIGNMENT%DK_SAMPLER_DESCRIPTOR_ALIGNMENT==0);
@@ -59,13 +62,15 @@ private:
     static_assert(sizeof(DkSamplerDescriptor)%DK_SAMPLER_DESCRIPTOR_ALIGNMENT==0);
     Layout layout_{};
     dk::UniqueMemBlock memory_;
+    std::uint32_t capacity_{};
+    std::byte* cpu_{};DkGpuAddr gpu_{};
     template<class T>void Write(std::uint32_t offset,unsigned slot,const T& value){
         if(!memory_ || slot>=Slots)throw std::out_of_range("native draw descriptor slot/lifetime");
-        std::memcpy(static_cast<std::byte*>(memory_.getCpuAddr())+offset+slot*sizeof(T),&value,sizeof(value));
+        std::memcpy(cpu_+offset+slot*sizeof(T),&value,sizeof(value));
     }
     DkGpuAddr Address(std::uint32_t offset){
         if(!memory_)throw std::logic_error("native draw upload lifetime ended");
-        return memory_.getGpuAddr()+offset;
+        return gpu_+offset;
     }
 };
 }

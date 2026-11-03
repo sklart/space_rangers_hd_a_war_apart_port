@@ -73,6 +73,7 @@ void Memory(){
 void Counters(p::DekoDevice& device){
     const auto s=device.Diagnostics();dg::Metric("gpu_buffer_allocations",s.buffer_allocations);
     dg::Metric("block_pool_hits",s.block_pool_hits);dg::Metric("block_pool_misses",s.block_pool_misses);dg::Metric("block_pool_bytes",s.block_pool_bytes);
+    dg::Metric("block_pool_larger_hits",s.block_pool_larger_hits);dg::Metric("upload_requested_bytes",s.upload_requested_bytes);dg::Metric("upload_reserved_bytes",s.upload_reserved_bytes);
     dg::Metric("texture_pressure_events",s.texture_pressure_events);
     const auto profile=[](const char* name,const p::ProfileTotals& t){char key[96];
         std::snprintf(key,sizeof(key),"profile.%s.calls",name);dg::Metric(key,t.calls);

@@ -1,6 +1,7 @@
 // Production NativeDrawUpload and real SDK owners, explicit CPU memory endpoints.
 // Does not submit commands, emulate a GPU or claim original Init/Draw execution.
 #include "native_draw_upload.hpp"
+#include "completed_block_pool.hpp"
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -11,7 +12,7 @@ namespace p=srhd_awa::matrixgame::platform3g;
 namespace dk::detail {struct Device{};struct MemBlock {std::vector<std::byte> bytes;DkGpuAddr gpu;};}
 dk::detail::Device device;
 std::vector<DkMemBlock> live;
-std::uint64_t next_gpu=0x100000;unsigned allocations{},fail_allocation{};
+std::uint64_t next_gpu=0x100000;unsigned allocations{},fail_allocation{},size_queries{},cpu_queries{},gpu_queries{};
 extern "C" DkMemBlock dkMemBlockCreate(const DkMemBlockMaker* maker){
     ++allocations;if(allocations==fail_allocation)return nullptr;
     assert(maker->size && maker->size%DK_MEMBLOCK_ALIGNMENT==0);
@@ -19,9 +20,9 @@ extern "C" DkMemBlock dkMemBlockCreate(const DkMemBlockMaker* maker){
     next_gpu+=maker->size+DK_MEMBLOCK_ALIGNMENT;live.push_back(memory);return memory;
 }
 extern "C" void dkMemBlockDestroy(DkMemBlock memory){auto it=std::find(live.begin(),live.end(),memory);assert(it!=live.end());live.erase(it);delete memory;}
-extern "C" void* dkMemBlockGetCpuAddr(DkMemBlock memory){return memory->bytes.data();}
-extern "C" DkGpuAddr dkMemBlockGetGpuAddr(DkMemBlock memory){return memory->gpu;}
-extern "C" std::uint32_t dkMemBlockGetSize(DkMemBlock memory){return std::uint32_t(memory->bytes.size());}
+extern "C" void* dkMemBlockGetCpuAddr(DkMemBlock memory){++cpu_queries;return memory->bytes.data();}
+extern "C" DkGpuAddr dkMemBlockGetGpuAddr(DkMemBlock memory){++gpu_queries;return memory->gpu;}
+extern "C" std::uint32_t dkMemBlockGetSize(DkMemBlock memory){++size_queries;return std::uint32_t(memory->bytes.size());}
 #include "allocation-size.inc"
 dk::UniqueMemBlock Allocate(std::uint64_t bytes){
     dk::UniqueMemBlock memory=dk::MemBlockMaker{&device,AllocationSize(bytes)}.setFlags(DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached).create();
@@ -90,5 +91,25 @@ int main(){
     }
     {auto left=Make(v,i);auto right=Make(v,i);auto address=left.Vertices();right=std::move(left);assert(live.size()==1 && right.Vertices()==address);}
     assert(live.empty() && cases==88 && old_allocs==341 && new_allocs==88);
-    std::printf("DRAW_UPLOAD PASS layouts=%u baseline_blocks=%u candidate_blocks=%u avoided_blocks=%u exact_baseline_payload descriptor_alignment padding_bounds fault_unwind move_retention CPU_SDK_ENDPOINTS NO_GPU_NO_FPS\n",cases,old_allocs,new_allocs,old_allocs-new_allocs);
+    {
+        // Reuse a physically larger, poisoned block. Layout/ranges and bytes
+        // remain those of the requested upload, not the cached capacity.
+        const auto plan=p::NativeDrawUpload::Plan(v.size(),i.size());p::CompletedBlockPool<dk::UniqueMemBlock> pool;
+        pool.Put(Allocate(plan.bytes*2));auto memory=pool.TakeAtLeast(plan.bytes,plan.bytes*2);const auto address=memory.getGpuAddr();
+        p::NativeDrawUpload upload{std::move(memory),v,i};assert(upload.StorageBytes()==plan.bytes*2);
+        const auto queries=size_queries,cpu_before=cpu_queries,gpu_before=gpu_queries;
+        for(unsigned n=0;n<100;++n){assert(upload.StorageBytes()==plan.bytes*2);assert(upload.Vertices()==address && upload.Indices()==address+plan.indices && upload.Images()==address+plan.images && upload.Samplers()==address+plan.samplers);}
+        assert(size_queries==queries && cpu_queries==cpu_before && gpu_queries==gpu_before);
+        assert(std::equal(Bytes(upload.Vertices(),v.size()).begin(),Bytes(upload.Vertices(),v.size()).end(),v.begin()));
+        assert(std::equal(Bytes(upload.Indices(),i.size()).begin(),Bytes(upload.Indices(),i.size()).end(),i.begin()));
+        DkImageDescriptor image;std::memset(&image,0x71,sizeof(image));upload.WriteImage(0,image);
+        assert(cpu_queries==cpu_before && gpu_queries==gpu_before);
+        for(auto byte:Bytes(address+plan.bytes,plan.bytes))assert(byte==std::byte{0xcd});
+        pool.Put(upload.TakeCompletedMemory());assert(!upload.StorageBytes());Reject([&]{upload.Vertices();});
+        p::NativeDrawUpload retry{pool.TakeAtLeast(plan.bytes,plan.bytes*2),v,i};assert(retry.Vertices()==address && retry.StorageBytes()==plan.bytes*2);
+        for(auto byte:Bytes(retry.Images(),8*sizeof(DkImageDescriptor)))assert(byte==std::byte{});
+        assert(retry.Images()==address+plan.images && retry.Samplers()==address+plan.samplers);
+    }
+    assert(live.empty());
+    std::printf("DRAW_UPLOAD PASS layouts=%u baseline_blocks=%u candidate_blocks=%u avoided_blocks=%u exact_baseline_payload descriptor_alignment padding_bounds fault_unwind move_retention larger_storage_reuse cached_cpu_gpu_addresses descriptor_reset CPU_SDK_ENDPOINTS NO_GPU_NO_FPS\n",cases,old_allocs,new_allocs,old_allocs-new_allocs);
 }

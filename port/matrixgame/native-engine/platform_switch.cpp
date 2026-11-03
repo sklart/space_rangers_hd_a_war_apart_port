@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "platform_switch.hpp"
 #include "completed_block_pool.hpp"
+#include "native_upload_reuse.hpp"
 #include "native_display_owner.hpp"
 #include "native_staging_binding.hpp"
 #include "native_diagnostic_journal.hpp"
@@ -353,8 +354,9 @@ struct DekoDevice::Impl: presentation::Driver {
         auto value=dk::MemBlockMaker{device,AllocationSize(bytes)}.setFlags(DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached).create();
         if(!value)throw std::bad_alloc();++diagnostics.buffer_allocations;diagnostics.buffer_bytes_total+=AllocationSize(bytes);return value;
     }
-    dk::UniqueMemBlock DrawMemory(std::uint64_t bytes){
-        auto block=completed_blocks.Take(AllocationSize(bytes));return block?std::move(block):Allocate(bytes);
+    dk::UniqueMemBlock DrawMemory(std::uint64_t bytes,std::uint64_t maximum=0){
+        const auto size=AllocationSize(bytes);
+        auto block=completed_blocks.TakeAtLeast(size,maximum?maximum:size);return block?std::move(block):Allocate(bytes);
     }
     bool presenting{};const dk::Image* bound_color{};const dk::Image* bound_depth{};
     void StartRecording(){
@@ -497,10 +499,12 @@ struct DekoDevice::Impl: presentation::Driver {
         const auto raster=alpha_target?AlphaTargetRaster(saved_state.raster):saved_state.raster;const auto cull=saved_state.cull;
         const auto uniforms=vertex.Prepare();const auto fog=saved_state.PixelFog();
         const auto upload_layout=NativeDrawUpload::Plan(vertices.size_bytes(),indices.size());
-        const std::uint64_t bytes=std::uint64_t(upload_layout.bytes)+materials::uniform_packet::Bytes;
-        if(batch.NeedsDrain(bytes) || command_pages.NeedsDrain())DrainBatch();
+        auto upload_reuse=PlanUploadReuse(completed_blocks,upload_layout.bytes,materials::uniform_packet::Bytes,frame_budget);
+        if(batch.NeedsDrain(upload_reuse.total) || command_pages.NeedsDrain()){
+            DrainBatch();upload_reuse=PlanUploadReuse(completed_blocks,upload_layout.bytes,materials::uniform_packet::Bytes,frame_budget);
+        }
         BindTargets(presenting);
-        DrawPacket packet;packet.upload=NativeDrawUpload{DrawMemory(upload_layout.bytes),std::as_bytes(vertices),indices};
+        DrawPacket packet;packet.upload=NativeDrawUpload{DrawMemory(upload_layout.bytes,upload_reuse.capacity),std::as_bytes(vertices),indices};
         {
         ProfileScope residency_timing(diagnostics.residency);
         for(unsigned i=0;i<8;++i)if(textures[i]){
@@ -516,7 +520,9 @@ struct DekoDevice::Impl: presentation::Driver {
             dk::SamplerDescriptor descriptor;descriptor.initialize(sampler);packet.upload.WriteSampler(i,descriptor);}
         std::array<DkResHandle,8> handles;for(unsigned i=0;i<8;++i)handles[i]=dkMakeTextureHandle(i,i);
         packet.material=programs->Prepare(combiner,handles,&uniforms,alpha_target,&fog,saved_state.shade,DrawMemory(materials::uniform_packet::Bytes));
-        packets.push_back(std::move(packet));auto& saved=packets.back();batch.Add(bytes);++diagnostics.recorded_draws;
+        if(packet.upload.StorageBytes()+std::uint64_t(materials::uniform_packet::Bytes)!=upload_reuse.total)throw std::logic_error("native reusable upload capacity changed before publication");
+        packets.push_back(std::move(packet));auto& saved=packets.back();batch.Add(upload_reuse.total);++diagnostics.recorded_draws;
+        diagnostics.upload_requested_bytes+=upload_layout.bytes;diagnostics.upload_reserved_bytes+=saved.upload.StorageBytes();
         diagnostics.max_live_draw_packets=std::max(diagnostics.max_live_draw_packets,batch.Draws());
         diagnostics.max_live_draw_bytes=std::max(diagnostics.max_live_draw_bytes,batch.Bytes());
         const auto raster_viewport=LegacyRasterViewport(uniforms.viewport);
@@ -784,6 +790,7 @@ void DekoDevice::PresentNativeFrame(){
 DekoDevice::DiagnosticCounters DekoDevice::Diagnostics()const noexcept{
     auto result=impl_->diagnostics;result.queue_healthy=impl_->Healthy();
     result.block_pool_hits=impl_->completed_blocks.hits;result.block_pool_misses=impl_->completed_blocks.misses;result.block_pool_bytes=impl_->completed_blocks.Bytes();
+    result.block_pool_larger_hits=impl_->completed_blocks.larger_hits;
     result.sdk_warnings=diagnostic_sdk_warnings.load();
     if(impl_->texture_store){result.texture_capacity=impl_->texture_store->Capacity();result.texture_free=impl_->texture_store->Free();}
     return result;
