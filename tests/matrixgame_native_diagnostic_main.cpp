@@ -164,6 +164,7 @@ void Run(const char* root_arg,const char* rangers_root_arg,dg::Journal& journal)
         {dg::Operation transfer("B.release_diagnostic_window");diagnostic_window.Release();
             CheckLibnx(window.LastVisibilityRestoreResult(),"diagnostic window visibility restore before original Init");}
         runtime.InitializeNativeGame(options);journal.RequireHealthy();dg::Record("ok","B.complete_original_Init");Counters(device);cancel.Poll();
+        device.CompleteNativeInitializationWork();journal.RequireHealthy();
         phase=L"C: original Draw";const wchar_t* draw_screen[]{Interactive?L"Stage C: manual MatrixGame check":L"Stage C: original MatrixGame Draw",Interactive?L"Up to 120 seconds; original controls are active":L"First map frame readback; four completed frames",Interactive?L"Minus + Plus: safe exit; Plus: game menu":L"B / +: safe exit"};dg::RenderStatus(device,draw_screen);
         {
             mg::native_form::Session form;

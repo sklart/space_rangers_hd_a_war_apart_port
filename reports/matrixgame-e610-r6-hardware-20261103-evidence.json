@@ -1,0 +1,224 @@
+{
+  "status": "R6 HARDWARE PARTIAL: ORIGINAL INIT PASS; POST-INIT DIAGNOSTIC FAILURE; MAP FRAMES NOT REACHED",
+  "archive": "C:/logs2.zip",
+  "archive_sha256": "ed7f80723fc667a55c8e1ca5c8ca870bce320fca31c449a56a44cacdd0840620",
+  "build_id": "7036820f4c81-2be9a052b1f566893f12",
+  "runs": [
+    {
+      "run_id": "run-1793690610004233-0",
+      "variant": "matrixgame-e610-quick-smoke.nro",
+      "image_sha256": "0a6b9297b6b60a438887e9dc1fa6217773ca8af8f402d905ae47e7060c608151",
+      "journal_sha256": "d323ba80b525917f7cd28c7ac7b4d4c07615c116e74f8a042c45a6e43e787433",
+      "record_count": 5010,
+      "init_complete": true,
+      "first_failure": {
+        "schema": 1,
+        "seq": 4955,
+        "time_us": 99270966,
+        "run_id": "run-1793690610004233-0",
+        "build_id": "7036820f4c81-2be9a052b1f566893f12",
+        "source_sha256": "2be9a052b1f566893f12b09b7d621e1a4b464dd9c437eb4fdd64dbb48e79c88a",
+        "event": "failed",
+        "operation": "diagnostic.status_screen",
+        "last_ok": "B.CGame::Init",
+        "detail": "",
+        "detail_truncated": false,
+        "result": null,
+        "elapsed_us": 4294,
+        "value": 0
+      },
+      "exception": [
+        {
+          "schema": 1,
+          "seq": 5008,
+          "time_us": 102531608,
+          "run_id": "run-1793690610004233-0",
+          "build_id": "7036820f4c81-2be9a052b1f566893f12",
+          "source_sha256": "2be9a052b1f566893f12b09b7d621e1a4b464dd9c437eb4fdd64dbb48e79c88a",
+          "event": "exception",
+          "operation": "std::exception",
+          "last_ok": "diagnostic.status_screen",
+          "detail": "native state capture requires a quiescent frame",
+          "detail_truncated": false,
+          "result": null,
+          "elapsed_us": 0,
+          "value": 0
+        }
+      ],
+      "pre_failure_metrics": {
+        "image_file_bytes": 14948549,
+        "process_memory_limit_bytes": 3343908864,
+        "process_memory_used_bytes": 3339825152,
+        "image_width": 1280,
+        "image_height": 720,
+        "color_image_bytes": 3932160,
+        "color_image_alignment": 512,
+        "depth_image_bytes": 3932160,
+        "depth_image_alignment": 65536,
+        "smoke_BC1_bytes": 8,
+        "framebuffer_width": 1280,
+        "framebuffer_height": 720,
+        "gpu_buffer_allocations": 8408,
+        "gpu_buffer_bytes_cumulative": 316162048,
+        "recorded_draw_calls": 8406,
+        "queue_submission_calls": 693,
+        "completed_presents": 4,
+        "native_texture_session_uploads": 1760,
+        "texture_arena_capacity": 67108864,
+        "batch_drains": 689,
+        "max_live_draw_packets": 64,
+        "max_live_draw_bytes": 6500352,
+        "managed_texture_evictions": 483,
+        "texture_arena_free": 196096,
+        "queue_healthy": 1,
+        "SDK_warnings_total": 0,
+        "SDK_warning_records_suppressed": 0,
+        "VI.display_width": 1280,
+        "VI.display_height": 720,
+        "VI.refresh_hz": 60,
+        "texture.arena_free": 318976,
+        "texture.arena_largest": 97792,
+        "texture.request_width": 512,
+        "texture.request_height": 512,
+        "texture.request_format": 827611204,
+        "texture.managed_evictions": 482
+      },
+      "sdk_errors": [],
+      "journal_closed": true,
+      "process_exit": [
+        10
+      ],
+      "original_map_frames": 0,
+      "coverage": "real Init/minimap GPU work; four completed_presents are smoke/status/loading, not map frames"
+    },
+    {
+      "run_id": "run-1793699093003988-0",
+      "variant": "matrixgame-e610-interactive.nro",
+      "image_sha256": "32b17bf757e215fd73e5e025a49af0908a1be7c14c261adbf1a9baff84076465",
+      "journal_sha256": "40a0def7c08c1c6042d84e50deebc065a080d6b9f439436ab09e87ba9a7500eb",
+      "record_count": 5010,
+      "init_complete": true,
+      "first_failure": {
+        "schema": 1,
+        "seq": 4955,
+        "time_us": 98146272,
+        "run_id": "run-1793699093003988-0",
+        "build_id": "7036820f4c81-2be9a052b1f566893f12",
+        "source_sha256": "2be9a052b1f566893f12b09b7d621e1a4b464dd9c437eb4fdd64dbb48e79c88a",
+        "event": "failed",
+        "operation": "diagnostic.status_screen",
+        "last_ok": "B.CGame::Init",
+        "detail": "",
+        "detail_truncated": false,
+        "result": null,
+        "elapsed_us": 3325,
+        "value": 0
+      },
+      "exception": [
+        {
+          "schema": 1,
+          "seq": 5008,
+          "time_us": 101367223,
+          "run_id": "run-1793699093003988-0",
+          "build_id": "7036820f4c81-2be9a052b1f566893f12",
+          "source_sha256": "2be9a052b1f566893f12b09b7d621e1a4b464dd9c437eb4fdd64dbb48e79c88a",
+          "event": "exception",
+          "operation": "std::exception",
+          "last_ok": "diagnostic.status_screen",
+          "detail": "native state capture requires a quiescent frame",
+          "detail_truncated": false,
+          "result": null,
+          "elapsed_us": 0,
+          "value": 0
+        }
+      ],
+      "pre_failure_metrics": {
+        "image_file_bytes": 14952645,
+        "process_memory_limit_bytes": 3343908864,
+        "process_memory_used_bytes": 3339825152,
+        "image_width": 1280,
+        "image_height": 720,
+        "color_image_bytes": 3932160,
+        "color_image_alignment": 512,
+        "depth_image_bytes": 3932160,
+        "depth_image_alignment": 65536,
+        "smoke_BC1_bytes": 8,
+        "framebuffer_width": 1280,
+        "framebuffer_height": 720,
+        "gpu_buffer_allocations": 8408,
+        "gpu_buffer_bytes_cumulative": 316170240,
+        "recorded_draw_calls": 8406,
+        "queue_submission_calls": 693,
+        "completed_presents": 4,
+        "native_texture_session_uploads": 1760,
+        "texture_arena_capacity": 67108864,
+        "batch_drains": 689,
+        "max_live_draw_packets": 64,
+        "max_live_draw_bytes": 6500352,
+        "managed_texture_evictions": 483,
+        "texture_arena_free": 196096,
+        "queue_healthy": 1,
+        "SDK_warnings_total": 0,
+        "SDK_warning_records_suppressed": 0,
+        "VI.display_width": 1280,
+        "VI.display_height": 720,
+        "VI.refresh_hz": 60,
+        "texture.arena_free": 318976,
+        "texture.arena_largest": 97792,
+        "texture.request_width": 512,
+        "texture.request_height": 512,
+        "texture.request_format": 827611204,
+        "texture.managed_evictions": 482
+      },
+      "sdk_errors": [],
+      "journal_closed": true,
+      "process_exit": [
+        10
+      ],
+      "original_map_frames": 0,
+      "coverage": "real Init/minimap GPU work; four completed_presents are smoke/status/loading, not map frames"
+    }
+  ],
+  "archive_members": {
+    "logs/run-1793690610004233-0/gamma-smoke.bgra": {
+      "sha256": "1da62856cc442b6f62707902f6770a67c90bcadbaf7400c01ab21cd60044b98c",
+      "bytes": 3686400
+    },
+    "logs/run-1793690610004233-0/orientation-smoke.bgra": {
+      "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+      "bytes": 3686400
+    },
+    "logs/run-1793690610004233-0/output/SpaceRangersHD/Cache/desert1_3e.cmap.515A225F": {
+      "sha256": "ead52a68d6c96c72b959211a6cd1817f2cd64bafc3a65184ef040ddb53497b4e",
+      "bytes": 404024
+    },
+    "logs/run-1793690610004233-0/run.jsonl": {
+      "sha256": "d323ba80b525917f7cd28c7ac7b4d4c07615c116e74f8a042c45a6e43e787433",
+      "bytes": 1877051
+    },
+    "logs/run-1793690610004233-0/smoke.bgra": {
+      "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+      "bytes": 3686400
+    },
+    "logs/run-1793699093003988-0/gamma-smoke.bgra": {
+      "sha256": "1da62856cc442b6f62707902f6770a67c90bcadbaf7400c01ab21cd60044b98c",
+      "bytes": 3686400
+    },
+    "logs/run-1793699093003988-0/orientation-smoke.bgra": {
+      "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+      "bytes": 3686400
+    },
+    "logs/run-1793699093003988-0/output/SpaceRangersHD/Cache/desert1_3e.cmap.515A225F": {
+      "sha256": "ead52a68d6c96c72b959211a6cd1817f2cd64bafc3a65184ef040ddb53497b4e",
+      "bytes": 404024
+    },
+    "logs/run-1793699093003988-0/run.jsonl": {
+      "sha256": "40a0def7c08c1c6042d84e50deebc065a080d6b9f439436ab09e87ba9a7500eb",
+      "bytes": 1877053
+    },
+    "logs/run-1793699093003988-0/smoke.bgra": {
+      "sha256": "460f5e5ce450b4b7e359a23a18145539c0dc8282056a84293552f03d3357b6a9",
+      "bytes": 3686400
+    }
+  }
+}

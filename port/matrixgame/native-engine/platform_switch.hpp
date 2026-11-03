@@ -85,6 +85,7 @@ public:
     std::uint64_t AvailableTextureBytes()override;
     std::unique_ptr<DeviceStateLease> CaptureState()override;
     std::size_t OutstandingStateLeases()const override;
+    void CompleteNativeInitializationWork();
     std::shared_ptr<native_surfaces::Session> SurfaceSession()override;
     std::shared_ptr<native_texture::Session> TextureSession()override;
     std::shared_ptr<debug_font::native::Session> DebugFontSession()override;

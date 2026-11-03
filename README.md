@@ -417,3 +417,7 @@ python tools/e2e5_report.py --output reports/e2e5/summary.json
 Две NRO называются в hbmenu **MatrixGame r6 Quick Smoke** и **MatrixGame r6 Interactive**. SDK/CPU/package checks: SOFTWARE PASS; аппаратное исполнение: HARDWARE PENDING.
 
 [Инструкция двух запусков](docs/matrixgame-e610-material-r6-readme.ru.md) · [SHA256 и результаты проверок](reports/matrixgame-e610-material-r6.md) · [Evidence](reports/matrixgame-e610-material-r6-evidence.json).
+
+### MatrixGame E610 r7: граница Init → Draw
+
+Два аппаратных запуска r6 завершили настоящий Init, но отказали на диагностической CaptureState активного кадра. r7 завершает pending GPU commands и возвращает служебный image перед snapshot/loop; guard сохранён. [Аппаратный разбор r6](reports/matrixgame-e610-r6-hardware-20261103.md), [изменение и проверки r7](reports/matrixgame-e610-init-r7.md), [инструкция](docs/matrixgame-e610-init-r7-readme.ru.md). Новая сборка HARDWARE PENDING.

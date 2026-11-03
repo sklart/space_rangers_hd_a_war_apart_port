@@ -849,4 +849,20 @@ std::unique_ptr<DeviceStateLease> DekoDevice::CaptureState(){
     return std::make_unique<presentation::RestoreLease>(impl_->lifetime,impl_->Targets().value,std::make_unique<TargetAndRenderLease>(std::move(targets),std::move(render),std::move(gamma)));
 }
 std::size_t DekoDevice::OutstandingStateLeases()const{return impl_->state.Outstanding();}
+void DekoDevice::CompleteNativeInitializationWork(){
+    diagnostic::Operation trace("B.complete_initialization_GPU_work");
+    auto& v=*impl_;
+    if(!v.Healthy())throw Unsupported("initialization completion on lost queue");
+    if(v.primary_readback || v.presentation_readback)throw Unsupported("initialization completion with pending readback");
+    // Init can end with closed offscreen scenes, without D3D Present. Execute
+    // their commands before taking a quiescent state lease for the diagnostic
+    // overlay. Never discard uploads or count a loading image as a map frame.
+    v.FlushRecording();
+    if(v.image_slot>=0){
+        NvMultiFence fence{};
+        const auto result=nwindowCancelBuffer(&v.window.NativeWindow(),v.image_slot,&fence);
+        if(result)throw Unsupported("initialization acquired image cancellation failed");
+        v.image_slot=-1;v.frame.Abort();v.state.Frame(false);
+    }
+}
 }
