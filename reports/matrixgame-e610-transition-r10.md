@@ -60,3 +60,35 @@ smoke сохранены. Десятки тысяч pool misses и SDK allocatio
 измеренной целью дальнейшей оптимизации, но не смешиваются с исправлением
 перехода. Campaign/Gov/победа/возврат Galaxy не охвачены standalone entry.
 [Инструкция](../docs/matrixgame-e610-transition-r10-readme.ru.md).
+
+## Проверенная доставка r10
+
+Source commit: `dd7f6714872d1826bc35f896ee4975bc104f9ea8`; build ID `dd7f6714872d-507a9538a658856b38ba`.
+ZIP: `dist\matrixgame-e610-switch-test-r10-transition.zip` (10159587 байт).
+ZIP SHA256: `204c5492005f753a82f18eecfc19ce6ac00427d9fbd62e8a2cc383bfdf660301`.
+
+| NRO | SHA256 | ELF build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `6705be9825bf162127b754937a26fc8b839c9a80ce56c00580fc23d6f6cb0270` | `ea942dbc322145425d1030f7fa78c58ffe2eefee` |
+| matrixgame-e610-interactive.nro | `e52a885a9eca09706aa0e3d9ba26faafda8e2d2dafa296f25d2a5e3189b4e119` | `ec8c336c097eb05b013dbf9870562c0d522accb5` |
+
+Итог: **SOFTWARE PASS / R10 HARDWARE PENDING**. Две NRO успешно compile/link,
+strong undefined=0, structure/font/shader/build-ID/title checks PASS. Compiler
+provenance: 321 configured C/C++ commands, -O2/-UNDEBUG, без fast-math или
+отключения exceptions/assertions. Map/nm: 23 настоящих debug deko3dd objects,
+0 deko3d. 699 own-source SHA совпали. Generated OriginalTransition.cpp в
+SDK побайтово совпал с проверенным CPU preview; original Takt не изменён.
+Относительно r9 изменён ровно этот generated file; vs E601 — прежние две
+texture правки и он. Проверка 206 защищённых прежних файлов/пакетов PASS;
+основная NRO, ресурсы/saves/frozen/upstream сохранены.
+[Полное evidence](matrixgame-e610-transition-r10-evidence.json).
+
+Копирование: только две NRO из ZIP в `/switch/matrixgame-e610-r10-test/`.
+В hbmenu MatrixGame r10 Quick Smoke, затем MatrixGame r10 Interactive.
+DATA/CFG не перезаписывать. Ожидаемые новые records: B.transition.geometry,
+source/target dimensions и geometry_count. При завершении original transition
+проверять настоящий first map frame/original-first.bgra и минимум 4 presents.
+Interactive: до 120 с после Init, штатный выход Minus+Plus. Передать два новых
+run-каталога и наблюдения об изображении, скорости, HID и звуке.
+Новые аппаратные PASS не объявляются до этих результатов; дальнейшая
+разработка ожидает следующего аппаратного профиля.

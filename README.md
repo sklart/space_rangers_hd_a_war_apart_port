@@ -436,8 +436,10 @@ Bounded reuse завершённых SDK blocks; порядок draw, completion
 
 [Новые аппаратные журналы r8](reports/matrixgame-e610-r8-hardware-20261103.md) подтвердили улучшение Draw 2.53 → 1.61 с, но transition timeout сохранился. Native compile commands оказались без optimization. R9 включает **-O2 с assertions, exceptions и debug deko3dd**, проверяет реальные compile commands и fingerprints compiler profile. [CPU сравнение и проверки](reports/matrixgame-e610-opt-r9.md), [инструкция](docs/matrixgame-e610-opt-r9-readme.ru.md). HARDWARE PENDING; host speedup не равен Switch FPS.
 
-Актуальный пакет: `dist/matrixgame-e610-switch-test-r9-opt.zip`; source `161b6d5a0923969af93762a252f2477db98cdb60`, build `161b6d5a0923-cac3d1dc698dae229e1a`. В hbmenu **MatrixGame r9 Quick Smoke** / **MatrixGame r9 Interactive**. [SHA256 и evidence](reports/matrixgame-e610-opt-r9.md). SOFTWARE PASS / HARDWARE PENDING.
+Предыдущий пакет r9: `dist/matrixgame-e610-switch-test-r9-opt.zip`; source `161b6d5a0923969af93762a252f2477db98cdb60`, build `161b6d5a0923-cac3d1dc698dae229e1a`. В hbmenu **MatrixGame r9 Quick Smoke** / **MatrixGame r9 Interactive**. [SHA256 и evidence](reports/matrixgame-e610-opt-r9.md). SOFTWARE PASS / HARDWARE PENDING.
 
 ### MatrixGame E610 r10: переход на native разрешении
 
 [Аппаратный r9](reports/matrixgame-e610-r9-hardware-20261103.md): Draw улучшился до 0.56 с, Init до 28.5 с, но transition timeout сохранился. В ожидаемом CFG нет geometry layout 1280x720. R10 масштабирует существующую authored geometry и скорость, сохраняя original Takt/capture/render; forced skip не добавлен. [Изменение и CPU oracle](reports/matrixgame-e610-transition-r10.md), [инструкция](docs/matrixgame-e610-transition-r10-readme.ru.md). HARDWARE PENDING.
+
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r10-transition.zip`; source `dd7f6714872d1826bc35f896ee4975bc104f9ea8`, build `dd7f6714872d-507a9538a658856b38ba`. В hbmenu **MatrixGame r10 Quick Smoke** / **MatrixGame r10 Interactive**. [SHA256 и evidence](reports/matrixgame-e610-transition-r10.md). SOFTWARE PASS / HARDWARE PENDING.
