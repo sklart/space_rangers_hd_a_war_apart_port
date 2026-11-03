@@ -58,3 +58,61 @@ state/buffer behavior unchanged; новый decoder проверен адрес�
 
 Gather выигрыш повторился относительно exploratory серии /1 (−4.5%).
 Числа относятся к этому CPU probe; физический GPU и FPS не измерялись.
+
+## SDK/package и контрольные суммы
+
+Source commit: `3282afcd569f84a633108abefbfbf53e3e4bb1a0`.
+Build ID: `3282afcd569f-30cc928d55b517e630be`.
+Обе devkitA64/libnx/deko3d compile/link — PASS. Strong undefined = 0.
+321 configured translation units: O2/UNDEBUG, exceptions, no fast-math.
+Prebuilt Rangers archive не менялся и не выдаётся за новый optimized build.
+23 actual debug deko3dd object members / 0 release deko3d; mixed=false.
+NRO segments/assets, fonts/shaders, NACP titles и ELF→NRO build IDs проверены.
+Generated original files идентичны r20; 3 исторических delta vs E601.
+711 own source hashes проверены. Production diff vs r20 — только DecodeTo
+lambda; дополнительно две NACP titles и новый CPU runner. Все другие r20
+build inputs совпадают. Все 283 прежних защищённых артефакта SHA unchanged;
+основная NRO/game/frozen checks SDK gate прошли.
+
+Actual ARM64 DecodeTo: memcpy call sites 2 → 1. Position 3/4 floats теперь
+копируется load/store без вызова memcpy. Единственный остаточный memcpy
+обслуживает default switch; public Layout задаёт dimensions только 1–4.
+Finite вызовы/stride guards сохранены, NativeDrawIndexed вызывает DecodeTo,
+r19 Read/Storage hoist сохранён, DecodeOne copy в indexed path отсутствует.
+Full disassembly обеих NRO хранится в evidence.
+
+ZIP: `dist/matrixgame-e610-switch-test-r21-copy.zip` (10162430 bytes).
+SHA256: `2e4ff22b279990718adfd8d23361e348672eb99146e8ec5c798c9671b86680a2`.
+Ровно 6 файлов: две NRO, README.ru.md, manifest.json, SHA256SUMS.txt,
+build-info.json. Игровых ресурсов/сохранений нет. Runtime — HARDWARE PENDING.
+
+| NRO | SHA256 | ELF Build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `db309e4042181043ae46c2d88c5fa7a71d64495c0f7db3c3038071733539d25b` | `14a7736a5f372046bc9ccd3851940d9eb46b8b62` |
+| matrixgame-e610-interactive.nro | `4a9f0489304401ca4502fa643aa26e51cdad920343ba893641167513c7c9e1c5` | `13ce729bb88dcc7c6972d2f6bb85270a1ea8560b` |
+
+## Воспроизведение и границы
+
+CPU: `python tools/matrixgame_vertex_copy_checks.py host` (также arm64/windows),
+затем `python tools/matrixgame_vertex_copy_checks.py benchmark` без parallel jobs.
+Runner автоматически сохраняет frozen r20 CPP, actual gather body, command logs,
+source/input hashes, stdout и результаты в отдельный numbered checks каталог.
+Требуются установленные WSL GCC, ARM64 GCC15/QEMU и Windows MSVC2022.
+SDK: `python tools/matrixgame_current_diagnostic_sdk.py --output-root
+build/matrixgame/e610-copy-r21` — создаёт новый numbered каталог.
+Package: `python tools/matrixgame_e610_freeze.py package --build
+build/matrixgame/e610-copy-r21/1 --source-commit 3282afcd569f84a633108abefbfbf53e3e4bb1a0
+--output dist/matrixgame-e610-switch-test-r21-copy.zip --readme
+docs/matrixgame-e610-copy-r21-readme.ru.md --rangers-root
+sdmc:/switch/space-rangers-hd-a-war-apart/game` (для нового вывода взять новое имя).
+Локальный gate: build/matrixgame/e610-copy-r21-checks/verify_delivery.py с source
+commit как аргументом. [Полный evidence](matrixgame-e610-copy-r21-evidence.json).
+
+SOFTWARE PASS / HARDWARE PENDING. На этом этапе разработка остановлена.
+Два ручных запуска: Quick → 4 настоящих map frames, затем Interactive → доступные
+управление/меню/камера/звук и Minus+Plus. Логи — отдельные run-id каталоги в
+/switch/matrixgame-diag/logs. Полная инструкция есть в ZIP и linked README.
+Физический GPU/HID/audio, Init, Draw/FPS не приняты. Campaign/Gov, естественная
+победа и возврат результата Galaxy этим standalone entry не охватываются.
+
+Evidence SHA256: `127e20d69d5d2fd1bf506edb3b9309d3687f99fdefcdc07378267fee3bd0ff62`.
