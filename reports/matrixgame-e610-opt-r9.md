@@ -51,3 +51,40 @@ R9 HARDWARE PENDING. Пул/телеметрия/таймеры r8 сохран�
 HID/GPU FPS/звук нового r9 требуют нового наблюдения. Standalone entry не
 вызывает Campaign/Gov, естественная победа/возврат в Galaxy не проверяются.
 [Инструкция](../docs/matrixgame-e610-opt-r9-readme.ru.md).
+
+## Проверенная доставка r9
+
+Source commit: `161b6d5a0923969af93762a252f2477db98cdb60`; build ID `161b6d5a0923-cac3d1dc698dae229e1a`.
+ZIP: `dist\matrixgame-e610-switch-test-r9-opt.zip` (10154479 байт).
+ZIP SHA256: `20474b116b66caa29e5047e37c0d315f2039d2c798f754eb6fdd5e1444cd6a9a`.
+
+| NRO | SHA256 | ELF build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `4e81a0d7990963c150e7dba31264173cd40b7a279ddbf9d6a06fbd1afb8cc487` | `1240362f9bee19627bbee4b1e366999828b20bd3` |
+| matrixgame-e610-interactive.nro | `88554503574b871b84891009bbc0036cfc2f0a9736c332f3fa53ec7885cf4e1f` | `f04fd7840e2efa09c8833b572259e08470848aa4` |
+
+Итог: **SOFTWARE PASS / R9 HARDWARE PENDING**. Оба devkitA64 compile/link,
+NRO structure/resources/title/build-ID checks — PASS, strong undefined=0.
+Фактические 321 configured C/C++ commands имеют последний -O2 и -UNDEBUG;
+без -DNDEBUG/-DASSERT_OFF/-ffast-math/-Ofast/-fno-exceptions. Набор configured
+translation units больше реально собранного NRO subset; compile/link целевых
+NRO прошли. Старые реальные r8 native FLAGS отвергнуты новым negative gate.
+Настоящий deko3dd (23 object members), 0 deko3d, debug error path подтверждены.
+697 собственных source SHA совпали с metadata, generated original файлы
+совпали с r8/r7/r6/r5/r4. Сверены 199 защищённых прежних файлов/пакетов;
+основная NRO, upstream, frozen, игровые ресурсы и saves сохранены.
+[Полное evidence](matrixgame-e610-opt-r9-evidence.json).
+
+Host/ARM64 O2 regression results: build/matrixgame/e610-opt-r9-regression/*/1/.
+Windows O2 functional tests r8 переиспользованы: production/test sources
+не изменились; старый runner hash исторический, его изменение касается только
+параметра optimization/output-root. Новый Windows O2 CPU checksum/guards test
+исполнен отдельно. Большие боевые сценарии не перезапускались.
+
+Для пользователя: только две NRO из ZIP → `/switch/matrixgame-e610-r9-test/`.
+Названия hbmenu: MatrixGame r9 Quick Smoke, затем MatrixGame r9 Interactive.
+DATA и три MatrixGame файла остаются на прежних местах. Штатный выход из
+Interactive — Minus+Plus, до 120 с после Init. Передать два новых run-каталога
+из `/switch/matrixgame-diag/logs/` и наблюдения о скорости/изображении/звуке.
+До этого аппаратный FPS нового r9 не измерен; Campaign/Gov/победа не приняты.
+Дальнейшие изменения ожидают нового аппаратного профиля.
