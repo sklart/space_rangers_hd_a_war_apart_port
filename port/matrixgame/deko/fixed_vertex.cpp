@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "fixed_vertex.hpp"
+#include "quantized_argb.hpp"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -70,7 +71,7 @@ bool FixedVertexState::Render(std::uint32_t r,std::uint32_t v){
 }
 std::uint32_t FixedVertexState::Render(std::uint32_t r)const{
     if(r==137)return values_.controls[0];if(r==143)return values_.controls[1];if(r==141)return values_.controls[2];
-    if(r==139){const auto& c=values_.global_ambient;auto byte=[](float v){return std::uint32_t(std::lround(v*255));};return (byte(c[3])<<24)|(byte(c[0])<<16)|(byte(c[1])<<8)|byte(c[2]);}
+    if(r==139)return PackQuantizedArgb(values_.global_ambient);
     if(r==145)return values_.sources[0];if(r==147)return values_.sources[1];if(r==148)return values_.sources[2];
     if(r==29 || r==146)return 0;
     throw Incomplete("unknown fixed vertex render query");

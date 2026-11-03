@@ -496,9 +496,20 @@ COW/restore/layout сохранены. Итоговый host результат 
 100000 draw, −14.8% времени CPU-подготовки, не FPS Switch.
 [Изменение и proof](reports/matrixgame-e610-logical-r15.md),
 [два запуска](docs/matrixgame-e610-logical-r15-readme.ru.md).
-Актуальный пакет: `dist/matrixgame-e610-switch-test-r15-logical.zip`; source
+Пакет r15: `dist/matrixgame-e610-switch-test-r15-logical.zip`; source
 `c1d27c2684c7c273c419e28b9c79999d051af7aa`, build `c1d27c2684c7-47800742faa5aaa37b8c`.
 В hbmenu **MatrixGame r15 Quick Smoke** / **MatrixGame r15 Interactive**.
 4245 cases, COW/OOM/restore, host ASan/UBSan, ARM64/QEMU UBSan, Windows O2
 и SDK/link/package — PASS. [SHA256 и evidence](reports/matrixgame-e610-logical-r15.md).
 SOFTWARE PASS / HARDWARE PENDING. Ресурсы, saves, основная NRO и старые пакеты сохранены.
+
+
+### MatrixGame E610 r16: ARGB8 getters без libm roundtrip
+
+Для ARGB8-derived ambient/factor сохраняется исходное float умножение,
+округление выполняется по integer bits без добавочных FP flags. Float uniform
+bytes/layout/COW/restore/validation сохранены. [Изменение и proof](reports/matrixgame-e610-argb-r16.md),
+[два запуска](docs/matrixgame-e610-argb-r16-readme.ru.md).
+Итоговый host замер: 75.8 → 67.2 мс / 100000 draw (−11.3% CPU-подготовки,
+не FPS Switch). 12437 cases со sticky FP flags и COW/OOM/restore — PASS.
+Отдельные NRO готовятся; HARDWARE PENDING.

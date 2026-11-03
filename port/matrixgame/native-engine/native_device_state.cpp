@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "native_device_state.hpp"
 #include "native_state_layout.hpp"
+#include "../deko/quantized_argb.hpp"
 #include <algorithm>
 #include <bit>
 #include <cmath>
@@ -72,7 +73,7 @@ void NativeRenderState::Render(std::uint32_t id,std::uint32_t value){
 std::uint32_t NativeRenderState::Render(std::uint32_t id)const{
     const auto& lookup=Lookup(id);
     if(id==22)return cull;if(id==9)return shade;
-    if(id==60){const auto& c=combiner.State().factor;auto byte=[](float v){return std::uint32_t(std::lround(v*255));};return (byte(c[3])<<24)|(byte(c[0])<<16)|(byte(c[1])<<8)|byte(c[2]);}
+    if(id==60)return materials::PackQuantizedArgb(combiner.State().factor);
     if(lookup.vertex)return vertex.Render(id);
     if(lookup.raster)return raster.Words()[lookup.raster-1];
     return registers.at(id);
