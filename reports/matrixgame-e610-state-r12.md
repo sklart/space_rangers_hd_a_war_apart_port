@@ -61,3 +61,41 @@ runtime commands записаны в build/matrixgame/e610-state-r12-checks/*/1/
 R12 HARDWARE PENDING. Полный Init→transition→четыре map frames и GPU/HID/FPS
 нового пути ещё не приняты. Campaign/Gov/естественная победа/возврат Galaxy не
 вызываются standalone entry. Host acceleration не заменяет Switch measurement.
+
+## Проверенная доставка r12
+
+Source commit: `2bba518c902cea71df7320277f4380a88ffa7996`; build ID `2bba518c902c-8a2b24fe3b49770a447b`.
+ZIP: `dist\matrixgame-e610-switch-test-r12-state.zip` (10159963 байт).
+ZIP SHA256: `8e7b2b75b02c5e0664824ade103d69be41a9c7c1af0f2561f471ffd79fd36aba`.
+
+| NRO | SHA256 | ELF build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `804961b3f0a44e11606f1d45295af2711d080e373184c670a824c9e8f047445d` | `3b9c5ff118fe8f1e25b0beb6130fc28548f6e227` |
+| matrixgame-e610-interactive.nro | `751566bbf8d30e14fc00af4837548c6e7b9ae3090c50f68cac69d3f9802612b8` | `c5d28e69f0fea8f87b3f344b5f41b4fc6bc312a8` |
+
+Итог: **SOFTWARE PASS / R12 HARDWARE PENDING**. Обе devkitA64 compile/link,
+strong undefined=0, NRO layout/font/shader/title/build ID gates PASS. Actual
+compiler provenance: 321 configured C/C++ commands с -O2/-UNDEBUG, assertions/
+exceptions сохранены, fast-math отсутствует. Настоящий deko3dd — 23 members,
+0 deko3d, debug error path проверен nm. 701 own-source SHA совпал с metadata.
+Все generated original файлы совпали с r11/r10, включая authored transition.
+220 контрольных сумм прежних файлов/пакетов совпали. Main NRO, pinned upstream,
+frozen, игровые ресурсы и saves сохранены.
+[Полное evidence](matrixgame-e610-state-r12-evidence.json).
+
+Frozen-equivalence/benchmark results: build/matrixgame/e610-state-r12-checks/
+{windows,host,arm64,benchmark}/1/. Дополнительные восемь CPU cases прошли на
+Windows O2, host ASan/UBSan/LSan O2 и ARM64/QEMU UBSan O2 в
+build/matrixgame/e610-state-r12-regression/*/1/: state restores=9, capture OOM=2,
+COW OOM=1, allocation-free restore, retained texture/buffer owners, expired
+owner/frame guards; далее best-fit/upload bytes/packet/order/handoff/journal.
+Новые software results не повышают r10/r11 transition path до hardware PASS.
+
+Следующий ручной тест: две NRO из ZIP в `/switch/matrixgame-e610-r12-test/`,
+в hbmenu MatrixGame r12 Quick Smoke → MatrixGame r12 Interactive. DATA/CFG
+и saves остаются на месте. Выход Interactive — Minus+Plus, до 120 с после Init.
+Передать два новых run-каталога; сравнивать profile.state_validation с draw_cpu
+как вложенный timer и отдельно время Init, transition и настоящих map frames.
+До этих наблюдений FPS/HID/GPU/звук нового r12 остаются HARDWARE PENDING;
+Campaign/Gov/естественная победа/возврат Galaxy standalone entry не охвачены.
+Дальнейшая разработка ожидает аппаратного профиля.
