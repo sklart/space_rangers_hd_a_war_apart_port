@@ -546,5 +546,9 @@ indexed validation; все per-index bounds/ошибки и partial-buffer check
 partial 7→8. [Изменение и proof](reports/matrixgame-e610-coverage-r18.md),
 [два запуска](docs/matrixgame-e610-coverage-r18-readme.ru.md).
 Итоговый host CPU gather: 27.8 → 25.5 мс / 256 synthetic indexed draws
-(−8.5% времени, не FPS Switch). Отдельные NRO готовятся; HARDWARE PENDING.
-Ресурсы и saves не меняются.
+(−8.5% времени, не FPS Switch). Актуальный пакет: `dist/matrixgame-e610-switch-test-r18-coverage.zip`; source
+`1ef3da82d0f2909368bca7c598394bb35dfc4090`, build `1ef3da82d0f2-ef9e135ac3e669d40719`.
+В hbmenu **MatrixGame r18 Quick Smoke** / **MatrixGame r18 Interactive**.
+Host ASan/UBSan, ARM64/QEMU UBSan, Windows O2, SDK/link/package — PASS.
+[SHA256 и evidence](reports/matrixgame-e610-coverage-r18.md).
+SOFTWARE PASS / HARDWARE PENDING. Ресурсы, saves, основная NRO и старые пакеты сохранены.

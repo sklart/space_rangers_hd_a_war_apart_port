@@ -85,3 +85,47 @@ Final benchmark/3: frozen gather 27828/27711/30820 мкс, candidate
 23509 → 22754 мкс; это вариация замера, decoder не менялся. Timing получен
 без счётчика и параллельных jobs. Benchmarks /1 и /2 сохранены как exploratory.
 Эти значения не являются FPS Switch или полным Draw/Init.
+
+## Проверенная доставка r18
+
+Source commit: `1ef3da82d0f2909368bca7c598394bb35dfc4090`.
+Build ID: `1ef3da82d0f2-ef9e135ac3e669d40719`.
+
+Свежие стандартные SDK targets в build/matrixgame/e610-coverage-r18/1 — PASS.
+Неразрешённых strong symbols нет. ELF/NRO build IDs, segments, icon/NACP,
+fonts/shaders проверены. Actual SDK ValidateIndexed в обеих NRO содержит три
+Initialized call sites (index span / whole VB proof / partial fallback), в r17
+было два. Это подтверждает выбор новой implementation, а не stale weak definition.
+Тестового matrixgame_initialized_calls в NRO нет. R17 DecodeTo и отсутствие
+192-byte возвратной копии сохранены и проверены в machine code.
+Это target-code proof, не GPU/hardware performance acceptance.
+
+Compiler provenance: 321 configured TUs, RelWithDebInfo/O2/UNDEBUG, assertions/exceptions on, fast-math off.
+Неизменённый prebuilt Rangers/UI archive не пересобирался и не объявляется
+оптимизированным. Link maps: по 23 объекта deko3dd, без deko3d; SDK debug
+SetContext/RaiseError retained. Generated originals совпадают с r17;
+относительно E601 остаются те же три прежние overlay delta.
+
+708 own source hashes и финальные CPU inputs совпали точно. 262 прежних
+защищённых файла, upstream/frozen, игровые ресурсы, saves, основная NRO,
+старые NRO/ZIP не изменены. [Машинное evidence](matrixgame-e610-coverage-r18-evidence.json).
+Исторические suites сохранены со своими source/version scopes; fresh r18
+header/frozen/current comparisons и counters выделены отдельно.
+
+ZIP: `dist/matrixgame-e610-switch-test-r18-coverage.zip`, 10162827 bytes.
+SHA256: `92c13eb31da126ad787959cfce2e939a433fa1256f415125b10f73fae1a6c6b9`.
+
+| NRO | SHA256 | ELF build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `01469b97d0411cfd40f5e3401b941ee12a321cb25669c8b108864a3b65061258` | `81c54d5be4362adb49f8c0d86ab4cc4408e6eaa9` |
+| matrixgame-e610-interactive.nro | `a45589109d46f435fa147ab5588933eb0e12bccf19fbcdf4f5fed9689588c1f1` | `bfdb3290cf7eeec7cce06c2b657a6aa0e592834b` |
+
+В ZIP две NRO, README.ru.md, manifest.json, SHA256SUMS.txt и build-info.json.
+Ресурсов/сохранений нет. SD-папка `/switch/matrixgame-e610-r18-test/`;
+DATA/CFG roots прежние. В hbmenu **MatrixGame r18 Quick Smoke** /
+**MatrixGame r18 Interactive**. Application Mode, сначала Quick, затем
+Interactive; штатный выход Minus+Plus. Собрать два новых каталога
+`/switch/matrixgame-diag/logs/<run-id>/` и фото фактического результата.
+
+**SOFTWARE PASS / HARDWARE PENDING.** Адресная оптимизация завершена;
+следующие изменения — по новому аппаратному профилю.
