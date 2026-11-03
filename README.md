@@ -529,4 +529,10 @@ restore — PASS на host/ARM64-QEMU/Windows. Host CPU indexed gather −8.7%,
 direct decode −6.8%; это другой benchmark, чем r16, не FPS Switch.
 [Изменение и proof](reports/matrixgame-e610-decode-r17.md),
 [два запуска](docs/matrixgame-e610-decode-r17-readme.ru.md).
-Отдельные NRO готовятся; HARDWARE PENDING. Ресурсы и saves не меняются.
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r17-decode.zip`; source
+`0d18392f001a8566f8f676bb4220c0a4e25e3d53`, build `0d18392f001a-459bfee6cc4598204913`.
+В hbmenu **MatrixGame r17 Quick Smoke** / **MatrixGame r17 Interactive**.
+Host ASan/UBSan, ARM64/QEMU UBSan, Windows O2, SDK/link/package — PASS.
+Target disassembly подтвердил отсутствие 192-byte return copy в indexed caller.
+[SHA256 и evidence](reports/matrixgame-e610-decode-r17.md).
+SOFTWARE PASS / HARDWARE PENDING. Ресурсы, saves, основная NRO и старые пакеты сохранены.
