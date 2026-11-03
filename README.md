@@ -496,4 +496,9 @@ COW/restore/layout сохранены. Итоговый host результат 
 100000 draw, −14.8% времени CPU-подготовки, не FPS Switch.
 [Изменение и proof](reports/matrixgame-e610-logical-r15.md),
 [два запуска](docs/matrixgame-e610-logical-r15-readme.ru.md).
-Новые отдельные NRO готовятся; HARDWARE PENDING. Ресурсы и saves не меняются.
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r15-logical.zip`; source
+`c1d27c2684c7c273c419e28b9c79999d051af7aa`, build `c1d27c2684c7-47800742faa5aaa37b8c`.
+В hbmenu **MatrixGame r15 Quick Smoke** / **MatrixGame r15 Interactive**.
+4245 cases, COW/OOM/restore, host ASan/UBSan, ARM64/QEMU UBSan, Windows O2
+и SDK/link/package — PASS. [SHA256 и evidence](reports/matrixgame-e610-logical-r15.md).
+SOFTWARE PASS / HARDWARE PENDING. Ресурсы, saves, основная NRO и старые пакеты сохранены.

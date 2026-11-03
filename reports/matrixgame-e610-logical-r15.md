@@ -76,3 +76,41 @@ compiled candidate/runner snapshots с проверенными recorded SHA.
 Evidence: build/matrixgame/e610-logical-r15-checks/{host,arm64,windows}/1,
 {host-ownership,arm64-ownership,windows-ownership}/1 и benchmark/2.
 Runner: tools/matrixgame_logical_view_checks.py.
+
+## Проверенная доставка r15
+
+Source commit: `c1d27c2684c7c273c419e28b9c79999d051af7aa`.
+Build ID: `c1d27c2684c7-47800742faa5aaa37b8c`.
+
+Стандартные отдельные Quick Smoke/Interactive targets свежей SDK-сборки
+`build/matrixgame/e610-logical-r15/1` — PASS. Неразрешённых strong symbols нет;
+ELF/NRO build IDs, segments, icon/NACP, fonts/shaders проверены. PrepareDraw
+реально связан с обеими NRO; Campaign/Gov entry не добавлена.
+
+Compiler provenance: 321 configured TUs, RelWithDebInfo/O2/UNDEBUG. Assertions и exceptions retained, fast-math off.
+Неизменённый prebuilt Rangers/UI archive не пересобирался и не объявляется
+оптимизированным. Link maps: по 23 объекта deko3dd, без deko3d; debug
+SetContext/RaiseError сохранены. Generated originals совпадают с r14;
+относительно E601 остаются те же три прежние overlay delta.
+
+704 own source hashes проверены точно. 241 старый защищённый файл,
+старые ZIP/NRO, основная NRO, ресурсы/saves, frozen и upstream pins не менялись.
+[Машинное evidence](matrixgame-e610-logical-r15-evidence.json).
+
+ZIP: `dist/matrixgame-e610-switch-test-r15-logical.zip`, 10163325 bytes.
+SHA256: `89842c9cd50e92a5d070d38abdf54b751753b6c498dff73cccddb8de06af54d3`.
+
+| NRO | SHA256 | ELF build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `e15003e9311a2039fce823f6980ea8c3675d7e4b056307fbb9e13b4c3ce9136e` | `ac8f77d67d609d3a70ec2a06323a3e4b7b794591` |
+| matrixgame-e610-interactive.nro | `9898c9bb6c19c01c5d09494ea216417900a14d60b8a3a06dea74da48c4ebf556` | `559a6253e58b6399e1c5f7b9eed58b37cdff9d08` |
+
+В ZIP две NRO, README.ru.md, manifest.json, SHA256SUMS.txt и build-info.json.
+Ресурсов/сохранений нет. Отдельная SD-папка `/switch/matrixgame-e610-r15-test/`,
+прежние DATA/CFG roots сохраняются. Hbmenu: **MatrixGame r15 Quick Smoke** /
+**MatrixGame r15 Interactive**. Application Mode, сначала Quick, затем
+Interactive; штатный выход Minus+Plus. Собрать два новых каталога
+`/switch/matrixgame-diag/logs/<run-id>/` и фото фактического результата.
+
+**SOFTWARE PASS / HARDWARE PENDING.** Адресное изменение закончено;
+дальнейшие исправления — по новому аппаратному профилю.
