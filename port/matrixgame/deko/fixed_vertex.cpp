@@ -98,7 +98,14 @@ void FixedVertexState::DecodeTo(Vertex& v,std::span<const std::byte> bytes,std::
     // clearing them here only to write them again. Failure discards this draw.
     v.position={0,0,0,1};v.normal={};v.diffuse={1,1,1,1};v.specular={};
     auto* p=bytes.data();
-    auto floats=[&](float* to,unsigned count){std::memcpy(to,p,count*4);p+=count*4;for(unsigned j=0;j<count;++j)Finite(to[j]);};
+    // FVF fields contain one to four floats. Fixed-size copies avoid a
+    // runtime memcpy call per field; validation and input order stay intact.
+    auto floats=[&](float* to,unsigned count){
+        switch(count){case 1:std::memcpy(to,p,4);break;case 2:std::memcpy(to,p,8);break;
+        case 3:std::memcpy(to,p,12);break;case 4:std::memcpy(to,p,16);break;
+        default:std::memcpy(to,p,count*4);break;}
+        p+=count*4;for(unsigned j=0;j<count;++j)Finite(to[j]);
+    };
     floats(v.position.data(),(fvf_&0xe)==4?4:3);if(fvf_&0x10)floats(v.normal.data(),3);
     for(auto pair:{std::pair{0x40u,&v.diffuse},std::pair{0x80u,&v.specular}})if(fvf_&pair.first){std::uint32_t c;std::memcpy(&c,p,4);p+=4;*pair.second=Argb(c);}
     for(unsigned j=0;j<8;++j){v.uv[j]={0,0,0,1};if(dimensions_[j])floats(v.uv[j].data(),dimensions_[j]);}

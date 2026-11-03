@@ -584,3 +584,16 @@ host ASan/UBSan, ARM64-QEMU UBSan и Windows O2. Это локальная CPU �
 В hbmenu **MatrixGame r20 Quick Smoke** / **MatrixGame r20 Interactive**.
 SOFTWARE проверки и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r21: фиксированные копирования полей FVF
+
+DecodeTo использует memcpy постоянного размера для полей из 1–4 floats.
+Проверки, порядок ошибок, все 192 output bytes и ownership сохранены.
+[Изменение и proof](reports/matrixgame-e610-copy-r21.md),
+[два запуска](docs/matrixgame-e610-copy-r21-readme.ru.md).
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r21-copy.zip`.
+В hbmenu **MatrixGame r21 Quick Smoke** / **MatrixGame r21 Interactive**.
+CPU gather 378,3 → 366,2 мс / 4096 synthetic draws (−3,2%); не FPS Switch.
+Host/ARM64-QEMU/Windows — PASS; SDK/package и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.

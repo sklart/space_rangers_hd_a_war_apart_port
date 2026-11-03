@@ -46,7 +46,7 @@ def main():
    if metadata['deko_library']=='deko3dd':
     assert 'dk::detail::SetContextForDebug(' in symbols and 'dk::detail::RaiseError(DkResult, char const*)' in symbols
     assert 'dk::detail::RaiseError(DkResult)\n' not in symbols
-   title='MatrixGame r20 Interactive' if entry.endswith('interactive') else 'MatrixGame r20 Quick Smoke'
+   title='MatrixGame r21 Interactive' if entry.endswith('interactive') else 'MatrixGame r21 Quick Smoke'
    variants[entry]={'elf_build_id':elf_id,'nro_build_id':nro_id,'NRO':str(nro.relative_to(ROOT)),'nacp_title':title,'validation':verify_nro(nro.read_bytes(),Path('C:/devkitPro/libnx/default_icon.jpg').read_bytes(),nacp.read_bytes(),title),'strong_undefined':[],'runtime':'NOT RUN'}
    variants[entry]['deko_link_provenance']=provenance
    artifacts.update({str(p.relative_to(ROOT)):{'sha256':sha(p),'bytes':p.stat().st_size} for p in (elf,nro,nacp)})
