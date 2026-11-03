@@ -79,3 +79,44 @@ Benchmark/1 относится к отклонённому float-cast; /2 — in
 Их timing не выдаётся за результат финальной NRO. Изменений основной NRO,
 ресурсов, saves, upstream/frozen и прежних пакетов нет.
 Runner: tools/matrixgame_argb_checks.py; build/matrixgame/e610-argb-r16-checks.
+
+## Проверенная доставка r16
+
+Source commit: `2ff779a1b60c1b0623063e9846938129197d3b30`.
+Build ID: `2ff779a1b60c-f09d63169b5bd7920a00`.
+
+Свежие стандартные Quick Smoke/Interactive targets: build/matrixgame/e610-argb-r16/1.
+DevkitA64 compile/link, отсутствие unresolved strong symbols, ELF/NRO build IDs,
+segments, icon/NACP и встроенные fonts/shaders — PASS. В обеих actual NRO
+два ARGB getters больше не вызывают lroundf: old r15 по 4 BL lroundf на getter,
+new r16 по 4 FCVTAS и 0 BL lroundf. Old SDK lroundf проверен как 8 bytes
+FCVTAS x0,s0; RET. Машинный код/адреса/размеры записаны в evidence. Это
+реальное target instruction proof, а не измерение скорости GPU/консоли.
+
+Compiler provenance: 321 configured TUs, RelWithDebInfo/O2/UNDEBUG, assertions/exceptions on, fast-math off.
+Неизменённый prebuilt Rangers/UI archive не пересобирался и не объявляется
+оптимизированным. Link maps: по 23 объекта deko3dd, без deko3d; SDK debug
+SetContext/RaiseError retained. Generated originals совпадают с r15;
+относительно E601 остаются те же три прежние overlay delta.
+
+706 own source hashes совпали точно, как и все финальные CPU inputs.
+248 прежних защищённых файлов, основная NRO, старые ZIP/NRO, ресурсы, saves,
+frozen и upstream pins не изменены. [Машинное evidence](matrixgame-e610-argb-r16-evidence.json).
+
+ZIP: `dist/matrixgame-e610-switch-test-r16-argb.zip`, 10163058 bytes.
+SHA256: `8a4669bf9e88755d4cb060542132c3c0676c8eb5ed98dc208b11a3644d113e39`.
+
+| NRO | SHA256 | ELF build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `99611da6589ab006d459ebb9849c3d18e6bcee0d819e074be353620f3b09c46e` | `ca9adcd57414ff1f98e68530c00a7eed8ae4e605` |
+| matrixgame-e610-interactive.nro | `4ca469bcab3d2eacfc1cfae5a381e081339ab9398ecc82e91ec4b14dbe0652ab` | `4ce0352a56478ca26136767f25b9266751e48561` |
+
+В ZIP только две NRO, README.ru.md, manifest.json, SHA256SUMS.txt и build-info.json.
+Ресурсов/сохранений нет. SD-папка `/switch/matrixgame-e610-r16-test/`; прежние
+DATA/CFG roots остаются. В hbmenu **MatrixGame r16 Quick Smoke** /
+**MatrixGame r16 Interactive**. Application Mode, сначала Quick, затем
+Interactive; штатный выход Minus+Plus. Передать два новых каталога
+`/switch/matrixgame-diag/logs/<run-id>/` и фото фактического результата.
+
+**SOFTWARE PASS / HARDWARE PENDING.** Адресная оптимизация завершена;
+дальнейшие изменения — по новому аппаратному профилю.

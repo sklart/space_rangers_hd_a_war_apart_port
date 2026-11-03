@@ -512,4 +512,10 @@ bytes/layout/COW/restore/validation сохранены. [Изменение и p
 [два запуска](docs/matrixgame-e610-argb-r16-readme.ru.md).
 Итоговый host замер: 75.8 → 67.2 мс / 100000 draw (−11.3% CPU-подготовки,
 не FPS Switch). 12437 cases со sticky FP flags и COW/OOM/restore — PASS.
-Отдельные NRO готовятся; HARDWARE PENDING.
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r16-argb.zip`; source
+`2ff779a1b60c1b0623063e9846938129197d3b30`, build `2ff779a1b60c-f09d63169b5bd7920a00`.
+В hbmenu **MatrixGame r16 Quick Smoke** / **MatrixGame r16 Interactive**.
+Host ASan/UBSan, ARM64/QEMU UBSan, Windows O2, SDK/link/package — PASS.
+Target disassembly подтвердил удаление 8 lroundf calls из двух getters при
+сохранении FCVTAS. [SHA256 и evidence](reports/matrixgame-e610-argb-r16.md).
+SOFTWARE PASS / HARDWARE PENDING. Ресурсы, saves, основная NRO и старые пакеты сохранены.
