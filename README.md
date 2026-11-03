@@ -465,4 +465,9 @@ CPU сравнение с frozen r12 охватывает 4173 случая и �
 итоговый host замер 127.0 → 108.9 мс / 100000 draw (−14.2% времени
 участка, не FPS Switch). [Изменение и проверки](reports/matrixgame-e610-prepare-r13.md),
 [два ручных запуска](docs/matrixgame-e610-prepare-r13-readme.ru.md).
-Новые NRO готовятся отдельно. HARDWARE PENDING; ресурсы и сохранения не меняются.
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r13-prepare.zip`; source
+`a6ec23bbf0b0a5d5a651816dc92adeebc01af5f0`, build `a6ec23bbf0b0-a31acd8c06fd944a1dac`.
+В hbmenu **MatrixGame r13 Quick Smoke** / **MatrixGame r13 Interactive**.
+Host ASan/UBSan, ARM64/QEMU UBSan, Windows O2, SDK/link/package — PASS.
+[SHA256 и evidence](reports/matrixgame-e610-prepare-r13.md).
+SOFTWARE PASS / HARDWARE PENDING; ресурсы, сохранения, основная NRO и старые пакеты не менялись.

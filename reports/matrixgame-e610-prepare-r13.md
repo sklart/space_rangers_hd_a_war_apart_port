@@ -50,7 +50,7 @@ Campaign/Gov, естественную победу и возврат Galaxy. П
 основная NRO и старые пакеты сохраняются.
 
 [Инструкция двух запусков](../docs/matrixgame-e610-prepare-r13-readme.ru.md).
-Итоговые SDK/package/SHA сведения добавляются после свежей сборки.
+Итоговые SDK/package/SHA сведения приведены ниже.
 
 Итоговые semantic outcomes: 1774 отказа; host/ARM64 digest
 10075058543430076524, Windows 2626683544331849612. Полный stdout совпал попарно.
@@ -60,3 +60,42 @@ build/matrixgame/e610-prepare-r13-regression/{host,arm64,windows}/1/result.json.
 Benchmark завершён без параллельных тестов. Frozen 127881/126876/126991 мкс,
 candidate 108941/109213/108142 мкс. Первичная разведочная серия дала -9.3%;
 она сохранена отдельно в benchmark/1, итоговая с окончательной fixture — /2.
+
+## Проверенная доставка r13
+
+Source commit: `a6ec23bbf0b0a5d5a651816dc92adeebc01af5f0`.
+Build ID: `a6ec23bbf0b0-a31acd8c06fd944a1dac`.
+
+Стандартные SDK targets Quick Smoke и Interactive собраны заново в
+`build/matrixgame/e610-prepare-r13/1`. devkitA64 compile/link — PASS;
+неразрешённых strong symbols нет. NRO/ELF build IDs, три segments, icon/NACP,
+встроенные shaders/fonts и source hashes проверены. В обоих ELF есть настоящие
+PrepareDraw/PrepareUniforms; standalone entry не подменяется Campaign/Gov.
+
+RelWithDebInfo, O2 + assertions + exceptions, без fast-math. Проверены
+321 configured compile commands; неизменённый prebuilt Rangers/UI dependency
+не считается заново оптимизированным. Link maps содержат по 23 объекта deko3dd,
+без release deko3d; debug SetContext/RaiseError retained. Generated original
+полностью совпадает с r12: относительно E601 изменены только прежние три файла
+OriginalManagedTexture.cpp, Texture.cpp и OriginalTransition.cpp.
+
+Проверены 702 own source hashes и 227 сохранённых старых файлов: прежние
+ZIP/NRO/resources/frozen/основная NRO не изменены. Все три upstream pins и
+подмодули сохраняются. [Машинное evidence](matrixgame-e610-prepare-r13-evidence.json).
+
+ZIP: `dist/matrixgame-e610-switch-test-r13-prepare.zip` (10160769 bytes).
+SHA256: `9961c7997bf796f2040360a09fa3809dcf9c4454503cf088cb5705baa9ae400c`.
+
+| NRO | SHA256 | ELF build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `bee4d536a58990b0642754391f5755104613c62ce92d84680bc1c9302bd3c197` | `ec030dd352e3af8def396b61fd447dcf2aa40413` |
+| matrixgame-e610-interactive.nro | `ae664654011f2cb0559cdf9f523770c8a3db8307bd2ce46028664fcb66a6fd1f` | `5bacaf061d8f296df8a0406ba59a80576692e2f8` |
+
+В ZIP ровно шесть файлов: две NRO, README.ru.md, manifest.json,
+SHA256SUMS.txt и build-info.json. Ресурсов/сохранений нет. На SD — отдельная
+папка `/switch/matrixgame-e610-r13-test/`; прежние DATA/CFG roots остаются.
+Запустить Quick, затем Interactive в Application Mode; выход Minus+Plus.
+Собрать два новых каталога `/switch/matrixgame-diag/logs/<run-id>/` и фото.
+
+**SOFTWARE PASS / HARDWARE PENDING**. Разработка этого адресного изменения
+остановлена; дальнейшие исправления — по новому аппаратному профилю.
