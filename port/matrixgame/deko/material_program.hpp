@@ -21,7 +21,7 @@ public:
     };
     DekoCombinerProgram(dk::Device,std::span<const std::byte> fragment_dksh,std::span<const std::byte> vertex_dksh={});
     bool VertexReady()const noexcept;
-    Packet Prepare(const Combiner&,const std::array<DkResHandle,8>&,const VertexUniforms* vertex=nullptr,bool alpha_target=false,const PixelFogUniforms* fog=nullptr,std::uint32_t shade=2)const;
+    Packet Prepare(const Combiner&,const std::array<DkResHandle,8>&,const VertexUniforms* vertex=nullptr,bool alpha_target=false,const PixelFogUniforms* fog=nullptr,std::uint32_t shade=2,dk::UniqueMemBlock completed_uniforms={})const;
     // Packet, descriptor sets, textures and this program must outlive queue
     // completion; this does not steal another renderer's queue or submit it.
     void Bind(dk::CmdBuf,const Packet&)const;

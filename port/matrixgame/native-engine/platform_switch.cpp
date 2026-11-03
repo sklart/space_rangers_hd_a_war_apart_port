@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #include "platform_switch.hpp"
+#include "completed_block_pool.hpp"
 #include "native_display_owner.hpp"
 #include "native_staging_binding.hpp"
 #include "native_diagnostic_journal.hpp"
@@ -292,6 +293,7 @@ struct DekoDevice::Impl: presentation::Driver {
         surface_session->Presentation(std::move(next.color_surface),std::move(next.depth_surface));
     }
 
+    CompletedBlockPool<dk::UniqueMemBlock> completed_blocks;
     std::unique_ptr<materials::DekoCombinerProgram> programs;
     std::unique_ptr<DekoGammaProgram> gamma_program;
     NativeGammaStore gamma;
@@ -347,8 +349,12 @@ struct DekoDevice::Impl: presentation::Driver {
     DekoDevice::PrimaryReadback primary_readback;
     DekoDevice::PrimaryReadback presentation_readback;
     dk::UniqueMemBlock Allocate(std::uint64_t bytes){
+        ProfileScope timing(diagnostics.block_create);
         auto value=dk::MemBlockMaker{device,AllocationSize(bytes)}.setFlags(DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached).create();
         if(!value)throw std::bad_alloc();++diagnostics.buffer_allocations;diagnostics.buffer_bytes_total+=AllocationSize(bytes);return value;
+    }
+    dk::UniqueMemBlock DrawMemory(std::uint64_t bytes){
+        auto block=completed_blocks.Take(AllocationSize(bytes));return block?std::move(block):Allocate(bytes);
     }
     bool presenting{};const dk::Image* bound_color{};const dk::Image* bound_depth{};
     void StartRecording(){
@@ -380,16 +386,17 @@ struct DekoDevice::Impl: presentation::Driver {
         command_pages.Check();
     }
     void SubmitAndWait(){
-        diagnostic::Operation trace("GPU.batch_submit_wait");
+        ProfileScope timing(diagnostics.batch_wait);
         if(!recording)throw std::logic_error("native batch submission without recording");
         command_pages.Check();
         commands.barrier(DkBarrier_Full,DkInvalidateFlags_Image|DkInvalidateFlags_L2Cache);
         const auto list=command_pages.FinishForSubmission([&]{return commands.finishList();});
         queue.submitCommands(list);++diagnostics.queue_submissions;queue.flush();queue.waitIdle();
-        if(!Healthy())throw Unsupported("native draw batch queue completion failed");
+        if(!Healthy()){diagnostic::Record("sdk_error","GPU.batch_submit_wait","native draw batch queue completion failed");throw Unsupported("native draw batch queue completion failed");}
     }
     void ReleaseCompleted()noexcept{
         command_pages.Retire([&]()noexcept{if(commands){commands.clear();commands.addMemory(command_memory,0,command_bytes);}});recording=false;bound_color=bound_depth=nullptr;
+        for(auto& packet:packets){completed_blocks.Put(packet.upload.TakeCompletedMemory());completed_blocks.Put(std::move(packet.material.uniforms));}
         packets.clear();surface_packets.clear();target_images.clear();
         gamma_packet={};
     }
@@ -447,10 +454,12 @@ struct DekoDevice::Impl: presentation::Driver {
         texture_session->upload=[this](const native_texture::Texture& t){
             try{auto image=texture_store->Upload(t);++diagnostics.session_uploads;return image;}
             catch(const native_texture::ResidencyExhausted&){
+                if(SamplePressure(++diagnostics.texture_pressure_events)){
                 diagnostic::Record("pressure","texture.arena_exhausted","managed residency may reclaim unpinned images",native_texture::OutOfVideoMemory);
                 diagnostic::Metric("texture.arena_free",texture_store->Free());diagnostic::Metric("texture.arena_largest",texture_store->Available());
                 diagnostic::Metric("texture.request_width",t.levels.front().width);diagnostic::Metric("texture.request_height",t.levels.front().height);
                 diagnostic::Metric("texture.request_format",t.format);diagnostic::Metric("texture.managed_evictions",texture_session->managed_evictions);
+                }
                 throw;
             }
         };
@@ -472,6 +481,7 @@ struct DekoDevice::Impl: presentation::Driver {
     }
     void Record(std::span<const materials::Vertex> vertices,std::span<const std::byte> indices,
                   DkIdxFormat index_format,std::uint32_t count,std::int32_t base,DkPrimitive primitive,const NativeRenderState* override_state=nullptr){
+        ProfileScope timing(diagnostics.draw_cpu);
         if(!frame)throw Unsupported("original draw requires a live native acquire/frame scope");
         const auto& saved_state=override_state?*override_state:state.Read();
         frame.RequireDraw(override_state!=nullptr);
@@ -490,7 +500,9 @@ struct DekoDevice::Impl: presentation::Driver {
         const std::uint64_t bytes=std::uint64_t(upload_layout.bytes)+materials::uniform_packet::Bytes;
         if(batch.NeedsDrain(bytes) || command_pages.NeedsDrain())DrainBatch();
         BindTargets(presenting);
-        DrawPacket packet;packet.upload=NativeDrawUpload{Allocate(upload_layout.bytes),std::as_bytes(vertices),indices};
+        DrawPacket packet;packet.upload=NativeDrawUpload{DrawMemory(upload_layout.bytes),std::as_bytes(vertices),indices};
+        {
+        ProfileScope residency_timing(diagnostics.residency);
         for(unsigned i=0;i<8;++i)if(textures[i]){
             if(target->texture==textures[i])throw Unsupported("render target texture feedback is invalid");
             packet.images[i]=native_texture::Resident(textures[i]);
@@ -498,10 +510,12 @@ struct DekoDevice::Impl: presentation::Driver {
             if(!image)throw std::logic_error("native texture image belongs to another backend");
             packet.upload.WriteImage(i,image->descriptor);
         }
+        }
+        ProfileScope encode_timing(diagnostics.command_encode);
         for(unsigned i=0;i<8;++i){const auto sampler=MakeDekoSampler(samplers[i]);
             dk::SamplerDescriptor descriptor;descriptor.initialize(sampler);packet.upload.WriteSampler(i,descriptor);}
         std::array<DkResHandle,8> handles;for(unsigned i=0;i<8;++i)handles[i]=dkMakeTextureHandle(i,i);
-        packet.material=programs->Prepare(combiner,handles,&uniforms,alpha_target,&fog,saved_state.shade);
+        packet.material=programs->Prepare(combiner,handles,&uniforms,alpha_target,&fog,saved_state.shade,DrawMemory(materials::uniform_packet::Bytes));
         packets.push_back(std::move(packet));auto& saved=packets.back();batch.Add(bytes);++diagnostics.recorded_draws;
         diagnostics.max_live_draw_packets=std::max(diagnostics.max_live_draw_packets,batch.Draws());
         diagnostics.max_live_draw_bytes=std::max(diagnostics.max_live_draw_bytes,batch.Bytes());
@@ -584,7 +598,7 @@ struct DekoDevice::Impl: presentation::Driver {
         bool cleanup_ok=Healthy();
         lifetime->owner=nullptr;if(queue)queue.waitIdle();
         if(queue && !Healthy()){cleanup_ok=false;queue=nullptr;} // Failed wait cannot retire GPU resource owners; close the channel first.
-        commands=nullptr;packets.clear();surface_packets.clear();target_images.clear();gamma_packet={};gamma.Close();
+        commands=nullptr;packets.clear();completed_blocks.Clear();surface_packets.clear();target_images.clear();gamma_packet={};gamma.Close();
         if(surface_session)surface_session->Close();surface_session.reset();
         try{presentation_state.Release();}catch(...){cleanup_ok=false;std::fprintf(stderr,"native presentation teardown failed\n");}
         if(font_session)font_session->Close();font_session.reset();cursor_texture.reset();cursor_icon.reset();
@@ -688,18 +702,21 @@ namespace {
 DkPrimitive NativePrimitive(std::uint32_t p){switch(p){case 1:return DkPrimitive_Points;case 2:return DkPrimitive_Lines;case 3:return DkPrimitive_LineStrip;case 4:return DkPrimitive_Triangles;case 5:return DkPrimitive_TriangleStrip;case 6:return DkPrimitive_TriangleFan;default:throw Unsupported("native primitive topology");}}
 }
 DeviceResult DekoDevice::NativeDraw(std::uint32_t kind,std::uint32_t start,std::uint32_t primitives){
+    ProfileScope timing(impl_->diagnostics.vertex_decode);
     const auto elements=staging_draw::ElementCount(kind,primitives);if(!elements)return 0;
     if(elements>Impl::frame_budget/sizeof(materials::Vertex))throw std::length_error("native vertex draw budget");
     const auto binding=buffers::Current().Vertex();for(std::uint64_t i=0;i<elements;++i)staging_draw::Vertex(binding,std::uint64_t(start)+i);
     const auto bytes=binding.buffer->Storage().subspan(binding.offset+std::uint64_t(start)*binding.stride,elements*binding.stride);
-    auto vertices=impl_->state.Read().vertex.Decode(bytes,binding.stride);impl_->Record(vertices,{},DkIdxFormat_Uint16,elements,0,NativePrimitive(kind));return 0;
+    auto vertices=impl_->state.Read().vertex.Decode(bytes,binding.stride);timing.Stop();impl_->Record(vertices,{},DkIdxFormat_Uint16,elements,0,NativePrimitive(kind));return 0;
 }
 DeviceResult DekoDevice::NativeDrawUP(std::uint32_t kind,std::uint32_t primitives,std::span<const std::byte> bytes,std::uint32_t stride){
+    ProfileScope timing(impl_->diagnostics.vertex_decode);
     const auto elements=staging_draw::ElementCount(kind,primitives);if(!elements)return 0;
     if(elements>Impl::frame_budget/sizeof(materials::Vertex) || std::uint64_t(stride)*elements!=bytes.size())throw std::length_error("native immediate draw extent");
-    auto vertices=impl_->state.Read().vertex.Decode(bytes,stride);impl_->Record(vertices,{},DkIdxFormat_Uint16,elements,0,NativePrimitive(kind));return 0;
+    auto vertices=impl_->state.Read().vertex.Decode(bytes,stride);timing.Stop();impl_->Record(vertices,{},DkIdxFormat_Uint16,elements,0,NativePrimitive(kind));return 0;
 }
 DeviceResult DekoDevice::NativeDrawIndexed(std::uint32_t kind,int base,std::uint32_t minimum,std::uint32_t count,std::uint32_t start,std::uint32_t primitives){
+    ProfileScope timing(impl_->diagnostics.vertex_decode);
     const auto elements=staging_draw::ElementCount(kind,primitives);if(!elements)return 0;
     if(count>Impl::frame_budget/sizeof(materials::Vertex) || minimum>std::uint32_t(std::numeric_limits<int>::max()))throw std::length_error("native indexed vertex extent");
     if(elements>Impl::frame_budget/2)throw std::length_error("native index draw budget");
@@ -712,7 +729,7 @@ DeviceResult DekoDevice::NativeDrawIndexed(std::uint32_t kind,int base,std::uint
             vertices[local]=impl_->state.Read().vertex.DecodeOne(binding.buffer->Storage().subspan(offset,binding.stride),binding.stride);decoded[local]=true;}}
     // Binding begins at the declared minimum; indices and their order stay
     // unchanged. The GPU base compensates this upload view's byte origin.
-    impl_->Record(vertices,indices,width==2?DkIdxFormat_Uint16:DkIdxFormat_Uint32,elements,-int(minimum),NativePrimitive(kind));return 0;
+    timing.Stop();impl_->Record(vertices,indices,width==2?DkIdxFormat_Uint16:DkIdxFormat_Uint32,elements,-int(minimum),NativePrimitive(kind));return 0;
 }
 void DekoDevice::SetVertexLayout(std::uint32_t fvf){(void)SetFixedVertexLayout(fvf);}
 void DekoDevice::Emit(const MeshRange& range){if(range.index_count%3)throw std::invalid_argument("original VO triangle count");(void)NativeDrawIndexed(4,range.base_vertex,range.minimum_vertex,range.vertex_count,range.first_index,range.index_count/3);}
@@ -766,6 +783,7 @@ void DekoDevice::PresentNativeFrame(){
 }
 DekoDevice::DiagnosticCounters DekoDevice::Diagnostics()const noexcept{
     auto result=impl_->diagnostics;result.queue_healthy=impl_->Healthy();
+    result.block_pool_hits=impl_->completed_blocks.hits;result.block_pool_misses=impl_->completed_blocks.misses;result.block_pool_bytes=impl_->completed_blocks.Bytes();
     result.sdk_warnings=diagnostic_sdk_warnings.load();
     if(impl_->texture_store){result.texture_capacity=impl_->texture_store->Capacity();result.texture_free=impl_->texture_store->Free();}
     return result;

@@ -51,6 +51,7 @@ public:
     DkGpuAddr Indices(){return Address(layout_.indices);}
     DkGpuAddr Images(){return Address(layout_.images);}
     DkGpuAddr Samplers(){return Address(layout_.samplers);}
+    dk::UniqueMemBlock TakeCompletedMemory()noexcept{return std::move(memory_);}
 private:
     static_assert(DK_MEMBLOCK_ALIGNMENT%DK_IMAGE_DESCRIPTOR_ALIGNMENT==0);
     static_assert(DK_MEMBLOCK_ALIGNMENT%DK_SAMPLER_DESCRIPTOR_ALIGNMENT==0);

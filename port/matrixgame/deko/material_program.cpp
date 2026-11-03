@@ -36,12 +36,14 @@ DekoCombinerProgram::DekoCombinerProgram(dk::Device device,std::span<const std::
     }
 }
 bool DekoCombinerProgram::VertexReady()const noexcept{return vertex_code_ && dkShaderIsValid(&vertex_shader_) && dkShaderIsValid(&shader_);}
-DekoCombinerProgram::Packet DekoCombinerProgram::Prepare(const Combiner& state,const std::array<DkResHandle,8>& textures,const VertexUniforms* vertex,bool alpha_target,const PixelFogUniforms* fog,std::uint32_t shade)const{
+DekoCombinerProgram::Packet DekoCombinerProgram::Prepare(const Combiner& state,const std::array<DkResHandle,8>& textures,const VertexUniforms* vertex,bool alpha_target,const PixelFogUniforms* fog,std::uint32_t shade,dk::UniqueMemBlock completed_uniforms)const{
     if(shade!=1 && shade!=2)throw Incomplete("native material shading mode outside FLAT/GOURAUD");
     auto value=state.Prepare();AlphaTarget(value,alpha_target); // Reject before allocation or publication.
     if(vertex && !VertexReady())throw Incomplete("material vertex program unavailable");
-    Packet out{dk::MemBlockMaker{device_,uniform_packet::Bytes}
-        .setFlags(DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached).create(),vertex!=nullptr,textures};
+    if(completed_uniforms && completed_uniforms.getSize()!=uniform_packet::Bytes)throw std::invalid_argument("material reusable uniform block extent");
+    if(!completed_uniforms)completed_uniforms=dk::MemBlockMaker{device_,uniform_packet::Bytes}
+        .setFlags(DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached).create();
+    Packet out{std::move(completed_uniforms),vertex!=nullptr,textures};
     if(!out.uniforms)throw std::bad_alloc();
     const PixelFogUniforms disabled;
     uniform_packet::Write({static_cast<std::byte*>(out.uniforms.getCpuAddr()),uniform_packet::Bytes},value,vertex,fog?*fog:disabled,shade);

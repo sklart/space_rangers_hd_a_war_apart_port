@@ -18,6 +18,7 @@ struct IO {
     int (*close)(FILE*);
 };
 IO SystemIO() noexcept;
+struct JournalIOStats {std::uint64_t calls{},bytes{},us{};};
 class Journal {
 public:
     Journal(const std::filesystem::path& log_root,std::string_view build_id,
@@ -36,6 +37,7 @@ public:
     bool Healthy()const noexcept;
     int Error()const noexcept;
     std::uint64_t Failures()const noexcept;
+    JournalIOStats Statistics()const noexcept;
     void RequireHealthy()const;
 private:
     struct Stage {std::array<char,97> name{};std::uint64_t token{},started{};};
@@ -48,6 +50,7 @@ private:
     std::array<char,65> source_sha_{},run_id_{};
     std::array<Stage,32> stack_{};unsigned depth_{};
     std::uint64_t sequence_{},token_{},started_{},failures_{};
+    JournalIOStats io_stats_;
 };
 // Binding outlives device/queue/runtime, including all asynchronous callbacks.
 // Only one diagnostic process session may be bound. Normal engine use has no
@@ -64,4 +67,5 @@ private:Journal* journal_{};std::uint64_t token_{};int exceptions_{};
 };
 void Record(std::string_view event,std::string_view operation,std::string_view detail={},std::int64_t result=0)noexcept;
 void Metric(std::string_view name,std::uint64_t value)noexcept;
+JournalIOStats CurrentIOStats()noexcept;
 }

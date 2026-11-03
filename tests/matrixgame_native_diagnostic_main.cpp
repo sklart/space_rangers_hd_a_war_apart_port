@@ -72,6 +72,15 @@ void Memory(){
 }
 void Counters(p::DekoDevice& device){
     const auto s=device.Diagnostics();dg::Metric("gpu_buffer_allocations",s.buffer_allocations);
+    dg::Metric("block_pool_hits",s.block_pool_hits);dg::Metric("block_pool_misses",s.block_pool_misses);dg::Metric("block_pool_bytes",s.block_pool_bytes);
+    dg::Metric("texture_pressure_events",s.texture_pressure_events);
+    const auto profile=[](const char* name,const p::ProfileTotals& t){char key[96];
+        std::snprintf(key,sizeof(key),"profile.%s.calls",name);dg::Metric(key,t.calls);
+        std::snprintf(key,sizeof(key),"profile.%s.us",name);dg::Metric(key,t.us);
+        std::snprintf(key,sizeof(key),"profile.%s.max_us",name);dg::Metric(key,t.maximum_us);};
+    profile("draw_cpu",s.draw_cpu);profile("vertex_decode",s.vertex_decode);profile("block_create",s.block_create);
+    profile("residency",s.residency);profile("command_encode",s.command_encode);profile("batch_wait",s.batch_wait);
+    const auto io=dg::CurrentIOStats();dg::Metric("profile.journal.calls",io.calls);dg::Metric("profile.journal.bytes",io.bytes);dg::Metric("profile.journal.us",io.us);
     dg::Metric("gpu_buffer_bytes_cumulative",s.buffer_bytes_total);dg::Metric("recorded_draw_calls",s.recorded_draws);
     dg::Metric("queue_submission_calls",s.queue_submissions);dg::Metric("completed_presents",s.presents);
     dg::Metric("native_texture_session_uploads",s.session_uploads);dg::Metric("texture_arena_capacity",s.texture_capacity);
@@ -103,7 +112,7 @@ public:
         if(visible && !capture_requested_){device_.RequestPrimaryReadback([output=&journal_](auto bytes,unsigned w,unsigned h){dg::SaveFrame(*output,"original-first",w,h,bytes);});capture_requested_=true;}
         actual_.Draw(form);
         const auto after=device_.Diagnostics().presents;const auto done=cancel_.Presented(before,after,visible);
-        if(!visible && after>before){transition_presents_+=after-before;dg::Metric("original_loading_presents",transition_presents_);}
+        if(!visible && after>before){transition_presents_+=after-before;dg::Metric("original_loading_presents",transition_presents_);if(transition_presents_<=4 || transition_presents_%30==0)Counters(device_);}
         if(visible && after>before && cancel_.CountersDue()){dg::Metric("original_loop_frames_presented",cancel_.Frames());Counters(device_);}
         if(done)g_Flags|=GFLAG_EXITLOOP;
     }

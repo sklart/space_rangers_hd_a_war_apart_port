@@ -99,7 +99,10 @@ bool Journal::Emit(std::string_view event,std::string_view operation,std::string
     line.Add(",\"result\":");if(result==std::numeric_limits<std::int64_t>::min())line.Add("null");else line.Number(result);line.Add(",\"elapsed_us\":");line.Number(elapsed);line.Add(",\"value\":");line.Number(value);line.Add("}\n");
     if(!line.valid){error_=EOVERFLOW;return false;}
     errno=0;
-    if(io_.write(line.data.data(),line.used,file_)!=line.used || io_.flush(file_)!=0){error_=errno?errno:EIO;return false;}
+    const auto io_started=Micros();
+    const bool failed=io_.write(line.data.data(),line.used,file_)!=line.used || io_.flush(file_)!=0;
+    ++io_stats_.calls;io_stats_.bytes+=line.used;io_stats_.us+=Micros()-io_started;
+    if(failed){error_=errno?errno:EIO;return false;}
     return true;
 }
 bool Journal::Record(std::string_view event,std::string_view operation,std::string_view detail,std::int64_t result)noexcept{
@@ -127,6 +130,7 @@ bool Journal::End(std::uint64_t token,bool success,std::int64_t result)noexcept{
 bool Journal::Healthy()const noexcept{std::lock_guard lock(mutex_);return file_ && !error_;}
 int Journal::Error()const noexcept{std::lock_guard lock(mutex_);return error_;}
 std::uint64_t Journal::Failures()const noexcept{std::lock_guard lock(mutex_);return failures_;}
+JournalIOStats Journal::Statistics()const noexcept{std::lock_guard lock(mutex_);return io_stats_;}
 void Journal::RequireHealthy()const{if(!Healthy())throw std::runtime_error("diagnostic journal not healthy");}
 bool Journal::Close()noexcept{
     std::lock_guard lock(mutex_);if(closed_)return !error_;closed_=true;
@@ -141,4 +145,5 @@ Operation::Operation(std::string_view name):journal_(active.load()),exceptions_(
 Operation::~Operation(){const bool unwind=exceptions_!=std::uncaught_exceptions();if(journal_)journal_->End(token_,!failed_ && !unwind,unwind && !failed_?std::numeric_limits<std::int64_t>::min():result_);}
 void Record(std::string_view event,std::string_view operation,std::string_view detail,std::int64_t result)noexcept{if(auto* journal=active.load())journal->Record(event,operation,detail,event=="exception" && !result?std::numeric_limits<std::int64_t>::min():result);}
 void Metric(std::string_view name,std::uint64_t value)noexcept{if(auto* journal=active.load())journal->Metric(name,value);}
+JournalIOStats CurrentIOStats()noexcept{if(auto* journal=active.load())return journal->Statistics();return {};}
 }

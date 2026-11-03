@@ -425,3 +425,7 @@ python tools/e2e5_report.py --output reports/e2e5/summary.json
 Актуальный пакет: `dist/matrixgame-e610-switch-test-r7-init.zip`; source `9c097a23021adc11692bf634d9b0f793245b9281`, build `9c097a23021a-4294303d9d29695f9fa3`. Две NRO: **MatrixGame r7 Quick Smoke** и **MatrixGame r7 Interactive**. Контрольные суммы и результаты — в [отчёте r7](reports/matrixgame-e610-init-r7.md); SOFTWARE PASS / HARDWARE PENDING.
 
 Аппаратная проверка r7 (03.11.2026): оба запуска завершили Init и показали оригинальный экран, но transition не завершился до deadline. Interactive: 48 transition frames / 121.790 с, около 0.394 кадра/с. **HARDWARE PARTIAL / PERFORMANCE FAIL**, полный smoke не пройден. Музыка предположительно слышна по сообщению пользователя; HID/бой не приняты. [Разбор и границы evidence](reports/matrixgame-e610-r7-hardware-20261103.md).
+
+### MatrixGame E610 r8: оптимизация draw allocations и telemetry
+
+Bounded reuse завершённых SDK blocks; порядок draw, completion guards и критерии smoke сохранены. На host journal replay медиана 14.44 → 1.31 с, 7747 → 671 records с сохранённым fsync. CPU-model pool: 417616 block allocations → 128 initial + 417488 reuse hits на 92 сохранённых frame counts. Эти числа не являются Switch FPS. [Изменения/измерения](reports/matrixgame-e610-perf-r8.md), [инструкция](docs/matrixgame-e610-perf-r8-readme.ru.md). R8 HARDWARE PENDING.
