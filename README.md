@@ -442,8 +442,10 @@ Bounded reuse завершённых SDK blocks; порядок draw, completion
 
 [Аппаратный r9](reports/matrixgame-e610-r9-hardware-20261103.md): Draw улучшился до 0.56 с, Init до 28.5 с, но transition timeout сохранился. В ожидаемом CFG нет geometry layout 1280x720. R10 масштабирует существующую authored geometry и скорость, сохраняя original Takt/capture/render; forced skip не добавлен. [Изменение и CPU oracle](reports/matrixgame-e610-transition-r10.md), [инструкция](docs/matrixgame-e610-transition-r10-readme.ru.md). HARDWARE PENDING.
 
-Актуальный пакет: `dist/matrixgame-e610-switch-test-r10-transition.zip`; source `dd7f6714872d1826bc35f896ee4975bc104f9ea8`, build `dd7f6714872d-507a9538a658856b38ba`. В hbmenu **MatrixGame r10 Quick Smoke** / **MatrixGame r10 Interactive**. [SHA256 и evidence](reports/matrixgame-e610-transition-r10.md). SOFTWARE PASS / HARDWARE PENDING.
+Предыдущий пакет r10: `dist/matrixgame-e610-switch-test-r10-transition.zip`; source `dd7f6714872d1826bc35f896ee4975bc104f9ea8`, build `dd7f6714872d-507a9538a658856b38ba`. В hbmenu **MatrixGame r10 Quick Smoke** / **MatrixGame r10 Interactive**. [SHA256 и evidence](reports/matrixgame-e610-transition-r10.md). SOFTWARE PASS / HARDWARE PENDING.
 
 ### MatrixGame E610 r11: reuse upload blocks без Switch
 
 Bounded best-fit и cached immutable size/CPU/GPU addresses уменьшают SDK queries/allocations без изменения draw payload или completion ownership. Physical capacity входит в byte quota. Synthetic CPU size-sweep: 6645 → 4751 новых blocks, 1095345 → 65536 size queries; это не Switch FPS. R10 transition fix сохранён. [Изменения/проверки](reports/matrixgame-e610-reuse-r11.md), [инструкция](docs/matrixgame-e610-reuse-r11-readme.ru.md). HARDWARE PENDING.
+
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r11-reuse.zip`; source `203f563d6453b9a311af432a4e14428ad2f86ce7`, build `203f563d6453-f0031abf2bd4f34eacea`. В hbmenu **MatrixGame r11 Quick Smoke** / **MatrixGame r11 Interactive**. Содержит r10 transition fix. [SHA256 и evidence](reports/matrixgame-e610-reuse-r11.md). SOFTWARE PASS / HARDWARE PENDING.
