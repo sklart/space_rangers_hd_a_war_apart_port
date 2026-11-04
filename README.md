@@ -653,3 +653,18 @@ CPU Prepare median 124,2 → 98,6 мс / 3 млн вызовов (−20,6%, не
 В hbmenu **MatrixGame r25 Quick Smoke** / **MatrixGame r25 Interactive**.
 SDK/package и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r26: compile-time классификация scalar setters
+
+LogicalValue получает compile-time flags вместо повторения name comparisons,
+сохраняя все value checks/ошибки и исходную Word/Render цепочку.
+25511 CPU cases — PASS на host ASan/UBSan, ARM64-QEMU UBSan и Windows O2.
+CPU setter median 73,7 → 29,7 мс / 1,69 млн операций (−59,7%, не FPS).
+PrepareDraw control ~+0,8%; вклад setter в реальный кадр неизвестен.
+[Изменение и proof](reports/matrixgame-e610-scalar-r26.md),
+[два запуска](docs/matrixgame-e610-scalar-r26-readme.ru.md).
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r26-scalar.zip`.
+В hbmenu **MatrixGame r26 Quick Smoke** / **MatrixGame r26 Interactive**.
+SDK/package и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.

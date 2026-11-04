@@ -43,17 +43,28 @@ constexpr auto DrawRules=[](){
         else if(n=="SEPARATEALPHABLENDENABLE")rules[i]=DrawRule::SeparateAlpha;
     }return rules;
 }();
+enum LogicalRule : std::uint8_t {Bool=1,Float=2,Fill=4,Fog=8,Stencil=16,Mask=32,BlendFactor=64,BlendOp=128};
+constexpr auto LogicalRules=[](){
+    std::array<std::uint8_t,NativeRenderWords.size()> rules{};
+    for(unsigned i=0;i<rules.size();++i){const auto n=NativeRenderWords[i].name;auto& r=rules[i];
+        if(Is(n,{"LASTPIXEL","DITHERENABLE","FOGENABLE","RANGEFOGENABLE","STENCILENABLE","CLIPPING","LOCALVIEWER","POINTSPRITEENABLE","POINTSCALEENABLE","MULTISAMPLEANTIALIAS","INDEXEDVERTEXBLENDENABLE","SCISSORTESTENABLE","ANTIALIASEDLINEENABLE","ENABLEADAPTIVETESSELLATION","TWOSIDEDSTENCILMODE","SRGBWRITEENABLE","SEPARATEALPHABLENDENABLE"}))r|=Bool;
+        if(Is(n,{"FOGSTART","FOGEND","FOGDENSITY","POINTSIZE","POINTSIZE_MIN","POINTSIZE_MAX","POINTSCALE_A","POINTSCALE_B","POINTSCALE_C","TWEENFACTOR","SLOPESCALEDEPTHBIAS","DEPTHBIAS","MINTESSELLATIONLEVEL","MAXTESSELLATIONLEVEL","ADAPTIVETESS_X","ADAPTIVETESS_Y","ADAPTIVETESS_Z","ADAPTIVETESS_W"}))r|=Float;
+        if(n=="FILLMODE")r|=Fill;if(Is(n,{"FOGTABLEMODE","FOGVERTEXMODE"}))r|=Fog;
+        if((n.starts_with("STENCIL") || n.starts_with("CCW_STENCIL")) && Is(n,{"STENCILFAIL","STENCILZFAIL","STENCILPASS","STENCILFUNC","CCW_STENCILFAIL","CCW_STENCILZFAIL","CCW_STENCILPASS","CCW_STENCILFUNC"}))r|=Stencil;
+        if(n.starts_with("WRAP") || n.starts_with("COLORWRITEENABLE"))r|=Mask;
+        if(Is(n,{"SRCBLENDALPHA","DESTBLENDALPHA"}))r|=BlendFactor;
+        if(n=="BLENDOPALPHA")r|=BlendOp;
+    }return rules;
+}();
 void LogicalValue(const NativeStateWord& w,std::uint32_t v){
-    const auto n=w.name;
-    if(Is(n,{"LASTPIXEL","DITHERENABLE","FOGENABLE","RANGEFOGENABLE","STENCILENABLE","CLIPPING","LOCALVIEWER","POINTSPRITEENABLE","POINTSCALEENABLE","MULTISAMPLEANTIALIAS","INDEXEDVERTEXBLENDENABLE","SCISSORTESTENABLE","ANTIALIASEDLINEENABLE","ENABLEADAPTIVETESSELLATION","TWOSIDEDSTENCILMODE","SRGBWRITEENABLE","SEPARATEALPHABLENDENABLE"}) && v>1)
-        throw std::invalid_argument("native scalar BOOL");
-    if(Is(n,{"FOGSTART","FOGEND","FOGDENSITY","POINTSIZE","POINTSIZE_MIN","POINTSIZE_MAX","POINTSCALE_A","POINTSCALE_B","POINTSCALE_C","TWEENFACTOR","SLOPESCALEDEPTHBIAS","DEPTHBIAS","MINTESSELLATIONLEVEL","MAXTESSELLATIONLEVEL","ADAPTIVETESS_X","ADAPTIVETESS_Y","ADAPTIVETESS_Z","ADAPTIVETESS_W"}) && !std::isfinite(std::bit_cast<float>(v)))
-        throw std::invalid_argument("nonfinite native scalar float");
-    if((n=="FILLMODE" && (v<1 || v>3)) || (Is(n,{"FOGTABLEMODE","FOGVERTEXMODE"}) && v>3))throw std::invalid_argument("native scalar enum");
-    if((n.starts_with("STENCIL") || n.starts_with("CCW_STENCIL")) && Is(n,{"STENCILFAIL","STENCILZFAIL","STENCILPASS","STENCILFUNC","CCW_STENCILFAIL","CCW_STENCILZFAIL","CCW_STENCILPASS","CCW_STENCILFUNC"}) && (v<1 || v>8))throw std::invalid_argument("native stencil enum");
-    if((n.starts_with("WRAP") || n.starts_with("COLORWRITEENABLE")) && v>15)throw std::invalid_argument("native scalar mask");
-    if(Is(n,{"SRCBLENDALPHA","DESTBLENDALPHA"}) && (v<1 || v>17))throw std::invalid_argument("native alpha blend factor");
-    if(n=="BLENDOPALPHA" && (v<1 || v>5))throw std::invalid_argument("native alpha blend operation");
+    const auto rules=LogicalRules[&w-NativeRenderWords.data()];
+    if((rules&Bool) && v>1)throw std::invalid_argument("native scalar BOOL");
+    if((rules&Float) && !std::isfinite(std::bit_cast<float>(v)))throw std::invalid_argument("nonfinite native scalar float");
+    if(((rules&Fill) && (v<1 || v>3)) || ((rules&Fog) && v>3))throw std::invalid_argument("native scalar enum");
+    if((rules&Stencil) && (v<1 || v>8))throw std::invalid_argument("native stencil enum");
+    if((rules&Mask) && v>15)throw std::invalid_argument("native scalar mask");
+    if((rules&BlendFactor) && (v<1 || v>17))throw std::invalid_argument("native alpha blend factor");
+    if((rules&BlendOp) && (v<1 || v>5))throw std::invalid_argument("native alpha blend operation");
 }
 }
 NativeRenderState::NativeRenderState(){
