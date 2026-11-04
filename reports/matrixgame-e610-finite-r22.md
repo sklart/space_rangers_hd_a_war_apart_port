@@ -52,10 +52,73 @@ Historical ownership/Unmap/transition proof не выдаётся за новы�
 ## Итоговый ABBAAB /2
 
 Direct frozen: 196263/195669/199330 мкс; candidate 87682/87196/94312.
-Median 196263 → 87682 мкс (−55.33%, 2.24×) на 10 млн vertices.
+Median 196263 → 87682 мкс (−55.32%, 2.24×) на 10 млн vertices.
 Gather frozen: 358563/358832/369774; candidate 276393/271380/307078.
 Median 358832 → 276393 мкс (−22.97%, 1.30×) на 4096 draws.
 Checksum 5258787986328867328 одинаков во всех шести runs. Последний candidate
 run медленнее остальных; даже он быстрее всех frozen gather runs. Выигрыш
 подтверждён обеими сериями, но проценты относятся только к CPU probe.
 Новых аппаратных измерений Init/Draw/FPS нет.
+
+## SDK/package и SHA
+
+Source commit: `14d8a8186d943bb52ae49011a42a5510c58950a8`.
+Build ID: `14d8a8186d94-bcd7f004a2c56733abef`.
+Обе стандартные devkitA64/libnx/deko3d compile/link — PASS. Strong undefined=0.
+321 configured translation units: O2/UNDEBUG, exceptions, no fast-math;
+prebuilt Rangers archive unchanged, не выдаётся за новую optimized сборку.
+23 debug deko3dd object members / 0 release deko3d, mixed=false.
+NRO segments/assets, embedded fonts/shaders, NACP titles, ELF→NRO build IDs
+проверены. Generated original files identical r21 (3 historical delta vs E601).
+712 own source hashes проверены. Production diff vs r21 — только Finite helper;
+дополнительно NACP r22 titles и CPU runner. Остальные build inputs unchanged.
+290 прежних защищённых артефактов SHA unchanged; game/frozen/main NRO SDK gate PASS.
+
+Actual ARM64 DecodeTo: обычные вызовы Finite удалены. Сохранена точная r21
+unsigned bit classification: ((float_bits << 1) mod 2^32) >= 0xff000000 → ошибка.
+5 статических мест: position loop, UV loop, три развёрнутых normal checks.
+Все 5 веток ведут в NonfiniteVertexValue с настоящими invalid_argument и
+__cxa_throw. NativeDrawIndexed по-прежнему вызывает DecodeTo; r21 fixed memcpy
+copies и r19 Read/Storage hoist сохранены. Полный disassembly обеих ELF,
+old Finite и classifier sites — в evidence.
+
+Первый assembly gate ошибочно ожидал fcmp, затем 3 sites вместо 5 (normal loop
+развёрнут). После просмотра actual r21/r22 assembly gate уточнён на реальную
+bit policy и все 5 branches. Production source и ELF/NRO не менялись.
+Ошибочные assumptions сохранены в checks/failed-assembly-assumption.json;
+это исправление проверочного скрипта, а не скрытие runtime failure.
+
+ZIP: `dist/matrixgame-e610-switch-test-r22-finite.zip` (10162598 bytes).
+SHA256: `39d993a497e061688c1263f2f61f817f00a379040718855b3ac104ffe8c5b264`.
+6 файлов: две NRO, README.ru.md, manifest.json, SHA256SUMS.txt, build-info.json.
+Ресурсов/сохранений нет. Manifest связывает source/input/ELF/NRO hashes и build IDs.
+
+| NRO | SHA256 | ELF Build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `6ef01961e1b894f6450f951ba32dae846588d1e0ac389b6f651b7ed32826c468` | `24c07328152fa6fa5ceceff167cb860b2862d242` |
+| matrixgame-e610-interactive.nro | `127b5bbce95869de507c4deebbac7e573ec6866a25b5985c7e0f596479f4d8bf` | `8e5439e86adef927370bd93cf31f85ecb0e9af27` |
+
+## Воспроизведение и аппаратные границы
+
+CPU: `python tools/matrixgame_finite_checks.py host` (также arm64/windows),
+затем `python tools/matrixgame_finite_checks.py benchmark` без parallel jobs.
+Runner сохраняет frozen r21 CPP, actual indexed body, command logs, stdout,
+source/input hashes и результаты в новый numbered checks каталог.
+SDK: `python tools/matrixgame_current_diagnostic_sdk.py --output-root
+build/matrixgame/e610-finite-r22` — создаётся новый numbered каталог.
+Package: `python tools/matrixgame_e610_freeze.py package --build
+build/matrixgame/e610-finite-r22/1 --source-commit 14d8a8186d943bb52ae49011a42a5510c58950a8
+--output dist/matrixgame-e610-switch-test-r22-finite.zip --readme
+docs/matrixgame-e610-finite-r22-readme.ru.md --rangers-root
+sdmc:/switch/space-rangers-hd-a-war-apart/game` (новому выводу дать новое имя).
+Локальный gate: build/matrixgame/e610-finite-r22-checks/verify_delivery.py с source
+commit как аргументом. [Полный evidence](matrixgame-e610-finite-r22-evidence.json).
+
+SOFTWARE PASS / HARDWARE PENDING. Разработка на этом шаге остановлена.
+Два ручных запуска: Quick → 4 настоящих map frames, Interactive → доступные
+кнопки/меню/камера/звук и Minus+Plus. Полная инструкция включена в ZIP.
+Логи — /switch/matrixgame-diag/logs/<run-id>.
+Физические GPU/HID/audio, Init/Draw/FPS не приняты. Единая Campaign/Gov,
+естественная победа и возврат Galaxy этим standalone entry не охватываются.
+
+Evidence SHA256: `7abbdd0790d24cccb503163b40db13fa9acee7f8ebad1db3ba027a503ad86b65`.
