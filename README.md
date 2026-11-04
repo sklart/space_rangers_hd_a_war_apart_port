@@ -730,3 +730,19 @@ Sampler getter читает одно поле напрямую вместо вр
 В hbmenu **MatrixGame r30 Quick Smoke** / **MatrixGame r30 Interactive**.
 SDK/package и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r31: прямое чтение raster word
+
+Render getter читает нужное raster-поле без временного массива из 11 слов.
+Lookup, ошибки, raw invalid values и обход map для component state сохранены.
+84231 CPU cases — PASS на host ASan/UBSan, ARM64-QEMU UBSan и Windows O2.
+Raster getter median 10,71 → 8,32 мс / 2,88 млн операций (−22,2%);
+смешанные getters всех 103 registers: 46,75 → 39,09 мс (−16,4%).
+Setter/PrepareDraw controls без замедления; вклад в Draw/Init/FPS ещё не измерен.
+[Изменение и proof](reports/matrixgame-e610-raster-read-r31.md),
+[два запуска](docs/matrixgame-e610-raster-read-r31-readme.ru.md).
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r31-raster-read.zip`.
+В hbmenu **MatrixGame r31 Quick Smoke** / **MatrixGame r31 Interactive**.
+SDK/package и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.
