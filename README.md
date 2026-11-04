@@ -746,3 +746,19 @@ Setter/PrepareDraw controls без замедления; вклад в Draw/Init
 В hbmenu **MatrixGame r31 Quick Smoke** / **MatrixGame r31 Interactive**.
 SDK/package и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r32: stencil validation без временных копий
+
+Validate читает восемь полей напрямую, сохраняя все проверки и ошибки,
+включая disabled/two-sided cases. 86791 CPU cases — PASS на host ASan/UBSan,
+ARM64-QEMU UBSan и Windows O2. По всем трём ABBAAB сериям validation
+40,68 → 13,53 мс / 4,19 млн вызовов (3,01×), actual PrepareDraw −5,8%.
+Контрольные setter +1,5%, mixed getter +3,9%; вклад в Switch FPS не измерен.
+Два scalar-ID прототипа отклонены и не включены в NRO.
+[Изменение и proof](reports/matrixgame-e610-stencil-r32.md),
+[два запуска](docs/matrixgame-e610-stencil-r32-readme.ru.md).
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r32-stencil.zip`.
+В hbmenu **MatrixGame r32 Quick Smoke** / **MatrixGame r32 Interactive**.
+SDK/package и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.
