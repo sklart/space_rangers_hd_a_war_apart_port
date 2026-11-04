@@ -699,3 +699,18 @@ CPU sampler median: setter 15,96 → 12,79 мс (−19,85%), getter
 В hbmenu **MatrixGame r28 Quick Smoke** / **MatrixGame r28 Interactive**.
 SDK/package и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r29: vertex register dispatch
+
+Render setter использует существующий vertex flag перед настоящим
+FixedVertexState::Render; все девять целевых ID и их проверки сохранены.
+66311 CPU cases — PASS на host ASan/UBSan, ARM64-QEMU UBSan и Windows O2.
+CPU setter median 27,17 → 26,03 мс / 1,69 млн операций (−4,2%, есть разброс).
+Контрольный PrepareDraw без регрессии; вклад в Draw/Init/FPS ещё не измерен.
+[Изменение и proof](reports/matrixgame-e610-vertex-r29.md),
+[два запуска](docs/matrixgame-e610-vertex-r29-readme.ru.md).
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r29-vertex.zip`.
+В hbmenu **MatrixGame r29 Quick Smoke** / **MatrixGame r29 Interactive**.
+SDK/package и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.
