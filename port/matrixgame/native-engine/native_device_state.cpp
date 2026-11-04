@@ -109,11 +109,20 @@ void NativeRenderState::Sampler(std::uint32_t slot,std::uint32_t id,std::uint32_
 }
 std::uint32_t NativeRenderState::Sampler(std::uint32_t slot,std::uint32_t id)const{
     const auto& state=samplers.at(slot);
-    if(id<SamplerLookup.size()){
-        const auto& entry=SamplerLookup[id];
-        if(entry.word)return state.Words()[entry.word-1];
-        if(entry.extra)return sampler_extra.at(slot)[entry.extra-1];
+    // Read the serialized word directly; do not materialize all eight Words.
+    switch(static_cast<SamplerRegister>(id)){
+    case SamplerRegister::AddressU:return static_cast<std::uint32_t>(state.u);
+    case SamplerRegister::AddressV:return static_cast<std::uint32_t>(state.v);
+    case SamplerRegister::AddressW:return static_cast<std::uint32_t>(state.w);
+    case SamplerRegister::MagFilter:return static_cast<std::uint32_t>(state.mag);
+    case SamplerRegister::MinFilter:return static_cast<std::uint32_t>(state.min);
+    case SamplerRegister::MipFilter:return static_cast<std::uint32_t>(state.mip);
+    case SamplerRegister::LodBias:return std::bit_cast<std::uint32_t>(state.lod_bias);
+    case SamplerRegister::MaxAnisotropy:return state.max_anisotropy;
+    default:break;
     }
+    if(id<SamplerLookup.size() && SamplerLookup[id].extra)
+        return sampler_extra.at(slot)[SamplerLookup[id].extra-1];
     throw std::out_of_range("unknown native sampler register");
 }
 void NativeRenderState::ValidateClear()const{
