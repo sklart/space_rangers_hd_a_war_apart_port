@@ -83,7 +83,7 @@ NativeRenderState::NativeRenderState(){
 void NativeRenderState::Render(std::uint32_t id,std::uint32_t value){
     const auto& word=Word(id);LogicalValue(word,value);
     if(id==60)combiner.Factor(value);
-    else if(vertex.Render(id,value)){}
+    else if(RenderLookup[id].vertex && vertex.Render(id,value)){}
     else if(id==22){if(value<1 || value>3)throw Unsupported("native cull mode");cull=value;}
     else if(id==9){if(value!=1 && value!=2)throw Unsupported("native shading mode outside FLAT/GOURAUD");shade=value;}
     else if(RenderLookup[id].raster)raster.Apply(static_cast<RasterRegister>(id),value);
