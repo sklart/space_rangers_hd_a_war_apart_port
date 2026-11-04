@@ -683,3 +683,19 @@ PrepareDraw control ~+1,3%; вклад setter в реальный кадр не�
 В hbmenu **MatrixGame r27 Quick Smoke** / **MatrixGame r27 Interactive**.
 SDK/package и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r28: sampler dispatch
+
+Линейные поиски setter/getter заменены immutable constexpr таблицей.
+Проверка слота, unknown ID, sRGB BOOL и полный Apply/Validate сохранены.
+66311 CPU cases — PASS на host ASan/UBSan, ARM64-QEMU UBSan и Windows O2.
+CPU sampler median: setter 15,96 → 12,79 мс (−19,85%), getter
+14,20 → 6,74 мс (−52,56%) / 3,41 млн операций; PrepareDraw control без регрессии.
+Вклад в Draw/Init/FPS на Switch ещё не измерен.
+[Изменение и proof](reports/matrixgame-e610-sampler-r28.md),
+[два запуска](docs/matrixgame-e610-sampler-r28-readme.ru.md).
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r28-sampler.zip`.
+В hbmenu **MatrixGame r28 Quick Smoke** / **MatrixGame r28 Interactive**.
+SDK/package и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.
