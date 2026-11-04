@@ -36,14 +36,17 @@ inline void ValidateIndexed(const buffers::Context& context,std::uint32_t topolo
     class VertexCoverage {
         buffers::VertexBinding binding_;
         std::size_t size_,maximum_index_;
-        bool all_initialized_;
+        bool all_initialized_,invalid_binding_;
     public:
         explicit VertexCoverage(const buffers::VertexBinding& binding):binding_(binding),
             size_(binding.buffer?binding.buffer->Size():0),
             maximum_index_(binding.stride && binding.offset<=size_?(size_-binding.offset)/binding.stride:0),
-            all_initialized_(binding.buffer && binding.buffer->Initialized(0,size_)){}
+            all_initialized_(binding.buffer && binding.buffer->Initialized(0,size_)),
+            // This callback-free validation cannot change buffer/lock/stride.
+            // Capture only the predicate; report it after each declared-index check.
+            invalid_binding_(!binding.buffer || binding.buffer->Locked() || !binding.stride){}
         void Require(std::int64_t index)const{
-            if(!binding_.buffer || binding_.buffer->Locked() || !binding_.stride || index<0)
+            if(invalid_binding_ || index<0)
                 throw std::out_of_range("staging vertex missing/negative");
             if(binding_.offset>size_ || std::uint64_t(index)>maximum_index_)
                 throw std::out_of_range("staging vertex byte range");

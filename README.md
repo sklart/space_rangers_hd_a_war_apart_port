@@ -611,3 +611,17 @@ Finite inline проверяет каждый float; создание того �
 CPU gather 358,8 → 276,4 мс / 4096 synthetic draws (−23,0%); не FPS Switch.
 SDK/package результаты и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r23: локальная проверка binding для index validation
+
+Неизменные buffer/Locked/stride условия сохраняются на один validation call.
+Порядок declared-index и vertex ошибок, bounds/initialized, ownership сохранены.
+23905 CPU cases — PASS на host ASan/UBSan, ARM64-QEMU UBSan и Windows O2.
+CPU gather median 281,8 → 271,4 мс / 4096 synthetic draws (−3,7%, не FPS).
+[Изменение и proof](reports/matrixgame-e610-guard-r23.md),
+[два запуска](docs/matrixgame-e610-guard-r23-readme.ru.md).
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r23-guard.zip`.
+В hbmenu **MatrixGame r23 Quick Smoke** / **MatrixGame r23 Interactive**.
+SDK/package и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.
