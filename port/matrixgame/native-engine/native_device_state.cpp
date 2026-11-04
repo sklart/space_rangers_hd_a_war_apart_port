@@ -12,6 +12,16 @@ constexpr DeviceResult InvalidCall=static_cast<std::int32_t>(0x8876086cu);
 constexpr DeviceResult DeviceLost=static_cast<std::int32_t>(0x88760868u);
 constexpr std::array<unsigned,9> VertexRegisters{137,143,141,139,145,147,148,29,146};
 constexpr std::array<unsigned,5> ExtraSamplerRegisters{4,9,11,12,13};
+// Immutable serialized-ID dispatch; values still pass the original Apply/Validate.
+struct SamplerLookupEntry {std::uint8_t word{},extra{};};
+constexpr unsigned MaximumSamplerId=[](){unsigned n=0;for(auto id:SamplerRegisters)n=std::max(n,unsigned(id));for(auto id:ExtraSamplerRegisters)n=std::max(n,id);return n;}();
+static_assert(SamplerRegisters.size()<255 && ExtraSamplerRegisters.size()<255);
+constexpr auto SamplerLookup=[](){
+    std::array<SamplerLookupEntry,MaximumSamplerId+1> table{};
+    for(unsigned i=0;i<SamplerRegisters.size();++i){auto& entry=table[unsigned(SamplerRegisters[i])];if(entry.word || entry.extra)throw "duplicate sampler register";entry.word=std::uint8_t(i+1);}
+    for(unsigned i=0;i<ExtraSamplerRegisters.size();++i){auto& entry=table[ExtraSamplerRegisters[i]];if(entry.word || entry.extra)throw "duplicate extra sampler register";entry.extra=std::uint8_t(i+1);}
+    return table;
+}();
 constexpr unsigned MaximumRenderId=[](){unsigned n=0;for(const auto& w:NativeRenderWords)n=std::max(n,w.id);return n;}();
 struct RegisterLookup {std::uint8_t word{},raster{};bool vertex{};};
 static_assert(NativeRenderWords.size()<255 && RasterRegisters.size()<255);
@@ -91,15 +101,19 @@ std::uint32_t NativeRenderState::Render(std::uint32_t id)const{
 }
 void NativeRenderState::Sampler(std::uint32_t slot,std::uint32_t id,std::uint32_t value){
     auto& state=samplers.at(slot);
-    for(unsigned i=0;i<ExtraSamplerRegisters.size();++i)if(id==ExtraSamplerRegisters[i]){
+    if(id<SamplerLookup.size() && SamplerLookup[id].extra){
         if(id==11 && value>1)throw std::invalid_argument("native sRGB sampler BOOL");
-        sampler_extra.at(slot)[i]=value;return;
+        sampler_extra.at(slot)[SamplerLookup[id].extra-1]=value;return;
     }
     state.Apply(static_cast<SamplerRegister>(id),value);
 }
 std::uint32_t NativeRenderState::Sampler(std::uint32_t slot,std::uint32_t id)const{
-    const auto words=samplers.at(slot).Words();for(unsigned i=0;i<SamplerRegisters.size();++i)if(unsigned(SamplerRegisters[i])==id)return words[i];
-    for(unsigned i=0;i<ExtraSamplerRegisters.size();++i)if(id==ExtraSamplerRegisters[i])return sampler_extra.at(slot)[i];
+    const auto& state=samplers.at(slot);
+    if(id<SamplerLookup.size()){
+        const auto& entry=SamplerLookup[id];
+        if(entry.word)return state.Words()[entry.word-1];
+        if(entry.extra)return sampler_extra.at(slot)[entry.extra-1];
+    }
     throw std::out_of_range("unknown native sampler register");
 }
 void NativeRenderState::ValidateClear()const{
