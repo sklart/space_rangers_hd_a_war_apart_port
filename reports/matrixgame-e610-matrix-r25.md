@@ -77,7 +77,7 @@ Raw stdout frozen/current равен на каждой платформе. Final
 Assertions active; ARM64 type_info workaround не отключает UBSan/vptr.
 
 Выбранный вариант benchmark/2: Multiply 108801 → 47528 мкс,
-Prepare 122381 → 102243 мкс (−16.45%). Итоговый ABBAAB /3:
+Prepare 122381 → 102243 мкс (−16.46%). Итоговый ABBAAB /3:
 - Multiply frozen 107013/108482/106770, candidate 47746/47569/47234;
   median 107013 → 47569 мкс (−55.55%) на 10 млн.
 - Prepare frozen 124212/124834/121488, candidate 97597/98593/101797;
@@ -87,3 +87,65 @@ Prepare 122381 → 102243 мкс (−16.45%). Итоговый ABBAAB /3:
 Величина Prepare выигрыша между сериями отличается (~16–21%). Это только
 изолированная CPU подготовка uniforms, не выигрыш всего draw/frame.
 После финального замера дополнительные timing runs для выбора цифры не делались.
+
+## SDK/package и окончательная связка proof
+
+Source commit: `d6ad833e2a4bb9418abfe5480065a1ce7717be64`.
+Build ID: `d6ad833e2a4b-6ecaa7dda756977f5dbf`.
+Обе devkitA64/libnx/deko3d compile/link — PASS, strong undefined=0.
+321 configured translation units: O2/UNDEBUG, exceptions, no fast-math;
+prebuilt Rangers archive unchanged, не выдаётся за новую optimized сборку.
+23 actual debug deko3dd object members / 0 release deko3d, mixed=false.
+NRO structure/assets, embedded fonts/shaders, NACP titles и ELF→NRO IDs проверены.
+Generated original files identical r24 (3 historical delta vs E601).
+716 own source hashes проверены. Production diff vs r24 — только Multiply;
+дополнительно r25 NACP titles и два CPU/SDK runners. Остальные build inputs unchanged.
+311 прежних защищённых артефактов SHA unchanged; game/frozen/main NRO gate PASS.
+
+Окончательный gate связал SDK binary QEMU proof с deliverables: raw bytes
+Multiply из archived r24 ELF совпадают с frozen SDK object (80 bytes), а raw
+bytes из обеих r25 ELF совпадают с tested candidate object (92 bytes).
+Prepare в обеих r25 NRO вызывает именно эту Multiply дважды. В Multiply
+остался один outer loop/backedge вместо двух loops/backedges, FMUL/FADD
+сохранены, FMA отсутствует. Никаких relocations/external calls в tested leaf
+function нет; ABI identity probe и полный 7744-case stdout совпали.
+UV r24 и direct Locked hoist r23 включены unchanged и проверены assembly gate.
+Это CPU function execution под QEMU и software package proof, не hardware acceptance.
+
+ZIP: `dist/matrixgame-e610-switch-test-r25-matrix.zip` (10162665 bytes).
+SHA256: `ccc33856b8dd97b5d1ed07a69ba2288301f15d510592b09fe8c1429e5833ec24`.
+Ровно 6 файлов: 2 NRO, README.ru.md, manifest.json, SHA256SUMS.txt, build-info.json.
+Ресурсов/сохранений нет. Manifest связывает source/input/ELF/NRO hashes и build IDs.
+
+| NRO | SHA256 | ELF Build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `14b10f2e5186f625cd97cbf1a8ea11a692ffe7573888e37528611d664f7365d2` | `fb5ac7df0948d9b59d781291d0a0bb7e73d9ed8c` |
+| matrixgame-e610-interactive.nro | `eb9fabe8d37da13731c8fa07c83b6c0e0f856c369028bfff8c97c7d10cf1cc19` | `084e8e14f8fefa4c49688738e924aa853048b451` |
+
+## Воспроизведение и аппаратные границы
+
+CPU: `python tools/matrixgame_matrix_unroll_checks.py host` (также arm64/windows),
+затем `python tools/matrixgame_matrix_unroll_checks.py benchmark` без parallel jobs.
+Actual SDK kernel: `python tools/matrixgame_matrix_sdk_checks.py` — отдельный
+numbered каталог с SDK object/section/bin/relocation proof, ABI wrapper, probe,
+полными raw outputs и hashes. SDK flags берутся из verified r24 build metadata;
+gate дополнительно требует exact byte identity с настоящими NRO ELF.
+SDK: `python tools/matrixgame_current_diagnostic_sdk.py --output-root
+build/matrixgame/e610-matrix-r25` — создаётся новый numbered каталог.
+Package: `python tools/matrixgame_e610_freeze.py package --build
+build/matrixgame/e610-matrix-r25/1 --source-commit d6ad833e2a4bb9418abfe5480065a1ce7717be64
+--output dist/matrixgame-e610-switch-test-r25-matrix.zip --readme
+docs/matrixgame-e610-matrix-r25-readme.ru.md --rangers-root
+sdmc:/switch/space-rangers-hd-a-war-apart/game` (новому выводу дать новое имя).
+Локальный gate: build/matrixgame/e610-matrix-r25-checks/verify_delivery.py с source
+commit как аргументом. [Полный evidence](matrixgame-e610-matrix-r25-evidence.json).
+
+SOFTWARE PASS / HARDWARE PENDING. Разработка на этом шаге остановлена.
+Quick → 4 настоящих map frames, затем Interactive → доступные кнопки/меню/
+камера/звук и Minus+Plus. Полная инструкция в ZIP; логи отдельно в
+/switch/matrixgame-diag/logs/<run-id>. Ресурсы повторно копировать не требуется.
+Вклад matrix preparation в реальный кадр неизвестен; fps/Init не измерены.
+Физические GPU/HID/audio не приняты. Единая Campaign/Gov, естественная победа
+и возврат Galaxy этим standalone entry не охватываются.
+
+Evidence SHA256: `8d9c8a8ae132c6f79cb80c09809cdbd20726eb18a76d8afe550e34b738e136b4`.
