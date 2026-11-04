@@ -65,3 +65,61 @@ Checksum 5258787986328867328 во всех шести runs совпал. Пос�
 повторилось в /1 и /2, выигрыш небольшой и не превращается в оценку FPS.
 Первый /1 был полностью разделён по ranges. Дальнейшие timing runs для
 подбора более выгодной цифры не выполнялись.
+
+## SDK, package и контрольные суммы
+
+Source commit: `0d31db18d16e34a68d219c8a7ed26d3d8e268d70`.
+Build ID: `0d31db18d16e-49f7e44c9fbce8b17a79`.
+Обе devkitA64/libnx/deko3d compile/link — PASS, strong undefined=0.
+321 configured translation units: O2/UNDEBUG, exceptions, no fast-math;
+prebuilt Rangers archive unchanged и не выдаётся за новую optimized сборку.
+23 actual debug deko3dd object members / 0 release deko3d, mixed=false.
+NRO structure/assets, embedded fonts/shaders, NACP titles и ELF→NRO IDs проверены.
+Generated original files identical r22 (3 historical delta vs E601).
+713 own source hashes проверены. Поведенческий diff — только local predicate
+в staging header; дополнительно r23 NACP titles и CPU runner. Остальные r22
+build inputs unchanged. 297 прежних защищённых артефактов SHA unchanged;
+main NRO/game/frozen SDK checks прошли.
+
+Actual ARM64 ValidateIndexed: два direct Locked loads (IB/VB) сохранены;
+в r22 один из них внутри index loop, в обеих r23 ELF внутри цикла — ноль.
+Сохранены Initialized/Storage calls и вызов ValidateIndexed из NativeDrawIndexed,
+DecodeTo, Read/Storage hoist. Partial Initialized fallback по-прежнему может
+читать Locked внутри Resource::Initialized; его реализация не изменена.
+Full disassembly, loop range и lock addresses — в evidence. Устранена только
+повторная explicit binding guard проверка, обязательные операции не пропущены.
+
+ZIP: `dist/matrixgame-e610-switch-test-r23-guard.zip` (10162710 bytes).
+SHA256: `5fcb56e82ea8a4db4e272b8438c09029454d0780a3ab0dee25f8693114dafa9c`.
+Ровно 6 файлов: 2 NRO, README.ru.md, manifest.json, SHA256SUMS.txt, build-info.json.
+Ресурсов/сохранений нет. Manifest связывает source/input/ELF/NRO hashes и build IDs.
+
+| NRO | SHA256 | ELF Build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `5d9be71327ed8e807813eb7fe23573dd6d99cf5ad4a26efcffd3e5cca9f2c0ca` | `703566a719bb00345f9be88e4b88e1daec310f19` |
+| matrixgame-e610-interactive.nro | `532fff3cb7729a743aacd5b74844b39239b5cde07d1519d646949c4ff6f193f3` | `75ccb345a030d805239ca2fc557d4f6597acbdc3` |
+
+## Воспроизведение и границы
+
+CPU: `python tools/matrixgame_validation_guard_checks.py host` (также arm64/windows),
+затем `python tools/matrixgame_validation_guard_checks.py benchmark` без parallel jobs.
+Runner сохраняет frozen r22 CPP/header, actual gather, wrapper, hashes и commands
+в новый numbered каталог; тестовая сборка использует versioned header по variant.
+SDK: `python tools/matrixgame_current_diagnostic_sdk.py --output-root
+build/matrixgame/e610-guard-r23` — создаётся новый numbered каталог.
+Package: `python tools/matrixgame_e610_freeze.py package --build
+build/matrixgame/e610-guard-r23/1 --source-commit 0d31db18d16e34a68d219c8a7ed26d3d8e268d70
+--output dist/matrixgame-e610-switch-test-r23-guard.zip --readme
+docs/matrixgame-e610-guard-r23-readme.ru.md --rangers-root
+sdmc:/switch/space-rangers-hd-a-war-apart/game` (для нового вывода новое имя).
+Локальный gate: build/matrixgame/e610-guard-r23-checks/verify_delivery.py с source
+commit как аргументом. [Полный evidence](matrixgame-e610-guard-r23-evidence.json).
+
+SOFTWARE PASS / HARDWARE PENDING. Разработка на этом шаге остановлена.
+Quick → 4 настоящих map frames, затем Interactive → доступные кнопки/меню/
+камера/звук и Minus+Plus. Полная инструкция в ZIP; логи отдельно в
+/switch/matrixgame-diag/logs/<run-id>. Ресурсы повторно копировать не требуется.
+Физические GPU/HID/audio, Init/Draw/FPS не приняты. Единая Campaign/Gov,
+естественная победа и Galaxy return этим standalone entry не охватываются.
+
+Evidence SHA256: `b2e855fd679b9ba8eebc6d89830828c52ab02581dff7cf2ee0439b18d467b200`.
