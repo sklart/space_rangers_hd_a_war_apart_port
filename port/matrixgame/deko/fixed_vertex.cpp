@@ -7,7 +7,15 @@
 namespace srhd_awa::matrixgame::materials {
 namespace {
 Color TransformVector(Color v,const Matrix& m){Color out{};for(unsigned c=0;c<4;++c)for(unsigned r=0;r<4;++r)out[c]+=v[r]*m[r*4+c];return out;}
-void Finite(float v){if(!std::isfinite(v))throw std::invalid_argument("nonfinite fixed vertex value");}
+// Keep exception construction off the finite-value path without weakening it.
+[[noreturn]]
+#if defined(__GNUC__)
+__attribute__((cold,noinline))
+#elif defined(_MSC_VER)
+__declspec(noinline)
+#endif
+void NonfiniteVertexValue(){throw std::invalid_argument("nonfinite fixed vertex value");}
+inline void Finite(float v){if(!std::isfinite(v))NonfiniteVertexValue();}
 float Dot(Color a,Color b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2];}
 Color Unit(Color v){const auto n=std::sqrt(Dot(v,v));if(n>0)for(unsigned i=0;i<3;++i)v[i]/=n;return v;}
 Color ColorValue(platform3g::LightColor c){return {c.r,c.g,c.b,c.a};}

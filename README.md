@@ -597,3 +597,17 @@ DecodeTo использует memcpy постоянного размера дл�
 CPU gather 378,3 → 366,2 мс / 4096 synthetic draws (−3,2%); не FPS Switch.
 Host/ARM64-QEMU/Windows — PASS; SDK/package и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r22: finite validation без частого вызова helper
+
+Finite inline проверяет каждый float; создание того же исключения вынесено
+в холодную функцию. Guards, FP flags, порядок ошибок и output сохранены.
+14165 CPU cases — PASS на host ASan/UBSan, ARM64-QEMU UBSan и Windows O2.
+[Изменение и proof](reports/matrixgame-e610-finite-r22.md),
+[два запуска](docs/matrixgame-e610-finite-r22-readme.ru.md).
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r22-finite.zip`.
+В hbmenu **MatrixGame r22 Quick Smoke** / **MatrixGame r22 Interactive**.
+CPU gather 358,8 → 276,4 мс / 4096 synthetic draws (−23,0%); не FPS Switch.
+SDK/package результаты и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.
