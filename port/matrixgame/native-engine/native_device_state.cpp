@@ -96,7 +96,21 @@ std::uint32_t NativeRenderState::Render(std::uint32_t id)const{
     if(id==22)return cull;if(id==9)return shade;
     if(id==60)return materials::PackQuantizedArgb(combiner.State().factor);
     if(lookup.vertex)return vertex.Render(id);
-    if(lookup.raster)return raster.Words()[lookup.raster-1];
+    // Return the requested word without materializing all eleven raster words.
+    switch(static_cast<RasterRegister>(id)){
+    case RasterRegister::DepthTest:return raster.depth_test;
+    case RasterRegister::DepthWrite:return raster.depth_write;
+    case RasterRegister::AlphaTest:return raster.alpha_test;
+    case RasterRegister::SourceBlend:return static_cast<std::uint32_t>(raster.source);
+    case RasterRegister::DestinationBlend:return static_cast<std::uint32_t>(raster.destination);
+    case RasterRegister::DepthCompare:return static_cast<std::uint32_t>(raster.depth_compare);
+    case RasterRegister::AlphaReference:return raster.alpha_reference;
+    case RasterRegister::AlphaCompare:return static_cast<std::uint32_t>(raster.alpha_compare);
+    case RasterRegister::BlendEnable:return raster.blend_enable;
+    case RasterRegister::ColorWrite:return raster.color_write;
+    case RasterRegister::BlendOperation:return static_cast<std::uint32_t>(raster.operation);
+    default:break;
+    }
     return registers.at(id);
 }
 void NativeRenderState::Sampler(std::uint32_t slot,std::uint32_t id,std::uint32_t value){
