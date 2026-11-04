@@ -762,3 +762,18 @@ ARM64-QEMU UBSan и Windows O2. По всем трём ABBAAB сериям valid
 В hbmenu **MatrixGame r32 Quick Smoke** / **MatrixGame r32 Interactive**.
 SDK/package и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r33: sorted insertion начального render state
+
+Ctor вставляет все 103 initial words через map end-hint. Содержимое, allocator
+и cleanup сохранены; fault injection на каждом allocation прошёл без утечки.
+86896 host/ARM64 cases и 86897 Windows cases — PASS. CPU ctor+dtor median
+105,40 → 93,64 мс / 32768 состояний (−11,2%, итоговый ABBAAB).
+Вклад в реальные Draw/Init/FPS не измерен; combiner-прототипы исключены.
+[Изменение и proof](reports/matrixgame-e610-ctor-r33.md),
+[два запуска](docs/matrixgame-e610-ctor-r33-readme.ru.md).
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r33-ctor.zip`.
+В hbmenu **MatrixGame r33 Quick Smoke** / **MatrixGame r33 Interactive**.
+SDK/package и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.
