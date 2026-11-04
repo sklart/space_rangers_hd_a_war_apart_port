@@ -78,7 +78,7 @@ void LogicalValue(const NativeStateWord& w,std::uint32_t v){
 }
 }
 NativeRenderState::NativeRenderState(){
-    for(const auto& word:NativeRenderWords)registers.emplace(word.id,word.initial);
+    for(const auto& word:NativeRenderWords)registers.emplace_hint(registers.end(),word.id,word.initial);
 }
 void NativeRenderState::Render(std::uint32_t id,std::uint32_t value){
     const auto& word=Word(id);LogicalValue(word,value);
