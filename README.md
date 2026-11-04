@@ -777,3 +777,19 @@ Ctor вставляет все 103 initial words через map end-hint. Сод
 В hbmenu **MatrixGame r33 Quick Smoke** / **MatrixGame r33 Interactive**.
 SDK/package и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r34: поиск initialized coverage в буфере
+
+Resource::Initialized сохраняет прямую проверку первого интервала и ищет
+остальные двоичным поиском. Нет новых allocations/cache; lock/bounds/zero,
+Map/Unmap/Discard, владение и cleanup сохранены. CPU: 256 раздельных ranges,
+2,10 млн запросов — 120,07 → 34,68 мс (3,46×); полный буфер 2,86 → 2,60 мс.
+Более 4,43 млн oracle queries на каждой из host/ARM64/Windows — PASS.
+Вклад в реальные Draw/Init/FPS не измерен; packet writer prototype исключён.
+[Изменение и proof](reports/matrixgame-e610-ranges-r34.md),
+[два запуска](docs/matrixgame-e610-ranges-r34-readme.ru.md).
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r34-ranges.zip`.
+В hbmenu **MatrixGame r34 Quick Smoke** / **MatrixGame r34 Interactive**.
+SDK/package и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.
