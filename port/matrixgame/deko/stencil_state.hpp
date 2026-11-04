@@ -17,8 +17,12 @@ struct MeshStencilState {
     const StencilFace& Face(bool cw)const noexcept{return cw || !two_sided?clockwise:counterclockwise;}
     std::uint8_t Reference8()const noexcept{return std::uint8_t(reference);}
     void Validate()const{
-        for(auto f:{clockwise,counterclockwise})for(auto v:{f.fail,f.depth_fail,f.pass,f.compare})
-            if(v<1 || v>8)throw std::invalid_argument("invalid native stencil operation/comparison");
+        const auto valid=[](const StencilFace& f){
+            return f.fail>=1 && f.fail<=8 && f.depth_fail>=1 && f.depth_fail<=8 &&
+                f.pass>=1 && f.pass<=8 && f.compare>=1 && f.compare<=8;
+        };
+        if(!valid(clockwise) || !valid(counterclockwise))
+            throw std::invalid_argument("invalid native stencil operation/comparison");
     }
     bool operator==(const MeshStencilState&)const=default;
 };
