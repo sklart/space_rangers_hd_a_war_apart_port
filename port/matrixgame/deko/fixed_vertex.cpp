@@ -30,7 +30,22 @@ Matrix NormalMatrix(const Matrix& m){
 }
 }
 Matrix Identity()noexcept{return {1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1};}
-Matrix Multiply(const Matrix& a,const Matrix& b){Matrix out{};for(unsigned r=0;r<4;++r)for(unsigned c=0;c<4;++c)for(unsigned k=0;k<4;++k)out[r*4+c]+=a[r*4+k]*b[k*4+c];return out;}
+Matrix Multiply(const Matrix& a,const Matrix& b){
+    Matrix out{};
+#if defined(__GNUC__)
+    for(unsigned r=0;r<4;++r)for(unsigned c=0;c<4;++c){
+        // Preserve +0 and k=0..3 order; this GCC form retains tested NaN bits.
+        float value=0;
+        value+=a[r*4]*b[c];value+=a[r*4+1]*b[4+c];
+        value+=a[r*4+2]*b[8+c];value+=a[r*4+3]*b[12+c];
+        out[r*4+c]=value;
+    }
+#else
+    // Keep the original real loop on MSVC, including its NaN propagation.
+    for(unsigned r=0;r<4;++r)for(unsigned c=0;c<4;++c)for(unsigned k=0;k<4;++k)out[r*4+c]+=a[r*4+k]*b[k*4+c];
+#endif
+    return out;
+}
 FixedVertexState::FixedVertexState():world_(Identity()),view_(Identity()),projection_(Identity()){
     for(unsigned i=0;i<8;++i){values_.texture[i]=Identity();values_.coordinates[i][0]=i;}
     values_.controls={0,0,1,0};values_.viewport={0,0,1,1};

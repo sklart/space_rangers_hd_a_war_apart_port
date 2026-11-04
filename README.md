@@ -639,3 +639,17 @@ CPU gather median 283,6 → 265,8 мс / 4096 synthetic draws (−6,3%, не FPS
 В hbmenu **MatrixGame r24 Quick Smoke** / **MatrixGame r24 Interactive**.
 SDK/package и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r25: четыре шага матричного накопления
+
+Multiply использует проверенную GCC развёртку и исходный реальный MSVC loop,
+сохраняя raw NaN payloads и FP flags. 32450 CPU cases на host/ARM64-QEMU/Windows
+и 7744 actual devkitA64 binary cases через QEMU — PASS.
+CPU Prepare median 124,2 → 98,6 мс / 3 млн вызовов (−20,6%, не FPS Switch).
+[Изменение и proof](reports/matrixgame-e610-matrix-r25.md),
+[два запуска](docs/matrixgame-e610-matrix-r25-readme.ru.md).
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r25-matrix.zip`.
+В hbmenu **MatrixGame r25 Quick Smoke** / **MatrixGame r25 Interactive**.
+SDK/package и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.
