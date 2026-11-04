@@ -73,11 +73,14 @@ void Resource::Unmap() {
 bool Resource::Initialized(std::size_t offset,std::size_t bytes) const noexcept {
     if(locked_ || offset>bytes_.size() || bytes>bytes_.size()-offset) return false;
     if(!bytes) return true;
-    for(auto range:initialized_) {
-        if(range.first>offset) return false;
-        if(range.first<=offset && range.last>=offset+bytes) return true;
-    }
-    return false;
+    auto first=initialized_.begin();
+    if(first==initialized_.end() || first->first>offset) return false;
+    const auto last=offset+bytes;
+    if(first->last>=last) return true; // Keep the common first/full-range path direct.
+    // Unmap merges touching ranges; remaining ends are strictly increasing.
+    const auto found=std::lower_bound(first+1,initialized_.end(),last,
+        [](const Range& range,std::size_t end){return range.last<end;});
+    return found!=initialized_.end() && found->first<=offset;
 }
 std::span<const std::byte> Resource::Storage() const {
     if(locked_) throw std::logic_error("mapped buffer cannot be consumed");
