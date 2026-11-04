@@ -793,3 +793,20 @@ Map/Unmap/Discard, владение и cleanup сохранены. CPU: 256 ра
 В hbmenu **MatrixGame r34 Quick Smoke** / **MatrixGame r34 Interactive**.
 SDK/package и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r35: чтение известных регистров при PrepareDraw
+
+Локальный read использует уже определённый тип ID и читает прежние поля,
+сохраняя vertex getter и точную квантизацию factor. Убран повторный Lookup;
+все 103 чтения, missing-word errors, FPU flags и cleanup сохранены.
+88186 host/ARM64 cases и 88187 Windows cases — PASS. Итоговый CPU PrepareDraw:
+56,64 → 52,97 мс / 100000 вызовов (−6,5%); по /2+/3 −5,9%.
+Первый нестабильный замер сохранён и не принят для timing.
+Вклад в Switch Draw/Init/FPS не измерен.
+[Изменение и proof](reports/matrixgame-e610-draw-read-r35.md),
+[два запуска](docs/matrixgame-e610-draw-read-r35-readme.ru.md).
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r35-draw-read.zip`.
+В hbmenu **MatrixGame r35 Quick Smoke** / **MatrixGame r35 Interactive**.
+SDK/package и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.
