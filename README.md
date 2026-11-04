@@ -714,3 +714,19 @@ CPU setter median 27,17 → 26,03 мс / 1,69 млн операций (−4,2%, 
 В hbmenu **MatrixGame r29 Quick Smoke** / **MatrixGame r29 Interactive**.
 SDK/package и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r30: прямое чтение sampler word
+
+Sampler getter читает одно поле напрямую вместо временного массива из восьми
+слов. Проверки слота/ID, ошибки, extra states и raw LodBias bits сохранены.
+66311 CPU cases — PASS на host ASan/UBSan, ARM64-QEMU UBSan и Windows O2.
+По всем трём ABBAAB сериям CPU getter median 6,64 → 5,90 мс / 3,41 млн
+операций (−11,2%). Setter control +0,1%, PrepareDraw +1,8% с разбросом.
+Вклад в Draw/Init/FPS на Switch ещё не измерен.
+[Изменение и proof](reports/matrixgame-e610-sampler-read-r30.md),
+[два запуска](docs/matrixgame-e610-sampler-read-r30-readme.ru.md).
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r30-sampler-read.zip`.
+В hbmenu **MatrixGame r30 Quick Smoke** / **MatrixGame r30 Interactive**.
+SDK/package и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.
