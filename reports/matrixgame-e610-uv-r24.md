@@ -62,3 +62,60 @@ Checksum 5258787986328867328 одинаков во всех runs. Последн
 медленнее baseline — вариация измерения. В предыдущей bulk серии /2 gather
 улучшился на ~3.1%; величина выигрыша меняется. Не переносится на Switch FPS.
 После этого дополнительные timing runs для выбора более выгодной цифры не делались.
+
+## SDK/package и SHA
+
+Source commit: `98a03c6a23bcf75eeebc879122d772bc16614c74`.
+Build ID: `98a03c6a23bc-68e5513720e51ca7646e`.
+Обе devkitA64/libnx/deko3d compile/link — PASS, strong undefined=0.
+321 configured translation units: O2/UNDEBUG, exceptions, no fast-math;
+prebuilt Rangers archive unchanged, не выдаётся за новую optimized сборку.
+23 actual debug deko3dd object members / 0 release deko3d, mixed=false.
+NRO structure/assets, embedded fonts/shaders, NACP titles и ELF→NRO build IDs
+проверены. Generated original files identical r23 (3 historical delta vs E601).
+714 own source hashes проверены. Production diff vs r23 — только DecodeTo UV;
+дополнительно r24 titles и CPU runner. Остальные r23 build inputs unchanged.
+304 прежних защищённых артефакта SHA unchanged; game/frozen/main NRO SDK gate PASS.
+
+Actual ARM64 DecodeTo: отдельный defaults loop заполняет bytes 64..191 Vertex
+шагом 16 (8 UV slots), без dimension loads/calls; затем UBFX извлекает bits 8..11
+FVF один раз и active loop читает только нужные dimensions. Пер-UV finite
+classification и cold NonfiniteVertexValue сохранены, NativeDrawIndexed вызывает
+DecodeTo. r23 direct Locked load остаётся перед validation loop в обеих ELF.
+Это proof включения изменения в NRO, не физической производительности GPU.
+Полный disassembly, default fill loop и active count extraction — в evidence.
+
+ZIP: `dist/matrixgame-e610-switch-test-r24-uv.zip` (10162705 bytes).
+SHA256: `80bb8a2248a19496df85d3e60c187f3436ef626e351b972bd1e8cc0bba5b61b3`.
+Ровно 6 файлов: 2 NRO, README.ru.md, manifest.json, SHA256SUMS.txt, build-info.json.
+Ресурсов/сохранений нет. Manifest связывает source/input/ELF/NRO hashes и build IDs.
+
+| NRO | SHA256 | ELF Build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `0eecec9322cbf1ea71efc5a1ddb6c28feabf036a842a1637a1ff4674469c55ad` | `a0394292f16e59a24a1b8a8b1627e782d27f5d60` |
+| matrixgame-e610-interactive.nro | `7e021ad055b5640bed4e900ce80320a962c210fbf178e0b354e9df1c2e926a69` | `77642ba8d615f553923c25ca37b7b8bbbf0c0e4a` |
+
+## Воспроизведение и аппаратные границы
+
+CPU: `python tools/matrixgame_uv_span_checks.py host` (также arm64/windows),
+затем `python tools/matrixgame_uv_span_checks.py benchmark` без parallel jobs.
+Runner сохраняет frozen r23 CPP/header, actual gather/wrapper, commands, stdout,
+source/input hashes и результаты в новый numbered каталог.
+SDK: `python tools/matrixgame_current_diagnostic_sdk.py --output-root
+build/matrixgame/e610-uv-r24` — создаётся новый numbered каталог.
+Package: `python tools/matrixgame_e610_freeze.py package --build
+build/matrixgame/e610-uv-r24/1 --source-commit 98a03c6a23bcf75eeebc879122d772bc16614c74
+--output dist/matrixgame-e610-switch-test-r24-uv.zip --readme
+docs/matrixgame-e610-uv-r24-readme.ru.md --rangers-root
+sdmc:/switch/space-rangers-hd-a-war-apart/game` (новому выводу дать новое имя).
+Локальный gate: build/matrixgame/e610-uv-r24-checks/verify_delivery.py с source
+commit как аргументом. [Полный evidence](matrixgame-e610-uv-r24-evidence.json).
+
+SOFTWARE PASS / HARDWARE PENDING. Разработка на этом шаге остановлена.
+Quick → 4 настоящих map frames, затем Interactive → доступные кнопки/меню/
+камера/звук и Minus+Plus. Полная инструкция в ZIP; логи отдельно в
+/switch/matrixgame-diag/logs/<run-id>. Ресурсы повторно копировать не требуется.
+Физические GPU/HID/audio, Init/Draw/FPS не приняты. Единая Campaign/Gov,
+естественная победа и возврат Galaxy этим standalone entry не охватываются.
+
+Evidence SHA256: `1742f61b2ea96f1996f26f15f247c5f727f4f2a5203fb689f6beaefbcc24540a`.

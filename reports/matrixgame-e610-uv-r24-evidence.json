@@ -1,0 +1,1268 @@
+{
+  "status": "SOFTWARE PASS; R24 HARDWARE PENDING",
+  "source_commit": "98a03c6a23bcf75eeebc879122d772bc16614c74",
+  "build_id": "98a03c6a23bc-68e5513720e51ca7646e",
+  "old_external_pack_zip": "NOT AVAILABLE; historical external input not rechecked",
+  "old_files_unchanged": 304,
+  "own_source_hashes_verified": 714,
+  "binary_checks": {
+    "matrixgame-native-diagnostic": {
+      "deko_link_provenance": {
+        "expected_library": "deko3dd",
+        "actual_objects": {
+          "deko3d": [],
+          "deko3dd": [
+            "cmd_bind_common.o",
+            "codesegmgr.o",
+            "dk_cmdbuf.o",
+            "dk_device.o",
+            "dk_fence.o",
+            "dk_image.o",
+            "dk_memblock.o",
+            "dk_queue.o",
+            "dk_shader.o",
+            "dk_swapchain.o",
+            "gpu_3d_base.o",
+            "gpu_3d_ibo.o",
+            "gpu_3d_ms.o",
+            "gpu_3d_state.o",
+            "gpu_3d_vbo.o",
+            "gpu_3d_zcull.o",
+            "gpu_base.o",
+            "gpu_error.o",
+            "gpu_transfer.o",
+            "image_formats.o",
+            "queue_workbuf.o",
+            "tic_generate.o",
+            "tsc_generate.o"
+          ]
+        },
+        "mixed_variants": false
+      },
+      "SDK_default_window_definitions_absent": [
+        "nwindowGetDefault",
+        "__nx_win_init",
+        "__nx_win_exit"
+      ],
+      "SDL_accessor_bound_to_real_window": true,
+      "display_query_and_orientation_check_retained": true,
+      "nacp_title": "MatrixGame r24 Quick Smoke"
+    },
+    "matrixgame-native-interactive": {
+      "deko_link_provenance": {
+        "expected_library": "deko3dd",
+        "actual_objects": {
+          "deko3d": [],
+          "deko3dd": [
+            "cmd_bind_common.o",
+            "codesegmgr.o",
+            "dk_cmdbuf.o",
+            "dk_device.o",
+            "dk_fence.o",
+            "dk_image.o",
+            "dk_memblock.o",
+            "dk_queue.o",
+            "dk_shader.o",
+            "dk_swapchain.o",
+            "gpu_3d_base.o",
+            "gpu_3d_ibo.o",
+            "gpu_3d_ms.o",
+            "gpu_3d_state.o",
+            "gpu_3d_vbo.o",
+            "gpu_3d_zcull.o",
+            "gpu_base.o",
+            "gpu_error.o",
+            "gpu_transfer.o",
+            "image_formats.o",
+            "queue_workbuf.o",
+            "tic_generate.o",
+            "tsc_generate.o"
+          ]
+        },
+        "mixed_variants": false
+      },
+      "SDK_default_window_definitions_absent": [
+        "nwindowGetDefault",
+        "__nx_win_init",
+        "__nx_win_exit"
+      ],
+      "SDL_accessor_bound_to_real_window": true,
+      "display_query_and_orientation_check_retained": true,
+      "nacp_title": "MatrixGame r24 Interactive"
+    }
+  },
+  "tests": {
+    "build\\matrixgame\\e610-guard-r23-checks\\host\\1\\result.json": {
+      "sha256": "414fd572fc677f148f2688f4a4d766a55f875fd9771f7aba155536a406781ae7",
+      "scope": "historical r23; only decoder UV dependency changed; current expanded probes compare full frozen/current code"
+    },
+    "build\\matrixgame\\e610-guard-r23-checks\\arm64\\1\\result.json": {
+      "sha256": "b5613ef0658f20d3516ebdcb392fd2c5c105290f1251800900eafe22467f45e6",
+      "scope": "historical r23; only decoder UV dependency changed; current expanded probes compare full frozen/current code"
+    },
+    "build\\matrixgame\\e610-guard-r23-checks\\windows\\1\\result.json": {
+      "sha256": "9fa106e4362e580b50df37fd4b186011309317d8298fb49c90be65aee59d959a",
+      "scope": "historical r23; only decoder UV dependency changed; current expanded probes compare full frozen/current code"
+    },
+    "build\\matrixgame\\e610-transition-r10-checks\\host\\5\\result.json": {
+      "sha256": "efeaf803fd0cefd7ac01a6aff117aa21eedd1f372f3d57f3b3713c30b7017e06",
+      "scope": "historical; all direct dependencies unchanged"
+    },
+    "build\\matrixgame\\e610-transition-r10-checks\\arm64\\5\\result.json": {
+      "sha256": "6cd4dc5b44477576598c274f1de3c338f900e186e9293ce24cdea64cd9d01a88",
+      "scope": "historical; all direct dependencies unchanged"
+    },
+    "build\\matrixgame\\e610-transition-r10-checks\\windows\\5\\result.json": {
+      "sha256": "590ea5ab11e894a318cd0cd9d5ba8cfa5ffcfe14507e1f72172cba925ef63823",
+      "scope": "historical; all direct dependencies unchanged"
+    }
+  },
+  "package": {
+    "status": "VERIFIED E610 TWO-NRO PACKAGE; HARDWARE PENDING",
+    "source_commit": "98a03c6a23bcf75eeebc879122d772bc16614c74",
+    "build_id": "98a03c6a23bc-68e5513720e51ca7646e",
+    "zip": "dist\\matrixgame-e610-switch-test-r24-uv.zip",
+    "zip_sha256": "80bb8a2248a19496df85d3e60c187f3436ef626e351b972bd1e8cc0bba5b61b3",
+    "zip_bytes": 10162705,
+    "files_sha256": {
+      "build-info.json": "25d6b0b8b92182b7e4493c79694105794d105026e0add0aff1c77192328e9451",
+      "manifest.json": "a7d07a23413e76d2e14a6941750e8e9abbb18353711aa6472e6fb52d5c47a1c7",
+      "matrixgame-e610-interactive.nro": "7e021ad055b5640bed4e900ce80320a962c210fbf178e0b354e9df1c2e926a69",
+      "matrixgame-e610-quick-smoke.nro": "0eecec9322cbf1ea71efc5a1ddb6c28feabf036a842a1637a1ff4674469c55ad",
+      "README.ru.md": "3f99adcb52cce34e8ed9d7305b39d96ce21f461c66f432bfb17a701c54888ac5",
+      "SHA256SUMS.txt": "28b0c8224677cfaac7876729c437859eac60753f173fec6bfb07549482fd2082"
+    },
+    "variants": {
+      "matrixgame-e610-quick-smoke.nro": {
+        "sha256": "0eecec9322cbf1ea71efc5a1ddb6c28feabf036a842a1637a1ff4674469c55ad",
+        "bytes": 13621445,
+        "elf_sha256": "02512beffd5ed48ed7c8834265f7860a7353fdbcbf43b6850b53448ff1facaea",
+        "elf_build_id": "a0394292f16e59a24a1b8a8b1627e782d27f5d60",
+        "nro_build_id": "a0394292f16e59a24a1b8a8b1627e782d27f5d60000000000000000000000000",
+        "nro_validation": {
+          "code_size": 13598720,
+          "segments": 3,
+          "embedded_icon": {
+            "offset": 13598776,
+            "size": 6285
+          },
+          "embedded_nacp": {
+            "offset": 13605061,
+            "size": 16384
+          },
+          "romfs_required": false
+        },
+        "retained_symbols": {
+          "native_hid_poll": true,
+          "native_hold_reset": false,
+          "router_warp": true,
+          "rangers_ui_owner": false,
+          "ui_context": false,
+          "caller_lease": false,
+          "native_rgb565_presenter": false,
+          "campaign_session": false,
+          "GR_WinMessage": false
+        },
+        "entry": "standalone original native Init/Draw; no Campaign/Gov entry",
+        "runtime": "HARDWARE PENDING",
+        "deko_link_provenance": {
+          "expected_library": "deko3dd",
+          "actual_objects": {
+            "deko3d": [],
+            "deko3dd": [
+              "cmd_bind_common.o",
+              "codesegmgr.o",
+              "dk_cmdbuf.o",
+              "dk_device.o",
+              "dk_fence.o",
+              "dk_image.o",
+              "dk_memblock.o",
+              "dk_queue.o",
+              "dk_shader.o",
+              "dk_swapchain.o",
+              "gpu_3d_base.o",
+              "gpu_3d_ibo.o",
+              "gpu_3d_ms.o",
+              "gpu_3d_state.o",
+              "gpu_3d_vbo.o",
+              "gpu_3d_zcull.o",
+              "gpu_base.o",
+              "gpu_error.o",
+              "gpu_transfer.o",
+              "image_formats.o",
+              "queue_workbuf.o",
+              "tic_generate.o",
+              "tsc_generate.o"
+            ]
+          },
+          "mixed_variants": false
+        },
+        "nacp_title": "MatrixGame r24 Quick Smoke"
+      },
+      "matrixgame-e610-interactive.nro": {
+        "sha256": "7e021ad055b5640bed4e900ce80320a962c210fbf178e0b354e9df1c2e926a69",
+        "bytes": 13621445,
+        "elf_sha256": "fb3dd45a0b4dad655a4962d276a9bdcf094e3dcb84aba248d1600aec039977f3",
+        "elf_build_id": "77642ba8d615f553923c25ca37b7b8bbbf0c0e4a",
+        "nro_build_id": "77642ba8d615f553923c25ca37b7b8bbbf0c0e4a000000000000000000000000",
+        "nro_validation": {
+          "code_size": 13598720,
+          "segments": 3,
+          "embedded_icon": {
+            "offset": 13598776,
+            "size": 6285
+          },
+          "embedded_nacp": {
+            "offset": 13605061,
+            "size": 16384
+          },
+          "romfs_required": false
+        },
+        "retained_symbols": {
+          "native_hid_poll": true,
+          "native_hold_reset": false,
+          "router_warp": true,
+          "rangers_ui_owner": false,
+          "ui_context": false,
+          "caller_lease": false,
+          "native_rgb565_presenter": false,
+          "campaign_session": false,
+          "GR_WinMessage": false
+        },
+        "entry": "standalone original native Init/Draw; no Campaign/Gov entry",
+        "runtime": "HARDWARE PENDING",
+        "deko_link_provenance": {
+          "expected_library": "deko3dd",
+          "actual_objects": {
+            "deko3d": [],
+            "deko3dd": [
+              "cmd_bind_common.o",
+              "codesegmgr.o",
+              "dk_cmdbuf.o",
+              "dk_device.o",
+              "dk_fence.o",
+              "dk_image.o",
+              "dk_memblock.o",
+              "dk_queue.o",
+              "dk_shader.o",
+              "dk_swapchain.o",
+              "gpu_3d_base.o",
+              "gpu_3d_ibo.o",
+              "gpu_3d_ms.o",
+              "gpu_3d_state.o",
+              "gpu_3d_vbo.o",
+              "gpu_3d_zcull.o",
+              "gpu_base.o",
+              "gpu_error.o",
+              "gpu_transfer.o",
+              "image_formats.o",
+              "queue_workbuf.o",
+              "tic_generate.o",
+              "tsc_generate.o"
+            ]
+          },
+          "mixed_variants": false
+        },
+        "nacp_title": "MatrixGame r24 Interactive"
+      }
+    },
+    "package": "dist\\matrixgame-e610-switch-test-r24-uv"
+  },
+  "exact_generated_original_delta": [
+    "MatrixGame/src/OriginalTransition.cpp",
+    "MatrixLib/3G/OriginalManagedTexture.cpp",
+    "MatrixLib/3G/Texture.cpp"
+  ],
+  "compiler_provenance": {
+    "configured_translation_units": 321,
+    "optimization": "-O2",
+    "assertions": "-UNDEBUG; no -DNDEBUG or -DASSERT_OFF",
+    "fast_math": false,
+    "exceptions": true,
+    "prebuilt_rangers_archive": "unchanged; not rebuilt or claimed optimized"
+  },
+  "source_delta_vs_r23": {
+    "changed": [
+      "port/matrixgame/deko/fixed_vertex.cpp",
+      "port/matrixgame/native-engine/CMakeLists.txt",
+      "tools/matrixgame_current_diagnostic_sdk.py"
+    ],
+    "new": [
+      "tools/matrixgame_uv_span_checks.py"
+    ],
+    "other_build_inputs": "HASH VERIFIED UNCHANGED"
+  },
+  "UV_scope": {
+    "exact_r23_CPP_except_DecodeTo_UV_loop": true,
+    "Layout_default_invariant_unchanged": true,
+    "all192_success_bytes_checked": true,
+    "finite_order_retained": true,
+    "failure_output_unpublished_discard_required": true,
+    "API_layout_and_ownership_unchanged": true
+  },
+  "current_CPU": {
+    "host": {
+      "path": "build\\matrixgame\\e610-uv-r24-checks\\host\\1\\result.json",
+      "sha256": "c753258acdfee4c1e6060f7b4b4a27d3b15aaf2a4b321e394add66ea59392a64",
+      "result": {
+        "status": "PASS FROZEN R23/CANDIDATE CPU O2 COMPARISON; GUARDS RETAINED; HARDWARE_PENDING",
+        "commands": [
+          {
+            "label": "build-frozen",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O2",
+              "-g",
+              "-UNDEBUG",
+              "-ffp-contract=off",
+              "-fno-pie",
+              "-no-pie",
+              "-fno-omit-frame-pointer",
+              "-fsanitize=address,undefined",
+              "-DDIRECT_DECODE",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/host/1",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/c/devkitPro/libnx/include",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_uv_span.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/host/1/frozen_native_device_state.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/buffer_resources.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_combiner.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/host/1/frozen_fixed_vertex.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/host/1/frozen"
+            ],
+            "exit": 0
+          },
+          {
+            "label": "build-candidate",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O2",
+              "-g",
+              "-UNDEBUG",
+              "-ffp-contract=off",
+              "-fno-pie",
+              "-no-pie",
+              "-fno-omit-frame-pointer",
+              "-fsanitize=address,undefined",
+              "-DDIRECT_DECODE",
+              "-DINPUT_SCOPE",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/host/1",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/c/devkitPro/libnx/include",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_uv_span.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_device_state.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/buffer_resources.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_combiner.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/fixed_vertex.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/host/1/candidate"
+            ],
+            "exit": 0
+          },
+          {
+            "label": "runtime-frozen",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/host/1/frozen"
+            ],
+            "exit": 0
+          },
+          {
+            "label": "runtime-candidate",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/host/1/candidate"
+            ],
+            "exit": 0
+          }
+        ],
+        "scope": "real frozen/candidate CPU validator; no Switch/GPU/FPS",
+        "semantic_stdout": "FINITE clients=2043 FIXED_COPY float_edges=2250 INPUT_SCOPE cases=14165 rejected=5407 layouts=864 gathers=144 no_publication=216 checksum=15426235832256809374 full192_batch_oracle defaults_holes_indices_base_no_heap_decode_failure_retains_CPU_sink CPU_ONLY_NOT_GPU\nUV_TRANSITIONS cases=289 TOPOLOGY cases=7776 VALIDATION_GUARD cases=24194 rejected=12983 checksum=2905387506710110368 scenarios=1948 full_scopes=2 partial_scopes=2 full_partial_initialized actual_index_loop read_only_scope_no_cache_across_discard CPU_ONLY\n",
+        "source_sha256": {
+          "tests/test_matrixgame_uv_span.cpp": "0c65bd93d5bf424cd31008fdcbfc97d71f4db9d09a34dcddde1ca3b8ea0f5eff",
+          "port/matrixgame/native-engine/staging_draw.hpp": "1ae3ff5c63e7b5273c06cd918c9a2b44650b45ee6e63af7e3e24070e871b53d8",
+          "port/matrixgame/deko/fixed_vertex.cpp": "7fd3017c346ee1f82a02b976fd1a432e934c0873f0f212ba044a51be679917be",
+          "port/matrixgame/deko/quantized_argb.hpp": "4215b0650069eef5e8981c9e7fa67f27fe6a85010c0f4105446bbe208d9ae0fd",
+          "tests/matrixgame_decode_target_fixture.hpp": "6a70691ecd101629c37ec122750fb01a3b5eb4b503435f50d151d45135fd7cc2",
+          "port/matrixgame/native-engine/platform_switch.cpp": "921be4b74bacb58b414bfd6e0f00b4b801e724e8bc3d22c637cd2ad9ada31c3d",
+          "port/matrixgame/deko/fixed_vertex.hpp": "3c5c39a4647a535fc7358f3008026ab8da6929ddfb60b3378dfbece6d0628a83",
+          "port/matrixgame/native-engine/native_profile.hpp": "5281e208e9b7f69d9430c6b7f4de708bab33366b0b2e9d549e17c6090ab77059",
+          "port/matrixgame/native-engine/native_device_state.cpp": "2619cc339da53bf03a7fd146d9a95a586f391b0336d3ce2a0b60bde2067b73b1",
+          "port/matrixgame/native-core/buffer_resources.cpp": "0c69ec4e589a593c53a7dd2eac030cb73ebbdb99eb07ff9fbdd9158ce54df4fe",
+          "port/matrixgame/deko/material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+          "port/matrixgame/native-engine/native_device_state.hpp": "6a297f48bf9989028784fecba9826238c59959f7f0ee32d4e5602bf9863c2195",
+          "port/matrixgame/native-engine/native_state_layout.hpp": "3bace2c54f4942abff62eeabc8fb83e1efaa53dc74793ac8ef3bc6e33a300f52",
+          "tools/matrixgame_uv_span_checks.py": "b1dd3377cbc492f01764941b9fa8f8c0f612567b0d9be19815f8e763e0a8a730"
+        },
+        "extracted_inputs_sha256": {
+          "gather.inc": "2fbadf50d334ddf54bdb0f479969805ef99657a8c097185ff715d442cf2d3f04",
+          "native-primitive.inc": "ae3b127cdac854ceddaa1ee19e38789f262313193a38d353c03bd5270dfcb368"
+        },
+        "staging_inputs_sha256": {
+          "frozen-staging.hpp": "1ae3ff5c63e7b5273c06cd918c9a2b44650b45ee6e63af7e3e24070e871b53d8",
+          "candidate-staging.hpp": "1ae3ff5c63e7b5273c06cd918c9a2b44650b45ee6e63af7e3e24070e871b53d8",
+          "staging_draw.hpp": "0f389a8856b26daf0d8efeb0d0a3fc81df201938926cecb313f061a4574a0f1b"
+        },
+        "frozen_staging_sha256": "1ae3ff5c63e7b5273c06cd918c9a2b44650b45ee6e63af7e3e24070e871b53d8",
+        "frozen_commit": "0d31db18d16e34a68d219c8a7ed26d3d8e268d70",
+        "frozen_cpp_sha256": "eceee30d711b85b9fa672cf505076f9c384319d3f93459fbb4d11dfbaac5182b",
+        "frozen_vertex_cpp_sha256": "934a5b3dabee425347e60e177e8b39c6d7fa5ea6080e713c043e6a29a41f5fc4"
+      }
+    },
+    "arm64": {
+      "path": "build\\matrixgame\\e610-uv-r24-checks\\arm64\\1\\result.json",
+      "sha256": "2d5e1f4d0e76eed9001151c7ad007151b0c3d0dcf2f314488edd54b30e5bcc8f",
+      "result": {
+        "status": "PASS FROZEN R23/CANDIDATE CPU O2 COMPARISON; GUARDS RETAINED; HARDWARE_PENDING",
+        "commands": [
+          {
+            "label": "build-frozen",
+            "command": [
+              "wsl",
+              "--exec",
+              "aarch64-linux-gnu-g++-15",
+              "-std=c++20",
+              "-O2",
+              "-g",
+              "-UNDEBUG",
+              "-ffp-contract=off",
+              "-fno-pie",
+              "-no-pie",
+              "-fno-omit-frame-pointer",
+              "-fsanitize=undefined",
+              "-Wl,--version-script=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/arm64/1/local-typeinfo.map",
+              "-DDIRECT_DECODE",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/arm64/1",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/c/devkitPro/libnx/include",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_uv_span.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/arm64/1/frozen_native_device_state.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/buffer_resources.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_combiner.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/arm64/1/frozen_fixed_vertex.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/arm64/1/frozen"
+            ],
+            "exit": 0
+          },
+          {
+            "label": "build-candidate",
+            "command": [
+              "wsl",
+              "--exec",
+              "aarch64-linux-gnu-g++-15",
+              "-std=c++20",
+              "-O2",
+              "-g",
+              "-UNDEBUG",
+              "-ffp-contract=off",
+              "-fno-pie",
+              "-no-pie",
+              "-fno-omit-frame-pointer",
+              "-fsanitize=undefined",
+              "-Wl,--version-script=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/arm64/1/local-typeinfo.map",
+              "-DDIRECT_DECODE",
+              "-DINPUT_SCOPE",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/arm64/1",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/c/devkitPro/libnx/include",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_uv_span.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_device_state.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/buffer_resources.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_combiner.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/fixed_vertex.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/arm64/1/candidate"
+            ],
+            "exit": 0
+          },
+          {
+            "label": "runtime-frozen",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "qemu-aarch64",
+              "-L",
+              "/usr/aarch64-linux-gnu",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/arm64/1/frozen"
+            ],
+            "exit": 0
+          },
+          {
+            "label": "runtime-candidate",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "qemu-aarch64",
+              "-L",
+              "/usr/aarch64-linux-gnu",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/arm64/1/candidate"
+            ],
+            "exit": 0
+          }
+        ],
+        "scope": "real frozen/candidate CPU validator; no Switch/GPU/FPS",
+        "semantic_stdout": "FINITE clients=2043 FIXED_COPY float_edges=2250 INPUT_SCOPE cases=14165 rejected=5407 layouts=864 gathers=144 no_publication=216 checksum=17221440035600571454 full192_batch_oracle defaults_holes_indices_base_no_heap_decode_failure_retains_CPU_sink CPU_ONLY_NOT_GPU\nUV_TRANSITIONS cases=289 TOPOLOGY cases=7776 VALIDATION_GUARD cases=24194 rejected=12983 checksum=18110286455085150656 scenarios=1948 full_scopes=2 partial_scopes=2 full_partial_initialized actual_index_loop read_only_scope_no_cache_across_discard CPU_ONLY\n",
+        "source_sha256": {
+          "tests/test_matrixgame_uv_span.cpp": "0c65bd93d5bf424cd31008fdcbfc97d71f4db9d09a34dcddde1ca3b8ea0f5eff",
+          "port/matrixgame/native-engine/staging_draw.hpp": "1ae3ff5c63e7b5273c06cd918c9a2b44650b45ee6e63af7e3e24070e871b53d8",
+          "port/matrixgame/deko/fixed_vertex.cpp": "7fd3017c346ee1f82a02b976fd1a432e934c0873f0f212ba044a51be679917be",
+          "port/matrixgame/deko/quantized_argb.hpp": "4215b0650069eef5e8981c9e7fa67f27fe6a85010c0f4105446bbe208d9ae0fd",
+          "tests/matrixgame_decode_target_fixture.hpp": "6a70691ecd101629c37ec122750fb01a3b5eb4b503435f50d151d45135fd7cc2",
+          "port/matrixgame/native-engine/platform_switch.cpp": "921be4b74bacb58b414bfd6e0f00b4b801e724e8bc3d22c637cd2ad9ada31c3d",
+          "port/matrixgame/deko/fixed_vertex.hpp": "3c5c39a4647a535fc7358f3008026ab8da6929ddfb60b3378dfbece6d0628a83",
+          "port/matrixgame/native-engine/native_profile.hpp": "5281e208e9b7f69d9430c6b7f4de708bab33366b0b2e9d549e17c6090ab77059",
+          "port/matrixgame/native-engine/native_device_state.cpp": "2619cc339da53bf03a7fd146d9a95a586f391b0336d3ce2a0b60bde2067b73b1",
+          "port/matrixgame/native-core/buffer_resources.cpp": "0c69ec4e589a593c53a7dd2eac030cb73ebbdb99eb07ff9fbdd9158ce54df4fe",
+          "port/matrixgame/deko/material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+          "port/matrixgame/native-engine/native_device_state.hpp": "6a297f48bf9989028784fecba9826238c59959f7f0ee32d4e5602bf9863c2195",
+          "port/matrixgame/native-engine/native_state_layout.hpp": "3bace2c54f4942abff62eeabc8fb83e1efaa53dc74793ac8ef3bc6e33a300f52",
+          "tools/matrixgame_uv_span_checks.py": "b1dd3377cbc492f01764941b9fa8f8c0f612567b0d9be19815f8e763e0a8a730"
+        },
+        "extracted_inputs_sha256": {
+          "gather.inc": "2fbadf50d334ddf54bdb0f479969805ef99657a8c097185ff715d442cf2d3f04",
+          "native-primitive.inc": "ae3b127cdac854ceddaa1ee19e38789f262313193a38d353c03bd5270dfcb368"
+        },
+        "staging_inputs_sha256": {
+          "frozen-staging.hpp": "1ae3ff5c63e7b5273c06cd918c9a2b44650b45ee6e63af7e3e24070e871b53d8",
+          "candidate-staging.hpp": "1ae3ff5c63e7b5273c06cd918c9a2b44650b45ee6e63af7e3e24070e871b53d8",
+          "staging_draw.hpp": "0f389a8856b26daf0d8efeb0d0a3fc81df201938926cecb313f061a4574a0f1b"
+        },
+        "frozen_staging_sha256": "1ae3ff5c63e7b5273c06cd918c9a2b44650b45ee6e63af7e3e24070e871b53d8",
+        "frozen_commit": "0d31db18d16e34a68d219c8a7ed26d3d8e268d70",
+        "frozen_cpp_sha256": "eceee30d711b85b9fa672cf505076f9c384319d3f93459fbb4d11dfbaac5182b",
+        "frozen_vertex_cpp_sha256": "934a5b3dabee425347e60e177e8b39c6d7fa5ea6080e713c043e6a29a41f5fc4"
+      }
+    },
+    "windows": {
+      "path": "build\\matrixgame\\e610-uv-r24-checks\\windows\\1\\result.json",
+      "sha256": "26f3b32d100a63e9899c9060cffd6cb428d89442d83ffb42f65776a8123a4299",
+      "result": {
+        "status": "PASS FROZEN R23/CANDIDATE CPU O2 COMPARISON; GUARDS RETAINED; HARDWARE_PENDING",
+        "commands": [
+          {
+            "label": "build-frozen",
+            "command": [
+              "cmd.exe",
+              "/d",
+              "/c",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-uv-r24-checks\\windows\\1\\frozen.cmd"
+            ],
+            "exit": 0
+          },
+          {
+            "label": "build-candidate",
+            "command": [
+              "cmd.exe",
+              "/d",
+              "/c",
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-uv-r24-checks\\windows\\1\\candidate.cmd"
+            ],
+            "exit": 0
+          },
+          {
+            "label": "runtime-frozen",
+            "command": [
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-uv-r24-checks\\windows\\1\\frozen.exe"
+            ],
+            "exit": 0
+          },
+          {
+            "label": "runtime-candidate",
+            "command": [
+              "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-uv-r24-checks\\windows\\1\\candidate.exe"
+            ],
+            "exit": 0
+          }
+        ],
+        "scope": "real frozen/candidate CPU validator; no Switch/GPU/FPS",
+        "semantic_stdout": "FINITE clients=2043 FIXED_COPY float_edges=2250 INPUT_SCOPE cases=14165 rejected=5407 layouts=864 gathers=144 no_publication=216 checksum=15900208132274097733 full192_batch_oracle defaults_holes_indices_base_no_heap_decode_failure_retains_CPU_sink CPU_ONLY_NOT_GPU\nUV_TRANSITIONS cases=289 TOPOLOGY cases=7776 VALIDATION_GUARD cases=24194 rejected=12983 checksum=17592794193880945263 scenarios=1948 full_scopes=2 partial_scopes=2 full_partial_initialized actual_index_loop read_only_scope_no_cache_across_discard CPU_ONLY\n",
+        "source_sha256": {
+          "tests/test_matrixgame_uv_span.cpp": "0c65bd93d5bf424cd31008fdcbfc97d71f4db9d09a34dcddde1ca3b8ea0f5eff",
+          "port/matrixgame/native-engine/staging_draw.hpp": "1ae3ff5c63e7b5273c06cd918c9a2b44650b45ee6e63af7e3e24070e871b53d8",
+          "port/matrixgame/deko/fixed_vertex.cpp": "7fd3017c346ee1f82a02b976fd1a432e934c0873f0f212ba044a51be679917be",
+          "port/matrixgame/deko/quantized_argb.hpp": "4215b0650069eef5e8981c9e7fa67f27fe6a85010c0f4105446bbe208d9ae0fd",
+          "tests/matrixgame_decode_target_fixture.hpp": "6a70691ecd101629c37ec122750fb01a3b5eb4b503435f50d151d45135fd7cc2",
+          "port/matrixgame/native-engine/platform_switch.cpp": "921be4b74bacb58b414bfd6e0f00b4b801e724e8bc3d22c637cd2ad9ada31c3d",
+          "port/matrixgame/deko/fixed_vertex.hpp": "3c5c39a4647a535fc7358f3008026ab8da6929ddfb60b3378dfbece6d0628a83",
+          "port/matrixgame/native-engine/native_profile.hpp": "5281e208e9b7f69d9430c6b7f4de708bab33366b0b2e9d549e17c6090ab77059",
+          "port/matrixgame/native-engine/native_device_state.cpp": "2619cc339da53bf03a7fd146d9a95a586f391b0336d3ce2a0b60bde2067b73b1",
+          "port/matrixgame/native-core/buffer_resources.cpp": "0c69ec4e589a593c53a7dd2eac030cb73ebbdb99eb07ff9fbdd9158ce54df4fe",
+          "port/matrixgame/deko/material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+          "port/matrixgame/native-engine/native_device_state.hpp": "6a297f48bf9989028784fecba9826238c59959f7f0ee32d4e5602bf9863c2195",
+          "port/matrixgame/native-engine/native_state_layout.hpp": "3bace2c54f4942abff62eeabc8fb83e1efaa53dc74793ac8ef3bc6e33a300f52",
+          "tools/matrixgame_uv_span_checks.py": "b1dd3377cbc492f01764941b9fa8f8c0f612567b0d9be19815f8e763e0a8a730"
+        },
+        "extracted_inputs_sha256": {
+          "gather.inc": "2fbadf50d334ddf54bdb0f479969805ef99657a8c097185ff715d442cf2d3f04",
+          "native-primitive.inc": "ae3b127cdac854ceddaa1ee19e38789f262313193a38d353c03bd5270dfcb368"
+        },
+        "staging_inputs_sha256": {
+          "frozen-staging.hpp": "1ae3ff5c63e7b5273c06cd918c9a2b44650b45ee6e63af7e3e24070e871b53d8",
+          "candidate-staging.hpp": "1ae3ff5c63e7b5273c06cd918c9a2b44650b45ee6e63af7e3e24070e871b53d8",
+          "staging_draw.hpp": "0f389a8856b26daf0d8efeb0d0a3fc81df201938926cecb313f061a4574a0f1b"
+        },
+        "frozen_staging_sha256": "1ae3ff5c63e7b5273c06cd918c9a2b44650b45ee6e63af7e3e24070e871b53d8",
+        "frozen_commit": "0d31db18d16e34a68d219c8a7ed26d3d8e268d70",
+        "frozen_cpp_sha256": "eceee30d711b85b9fa672cf505076f9c384319d3f93459fbb4d11dfbaac5182b",
+        "frozen_vertex_cpp_sha256": "934a5b3dabee425347e60e177e8b39c6d7fa5ea6080e713c043e6a29a41f5fc4"
+      }
+    },
+    "benchmark": {
+      "path": "build\\matrixgame\\e610-uv-r24-checks\\benchmark\\3\\result.json",
+      "sha256": "4253276dacd1a95a1f2eb798ade65d2dfa58b28ba49ce05143da49d6a1b045b2",
+      "result": {
+        "status": "PASS FROZEN R23/CANDIDATE CPU O2 COMPARISON; GUARDS RETAINED; HARDWARE_PENDING",
+        "commands": [
+          {
+            "label": "build-frozen",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O2",
+              "-g",
+              "-UNDEBUG",
+              "-ffp-contract=off",
+              "-fno-pie",
+              "-no-pie",
+              "-fno-omit-frame-pointer",
+              "-DDIRECT_DECODE",
+              "-DBENCHMARK_DECODE",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/benchmark/3",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/c/devkitPro/libnx/include",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/benchmark_matrixgame_input_scope.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/benchmark/3/frozen_native_device_state.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/buffer_resources.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_combiner.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/benchmark/3/frozen_fixed_vertex.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/benchmark/3/frozen"
+            ],
+            "exit": 0
+          },
+          {
+            "label": "build-candidate",
+            "command": [
+              "wsl",
+              "--exec",
+              "g++",
+              "-std=c++20",
+              "-O2",
+              "-g",
+              "-UNDEBUG",
+              "-ffp-contract=off",
+              "-fno-pie",
+              "-no-pie",
+              "-fno-omit-frame-pointer",
+              "-DDIRECT_DECODE",
+              "-DINPUT_SCOPE",
+              "-DBENCHMARK_DECODE",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/benchmark/3",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+              "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+              "-I/mnt/c/devkitPro/libnx/include",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/benchmark_matrixgame_input_scope.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine/native_device_state.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/buffer_resources.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/material_combiner.cpp",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko/fixed_vertex.cpp",
+              "-o",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/benchmark/3/candidate"
+            ],
+            "exit": 0
+          },
+          {
+            "label": "runtime-frozen-0",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/benchmark/3/frozen"
+            ],
+            "exit": 0
+          },
+          {
+            "label": "runtime-candidate-1",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/benchmark/3/candidate"
+            ],
+            "exit": 0
+          },
+          {
+            "label": "runtime-candidate-2",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/benchmark/3/candidate"
+            ],
+            "exit": 0
+          },
+          {
+            "label": "runtime-frozen-3",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/benchmark/3/frozen"
+            ],
+            "exit": 0
+          },
+          {
+            "label": "runtime-frozen-4",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/benchmark/3/frozen"
+            ],
+            "exit": 0
+          },
+          {
+            "label": "runtime-candidate-5",
+            "command": [
+              "wsl",
+              "--exec",
+              "env",
+              "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+              "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+              "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-uv-r24-checks/benchmark/3/candidate"
+            ],
+            "exit": 0
+          }
+        ],
+        "scope": "real frozen/candidate CPU validator; no Switch/GPU/FPS",
+        "measurements": [
+          {
+            "variant": "frozen",
+            "decode_us": 90132,
+            "gather_us": 283645,
+            "checksum": 5258787986328867328
+          },
+          {
+            "variant": "candidate",
+            "decode_us": 85497,
+            "gather_us": 265756,
+            "checksum": 5258787986328867328
+          },
+          {
+            "variant": "candidate",
+            "decode_us": 86995,
+            "gather_us": 262278,
+            "checksum": 5258787986328867328
+          },
+          {
+            "variant": "frozen",
+            "decode_us": 90507,
+            "gather_us": 279769,
+            "checksum": 5258787986328867328
+          },
+          {
+            "variant": "frozen",
+            "decode_us": 91803,
+            "gather_us": 286948,
+            "checksum": 5258787986328867328
+          },
+          {
+            "variant": "candidate",
+            "decode_us": 94921,
+            "gather_us": 278749,
+            "checksum": 5258787986328867328
+          }
+        ],
+        "median_us": {
+          "frozen": {
+            "decode_us": 90507,
+            "gather_us": 283645
+          },
+          "candidate": {
+            "decode_us": 86995,
+            "gather_us": 265756
+          }
+        },
+        "source_sha256": {
+          "tests/benchmark_matrixgame_input_scope.cpp": "e8aee14720c1683f2aac5e23ce86f7f30efbc48e4c2380e2121f339f247029a6",
+          "port/matrixgame/native-engine/staging_draw.hpp": "1ae3ff5c63e7b5273c06cd918c9a2b44650b45ee6e63af7e3e24070e871b53d8",
+          "port/matrixgame/deko/fixed_vertex.cpp": "7fd3017c346ee1f82a02b976fd1a432e934c0873f0f212ba044a51be679917be",
+          "port/matrixgame/deko/quantized_argb.hpp": "4215b0650069eef5e8981c9e7fa67f27fe6a85010c0f4105446bbe208d9ae0fd",
+          "tests/matrixgame_decode_target_fixture.hpp": "6a70691ecd101629c37ec122750fb01a3b5eb4b503435f50d151d45135fd7cc2",
+          "port/matrixgame/native-engine/platform_switch.cpp": "921be4b74bacb58b414bfd6e0f00b4b801e724e8bc3d22c637cd2ad9ada31c3d",
+          "port/matrixgame/deko/fixed_vertex.hpp": "3c5c39a4647a535fc7358f3008026ab8da6929ddfb60b3378dfbece6d0628a83",
+          "port/matrixgame/native-engine/native_profile.hpp": "5281e208e9b7f69d9430c6b7f4de708bab33366b0b2e9d549e17c6090ab77059",
+          "port/matrixgame/native-engine/native_device_state.cpp": "2619cc339da53bf03a7fd146d9a95a586f391b0336d3ce2a0b60bde2067b73b1",
+          "port/matrixgame/native-core/buffer_resources.cpp": "0c69ec4e589a593c53a7dd2eac030cb73ebbdb99eb07ff9fbdd9158ce54df4fe",
+          "port/matrixgame/deko/material_combiner.cpp": "933c921e909c5fba41cd9edd4bf82b5895d5c573a955d59b0cdf24094e203e39",
+          "port/matrixgame/native-engine/native_device_state.hpp": "6a297f48bf9989028784fecba9826238c59959f7f0ee32d4e5602bf9863c2195",
+          "port/matrixgame/native-engine/native_state_layout.hpp": "3bace2c54f4942abff62eeabc8fb83e1efaa53dc74793ac8ef3bc6e33a300f52",
+          "tools/matrixgame_uv_span_checks.py": "b1dd3377cbc492f01764941b9fa8f8c0f612567b0d9be19815f8e763e0a8a730"
+        },
+        "extracted_inputs_sha256": {
+          "gather.inc": "2fbadf50d334ddf54bdb0f479969805ef99657a8c097185ff715d442cf2d3f04",
+          "native-primitive.inc": "ae3b127cdac854ceddaa1ee19e38789f262313193a38d353c03bd5270dfcb368"
+        },
+        "staging_inputs_sha256": {
+          "frozen-staging.hpp": "1ae3ff5c63e7b5273c06cd918c9a2b44650b45ee6e63af7e3e24070e871b53d8",
+          "candidate-staging.hpp": "1ae3ff5c63e7b5273c06cd918c9a2b44650b45ee6e63af7e3e24070e871b53d8",
+          "staging_draw.hpp": "0f389a8856b26daf0d8efeb0d0a3fc81df201938926cecb313f061a4574a0f1b"
+        },
+        "frozen_staging_sha256": "1ae3ff5c63e7b5273c06cd918c9a2b44650b45ee6e63af7e3e24070e871b53d8",
+        "frozen_commit": "0d31db18d16e34a68d219c8a7ed26d3d8e268d70",
+        "frozen_cpp_sha256": "eceee30d711b85b9fa672cf505076f9c384319d3f93459fbb4d11dfbaac5182b",
+        "frozen_vertex_cpp_sha256": "934a5b3dabee425347e60e177e8b39c6d7fa5ea6080e713c043e6a29a41f5fc4"
+      }
+    }
+  },
+  "prior_r23_evidence": {
+    "path": "reports/matrixgame-e610-guard-r23-evidence.json",
+    "sha256": "b2e855fd679b9ba8eebc6d89830828c52ab02581dff7cf2ee0439b18d467b200",
+    "scope": "historical; only decoder UV changed; all validation/state/ownership APIs and paths unchanged"
+  },
+  "SDK_assembly": {
+    "r23": {
+      "ValidateIndexed": "\nD:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-guard-r23\\1\\matrixgame-native-diagnostic.elf:     file format elf64-littleaarch64\n\n\nDisassembly of section .text:\n\n000000000018caa0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)>:\n  18caa0:\ta9b67bfd \tstp\tx29, x30, [sp, #-160]!\n  18caa4:\t910003fd \tmov\tx29, sp\n  18caa8:\ta90153f3 \tstp\tx19, x20, [sp, #16]\n  18caac:\ta9025bf5 \tstp\tx21, x22, [sp, #32]\n  18cab0:\ta90363f7 \tstp\tx23, x24, [sp, #48]\n  18cab4:\ta9046bf9 \tstp\tx25, x26, [sp, #64]\n  18cab8:\ta90573fb \tstp\tx27, x28, [sp, #80]\n  18cabc:\tf9400c14 \tldr\tx20, [x0, #24]\n  18cac0:\tb9006fe3 \tstr\tw3, [sp, #108]\n  18cac4:\tb90083e4 \tstr\tw4, [sp, #128]\n  18cac8:\tb4001834 \tcbz\tx20, 18cdcc <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x32c>\n  18cacc:\t39418699 \tldrb\tw25, [x20, #97]\n  18cad0:\t370017f9 \ttbnz\tw25, #0, 18cdcc <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x32c>\n  18cad4:\t93407c5a \tsxtw\tx26, w2\n  18cad8:\t340004a6 \tcbz\tw6, 18cb6c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xcc>\n  18cadc:\t71000c3f \tcmp\tw1, #0x3\n  18cae0:\t540014a0 \tb.eq\t18cd74 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2d4>  // b.none\n  18cae4:\t54000129 \tb.ls\t18cb08 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x68>  // b.plast\n  18cae8:\t7100103f \tcmp\tw1, #0x4\n  18caec:\t54001380 \tb.eq\t18cd5c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2bc>  // b.none\n  18caf0:\t51001421 \tsub\tw1, w1, #0x5\n  18caf4:\t7100043f \tcmp\tw1, #0x1\n  18caf8:\t540011a8 \tb.hi\t18cd2c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x28c>  // b.pmore\n  18cafc:\t2a0603fb \tmov\tw27, w6\n  18cb00:\t91000b7b \tadd\tx27, x27, #0x2\n  18cb04:\t14000005 \tb\t18cb18 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x78>\n  18cb08:\t7100043f \tcmp\tw1, #0x1\n  18cb0c:\t540010a1 \tb.ne\t18cd20 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x280>  // b.any\n  18cb10:\t2a0603fb \tmov\tw27, w6\n  18cb14:\td503201f \tnop\n  18cb18:\tf9400801 \tldr\tx1, [x0, #16]\n  18cb1c:\tb9407a96 \tldr\tw22, [x20, #120]\n  18cb20:\tf9003be1 \tstr\tx1, [sp, #112]\n  18cb24:\ta942601c \tldp\tx28, x24, [x0, #32]\n  18cb28:\t9bb67cb3 \tumull\tx19, w5, w22\n  18cb2c:\t2a1603f7 \tmov\tw23, w22\n  18cb30:\ta9418281 \tldp\tx1, x0, [x20, #24]\n  18cb34:\tcb010000 \tsub\tx0, x0, x1\n  18cb38:\teb00027f \tcmp\tx19, x0\n  18cb3c:\t540000a8 \tb.hi\t18cb50 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xb0>  // b.pmore\n  18cb40:\tcb130000 \tsub\tx0, x0, x19\n  18cb44:\t9ad70800 \tudiv\tx0, x0, x23\n  18cb48:\teb1b001f \tcmp\tx0, x27\n  18cb4c:\t54000262 \tb.cs\t18cb98 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xf8>  // b.hs, b.nlast\n  18cb50:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cb54:\t94184e9b \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cb58:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cb5c:\t91338021 \tadd\tx1, x1, #0xce0\n  18cb60:\taa0003f3 \tmov\tx19, x0\n  18cb64:\t94187fcf \tbl\t7acaa0 <std::out_of_range::out_of_range(char const*)>\n  18cb68:\t1400008c \tb\t18cd98 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2f8>\n  18cb6c:\tf9400801 \tldr\tx1, [x0, #16]\n  18cb70:\tb9407a96 \tldr\tw22, [x20, #120]\n  18cb74:\tf9003be1 \tstr\tx1, [sp, #112]\n  18cb78:\ta942601c \tldp\tx28, x24, [x0, #32]\n  18cb7c:\t9bb67cb3 \tumull\tx19, w5, w22\n  18cb80:\t2a1603f7 \tmov\tw23, w22\n  18cb84:\ta9418281 \tldp\tx1, x0, [x20, #24]\n  18cb88:\tcb010000 \tsub\tx0, x0, x1\n  18cb8c:\teb00027f \tcmp\tx19, x0\n  18cb90:\t54fffe08 \tb.hi\t18cb50 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xb0>  // b.pmore\n  18cb94:\td280001b \tmov\tx27, #0x0                   \t// #0\n  18cb98:\t9b1b7ee2 \tmul\tx2, x23, x27\n  18cb9c:\taa1303e1 \tmov\tx1, x19\n  18cba0:\taa1403e0 \tmov\tx0, x20\n  18cba4:\t9400fcef \tbl\t1cbf60 <srhd_awa::matrixgame::buffers::Resource::Initialized(unsigned long, unsigned long) const>\n  18cba8:\t12001c02 \tand\tw2, w0, #0xff\n  18cbac:\t3607fd20 \ttbz\tw0, #0, 18cb50 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xb0>\n  18cbb0:\taa1403e0 \tmov\tx0, x20\n  18cbb4:\tb9007be2 \tstr\tw2, [sp, #120]\n  18cbb8:\t9400fd0a \tbl\t1cbfe0 <srhd_awa::matrixgame::buffers::Resource::Storage() const>\n  18cbbc:\taa0003e7 \tmov\tx7, x0\n  18cbc0:\tf9403be0 \tldr\tx0, [sp, #112]\n  18cbc4:\tb9407be2 \tldr\tw2, [sp, #120]\n  18cbc8:\tb4000a60 \tcbz\tx0, 18cd14 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x274>\n  18cbcc:\ta941d000 \tldp\tx0, x20, [x0, #24]\n  18cbd0:\tf100031f \tcmp\tx24, #0x0\n  18cbd4:\td2800005 \tmov\tx5, #0x0                   \t// #0\n  18cbd8:\tcb000294 \tsub\tx20, x20, x0\n  18cbdc:\tfa541382 \tccmp\tx28, x20, #0x2, ne\t// ne = any\n  18cbe0:\t54000c49 \tb.ls\t18cd68 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2c8>  // b.plast\n  18cbe4:\tf9403bf5 \tldr\tx21, [sp, #112]\n  18cbe8:\taa1403e2 \tmov\tx2, x20\n  18cbec:\td2800001 \tmov\tx1, #0x0                   \t// #0\n  18cbf0:\tf9003fe5 \tstr\tx5, [sp, #120]\n  18cbf4:\tf90047e7 \tstr\tx7, [sp, #136]\n  18cbf8:\taa1503e0 \tmov\tx0, x21\n  18cbfc:\t9400fcd9 \tbl\t1cbf60 <srhd_awa::matrixgame::buffers::Resource::Initialized(unsigned long, unsigned long) const>\n  18cc00:\t394186a2 \tldrb\tw2, [x21, #97]\n  18cc04:\t12001c19 \tand\tw25, w0, #0xff\n  18cc08:\tf100031f \tcmp\tx24, #0x0\n  18cc0c:\t1a9f17e0 \tcset\tw0, eq\t// eq = none\n  18cc10:\tf9403fe5 \tldr\tx5, [sp, #120]\n  18cc14:\tf94047e7 \tldr\tx7, [sp, #136]\n  18cc18:\t2a000042 \torr\tw2, w2, w0\n  18cc1c:\t8b1b0666 \tadd\tx6, x19, x27, lsl #1\n  18cc20:\taa1303f5 \tmov\tx21, x19\n  18cc24:\tb40006bb \tcbz\tx27, 18ccf8 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x258>\n  18cc28:\tb9406fe8 \tldr\tw8, [sp, #108]\n  18cc2c:\t1200005b \tand\tw27, w2, #0x1\n  18cc30:\t12000339 \tand\tw25, w25, #0x1\n  18cc34:\tb94083e9 \tldr\tw9, [sp, #128]\n  18cc38:\t1400001b \tb\t18cca4 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x204>\n  18cc3c:\tb87568e1 \tldr\tw1, [x7, x21]\n  18cc40:\tb9406fe0 \tldr\tw0, [sp, #108]\n  18cc44:\t6b00003f \tcmp\tw1, w0\n  18cc48:\t54000d43 \tb.cc\t18cdf0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x350>  // b.lo, b.ul, b.last\n  18cc4c:\t2a0103e1 \tmov\tw1, w1\n  18cc50:\tcb080020 \tsub\tx0, x1, x8\n  18cc54:\teb09001f \tcmp\tx0, x9\n  18cc58:\t54000cc2 \tb.cs\t18cdf0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x350>  // b.hs, b.nlast\n  18cc5c:\t8b010341 \tadd\tx1, x26, x1\n  18cc60:\t35000d7b \tcbnz\tw27, 18ce0c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x36c>\n  18cc64:\tb7f80d41 \ttbnz\tx1, #63, 18ce0c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x36c>\n  18cc68:\teb14039f \tcmp\tx28, x20\n  18cc6c:\t540008a8 \tb.hi\t18cd80 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2e0>  // b.pmore\n  18cc70:\teb05003f \tcmp\tx1, x5\n  18cc74:\t54000868 \tb.hi\t18cd80 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2e0>  // b.pmore\n  18cc78:\t9b017301 \tmadd\tx1, x24, x1, x28\n  18cc7c:\teb14003f \tcmp\tx1, x20\n  18cc80:\t540002e8 \tb.hi\t18ccdc <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x23c>  // b.pmore\n  18cc84:\t34000199 \tcbz\tw25, 18ccb4 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x214>\n  18cc88:\tcb010281 \tsub\tx1, x20, x1\n  18cc8c:\teb01031f \tcmp\tx24, x1\n  18cc90:\t54000268 \tb.hi\t18ccdc <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x23c>  // b.pmore\n  18cc94:\t91000a73 \tadd\tx19, x19, #0x2\n  18cc98:\t8b1702b5 \tadd\tx21, x21, x23\n  18cc9c:\teb1300df \tcmp\tx6, x19\n  18cca0:\t540002c0 \tb.eq\t18ccf8 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x258>  // b.none\n  18cca4:\t71000adf \tcmp\tw22, #0x2\n  18cca8:\t54fffca1 \tb.ne\t18cc3c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x19c>  // b.any\n  18ccac:\t787368e1 \tldrh\tw1, [x7, x19]\n  18ccb0:\t17ffffe4 \tb\t18cc40 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x1a0>\n  18ccb4:\tf9403be0 \tldr\tx0, [sp, #112]\n  18ccb8:\taa1803e2 \tmov\tx2, x24\n  18ccbc:\ta90797e6 \tstp\tx6, x5, [sp, #120]\n  18ccc0:\ta908a7e8 \tstp\tx8, x9, [sp, #136]\n  18ccc4:\tf9004fe7 \tstr\tx7, [sp, #152]\n  18ccc8:\t9400fca6 \tbl\t1cbf60 <srhd_awa::matrixgame::buffers::Resource::Initialized(unsigned long, unsigned long) const>\n  18cccc:\tf9404fe7 \tldr\tx7, [sp, #152]\n  18ccd0:\ta94797e6 \tldp\tx6, x5, [sp, #120]\n  18ccd4:\ta948a7e8 \tldp\tx8, x9, [sp, #136]\n  18ccd8:\t3707fde0 \ttbnz\tw0, #0, 18cc94 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x1f4>\n  18ccdc:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cce0:\t94184e38 \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cce4:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cce8:\t9135a021 \tadd\tx1, x1, #0xd68\n  18ccec:\taa0003f3 \tmov\tx19, x0\n  18ccf0:\t94187f6c \tbl\t7acaa0 <std::out_of_range::out_of_range(char const*)>\n  18ccf4:\t14000029 \tb\t18cd98 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2f8>\n  18ccf8:\ta94153f3 \tldp\tx19, x20, [sp, #16]\n  18ccfc:\ta9425bf5 \tldp\tx21, x22, [sp, #32]\n  18cd00:\ta94363f7 \tldp\tx23, x24, [sp, #48]\n  18cd04:\ta9446bf9 \tldp\tx25, x26, [sp, #64]\n  18cd08:\ta94573fb \tldp\tx27, x28, [sp, #80]\n  18cd0c:\ta8ca7bfd \tldp\tx29, x30, [sp], #160\n  18cd10:\td65f03c0 \tret\n  18cd14:\td2800005 \tmov\tx5, #0x0                   \t// #0\n  18cd18:\td2800014 \tmov\tx20, #0x0                   \t// #0\n  18cd1c:\t17ffffc0 \tb\t18cc1c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x17c>\n  18cd20:\td37f7cdb \tubfiz\tx27, x6, #1, #32\n  18cd24:\t7100083f \tcmp\tw1, #0x2\n  18cd28:\t54ffef80 \tb.eq\t18cb18 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x78>  // b.none\n  18cd2c:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cd30:\t94184e24 \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cd34:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cd38:\t91326021 \tadd\tx1, x1, #0xc98\n  18cd3c:\taa0003f3 \tmov\tx19, x0\n  18cd40:\t94187f38 \tbl\t7aca20 <std::invalid_argument::invalid_argument(char const*)>\n  18cd44:\tf0005aa2 \tadrp\tx2, ce3000 <_GLOBAL_OFFSET_TABLE_+0x528>\n  18cd48:\tf9475442 \tldr\tx2, [x2, #3752]\n  18cd4c:\taa1303e0 \tmov\tx0, x19\n  18cd50:\tf0005ac1 \tadrp\tx1, ce7000 <_GLOBAL_OFFSET_TABLE_+0x4528>\n  18cd54:\tf9464821 \tldr\tx1, [x1, #3216]\n  18cd58:\t941852ca \tbl\t7a1880 <__cxa_throw>\n  18cd5c:\td37f7cc1 \tubfiz\tx1, x6, #1, #32\n  18cd60:\t8b26403b \tadd\tx27, x1, w6, uxtw\n  18cd64:\t17ffff6d \tb\t18cb18 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x78>\n  18cd68:\tcb1c0285 \tsub\tx5, x20, x28\n  18cd6c:\t9ad808a5 \tudiv\tx5, x5, x24\n  18cd70:\t17ffff9d \tb\t18cbe4 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x144>\n  18cd74:\t2a0603fb \tmov\tw27, w6\n  18cd78:\t9100077b \tadd\tx27, x27, #0x1\n  18cd7c:\t17ffff67 \tb\t18cb18 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x78>\n  18cd80:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cd84:\t94184e0f \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cd88:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cd8c:\t91352021 \tadd\tx1, x1, #0xd48\n  18cd90:\taa0003f3 \tmov\tx19, x0\n  18cd94:\t94187f43 \tbl\t7acaa0 <std::out_of_range::out_of_range(char const*)>\n  18cd98:\tf0005aa2 \tadrp\tx2, ce3000 <_GLOBAL_OFFSET_TABLE_+0x528>\n  18cd9c:\tf941f842 \tldr\tx2, [x2, #1008]\n  18cda0:\taa1303e0 \tmov\tx0, x19\n  18cda4:\tf0005aa1 \tadrp\tx1, ce3000 <_GLOBAL_OFFSET_TABLE_+0x528>\n  18cda8:\tf944ac21 \tldr\tx1, [x1, #2392]\n  18cdac:\t941852b5 \tbl\t7a1880 <__cxa_throw>\n  18cdb0:\taa0003f4 \tmov\tx20, x0\n  18cdb4:\taa1303e0 \tmov\tx0, x19\n  18cdb8:\t94184e1a \tbl\t7a0620 <__cxa_free_exception>\n  18cdbc:\taa1403e0 \tmov\tx0, x20\n  18cdc0:\t941a6570 \tbl\t826380 <_Unwind_Resume>\n  18cdc4:\t17fffffb \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n  18cdc8:\t17fffffa \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n  18cdcc:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cdd0:\t94184dfc \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cdd4:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cdd8:\t91330021 \tadd\tx1, x1, #0xcc0\n  18cddc:\taa0003f3 \tmov\tx19, x0\n  18cde0:\t94187f10 \tbl\t7aca20 <std::invalid_argument::invalid_argument(char const*)>\n  18cde4:\t17ffffd8 \tb\t18cd44 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2a4>\n  18cde8:\t17fffff2 \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n  18cdec:\t17fffff1 \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n  18cdf0:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cdf4:\t94184df3 \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cdf8:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cdfc:\t9133e021 \tadd\tx1, x1, #0xcf8\n  18ce00:\taa0003f3 \tmov\tx19, x0\n  18ce04:\t94187f27 \tbl\t7acaa0 <std::out_of_range::out_of_range(char const*)>\n  18ce08:\t17ffffe4 \tb\t18cd98 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2f8>\n  18ce0c:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18ce10:\t94184dec \tbl\t7a05c0 <__cxa_allocate_exception>\n  18ce14:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18ce18:\t9134a021 \tadd\tx1, x1, #0xd28\n  18ce1c:\taa0003f3 \tmov\tx19, x0\n  18ce20:\t94187f20 \tbl\t7acaa0 <std::out_of_range::out_of_range(char const*)>\n  18ce24:\t17ffffdd \tb\t18cd98 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2f8>\n  18ce28:\t17ffffe2 \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n  18ce2c:\t17ffffe1 \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n",
+      "lock_audit": {
+        "loop_begin": "0x18cc40",
+        "loop_end": "0x18ccb0",
+        "locked_loads": [
+          {
+            "address": "0x18cacc",
+            "inside": false,
+            "instruction": "  18cacc:\t39418699 \tldrb\tw25, [x20, #97]"
+          },
+          {
+            "address": "0x18cc00",
+            "inside": false,
+            "instruction": "  18cc00:\t394186a2 \tldrb\tw2, [x21, #97]"
+          }
+        ],
+        "inside": 0
+      },
+      "DecodeTo": "\nD:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-guard-r23\\1\\matrixgame-native-diagnostic.elf:     file format elf64-littleaarch64\n\n\nDisassembly of section .text:\n\n0000000000788990 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const>:\n  788990:\ta9bc7bfd \tstp\tx29, x30, [sp, #-64]!\n  788994:\t910003fd \tmov\tx29, sp\n  788998:\taa0003e6 \tmov\tx6, x0\n  78899c:\ta90153f3 \tstp\tx19, x20, [sp, #16]\n  7889a0:\tb9400400 \tldr\tw0, [x0, #4]\n  7889a4:\t6b04001f \tcmp\tw0, w4\n  7889a8:\t54001008 \tb.hi\t788ba8 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x218>  // b.pmore\n  7889ac:\teb24407f \tcmp\tx3, w4, uxtw\n  7889b0:\t54000fc1 \tb.ne\t788ba8 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x218>  // b.any\n  7889b4:\td2e7f000 \tmov\tx0, #0x3f80000000000000    \t// #4575657221408423936\n  7889b8:\ta9017c3f \tstp\txzr, xzr, [x1, #16]\n  7889bc:\taa0103e5 \tmov\tx5, x1\n  7889c0:\ta900003f \tstp\txzr, x0, [x1]\n  7889c4:\tb2091be0 \tmov\tx0, #0x3f8000003f800000    \t// #4575657222473777152\n  7889c8:\ta9020020 \tstp\tx0, x0, [x1, #32]\n  7889cc:\tb94000c3 \tldr\tw3, [x6]\n  7889d0:\ta9037c3f \tstp\txzr, xzr, [x1, #48]\n  7889d4:\t121f0863 \tand\tw3, w3, #0xe\n  7889d8:\t7100107f \tcmp\tw3, #0x4\n  7889dc:\t54000dc0 \tb.eq\t788b94 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x204>  // b.none\n  7889e0:\tf9400041 \tldr\tx1, [x2]\n  7889e4:\td2800188 \tmov\tx8, #0xc                   \t// #12\n  7889e8:\t52800063 \tmov\tw3, #0x3                   \t// #3\n  7889ec:\tb9400840 \tldr\tw0, [x2, #8]\n  7889f0:\tf90000a1 \tstr\tx1, [x5]\n  7889f4:\tb90008a0 \tstr\tw0, [x5, #8]\n  7889f8:\td2800000 \tmov\tx0, #0x0                   \t// #0\n  7889fc:\t52bfe004 \tmov\tw4, #0xff000000            \t// #-16777216\n  788a00:\tb86078a1 \tldr\tw1, [x5, x0, lsl #2]\n  788a04:\t6b01049f \tcmp\tw4, w1, lsl #1\n  788a08:\t54000ce9 \tb.ls\t788ba4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x214>  // b.plast\n  788a0c:\t91000400 \tadd\tx0, x0, #0x1\n  788a10:\t6b00007f \tcmp\tw3, w0\n  788a14:\t54ffff68 \tb.hi\t788a00 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x70>  // b.pmore\n  788a18:\tb94000c7 \tldr\tw7, [x6]\n  788a1c:\t8b080053 \tadd\tx19, x2, x8\n  788a20:\t37200707 \ttbnz\tw7, #4, 788b00 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x170>\n  788a24:\t363000a7 \ttbz\tw7, #6, 788a38 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xa8>\n  788a28:\tb8404660 \tldr\tw0, [x19], #4\n  788a2c:\t97fffafd \tbl\t787620 <srhd_awa::matrixgame::materials::(anonymous namespace)::Argb(unsigned int)>\n  788a30:\t2d0404a0 \tstp\ts0, s1, [x5, #32]\n  788a34:\t2d050ca2 \tstp\ts2, s3, [x5, #40]\n  788a38:\t373805a7 \ttbnz\tw7, #7, 788aec <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x15c>\n  788a3c:\t910100a3 \tadd\tx3, x5, #0x40\n  788a40:\t1e2e101f \tfmov\ts31, #1.000000000000000000e+00\n  788a44:\t910020c6 \tadd\tx6, x6, #0x8\n  788a48:\t910300a5 \tadd\tx5, x5, #0xc0\n  788a4c:\t52bfe008 \tmov\tw8, #0xff000000            \t// #-16777216\n  788a50:\t14000005 \tb\t788a64 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xd4>\n  788a54:\t91004063 \tadd\tx3, x3, #0x10\n  788a58:\t910010c6 \tadd\tx6, x6, #0x4\n  788a5c:\teb05007f \tcmp\tx3, x5\n  788a60:\t54000360 \tb.eq\t788acc <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x13c>  // b.none\n  788a64:\t29007c7f \tstp\twzr, wzr, [x3]\n  788a68:\tb94000c4 \tldr\tw4, [x6]\n  788a6c:\tb900087f \tstr\twzr, [x3, #8]\n  788a70:\tbd000c7f \tstr\ts31, [x3, #12]\n  788a74:\t34ffff04 \tcbz\tw4, 788a54 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xc4>\n  788a78:\t531e7494 \tlsl\tw20, w4, #2\n  788a7c:\t71000c9f \tcmp\tw4, #0x3\n  788a80:\t54000800 \tb.eq\t788b80 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x1f0>  // b.none\n  788a84:\t540002a8 \tb.hi\t788ad8 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x148>  // b.pmore\n  788a88:\t7100049f \tcmp\tw4, #0x1\n  788a8c:\t54000740 \tb.eq\t788b74 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x1e4>  // b.none\n  788a90:\tf9400260 \tldr\tx0, [x19]\n  788a94:\tf9000060 \tstr\tx0, [x3]\n  788a98:\taa0303e0 \tmov\tx0, x3\n  788a9c:\t8b244864 \tadd\tx4, x3, w4, uxtw #2\n  788aa0:\tb9400001 \tldr\tw1, [x0]\n  788aa4:\t6b01051f \tcmp\tw8, w1, lsl #1\n  788aa8:\t540007e9 \tb.ls\t788ba4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x214>  // b.plast\n  788aac:\t91001000 \tadd\tx0, x0, #0x4\n  788ab0:\teb00009f \tcmp\tx4, x0\n  788ab4:\t54ffff61 \tb.ne\t788aa0 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x110>  // b.any\n  788ab8:\t91004063 \tadd\tx3, x3, #0x10\n  788abc:\t8b140273 \tadd\tx19, x19, x20\n  788ac0:\t910010c6 \tadd\tx6, x6, #0x4\n  788ac4:\teb05007f \tcmp\tx3, x5\n  788ac8:\t54fffce1 \tb.ne\t788a64 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xd4>  // b.any\n  788acc:\ta94153f3 \tldp\tx19, x20, [sp, #16]\n  788ad0:\ta8c47bfd \tldp\tx29, x30, [sp], #64\n  788ad4:\td65f03c0 \tret\n  788ad8:\t7100109f \tcmp\tw4, #0x4\n  788adc:\t54000341 \tb.ne\t788b44 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x1b4>  // b.any\n  788ae0:\ta9400660 \tldp\tx0, x1, [x19]\n  788ae4:\ta9000460 \tstp\tx0, x1, [x3]\n  788ae8:\t17ffffec \tb\t788a98 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x108>\n  788aec:\tb8404660 \tldr\tw0, [x19], #4\n  788af0:\t97fffacc \tbl\t787620 <srhd_awa::matrixgame::materials::(anonymous namespace)::Argb(unsigned int)>\n  788af4:\t2d0604a0 \tstp\ts0, s1, [x5, #48]\n  788af8:\t2d070ca2 \tstp\ts2, s3, [x5, #56]\n  788afc:\t17ffffd0 \tb\t788a3c <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xac>\n  788b00:\tf8686841 \tldr\tx1, [x2, x8]\n  788b04:\tb9400a60 \tldr\tw0, [x19, #8]\n  788b08:\tf90008a1 \tstr\tx1, [x5, #16]\n  788b0c:\tb90018a0 \tstr\tw0, [x5, #24]\n  788b10:\tb94010a0 \tldr\tw0, [x5, #16]\n  788b14:\t6b00049f \tcmp\tw4, w0, lsl #1\n  788b18:\t54000469 \tb.ls\t788ba4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x214>  // b.plast\n  788b1c:\tb94014a0 \tldr\tw0, [x5, #20]\n  788b20:\t6b00049f \tcmp\tw4, w0, lsl #1\n  788b24:\t54000409 \tb.ls\t788ba4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x214>  // b.plast\n  788b28:\tb94018a0 \tldr\tw0, [x5, #24]\n  788b2c:\t6b00049f \tcmp\tw4, w0, lsl #1\n  788b30:\t540003a9 \tb.ls\t788ba4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x214>  // b.plast\n  788b34:\tb94000c7 \tldr\tw7, [x6]\n  788b38:\t91003273 \tadd\tx19, x19, #0xc\n  788b3c:\t3637f7e7 \ttbz\tw7, #6, 788a38 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xa8>\n  788b40:\t17ffffba \tb\t788a28 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x98>\n  788b44:\taa0303e0 \tmov\tx0, x3\n  788b48:\taa1403e2 \tmov\tx2, x20\n  788b4c:\tb9002fe4 \tstr\tw4, [sp, #44]\n  788b50:\taa1303e1 \tmov\tx1, x19\n  788b54:\ta90317e6 \tstp\tx6, x5, [sp, #48]\n  788b58:\t9402832a \tbl\t829800 <memcpy>\n  788b5c:\tb9402fe4 \tldr\tw4, [sp, #44]\n  788b60:\t1e2e101f \tfmov\ts31, #1.000000000000000000e+00\n  788b64:\t52bfe008 \tmov\tw8, #0xff000000            \t// #-16777216\n  788b68:\ta94317e6 \tldp\tx6, x5, [sp, #48]\n  788b6c:\taa0003e3 \tmov\tx3, x0\n  788b70:\t17ffffca \tb\t788a98 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x108>\n  788b74:\tb9400260 \tldr\tw0, [x19]\n  788b78:\tb9000060 \tstr\tw0, [x3]\n  788b7c:\t17ffffc7 \tb\t788a98 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x108>\n  788b80:\tf9400261 \tldr\tx1, [x19]\n  788b84:\tb9400a60 \tldr\tw0, [x19, #8]\n  788b88:\tf9000061 \tstr\tx1, [x3]\n  788b8c:\tb9000860 \tstr\tw0, [x3, #8]\n  788b90:\t17ffffc2 \tb\t788a98 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x108>\n  788b94:\ta9400440 \tldp\tx0, x1, [x2]\n  788b98:\td2800208 \tmov\tx8, #0x10                  \t// #16\n  788b9c:\ta90004a0 \tstp\tx0, x1, [x5]\n  788ba0:\t17ffff96 \tb\t7889f8 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x68>\n  788ba4:\t97e1e0a4 \tbl\te34 <srhd_awa::matrixgame::materials::(anonymous namespace)::NonfiniteVertexValue()>\n  788ba8:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  788bac:\t94005e85 \tbl\t7a05c0 <__cxa_allocate_exception>\n  788bb0:\tb0000961 \tadrp\tx1, 8b5000 <_fini+0x5bdb8>\n  788bb4:\t91224021 \tadd\tx1, x1, #0x890\n  788bb8:\taa0003f3 \tmov\tx19, x0\n  788bbc:\t94008f99 \tbl\t7aca20 <std::invalid_argument::invalid_argument(char const*)>\n  788bc0:\tf0002ac2 \tadrp\tx2, ce3000 <_GLOBAL_OFFSET_TABLE_+0x528>\n  788bc4:\tf9475442 \tldr\tx2, [x2, #3752]\n  788bc8:\taa1303e0 \tmov\tx0, x19\n  788bcc:\tf0002ae1 \tadrp\tx1, ce7000 <_GLOBAL_OFFSET_TABLE_+0x4528>\n  788bd0:\tf9464821 \tldr\tx1, [x1, #3216]\n  788bd4:\t9400632b \tbl\t7a1880 <__cxa_throw>\n  788bd8:\taa0003f4 \tmov\tx20, x0\n  788bdc:\taa1303e0 \tmov\tx0, x19\n  788be0:\t94005e90 \tbl\t7a0620 <__cxa_free_exception>\n  788be4:\taa1403e0 \tmov\tx0, x20\n  788be8:\t940275e6 \tbl\t826380 <_Unwind_Resume>\n"
+    },
+    "matrixgame-native-diagnostic": {
+      "ValidateIndexed": "\nD:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-uv-r24\\1\\matrixgame-native-diagnostic.elf:     file format elf64-littleaarch64\n\n\nDisassembly of section .text:\n\n000000000018caa0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)>:\n  18caa0:\ta9b67bfd \tstp\tx29, x30, [sp, #-160]!\n  18caa4:\t910003fd \tmov\tx29, sp\n  18caa8:\ta90153f3 \tstp\tx19, x20, [sp, #16]\n  18caac:\ta9025bf5 \tstp\tx21, x22, [sp, #32]\n  18cab0:\ta90363f7 \tstp\tx23, x24, [sp, #48]\n  18cab4:\ta9046bf9 \tstp\tx25, x26, [sp, #64]\n  18cab8:\ta90573fb \tstp\tx27, x28, [sp, #80]\n  18cabc:\tf9400c14 \tldr\tx20, [x0, #24]\n  18cac0:\tb9006fe3 \tstr\tw3, [sp, #108]\n  18cac4:\tb90083e4 \tstr\tw4, [sp, #128]\n  18cac8:\tb4001834 \tcbz\tx20, 18cdcc <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x32c>\n  18cacc:\t39418699 \tldrb\tw25, [x20, #97]\n  18cad0:\t370017f9 \ttbnz\tw25, #0, 18cdcc <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x32c>\n  18cad4:\t93407c5a \tsxtw\tx26, w2\n  18cad8:\t340004a6 \tcbz\tw6, 18cb6c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xcc>\n  18cadc:\t71000c3f \tcmp\tw1, #0x3\n  18cae0:\t540014a0 \tb.eq\t18cd74 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2d4>  // b.none\n  18cae4:\t54000129 \tb.ls\t18cb08 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x68>  // b.plast\n  18cae8:\t7100103f \tcmp\tw1, #0x4\n  18caec:\t54001380 \tb.eq\t18cd5c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2bc>  // b.none\n  18caf0:\t51001421 \tsub\tw1, w1, #0x5\n  18caf4:\t7100043f \tcmp\tw1, #0x1\n  18caf8:\t540011a8 \tb.hi\t18cd2c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x28c>  // b.pmore\n  18cafc:\t2a0603fb \tmov\tw27, w6\n  18cb00:\t91000b7b \tadd\tx27, x27, #0x2\n  18cb04:\t14000005 \tb\t18cb18 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x78>\n  18cb08:\t7100043f \tcmp\tw1, #0x1\n  18cb0c:\t540010a1 \tb.ne\t18cd20 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x280>  // b.any\n  18cb10:\t2a0603fb \tmov\tw27, w6\n  18cb14:\td503201f \tnop\n  18cb18:\tf9400801 \tldr\tx1, [x0, #16]\n  18cb1c:\tb9407a96 \tldr\tw22, [x20, #120]\n  18cb20:\tf9003be1 \tstr\tx1, [sp, #112]\n  18cb24:\ta942601c \tldp\tx28, x24, [x0, #32]\n  18cb28:\t9bb67cb3 \tumull\tx19, w5, w22\n  18cb2c:\t2a1603f7 \tmov\tw23, w22\n  18cb30:\ta9418281 \tldp\tx1, x0, [x20, #24]\n  18cb34:\tcb010000 \tsub\tx0, x0, x1\n  18cb38:\teb00027f \tcmp\tx19, x0\n  18cb3c:\t540000a8 \tb.hi\t18cb50 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xb0>  // b.pmore\n  18cb40:\tcb130000 \tsub\tx0, x0, x19\n  18cb44:\t9ad70800 \tudiv\tx0, x0, x23\n  18cb48:\teb1b001f \tcmp\tx0, x27\n  18cb4c:\t54000262 \tb.cs\t18cb98 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xf8>  // b.hs, b.nlast\n  18cb50:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cb54:\t94184e9b \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cb58:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cb5c:\t9131e021 \tadd\tx1, x1, #0xc78\n  18cb60:\taa0003f3 \tmov\tx19, x0\n  18cb64:\t94187fcf \tbl\t7acaa0 <std::out_of_range::out_of_range(char const*)>\n  18cb68:\t1400008c \tb\t18cd98 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2f8>\n  18cb6c:\tf9400801 \tldr\tx1, [x0, #16]\n  18cb70:\tb9407a96 \tldr\tw22, [x20, #120]\n  18cb74:\tf9003be1 \tstr\tx1, [sp, #112]\n  18cb78:\ta942601c \tldp\tx28, x24, [x0, #32]\n  18cb7c:\t9bb67cb3 \tumull\tx19, w5, w22\n  18cb80:\t2a1603f7 \tmov\tw23, w22\n  18cb84:\ta9418281 \tldp\tx1, x0, [x20, #24]\n  18cb88:\tcb010000 \tsub\tx0, x0, x1\n  18cb8c:\teb00027f \tcmp\tx19, x0\n  18cb90:\t54fffe08 \tb.hi\t18cb50 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xb0>  // b.pmore\n  18cb94:\td280001b \tmov\tx27, #0x0                   \t// #0\n  18cb98:\t9b1b7ee2 \tmul\tx2, x23, x27\n  18cb9c:\taa1303e1 \tmov\tx1, x19\n  18cba0:\taa1403e0 \tmov\tx0, x20\n  18cba4:\t9400fcef \tbl\t1cbf60 <srhd_awa::matrixgame::buffers::Resource::Initialized(unsigned long, unsigned long) const>\n  18cba8:\t12001c02 \tand\tw2, w0, #0xff\n  18cbac:\t3607fd20 \ttbz\tw0, #0, 18cb50 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xb0>\n  18cbb0:\taa1403e0 \tmov\tx0, x20\n  18cbb4:\tb9007be2 \tstr\tw2, [sp, #120]\n  18cbb8:\t9400fd0a \tbl\t1cbfe0 <srhd_awa::matrixgame::buffers::Resource::Storage() const>\n  18cbbc:\taa0003e7 \tmov\tx7, x0\n  18cbc0:\tf9403be0 \tldr\tx0, [sp, #112]\n  18cbc4:\tb9407be2 \tldr\tw2, [sp, #120]\n  18cbc8:\tb4000a60 \tcbz\tx0, 18cd14 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x274>\n  18cbcc:\ta941d000 \tldp\tx0, x20, [x0, #24]\n  18cbd0:\tf100031f \tcmp\tx24, #0x0\n  18cbd4:\td2800005 \tmov\tx5, #0x0                   \t// #0\n  18cbd8:\tcb000294 \tsub\tx20, x20, x0\n  18cbdc:\tfa541382 \tccmp\tx28, x20, #0x2, ne\t// ne = any\n  18cbe0:\t54000c49 \tb.ls\t18cd68 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2c8>  // b.plast\n  18cbe4:\tf9403bf5 \tldr\tx21, [sp, #112]\n  18cbe8:\taa1403e2 \tmov\tx2, x20\n  18cbec:\td2800001 \tmov\tx1, #0x0                   \t// #0\n  18cbf0:\tf9003fe5 \tstr\tx5, [sp, #120]\n  18cbf4:\tf90047e7 \tstr\tx7, [sp, #136]\n  18cbf8:\taa1503e0 \tmov\tx0, x21\n  18cbfc:\t9400fcd9 \tbl\t1cbf60 <srhd_awa::matrixgame::buffers::Resource::Initialized(unsigned long, unsigned long) const>\n  18cc00:\t394186a2 \tldrb\tw2, [x21, #97]\n  18cc04:\t12001c19 \tand\tw25, w0, #0xff\n  18cc08:\tf100031f \tcmp\tx24, #0x0\n  18cc0c:\t1a9f17e0 \tcset\tw0, eq\t// eq = none\n  18cc10:\tf9403fe5 \tldr\tx5, [sp, #120]\n  18cc14:\tf94047e7 \tldr\tx7, [sp, #136]\n  18cc18:\t2a000042 \torr\tw2, w2, w0\n  18cc1c:\t8b1b0666 \tadd\tx6, x19, x27, lsl #1\n  18cc20:\taa1303f5 \tmov\tx21, x19\n  18cc24:\tb40006bb \tcbz\tx27, 18ccf8 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x258>\n  18cc28:\tb9406fe8 \tldr\tw8, [sp, #108]\n  18cc2c:\t1200005b \tand\tw27, w2, #0x1\n  18cc30:\t12000339 \tand\tw25, w25, #0x1\n  18cc34:\tb94083e9 \tldr\tw9, [sp, #128]\n  18cc38:\t1400001b \tb\t18cca4 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x204>\n  18cc3c:\tb87568e1 \tldr\tw1, [x7, x21]\n  18cc40:\tb9406fe0 \tldr\tw0, [sp, #108]\n  18cc44:\t6b00003f \tcmp\tw1, w0\n  18cc48:\t54000d43 \tb.cc\t18cdf0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x350>  // b.lo, b.ul, b.last\n  18cc4c:\t2a0103e1 \tmov\tw1, w1\n  18cc50:\tcb080020 \tsub\tx0, x1, x8\n  18cc54:\teb09001f \tcmp\tx0, x9\n  18cc58:\t54000cc2 \tb.cs\t18cdf0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x350>  // b.hs, b.nlast\n  18cc5c:\t8b010341 \tadd\tx1, x26, x1\n  18cc60:\t35000d7b \tcbnz\tw27, 18ce0c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x36c>\n  18cc64:\tb7f80d41 \ttbnz\tx1, #63, 18ce0c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x36c>\n  18cc68:\teb14039f \tcmp\tx28, x20\n  18cc6c:\t540008a8 \tb.hi\t18cd80 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2e0>  // b.pmore\n  18cc70:\teb05003f \tcmp\tx1, x5\n  18cc74:\t54000868 \tb.hi\t18cd80 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2e0>  // b.pmore\n  18cc78:\t9b017301 \tmadd\tx1, x24, x1, x28\n  18cc7c:\teb14003f \tcmp\tx1, x20\n  18cc80:\t540002e8 \tb.hi\t18ccdc <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x23c>  // b.pmore\n  18cc84:\t34000199 \tcbz\tw25, 18ccb4 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x214>\n  18cc88:\tcb010281 \tsub\tx1, x20, x1\n  18cc8c:\teb01031f \tcmp\tx24, x1\n  18cc90:\t54000268 \tb.hi\t18ccdc <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x23c>  // b.pmore\n  18cc94:\t91000a73 \tadd\tx19, x19, #0x2\n  18cc98:\t8b1702b5 \tadd\tx21, x21, x23\n  18cc9c:\teb1300df \tcmp\tx6, x19\n  18cca0:\t540002c0 \tb.eq\t18ccf8 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x258>  // b.none\n  18cca4:\t71000adf \tcmp\tw22, #0x2\n  18cca8:\t54fffca1 \tb.ne\t18cc3c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x19c>  // b.any\n  18ccac:\t787368e1 \tldrh\tw1, [x7, x19]\n  18ccb0:\t17ffffe4 \tb\t18cc40 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x1a0>\n  18ccb4:\tf9403be0 \tldr\tx0, [sp, #112]\n  18ccb8:\taa1803e2 \tmov\tx2, x24\n  18ccbc:\ta90797e6 \tstp\tx6, x5, [sp, #120]\n  18ccc0:\ta908a7e8 \tstp\tx8, x9, [sp, #136]\n  18ccc4:\tf9004fe7 \tstr\tx7, [sp, #152]\n  18ccc8:\t9400fca6 \tbl\t1cbf60 <srhd_awa::matrixgame::buffers::Resource::Initialized(unsigned long, unsigned long) const>\n  18cccc:\tf9404fe7 \tldr\tx7, [sp, #152]\n  18ccd0:\ta94797e6 \tldp\tx6, x5, [sp, #120]\n  18ccd4:\ta948a7e8 \tldp\tx8, x9, [sp, #136]\n  18ccd8:\t3707fde0 \ttbnz\tw0, #0, 18cc94 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x1f4>\n  18ccdc:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cce0:\t94184e38 \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cce4:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cce8:\t91340021 \tadd\tx1, x1, #0xd00\n  18ccec:\taa0003f3 \tmov\tx19, x0\n  18ccf0:\t94187f6c \tbl\t7acaa0 <std::out_of_range::out_of_range(char const*)>\n  18ccf4:\t14000029 \tb\t18cd98 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2f8>\n  18ccf8:\ta94153f3 \tldp\tx19, x20, [sp, #16]\n  18ccfc:\ta9425bf5 \tldp\tx21, x22, [sp, #32]\n  18cd00:\ta94363f7 \tldp\tx23, x24, [sp, #48]\n  18cd04:\ta9446bf9 \tldp\tx25, x26, [sp, #64]\n  18cd08:\ta94573fb \tldp\tx27, x28, [sp, #80]\n  18cd0c:\ta8ca7bfd \tldp\tx29, x30, [sp], #160\n  18cd10:\td65f03c0 \tret\n  18cd14:\td2800005 \tmov\tx5, #0x0                   \t// #0\n  18cd18:\td2800014 \tmov\tx20, #0x0                   \t// #0\n  18cd1c:\t17ffffc0 \tb\t18cc1c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x17c>\n  18cd20:\td37f7cdb \tubfiz\tx27, x6, #1, #32\n  18cd24:\t7100083f \tcmp\tw1, #0x2\n  18cd28:\t54ffef80 \tb.eq\t18cb18 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x78>  // b.none\n  18cd2c:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cd30:\t94184e24 \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cd34:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cd38:\t9130c021 \tadd\tx1, x1, #0xc30\n  18cd3c:\taa0003f3 \tmov\tx19, x0\n  18cd40:\t94187f38 \tbl\t7aca20 <std::invalid_argument::invalid_argument(char const*)>\n  18cd44:\tf0005aa2 \tadrp\tx2, ce3000 <_GLOBAL_OFFSET_TABLE_+0x528>\n  18cd48:\tf9475442 \tldr\tx2, [x2, #3752]\n  18cd4c:\taa1303e0 \tmov\tx0, x19\n  18cd50:\tf0005ac1 \tadrp\tx1, ce7000 <_GLOBAL_OFFSET_TABLE_+0x4528>\n  18cd54:\tf9464821 \tldr\tx1, [x1, #3216]\n  18cd58:\t941852ca \tbl\t7a1880 <__cxa_throw>\n  18cd5c:\td37f7cc1 \tubfiz\tx1, x6, #1, #32\n  18cd60:\t8b26403b \tadd\tx27, x1, w6, uxtw\n  18cd64:\t17ffff6d \tb\t18cb18 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x78>\n  18cd68:\tcb1c0285 \tsub\tx5, x20, x28\n  18cd6c:\t9ad808a5 \tudiv\tx5, x5, x24\n  18cd70:\t17ffff9d \tb\t18cbe4 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x144>\n  18cd74:\t2a0603fb \tmov\tw27, w6\n  18cd78:\t9100077b \tadd\tx27, x27, #0x1\n  18cd7c:\t17ffff67 \tb\t18cb18 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x78>\n  18cd80:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cd84:\t94184e0f \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cd88:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cd8c:\t91338021 \tadd\tx1, x1, #0xce0\n  18cd90:\taa0003f3 \tmov\tx19, x0\n  18cd94:\t94187f43 \tbl\t7acaa0 <std::out_of_range::out_of_range(char const*)>\n  18cd98:\tf0005aa2 \tadrp\tx2, ce3000 <_GLOBAL_OFFSET_TABLE_+0x528>\n  18cd9c:\tf941f842 \tldr\tx2, [x2, #1008]\n  18cda0:\taa1303e0 \tmov\tx0, x19\n  18cda4:\tf0005aa1 \tadrp\tx1, ce3000 <_GLOBAL_OFFSET_TABLE_+0x528>\n  18cda8:\tf944ac21 \tldr\tx1, [x1, #2392]\n  18cdac:\t941852b5 \tbl\t7a1880 <__cxa_throw>\n  18cdb0:\taa0003f4 \tmov\tx20, x0\n  18cdb4:\taa1303e0 \tmov\tx0, x19\n  18cdb8:\t94184e1a \tbl\t7a0620 <__cxa_free_exception>\n  18cdbc:\taa1403e0 \tmov\tx0, x20\n  18cdc0:\t941a6570 \tbl\t826380 <_Unwind_Resume>\n  18cdc4:\t17fffffb \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n  18cdc8:\t17fffffa \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n  18cdcc:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cdd0:\t94184dfc \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cdd4:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cdd8:\t91316021 \tadd\tx1, x1, #0xc58\n  18cddc:\taa0003f3 \tmov\tx19, x0\n  18cde0:\t94187f10 \tbl\t7aca20 <std::invalid_argument::invalid_argument(char const*)>\n  18cde4:\t17ffffd8 \tb\t18cd44 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2a4>\n  18cde8:\t17fffff2 \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n  18cdec:\t17fffff1 \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n  18cdf0:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cdf4:\t94184df3 \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cdf8:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cdfc:\t91324021 \tadd\tx1, x1, #0xc90\n  18ce00:\taa0003f3 \tmov\tx19, x0\n  18ce04:\t94187f27 \tbl\t7acaa0 <std::out_of_range::out_of_range(char const*)>\n  18ce08:\t17ffffe4 \tb\t18cd98 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2f8>\n  18ce0c:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18ce10:\t94184dec \tbl\t7a05c0 <__cxa_allocate_exception>\n  18ce14:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18ce18:\t91330021 \tadd\tx1, x1, #0xcc0\n  18ce1c:\taa0003f3 \tmov\tx19, x0\n  18ce20:\t94187f20 \tbl\t7acaa0 <std::out_of_range::out_of_range(char const*)>\n  18ce24:\t17ffffdd \tb\t18cd98 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2f8>\n  18ce28:\t17ffffe2 \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n  18ce2c:\t17ffffe1 \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n",
+      "indexed": "\nD:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-uv-r24\\1\\matrixgame-native-diagnostic.elf:     file format elf64-littleaarch64\n\n\nDisassembly of section .text:\n\n000000000019afc0 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)>:\n  19afc0:\td10483ff \tsub\tsp, sp, #0x120\n  19afc4:\ta9017bfd \tstp\tx29, x30, [sp, #16]\n  19afc8:\t910043fd \tadd\tx29, sp, #0x10\n  19afcc:\ta90253f3 \tstp\tx19, x20, [sp, #32]\n  19afd0:\t2a0303f3 \tmov\tw19, w3\n  19afd4:\t2a0603f4 \tmov\tw20, w6\n  19afd8:\ta9035bf5 \tstp\tx21, x22, [sp, #48]\n  19afdc:\t2a0103f5 \tmov\tw21, w1\n  19afe0:\t2a0503f6 \tmov\tw22, w5\n  19afe4:\ta9056bf9 \tstp\tx25, x26, [sp, #80]\n  19afe8:\t2a0403f9 \tmov\tw25, w4\n  19afec:\tf9005fe0 \tstr\tx0, [sp, #184]\n  19aff0:\tf9403000 \tldr\tx0, [x0, #96]\n  19aff4:\tb90073e2 \tstr\tw2, [sp, #112]\n  19aff8:\tb900b7e1 \tstr\tw1, [sp, #180]\n  19affc:\tf90063e0 \tstr\tx0, [sp, #192]\n  19b000:\t912a8000 \tadd\tx0, x0, #0xaa0\n  19b004:\tf90067e0 \tstr\tx0, [sp, #200]\n  19b008:\tf90087e0 \tstr\tx0, [sp, #264]\n  19b00c:\t94182b8d \tbl\t7a5e40 <std::chrono::_V2::steady_clock::now()>\n  19b010:\tf9008be0 \tstr\tx0, [sp, #272]\n  19b014:\t390463ff \tstrb\twzr, [sp, #280]\n  19b018:\t340016b4 \tcbz\tw20, 19b2ec <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x32c>\n  19b01c:\ta90463f7 \tstp\tx23, x24, [sp, #64]\n  19b020:\ta90673fb \tstp\tx27, x28, [sp, #96]\n  19b024:\t71000ebf \tcmp\tw21, #0x3\n  19b028:\t54001cc0 \tb.eq\t19b3c0 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x400>  // b.none\n  19b02c:\t54000149 \tb.ls\t19b054 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x94>  // b.plast\n  19b030:\tb940b7e0 \tldr\tw0, [sp, #180]\n  19b034:\t7100101f \tcmp\tw0, #0x4\n  19b038:\t54001ae0 \tb.eq\t19b394 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x3d4>  // b.none\n  19b03c:\t51001400 \tsub\tw0, w0, #0x5\n  19b040:\t7100041f \tcmp\tw0, #0x1\n  19b044:\t54001908 \tb.hi\t19b364 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x3a4>  // b.pmore\n  19b048:\t2a1403f7 \tmov\tw23, w20\n  19b04c:\t91000af7 \tadd\tx23, x23, #0x2\n  19b050:\t14000004 \tb\t19b060 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xa0>\n  19b054:\t710006bf \tcmp\tw21, #0x1\n  19b058:\t54001801 \tb.ne\t19b358 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x398>  // b.any\n  19b05c:\t2a1403f7 \tmov\tw23, w20\n  19b060:\t7100027f \tcmp\tw19, #0x0\n  19b064:\t528aaaa0 \tmov\tw0, #0x5555                \t// #21845\n  19b068:\t72a002a0 \tmovk\tw0, #0x15, lsl #16\n  19b06c:\t7a40a322 \tccmp\tw25, w0, #0x2, ge\t// ge = tcont\n  19b070:\t54001ae8 \tb.hi\t19b3cc <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x40c>  // b.pmore\n  19b074:\td2a10000 \tmov\tx0, #0x8000000             \t// #134217728\n  19b078:\teb0002ff \tcmp\tx23, x0\n  19b07c:\t54001f88 \tb.hi\t19b46c <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x4ac>  // b.pmore\n  19b080:\t9400c43c \tbl\t1cc170 <srhd_awa::matrixgame::buffers::Current()>\n  19b084:\tb94073e2 \tldr\tw2, [sp, #112]\n  19b088:\t2a1403e6 \tmov\tw6, w20\n  19b08c:\t2a1603e5 \tmov\tw5, w22\n  19b090:\t2a1903e4 \tmov\tw4, w25\n  19b094:\t2a1303e3 \tmov\tw3, w19\n  19b098:\tb940b7e1 \tldr\tw1, [sp, #180]\n  19b09c:\taa0003f8 \tmov\tx24, x0\n  19b0a0:\t97ffc680 \tbl\t18caa0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)>\n  19b0a4:\ta9425700 \tldp\tx0, x21, [x24, #32]\n  19b0a8:\tf9004be0 \tstr\tx0, [sp, #144]\n  19b0ac:\ta941031c \tldp\tx28, x0, [x24, #16]\n  19b0b0:\tb9407818 \tldr\tw24, [x0, #120]\n  19b0b4:\t9400c3cb \tbl\t1cbfe0 <srhd_awa::matrixgame::buffers::Resource::Storage() const>\n  19b0b8:\t9bb802d6 \tumaddl\tx22, w22, w24, x0\n  19b0bc:\t2a1803e0 \tmov\tw0, w24\n  19b0c0:\t2a1903fa \tmov\tw26, w25\n  19b0c4:\t9b177c00 \tmul\tx0, x0, x23\n  19b0c8:\tf9006be0 \tstr\tx0, [sp, #208]\n  19b0cc:\t340016b9 \tcbz\tw25, 19b3a0 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x3e0>\n  19b0d0:\t52801800 \tmov\tw0, #0xc0                  \t// #192\n  19b0d4:\t9ba07f34 \tumull\tx20, w25, w0\n  19b0d8:\taa1403e0 \tmov\tx0, x20\n  19b0dc:\tf90077f4 \tstr\tx20, [sp, #232]\n  19b0e0:\t94181b48 \tbl\t7a1e00 <operator new(unsigned long)>\n  19b0e4:\t4f00041f \tmovi\tv31.4s, #0x0\n  19b0e8:\t1e2e101e \tfmov\ts30, #1.000000000000000000e+00\n  19b0ec:\t8b140002 \tadd\tx2, x0, x20\n  19b0f0:\taa0003fb \tmov\tx27, x0\n  19b0f4:\taa1a03e1 \tmov\tx1, x26\n  19b0f8:\tf9007be0 \tstr\tx0, [sp, #240]\n  19b0fc:\tf90083e2 \tstr\tx2, [sp, #256]\n  19b100:\t3d80001f \tstr\tq31, [x0]\n  19b104:\tf1000421 \tsubs\tx1, x1, #0x1\n  19b108:\t91030000 \tadd\tx0, x0, #0xc0\n  19b10c:\tbc14c01e \tstur\ts30, [x0, #-180]\n  19b110:\ta9357c1f \tstp\txzr, xzr, [x0, #-176]\n  19b114:\t2d2c781e \tstp\ts30, s30, [x0, #-160]\n  19b118:\t2d2d781e \tstp\ts30, s30, [x0, #-152]\n  19b11c:\ta9377c1f \tstp\txzr, xzr, [x0, #-144]\n  19b120:\tad3c7c1f \tstp\tq31, q31, [x0, #-128]\n  19b124:\tad3d7c1f \tstp\tq31, q31, [x0, #-96]\n  19b128:\tad3e7c1f \tstp\tq31, q31, [x0, #-64]\n  19b12c:\tad3f7c1f \tstp\tq31, q31, [x0, #-32]\n  19b130:\t54fffe81 \tb.ne\t19b100 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x140>  // b.any\n  19b134:\taa0203e0 \tmov\tx0, x2\n  19b138:\t9100ff42 \tadd\tx2, x26, #0x3f\n  19b13c:\td3469442 \tubfx\tx2, x2, #6, #32\n  19b140:\td37df042 \tlsl\tx2, x2, #3\n  19b144:\tf9006fe0 \tstr\tx0, [sp, #216]\n  19b148:\tf9007fe0 \tstr\tx0, [sp, #248]\n  19b14c:\taa0203e0 \tmov\tx0, x2\n  19b150:\tf9003fe2 \tstr\tx2, [sp, #120]\n  19b154:\t94181b2b \tbl\t7a1e00 <operator new(unsigned long)>\n  19b158:\tf9403fe2 \tldr\tx2, [sp, #120]\n  19b15c:\td346ff43 \tlsr\tx3, x26, #6\n  19b160:\taa0003f4 \tmov\tx20, x0\n  19b164:\t8b030c1a \tadd\tx26, x0, x3, lsl #3\n  19b168:\t92401739 \tand\tx25, x25, #0x3f\n  19b16c:\t8b020001 \tadd\tx1, x0, x2\n  19b170:\tf90073e1 \tstr\tx1, [sp, #224]\n  19b174:\t52800001 \tmov\tw1, #0x0                   \t// #0\n  19b178:\t941a6382 \tbl\t833f80 <memset>\n  19b17c:\tf9405fe0 \tldr\tx0, [sp, #184]\n  19b180:\tf9403000 \tldr\tx0, [x0, #96]\n  19b184:\t9123a000 \tadd\tx0, x0, #0x8e8\n  19b188:\t9400697a \tbl\t1b5770 <srhd_awa::matrixgame::platform3g::NativeStateStore::Read() const>\n  19b18c:\t91048000 \tadd\tx0, x0, #0x120\n  19b190:\tf90047e0 \tstr\tx0, [sp, #136]\n  19b194:\taa1c03e0 \tmov\tx0, x28\n  19b198:\t9400c392 \tbl\t1cbfe0 <srhd_awa::matrixgame::buffers::Resource::Storage() const>\n  19b19c:\ta90a07e0 \tstp\tx0, x1, [sp, #160]\n  19b1a0:\tcb140349 \tsub\tx9, x26, x20\n  19b1a4:\td280001c \tmov\tx28, #0x0                   \t// #0\n  19b1a8:\t8b090f39 \tadd\tx25, x25, x9, lsl #3\n  19b1ac:\td280003a \tmov\tx26, #0x1                   \t// #1\n  19b1b0:\tb98073e0 \tldrsw\tx0, [sp, #112]\n  19b1b4:\tf9004fe0 \tstr\tx0, [sp, #152]\n  19b1b8:\t14000023 \tb\t19b244 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x284>\n  19b1bc:\tb87c7ac2 \tldr\tw2, [x22, x28, lsl #2]\n  19b1c0:\t4b130045 \tsub\tw5, w2, w19\n  19b1c4:\t4b130041 \tsub\tw1, w2, w19\n  19b1c8:\teb1900bf \tcmp\tx5, x25\n  19b1cc:\t54001182 \tb.cs\t19b3fc <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x43c>  // b.hs, b.nlast\n  19b1d0:\td346fca5 \tlsr\tx5, x5, #6\n  19b1d4:\t9ac12348 \tlsl\tx8, x26, x1\n  19b1d8:\tf8657a87 \tldr\tx7, [x20, x5, lsl #3]\n  19b1dc:\tea0800ff \ttst\tx7, x8\n  19b1e0:\t540002c1 \tb.ne\t19b238 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x278>  // b.any\n  19b1e4:\tf9404fe0 \tldr\tx0, [sp, #152]\n  19b1e8:\t8b224002 \tadd\tx2, x0, w2, uxtw\n  19b1ec:\tb10006bf \tcmn\tx21, #0x1\n  19b1f0:\t2a1503e4 \tmov\tw4, w21\n  19b1f4:\ta90723e7 \tstp\tx7, x8, [sp, #112]\n  19b1f8:\tf9404be0 \tldr\tx0, [sp, #144]\n  19b1fc:\tf90043e5 \tstr\tx5, [sp, #128]\n  19b200:\t9b150042 \tmadd\tx2, x2, x21, x0\n  19b204:\tf94057e0 \tldr\tx0, [sp, #168]\n  19b208:\tcb020003 \tsub\tx3, x0, x2\n  19b20c:\tf94053e0 \tldr\tx0, [sp, #160]\n  19b210:\t9a950063 \tcsel\tx3, x3, x21, eq\t// eq = none\n  19b214:\t8b000042 \tadd\tx2, x2, x0\n  19b218:\t52801800 \tmov\tw0, #0xc0                  \t// #192\n  19b21c:\t9ba06c21 \tumaddl\tx1, w1, w0, x27\n  19b220:\tf94047e0 \tldr\tx0, [sp, #136]\n  19b224:\t9417b5db \tbl\t788990 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const>\n  19b228:\ta94723e7 \tldp\tx7, x8, [sp, #112]\n  19b22c:\tf94043e5 \tldr\tx5, [sp, #128]\n  19b230:\taa0800e7 \torr\tx7, x7, x8\n  19b234:\tf8257a87 \tstr\tx7, [x20, x5, lsl #3]\n  19b238:\t9100079c \tadd\tx28, x28, #0x1\n  19b23c:\teb17039f \tcmp\tx28, x23\n  19b240:\t540000a0 \tb.eq\t19b254 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x294>  // b.none\n  19b244:\t71000b1f \tcmp\tw24, #0x2\n  19b248:\t54fffba1 \tb.ne\t19b1bc <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x1fc>  // b.any\n  19b24c:\t787c7ac2 \tldrh\tw2, [x22, x28, lsl #1]\n  19b250:\t17ffffdc \tb\t19b1c0 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x200>\n  19b254:\t910423e0 \tadd\tx0, sp, #0x108\n  19b258:\t97ffbac6 \tbl\t189d70 <srhd_awa::matrixgame::platform3g::ProfileScope::Stop() [clone .part.0]>\n  19b25c:\tf9405fe0 \tldr\tx0, [sp, #184]\n  19b260:\t71000b1f \tcmp\tw24, #0x2\n  19b264:\t1a9f07f8 \tcset\tw24, ne\t// ne = any\n  19b268:\tf9403015 \tldr\tx21, [x0, #96]\n  19b26c:\tf9406fe0 \tldr\tx0, [sp, #216]\n  19b270:\tcb1b0019 \tsub\tx25, x0, x27\n  19b274:\tb201f3e0 \tmov\tx0, #0xaaaaaaaaaaaaaaaa    \t// #-6148914691236517206\n  19b278:\tf2955560 \tmovk\tx0, #0xaaab\n  19b27c:\t9346ff39 \tasr\tx25, x25, #6\n  19b280:\t9b007f39 \tmul\tx25, x25, x0\n  19b284:\tb940b7e0 \tldr\tw0, [sp, #180]\n  19b288:\t97ffb6f2 \tbl\t188e50 <srhd_awa::matrixgame::platform3g::(anonymous namespace)::NativePrimitive(unsigned int)>\n  19b28c:\tf9406be4 \tldr\tx4, [sp, #208]\n  19b290:\t4b1303e7 \tneg\tw7, w19\n  19b294:\t2a1c03e6 \tmov\tw6, w28\n  19b298:\t11000705 \tadd\tw5, w24, #0x1\n  19b29c:\taa1603e3 \tmov\tx3, x22\n  19b2a0:\tb90003e0 \tstr\tw0, [sp]\n  19b2a4:\taa1b03e1 \tmov\tx1, x27\n  19b2a8:\taa1903e2 \tmov\tx2, x25\n  19b2ac:\tf90007ff \tstr\txzr, [sp, #8]\n  19b2b0:\taa1503e0 \tmov\tx0, x21\n  19b2b4:\t97fff4bf \tbl\t1985b0 <srhd_awa::matrixgame::platform3g::DekoDevice::Impl::Record(std::span<srhd_awa::matrixgame::materials::Vertex const, 18446744073709551615ul>, std::span<std::byte const, 18446744073709551615ul>, DkIdxFormat, unsigned int, int, DkPrimitive, srhd_awa::matrixgame::platform3g::NativeRenderState const*)>\n  19b2b8:\tb40000b4 \tcbz\tx20, 19b2cc <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x30c>\n  19b2bc:\tf94073e0 \tldr\tx0, [sp, #224]\n  19b2c0:\tcb140001 \tsub\tx1, x0, x20\n  19b2c4:\taa1403e0 \tmov\tx0, x20\n  19b2c8:\t9418137e \tbl\t7a00c0 <operator delete(void*, unsigned long)>\n  19b2cc:\tb400009b \tcbz\tx27, 19b2dc <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x31c>\n  19b2d0:\tf94077e1 \tldr\tx1, [sp, #232]\n  19b2d4:\taa1b03e0 \tmov\tx0, x27\n  19b2d8:\t9418137a \tbl\t7a00c0 <operator delete(void*, unsigned long)>\n  19b2dc:\t394463e0 \tldrb\tw0, [sp, #280]\n  19b2e0:\ta94463f7 \tldp\tx23, x24, [sp, #64]\n  19b2e4:\ta94673fb \tldp\tx27, x28, [sp, #96]\n  19b2e8:\t370002a0 \ttbnz\tw0, #0, 19b33c <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x37c>\n  19b2ec:\t94182ad5 \tbl\t7a5e40 <std::chrono::_V2::steady_clock::now()>\n  19b2f0:\tf9408be1 \tldr\tx1, [sp, #272]\n  19b2f4:\ta94c0fe2 \tldp\tx2, x3, [sp, #192]\n  19b2f8:\tcb010000 \tsub\tx0, x0, x1\n  19b2fc:\td29ef9e1 \tmov\tx1, #0xf7cf                \t// #63439\n  19b300:\tf2bc6a61 \tmovk\tx1, #0xe353, lsl #16\n  19b304:\tf2d374a1 \tmovk\tx1, #0x9ba5, lsl #32\n  19b308:\tf2e41881 \tmovk\tx1, #0x20c4, lsl #48\n  19b30c:\t9b417c01 \tsmulh\tx1, x0, x1\n  19b310:\t9347fc21 \tasr\tx1, x1, #7\n  19b314:\tcb80fc20 \tsub\tx0, x1, x0, asr #63\n  19b318:\tf9455041 \tldr\tx1, [x2, #2720]\n  19b31c:\t91000421 \tadd\tx1, x1, #0x1\n  19b320:\tf9055041 \tstr\tx1, [x2, #2720]\n  19b324:\ta9408861 \tldp\tx1, x2, [x3, #8]\n  19b328:\t8b000021 \tadd\tx1, x1, x0\n  19b32c:\tf9000461 \tstr\tx1, [x3, #8]\n  19b330:\teb02001f \tcmp\tx0, x2\n  19b334:\t54000049 \tb.ls\t19b33c <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x37c>  // b.plast\n  19b338:\tf9000860 \tstr\tx0, [x3, #16]\n  19b33c:\ta9417bfd \tldp\tx29, x30, [sp, #16]\n  19b340:\t52800000 \tmov\tw0, #0x0                   \t// #0\n  19b344:\ta94253f3 \tldp\tx19, x20, [sp, #32]\n  19b348:\ta9435bf5 \tldp\tx21, x22, [sp, #48]\n  19b34c:\ta9456bf9 \tldp\tx25, x26, [sp, #80]\n  19b350:\t910483ff \tadd\tsp, sp, #0x120\n  19b354:\td65f03c0 \tret\n  19b358:\td37f7e97 \tubfiz\tx23, x20, #1, #32\n  19b35c:\t71000abf \tcmp\tw21, #0x2\n  19b360:\t54ffe800 \tb.eq\t19b060 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xa0>  // b.none\n  19b364:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  19b368:\t94181496 \tbl\t7a05c0 <__cxa_allocate_exception>\n  19b36c:\tb0003661 \tadrp\tx1, 868000 <_fini+0xedb8>\n  19b370:\t9130c021 \tadd\tx1, x1, #0xc30\n  19b374:\taa0003f4 \tmov\tx20, x0\n  19b378:\t941845aa \tbl\t7aca20 <std::invalid_argument::invalid_argument(char const*)>\n  19b37c:\t90005a42 \tadrp\tx2, ce3000 <_GLOBAL_OFFSET_TABLE_+0x528>\n  19b380:\tf9475442 \tldr\tx2, [x2, #3752]\n  19b384:\taa1403e0 \tmov\tx0, x20\n  19b388:\t90005a61 \tadrp\tx1, ce7000 <_GLOBAL_OFFSET_TABLE_+0x4528>\n  19b38c:\tf9464821 \tldr\tx1, [x1, #3216]\n  19b390:\t9418193c \tbl\t7a1880 <__cxa_throw>\n  19b394:\td37f7e97 \tubfiz\tx23, x20, #1, #32\n  19b398:\t8b3442f7 \tadd\tx23, x23, w20, uxtw\n  19b39c:\t17ffff31 \tb\t19b060 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xa0>\n  19b3a0:\td280001b \tmov\tx27, #0x0                   \t// #0\n  19b3a4:\td2800014 \tmov\tx20, #0x0                   \t// #0\n  19b3a8:\ta90dffff \tstp\txzr, xzr, [sp, #216]\n  19b3ac:\td280001a \tmov\tx26, #0x0                   \t// #0\n  19b3b0:\tf90077ff \tstr\txzr, [sp, #232]\n  19b3b4:\ta90f7fff \tstp\txzr, xzr, [sp, #240]\n  19b3b8:\tf90083ff \tstr\txzr, [sp, #256]\n  19b3bc:\t17ffff70 \tb\t19b17c <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x1bc>\n  19b3c0:\t2a1403f7 \tmov\tw23, w20\n  19b3c4:\t910006f7 \tadd\tx23, x23, #0x1\n  19b3c8:\t17ffff26 \tb\t19b060 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xa0>\n  19b3cc:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  19b3d0:\t9418147c \tbl\t7a05c0 <__cxa_allocate_exception>\n  19b3d4:\td0003661 \tadrp\tx1, 869000 <_fini+0xfdb8>\n  19b3d8:\t913b6021 \tadd\tx1, x1, #0xed8\n  19b3dc:\taa0003f4 \tmov\tx20, x0\n  19b3e0:\t941845a0 \tbl\t7aca60 <std::length_error::length_error(char const*)>\n  19b3e4:\tf0005a42 \tadrp\tx2, ce6000 <_GLOBAL_OFFSET_TABLE_+0x3528>\n  19b3e8:\tf9456c42 \tldr\tx2, [x2, #2776]\n  19b3ec:\taa1403e0 \tmov\tx0, x20\n  19b3f0:\t90005a61 \tadrp\tx1, ce7000 <_GLOBAL_OFFSET_TABLE_+0x4528>\n  19b3f4:\tf9450c21 \tldr\tx1, [x1, #2584]\n  19b3f8:\t94181922 \tbl\t7a1880 <__cxa_throw>\n  19b3fc:\td0003660 \tadrp\tx0, 869000 <_fini+0xfdb8>\n  19b400:\t913c6000 \tadd\tx0, x0, #0xf18\n  19b404:\taa1903e2 \tmov\tx2, x25\n  19b408:\taa0503e1 \tmov\tx1, x5\n  19b40c:\t97f9979b \tbl\t1278 <std::__throw_out_of_range_fmt(char const*, ...)>\n  19b410:\taa0003f3 \tmov\tx19, x0\n  19b414:\taa1403e0 \tmov\tx0, x20\n  19b418:\t94181482 \tbl\t7a0620 <__cxa_free_exception>\n  19b41c:\t394463e0 \tldrb\tw0, [sp, #280]\n  19b420:\t37000060 \ttbnz\tw0, #0, 19b42c <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x46c>\n  19b424:\t910423e0 \tadd\tx0, sp, #0x108\n  19b428:\t97ffba52 \tbl\t189d70 <srhd_awa::matrixgame::platform3g::ProfileScope::Stop() [clone .part.0]>\n  19b42c:\taa1303e0 \tmov\tx0, x19\n  19b430:\t941a2bd4 \tbl\t826380 <_Unwind_Resume>\n  19b434:\t17fffff7 \tb\t19b410 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x450>\n  19b438:\taa0003f3 \tmov\tx19, x0\n  19b43c:\tb40000b4 \tcbz\tx20, 19b450 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x490>\n  19b440:\tf94073e0 \tldr\tx0, [sp, #224]\n  19b444:\tcb140001 \tsub\tx1, x0, x20\n  19b448:\taa1403e0 \tmov\tx0, x20\n  19b44c:\t9418131d \tbl\t7a00c0 <operator delete(void*, unsigned long)>\n  19b450:\t9103c3e0 \tadd\tx0, sp, #0xf0\n  19b454:\t97ffed53 \tbl\t1969a0 <std::_Vector_base<srhd_awa::matrixgame::materials::Vertex, std::allocator<srhd_awa::matrixgame::materials::Vertex> >::~_Vector_base()>\n  19b458:\t17fffff1 \tb\t19b41c <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x45c>\n  19b45c:\taa0003f3 \tmov\tx19, x0\n  19b460:\t17fffffc \tb\t19b450 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x490>\n  19b464:\taa0003f3 \tmov\tx19, x0\n  19b468:\t17ffffed \tb\t19b41c <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x45c>\n  19b46c:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  19b470:\t94181454 \tbl\t7a05c0 <__cxa_allocate_exception>\n  19b474:\td0003661 \tadrp\tx1, 869000 <_fini+0xfdb8>\n  19b478:\t913be021 \tadd\tx1, x1, #0xef8\n  19b47c:\taa0003f4 \tmov\tx20, x0\n  19b480:\t94184578 \tbl\t7aca60 <std::length_error::length_error(char const*)>\n  19b484:\tf0005a42 \tadrp\tx2, ce6000 <_GLOBAL_OFFSET_TABLE_+0x3528>\n  19b488:\tf9456c42 \tldr\tx2, [x2, #2776]\n  19b48c:\taa1403e0 \tmov\tx0, x20\n  19b490:\t90005a61 \tadrp\tx1, ce7000 <_GLOBAL_OFFSET_TABLE_+0x4528>\n  19b494:\tf9450c21 \tldr\tx1, [x1, #2584]\n  19b498:\t941818fa \tbl\t7a1880 <__cxa_throw>\n  19b49c:\t17ffffdd \tb\t19b410 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x450>\n",
+      "lock_audit": {
+        "loop_begin": "0x18cc40",
+        "loop_end": "0x18ccb0",
+        "locked_loads": [
+          {
+            "address": "0x18cacc",
+            "inside": false,
+            "instruction": "  18cacc:\t39418699 \tldrb\tw25, [x20, #97]"
+          },
+          {
+            "address": "0x18cc00",
+            "inside": false,
+            "instruction": "  18cc00:\t394186a2 \tldrb\tw2, [x21, #97]"
+          }
+        ],
+        "inside": 0
+      },
+      "DecodeTo": "\nD:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-uv-r24\\1\\matrixgame-native-diagnostic.elf:     file format elf64-littleaarch64\n\n\nDisassembly of section .text:\n\n0000000000788990 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const>:\n  788990:\ta9bc7bfd \tstp\tx29, x30, [sp, #-64]!\n  788994:\t910003fd \tmov\tx29, sp\n  788998:\taa0003e7 \tmov\tx7, x0\n  78899c:\ta90153f3 \tstp\tx19, x20, [sp, #16]\n  7889a0:\tb9400400 \tldr\tw0, [x0, #4]\n  7889a4:\t6b04001f \tcmp\tw0, w4\n  7889a8:\t54001088 \tb.hi\t788bb8 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x228>  // b.pmore\n  7889ac:\teb24407f \tcmp\tx3, w4, uxtw\n  7889b0:\t54001041 \tb.ne\t788bb8 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x228>  // b.any\n  7889b4:\td2e7f000 \tmov\tx0, #0x3f80000000000000    \t// #4575657221408423936\n  7889b8:\ta9017c3f \tstp\txzr, xzr, [x1, #16]\n  7889bc:\taa0103e5 \tmov\tx5, x1\n  7889c0:\ta900003f \tstp\txzr, x0, [x1]\n  7889c4:\tb2091be0 \tmov\tx0, #0x3f8000003f800000    \t// #4575657222473777152\n  7889c8:\ta9020020 \tstp\tx0, x0, [x1, #32]\n  7889cc:\tb94000e3 \tldr\tw3, [x7]\n  7889d0:\ta9037c3f \tstp\txzr, xzr, [x1, #48]\n  7889d4:\t121f0863 \tand\tw3, w3, #0xe\n  7889d8:\t7100107f \tcmp\tw3, #0x4\n  7889dc:\t54000e40 \tb.eq\t788ba4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x214>  // b.none\n  7889e0:\tf9400041 \tldr\tx1, [x2]\n  7889e4:\td2800188 \tmov\tx8, #0xc                   \t// #12\n  7889e8:\t52800063 \tmov\tw3, #0x3                   \t// #3\n  7889ec:\tb9400840 \tldr\tw0, [x2, #8]\n  7889f0:\tf90000a1 \tstr\tx1, [x5]\n  7889f4:\tb90008a0 \tstr\tw0, [x5, #8]\n  7889f8:\td2800000 \tmov\tx0, #0x0                   \t// #0\n  7889fc:\t52bfe006 \tmov\tw6, #0xff000000            \t// #-16777216\n  788a00:\tb86078a1 \tldr\tw1, [x5, x0, lsl #2]\n  788a04:\t6b0104df \tcmp\tw6, w1, lsl #1\n  788a08:\t54000d69 \tb.ls\t788bb4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x224>  // b.plast\n  788a0c:\t91000400 \tadd\tx0, x0, #0x1\n  788a10:\t6b00007f \tcmp\tw3, w0\n  788a14:\t54ffff68 \tb.hi\t788a00 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x70>  // b.pmore\n  788a18:\tb94000f4 \tldr\tw20, [x7]\n  788a1c:\t8b080053 \tadd\tx19, x2, x8\n  788a20:\t37200a14 \ttbnz\tw20, #4, 788b60 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x1d0>\n  788a24:\t363000b4 \ttbz\tw20, #6, 788a38 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xa8>\n  788a28:\tb8404660 \tldr\tw0, [x19], #4\n  788a2c:\t97fffafd \tbl\t787620 <srhd_awa::matrixgame::materials::(anonymous namespace)::Argb(unsigned int)>\n  788a30:\t2d0404a0 \tstp\ts0, s1, [x5, #32]\n  788a34:\t2d050ca2 \tstp\ts2, s3, [x5, #40]\n  788a38:\t373808b4 \ttbnz\tw20, #7, 788b4c <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x1bc>\n  788a3c:\t1e2e101f \tfmov\ts31, #1.000000000000000000e+00\n  788a40:\t910100a0 \tadd\tx0, x5, #0x40\n  788a44:\t910300a1 \tadd\tx1, x5, #0xc0\n  788a48:\t91004000 \tadd\tx0, x0, #0x10\n  788a4c:\t293e7c1f \tstp\twzr, wzr, [x0, #-16]\n  788a50:\tb81f801f \tstur\twzr, [x0, #-8]\n  788a54:\tbc1fc01f \tstur\ts31, [x0, #-4]\n  788a58:\teb00003f \tcmp\tx1, x0\n  788a5c:\t54ffff61 \tb.ne\t788a48 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xb8>  // b.any\n  788a60:\td3482e94 \tubfx\tx20, x20, #8, #4\n  788a64:\t34000374 \tcbz\tw20, 788ad0 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x140>\n  788a68:\t910100a4 \tadd\tx4, x5, #0x40\n  788a6c:\t52bfe006 \tmov\tw6, #0xff000000            \t// #-16777216\n  788a70:\t8b3448f4 \tadd\tx20, x7, w20, uxtw #2\n  788a74:\td503201f \tnop\n  788a78:\tb94008e5 \tldr\tw5, [x7, #8]\n  788a7c:\t71000cbf \tcmp\tw5, #0x3\n  788a80:\t54000380 \tb.eq\t788af0 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x160>  // b.none\n  788a84:\t540002c8 \tb.hi\t788adc <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x14c>  // b.pmore\n  788a88:\t710004bf \tcmp\tw5, #0x1\n  788a8c:\t540003e0 \tb.eq\t788b08 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x178>  // b.none\n  788a90:\t710008bf \tcmp\tw5, #0x2\n  788a94:\t54000161 \tb.ne\t788ac0 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x130>  // b.any\n  788a98:\tf8408660 \tldr\tx0, [x19], #8\n  788a9c:\tf9000080 \tstr\tx0, [x4]\n  788aa0:\td2800002 \tmov\tx2, #0x0                   \t// #0\n  788aa4:\td503201f \tnop\n  788aa8:\tb8627883 \tldr\tw3, [x4, x2, lsl #2]\n  788aac:\t6b0304df \tcmp\tw6, w3, lsl #1\n  788ab0:\t54000829 \tb.ls\t788bb4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x224>  // b.plast\n  788ab4:\t91000442 \tadd\tx2, x2, #0x1\n  788ab8:\t6b0200bf \tcmp\tw5, w2\n  788abc:\t54ffff68 \tb.hi\t788aa8 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x118>  // b.pmore\n  788ac0:\t910010e7 \tadd\tx7, x7, #0x4\n  788ac4:\t91004084 \tadd\tx4, x4, #0x10\n  788ac8:\teb1400ff \tcmp\tx7, x20\n  788acc:\t54fffd61 \tb.ne\t788a78 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xe8>  // b.any\n  788ad0:\ta94153f3 \tldp\tx19, x20, [sp, #16]\n  788ad4:\ta8c47bfd \tldp\tx29, x30, [sp], #64\n  788ad8:\td65f03c0 \tret\n  788adc:\t710010bf \tcmp\tw5, #0x4\n  788ae0:\t540001a1 \tb.ne\t788b14 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x184>  // b.any\n  788ae4:\ta8c10660 \tldp\tx0, x1, [x19], #16\n  788ae8:\ta9000480 \tstp\tx0, x1, [x4]\n  788aec:\t17ffffed \tb\t788aa0 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x110>\n  788af0:\tf9400261 \tldr\tx1, [x19]\n  788af4:\t91003273 \tadd\tx19, x19, #0xc\n  788af8:\tb85fc260 \tldur\tw0, [x19, #-4]\n  788afc:\tf9000081 \tstr\tx1, [x4]\n  788b00:\tb9000880 \tstr\tw0, [x4, #8]\n  788b04:\t17ffffe7 \tb\t788aa0 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x110>\n  788b08:\tb8404660 \tldr\tw0, [x19], #4\n  788b0c:\tb9000080 \tstr\tw0, [x4]\n  788b10:\t17ffffe4 \tb\t788aa0 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x110>\n  788b14:\t531e74a2 \tlsl\tw2, w5, #2\n  788b18:\taa1303e1 \tmov\tx1, x19\n  788b1c:\tb90037e5 \tstr\tw5, [sp, #52]\n  788b20:\taa0403e0 \tmov\tx0, x4\n  788b24:\tf9001fe7 \tstr\tx7, [sp, #56]\n  788b28:\tf90017e2 \tstr\tx2, [sp, #40]\n  788b2c:\t94028335 \tbl\t829800 <memcpy>\n  788b30:\tf94017e2 \tldr\tx2, [sp, #40]\n  788b34:\taa0003e4 \tmov\tx4, x0\n  788b38:\t52bfe006 \tmov\tw6, #0xff000000            \t// #-16777216\n  788b3c:\tf9401fe7 \tldr\tx7, [sp, #56]\n  788b40:\tb94037e5 \tldr\tw5, [sp, #52]\n  788b44:\t8b020273 \tadd\tx19, x19, x2\n  788b48:\t17ffffd6 \tb\t788aa0 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x110>\n  788b4c:\tb8404660 \tldr\tw0, [x19], #4\n  788b50:\t97fffab4 \tbl\t787620 <srhd_awa::matrixgame::materials::(anonymous namespace)::Argb(unsigned int)>\n  788b54:\t2d0604a0 \tstp\ts0, s1, [x5, #48]\n  788b58:\t2d070ca2 \tstp\ts2, s3, [x5, #56]\n  788b5c:\t17ffffb8 \tb\t788a3c <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xac>\n  788b60:\tf8686841 \tldr\tx1, [x2, x8]\n  788b64:\tb9400a60 \tldr\tw0, [x19, #8]\n  788b68:\tf90008a1 \tstr\tx1, [x5, #16]\n  788b6c:\tb90018a0 \tstr\tw0, [x5, #24]\n  788b70:\tb94010a0 \tldr\tw0, [x5, #16]\n  788b74:\t6b0004df \tcmp\tw6, w0, lsl #1\n  788b78:\t540001e9 \tb.ls\t788bb4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x224>  // b.plast\n  788b7c:\tb94014a0 \tldr\tw0, [x5, #20]\n  788b80:\t6b0004df \tcmp\tw6, w0, lsl #1\n  788b84:\t54000189 \tb.ls\t788bb4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x224>  // b.plast\n  788b88:\tb94018a0 \tldr\tw0, [x5, #24]\n  788b8c:\t6b0004df \tcmp\tw6, w0, lsl #1\n  788b90:\t54000129 \tb.ls\t788bb4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x224>  // b.plast\n  788b94:\tb94000f4 \tldr\tw20, [x7]\n  788b98:\t91003273 \tadd\tx19, x19, #0xc\n  788b9c:\t3637f4f4 \ttbz\tw20, #6, 788a38 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xa8>\n  788ba0:\t17ffffa2 \tb\t788a28 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x98>\n  788ba4:\ta9400440 \tldp\tx0, x1, [x2]\n  788ba8:\td2800208 \tmov\tx8, #0x10                  \t// #16\n  788bac:\ta90004a0 \tstp\tx0, x1, [x5]\n  788bb0:\t17ffff92 \tb\t7889f8 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x68>\n  788bb4:\t97e1e0a0 \tbl\te34 <srhd_awa::matrixgame::materials::(anonymous namespace)::NonfiniteVertexValue()>\n  788bb8:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  788bbc:\t94005e81 \tbl\t7a05c0 <__cxa_allocate_exception>\n  788bc0:\tb0000961 \tadrp\tx1, 8b5000 <_fini+0x5bdb8>\n  788bc4:\t91206021 \tadd\tx1, x1, #0x818\n  788bc8:\taa0003f3 \tmov\tx19, x0\n  788bcc:\t94008f95 \tbl\t7aca20 <std::invalid_argument::invalid_argument(char const*)>\n  788bd0:\tf0002ac2 \tadrp\tx2, ce3000 <_GLOBAL_OFFSET_TABLE_+0x528>\n  788bd4:\tf9475442 \tldr\tx2, [x2, #3752]\n  788bd8:\taa1303e0 \tmov\tx0, x19\n  788bdc:\tf0002ae1 \tadrp\tx1, ce7000 <_GLOBAL_OFFSET_TABLE_+0x4528>\n  788be0:\tf9464821 \tldr\tx1, [x1, #3216]\n  788be4:\t94006327 \tbl\t7a1880 <__cxa_throw>\n  788be8:\taa0003f4 \tmov\tx20, x0\n  788bec:\taa1303e0 \tmov\tx0, x19\n  788bf0:\t94005e8c \tbl\t7a0620 <__cxa_free_exception>\n  788bf4:\taa1403e0 \tmov\tx0, x20\n  788bf8:\t940275e2 \tbl\t826380 <_Unwind_Resume>\n",
+      "UV_fill_audit": {
+        "byte_begin": 64,
+        "byte_end": 192,
+        "step": 16,
+        "UV_slots": 8,
+        "defaults_loop_no_dimension_load_or_call": "add\tx0, x5, #0x40\n  788a44:\t910300a1 \tadd\tx1, x5, #0xc0\n  788a48:\t91004000 \tadd\tx0, x0, #0x10\n  788a4c:\t293e7c1f \tstp\twzr, wzr, [x0, #-16]\n  788a50:\tb81f801f \tstur\twzr, [x0, #-8]\n  788a54:\tbc1fc01f \tstur\ts31, [x0, #-4]\n  788a58:\teb00003f \tcmp\tx1, x0\n  788a5c:\t54ffff61 \tb.ne\t788a48 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xb8>  // b.any\n  788a60:\td3482e94 \t",
+        "active_count_extract": "ubfx\tx20, x20, #8, #4"
+      }
+    },
+    "matrixgame-native-interactive": {
+      "ValidateIndexed": "\nD:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-uv-r24\\1\\matrixgame-native-interactive.elf:     file format elf64-littleaarch64\n\n\nDisassembly of section .text:\n\n000000000018caa0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)>:\n  18caa0:\ta9b67bfd \tstp\tx29, x30, [sp, #-160]!\n  18caa4:\t910003fd \tmov\tx29, sp\n  18caa8:\ta90153f3 \tstp\tx19, x20, [sp, #16]\n  18caac:\ta9025bf5 \tstp\tx21, x22, [sp, #32]\n  18cab0:\ta90363f7 \tstp\tx23, x24, [sp, #48]\n  18cab4:\ta9046bf9 \tstp\tx25, x26, [sp, #64]\n  18cab8:\ta90573fb \tstp\tx27, x28, [sp, #80]\n  18cabc:\tf9400c14 \tldr\tx20, [x0, #24]\n  18cac0:\tb9006fe3 \tstr\tw3, [sp, #108]\n  18cac4:\tb90083e4 \tstr\tw4, [sp, #128]\n  18cac8:\tb4001834 \tcbz\tx20, 18cdcc <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x32c>\n  18cacc:\t39418699 \tldrb\tw25, [x20, #97]\n  18cad0:\t370017f9 \ttbnz\tw25, #0, 18cdcc <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x32c>\n  18cad4:\t93407c5a \tsxtw\tx26, w2\n  18cad8:\t340004a6 \tcbz\tw6, 18cb6c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xcc>\n  18cadc:\t71000c3f \tcmp\tw1, #0x3\n  18cae0:\t540014a0 \tb.eq\t18cd74 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2d4>  // b.none\n  18cae4:\t54000129 \tb.ls\t18cb08 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x68>  // b.plast\n  18cae8:\t7100103f \tcmp\tw1, #0x4\n  18caec:\t54001380 \tb.eq\t18cd5c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2bc>  // b.none\n  18caf0:\t51001421 \tsub\tw1, w1, #0x5\n  18caf4:\t7100043f \tcmp\tw1, #0x1\n  18caf8:\t540011a8 \tb.hi\t18cd2c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x28c>  // b.pmore\n  18cafc:\t2a0603fb \tmov\tw27, w6\n  18cb00:\t91000b7b \tadd\tx27, x27, #0x2\n  18cb04:\t14000005 \tb\t18cb18 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x78>\n  18cb08:\t7100043f \tcmp\tw1, #0x1\n  18cb0c:\t540010a1 \tb.ne\t18cd20 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x280>  // b.any\n  18cb10:\t2a0603fb \tmov\tw27, w6\n  18cb14:\td503201f \tnop\n  18cb18:\tf9400801 \tldr\tx1, [x0, #16]\n  18cb1c:\tb9407a96 \tldr\tw22, [x20, #120]\n  18cb20:\tf9003be1 \tstr\tx1, [sp, #112]\n  18cb24:\ta942601c \tldp\tx28, x24, [x0, #32]\n  18cb28:\t9bb67cb3 \tumull\tx19, w5, w22\n  18cb2c:\t2a1603f7 \tmov\tw23, w22\n  18cb30:\ta9418281 \tldp\tx1, x0, [x20, #24]\n  18cb34:\tcb010000 \tsub\tx0, x0, x1\n  18cb38:\teb00027f \tcmp\tx19, x0\n  18cb3c:\t540000a8 \tb.hi\t18cb50 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xb0>  // b.pmore\n  18cb40:\tcb130000 \tsub\tx0, x0, x19\n  18cb44:\t9ad70800 \tudiv\tx0, x0, x23\n  18cb48:\teb1b001f \tcmp\tx0, x27\n  18cb4c:\t54000262 \tb.cs\t18cb98 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xf8>  // b.hs, b.nlast\n  18cb50:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cb54:\t94184e9b \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cb58:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cb5c:\t91326021 \tadd\tx1, x1, #0xc98\n  18cb60:\taa0003f3 \tmov\tx19, x0\n  18cb64:\t94187fcf \tbl\t7acaa0 <std::out_of_range::out_of_range(char const*)>\n  18cb68:\t1400008c \tb\t18cd98 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2f8>\n  18cb6c:\tf9400801 \tldr\tx1, [x0, #16]\n  18cb70:\tb9407a96 \tldr\tw22, [x20, #120]\n  18cb74:\tf9003be1 \tstr\tx1, [sp, #112]\n  18cb78:\ta942601c \tldp\tx28, x24, [x0, #32]\n  18cb7c:\t9bb67cb3 \tumull\tx19, w5, w22\n  18cb80:\t2a1603f7 \tmov\tw23, w22\n  18cb84:\ta9418281 \tldp\tx1, x0, [x20, #24]\n  18cb88:\tcb010000 \tsub\tx0, x0, x1\n  18cb8c:\teb00027f \tcmp\tx19, x0\n  18cb90:\t54fffe08 \tb.hi\t18cb50 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xb0>  // b.pmore\n  18cb94:\td280001b \tmov\tx27, #0x0                   \t// #0\n  18cb98:\t9b1b7ee2 \tmul\tx2, x23, x27\n  18cb9c:\taa1303e1 \tmov\tx1, x19\n  18cba0:\taa1403e0 \tmov\tx0, x20\n  18cba4:\t9400fcef \tbl\t1cbf60 <srhd_awa::matrixgame::buffers::Resource::Initialized(unsigned long, unsigned long) const>\n  18cba8:\t12001c02 \tand\tw2, w0, #0xff\n  18cbac:\t3607fd20 \ttbz\tw0, #0, 18cb50 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xb0>\n  18cbb0:\taa1403e0 \tmov\tx0, x20\n  18cbb4:\tb9007be2 \tstr\tw2, [sp, #120]\n  18cbb8:\t9400fd0a \tbl\t1cbfe0 <srhd_awa::matrixgame::buffers::Resource::Storage() const>\n  18cbbc:\taa0003e7 \tmov\tx7, x0\n  18cbc0:\tf9403be0 \tldr\tx0, [sp, #112]\n  18cbc4:\tb9407be2 \tldr\tw2, [sp, #120]\n  18cbc8:\tb4000a60 \tcbz\tx0, 18cd14 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x274>\n  18cbcc:\ta941d000 \tldp\tx0, x20, [x0, #24]\n  18cbd0:\tf100031f \tcmp\tx24, #0x0\n  18cbd4:\td2800005 \tmov\tx5, #0x0                   \t// #0\n  18cbd8:\tcb000294 \tsub\tx20, x20, x0\n  18cbdc:\tfa541382 \tccmp\tx28, x20, #0x2, ne\t// ne = any\n  18cbe0:\t54000c49 \tb.ls\t18cd68 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2c8>  // b.plast\n  18cbe4:\tf9403bf5 \tldr\tx21, [sp, #112]\n  18cbe8:\taa1403e2 \tmov\tx2, x20\n  18cbec:\td2800001 \tmov\tx1, #0x0                   \t// #0\n  18cbf0:\tf9003fe5 \tstr\tx5, [sp, #120]\n  18cbf4:\tf90047e7 \tstr\tx7, [sp, #136]\n  18cbf8:\taa1503e0 \tmov\tx0, x21\n  18cbfc:\t9400fcd9 \tbl\t1cbf60 <srhd_awa::matrixgame::buffers::Resource::Initialized(unsigned long, unsigned long) const>\n  18cc00:\t394186a2 \tldrb\tw2, [x21, #97]\n  18cc04:\t12001c19 \tand\tw25, w0, #0xff\n  18cc08:\tf100031f \tcmp\tx24, #0x0\n  18cc0c:\t1a9f17e0 \tcset\tw0, eq\t// eq = none\n  18cc10:\tf9403fe5 \tldr\tx5, [sp, #120]\n  18cc14:\tf94047e7 \tldr\tx7, [sp, #136]\n  18cc18:\t2a000042 \torr\tw2, w2, w0\n  18cc1c:\t8b1b0666 \tadd\tx6, x19, x27, lsl #1\n  18cc20:\taa1303f5 \tmov\tx21, x19\n  18cc24:\tb40006bb \tcbz\tx27, 18ccf8 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x258>\n  18cc28:\tb9406fe8 \tldr\tw8, [sp, #108]\n  18cc2c:\t1200005b \tand\tw27, w2, #0x1\n  18cc30:\t12000339 \tand\tw25, w25, #0x1\n  18cc34:\tb94083e9 \tldr\tw9, [sp, #128]\n  18cc38:\t1400001b \tb\t18cca4 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x204>\n  18cc3c:\tb87568e1 \tldr\tw1, [x7, x21]\n  18cc40:\tb9406fe0 \tldr\tw0, [sp, #108]\n  18cc44:\t6b00003f \tcmp\tw1, w0\n  18cc48:\t54000d43 \tb.cc\t18cdf0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x350>  // b.lo, b.ul, b.last\n  18cc4c:\t2a0103e1 \tmov\tw1, w1\n  18cc50:\tcb080020 \tsub\tx0, x1, x8\n  18cc54:\teb09001f \tcmp\tx0, x9\n  18cc58:\t54000cc2 \tb.cs\t18cdf0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x350>  // b.hs, b.nlast\n  18cc5c:\t8b010341 \tadd\tx1, x26, x1\n  18cc60:\t35000d7b \tcbnz\tw27, 18ce0c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x36c>\n  18cc64:\tb7f80d41 \ttbnz\tx1, #63, 18ce0c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x36c>\n  18cc68:\teb14039f \tcmp\tx28, x20\n  18cc6c:\t540008a8 \tb.hi\t18cd80 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2e0>  // b.pmore\n  18cc70:\teb05003f \tcmp\tx1, x5\n  18cc74:\t54000868 \tb.hi\t18cd80 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2e0>  // b.pmore\n  18cc78:\t9b017301 \tmadd\tx1, x24, x1, x28\n  18cc7c:\teb14003f \tcmp\tx1, x20\n  18cc80:\t540002e8 \tb.hi\t18ccdc <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x23c>  // b.pmore\n  18cc84:\t34000199 \tcbz\tw25, 18ccb4 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x214>\n  18cc88:\tcb010281 \tsub\tx1, x20, x1\n  18cc8c:\teb01031f \tcmp\tx24, x1\n  18cc90:\t54000268 \tb.hi\t18ccdc <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x23c>  // b.pmore\n  18cc94:\t91000a73 \tadd\tx19, x19, #0x2\n  18cc98:\t8b1702b5 \tadd\tx21, x21, x23\n  18cc9c:\teb1300df \tcmp\tx6, x19\n  18cca0:\t540002c0 \tb.eq\t18ccf8 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x258>  // b.none\n  18cca4:\t71000adf \tcmp\tw22, #0x2\n  18cca8:\t54fffca1 \tb.ne\t18cc3c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x19c>  // b.any\n  18ccac:\t787368e1 \tldrh\tw1, [x7, x19]\n  18ccb0:\t17ffffe4 \tb\t18cc40 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x1a0>\n  18ccb4:\tf9403be0 \tldr\tx0, [sp, #112]\n  18ccb8:\taa1803e2 \tmov\tx2, x24\n  18ccbc:\ta90797e6 \tstp\tx6, x5, [sp, #120]\n  18ccc0:\ta908a7e8 \tstp\tx8, x9, [sp, #136]\n  18ccc4:\tf9004fe7 \tstr\tx7, [sp, #152]\n  18ccc8:\t9400fca6 \tbl\t1cbf60 <srhd_awa::matrixgame::buffers::Resource::Initialized(unsigned long, unsigned long) const>\n  18cccc:\tf9404fe7 \tldr\tx7, [sp, #152]\n  18ccd0:\ta94797e6 \tldp\tx6, x5, [sp, #120]\n  18ccd4:\ta948a7e8 \tldp\tx8, x9, [sp, #136]\n  18ccd8:\t3707fde0 \ttbnz\tw0, #0, 18cc94 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x1f4>\n  18ccdc:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cce0:\t94184e38 \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cce4:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cce8:\t91348021 \tadd\tx1, x1, #0xd20\n  18ccec:\taa0003f3 \tmov\tx19, x0\n  18ccf0:\t94187f6c \tbl\t7acaa0 <std::out_of_range::out_of_range(char const*)>\n  18ccf4:\t14000029 \tb\t18cd98 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2f8>\n  18ccf8:\ta94153f3 \tldp\tx19, x20, [sp, #16]\n  18ccfc:\ta9425bf5 \tldp\tx21, x22, [sp, #32]\n  18cd00:\ta94363f7 \tldp\tx23, x24, [sp, #48]\n  18cd04:\ta9446bf9 \tldp\tx25, x26, [sp, #64]\n  18cd08:\ta94573fb \tldp\tx27, x28, [sp, #80]\n  18cd0c:\ta8ca7bfd \tldp\tx29, x30, [sp], #160\n  18cd10:\td65f03c0 \tret\n  18cd14:\td2800005 \tmov\tx5, #0x0                   \t// #0\n  18cd18:\td2800014 \tmov\tx20, #0x0                   \t// #0\n  18cd1c:\t17ffffc0 \tb\t18cc1c <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x17c>\n  18cd20:\td37f7cdb \tubfiz\tx27, x6, #1, #32\n  18cd24:\t7100083f \tcmp\tw1, #0x2\n  18cd28:\t54ffef80 \tb.eq\t18cb18 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x78>  // b.none\n  18cd2c:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cd30:\t94184e24 \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cd34:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cd38:\t91314021 \tadd\tx1, x1, #0xc50\n  18cd3c:\taa0003f3 \tmov\tx19, x0\n  18cd40:\t94187f38 \tbl\t7aca20 <std::invalid_argument::invalid_argument(char const*)>\n  18cd44:\tf0005aa2 \tadrp\tx2, ce3000 <_GLOBAL_OFFSET_TABLE_+0x528>\n  18cd48:\tf9475442 \tldr\tx2, [x2, #3752]\n  18cd4c:\taa1303e0 \tmov\tx0, x19\n  18cd50:\tf0005ac1 \tadrp\tx1, ce7000 <_GLOBAL_OFFSET_TABLE_+0x4528>\n  18cd54:\tf9464821 \tldr\tx1, [x1, #3216]\n  18cd58:\t941852ca \tbl\t7a1880 <__cxa_throw>\n  18cd5c:\td37f7cc1 \tubfiz\tx1, x6, #1, #32\n  18cd60:\t8b26403b \tadd\tx27, x1, w6, uxtw\n  18cd64:\t17ffff6d \tb\t18cb18 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x78>\n  18cd68:\tcb1c0285 \tsub\tx5, x20, x28\n  18cd6c:\t9ad808a5 \tudiv\tx5, x5, x24\n  18cd70:\t17ffff9d \tb\t18cbe4 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x144>\n  18cd74:\t2a0603fb \tmov\tw27, w6\n  18cd78:\t9100077b \tadd\tx27, x27, #0x1\n  18cd7c:\t17ffff67 \tb\t18cb18 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x78>\n  18cd80:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cd84:\t94184e0f \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cd88:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cd8c:\t91340021 \tadd\tx1, x1, #0xd00\n  18cd90:\taa0003f3 \tmov\tx19, x0\n  18cd94:\t94187f43 \tbl\t7acaa0 <std::out_of_range::out_of_range(char const*)>\n  18cd98:\tf0005aa2 \tadrp\tx2, ce3000 <_GLOBAL_OFFSET_TABLE_+0x528>\n  18cd9c:\tf941f842 \tldr\tx2, [x2, #1008]\n  18cda0:\taa1303e0 \tmov\tx0, x19\n  18cda4:\tf0005aa1 \tadrp\tx1, ce3000 <_GLOBAL_OFFSET_TABLE_+0x528>\n  18cda8:\tf944ac21 \tldr\tx1, [x1, #2392]\n  18cdac:\t941852b5 \tbl\t7a1880 <__cxa_throw>\n  18cdb0:\taa0003f4 \tmov\tx20, x0\n  18cdb4:\taa1303e0 \tmov\tx0, x19\n  18cdb8:\t94184e1a \tbl\t7a0620 <__cxa_free_exception>\n  18cdbc:\taa1403e0 \tmov\tx0, x20\n  18cdc0:\t941a6570 \tbl\t826380 <_Unwind_Resume>\n  18cdc4:\t17fffffb \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n  18cdc8:\t17fffffa \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n  18cdcc:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cdd0:\t94184dfc \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cdd4:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cdd8:\t9131e021 \tadd\tx1, x1, #0xc78\n  18cddc:\taa0003f3 \tmov\tx19, x0\n  18cde0:\t94187f10 \tbl\t7aca20 <std::invalid_argument::invalid_argument(char const*)>\n  18cde4:\t17ffffd8 \tb\t18cd44 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2a4>\n  18cde8:\t17fffff2 \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n  18cdec:\t17fffff1 \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n  18cdf0:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18cdf4:\t94184df3 \tbl\t7a05c0 <__cxa_allocate_exception>\n  18cdf8:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18cdfc:\t9132c021 \tadd\tx1, x1, #0xcb0\n  18ce00:\taa0003f3 \tmov\tx19, x0\n  18ce04:\t94187f27 \tbl\t7acaa0 <std::out_of_range::out_of_range(char const*)>\n  18ce08:\t17ffffe4 \tb\t18cd98 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2f8>\n  18ce0c:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  18ce10:\t94184dec \tbl\t7a05c0 <__cxa_allocate_exception>\n  18ce14:\t900036e1 \tadrp\tx1, 868000 <_fini+0xedb8>\n  18ce18:\t91338021 \tadd\tx1, x1, #0xce0\n  18ce1c:\taa0003f3 \tmov\tx19, x0\n  18ce20:\t94187f20 \tbl\t7acaa0 <std::out_of_range::out_of_range(char const*)>\n  18ce24:\t17ffffdd \tb\t18cd98 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x2f8>\n  18ce28:\t17ffffe2 \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n  18ce2c:\t17ffffe1 \tb\t18cdb0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x310>\n",
+      "indexed": "\nD:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-uv-r24\\1\\matrixgame-native-interactive.elf:     file format elf64-littleaarch64\n\n\nDisassembly of section .text:\n\n000000000019afc0 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)>:\n  19afc0:\td10483ff \tsub\tsp, sp, #0x120\n  19afc4:\ta9017bfd \tstp\tx29, x30, [sp, #16]\n  19afc8:\t910043fd \tadd\tx29, sp, #0x10\n  19afcc:\ta90253f3 \tstp\tx19, x20, [sp, #32]\n  19afd0:\t2a0303f3 \tmov\tw19, w3\n  19afd4:\t2a0603f4 \tmov\tw20, w6\n  19afd8:\ta9035bf5 \tstp\tx21, x22, [sp, #48]\n  19afdc:\t2a0103f5 \tmov\tw21, w1\n  19afe0:\t2a0503f6 \tmov\tw22, w5\n  19afe4:\ta9056bf9 \tstp\tx25, x26, [sp, #80]\n  19afe8:\t2a0403f9 \tmov\tw25, w4\n  19afec:\tf9005fe0 \tstr\tx0, [sp, #184]\n  19aff0:\tf9403000 \tldr\tx0, [x0, #96]\n  19aff4:\tb90073e2 \tstr\tw2, [sp, #112]\n  19aff8:\tb900b7e1 \tstr\tw1, [sp, #180]\n  19affc:\tf90063e0 \tstr\tx0, [sp, #192]\n  19b000:\t912a8000 \tadd\tx0, x0, #0xaa0\n  19b004:\tf90067e0 \tstr\tx0, [sp, #200]\n  19b008:\tf90087e0 \tstr\tx0, [sp, #264]\n  19b00c:\t94182b8d \tbl\t7a5e40 <std::chrono::_V2::steady_clock::now()>\n  19b010:\tf9008be0 \tstr\tx0, [sp, #272]\n  19b014:\t390463ff \tstrb\twzr, [sp, #280]\n  19b018:\t340016b4 \tcbz\tw20, 19b2ec <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x32c>\n  19b01c:\ta90463f7 \tstp\tx23, x24, [sp, #64]\n  19b020:\ta90673fb \tstp\tx27, x28, [sp, #96]\n  19b024:\t71000ebf \tcmp\tw21, #0x3\n  19b028:\t54001cc0 \tb.eq\t19b3c0 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x400>  // b.none\n  19b02c:\t54000149 \tb.ls\t19b054 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x94>  // b.plast\n  19b030:\tb940b7e0 \tldr\tw0, [sp, #180]\n  19b034:\t7100101f \tcmp\tw0, #0x4\n  19b038:\t54001ae0 \tb.eq\t19b394 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x3d4>  // b.none\n  19b03c:\t51001400 \tsub\tw0, w0, #0x5\n  19b040:\t7100041f \tcmp\tw0, #0x1\n  19b044:\t54001908 \tb.hi\t19b364 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x3a4>  // b.pmore\n  19b048:\t2a1403f7 \tmov\tw23, w20\n  19b04c:\t91000af7 \tadd\tx23, x23, #0x2\n  19b050:\t14000004 \tb\t19b060 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xa0>\n  19b054:\t710006bf \tcmp\tw21, #0x1\n  19b058:\t54001801 \tb.ne\t19b358 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x398>  // b.any\n  19b05c:\t2a1403f7 \tmov\tw23, w20\n  19b060:\t7100027f \tcmp\tw19, #0x0\n  19b064:\t528aaaa0 \tmov\tw0, #0x5555                \t// #21845\n  19b068:\t72a002a0 \tmovk\tw0, #0x15, lsl #16\n  19b06c:\t7a40a322 \tccmp\tw25, w0, #0x2, ge\t// ge = tcont\n  19b070:\t54001ae8 \tb.hi\t19b3cc <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x40c>  // b.pmore\n  19b074:\td2a10000 \tmov\tx0, #0x8000000             \t// #134217728\n  19b078:\teb0002ff \tcmp\tx23, x0\n  19b07c:\t54001f88 \tb.hi\t19b46c <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x4ac>  // b.pmore\n  19b080:\t9400c43c \tbl\t1cc170 <srhd_awa::matrixgame::buffers::Current()>\n  19b084:\tb94073e2 \tldr\tw2, [sp, #112]\n  19b088:\t2a1403e6 \tmov\tw6, w20\n  19b08c:\t2a1603e5 \tmov\tw5, w22\n  19b090:\t2a1903e4 \tmov\tw4, w25\n  19b094:\t2a1303e3 \tmov\tw3, w19\n  19b098:\tb940b7e1 \tldr\tw1, [sp, #180]\n  19b09c:\taa0003f8 \tmov\tx24, x0\n  19b0a0:\t97ffc680 \tbl\t18caa0 <srhd_awa::matrixgame::staging_draw::ValidateIndexed(srhd_awa::matrixgame::buffers::Context const&, unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)>\n  19b0a4:\ta9425700 \tldp\tx0, x21, [x24, #32]\n  19b0a8:\tf9004be0 \tstr\tx0, [sp, #144]\n  19b0ac:\ta941031c \tldp\tx28, x0, [x24, #16]\n  19b0b0:\tb9407818 \tldr\tw24, [x0, #120]\n  19b0b4:\t9400c3cb \tbl\t1cbfe0 <srhd_awa::matrixgame::buffers::Resource::Storage() const>\n  19b0b8:\t9bb802d6 \tumaddl\tx22, w22, w24, x0\n  19b0bc:\t2a1803e0 \tmov\tw0, w24\n  19b0c0:\t2a1903fa \tmov\tw26, w25\n  19b0c4:\t9b177c00 \tmul\tx0, x0, x23\n  19b0c8:\tf9006be0 \tstr\tx0, [sp, #208]\n  19b0cc:\t340016b9 \tcbz\tw25, 19b3a0 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x3e0>\n  19b0d0:\t52801800 \tmov\tw0, #0xc0                  \t// #192\n  19b0d4:\t9ba07f34 \tumull\tx20, w25, w0\n  19b0d8:\taa1403e0 \tmov\tx0, x20\n  19b0dc:\tf90077f4 \tstr\tx20, [sp, #232]\n  19b0e0:\t94181b48 \tbl\t7a1e00 <operator new(unsigned long)>\n  19b0e4:\t4f00041f \tmovi\tv31.4s, #0x0\n  19b0e8:\t1e2e101e \tfmov\ts30, #1.000000000000000000e+00\n  19b0ec:\t8b140002 \tadd\tx2, x0, x20\n  19b0f0:\taa0003fb \tmov\tx27, x0\n  19b0f4:\taa1a03e1 \tmov\tx1, x26\n  19b0f8:\tf9007be0 \tstr\tx0, [sp, #240]\n  19b0fc:\tf90083e2 \tstr\tx2, [sp, #256]\n  19b100:\t3d80001f \tstr\tq31, [x0]\n  19b104:\tf1000421 \tsubs\tx1, x1, #0x1\n  19b108:\t91030000 \tadd\tx0, x0, #0xc0\n  19b10c:\tbc14c01e \tstur\ts30, [x0, #-180]\n  19b110:\ta9357c1f \tstp\txzr, xzr, [x0, #-176]\n  19b114:\t2d2c781e \tstp\ts30, s30, [x0, #-160]\n  19b118:\t2d2d781e \tstp\ts30, s30, [x0, #-152]\n  19b11c:\ta9377c1f \tstp\txzr, xzr, [x0, #-144]\n  19b120:\tad3c7c1f \tstp\tq31, q31, [x0, #-128]\n  19b124:\tad3d7c1f \tstp\tq31, q31, [x0, #-96]\n  19b128:\tad3e7c1f \tstp\tq31, q31, [x0, #-64]\n  19b12c:\tad3f7c1f \tstp\tq31, q31, [x0, #-32]\n  19b130:\t54fffe81 \tb.ne\t19b100 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x140>  // b.any\n  19b134:\taa0203e0 \tmov\tx0, x2\n  19b138:\t9100ff42 \tadd\tx2, x26, #0x3f\n  19b13c:\td3469442 \tubfx\tx2, x2, #6, #32\n  19b140:\td37df042 \tlsl\tx2, x2, #3\n  19b144:\tf9006fe0 \tstr\tx0, [sp, #216]\n  19b148:\tf9007fe0 \tstr\tx0, [sp, #248]\n  19b14c:\taa0203e0 \tmov\tx0, x2\n  19b150:\tf9003fe2 \tstr\tx2, [sp, #120]\n  19b154:\t94181b2b \tbl\t7a1e00 <operator new(unsigned long)>\n  19b158:\tf9403fe2 \tldr\tx2, [sp, #120]\n  19b15c:\td346ff43 \tlsr\tx3, x26, #6\n  19b160:\taa0003f4 \tmov\tx20, x0\n  19b164:\t8b030c1a \tadd\tx26, x0, x3, lsl #3\n  19b168:\t92401739 \tand\tx25, x25, #0x3f\n  19b16c:\t8b020001 \tadd\tx1, x0, x2\n  19b170:\tf90073e1 \tstr\tx1, [sp, #224]\n  19b174:\t52800001 \tmov\tw1, #0x0                   \t// #0\n  19b178:\t941a6382 \tbl\t833f80 <memset>\n  19b17c:\tf9405fe0 \tldr\tx0, [sp, #184]\n  19b180:\tf9403000 \tldr\tx0, [x0, #96]\n  19b184:\t9123a000 \tadd\tx0, x0, #0x8e8\n  19b188:\t9400697a \tbl\t1b5770 <srhd_awa::matrixgame::platform3g::NativeStateStore::Read() const>\n  19b18c:\t91048000 \tadd\tx0, x0, #0x120\n  19b190:\tf90047e0 \tstr\tx0, [sp, #136]\n  19b194:\taa1c03e0 \tmov\tx0, x28\n  19b198:\t9400c392 \tbl\t1cbfe0 <srhd_awa::matrixgame::buffers::Resource::Storage() const>\n  19b19c:\ta90a07e0 \tstp\tx0, x1, [sp, #160]\n  19b1a0:\tcb140349 \tsub\tx9, x26, x20\n  19b1a4:\td280001c \tmov\tx28, #0x0                   \t// #0\n  19b1a8:\t8b090f39 \tadd\tx25, x25, x9, lsl #3\n  19b1ac:\td280003a \tmov\tx26, #0x1                   \t// #1\n  19b1b0:\tb98073e0 \tldrsw\tx0, [sp, #112]\n  19b1b4:\tf9004fe0 \tstr\tx0, [sp, #152]\n  19b1b8:\t14000023 \tb\t19b244 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x284>\n  19b1bc:\tb87c7ac2 \tldr\tw2, [x22, x28, lsl #2]\n  19b1c0:\t4b130045 \tsub\tw5, w2, w19\n  19b1c4:\t4b130041 \tsub\tw1, w2, w19\n  19b1c8:\teb1900bf \tcmp\tx5, x25\n  19b1cc:\t54001182 \tb.cs\t19b3fc <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x43c>  // b.hs, b.nlast\n  19b1d0:\td346fca5 \tlsr\tx5, x5, #6\n  19b1d4:\t9ac12348 \tlsl\tx8, x26, x1\n  19b1d8:\tf8657a87 \tldr\tx7, [x20, x5, lsl #3]\n  19b1dc:\tea0800ff \ttst\tx7, x8\n  19b1e0:\t540002c1 \tb.ne\t19b238 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x278>  // b.any\n  19b1e4:\tf9404fe0 \tldr\tx0, [sp, #152]\n  19b1e8:\t8b224002 \tadd\tx2, x0, w2, uxtw\n  19b1ec:\tb10006bf \tcmn\tx21, #0x1\n  19b1f0:\t2a1503e4 \tmov\tw4, w21\n  19b1f4:\ta90723e7 \tstp\tx7, x8, [sp, #112]\n  19b1f8:\tf9404be0 \tldr\tx0, [sp, #144]\n  19b1fc:\tf90043e5 \tstr\tx5, [sp, #128]\n  19b200:\t9b150042 \tmadd\tx2, x2, x21, x0\n  19b204:\tf94057e0 \tldr\tx0, [sp, #168]\n  19b208:\tcb020003 \tsub\tx3, x0, x2\n  19b20c:\tf94053e0 \tldr\tx0, [sp, #160]\n  19b210:\t9a950063 \tcsel\tx3, x3, x21, eq\t// eq = none\n  19b214:\t8b000042 \tadd\tx2, x2, x0\n  19b218:\t52801800 \tmov\tw0, #0xc0                  \t// #192\n  19b21c:\t9ba06c21 \tumaddl\tx1, w1, w0, x27\n  19b220:\tf94047e0 \tldr\tx0, [sp, #136]\n  19b224:\t9417b5db \tbl\t788990 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const>\n  19b228:\ta94723e7 \tldp\tx7, x8, [sp, #112]\n  19b22c:\tf94043e5 \tldr\tx5, [sp, #128]\n  19b230:\taa0800e7 \torr\tx7, x7, x8\n  19b234:\tf8257a87 \tstr\tx7, [x20, x5, lsl #3]\n  19b238:\t9100079c \tadd\tx28, x28, #0x1\n  19b23c:\teb17039f \tcmp\tx28, x23\n  19b240:\t540000a0 \tb.eq\t19b254 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x294>  // b.none\n  19b244:\t71000b1f \tcmp\tw24, #0x2\n  19b248:\t54fffba1 \tb.ne\t19b1bc <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x1fc>  // b.any\n  19b24c:\t787c7ac2 \tldrh\tw2, [x22, x28, lsl #1]\n  19b250:\t17ffffdc \tb\t19b1c0 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x200>\n  19b254:\t910423e0 \tadd\tx0, sp, #0x108\n  19b258:\t97ffbac6 \tbl\t189d70 <srhd_awa::matrixgame::platform3g::ProfileScope::Stop() [clone .part.0]>\n  19b25c:\tf9405fe0 \tldr\tx0, [sp, #184]\n  19b260:\t71000b1f \tcmp\tw24, #0x2\n  19b264:\t1a9f07f8 \tcset\tw24, ne\t// ne = any\n  19b268:\tf9403015 \tldr\tx21, [x0, #96]\n  19b26c:\tf9406fe0 \tldr\tx0, [sp, #216]\n  19b270:\tcb1b0019 \tsub\tx25, x0, x27\n  19b274:\tb201f3e0 \tmov\tx0, #0xaaaaaaaaaaaaaaaa    \t// #-6148914691236517206\n  19b278:\tf2955560 \tmovk\tx0, #0xaaab\n  19b27c:\t9346ff39 \tasr\tx25, x25, #6\n  19b280:\t9b007f39 \tmul\tx25, x25, x0\n  19b284:\tb940b7e0 \tldr\tw0, [sp, #180]\n  19b288:\t97ffb6f2 \tbl\t188e50 <srhd_awa::matrixgame::platform3g::(anonymous namespace)::NativePrimitive(unsigned int)>\n  19b28c:\tf9406be4 \tldr\tx4, [sp, #208]\n  19b290:\t4b1303e7 \tneg\tw7, w19\n  19b294:\t2a1c03e6 \tmov\tw6, w28\n  19b298:\t11000705 \tadd\tw5, w24, #0x1\n  19b29c:\taa1603e3 \tmov\tx3, x22\n  19b2a0:\tb90003e0 \tstr\tw0, [sp]\n  19b2a4:\taa1b03e1 \tmov\tx1, x27\n  19b2a8:\taa1903e2 \tmov\tx2, x25\n  19b2ac:\tf90007ff \tstr\txzr, [sp, #8]\n  19b2b0:\taa1503e0 \tmov\tx0, x21\n  19b2b4:\t97fff4bf \tbl\t1985b0 <srhd_awa::matrixgame::platform3g::DekoDevice::Impl::Record(std::span<srhd_awa::matrixgame::materials::Vertex const, 18446744073709551615ul>, std::span<std::byte const, 18446744073709551615ul>, DkIdxFormat, unsigned int, int, DkPrimitive, srhd_awa::matrixgame::platform3g::NativeRenderState const*)>\n  19b2b8:\tb40000b4 \tcbz\tx20, 19b2cc <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x30c>\n  19b2bc:\tf94073e0 \tldr\tx0, [sp, #224]\n  19b2c0:\tcb140001 \tsub\tx1, x0, x20\n  19b2c4:\taa1403e0 \tmov\tx0, x20\n  19b2c8:\t9418137e \tbl\t7a00c0 <operator delete(void*, unsigned long)>\n  19b2cc:\tb400009b \tcbz\tx27, 19b2dc <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x31c>\n  19b2d0:\tf94077e1 \tldr\tx1, [sp, #232]\n  19b2d4:\taa1b03e0 \tmov\tx0, x27\n  19b2d8:\t9418137a \tbl\t7a00c0 <operator delete(void*, unsigned long)>\n  19b2dc:\t394463e0 \tldrb\tw0, [sp, #280]\n  19b2e0:\ta94463f7 \tldp\tx23, x24, [sp, #64]\n  19b2e4:\ta94673fb \tldp\tx27, x28, [sp, #96]\n  19b2e8:\t370002a0 \ttbnz\tw0, #0, 19b33c <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x37c>\n  19b2ec:\t94182ad5 \tbl\t7a5e40 <std::chrono::_V2::steady_clock::now()>\n  19b2f0:\tf9408be1 \tldr\tx1, [sp, #272]\n  19b2f4:\ta94c0fe2 \tldp\tx2, x3, [sp, #192]\n  19b2f8:\tcb010000 \tsub\tx0, x0, x1\n  19b2fc:\td29ef9e1 \tmov\tx1, #0xf7cf                \t// #63439\n  19b300:\tf2bc6a61 \tmovk\tx1, #0xe353, lsl #16\n  19b304:\tf2d374a1 \tmovk\tx1, #0x9ba5, lsl #32\n  19b308:\tf2e41881 \tmovk\tx1, #0x20c4, lsl #48\n  19b30c:\t9b417c01 \tsmulh\tx1, x0, x1\n  19b310:\t9347fc21 \tasr\tx1, x1, #7\n  19b314:\tcb80fc20 \tsub\tx0, x1, x0, asr #63\n  19b318:\tf9455041 \tldr\tx1, [x2, #2720]\n  19b31c:\t91000421 \tadd\tx1, x1, #0x1\n  19b320:\tf9055041 \tstr\tx1, [x2, #2720]\n  19b324:\ta9408861 \tldp\tx1, x2, [x3, #8]\n  19b328:\t8b000021 \tadd\tx1, x1, x0\n  19b32c:\tf9000461 \tstr\tx1, [x3, #8]\n  19b330:\teb02001f \tcmp\tx0, x2\n  19b334:\t54000049 \tb.ls\t19b33c <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x37c>  // b.plast\n  19b338:\tf9000860 \tstr\tx0, [x3, #16]\n  19b33c:\ta9417bfd \tldp\tx29, x30, [sp, #16]\n  19b340:\t52800000 \tmov\tw0, #0x0                   \t// #0\n  19b344:\ta94253f3 \tldp\tx19, x20, [sp, #32]\n  19b348:\ta9435bf5 \tldp\tx21, x22, [sp, #48]\n  19b34c:\ta9456bf9 \tldp\tx25, x26, [sp, #80]\n  19b350:\t910483ff \tadd\tsp, sp, #0x120\n  19b354:\td65f03c0 \tret\n  19b358:\td37f7e97 \tubfiz\tx23, x20, #1, #32\n  19b35c:\t71000abf \tcmp\tw21, #0x2\n  19b360:\t54ffe800 \tb.eq\t19b060 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xa0>  // b.none\n  19b364:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  19b368:\t94181496 \tbl\t7a05c0 <__cxa_allocate_exception>\n  19b36c:\tb0003661 \tadrp\tx1, 868000 <_fini+0xedb8>\n  19b370:\t91314021 \tadd\tx1, x1, #0xc50\n  19b374:\taa0003f4 \tmov\tx20, x0\n  19b378:\t941845aa \tbl\t7aca20 <std::invalid_argument::invalid_argument(char const*)>\n  19b37c:\t90005a42 \tadrp\tx2, ce3000 <_GLOBAL_OFFSET_TABLE_+0x528>\n  19b380:\tf9475442 \tldr\tx2, [x2, #3752]\n  19b384:\taa1403e0 \tmov\tx0, x20\n  19b388:\t90005a61 \tadrp\tx1, ce7000 <_GLOBAL_OFFSET_TABLE_+0x4528>\n  19b38c:\tf9464821 \tldr\tx1, [x1, #3216]\n  19b390:\t9418193c \tbl\t7a1880 <__cxa_throw>\n  19b394:\td37f7e97 \tubfiz\tx23, x20, #1, #32\n  19b398:\t8b3442f7 \tadd\tx23, x23, w20, uxtw\n  19b39c:\t17ffff31 \tb\t19b060 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xa0>\n  19b3a0:\td280001b \tmov\tx27, #0x0                   \t// #0\n  19b3a4:\td2800014 \tmov\tx20, #0x0                   \t// #0\n  19b3a8:\ta90dffff \tstp\txzr, xzr, [sp, #216]\n  19b3ac:\td280001a \tmov\tx26, #0x0                   \t// #0\n  19b3b0:\tf90077ff \tstr\txzr, [sp, #232]\n  19b3b4:\ta90f7fff \tstp\txzr, xzr, [sp, #240]\n  19b3b8:\tf90083ff \tstr\txzr, [sp, #256]\n  19b3bc:\t17ffff70 \tb\t19b17c <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x1bc>\n  19b3c0:\t2a1403f7 \tmov\tw23, w20\n  19b3c4:\t910006f7 \tadd\tx23, x23, #0x1\n  19b3c8:\t17ffff26 \tb\t19b060 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0xa0>\n  19b3cc:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  19b3d0:\t9418147c \tbl\t7a05c0 <__cxa_allocate_exception>\n  19b3d4:\td0003661 \tadrp\tx1, 869000 <_fini+0xfdb8>\n  19b3d8:\t913be021 \tadd\tx1, x1, #0xef8\n  19b3dc:\taa0003f4 \tmov\tx20, x0\n  19b3e0:\t941845a0 \tbl\t7aca60 <std::length_error::length_error(char const*)>\n  19b3e4:\tf0005a42 \tadrp\tx2, ce6000 <_GLOBAL_OFFSET_TABLE_+0x3528>\n  19b3e8:\tf9456c42 \tldr\tx2, [x2, #2776]\n  19b3ec:\taa1403e0 \tmov\tx0, x20\n  19b3f0:\t90005a61 \tadrp\tx1, ce7000 <_GLOBAL_OFFSET_TABLE_+0x4528>\n  19b3f4:\tf9450c21 \tldr\tx1, [x1, #2584]\n  19b3f8:\t94181922 \tbl\t7a1880 <__cxa_throw>\n  19b3fc:\td0003660 \tadrp\tx0, 869000 <_fini+0xfdb8>\n  19b400:\t913ce000 \tadd\tx0, x0, #0xf38\n  19b404:\taa1903e2 \tmov\tx2, x25\n  19b408:\taa0503e1 \tmov\tx1, x5\n  19b40c:\t97f9979b \tbl\t1278 <std::__throw_out_of_range_fmt(char const*, ...)>\n  19b410:\taa0003f3 \tmov\tx19, x0\n  19b414:\taa1403e0 \tmov\tx0, x20\n  19b418:\t94181482 \tbl\t7a0620 <__cxa_free_exception>\n  19b41c:\t394463e0 \tldrb\tw0, [sp, #280]\n  19b420:\t37000060 \ttbnz\tw0, #0, 19b42c <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x46c>\n  19b424:\t910423e0 \tadd\tx0, sp, #0x108\n  19b428:\t97ffba52 \tbl\t189d70 <srhd_awa::matrixgame::platform3g::ProfileScope::Stop() [clone .part.0]>\n  19b42c:\taa1303e0 \tmov\tx0, x19\n  19b430:\t941a2bd4 \tbl\t826380 <_Unwind_Resume>\n  19b434:\t17fffff7 \tb\t19b410 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x450>\n  19b438:\taa0003f3 \tmov\tx19, x0\n  19b43c:\tb40000b4 \tcbz\tx20, 19b450 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x490>\n  19b440:\tf94073e0 \tldr\tx0, [sp, #224]\n  19b444:\tcb140001 \tsub\tx1, x0, x20\n  19b448:\taa1403e0 \tmov\tx0, x20\n  19b44c:\t9418131d \tbl\t7a00c0 <operator delete(void*, unsigned long)>\n  19b450:\t9103c3e0 \tadd\tx0, sp, #0xf0\n  19b454:\t97ffed53 \tbl\t1969a0 <std::_Vector_base<srhd_awa::matrixgame::materials::Vertex, std::allocator<srhd_awa::matrixgame::materials::Vertex> >::~_Vector_base()>\n  19b458:\t17fffff1 \tb\t19b41c <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x45c>\n  19b45c:\taa0003f3 \tmov\tx19, x0\n  19b460:\t17fffffc \tb\t19b450 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x490>\n  19b464:\taa0003f3 \tmov\tx19, x0\n  19b468:\t17ffffed \tb\t19b41c <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x45c>\n  19b46c:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  19b470:\t94181454 \tbl\t7a05c0 <__cxa_allocate_exception>\n  19b474:\td0003661 \tadrp\tx1, 869000 <_fini+0xfdb8>\n  19b478:\t913c6021 \tadd\tx1, x1, #0xf18\n  19b47c:\taa0003f4 \tmov\tx20, x0\n  19b480:\t94184578 \tbl\t7aca60 <std::length_error::length_error(char const*)>\n  19b484:\tf0005a42 \tadrp\tx2, ce6000 <_GLOBAL_OFFSET_TABLE_+0x3528>\n  19b488:\tf9456c42 \tldr\tx2, [x2, #2776]\n  19b48c:\taa1403e0 \tmov\tx0, x20\n  19b490:\t90005a61 \tadrp\tx1, ce7000 <_GLOBAL_OFFSET_TABLE_+0x4528>\n  19b494:\tf9450c21 \tldr\tx1, [x1, #2584]\n  19b498:\t941818fa \tbl\t7a1880 <__cxa_throw>\n  19b49c:\t17ffffdd \tb\t19b410 <srhd_awa::matrixgame::platform3g::DekoDevice::NativeDrawIndexed(unsigned int, int, unsigned int, unsigned int, unsigned int, unsigned int)+0x450>\n",
+      "lock_audit": {
+        "loop_begin": "0x18cc40",
+        "loop_end": "0x18ccb0",
+        "locked_loads": [
+          {
+            "address": "0x18cacc",
+            "inside": false,
+            "instruction": "  18cacc:\t39418699 \tldrb\tw25, [x20, #97]"
+          },
+          {
+            "address": "0x18cc00",
+            "inside": false,
+            "instruction": "  18cc00:\t394186a2 \tldrb\tw2, [x21, #97]"
+          }
+        ],
+        "inside": 0
+      },
+      "DecodeTo": "\nD:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-uv-r24\\1\\matrixgame-native-interactive.elf:     file format elf64-littleaarch64\n\n\nDisassembly of section .text:\n\n0000000000788990 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const>:\n  788990:\ta9bc7bfd \tstp\tx29, x30, [sp, #-64]!\n  788994:\t910003fd \tmov\tx29, sp\n  788998:\taa0003e7 \tmov\tx7, x0\n  78899c:\ta90153f3 \tstp\tx19, x20, [sp, #16]\n  7889a0:\tb9400400 \tldr\tw0, [x0, #4]\n  7889a4:\t6b04001f \tcmp\tw0, w4\n  7889a8:\t54001088 \tb.hi\t788bb8 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x228>  // b.pmore\n  7889ac:\teb24407f \tcmp\tx3, w4, uxtw\n  7889b0:\t54001041 \tb.ne\t788bb8 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x228>  // b.any\n  7889b4:\td2e7f000 \tmov\tx0, #0x3f80000000000000    \t// #4575657221408423936\n  7889b8:\ta9017c3f \tstp\txzr, xzr, [x1, #16]\n  7889bc:\taa0103e5 \tmov\tx5, x1\n  7889c0:\ta900003f \tstp\txzr, x0, [x1]\n  7889c4:\tb2091be0 \tmov\tx0, #0x3f8000003f800000    \t// #4575657222473777152\n  7889c8:\ta9020020 \tstp\tx0, x0, [x1, #32]\n  7889cc:\tb94000e3 \tldr\tw3, [x7]\n  7889d0:\ta9037c3f \tstp\txzr, xzr, [x1, #48]\n  7889d4:\t121f0863 \tand\tw3, w3, #0xe\n  7889d8:\t7100107f \tcmp\tw3, #0x4\n  7889dc:\t54000e40 \tb.eq\t788ba4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x214>  // b.none\n  7889e0:\tf9400041 \tldr\tx1, [x2]\n  7889e4:\td2800188 \tmov\tx8, #0xc                   \t// #12\n  7889e8:\t52800063 \tmov\tw3, #0x3                   \t// #3\n  7889ec:\tb9400840 \tldr\tw0, [x2, #8]\n  7889f0:\tf90000a1 \tstr\tx1, [x5]\n  7889f4:\tb90008a0 \tstr\tw0, [x5, #8]\n  7889f8:\td2800000 \tmov\tx0, #0x0                   \t// #0\n  7889fc:\t52bfe006 \tmov\tw6, #0xff000000            \t// #-16777216\n  788a00:\tb86078a1 \tldr\tw1, [x5, x0, lsl #2]\n  788a04:\t6b0104df \tcmp\tw6, w1, lsl #1\n  788a08:\t54000d69 \tb.ls\t788bb4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x224>  // b.plast\n  788a0c:\t91000400 \tadd\tx0, x0, #0x1\n  788a10:\t6b00007f \tcmp\tw3, w0\n  788a14:\t54ffff68 \tb.hi\t788a00 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x70>  // b.pmore\n  788a18:\tb94000f4 \tldr\tw20, [x7]\n  788a1c:\t8b080053 \tadd\tx19, x2, x8\n  788a20:\t37200a14 \ttbnz\tw20, #4, 788b60 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x1d0>\n  788a24:\t363000b4 \ttbz\tw20, #6, 788a38 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xa8>\n  788a28:\tb8404660 \tldr\tw0, [x19], #4\n  788a2c:\t97fffafd \tbl\t787620 <srhd_awa::matrixgame::materials::(anonymous namespace)::Argb(unsigned int)>\n  788a30:\t2d0404a0 \tstp\ts0, s1, [x5, #32]\n  788a34:\t2d050ca2 \tstp\ts2, s3, [x5, #40]\n  788a38:\t373808b4 \ttbnz\tw20, #7, 788b4c <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x1bc>\n  788a3c:\t1e2e101f \tfmov\ts31, #1.000000000000000000e+00\n  788a40:\t910100a0 \tadd\tx0, x5, #0x40\n  788a44:\t910300a1 \tadd\tx1, x5, #0xc0\n  788a48:\t91004000 \tadd\tx0, x0, #0x10\n  788a4c:\t293e7c1f \tstp\twzr, wzr, [x0, #-16]\n  788a50:\tb81f801f \tstur\twzr, [x0, #-8]\n  788a54:\tbc1fc01f \tstur\ts31, [x0, #-4]\n  788a58:\teb00003f \tcmp\tx1, x0\n  788a5c:\t54ffff61 \tb.ne\t788a48 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xb8>  // b.any\n  788a60:\td3482e94 \tubfx\tx20, x20, #8, #4\n  788a64:\t34000374 \tcbz\tw20, 788ad0 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x140>\n  788a68:\t910100a4 \tadd\tx4, x5, #0x40\n  788a6c:\t52bfe006 \tmov\tw6, #0xff000000            \t// #-16777216\n  788a70:\t8b3448f4 \tadd\tx20, x7, w20, uxtw #2\n  788a74:\td503201f \tnop\n  788a78:\tb94008e5 \tldr\tw5, [x7, #8]\n  788a7c:\t71000cbf \tcmp\tw5, #0x3\n  788a80:\t54000380 \tb.eq\t788af0 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x160>  // b.none\n  788a84:\t540002c8 \tb.hi\t788adc <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x14c>  // b.pmore\n  788a88:\t710004bf \tcmp\tw5, #0x1\n  788a8c:\t540003e0 \tb.eq\t788b08 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x178>  // b.none\n  788a90:\t710008bf \tcmp\tw5, #0x2\n  788a94:\t54000161 \tb.ne\t788ac0 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x130>  // b.any\n  788a98:\tf8408660 \tldr\tx0, [x19], #8\n  788a9c:\tf9000080 \tstr\tx0, [x4]\n  788aa0:\td2800002 \tmov\tx2, #0x0                   \t// #0\n  788aa4:\td503201f \tnop\n  788aa8:\tb8627883 \tldr\tw3, [x4, x2, lsl #2]\n  788aac:\t6b0304df \tcmp\tw6, w3, lsl #1\n  788ab0:\t54000829 \tb.ls\t788bb4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x224>  // b.plast\n  788ab4:\t91000442 \tadd\tx2, x2, #0x1\n  788ab8:\t6b0200bf \tcmp\tw5, w2\n  788abc:\t54ffff68 \tb.hi\t788aa8 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x118>  // b.pmore\n  788ac0:\t910010e7 \tadd\tx7, x7, #0x4\n  788ac4:\t91004084 \tadd\tx4, x4, #0x10\n  788ac8:\teb1400ff \tcmp\tx7, x20\n  788acc:\t54fffd61 \tb.ne\t788a78 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xe8>  // b.any\n  788ad0:\ta94153f3 \tldp\tx19, x20, [sp, #16]\n  788ad4:\ta8c47bfd \tldp\tx29, x30, [sp], #64\n  788ad8:\td65f03c0 \tret\n  788adc:\t710010bf \tcmp\tw5, #0x4\n  788ae0:\t540001a1 \tb.ne\t788b14 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x184>  // b.any\n  788ae4:\ta8c10660 \tldp\tx0, x1, [x19], #16\n  788ae8:\ta9000480 \tstp\tx0, x1, [x4]\n  788aec:\t17ffffed \tb\t788aa0 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x110>\n  788af0:\tf9400261 \tldr\tx1, [x19]\n  788af4:\t91003273 \tadd\tx19, x19, #0xc\n  788af8:\tb85fc260 \tldur\tw0, [x19, #-4]\n  788afc:\tf9000081 \tstr\tx1, [x4]\n  788b00:\tb9000880 \tstr\tw0, [x4, #8]\n  788b04:\t17ffffe7 \tb\t788aa0 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x110>\n  788b08:\tb8404660 \tldr\tw0, [x19], #4\n  788b0c:\tb9000080 \tstr\tw0, [x4]\n  788b10:\t17ffffe4 \tb\t788aa0 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x110>\n  788b14:\t531e74a2 \tlsl\tw2, w5, #2\n  788b18:\taa1303e1 \tmov\tx1, x19\n  788b1c:\tb90037e5 \tstr\tw5, [sp, #52]\n  788b20:\taa0403e0 \tmov\tx0, x4\n  788b24:\tf9001fe7 \tstr\tx7, [sp, #56]\n  788b28:\tf90017e2 \tstr\tx2, [sp, #40]\n  788b2c:\t94028335 \tbl\t829800 <memcpy>\n  788b30:\tf94017e2 \tldr\tx2, [sp, #40]\n  788b34:\taa0003e4 \tmov\tx4, x0\n  788b38:\t52bfe006 \tmov\tw6, #0xff000000            \t// #-16777216\n  788b3c:\tf9401fe7 \tldr\tx7, [sp, #56]\n  788b40:\tb94037e5 \tldr\tw5, [sp, #52]\n  788b44:\t8b020273 \tadd\tx19, x19, x2\n  788b48:\t17ffffd6 \tb\t788aa0 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x110>\n  788b4c:\tb8404660 \tldr\tw0, [x19], #4\n  788b50:\t97fffab4 \tbl\t787620 <srhd_awa::matrixgame::materials::(anonymous namespace)::Argb(unsigned int)>\n  788b54:\t2d0604a0 \tstp\ts0, s1, [x5, #48]\n  788b58:\t2d070ca2 \tstp\ts2, s3, [x5, #56]\n  788b5c:\t17ffffb8 \tb\t788a3c <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xac>\n  788b60:\tf8686841 \tldr\tx1, [x2, x8]\n  788b64:\tb9400a60 \tldr\tw0, [x19, #8]\n  788b68:\tf90008a1 \tstr\tx1, [x5, #16]\n  788b6c:\tb90018a0 \tstr\tw0, [x5, #24]\n  788b70:\tb94010a0 \tldr\tw0, [x5, #16]\n  788b74:\t6b0004df \tcmp\tw6, w0, lsl #1\n  788b78:\t540001e9 \tb.ls\t788bb4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x224>  // b.plast\n  788b7c:\tb94014a0 \tldr\tw0, [x5, #20]\n  788b80:\t6b0004df \tcmp\tw6, w0, lsl #1\n  788b84:\t54000189 \tb.ls\t788bb4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x224>  // b.plast\n  788b88:\tb94018a0 \tldr\tw0, [x5, #24]\n  788b8c:\t6b0004df \tcmp\tw6, w0, lsl #1\n  788b90:\t54000129 \tb.ls\t788bb4 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x224>  // b.plast\n  788b94:\tb94000f4 \tldr\tw20, [x7]\n  788b98:\t91003273 \tadd\tx19, x19, #0xc\n  788b9c:\t3637f4f4 \ttbz\tw20, #6, 788a38 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xa8>\n  788ba0:\t17ffffa2 \tb\t788a28 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x98>\n  788ba4:\ta9400440 \tldp\tx0, x1, [x2]\n  788ba8:\td2800208 \tmov\tx8, #0x10                  \t// #16\n  788bac:\ta90004a0 \tstp\tx0, x1, [x5]\n  788bb0:\t17ffff92 \tb\t7889f8 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0x68>\n  788bb4:\t97e1e0a0 \tbl\te34 <srhd_awa::matrixgame::materials::(anonymous namespace)::NonfiniteVertexValue()>\n  788bb8:\td2800200 \tmov\tx0, #0x10                  \t// #16\n  788bbc:\t94005e81 \tbl\t7a05c0 <__cxa_allocate_exception>\n  788bc0:\tb0000961 \tadrp\tx1, 8b5000 <_fini+0x5bdb8>\n  788bc4:\t9120e021 \tadd\tx1, x1, #0x838\n  788bc8:\taa0003f3 \tmov\tx19, x0\n  788bcc:\t94008f95 \tbl\t7aca20 <std::invalid_argument::invalid_argument(char const*)>\n  788bd0:\tf0002ac2 \tadrp\tx2, ce3000 <_GLOBAL_OFFSET_TABLE_+0x528>\n  788bd4:\tf9475442 \tldr\tx2, [x2, #3752]\n  788bd8:\taa1303e0 \tmov\tx0, x19\n  788bdc:\tf0002ae1 \tadrp\tx1, ce7000 <_GLOBAL_OFFSET_TABLE_+0x4528>\n  788be0:\tf9464821 \tldr\tx1, [x1, #3216]\n  788be4:\t94006327 \tbl\t7a1880 <__cxa_throw>\n  788be8:\taa0003f4 \tmov\tx20, x0\n  788bec:\taa1303e0 \tmov\tx0, x19\n  788bf0:\t94005e8c \tbl\t7a0620 <__cxa_free_exception>\n  788bf4:\taa1403e0 \tmov\tx0, x20\n  788bf8:\t940275e2 \tbl\t826380 <_Unwind_Resume>\n",
+      "UV_fill_audit": {
+        "byte_begin": 64,
+        "byte_end": 192,
+        "step": 16,
+        "UV_slots": 8,
+        "defaults_loop_no_dimension_load_or_call": "add\tx0, x5, #0x40\n  788a44:\t910300a1 \tadd\tx1, x5, #0xc0\n  788a48:\t91004000 \tadd\tx0, x0, #0x10\n  788a4c:\t293e7c1f \tstp\twzr, wzr, [x0, #-16]\n  788a50:\tb81f801f \tstur\twzr, [x0, #-8]\n  788a54:\tbc1fc01f \tstur\ts31, [x0, #-4]\n  788a58:\teb00003f \tcmp\tx1, x0\n  788a5c:\t54ffff61 \tb.ne\t788a48 <srhd_awa::matrixgame::materials::FixedVertexState::DecodeTo(srhd_awa::matrixgame::materials::Vertex&, std::span<std::byte const, 18446744073709551615ul>, unsigned int) const+0xb8>  // b.any\n  788a60:\td3482e94 \t",
+        "active_count_extract": "ubfx\tx20, x20, #8, #4"
+      }
+    }
+  },
+  "hardware_input": {
+    "status": "R9 HARDWARE PARTIAL; FASTER; TRANSITION DEADLINE IN ALL THREE RUNS",
+    "archive": "C:/logs55.zip",
+    "archive_sha256": "eaf3bc7efbd9de29940ec1e3ef869385ee67a1ac03c16ced9b6ea55369960d85",
+    "build_id": "161b6d5a0923-cac3d1dc698dae229e1a",
+    "runs": [
+      {
+        "run_id": "run-1793711528003675-0",
+        "variant": "matrixgame-e610-quick-smoke.nro",
+        "image_sha256": "4e81a0d7990963c150e7dba31264173cd40b7a279ddbf9d6a06fbd1afb8cc487",
+        "journal_sha256": "1c2a5b1c211713da15dfb8556ab47f219c23c08f7ef73cc5a1c5cf14e886a8c3",
+        "records": 1891,
+        "init_seconds": 28.238128,
+        "minimap_seconds": 4.698634,
+        "mean_Draw_seconds": 0.5667255612903226,
+        "original_Draw_completed": 155,
+        "draw_span_seconds": 88.743438,
+        "transition_presents": 155,
+        "accepted_map_frames": 0,
+        "final_metrics": {
+          "image_file_bytes": 13609157,
+          "process_memory_limit_bytes": 3343908864,
+          "process_memory_used_bytes": 3339825152,
+          "image_width": 1280,
+          "image_height": 720,
+          "color_image_bytes": 3932160,
+          "color_image_alignment": 512,
+          "depth_image_bytes": 3932160,
+          "depth_image_alignment": 65536,
+          "smoke_BC1_bytes": 8,
+          "framebuffer_width": 1280,
+          "framebuffer_height": 720,
+          "gpu_buffer_allocations": 86624,
+          "block_pool_hits": 280986,
+          "block_pool_misses": 86622,
+          "block_pool_bytes": 2351104,
+          "texture_pressure_events": 591,
+          "profile.draw_cpu.calls": 183804,
+          "profile.draw_cpu.us": 69429336,
+          "profile.draw_cpu.max_us": 46488,
+          "profile.vertex_decode.calls": 183640,
+          "profile.vertex_decode.us": 8789130,
+          "profile.vertex_decode.max_us": 30571,
+          "profile.block_create.calls": 86624,
+          "profile.block_create.us": 26519875,
+          "profile.block_create.max_us": 31090,
+          "profile.residency.calls": 183804,
+          "profile.residency.us": 297435,
+          "profile.residency.max_us": 41,
+          "profile.command_encode.calls": 183804,
+          "profile.command_encode.us": 8990701,
+          "profile.command_encode.max_us": 31110,
+          "profile.batch_wait.calls": 3327,
+          "profile.batch_wait.us": 12865526,
+          "profile.batch_wait.max_us": 34041,
+          "profile.journal.calls": 1836,
+          "profile.journal.bytes": 677982,
+          "profile.journal.us": 10175897,
+          "gpu_buffer_bytes_cumulative": 3222163456,
+          "recorded_draw_calls": 183804,
+          "queue_submission_calls": 3487,
+          "completed_presents": 160,
+          "native_texture_session_uploads": 2058,
+          "texture_arena_capacity": 67108864,
+          "batch_drains": 3327,
+          "max_live_draw_packets": 64,
+          "max_live_draw_bytes": 6500352,
+          "managed_texture_evictions": 591,
+          "texture_arena_free": 2962944,
+          "queue_healthy": 1,
+          "SDK_warnings_total": 0,
+          "SDK_warning_records_suppressed": 0,
+          "VI.display_width": 1280,
+          "VI.display_height": 720,
+          "VI.refresh_hz": 60,
+          "texture.arena_free": 1742336,
+          "texture.arena_largest": 180224,
+          "texture.request_width": 512,
+          "texture.request_height": 128,
+          "texture.request_format": 21,
+          "texture.managed_evictions": 511,
+          "original_loading_presents": 155
+        },
+        "exceptions": [
+          {
+            "schema": 1,
+            "seq": 1889,
+            "time_us": 123063635,
+            "run_id": "run-1793711528003675-0",
+            "build_id": "161b6d5a0923-cac3d1dc698dae229e1a",
+            "source_sha256": "cac3d1dc698dae229e1abaa0b70d6e9cf8b693fffd3670200ab3b007989b976e",
+            "event": "exception",
+            "operation": "std::exception",
+            "last_ok": "diagnostic.error_window_attachment",
+            "detail": "diagnostic 120-second cooperative deadline exceeded",
+            "detail_truncated": false,
+            "result": null,
+            "elapsed_us": 0,
+            "value": 0
+          }
+        ],
+        "journal_closed": true,
+        "process_exit": [
+          10
+        ],
+        "sdk_errors": []
+      },
+      {
+        "run_id": "run-1793712540004104-0",
+        "variant": "matrixgame-e610-quick-smoke.nro",
+        "image_sha256": "4e81a0d7990963c150e7dba31264173cd40b7a279ddbf9d6a06fbd1afb8cc487",
+        "journal_sha256": "1d443ac0b15ee5a8e5b0e7ce4027f26ef0a0066fa2ae5f79d6c1c2c9f3473cbc",
+        "records": 1884,
+        "init_seconds": 28.477559,
+        "minimap_seconds": 4.641345,
+        "mean_Draw_seconds": 0.5648121298701299,
+        "original_Draw_completed": 154,
+        "draw_span_seconds": 87.971308,
+        "transition_presents": 154,
+        "accepted_map_frames": 0,
+        "final_metrics": {
+          "image_file_bytes": 13609157,
+          "process_memory_limit_bytes": 3343908864,
+          "process_memory_used_bytes": 3339825152,
+          "image_width": 1280,
+          "image_height": 720,
+          "color_image_bytes": 3932160,
+          "color_image_alignment": 512,
+          "depth_image_bytes": 3932160,
+          "depth_image_alignment": 65536,
+          "smoke_BC1_bytes": 8,
+          "framebuffer_width": 1280,
+          "framebuffer_height": 720,
+          "gpu_buffer_allocations": 86084,
+          "block_pool_hits": 279264,
+          "block_pool_misses": 86082,
+          "block_pool_bytes": 2437120,
+          "texture_pressure_events": 591,
+          "profile.draw_cpu.calls": 182673,
+          "profile.draw_cpu.us": 69118815,
+          "profile.draw_cpu.max_us": 44398,
+          "profile.vertex_decode.calls": 182510,
+          "profile.vertex_decode.us": 8596644,
+          "profile.vertex_decode.max_us": 30564,
+          "profile.block_create.calls": 86084,
+          "profile.block_create.us": 26543766,
+          "profile.block_create.max_us": 30689,
+          "profile.residency.calls": 182673,
+          "profile.residency.us": 289440,
+          "profile.residency.max_us": 40,
+          "profile.command_encode.calls": 182673,
+          "profile.command_encode.us": 8824869,
+          "profile.command_encode.max_us": 30451,
+          "profile.batch_wait.calls": 3310,
+          "profile.batch_wait.us": 12794230,
+          "profile.batch_wait.max_us": 32996,
+          "profile.journal.calls": 1829,
+          "profile.journal.bytes": 675392,
+          "profile.journal.us": 10208159,
+          "gpu_buffer_bytes_cumulative": 3202240512,
+          "recorded_draw_calls": 182673,
+          "queue_submission_calls": 3469,
+          "completed_presents": 159,
+          "native_texture_session_uploads": 2057,
+          "texture_arena_capacity": 67108864,
+          "batch_drains": 3310,
+          "max_live_draw_packets": 64,
+          "max_live_draw_bytes": 6500352,
+          "managed_texture_evictions": 591,
+          "texture_arena_free": 2962944,
+          "queue_healthy": 1,
+          "SDK_warnings_total": 0,
+          "SDK_warning_records_suppressed": 0,
+          "VI.display_width": 1280,
+          "VI.display_height": 720,
+          "VI.refresh_hz": 60,
+          "texture.arena_free": 1742336,
+          "texture.arena_largest": 180224,
+          "texture.request_width": 512,
+          "texture.request_height": 128,
+          "texture.request_format": 21,
+          "texture.managed_evictions": 511,
+          "original_loading_presents": 154
+        },
+        "exceptions": [
+          {
+            "schema": 1,
+            "seq": 1882,
+            "time_us": 123293151,
+            "run_id": "run-1793712540004104-0",
+            "build_id": "161b6d5a0923-cac3d1dc698dae229e1a",
+            "source_sha256": "cac3d1dc698dae229e1abaa0b70d6e9cf8b693fffd3670200ab3b007989b976e",
+            "event": "exception",
+            "operation": "std::exception",
+            "last_ok": "diagnostic.error_window_attachment",
+            "detail": "diagnostic 120-second cooperative deadline exceeded",
+            "detail_truncated": false,
+            "result": null,
+            "elapsed_us": 0,
+            "value": 0
+          }
+        ],
+        "journal_closed": true,
+        "process_exit": [
+          10
+        ],
+        "sdk_errors": []
+      },
+      {
+        "run_id": "run-1793712669005613-0",
+        "variant": "matrixgame-e610-interactive.nro",
+        "image_sha256": "88554503574b871b84891009bbc0036cfc2f0a9736c332f3fa53ec7885cf4e1f",
+        "journal_sha256": "43789eae46e01f7635ec32a899478e5a87d10a4110c6649d61c5c53877034cd9",
+        "records": 2371,
+        "init_seconds": 28.472823,
+        "minimap_seconds": 4.76745,
+        "mean_Draw_seconds": 0.5619407962085308,
+        "original_Draw_completed": 211,
+        "draw_span_seconds": 119.945694,
+        "transition_presents": 211,
+        "accepted_map_frames": 0,
+        "final_metrics": {
+          "image_file_bytes": 13609157,
+          "process_memory_limit_bytes": 3343908864,
+          "process_memory_used_bytes": 3339825152,
+          "image_width": 1280,
+          "image_height": 720,
+          "color_image_bytes": 3932160,
+          "color_image_alignment": 512,
+          "depth_image_bytes": 3932160,
+          "depth_image_alignment": 65536,
+          "smoke_BC1_bytes": 8,
+          "framebuffer_width": 1280,
+          "framebuffer_height": 720,
+          "gpu_buffer_allocations": 117088,
+          "block_pool_hits": 377194,
+          "block_pool_misses": 117086,
+          "block_pool_bytes": 2351104,
+          "texture_pressure_events": 591,
+          "profile.draw_cpu.calls": 247140,
+          "profile.draw_cpu.us": 93555401,
+          "profile.draw_cpu.max_us": 49630,
+          "profile.vertex_decode.calls": 246920,
+          "profile.vertex_decode.us": 11682196,
+          "profile.vertex_decode.max_us": 29927,
+          "profile.block_create.calls": 117088,
+          "profile.block_create.us": 36267587,
+          "profile.block_create.max_us": 31152,
+          "profile.residency.calls": 247140,
+          "profile.residency.us": 391777,
+          "profile.residency.max_us": 37,
+          "profile.command_encode.calls": 247140,
+          "profile.command_encode.us": 12153321,
+          "profile.command_encode.max_us": 30287,
+          "profile.batch_wait.calls": 4279,
+          "profile.batch_wait.us": 17117488,
+          "profile.batch_wait.max_us": 32485,
+          "profile.journal.calls": 2316,
+          "profile.journal.bytes": 855755,
+          "profile.journal.us": 13097559,
+          "gpu_buffer_bytes_cumulative": 4357308416,
+          "recorded_draw_calls": 247140,
+          "queue_submission_calls": 4495,
+          "completed_presents": 216,
+          "native_texture_session_uploads": 2110,
+          "texture_arena_capacity": 67108864,
+          "batch_drains": 4279,
+          "max_live_draw_packets": 64,
+          "max_live_draw_bytes": 6500352,
+          "managed_texture_evictions": 591,
+          "texture_arena_free": 2962944,
+          "queue_healthy": 1,
+          "SDK_warnings_total": 0,
+          "SDK_warning_records_suppressed": 0,
+          "VI.display_width": 1280,
+          "VI.display_height": 720,
+          "VI.refresh_hz": 60,
+          "texture.arena_free": 1742336,
+          "texture.arena_largest": 180224,
+          "texture.request_width": 512,
+          "texture.request_height": 128,
+          "texture.request_format": 21,
+          "texture.managed_evictions": 511,
+          "original_loading_presents": 211
+        },
+        "exceptions": [
+          {
+            "schema": 1,
+            "seq": 2369,
+            "time_us": 155194894,
+            "run_id": "run-1793712669005613-0",
+            "build_id": "161b6d5a0923-cac3d1dc698dae229e1a",
+            "source_sha256": "cac3d1dc698dae229e1abaa0b70d6e9cf8b693fffd3670200ab3b007989b976e",
+            "event": "exception",
+            "operation": "std::exception",
+            "last_ok": "diagnostic.error_window_attachment",
+            "detail": "diagnostic 120-second cooperative deadline exceeded",
+            "detail_truncated": false,
+            "result": null,
+            "elapsed_us": 0,
+            "value": 0
+          }
+        ],
+        "journal_closed": true,
+        "process_exit": [
+          10
+        ],
+        "sdk_errors": []
+      }
+    ]
+  },
+  "current_build_hardware": "NOT RUN",
+  "limitations": [
+    "CPU U16 gather only; physical Switch improvement unknown",
+    "physical GPU/HID/audio/Init/map frames pending",
+    "standalone entry: no unified Campaign/Gov, natural victory or Galaxy return"
+  ]
+}
