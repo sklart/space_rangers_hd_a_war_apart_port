@@ -163,7 +163,10 @@ PreparedDrawState NativeRenderState::PrepareDraw(bool points,bool lines,std::uin
     auto raw=[&](std::uint32_t id){return present[id]?raw_words[id]:registers.at(id);};
     auto read=[&](std::uint32_t id){
         const auto& kind=RenderLookup[id];
-        if(kind.vertex || id==9 || id==22 || id==60)return Render(id);
+        // The local caller already resolved this known ID above.
+        if(kind.vertex)return vertex.Render(id);
+        if(id==9)return shade;if(id==22)return cull;
+        if(id==60)return materials::PackQuantizedArgb(combiner.State().factor);
         if(kind.raster)return raster_words[kind.raster-1];
         return raw(id);
     };
