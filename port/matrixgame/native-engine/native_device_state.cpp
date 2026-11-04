@@ -76,7 +76,7 @@ void NativeRenderState::Render(std::uint32_t id,std::uint32_t value){
     else if(vertex.Render(id,value)){}
     else if(id==22){if(value<1 || value>3)throw Unsupported("native cull mode");cull=value;}
     else if(id==9){if(value!=1 && value!=2)throw Unsupported("native shading mode outside FLAT/GOURAUD");shade=value;}
-    else if(std::find(RasterRegisters.begin(),RasterRegisters.end(),static_cast<RasterRegister>(id))!=RasterRegisters.end())raster.Apply(static_cast<RasterRegister>(id),value);
+    else if(RenderLookup[id].raster)raster.Apply(static_cast<RasterRegister>(id),value);
     // Inactive parameters remain real logical state. ValidateDraw/ValidateClear
     // reject any requested operation whose GPU semantics are not implemented.
     registers.at(id)=value;

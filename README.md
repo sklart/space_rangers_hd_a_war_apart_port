@@ -668,3 +668,18 @@ PrepareDraw control ~+0,8%; вклад setter в реальный кадр не�
 В hbmenu **MatrixGame r26 Quick Smoke** / **MatrixGame r26 Interactive**.
 SDK/package и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r27: raster membership из существующего lookup
+
+Один линейный поиск в setter заменён уже имеющимся RenderLookup flag после
+Word/LogicalValue. Все value checks/ошибки и raster.Apply сохранены.
+25511 CPU cases — PASS на host ASan/UBSan, ARM64-QEMU UBSan и Windows O2.
+CPU setter median 28,5 → 26,7 мс / 1,69 млн операций (−6,1%, не FPS).
+PrepareDraw control ~+1,3%; вклад setter в реальный кадр неизвестен.
+[Изменение и proof](reports/matrixgame-e610-raster-r27.md),
+[два запуска](docs/matrixgame-e610-raster-r27-readme.ru.md).
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r27-raster.zip`.
+В hbmenu **MatrixGame r27 Quick Smoke** / **MatrixGame r27 Interactive**.
+SDK/package и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.
