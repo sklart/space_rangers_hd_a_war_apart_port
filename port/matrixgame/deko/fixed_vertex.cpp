@@ -116,7 +116,11 @@ void FixedVertexState::DecodeTo(Vertex& v,std::span<const std::byte> bytes,std::
     };
     floats(v.position.data(),(fvf_&0xe)==4?4:3);if(fvf_&0x10)floats(v.normal.data(),3);
     for(auto pair:{std::pair{0x40u,&v.diffuse},std::pair{0x80u,&v.specular}})if(fvf_&pair.first){std::uint32_t c;std::memcpy(&c,p,4);p+=4;*pair.second=Argb(c);}
-    for(unsigned j=0;j<8;++j){v.uv[j]={0,0,0,1};if(dimensions_[j])floats(v.uv[j].data(),dimensions_[j]);}
+    // All UV slots must be defined in a successful output. Fill them together
+    // before decoding contiguous active fields; failed output is unpublished.
+    v.uv.fill({0,0,0,1});
+    const unsigned textures=(fvf_>>8)&15;
+    for(unsigned j=0;j<textures;++j)floats(v.uv[j].data(),dimensions_[j]);
 }
 VertexUniforms FixedVertexState::Prepare()const{
     auto out=values_;out.camera=Multiply(world_,view_);out.clip=Multiply(out.camera,projection_);

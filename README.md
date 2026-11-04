@@ -625,3 +625,17 @@ CPU gather median 281,8 → 271,4 мс / 4096 synthetic draws (−3,7%, не FPS
 В hbmenu **MatrixGame r23 Quick Smoke** / **MatrixGame r23 Interactive**.
 SDK/package и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r24: UV defaults отдельно от active decode
+
+DecodeTo заполняет defaults восьми slots вместе, затем декодирует active fields.
+Все successful 192 bytes, finite checks и no-publication errors сохранены.
+24194 CPU cases — PASS на host ASan/UBSan, ARM64-QEMU UBSan и Windows O2.
+CPU gather median 283,6 → 265,8 мс / 4096 synthetic draws (−6,3%, не FPS Switch).
+[Изменение и proof](reports/matrixgame-e610-uv-r24.md),
+[два запуска](docs/matrixgame-e610-uv-r24-readme.ru.md).
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r24-uv.zip`.
+В hbmenu **MatrixGame r24 Quick Smoke** / **MatrixGame r24 Interactive**.
+SDK/package и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.
