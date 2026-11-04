@@ -80,3 +80,71 @@ workaround скрывает только type_info symbol, UBSan/vptr сохра
 Выигрыш setter повторился в /3 и /4; control в пределах ~1% в финальном run.
 Это локальный CPU setter throughput, не ускорение игры/FPS. После этого
 дополнительные timing runs для выбора лучшей цифры не делались.
+
+## SDK/package и compiled-rule proof
+
+Source commit: `73c86b5c6ccbd4b2912a34f8107faf1b9fd7cd87`.
+Build ID: `73c86b5c6ccb-377f722407274dc80caf`.
+Обе стандартные devkitA64/libnx/deko3d compile/link — PASS, strong undefined=0.
+321 configured translation units: O2/UNDEBUG, exceptions, no fast-math;
+prebuilt Rangers archive unchanged, не выдаётся за новую optimized сборку.
+23 actual debug deko3dd object members / 0 release deko3d, mixed=false.
+NRO structure/assets, embedded fonts/shaders, NACP titles и ELF→NRO IDs проверены.
+Generated original files identical r25 (3 historical delta vs E601).
+717 own source hashes проверены. Изменён только scalar LogicalValue участок;
+весь CPP prefix до него и suffix от constructor до EOF совпадают с r25.
+API/layout, Render caller/getters, PrepareDraw, leases/COW unchanged.
+318 прежних защищённых артефактов SHA unchanged; main NRO/game/frozen gate PASS.
+
+В каждой actual ELF LogicalRules — readonly table из 103 bytes. Gate извлёк
+группы условий из frozen LogicalValue и serialized names из frozen
+NativeRenderWords, вычислил expected flags и побайтно сравнил все 103 rows с
+compiled table. Всё совпало. GCC встроил новый classifier в реальный setter:
+проверены точные ADRP/ADD table address и indexed byte load; string classification
+calls отсутствуют. Value bounds/nonfinite, vertex/raster/combiner и map failure
+пути остались настоящими. Matrix Multiply bytes совпадают с tested r25 kernel
+SHA a575632d8915cd0fd1bc6df10d9c3564789a270a1baad17eae38bd3bd0be5195.
+Это доказательство включения кода, не hardware runtime или FPS.
+
+Проверочный parser сначала ошибочно сканировал все 116 metadata rows header,
+включая sampler; исправлен scope на точный NativeRenderWords array из 103.
+Первый assembly gate ожидал отдельный LogicalValue symbol, но actual GCC
+inlines его в setter; проверка уточнена на реальные инструкции/table load.
+Предположения и failures сохранены в checks/failed-parser-assumption.json.
+Production source/NRO при уточнении gate не менялись.
+
+ZIP: `dist/matrixgame-e610-switch-test-r26-scalar.zip` (10161078 bytes).
+SHA256: `f8dd7d31304b277cffde06208278da537cd5fd3eab7d1df5f1d90719b1ef530e`.
+Ровно 6 файлов: 2 NRO, README.ru.md, manifest.json, SHA256SUMS.txt, build-info.json.
+Ресурсов/сохранений нет. Manifest связывает source/input/ELF/NRO hashes и build IDs.
+
+| NRO | SHA256 | ELF Build ID |
+| --- | --- | --- |
+| matrixgame-e610-quick-smoke.nro | `035bc173796650a0c673f444265bb0f61361f7b9ed80563dc90af7da5b3d6017` | `92fac5397cfa9c068f458c453c8d3eee41c3eaeb` |
+| matrixgame-e610-interactive.nro | `7cc79b4f1b313ed2b1f55173d4cac056e3bcd691d18b9ca265f7e2f052a5249c` | `319c2ee9a92ea2fc632664a0f0630edaca66494a` |
+
+## Воспроизведение и аппаратные границы
+
+CPU: `python tools/matrixgame_scalar_rules_checks.py host` (также arm64/windows),
+затем `python tools/matrixgame_scalar_rules_checks.py benchmark` без parallel jobs.
+Runner сохраняет frozen r25 CPP, commands/stdout/source hashes и результаты
+в новый numbered каталог. Probe имеет одинаковый state/draw warmup.
+SDK: `python tools/matrixgame_current_diagnostic_sdk.py --output-root
+build/matrixgame/e610-scalar-r26` — создаётся новый numbered каталог.
+Package: `python tools/matrixgame_e610_freeze.py package --build
+build/matrixgame/e610-scalar-r26/1 --source-commit 73c86b5c6ccbd4b2912a34f8107faf1b9fd7cd87
+--output dist/matrixgame-e610-switch-test-r26-scalar.zip --readme
+docs/matrixgame-e610-scalar-r26-readme.ru.md --rangers-root
+sdmc:/switch/space-rangers-hd-a-war-apart/game` (новому выводу дать новое имя).
+Локальный gate: build/matrixgame/e610-scalar-r26-checks/verify_delivery.py с source
+commit как аргументом. [Полный evidence](matrixgame-e610-scalar-r26-evidence.json).
+
+SOFTWARE PASS / HARDWARE PENDING. Разработка на этом шаге остановлена.
+Quick → 4 настоящих map frames, затем Interactive → доступные кнопки/меню/
+камера/звук и Minus+Plus. Полная инструкция в ZIP; логи отдельно в
+/switch/matrixgame-diag/logs/<run-id>. Ресурсы повторно копировать не требуется.
+Вклад setter в реальный кадр неизвестен; FPS/Init не измерены.
+Физические GPU/HID/audio не приняты. Единая Campaign/Gov, естественная победа
+и возврат Galaxy этим standalone entry не охватываются.
+
+Evidence SHA256: `d3503f9bef2afdaf3d9d4786e595ed2b07cba2daa0cc0a4a826ca5a2358930b5`.
