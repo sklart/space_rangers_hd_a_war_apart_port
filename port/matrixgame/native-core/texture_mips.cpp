@@ -79,27 +79,41 @@ void FillRGBA(const TextureLevel& source,TextureLevel& target,std::array<std::ui
     }
     return;
   }
-  for(unsigned y=0;y<target.height;++y)for(unsigned x=0;x<target.width;++x)for(unsigned c=0;c<4;++c) {
-    unsigned value=clear[c];
-    if(!box) {if(x<source.width&&y<source.height)value=std::to_integer<unsigned>(source.bytes[std::size_t(y)*source.pitch+x*4+c]);}
-    else {
-      const auto x0=std::min(x*2,source.width-1),x1=std::min(x0+1,source.width-1),y0=std::min(y*2,source.height-1),y1=std::min(y0+1,source.height-1);
-      const auto p=[&](unsigned px,unsigned py){return std::to_integer<unsigned>(source.bytes[std::size_t(py)*source.pitch+px*4+c]);};
-      value=(p(x0,y0)+p(x1,y0)+p(x0,y1)+p(x1,y1)+2)/4;
-      if(source.width==1||source.height==1) {
-        // D3DX's generic BOX path rounds each sequential float addition,
-        // including duplicated samples on the one-pixel axis. The 2-D
-        // RGBA fast path above instead averages integer channel values.
-        constexpr float scale=1.f/255.f;
-        float sum=float(p(x0,y0))*scale;
-        sum+=float(p(x1,y0))*scale;
-        sum+=float(p(x0,y1))*scale;
-        sum+=float(p(x1,y1))*scale;
-        const float normalized=sum*.25f;
-        value=unsigned(double(normalized)*255.0+.5);
+  if(source.width>1 && source.height>1) {
+    // Generated RGBA levels halve each power-of-two axis down to one.
+    // In 2-D every output pixel therefore has a complete 2x2 footprint.
+    for(unsigned y=0;y<target.height;++y) {
+      const auto* top=source.bytes.data()+std::size_t(y)*2*source.pitch;
+      const auto* bottom=top+source.pitch;
+      auto* destination=target.bytes.data()+std::size_t(y)*target.pitch;
+      for(unsigned x=0;x<target.width;++x) {
+        const auto offset=std::size_t(x)*8;
+        for(unsigned c=0;c<4;++c) {
+          const auto sum=unsigned(top[offset+c])+unsigned(top[offset+c+4])+
+              unsigned(bottom[offset+c])+unsigned(bottom[offset+c+4]);
+          destination[std::size_t(x)*4+c]=std::byte((sum+2)/4);
+        }
       }
     }
-    target.bytes[std::size_t(y)*target.pitch+x*4+c]=std::byte(value);
+    return;
+  }
+  // D3DX's one-pixel-axis BOX path rounds every sequential float addition.
+  for(unsigned y=0;y<target.height;++y)for(unsigned x=0;x<target.width;++x) {
+    const auto x0=std::min(x*2,source.width-1),x1=std::min(x0+1,source.width-1);
+    const auto y0=std::min(y*2,source.height-1),y1=std::min(y0+1,source.height-1);
+    for(unsigned c=0;c<4;++c) {
+      const auto pixel=[&](unsigned px,unsigned py) {
+        return std::to_integer<unsigned>(source.bytes[std::size_t(py)*source.pitch+px*4+c]);
+      };
+      constexpr float scale=1.f/255.f;
+      float sum=float(pixel(x0,y0))*scale;
+      sum+=float(pixel(x1,y0))*scale;
+      sum+=float(pixel(x0,y1))*scale;
+      sum+=float(pixel(x1,y1))*scale;
+      const float normalized=sum*.25f;
+      target.bytes[std::size_t(y)*target.pitch+x*4+c]=
+          std::byte(unsigned(double(normalized)*255.0+.5));
+    }
   }
 }
 }
