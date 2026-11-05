@@ -105,6 +105,37 @@ p::DeviceResult Create(std::shared_ptr<Session> session,std::uint32_t w,std::uin
 }
 p::DeviceResult Create(std::uint32_t w,std::uint32_t h,std::uint32_t levels,std::uint32_t usage,std::uint32_t format,std::uint32_t pool,IDirect3DTexture9** out){return Create(Active(),w,h,levels,usage,format,pool,out);}
 namespace {
+// The format is selected once per level so the pixel loop has a fixed stride.
+template<unsigned format>
+void ConvertRgbaLevel(const TextureLevel& source, Level& target) {
+    constexpr unsigned pixel_bytes = format == 21 || format == 22 ? 4 : 2;
+    for (unsigned y = 0; y < source.height; ++y) {
+        const auto* input = source.bytes.data() + std::size_t(y) * source.pitch;
+        auto* output = target.bytes.data() + std::size_t(y) * target.pitch;
+        for (unsigned x = 0; x < source.width; ++x, input += 4, output += pixel_bytes) {
+            if constexpr (format == 21 || format == 22) {
+                output[0] = input[2];
+                output[1] = input[1];
+                output[2] = input[0];
+                output[3] = format == 22 ? std::byte{255} : input[3];
+            } else {
+                const auto r = unsigned(input[0]), g = unsigned(input[1]);
+                const auto b = unsigned(input[2]), a = unsigned(input[3]);
+                std::uint16_t value;
+                if constexpr (format == 23) {
+                    value = ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
+                } else if constexpr (format == 25) {
+                    value = ((a >> 7) << 15) | ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3);
+                } else {
+                    static_assert(format == 26);
+                    value = ((a >> 4) << 12) | ((r >> 4) << 8) | ((g >> 4) << 4) | (b >> 4);
+                }
+                std::memcpy(output, &value, sizeof(value));
+            }
+        }
+    }
+}
+
 p::DeviceResult Publish(std::shared_ptr<Session> session,TextureAsset asset,std::uint32_t format,std::uint32_t pool,IDirect3DTexture9** out){
     std::uint32_t natural=asset.format==TextureFormat::RGBA8?21u:asset.format==TextureFormat::BC1?0x31545844u:asset.format==TextureFormat::BC2?0x33545844u:0x35545844u;
     if(!format)format=natural;
@@ -114,10 +145,14 @@ p::DeviceResult Publish(std::shared_ptr<Session> session,TextureAsset asset,std:
     struct Owner{IDirect3DTexture9* t;~Owner(){Release(t);}} owner{candidate};auto t=Find(candidate);
     for(unsigned i=0;i<asset.levels.size();++i){auto& src=asset.levels[i];auto& dst=t->levels[i];
         if(natural!=21){dst.bytes=src.bytes;continue;}
-        for(unsigned y=0;y<src.height;++y)for(unsigned x=0;x<src.width;++x){auto* s=src.bytes.data()+std::size_t(y)*src.pitch+x*4;auto* d=dst.bytes.data()+std::size_t(y)*dst.pitch+x*Layout(format).bytes;
-            const auto r=unsigned(s[0]),g=unsigned(s[1]),b=unsigned(s[2]),a=unsigned(s[3]);
-            if(format==21 || format==22){d[0]=std::byte(b);d[1]=std::byte(g);d[2]=std::byte(r);d[3]=std::byte(format==22?255:a);}
-            else{std::uint16_t v=format==23?((r>>3)<<11)|((g>>2)<<5)|(b>>3):format==25?((a>>7)<<15)|((r>>3)<<10)|((g>>3)<<5)|(b>>3):((a>>4)<<12)|((r>>4)<<8)|((g>>4)<<4)|(b>>4);std::memcpy(d,&v,2);}}
+        switch (format) {
+        case 21: ConvertRgbaLevel<21>(src, dst); break;
+        case 22: ConvertRgbaLevel<22>(src, dst); break;
+        case 23: ConvertRgbaLevel<23>(src, dst); break;
+        case 25: ConvertRgbaLevel<25>(src, dst); break;
+        case 26: ConvertRgbaLevel<26>(src, dst); break;
+        default: throw p::Unsupported("native texture formatted decode conversion");
+        }
     }
     t->pool=pool;t->dirty=true;
     if(pool!=2)(void)Resident(t); // Complete original payload before GPU publication.
