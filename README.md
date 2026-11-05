@@ -828,3 +828,13 @@ CPU: 128 расширений 1023×767 → 1024×1024 — 837,45 → 41,01 мс
 В hbmenu **MatrixGame r36 Quick Smoke** / **MatrixGame r36 Interactive**.
 SDK/package и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r37. Двумерный BOX-фильтр RGBA
+
+Генерация mip-уровней читает блоки 2×2 по смещениям двух строк. Медиана
+64 цепочек 512×256 на host CPU снизилась с 33,22 до 7,21 мс.
+Host ASan/UBSan, ARM64/QEMU, Windows и сборка двух NRO прошли.
+Пакет `dist/matrixgame-e610-switch-test-r37-mip-box.zip` имеет статус HARDWARE PENDING.
+[Замеры и SHA256](reports/matrixgame-e610-mip-box-r37.md).
+[Два ручных запуска](docs/matrixgame-e610-mip-box-r37-readme.ru.md).

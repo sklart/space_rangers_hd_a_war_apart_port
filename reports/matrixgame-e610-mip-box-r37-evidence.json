@@ -1,0 +1,768 @@
+{
+  "status": "SOFTWARE PASS / HARDWARE PENDING",
+  "source_commit": "16ecdde1962469dd20eacfee3828f0a1a1f7b400",
+  "build_id": "16ecdde19624-ac86423863b2c28e5682",
+  "protected_sha256_matches": 395,
+  "sdk_source_sha256_matches": 728,
+  "generated_original_equal_to_r36": true,
+  "sdk": {
+    "matrixgame-native-interactive": {
+      "native_decode_and_prepare_mips_linked": true,
+      "strong_undefined": [],
+      "elf_sha256": "caa294173b44bba37bdd24128ad82655bb43018c55dd2d98e53b214a34e5e99f"
+    },
+    "matrixgame-native-diagnostic": {
+      "native_decode_and_prepare_mips_linked": true,
+      "strong_undefined": [],
+      "elf_sha256": "4c5f9cabfba2cc29d309aedd59af193ee25aaec17070bf7cd32c1e2a1731b8ba"
+    }
+  },
+  "cpu": {
+    "host": {
+      "result_sha256": "f3c0fa02e65b224115470ff9f856529534dc20c9d9ff2f915b43ec843f737da2",
+      "status": "PASS FROZEN R36/CANDIDATE CPU O2 COMPARISON; GUARDS RETAINED; HARDWARE_PENDING",
+      "commands": [
+        {
+          "label": "build-frozen",
+          "command": [
+            "wsl",
+            "--exec",
+            "g++",
+            "-std=c++20",
+            "-O2",
+            "-g",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-fno-pie",
+            "-no-pie",
+            "-fno-omit-frame-pointer",
+            "-frounding-math",
+            "-fno-tree-sink",
+            "-fsanitize=address,undefined",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/host/1/frozen-tree/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/host/1/frozen-tree/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/host/1/frozen-tree/port/matrixgame/deko",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-copy-r36/1/core/source",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/host/1/frozen-tree/port/matrixgame/third_party/directxmath/Inc",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/host/1/frozen-tree/port/matrixgame/third_party/sal",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_mip_copy.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/host/1/frozen-tree/port/matrixgame/native-core/texture_mips.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-copy-r36/1/core/source/BC.cpp",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/host/1/frozen"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "build-candidate",
+          "command": [
+            "wsl",
+            "--exec",
+            "g++",
+            "-std=c++20",
+            "-O2",
+            "-g",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-fno-pie",
+            "-no-pie",
+            "-fno-omit-frame-pointer",
+            "-frounding-math",
+            "-fno-tree-sink",
+            "-fsanitize=address,undefined",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-copy-r36/1/core/source",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_mip_copy.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/texture_mips.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-copy-r36/1/core/source/BC.cpp",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/host/1/candidate"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime-frozen",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/host/1/frozen"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime-candidate",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/host/1/candidate"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime-candidate-unaligned-bc",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/host/1/candidate",
+            "--unaligned-bc"
+          ],
+          "exit": 0
+        }
+      ],
+      "scope": "real frozen/candidate CPU validator; no Switch/GPU/FPS",
+      "semantic_stdout": "MIP_COPY cases=1928 rejected=92 checksum=17810332396854180323 oracle_channels=4265600 full_output padding_clear_gamma BC123_real_codec box_1D_2D fenv4 budget_failures_transactional CPU_ONLY_NOT_GPU\n",
+      "alignment_stdout": "BC_ALIGNMENT cases=864 checksum=8182386970932145308 all3_codecs odd_pitch_1_3_7 same_active_bytes_and_fenv_as_aligned fenv4 CPU_ONLY_NOT_GPU\n",
+      "source_sha256": {
+        "tests/test_matrixgame_mip_copy.cpp": "cc9f6e17a431b32e781f1573e8e780c48a22c23ee9fa719d634cfaf3d358d703",
+        "port/matrixgame/native-core/texture_mips.cpp": "391300f57663ec4df8d668ea3fd623e3bfa6db3bf6b48c93715eb09fe8f66c5a",
+        "port/matrixgame/native-core/texture_asset.hpp": "50f109b9ee890e59c105139eae7f84128ca64f5063481ff7bdceedd743111a58",
+        "port/matrixgame/native-core/bc_native_prelude.hpp": "d38a1b7310f619e1ca4ae44f1c780ccbd9e810ef3b2c37494a8870c74a8f03e9",
+        "tools/matrixgame_mip_box_checks.py": "1eabefeff477f7f1a87220c3b58106492f20e3066ebd5c259d79c4d4c8b2ac7c"
+      },
+      "frozen_commit": "c32f35b8bc4fc8977095a22c34dbf2813f9c14a0",
+      "frozen_cpp_sha256": "22ee9c37d0fef9f52c954037cca13e6e26bc65d258bf05459fea5d73d4368081",
+      "shared_BC": {
+        "path": "build\\matrixgame\\e610-mip-copy-r36\\1\\core\\source\\BC.cpp",
+        "sha256": "ca40cbb52988ac257d451bf508a12962ad35aa1029dfea395ce5595a82650354",
+        "scope": "unchanged real prepared BC.cpp used by both variants"
+      }
+    },
+    "arm64": {
+      "result_sha256": "e1164b83543c3f18e5689df38b2ca6a09c61eb7d387ba699cdbbaedd4209191d",
+      "status": "PASS FROZEN R36/CANDIDATE CPU O2 COMPARISON; GUARDS RETAINED; HARDWARE_PENDING",
+      "commands": [
+        {
+          "label": "build-frozen",
+          "command": [
+            "wsl",
+            "--exec",
+            "aarch64-linux-gnu-g++-15",
+            "-std=c++20",
+            "-O2",
+            "-g",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-fno-pie",
+            "-no-pie",
+            "-fno-omit-frame-pointer",
+            "-frounding-math",
+            "-fno-tree-sink",
+            "-fsanitize=undefined",
+            "-Wl,--version-script=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/arm64/1/local-typeinfo.map",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/arm64/1/frozen-tree/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/arm64/1/frozen-tree/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/arm64/1/frozen-tree/port/matrixgame/deko",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-copy-r36/1/core/source",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/arm64/1/frozen-tree/port/matrixgame/third_party/directxmath/Inc",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/arm64/1/frozen-tree/port/matrixgame/third_party/sal",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_mip_copy.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/arm64/1/frozen-tree/port/matrixgame/native-core/texture_mips.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-copy-r36/1/core/source/BC.cpp",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/arm64/1/frozen"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "build-candidate",
+          "command": [
+            "wsl",
+            "--exec",
+            "aarch64-linux-gnu-g++-15",
+            "-std=c++20",
+            "-O2",
+            "-g",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-fno-pie",
+            "-no-pie",
+            "-fno-omit-frame-pointer",
+            "-frounding-math",
+            "-fno-tree-sink",
+            "-fsanitize=undefined",
+            "-Wl,--version-script=/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/arm64/1/local-typeinfo.map",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-copy-r36/1/core/source",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_mip_copy.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/texture_mips.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-copy-r36/1/core/source/BC.cpp",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/arm64/1/candidate"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime-frozen",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "qemu-aarch64",
+            "-L",
+            "/usr/aarch64-linux-gnu",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/arm64/1/frozen"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime-candidate",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "qemu-aarch64",
+            "-L",
+            "/usr/aarch64-linux-gnu",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/arm64/1/candidate"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime-candidate-unaligned-bc",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "qemu-aarch64",
+            "-L",
+            "/usr/aarch64-linux-gnu",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/arm64/1/candidate",
+            "--unaligned-bc"
+          ],
+          "exit": 0
+        }
+      ],
+      "scope": "real frozen/candidate CPU validator; no Switch/GPU/FPS",
+      "semantic_stdout": "MIP_COPY cases=1928 rejected=92 checksum=9269151499617152931 oracle_channels=4265600 full_output padding_clear_gamma BC123_real_codec box_1D_2D fenv4 budget_failures_transactional CPU_ONLY_NOT_GPU\n",
+      "alignment_stdout": "BC_ALIGNMENT cases=864 checksum=1105666068241857020 all3_codecs odd_pitch_1_3_7 same_active_bytes_and_fenv_as_aligned fenv4 CPU_ONLY_NOT_GPU\n",
+      "source_sha256": {
+        "tests/test_matrixgame_mip_copy.cpp": "cc9f6e17a431b32e781f1573e8e780c48a22c23ee9fa719d634cfaf3d358d703",
+        "port/matrixgame/native-core/texture_mips.cpp": "391300f57663ec4df8d668ea3fd623e3bfa6db3bf6b48c93715eb09fe8f66c5a",
+        "port/matrixgame/native-core/texture_asset.hpp": "50f109b9ee890e59c105139eae7f84128ca64f5063481ff7bdceedd743111a58",
+        "port/matrixgame/native-core/bc_native_prelude.hpp": "d38a1b7310f619e1ca4ae44f1c780ccbd9e810ef3b2c37494a8870c74a8f03e9",
+        "tools/matrixgame_mip_box_checks.py": "1eabefeff477f7f1a87220c3b58106492f20e3066ebd5c259d79c4d4c8b2ac7c"
+      },
+      "frozen_commit": "c32f35b8bc4fc8977095a22c34dbf2813f9c14a0",
+      "frozen_cpp_sha256": "22ee9c37d0fef9f52c954037cca13e6e26bc65d258bf05459fea5d73d4368081",
+      "shared_BC": {
+        "path": "build\\matrixgame\\e610-mip-copy-r36\\1\\core\\source\\BC.cpp",
+        "sha256": "ca40cbb52988ac257d451bf508a12962ad35aa1029dfea395ce5595a82650354",
+        "scope": "unchanged real prepared BC.cpp used by both variants"
+      }
+    },
+    "windows": {
+      "result_sha256": "37f80f33410715f2ef4ebd98e1fedd98890b0067bf305e7b4956c566eda94a94",
+      "status": "PASS FROZEN R36/CANDIDATE CPU O2 COMPARISON; GUARDS RETAINED; HARDWARE_PENDING",
+      "commands": [
+        {
+          "label": "build-frozen",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-mip-box-r37-checks\\windows\\1\\frozen.cmd"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "build-candidate",
+          "command": [
+            "cmd.exe",
+            "/d",
+            "/c",
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-mip-box-r37-checks\\windows\\1\\candidate.cmd"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime-frozen",
+          "command": [
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-mip-box-r37-checks\\windows\\1\\frozen.exe"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime-candidate",
+          "command": [
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-mip-box-r37-checks\\windows\\1\\candidate.exe"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime-candidate-unaligned-bc",
+          "command": [
+            "D:\\repos\\space_rangers_hd_a_war_apart_port\\build\\matrixgame\\e610-mip-box-r37-checks\\windows\\1\\candidate.exe",
+            "--unaligned-bc"
+          ],
+          "exit": 0
+        }
+      ],
+      "scope": "real frozen/candidate CPU validator; no Switch/GPU/FPS",
+      "semantic_stdout": "MIP_COPY cases=1928 rejected=92 checksum=10738186078716421795 oracle_channels=4265600 full_output padding_clear_gamma BC123_real_codec box_1D_2D fenv4 budget_failures_transactional CPU_ONLY_NOT_GPU\n",
+      "alignment_stdout": "BC_ALIGNMENT cases=864 checksum=16344224928648219632 all3_codecs odd_pitch_1_3_7 same_active_bytes_and_fenv_as_aligned fenv4 CPU_ONLY_NOT_GPU\n",
+      "source_sha256": {
+        "tests/test_matrixgame_mip_copy.cpp": "cc9f6e17a431b32e781f1573e8e780c48a22c23ee9fa719d634cfaf3d358d703",
+        "port/matrixgame/native-core/texture_mips.cpp": "391300f57663ec4df8d668ea3fd623e3bfa6db3bf6b48c93715eb09fe8f66c5a",
+        "port/matrixgame/native-core/texture_asset.hpp": "50f109b9ee890e59c105139eae7f84128ca64f5063481ff7bdceedd743111a58",
+        "port/matrixgame/native-core/bc_native_prelude.hpp": "d38a1b7310f619e1ca4ae44f1c780ccbd9e810ef3b2c37494a8870c74a8f03e9",
+        "tools/matrixgame_mip_box_checks.py": "1eabefeff477f7f1a87220c3b58106492f20e3066ebd5c259d79c4d4c8b2ac7c"
+      },
+      "frozen_commit": "c32f35b8bc4fc8977095a22c34dbf2813f9c14a0",
+      "frozen_cpp_sha256": "22ee9c37d0fef9f52c954037cca13e6e26bc65d258bf05459fea5d73d4368081",
+      "shared_BC": {
+        "path": "build\\matrixgame\\e610-mip-copy-r36\\1\\core\\source\\BC.cpp",
+        "sha256": "ca40cbb52988ac257d451bf508a12962ad35aa1029dfea395ce5595a82650354",
+        "scope": "unchanged real prepared BC.cpp used by both variants"
+      }
+    },
+    "benchmark": {
+      "result_sha256": "bbef0f9bfa70c25b26e6ee0be039713e8beb8528c4c6bce475eda84b064b275f",
+      "status": "PASS FROZEN R36/CANDIDATE CPU O2 COMPARISON; GUARDS RETAINED; HARDWARE_PENDING",
+      "commands": [
+        {
+          "label": "build-frozen",
+          "command": [
+            "wsl",
+            "--exec",
+            "g++",
+            "-std=c++20",
+            "-O2",
+            "-g",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-fno-pie",
+            "-no-pie",
+            "-fno-omit-frame-pointer",
+            "-frounding-math",
+            "-fno-tree-sink",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/benchmark/1/frozen-tree/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/benchmark/1/frozen-tree/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/benchmark/1/frozen-tree/port/matrixgame/deko",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-copy-r36/1/core/source",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/benchmark/1/frozen-tree/port/matrixgame/third_party/directxmath/Inc",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/benchmark/1/frozen-tree/port/matrixgame/third_party/sal",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/benchmark_matrixgame_mip_copy.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/benchmark/1/frozen-tree/port/matrixgame/native-core/texture_mips.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-copy-r36/1/core/source/BC.cpp",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/benchmark/1/frozen"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "build-candidate",
+          "command": [
+            "wsl",
+            "--exec",
+            "g++",
+            "-std=c++20",
+            "-O2",
+            "-g",
+            "-UNDEBUG",
+            "-ffp-contract=off",
+            "-fno-pie",
+            "-no-pie",
+            "-fno-omit-frame-pointer",
+            "-frounding-math",
+            "-fno-tree-sink",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/deko",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-copy-r36/1/core/source",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/directxmath/Inc",
+            "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/third_party/sal",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/benchmark_matrixgame_mip_copy.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-core/texture_mips.cpp",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-copy-r36/1/core/source/BC.cpp",
+            "-o",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/benchmark/1/candidate"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime-frozen-0",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/benchmark/1/frozen"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime-candidate-1",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/benchmark/1/candidate"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime-candidate-2",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/benchmark/1/candidate"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime-frozen-3",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/benchmark/1/frozen"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime-frozen-4",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/benchmark/1/frozen"
+          ],
+          "exit": 0
+        },
+        {
+          "label": "runtime-candidate-5",
+          "command": [
+            "wsl",
+            "--exec",
+            "env",
+            "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+            "UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1",
+            "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-mip-box-r37-checks/benchmark/1/candidate"
+          ],
+          "exit": 0
+        }
+      ],
+      "scope": "real frozen/candidate CPU validator; no Switch/GPU/FPS",
+      "measurements": [
+        {
+          "variant": "frozen",
+          "copy_us": 45631,
+          "box_us": 28744,
+          "checksum": 10909591624186716767
+        },
+        {
+          "variant": "candidate",
+          "copy_us": 42334,
+          "box_us": 6620,
+          "checksum": 10909591624186716767
+        },
+        {
+          "variant": "candidate",
+          "copy_us": 50121,
+          "box_us": 7780,
+          "checksum": 10909591624186716767
+        },
+        {
+          "variant": "frozen",
+          "copy_us": 46057,
+          "box_us": 28844,
+          "checksum": 10909591624186716767
+        },
+        {
+          "variant": "frozen",
+          "copy_us": 46812,
+          "box_us": 29359,
+          "checksum": 10909591624186716767
+        },
+        {
+          "variant": "candidate",
+          "copy_us": 50021,
+          "box_us": 6702,
+          "checksum": 10909591624186716767
+        }
+      ],
+      "median_us": {
+        "frozen": {
+          "copy_us": 46057,
+          "box_us": 28844
+        },
+        "candidate": {
+          "copy_us": 50021,
+          "box_us": 6702
+        }
+      },
+      "source_sha256": {
+        "tests/benchmark_matrixgame_mip_copy.cpp": "23d479727d12f37858412e83412ac958bda354bf092f1b8e85cf290363758d9f",
+        "port/matrixgame/native-core/texture_mips.cpp": "391300f57663ec4df8d668ea3fd623e3bfa6db3bf6b48c93715eb09fe8f66c5a",
+        "port/matrixgame/native-core/texture_asset.hpp": "50f109b9ee890e59c105139eae7f84128ca64f5063481ff7bdceedd743111a58",
+        "port/matrixgame/native-core/bc_native_prelude.hpp": "d38a1b7310f619e1ca4ae44f1c780ccbd9e810ef3b2c37494a8870c74a8f03e9",
+        "tools/matrixgame_mip_box_checks.py": "1eabefeff477f7f1a87220c3b58106492f20e3066ebd5c259d79c4d4c8b2ac7c"
+      },
+      "frozen_commit": "c32f35b8bc4fc8977095a22c34dbf2813f9c14a0",
+      "frozen_cpp_sha256": "22ee9c37d0fef9f52c954037cca13e6e26bc65d258bf05459fea5d73d4368081",
+      "shared_BC": {
+        "path": "build\\matrixgame\\e610-mip-copy-r36\\1\\core\\source\\BC.cpp",
+        "sha256": "ca40cbb52988ac257d451bf508a12962ad35aa1029dfea395ce5595a82650354",
+        "scope": "unchanged real prepared BC.cpp used by both variants"
+      }
+    }
+  },
+  "benchmark_repeat": {
+    "measurements": [
+      {
+        "variant": "candidate",
+        "copy_us": 44189,
+        "box_us": 6767,
+        "checksum": 10909591624186716767
+      },
+      {
+        "variant": "frozen",
+        "copy_us": 49129,
+        "box_us": 37191,
+        "checksum": 10909591624186716767
+      },
+      {
+        "variant": "frozen",
+        "copy_us": 52742,
+        "box_us": 33221,
+        "checksum": 10909591624186716767
+      },
+      {
+        "variant": "candidate",
+        "copy_us": 48864,
+        "box_us": 8841,
+        "checksum": 10909591624186716767
+      },
+      {
+        "variant": "candidate",
+        "copy_us": 49477,
+        "box_us": 9524,
+        "checksum": 10909591624186716767
+      },
+      {
+        "variant": "frozen",
+        "copy_us": 49738,
+        "box_us": 38205,
+        "checksum": 10909591624186716767
+      },
+      {
+        "variant": "frozen",
+        "copy_us": 50761,
+        "box_us": 29059,
+        "checksum": 10909591624186716767
+      },
+      {
+        "variant": "candidate",
+        "copy_us": 44135,
+        "box_us": 7212,
+        "checksum": 10909591624186716767
+      },
+      {
+        "variant": "candidate",
+        "copy_us": 41826,
+        "box_us": 6646,
+        "checksum": 10909591624186716767
+      },
+      {
+        "variant": "frozen",
+        "copy_us": 42163,
+        "box_us": 28426,
+        "checksum": 10909591624186716767
+      }
+    ],
+    "median_us": {
+      "frozen": {
+        "copy_us": 49738,
+        "box_us": 33221
+      },
+      "candidate": {
+        "copy_us": 44189,
+        "box_us": 7212
+      }
+    }
+  },
+  "package": {
+    "status": "VERIFIED E610 TWO-NRO PACKAGE; HARDWARE PENDING",
+    "source_commit": "16ecdde1962469dd20eacfee3828f0a1a1f7b400",
+    "build_id": "16ecdde19624-ac86423863b2c28e5682",
+    "zip": "dist\\matrixgame-e610-switch-test-r37-mip-box.zip",
+    "zip_sha256": "0168767ee99faf08a95c3298faf74716ddcde2ff1058882b6a43ea48ff0d1942",
+    "zip_bytes": 10160771,
+    "files_sha256": {
+      "build-info.json": "d9bf5f44c23b4d64ce99f579c896a6a0b1a8322cd19431e6e167d67eca7146e7",
+      "manifest.json": "79b60810a693d038ab032ee83ead9800a77b437645deff150e5c32395363dc23",
+      "matrixgame-e610-interactive.nro": "8190f130f11a751c5b7aa8b698205633a197c3f1e71636d3d5bc49441e10f6e9",
+      "matrixgame-e610-quick-smoke.nro": "5f9b485d345bb48f88aaf1380a47feced78efab489430efc7d7d314f9991cc10",
+      "README.ru.md": "2921b87b7b97b432d7c9f234ef8ef0ef0a28875ec4dc408b1f2e2f44cf0dface",
+      "SHA256SUMS.txt": "d5f0d5634b654540e7a79fb098f34bcc67083f4a1f5b7f47bccaf845b5543e09"
+    },
+    "variants": {
+      "matrixgame-e610-quick-smoke.nro": {
+        "sha256": "5f9b485d345bb48f88aaf1380a47feced78efab489430efc7d7d314f9991cc10",
+        "bytes": 13613253,
+        "elf_sha256": "4c5f9cabfba2cc29d309aedd59af193ee25aaec17070bf7cd32c1e2a1731b8ba",
+        "elf_build_id": "a0b33a769b0269b4b94046b27f18ed46a0fab1be",
+        "nro_build_id": "a0b33a769b0269b4b94046b27f18ed46a0fab1be000000000000000000000000",
+        "nro_validation": {
+          "code_size": 13590528,
+          "segments": 3,
+          "embedded_icon": {
+            "offset": 13590584,
+            "size": 6285
+          },
+          "embedded_nacp": {
+            "offset": 13596869,
+            "size": 16384
+          },
+          "romfs_required": false
+        },
+        "retained_symbols": {
+          "native_hid_poll": true,
+          "native_hold_reset": false,
+          "router_warp": true,
+          "rangers_ui_owner": false,
+          "ui_context": false,
+          "caller_lease": false,
+          "native_rgb565_presenter": false,
+          "campaign_session": false,
+          "GR_WinMessage": false
+        },
+        "entry": "standalone original native Init/Draw; no Campaign/Gov entry",
+        "runtime": "HARDWARE PENDING",
+        "deko_link_provenance": {
+          "expected_library": "deko3dd",
+          "actual_objects": {
+            "deko3d": [],
+            "deko3dd": [
+              "cmd_bind_common.o",
+              "codesegmgr.o",
+              "dk_cmdbuf.o",
+              "dk_device.o",
+              "dk_fence.o",
+              "dk_image.o",
+              "dk_memblock.o",
+              "dk_queue.o",
+              "dk_shader.o",
+              "dk_swapchain.o",
+              "gpu_3d_base.o",
+              "gpu_3d_ibo.o",
+              "gpu_3d_ms.o",
+              "gpu_3d_state.o",
+              "gpu_3d_vbo.o",
+              "gpu_3d_zcull.o",
+              "gpu_base.o",
+              "gpu_error.o",
+              "gpu_transfer.o",
+              "image_formats.o",
+              "queue_workbuf.o",
+              "tic_generate.o",
+              "tsc_generate.o"
+            ]
+          },
+          "mixed_variants": false
+        },
+        "nacp_title": "MatrixGame r37 Quick Smoke"
+      },
+      "matrixgame-e610-interactive.nro": {
+        "sha256": "8190f130f11a751c5b7aa8b698205633a197c3f1e71636d3d5bc49441e10f6e9",
+        "bytes": 13613253,
+        "elf_sha256": "caa294173b44bba37bdd24128ad82655bb43018c55dd2d98e53b214a34e5e99f",
+        "elf_build_id": "ad336d8cfead38aac87eb06a3633589f9f9ea5b3",
+        "nro_build_id": "ad336d8cfead38aac87eb06a3633589f9f9ea5b3000000000000000000000000",
+        "nro_validation": {
+          "code_size": 13590528,
+          "segments": 3,
+          "embedded_icon": {
+            "offset": 13590584,
+            "size": 6285
+          },
+          "embedded_nacp": {
+            "offset": 13596869,
+            "size": 16384
+          },
+          "romfs_required": false
+        },
+        "retained_symbols": {
+          "native_hid_poll": true,
+          "native_hold_reset": false,
+          "router_warp": true,
+          "rangers_ui_owner": false,
+          "ui_context": false,
+          "caller_lease": false,
+          "native_rgb565_presenter": false,
+          "campaign_session": false,
+          "GR_WinMessage": false
+        },
+        "entry": "standalone original native Init/Draw; no Campaign/Gov entry",
+        "runtime": "HARDWARE PENDING",
+        "deko_link_provenance": {
+          "expected_library": "deko3dd",
+          "actual_objects": {
+            "deko3d": [],
+            "deko3dd": [
+              "cmd_bind_common.o",
+              "codesegmgr.o",
+              "dk_cmdbuf.o",
+              "dk_device.o",
+              "dk_fence.o",
+              "dk_image.o",
+              "dk_memblock.o",
+              "dk_queue.o",
+              "dk_shader.o",
+              "dk_swapchain.o",
+              "gpu_3d_base.o",
+              "gpu_3d_ibo.o",
+              "gpu_3d_ms.o",
+              "gpu_3d_state.o",
+              "gpu_3d_vbo.o",
+              "gpu_3d_zcull.o",
+              "gpu_base.o",
+              "gpu_error.o",
+              "gpu_transfer.o",
+              "image_formats.o",
+              "queue_workbuf.o",
+              "tic_generate.o",
+              "tsc_generate.o"
+            ]
+          },
+          "mixed_variants": false
+        },
+        "nacp_title": "MatrixGame r37 Interactive"
+      }
+    },
+    "package": "dist\\matrixgame-e610-switch-test-r37-mip-box"
+  }
+}
