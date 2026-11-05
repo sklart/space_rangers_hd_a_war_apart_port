@@ -849,3 +849,13 @@ RGB корректируется при копировании исходных 
 Пакет `dist/matrixgame-e610-switch-test-r38-mip-gamma.zip` имеет статус HARDWARE PENDING.
 [Замеры и SHA256](reports/matrixgame-e610-mip-gamma-r38.md).
 [Два ручных запуска](docs/matrixgame-e610-mip-gamma-r38-readme.ru.md).
+
+
+### MatrixGame E610 r39. Преобразование форматов при публикации текстуры
+
+Формат назначения выбирается один раз на mip-уровень. Замер публикации
+в системной памяти на ПК дал ускорение 1,70–3,06× по пяти форматам.
+Host ASan/UBSan, ARM64/QEMU, Windows и сборка двух NRO прошли.
+Пакет `dist/matrixgame-e610-switch-test-r39-texture-publish.zip` имеет статус HARDWARE PENDING.
+[Замеры и SHA256](reports/matrixgame-e610-texture-publish-r39.md).
+[Два ручных запуска](docs/matrixgame-e610-texture-publish-r39-readme.ru.md).
