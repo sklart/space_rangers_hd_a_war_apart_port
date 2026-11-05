@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <bit>
 #include <cmath>
+#include <cstring>
 #include <limits>
 namespace srhd_awa::matrixgame {
 namespace {
@@ -16,7 +17,11 @@ unsigned BlockBytes(TextureFormat format) {
 std::size_t RowBytes(TextureFormat format,unsigned w){return std::size_t(format==TextureFormat::RGBA8?w:(w+3)/4)*BlockBytes(format);}
 unsigned Rows(TextureFormat format,unsigned h){return format==TextureFormat::RGBA8?h:(h+3)/4;}
 void DecodeBlock(TextureFormat format,XMVECTOR* out,const std::byte* data) {
-  const auto* bytes=reinterpret_cast<const std::uint8_t*>(data);
+  // Padded source rows may start at an odd address; the real BC codec uses
+  // aligned typed loads. Stage exactly one validated block before decoding.
+  alignas(16) std::array<std::uint8_t,16> aligned;
+  std::memcpy(aligned.data(),data,BlockBytes(format));
+  const auto* bytes=aligned.data();
   if(format==TextureFormat::BC1)D3DXDecodeBC1(out,bytes);
   else if(format==TextureFormat::BC2)D3DXDecodeBC2(out,bytes);
   else D3DXDecodeBC3(out,bytes);
@@ -63,6 +68,17 @@ void FillBC(TextureFormat format,const TextureLevel& source,TextureLevel& target
   }
 }
 void FillRGBA(const TextureLevel& source,TextureLevel& target,std::array<std::uint8_t,4> clear,bool box) {
+  if(!box) {
+    const auto width=std::min(source.width,target.width),height=std::min(source.height,target.height);
+    // Supplied rows are byte copies; only the added POT border uses clear_pixel.
+    for(unsigned y=0;y<target.height;++y) {
+      auto* row=target.bytes.data()+std::size_t(y)*target.pitch;
+      const auto copied=y<height?width:0;
+      if(copied)std::memcpy(row,source.bytes.data()+std::size_t(y)*source.pitch,std::size_t(copied)*4);
+      for(unsigned x=copied;x<target.width;++x)std::memcpy(row+std::size_t(x)*4,clear.data(),4);
+    }
+    return;
+  }
   for(unsigned y=0;y<target.height;++y)for(unsigned x=0;x<target.width;++x)for(unsigned c=0;c<4;++c) {
     unsigned value=clear[c];
     if(!box) {if(x<source.width&&y<source.height)value=std::to_integer<unsigned>(source.bytes[std::size_t(y)*source.pitch+x*4+c]);}
