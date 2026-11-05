@@ -810,3 +810,21 @@ SDK/package и SHA — в отчёте. HARDWARE PENDING.
 В hbmenu **MatrixGame r35 Quick Smoke** / **MatrixGame r35 Interactive**.
 SDK/package и SHA — в отчёте. HARDWARE PENDING.
 Ресурсы, saves, основная NRO и старые пакеты сохраняются.
+
+
+### MatrixGame E610 r36: supplied RGBA mip rows и BC alignment
+
+Исходные RGBA строки при расширении до степени двойки копируются целиком,
+добавленная граница сохраняет clear_pixel. Gamma/BOX/бюджеты и публикация прежние.
+CPU: 128 расширений 1023×767 → 1024×1024 — 837,45 → 41,01 мс (20,4×).
+Это отдельная операция, не коэффициент ускорения Init/FPS на Switch.
+Также исправлен подтверждённый UBSan дефект нечётного BC pitch: настоящий
+8/16-byte блок подаётся кодеку через выровненную локальную память.
+1928 cases + 864 odd-pitch cases на host/ARM64/Windows — PASS;
+4265600 RGBA oracle channels, FPU flags и cleanup при budget failure проверены.
+[Изменение, исходные failures и proof](reports/matrixgame-e610-mip-copy-r36.md),
+[два запуска](docs/matrixgame-e610-mip-copy-r36-readme.ru.md).
+Актуальный пакет: `dist/matrixgame-e610-switch-test-r36-mip-copy.zip`.
+В hbmenu **MatrixGame r36 Quick Smoke** / **MatrixGame r36 Interactive**.
+SDK/package и SHA — в отчёте. HARDWARE PENDING.
+Ресурсы, saves, основная NRO и старые пакеты сохраняются.
