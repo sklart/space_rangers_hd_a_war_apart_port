@@ -838,3 +838,14 @@ Host ASan/UBSan, ARM64/QEMU, Windows и сборка двух NRO прошли.
 Пакет `dist/matrixgame-e610-switch-test-r37-mip-box.zip` имеет статус HARDWARE PENDING.
 [Замеры и SHA256](reports/matrixgame-e610-mip-box-r37.md).
 [Два ручных запуска](docs/matrixgame-e610-mip-box-r37-readme.ru.md).
+
+
+### MatrixGame E610 r38. Gamma-коррекция при копировании RGBA
+
+RGB корректируется при копировании исходных строк. На host CPU 128
+операций с дополнением 1023×767 → 1024×1024 заняли 94,70 мс вместо
+273,17 мс. Полная цепочка BOX с gamma заняла 223,02 мс вместо 386,85 мс
+на 128 входах. Host ASan/UBSan, ARM64/QEMU, Windows и сборка двух NRO прошли.
+Пакет `dist/matrixgame-e610-switch-test-r38-mip-gamma.zip` имеет статус HARDWARE PENDING.
+[Замеры и SHA256](reports/matrixgame-e610-mip-gamma-r38.md).
+[Два ручных запуска](docs/matrixgame-e610-mip-gamma-r38-readme.ru.md).
