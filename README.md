@@ -859,3 +859,14 @@ Host ASan/UBSan, ARM64/QEMU, Windows и сборка двух NRO прошли.
 Пакет `dist/matrixgame-e610-switch-test-r39-texture-publish.zip` имеет статус HARDWARE PENDING.
 [Замеры и SHA256](reports/matrixgame-e610-texture-publish-r39.md).
 [Два ручных запуска](docs/matrixgame-e610-texture-publish-r39-readme.ru.md).
+
+
+### MatrixGame E610 r40. Блоки draw и завершение Interactive
+
+Uniform-страница находится в блоке upload. В CPU A/B 6762 draw потребовали
+77 созданий блоков вместо 438 при одинаковых байтах и порядке. При штатном
+лимите Interactive записывает CONTROLLED_STOP. Архив с двумя NRO
+`dist/matrixgame-e610-switch-test-r40-draw-buffers.zip` проверен.
+Статус SOFTWARE PASS / SWITCH HARDWARE PENDING.
+[Замеры и SHA256](reports/matrixgame-e610-draw-buffers-r40.md).
+[Два запуска через NetLoader](docs/matrixgame-e610-draw-buffers-r40-readme.ru.md).
