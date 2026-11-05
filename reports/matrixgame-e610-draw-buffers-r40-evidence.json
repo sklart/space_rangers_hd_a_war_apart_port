@@ -1337,5 +1337,39 @@
       }
     },
     "package": "dist\\matrixgame-e610-switch-test-r40-draw-buffers"
+  },
+  "saved_windows_draw_counts_replay": {
+    "status": "PASS",
+    "build": [
+      "wsl",
+      "--exec",
+      "g++",
+      "-std=c++20",
+      "-O1",
+      "-UNDEBUG",
+      "-fsanitize=address,undefined",
+      "-fno-pie",
+      "-no-pie",
+      "-I/mnt/d/repos/space_rangers_hd_a_war_apart_port/port/matrixgame/native-engine",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/tests/test_matrixgame_native_draw_batch.cpp",
+      "-o",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-r40-checks/batch-lifecycle/batch"
+    ],
+    "runtime": [
+      "wsl",
+      "--exec",
+      "env",
+      "ASAN_OPTIONS=detect_leaks=1:halt_on_error=1",
+      "UBSAN_OPTIONS=halt_on_error=1",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e610-r40-checks/batch-lifecycle/batch",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e539-batches/baseline-windows/frame-cost-0.csv",
+      "/mnt/d/repos/space_rangers_hd_a_war_apart_port/build/matrixgame/e2e539-batches/baseline-windows/frame-cost-1.csv"
+    ],
+    "stdout": "native batch policy PASS original_frames=92 primary_draws=208808 split_frames=92 max_frame=4038 max_batch=64 submissions=3310 order_exact owner_release_after_completion failure_retains_owners byte_quota scene_preserved CPU_QUEUE_MODEL_ONLY NO_SWITCH_GPU\n",
+    "input_sha256": {
+      "tests\\test_matrixgame_native_draw_batch.cpp": "35c696e2f7c3c04e124e00849dc88f64f2973e0986ad94abc8411282b9bcdd73",
+      "build\\matrixgame\\e2e539-batches\\baseline-windows\\frame-cost-0.csv": "ba3e2bf496ff35b7bc617261066f2dbd71790cbe5480488540ee13df570c86f9",
+      "build\\matrixgame\\e2e539-batches\\baseline-windows\\frame-cost-1.csv": "ba3e2bf496ff35b7bc617261066f2dbd71790cbe5480488540ee13df570c86f9"
+    }
   }
 }

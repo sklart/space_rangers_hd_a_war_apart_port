@@ -100,7 +100,11 @@ benchmark`. Другие режимы — `host`, `arm64`, `windows`. Полны
 находятся в `build/matrixgame/e610-r40-checks`.
 
 Отдельная host-проверка production lifecycle с IPC-моделью прошла сценарии
-focus/resume/background, выход, восстановление видимости и ошибки. SDK
+focus/resume/background, выход, восстановление видимости и ошибки. Отдельный
+host ASan/UBSan replay 92 сохранённых Windows-кадров подтвердил порядок
+208808 draw, 3310 отправок, удержание владельцев при отказах и release
+после подтверждённого idle. Использовались сохранённые счётчики кадров.
+SDK
 собрал и слинковал обе NRO. В обеих ELF присутствуют `PrepareUniformSlice`,
 `RunSmoke`, оригинальный цикл и teardown. Проверка неразрешённых сильных
 символов прошла. Сверены SHA256 730 исходников SDK
