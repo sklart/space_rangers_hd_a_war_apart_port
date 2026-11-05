@@ -2,7 +2,7 @@
 #ifdef MATRIXGAME_BATCH_BASELINE
 #include "r5-native_draw_batch.hpp"
 #else
-#include "native_draw_batch.hpp"
+#include "native_batch_wait_profile.hpp"
 #endif
 #include <cassert>
 #include <cstdio>
@@ -38,6 +38,22 @@ struct Driver {
 template<class F>void Fails(F f){bool failed=false;try{f();}catch(const std::exception&){failed=true;}assert(failed);}
 }
 int main(int argc,char** argv){
+#ifndef MATRIXGAME_BATCH_BASELINE
+ {
+  p::NativeDrawBatch batch(2,16);
+  batch.Add(8);
+  assert(!batch.LimitsReached(8) && batch.LimitsReached(9)==p::NativeDrawBatch::UploadBytes);
+  batch.Add(4);
+  assert(batch.LimitsReached(4)==p::NativeDrawBatch::DrawCount);
+  assert(unsigned(p::BatchLimitCause(batch.LimitsReached(5),true))==7);
+  assert(p::BatchLimitCause(0,true)==p::BatchWaitCause::CommandSpace);
+  p::BatchWaitProfile profile;
+  for(unsigned us:{0,250,251,1000,1001,4000,4001,16000,16001})profile.Record(us,2,12,4096,1);
+  assert((profile.histogram==std::array<std::uint64_t,5>{2,2,2,2,1}));
+  assert(profile.wait.calls==9 && profile.wait.us==42504 && profile.wait.maximum_us==16001);
+  assert(profile.draws_max==2 && profile.upload_bytes_max==12 && profile.command_backing_bytes_max==4096 && profile.command_spills_max==1);
+ }
+#endif
  assert(argc==3);unsigned frames{},split_frames{},peak{},maximum_batch{};std::uint64_t total{},submissions{};
  for(int arg=1;arg<argc;++arg){std::ifstream input(argv[arg]);assert(input);std::string line;std::getline(input,line);if(!line.empty() && line.back()=='\r')line.pop_back();assert(line=="frame,all_draws,primary_draws,indexed_draws");
   while(std::getline(input,line)){std::replace(line.begin(),line.end(),',',' ');std::istringstream row(line);unsigned index{},all{},primary{},indexed{};row>>index>>all>>primary>>indexed;assert(row && primary && primary<=all && indexed<=all);

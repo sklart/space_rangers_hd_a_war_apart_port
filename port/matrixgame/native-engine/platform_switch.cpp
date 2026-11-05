@@ -270,7 +270,8 @@ struct DekoDevice::Impl: presentation::Driver {
     }
     void Quiesce()override{
         if(Busy())throw std::logic_error("native Reset during acquired frame/scene/submission");
-        if(!Healthy())throw Unsupported("native Reset on failed queue");queue.waitIdle();
+        if(!Healthy())throw Unsupported("native Reset on failed queue");
+        {ProfileScope wait(diagnostics.reset_gpu_wait);queue.waitIdle();}
         if(!Healthy())throw Unsupported("native Reset queue completion failed");ReleaseCompleted();batch.Retired();
     }
     void Attach(presentation::Targets& value)override{
@@ -342,6 +343,7 @@ struct DekoDevice::Impl: presentation::Driver {
     };
     std::vector<DrawPacket> packets;
     NativeDrawBatch batch;
+    bool draw_drain_sdk_flush{};
     int image_slot{-1};NativeFrameScope frame;bool recording{};
     std::vector<std::shared_ptr<native_surfaces::Surface>> surface_packets;
     std::vector<std::shared_ptr<native_texture::Image>> target_images;
@@ -418,24 +420,36 @@ struct DekoDevice::Impl: presentation::Driver {
         commands.setScissors(0,{{0,0,color->desc.Width,color->desc.Height}});
         command_pages.Check();
     }
-    void SubmitAndWait(){
+    void SubmitAndWait(BatchWaitCause cause){
         ProfileScope timing(diagnostics.batch_wait);
         if(!recording)throw std::logic_error("native batch submission without recording");
         command_pages.Check();
         commands.barrier(DkBarrier_Full,DkInvalidateFlags_Image|DkInvalidateFlags_L2Cache);
         const auto list=command_pages.FinishForSubmission([&]{return commands.finishList();});
-        queue.submitCommands(list);++diagnostics.queue_submissions;queue.flush();{ProfileScope wait(diagnostics.batch_gpu_wait);queue.waitIdle();}
+        queue.submitCommands(list);++diagnostics.queue_submissions;
+        // deko3d waitIdle enqueues a fence, flushes the queue, then waits for
+        // the fence. A separate flush here can submit the same batch in two
+        // kickoffs. Leave command and packet ownership with this batch.
+        if(!draw_drain_sdk_flush || unsigned(cause)!=NativeDrawBatch::DrawCount){
+            queue.flush();++diagnostics.batch_explicit_flush_calls;
+        }
+        ProfileScope wait(diagnostics.batch_gpu_wait);
+        queue.waitIdle();
+        diagnostics.batch_wait_by_cause[unsigned(cause)].Record(
+            wait.Stop(),batch.Draws(),batch.Bytes(),command_pages.Bytes(),command_pages.Pages());
         if(!Healthy()){diagnostic::Record("sdk_error","GPU.batch_submit_wait","native draw batch queue completion failed");throw Unsupported("native draw batch queue completion failed");}
     }
     void ReleaseCompleted()noexcept{
         command_pages.Retire([&]()noexcept{if(commands){commands.clear();commands.addMemory(command_memory,0,command_bytes);}});recording=false;bound_color=bound_depth=nullptr;
         for(auto& packet:packets)completed_blocks.Put(packet.upload.TakeCompletedMemory());
+        diagnostics.max_pool_bytes=std::max(diagnostics.max_pool_bytes,std::uint64_t(completed_blocks.Bytes()));
+        diagnostics.max_pool_blocks=std::max(diagnostics.max_pool_blocks,std::uint64_t(completed_blocks.Size()));
         packets.clear();surface_packets.clear();target_images.clear();
         gamma_packet={};
     }
-    void DrainBatch(){DrainNativeDrawBatch(frame,batch,*this);++diagnostics.batch_drains;}
-    void FlushRecording(){
-        if(frame)frame.RequirePresent();if(recording)DrainBatch();
+    void DrainBatch(BatchWaitCause cause){DrainNativeDrawBatch(frame,batch,*this,cause);++diagnostics.batch_drains;}
+    void FlushRecording(BatchWaitCause cause){
+        if(frame)frame.RequirePresent();if(recording)DrainBatch(cause);
         if(image_slot<0){frame.Abort();state.Frame(false);}
     }
     void SurfaceCallbacks(){
@@ -444,12 +458,12 @@ struct DekoDevice::Impl: presentation::Driver {
         surface_session->viewport=[this](const VideoViewport& v){state.Edit().vertex.Viewport(v);};
         surface_session->allocate=[this](const offscreen::SurfaceDesc& d,bool depth){if(!Healthy())throw Unsupported("native offscreen allocation on lost queue");auto resource=std::make_shared<SurfaceResource>();resource->depth=depth;resource->allocation=texture_store->AllocateTarget(d.Width,d.Height,d.Format);return resource;};
         surface_session->read=[this](const std::shared_ptr<native_surfaces::Surface>& s){
-            FlushRecording();auto r=std::dynamic_pointer_cast<SurfaceResource>(s->resource);if(!r || r->depth)throw std::invalid_argument("native color readback resource");
+            FlushRecording(BatchWaitCause::Readback);auto r=std::dynamic_pointer_cast<SurfaceResource>(s->resource);if(!r || r->depth)throw std::invalid_argument("native color readback resource");
             auto bytes=texture_store->ReadImage(r->Image(image_slot),s->desc.Width,s->desc.Height,native_surfaces::PixelBytes(s->desc.Format),r->level);
             if(r->display && s->desc.Format!=23)for(std::size_t i=0;i<bytes.size();i+=4)std::swap(bytes[i],bytes[i+2]);return bytes;
         };
         surface_session->write=[this](const std::shared_ptr<native_surfaces::Surface>& s,std::span<const std::byte> bytes){
-            FlushRecording();auto r=std::dynamic_pointer_cast<SurfaceResource>(s->resource);if(!r || r->depth)throw std::invalid_argument("native color writeback resource");
+            FlushRecording(BatchWaitCause::Writeback);auto r=std::dynamic_pointer_cast<SurfaceResource>(s->resource);if(!r || r->depth)throw std::invalid_argument("native color writeback resource");
             if(r->texture && !(r->texture->usage&1u)){auto next=*r->texture;auto& level=next.levels.at(r->level);level.bytes.assign(bytes.begin(),bytes.end());for(unsigned i=0;i<next.levels.size();++i){if(i!=r->level && next.levels[i].locked)throw std::logic_error("other mip level locked during surface upload");}level.locked=false;auto image=texture_store->Upload(next);r->texture->levels.at(r->level).bytes.swap(level.bytes);r->texture->image=std::move(image);r->texture->dirty=false;return;}
             if(r->display && s->desc.Format!=23){auto converted=std::vector<std::byte>(bytes.begin(),bytes.end());for(std::size_t i=0;i<converted.size();i+=4)std::swap(converted[i],converted[i+2]);texture_store->WriteImage(r->Image(image_slot),s->desc.Width,s->desc.Height,4,converted);}
             else texture_store->WriteImage(r->Image(image_slot),s->desc.Width,s->desc.Height,native_surfaces::PixelBytes(s->desc.Format),bytes,r->level);
@@ -464,7 +478,11 @@ struct DekoDevice::Impl: presentation::Driver {
         device=dk::DeviceMaker{}.setCbDebug(DiagnosticSdkReport).setFlags(DkDeviceFlags_DepthZeroToOne|DkDeviceFlags_OriginUpperLeft).create();
         if(!device)throw std::runtime_error("deko device creation failed");}
         {diagnostic::Operation trace("A.deko.Queue");
-        queue=dk::QueueMaker{device}.setFlags(DkQueueFlags_Graphics).create();
+        const auto maker=dk::QueueMaker{device}.setFlags(DkQueueFlags_Graphics);
+        queue=maker.create();
+        diagnostics.command_backing_limit=NativeCommandMemory<CommandDriver>::QuotaBytes;
+        diagnostics.queue_command_bytes=maker.commandMemorySize;
+        diagnostics.queue_flush_threshold=maker.flushThreshold;
         if(!queue)throw std::runtime_error("deko queue creation failed");}
         {diagnostic::Operation trace("A.material_shader_pair");
         programs=std::make_unique<materials::DekoCombinerProgram>(device,
@@ -534,8 +552,9 @@ struct DekoDevice::Impl: presentation::Driver {
         static_assert(NativeDrawUpload::UniformBytes==materials::uniform_packet::Bytes);
         const auto upload_layout=NativeDrawUpload::Plan(vertices.size_bytes(),indices.size(),true);
         auto upload_reuse=PlanUploadReuse(completed_blocks,upload_layout.bytes,frame_budget);
-        if(batch.NeedsDrain(upload_reuse.total) || command_pages.NeedsDrain()){
-            DrainBatch();upload_reuse=PlanUploadReuse(completed_blocks,upload_layout.bytes,frame_budget);
+        const auto cause=BatchLimitCause(batch.LimitsReached(upload_reuse.total),command_pages.NeedsDrain());
+        if(unsigned(cause)){
+            DrainBatch(cause);upload_reuse=PlanUploadReuse(completed_blocks,upload_layout.bytes,frame_budget);
         }
         BindTargets(presenting);
         DrawPacket packet;packet.upload=NativeDrawUpload{DrawMemory(upload_layout.bytes,upload_reuse.capacity),std::as_bytes(vertices),indices,true};
@@ -815,7 +834,8 @@ void DekoDevice::PresentNativeFrame(){
     if(v.presentation_readback){
         diagnostic::Operation readback("GPU.presentation.after_gamma");
         auto callback=std::move(v.presentation_readback);v.presentation_readback={};
-        v.queue.flush();v.queue.waitIdle();if(!v.Healthy())throw std::runtime_error("native gamma readback queue error");
+        v.queue.flush();{ProfileScope wait(v.diagnostics.gamma_readback_gpu_wait);v.queue.waitIdle();}
+        if(!v.Healthy())throw std::runtime_error("native gamma readback queue error");
         const auto& p=v.Targets().value;
         if(p.BackBufferFormat!=PixelFormat::Argb8 && p.BackBufferFormat!=PixelFormat::Xrgb8)throw Unsupported("diagnostic presentation readback requires 32-bit color");
         auto pixels=v.texture_store->ReadImage(v.Targets().images->color[v.image_slot],p.BackBufferWidth,p.BackBufferHeight,4);
@@ -827,6 +847,7 @@ void DekoDevice::PresentNativeFrame(){
     v.screenshot_frame.Presented(completed_slot,v.Targets().value.BackBufferCount);
     v.ReleaseCompleted();v.batch.Retired();v.frame.Presented();v.state.Frame(false);
 }
+void DekoDevice::SetDrawDrainSdkFlush(bool enabled)noexcept{impl_->draw_drain_sdk_flush=enabled;}
 DekoDevice::DiagnosticCounters DekoDevice::Diagnostics()const noexcept{
     auto result=impl_->diagnostics;result.queue_healthy=impl_->Healthy();
     result.block_pool_hits=impl_->completed_blocks.hits;result.block_pool_misses=impl_->completed_blocks.misses;result.block_pool_bytes=impl_->completed_blocks.Bytes();
@@ -847,7 +868,8 @@ native_form::ScreenshotPixels DekoDevice::CaptureScreenshot(){
     auto& v=*impl_;
     if(!v.presentation_state.Ready())throw Unsupported("screenshot requires active native presentation");
     const int slot=v.screenshot_frame.Require(v.Busy() || v.recording,v.Healthy());
-    v.queue.waitIdle();if(!v.Healthy())throw Unsupported("screenshot queue completion failed");
+    {ProfileScope wait(v.diagnostics.screenshot_gpu_wait);v.queue.waitIdle();}
+    if(!v.Healthy())throw Unsupported("screenshot queue completion failed");
     const auto& p=v.Targets().value;
     const auto format=p.BackBufferFormat==PixelFormat::Rgb565?native_form::ScreenshotFormat::Rgb565:native_form::ScreenshotFormat::Rgba8;
     const unsigned bpp=format==native_form::ScreenshotFormat::Rgb565?2:4;
@@ -873,7 +895,7 @@ DeviceResult DekoDevice::NativeClear(std::span<const ClearRectangle> rectangles,
     const auto plan=PlanNativeClear(v.state.Read().vertex.Viewport(),color->desc.Width,color->desc.Height,rectangles,flags,depth,stencil);
     v.BindTargets();v.frame.RequireClear();
     for(const auto& r:plan){
-        if(v.command_pages.NeedsDrain()){v.DrainBatch();v.BindTargets();}
+        if(v.command_pages.NeedsDrain()){v.DrainBatch(BatchWaitCause::CommandSpace);v.BindTargets();}
         v.commands.setScissors(0,{{unsigned(r.left),unsigned(r.top),unsigned(r.right-r.left),unsigned(r.bottom-r.top)}});
         if(flags&1)v.commands.clearColor(0,DkColorMask_RGBA,float((argb>>(color->desc.Format==28?24:16))&255)/255,float((argb>>8)&255)/255,float(argb&255)/255,float(argb>>24)/255);
         if(flags&6)v.commands.clearDepthStencil(flags&2,depth,flags&4?0xff:0,stencil);v.command_pages.Check();}
@@ -922,7 +944,7 @@ void DekoDevice::CompleteNativeInitializationWork(){
     // Init can end with closed offscreen scenes, without D3D Present. Execute
     // their commands before taking a quiescent state lease for the diagnostic
     // overlay. Never discard uploads or count a loading image as a map frame.
-    v.FlushRecording();
+    v.FlushRecording(BatchWaitCause::Initialization);
     if(v.image_slot>=0){
         NvMultiFence fence{};
         const auto result=nwindowCancelBuffer(&v.window.NativeWindow(),v.image_slot,&fence);

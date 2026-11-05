@@ -87,7 +87,16 @@ void Memory(){
     dg::Record("result","process_memory.limit",{},a);if(R_SUCCEEDED(a))dg::Metric("process_memory_limit_bytes",total);
     dg::Record("result","process_memory.used",{},b);if(R_SUCCEEDED(b))dg::Metric("process_memory_used_bytes",used);
 }
-void Counters(p::DekoDevice& device){
+void JournalPhases(const dg::JournalIOStats& io){
+    char detail[256];
+    std::snprintf(detail,sizeof(detail),
+        "write_calls=%llu write_us=%llu flush_calls=%llu flush_us=%llu sync_calls=%llu sync_us=%llu durable_rows=%llu",
+        (unsigned long long)io.calls,(unsigned long long)io.write_us,
+        (unsigned long long)io.flush_calls,(unsigned long long)io.flush_us,
+        (unsigned long long)io.sync_calls,(unsigned long long)io.sync_us,(unsigned long long)io.durable_rows);
+    dg::Record("profile","journal_io_phases",detail);
+}
+void Counters(p::DekoDevice& device,const dg::JournalIOStats* frame_io=nullptr){
     const auto s=device.Diagnostics();dg::Metric("gpu_buffer_allocations",s.buffer_allocations);
     dg::Metric("block_pool_hits",s.block_pool_hits);dg::Metric("block_pool_misses",s.block_pool_misses);dg::Metric("block_pool_bytes",s.block_pool_bytes);
     dg::Metric("block_pool_larger_hits",s.block_pool_larger_hits);dg::Metric("upload_requested_bytes",s.upload_requested_bytes);dg::Metric("upload_reserved_bytes",s.upload_reserved_bytes);
@@ -116,14 +125,42 @@ void Counters(p::DekoDevice& device){
             (unsigned long long)(b.create.calls?b.create.calls-1:0));
         dg::Record("profile","gpu_block_bucket",detail);
     }
-    const auto io=dg::CurrentIOStats();dg::Metric("profile.journal.calls",io.calls);dg::Metric("profile.journal.bytes",io.bytes);dg::Metric("profile.journal.us",io.us);
+    const auto io=frame_io?*frame_io:dg::CurrentIOStats();
+    dg::Metric("profile.journal.calls",io.calls);dg::Metric("profile.journal.bytes",io.bytes);dg::Metric("profile.journal.us",io.us);
     dg::Metric("gpu_buffer_bytes_cumulative",s.buffer_bytes_total);dg::Metric("recorded_draw_calls",s.recorded_draws);
     dg::Metric("queue_submission_calls",s.queue_submissions);dg::Metric("completed_presents",s.presents);
     dg::Metric("native_texture_session_uploads",s.session_uploads);dg::Metric("texture_arena_capacity",s.texture_capacity);
     dg::Metric("batch_drains",s.batch_drains);dg::Metric("max_live_draw_packets",s.max_live_draw_packets);dg::Metric("max_live_draw_bytes",s.max_live_draw_bytes);
+    dg::Metric("batch_explicit_flush_calls",s.batch_explicit_flush_calls);
     dg::Metric("managed_texture_evictions",device.TextureSession()->managed_evictions);
     dg::Metric("texture_arena_free",s.texture_free);dg::Metric("queue_healthy",s.queue_healthy);Memory();
     dg::Metric("SDK_warnings_total",s.sdk_warnings);dg::Metric("SDK_warning_records_suppressed",s.sdk_warnings>32?s.sdk_warnings-32:0);
+    JournalPhases(io);
+    for(unsigned i=1;i<s.batch_wait_by_cause.size();++i){
+        const auto& stats=s.batch_wait_by_cause[i];
+        if(!stats.wait.calls)continue;
+        char detail[512];
+        const auto& h=stats.histogram;
+        std::snprintf(detail,sizeof(detail),
+            "cause=%s calls=%llu us=%llu max_us=%llu le250=%llu le1000=%llu le4000=%llu le16000=%llu gt16000=%llu max_draws=%llu max_upload_bytes=%llu max_command_backing_bytes=%llu max_command_spills=%llu",
+            p::BatchWaitNames[i],(unsigned long long)stats.wait.calls,(unsigned long long)stats.wait.us,
+            (unsigned long long)stats.wait.maximum_us,(unsigned long long)h[0],(unsigned long long)h[1],
+            (unsigned long long)h[2],(unsigned long long)h[3],(unsigned long long)h[4],
+            (unsigned long long)stats.draws_max,(unsigned long long)stats.upload_bytes_max,
+            (unsigned long long)stats.command_backing_bytes_max,(unsigned long long)stats.command_spills_max);
+        dg::Record("profile","batch_gpu_wait_cause",detail);
+    }
+    for(const auto& [name,stats]:std::array{
+        std::pair{"reset_gpu_wait",s.reset_gpu_wait},std::pair{"gamma_readback_gpu_wait",s.gamma_readback_gpu_wait},
+        std::pair{"screenshot_gpu_wait",s.screenshot_gpu_wait}})
+        if(stats.calls)profile(name,stats);
+    char detail[320];
+    std::snprintf(detail,sizeof(detail),
+        "draw_limit=%llu upload_limit=%llu command_backing_limit=%u queue_command_bytes=%u queue_flush_threshold=%u max_pool_bytes_at_retirement=%llu max_pool_blocks_at_retirement=%llu",
+        (unsigned long long)p::NativeDrawBatch::DrawLimit,(unsigned long long)p::NativeDrawBatch::ByteLimit,
+        s.command_backing_limit,s.queue_command_bytes,s.queue_flush_threshold,
+        (unsigned long long)s.max_pool_bytes,(unsigned long long)s.max_pool_blocks);
+    dg::Record("profile","batch_memory_limits",detail);
 }
 void ImageFingerprint(const char* argv0){
     dg::Operation operation("entry.self_NRO_sha256");
@@ -137,26 +174,43 @@ void ImageFingerprint(const char* argv0){
     dg::Record("metadata","image_sha256",hex.data());dg::Metric("image_file_bytes",bytes);
 }
 class BoundedOriginalLoop final:public mg::native_loop::Backend {
-    mg::native_loop::SwitchBackend actual_;p::DekoDevice& device_;Cancellation& cancel_;dg::Journal& journal_;bool capture_requested_{};std::uint64_t transition_presents_{};
+    mg::native_loop::SwitchBackend actual_;p::DekoDevice& device_;Cancellation& cancel_;dg::Journal& journal_;
+    bool batch_requested_,draw_drain_sdk_flush_,batch_active_{},capture_requested_{};std::uint64_t transition_presents_{};
 public:
-    BoundedOriginalLoop(p::SwitchWindow& w,p::DekoDevice& d,Cancellation& c,dg::Journal& j):actual_(w,d),device_(d),cancel_(c),journal_(j){cancel_.BeginOriginalLoop();}
+    BoundedOriginalLoop(p::SwitchWindow& w,p::DekoDevice& d,Cancellation& c,dg::Journal& j,bool batch,bool draw_drain_sdk_flush)
+        :actual_(w,d),device_(d),cancel_(c),journal_(j),batch_requested_(batch),draw_drain_sdk_flush_(draw_drain_sdk_flush){cancel_.BeginOriginalLoop();}
+    ~BoundedOriginalLoop(){device_.SetDrawDrainSdkFlush(false);EndJournalBatch();}
+    void EndJournalBatch()noexcept{
+        if(batch_active_){journal_.EndBatching();batch_active_=false;}
+    }
     void Pump()override{cancel_.Poll();actual_.Pump();cancel_.Poll();}
     void Idle()override{actual_.Idle();}
     void Draw(CForm& form)override{
-        cancel_.Poll();dg::Operation operation("C.original_form.Draw");const auto before=device_.Diagnostics().presents;
+        cancel_.Poll();
         const bool visible=(g_MatrixMap->m_Flags&MMFLAG_VIDEO_RESOURCES_READY) && !(g_MatrixMap->m_Flags&MMFLAG_TRANSITION);
+        device_.SetDrawDrainSdkFlush(visible && draw_drain_sdk_flush_);
+        if(batch_requested_ && visible && !batch_active_){journal_.BeginBatching();batch_active_=true;}
+        if(!visible)EndJournalBatch();
+        dg::Operation operation("C.original_form.Draw");const auto before=device_.Diagnostics().presents;
         if(visible && !capture_requested_){device_.RequestPrimaryReadback([output=&journal_](auto bytes,unsigned w,unsigned h){dg::SaveFrame(*output,"original-first",w,h,bytes);});capture_requested_=true;}
         try{actual_.Draw(form);}
         catch(const LoopStop&){operation.Cancel();throw;}
         const auto after=device_.Diagnostics().presents;const auto done=cancel_.Presented(before,after,visible);
         if(!visible && after>before){transition_presents_+=after-before;dg::Metric("original_loading_presents",transition_presents_);if(transition_presents_<=4 || transition_presents_%30==0)Counters(device_);}
-        if(visible && after>before && cancel_.CountersDue()){dg::Metric("original_loop_frames_presented",cancel_.Frames());Counters(device_);}
+        const bool snapshot=visible && after>before && cancel_.CountersDue();
+        if(batch_active_ && !journal_.Checkpoint(snapshot))journal_.RequireHealthy();
+        if(snapshot){
+            // Both modes count physical I/O at the same boundary. Complete any
+            // pending batch before the marker so its I/O belongs to this window.
+            const auto io=journal_.Statistics();
+            dg::Metric("original_loop_frames_presented",cancel_.Frames());Counters(device_,&io);
+        }
         if(done)g_Flags|=GFLAG_EXITLOOP;
     }
     std::uint64_t Frames()const noexcept{return cancel_.Frames();}
     bool ValidLoopReturn(int state)const noexcept{return cancel_.ValidLoopReturn(state);}
 };
-EndReason Run(const char* root_arg,const char* rangers_root_arg,dg::Journal& journal){
+EndReason Run(const char* root_arg,const char* rangers_root_arg,dg::Journal& journal,bool batch_journal,bool draw_drain_sdk_flush){
     const auto resource_root=std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.from_bytes(root_arg);
     const auto utf8_output=(journal.Directory()/"output").generic_u8string();
     const auto output_root=std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.from_bytes(reinterpret_cast<const char*>(utf8_output.data()),reinterpret_cast<const char*>(utf8_output.data()+utf8_output.size()));
@@ -215,11 +269,13 @@ EndReason Run(const char* root_arg,const char* rangers_root_arg,dg::Journal& jou
         phase=L"C: original Draw";const wchar_t* draw_screen[]{Interactive?L"Stage C: manual MatrixGame check":L"Stage C: original MatrixGame Draw",Interactive?L"Up to 120 seconds; original controls are active":L"First map frame readback; four completed frames",Interactive?L"Minus + Plus: safe exit; Plus: game menu":L"B / +: safe exit"};dg::RenderStatus(device,draw_screen);
         {
             mg::native_form::Session form;
-            BoundedOriginalLoop backend(window,device,cancel,journal);mg::native_loop::Scope loop(backend);
+            BoundedOriginalLoop backend(window,device,cancel,journal,batch_journal,draw_drain_sdk_flush);mg::native_loop::Scope loop(backend);
             g_ExitState=0;
             g_Flags&=~GFLAG_EXITLOOP;
             try{RunOriginalNativeLoop();}
             catch(const LoopStop& stop){reason=stop.reason;}
+            backend.EndJournalBatch();
+            journal.RequireHealthy();
             cancel.EndLoop();
             const auto elapsed=cancel.LoopElapsed();
             dg::Metric("original_loop_frames_presented_final",backend.Frames());
@@ -292,14 +348,35 @@ int main(int argc,char** argv){
     try{
         journal=std::make_unique<dg::Journal>("sdmc:/switch/matrixgame-diag/logs",matrixgame_diagnostic_build::Id,matrixgame_diagnostic_build::SourceSha256);
         binding=std::make_unique<dg::Binding>(*journal);ImageFingerprint(argc?argv[0]:nullptr);
-        const char* resources=argc>1 && argv[1] && *argv[1]?argv[1]:"sdmc:/switch/matrixgame-diag/game";
-        const char* rangers_resources=argc>2 && argv[2] && *argv[2]?argv[2]:"sdmc:/switch/space-rangers-hd-a-war-apart/game";
+        const char* roots[]{"sdmc:/switch/matrixgame-diag/game","sdmc:/switch/space-rangers-hd-a-war-apart/game"};
+        unsigned positional=0;bool mode_set=false,batch_journal=false,drain_mode_set=false,draw_drain_sdk_flush=false;
+        for(int i=1;i<argc;++i){
+            const std::string_view arg=argv[i];
+            if(arg.starts_with("--drain-flush=")){
+                if(drain_mode_set || (arg!="--drain-flush=explicit" && arg!="--drain-flush=sdk"))
+                    throw std::invalid_argument("expected one --drain-flush=explicit or --drain-flush=sdk");
+                drain_mode_set=true;draw_drain_sdk_flush=arg=="--drain-flush=sdk";
+            }else if(arg.starts_with("--")){
+                if(mode_set || (arg!="--journal=sync" && arg!="--journal=batch"))
+                    throw std::invalid_argument("expected one --journal=sync or --journal=batch");
+                mode_set=true;batch_journal=arg=="--journal=batch";
+            }else{
+                if(positional==std::size(roots))throw std::invalid_argument("expected at most two resource paths");
+                if(!arg.empty())roots[positional]=argv[i];
+                ++positional;
+            }
+        }
+        if(drain_mode_set && !mode_set)batch_journal=true;
+        if((batch_journal || drain_mode_set) && !Interactive)throw std::invalid_argument("batch journal and drain A/B require Interactive");
+        const auto* resources=roots[0];const auto* rangers_resources=roots[1];
+        dg::Record("metadata","journal_mode",batch_journal?"batch":"sync");
+        dg::Record("metadata","draw_drain_flush",draw_drain_sdk_flush?"sdk":"explicit");
         dg::Record("metadata","resource_root",resources);
         dg::Record("metadata","session_mode",Interactive?"interactive":"quick-four-frames");
         dg::Record("metadata","exit_controls",Interactive?"Minus+Plus; B/Plus remain game input":"B or Plus");
         dg::Record("metadata","rangers_host",matrixgame_diagnostic_build::RangersHostEnabled?"enabled":"disabled");
         if(matrixgame_diagnostic_build::RangersHostEnabled)dg::Record("metadata","rangers_resource_root",rangers_resources);
-        const auto reason=Run(resources,rangers_resources,*journal);journal->RequireHealthy();
+        const auto reason=Run(resources,rangers_resources,*journal,batch_journal,draw_drain_sdk_flush);journal->RequireHealthy();
         if(journal->Failures())throw std::runtime_error("diagnostic contains failed stages; inspect journal");
         if(reason==EndReason::Completed){
             dg::Record("ok","diagnostic_complete",Interactive?"manual original loop returned; original exit state recorded; not full battle acceptance":"four original map frames; SWITCH RUNTIME only if executed on hardware");
@@ -315,6 +392,13 @@ int main(int argc,char** argv){
         try{const auto message=std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.to_bytes(error.Info());dg::Record("exception","Base::CException",message);std::fprintf(stderr,"MatrixGame: %s\n",message.c_str());}catch(...){dg::Record("exception","Base::CException","failed to format original exception");}
     }catch(const std::exception& error){dg::Record("exception","std::exception",error.what());std::fprintf(stderr,"MatrixGame diagnostic: %s\n",error.what());}
     catch(...){dg::Record("exception","unknown_exception","stack cleanup completed");}
-    if(journal){dg::Record("result","process_exit",{},result);if(!journal->Close())result=11;}
+    if(journal){
+        JournalPhases(journal->Statistics());
+        dg::Record("result","process_exit",{},result);
+        if(!journal->Close()){
+            std::fprintf(stderr,"MatrixGame diagnostic journal failed: %d\n",journal->Error());
+            result=11;
+        }
+    }
     return result;
 }

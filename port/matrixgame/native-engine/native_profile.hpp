@@ -3,15 +3,25 @@
 #include <chrono>
 #include <cstdint>
 namespace srhd_awa::matrixgame::platform3g {
-struct ProfileTotals {std::uint64_t calls{},us{},maximum_us{};};
+struct ProfileTotals {
+    std::uint64_t calls{},us{},maximum_us{};
+    void Add(std::uint64_t elapsed)noexcept{
+        ++calls;us+=elapsed;if(elapsed>maximum_us)maximum_us=elapsed;
+    }
+};
 class ProfileScope {
     using Clock=std::chrono::steady_clock;
-    ProfileTotals& totals_;ProfileTotals* detail_;Clock::time_point start_=Clock::now();bool stopped_{};
+    ProfileTotals& totals_;ProfileTotals* detail_;Clock::time_point start_=Clock::now();bool stopped_{};std::uint64_t elapsed_{};
 public:
     explicit ProfileScope(ProfileTotals& totals,ProfileTotals* detail=nullptr):totals_(totals),detail_(detail){}
-    void Stop()noexcept{if(stopped_)return;stopped_=true;const auto us=std::uint64_t(std::chrono::duration_cast<std::chrono::microseconds>(Clock::now()-start_).count());auto add=[&](ProfileTotals& target){
-        ++target.calls;target.us+=us;if(us>target.maximum_us)target.maximum_us=us;
-    };add(totals_);if(detail_)add(*detail_);}
+    std::uint64_t Stop()noexcept{
+        if(!stopped_){
+            stopped_=true;
+            elapsed_=std::chrono::duration_cast<std::chrono::microseconds>(Clock::now()-start_).count();
+            totals_.Add(elapsed_);if(detail_)detail_->Add(elapsed_);
+        }
+        return elapsed_;
+    }
     ~ProfileScope(){Stop();}
 };
 // Keep initial context and logarithmic milestones; actual failures are always

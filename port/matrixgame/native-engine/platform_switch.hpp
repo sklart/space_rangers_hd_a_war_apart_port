@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
-#include "native_profile.hpp"
+#include "native_batch_wait_profile.hpp"
 #include "platform_3g.hpp"
 #include "native_graphics.hpp"
 #include "native_map_queries.hpp"
@@ -130,6 +130,9 @@ public:
     void AcquireNativeFrame();
     void BeginNativeFrame(std::uint32_t clear_argb);
     void PresentNativeFrame();
+    // Diagnostic A/B for draw-count drains. Other completion paths keep their
+    // explicit flush and every drain still waits for completion.
+    void SetDrawDrainSdkFlush(bool enabled)noexcept;
     DeviceResult AbortNativeFrame()noexcept override;
     enum class BlockKind : unsigned {Draw,CommandSpill,CommandFixed,Count};
     static constexpr std::array<unsigned,5> BlockBucketLimits{16*1024,32*1024,64*1024,256*1024,1024*1024};
@@ -139,12 +142,16 @@ public:
     };
     struct DiagnosticCounters {
         std::uint64_t buffer_allocations{},buffer_bytes_total{},recorded_draws{},queue_submissions{},presents{},session_uploads{};
-        std::uint64_t batch_drains{},max_live_draw_packets{},max_live_draw_bytes{};
+        std::uint64_t batch_drains{},batch_explicit_flush_calls{},max_live_draw_packets{},max_live_draw_bytes{};
         std::uint64_t block_pool_hits{},block_pool_misses{},block_pool_bytes{},texture_pressure_events{};
         std::uint64_t block_pool_larger_hits{},upload_requested_bytes{},upload_reserved_bytes{};
         ProfileTotals draw_cpu,vertex_decode,block_create,residency,command_encode,batch_wait,state_validation;
         std::array<std::array<BlockBucket,BlockBucketLimits.size()+1>,unsigned(BlockKind::Count)> blocks{};
         ProfileTotals batch_gpu_wait,present_gpu_wait,abort_gpu_wait,acquire_gpu_wait;
+        ProfileTotals reset_gpu_wait,gamma_readback_gpu_wait,screenshot_gpu_wait;
+        std::array<BatchWaitProfile,BatchWaitNames.size()> batch_wait_by_cause{};
+        std::uint64_t max_pool_bytes{},max_pool_blocks{};
+        std::uint32_t command_backing_limit{},queue_command_bytes{},queue_flush_threshold{};
         std::uint64_t texture_capacity{},texture_free{};
         std::uint64_t sdk_warnings{};
         bool queue_healthy{};

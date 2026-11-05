@@ -8,6 +8,7 @@ namespace srhd_awa::matrixgame::platform3g {
 class NativeDrawBatch {
  std::uint64_t draws_{},bytes_{},draw_limit_,byte_limit_;
 public:
+ enum Limit : unsigned {DrawCount=1, UploadBytes=2};
  // Count is an independent SDK-object bound: small uniform uploads can exhaust
  // mapping resources long before the byte budget is reached. Draws are drained,
  // never discarded; the logical frame/scene remains live.
@@ -15,10 +16,11 @@ public:
  explicit NativeDrawBatch(std::uint64_t draws=DrawLimit,std::uint64_t bytes=ByteLimit):draw_limit_(draws),byte_limit_(bytes){
   if(!draws || !bytes)throw std::invalid_argument("native draw batch limits");
  }
- bool NeedsDrain(std::uint64_t bytes)const{
+ unsigned LimitsReached(std::uint64_t bytes)const{
   if(!bytes || bytes>byte_limit_)throw std::length_error("native single draw upload budget");
-  return draws_>=draw_limit_ || bytes_>byte_limit_-bytes;
+  return (draws_>=draw_limit_?DrawCount:0u) | (bytes_>byte_limit_-bytes?UploadBytes:0u);
  }
+ bool NeedsDrain(std::uint64_t bytes)const{return LimitsReached(bytes)!=0;}
  void Add(std::uint64_t bytes){
   if(NeedsDrain(bytes))throw std::logic_error("native draw batch requires completion before append");
   ++draws_;bytes_+=bytes;
@@ -29,10 +31,10 @@ public:
 };
 // Driver must retain packet/target owners if submit or completion fails. A
 // successful wait permits release, while the logical scene/image stays live.
-template<class Driver>void DrainNativeDrawBatch(NativeFrameScope& frame,NativeDrawBatch& batch,Driver& driver){
+template<class Driver,class... Args>void DrainNativeDrawBatch(NativeFrameScope& frame,NativeDrawBatch& batch,Driver& driver,Args... args){
  static_assert(noexcept(driver.ReleaseCompleted()),"native batch retirement must not throw");
  frame.RequireBatch();
- driver.SubmitAndWait();
+ driver.SubmitAndWait(args...);
  driver.ReleaseCompleted();
  batch.Retired();
 }

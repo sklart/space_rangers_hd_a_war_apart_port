@@ -20,8 +20,7 @@ std::atomic<Journal*> active{};
 std::atomic<unsigned> ordinal{};
 std::uint64_t Micros()noexcept{return std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();}
 std::size_t Write(const void* data,std::size_t bytes,FILE* file){return std::fwrite(data,1,bytes,file);}
-int Flush(FILE* file){
-    if(std::fflush(file))return -1;
+int Sync(FILE* file){
 #ifdef _WIN32
     return _commit(_fileno(file));
 #else
@@ -57,7 +56,7 @@ struct Line {
     }
 };
 }
-IO SystemIO()noexcept{return {Write,Flush,std::fclose};}
+IO SystemIO()noexcept{return {Write,std::fflush,std::fclose,Sync};}
 Journal::Journal(const std::filesystem::path& root,std::string_view build,std::string_view source,IO io):io_(io),started_(Micros()){
     if(!Rooted(root) || !io_.write || !io_.flush || !io_.close || build.empty() || !Copy(build_id_,build) ||
        source.size()!=64 || !std::all_of(source.begin(),source.end(),[](char c){return (c>='0'&&c<='9')||(c>='a'&&c<='f');}) || !Copy(source_sha_,source))
@@ -98,12 +97,62 @@ bool Journal::Emit(std::string_view event,std::string_view operation,std::string
     line.Add(",\"detail\":");line.String(detail);line.Add(",\"detail_truncated\":");line.Add(truncated?"true":"false");
     line.Add(",\"result\":");if(result==std::numeric_limits<std::int64_t>::min())line.Add("null");else line.Number(result);line.Add(",\"elapsed_us\":");line.Number(elapsed);line.Add(",\"value\":");line.Number(value);line.Add("}\n");
     if(!line.valid){error_=EOVERFLOW;return false;}
+    if(!batching_)return Persist(line.data.data(),line.used,1);
+    if(line.used>BatchBytes-pending_bytes_ && !FlushPending())return false;
+    if(!pending_bytes_)pending_since_=Micros();
+    std::memcpy(batch_.get()+pending_bytes_,line.data.data(),line.used);
+    pending_bytes_+=line.used;++pending_rows_;
+    if(pending_bytes_==BatchBytes || event=="failed" || event=="exception" ||
+       event=="sdk_error" || event=="cancelled")return FlushPending();
+    return true;
+}
+bool Journal::Persist(const char* data,std::size_t size,std::uint64_t rows)noexcept{
     errno=0;
     const auto io_started=Micros();
-    const bool failed=io_.write(line.data.data(),line.used,file_)!=line.used || io_.flush(file_)!=0;
-    ++io_stats_.calls;io_stats_.bytes+=line.used;io_stats_.us+=Micros()-io_started;
-    if(failed){error_=errno?errno:EIO;return false;}
+    const auto written=io_.write(data,size,file_);
+    int io_error=errno;
+    auto now=Micros();
+    io_stats_.write_us+=now-io_started;
+    bool failed=written!=size;
+    if(!failed){
+        const auto flush_started=now;
+        failed=io_.flush(file_)!=0;
+        io_error=errno;
+        now=Micros();++io_stats_.flush_calls;io_stats_.flush_us+=now-flush_started;
+    }
+    if(!failed && io_.sync){
+        const auto sync_started=now;
+        failed=io_.sync(file_)!=0;
+        io_error=errno;
+        now=Micros();++io_stats_.sync_calls;io_stats_.sync_us+=now-sync_started;
+    }
+    ++io_stats_.calls;io_stats_.bytes+=written;io_stats_.us+=now-io_started;
+    if(failed){error_=io_error?io_error:EIO;return false;}
+    io_stats_.durable_rows+=rows;
     return true;
+}
+bool Journal::FlushPending()noexcept{
+    if(error_ || !file_)return false;
+    if(!pending_bytes_)return true;
+    if(!Persist(batch_.get(),pending_bytes_,pending_rows_))return false;
+    pending_bytes_=0;pending_rows_=0;
+    return true;
+}
+void Journal::BeginBatching(){
+    std::lock_guard lock(mutex_);
+    if(error_ || !file_)throw std::runtime_error("diagnostic journal unavailable before batching");
+    if(!batch_)batch_=std::make_unique_for_overwrite<char[]>(BatchBytes);
+    batching_=true;
+}
+bool Journal::Checkpoint(bool force)noexcept{
+    std::lock_guard lock(mutex_);
+    if(pending_bytes_ && (force || Micros()-pending_since_>=BatchIntervalUs))return FlushPending();
+    return file_ && !error_;
+}
+bool Journal::EndBatching()noexcept{
+    std::lock_guard lock(mutex_);
+    batching_=false;
+    return FlushPending();
 }
 bool Journal::Record(std::string_view event,std::string_view operation,std::string_view detail,std::int64_t result)noexcept{
     std::lock_guard lock(mutex_);return Emit(event,operation,detail,result,0);
@@ -117,7 +166,10 @@ std::uint64_t Journal::Begin(std::string_view operation){
     if(depth_==stack_.size() || operation.empty() || operation.size()>96 || operation.find('\0')!=operation.npos)
         throw std::invalid_argument("invalid diagnostic operation nesting/name");
     auto& stage=stack_[depth_++];Copy(stage.name,operation);stage.token=++token_;stage.started=Micros();
-    if(!Emit("begin",operation,{},0,0))throw std::system_error(error_,std::generic_category(),"diagnostic begin flush");
+    if(!Emit("begin",operation,{},0,0)){
+        --depth_;
+        throw std::system_error(error_,std::generic_category(),"diagnostic begin record");
+    }
     return stage.token;
 }
 bool Journal::End(std::uint64_t token,bool success,std::int64_t result,bool cancelled)noexcept{
@@ -134,7 +186,11 @@ JournalIOStats Journal::Statistics()const noexcept{std::lock_guard lock(mutex_);
 void Journal::RequireHealthy()const{if(!Healthy())throw std::runtime_error("diagnostic journal not healthy");}
 bool Journal::Close()noexcept{
     std::lock_guard lock(mutex_);if(closed_)return !error_;closed_=true;
-    if(file_){Emit("journal_close","cleanup",depth_?"unfinished operations remain":"all operation scopes retired",depth_?-1:0,0);errno=0;if(io_.close(file_) && !error_)error_=errno?errno:EIO;file_=nullptr;}
+    if(file_){
+        batching_=false;
+        if(FlushPending())Emit("journal_close","cleanup",depth_?"unfinished operations remain":"all operation scopes retired",depth_?-1:0,0);
+        errno=0;if(io_.close(file_) && !error_)error_=errno?errno:EIO;file_=nullptr;
+    }
     return !error_;
 }
 Binding::Binding(Journal& journal):journal_(&journal){Journal* expected=nullptr;if(!active.compare_exchange_strong(expected,journal_))throw std::logic_error("diagnostic journal already bound");}

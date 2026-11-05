@@ -45,6 +45,9 @@ public:
     }
     std::uint64_t Limit()const noexcept{return limit_;}
     std::uint64_t Bytes()const noexcept{return bytes_;}
+    std::size_t Size()const noexcept{
+        std::size_t count{};for(const auto& slot:blocks_)count+=slot.size!=0;return count;
+    }
     void Clear()noexcept{for(auto& slot:blocks_){slot.block=Block{};slot.size=0;}bytes_=0;}
 };
 }
