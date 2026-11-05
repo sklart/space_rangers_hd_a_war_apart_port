@@ -43,6 +43,7 @@ public:
         for(auto& slot:blocks_)if(!slot.size){slot.block=std::move(block);slot.size=size;bytes_+=size;return;}
         auto& old=blocks_[cursor_++%Slots];bytes_-=old.size;old.block=std::move(block);old.size=size;bytes_+=size;++evictions;
     }
+    std::uint64_t Limit()const noexcept{return limit_;}
     std::uint64_t Bytes()const noexcept{return bytes_;}
     void Clear()noexcept{for(auto& slot:blocks_){slot.block=Block{};slot.size=0;}bytes_=0;}
 };

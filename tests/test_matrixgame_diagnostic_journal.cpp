@@ -43,6 +43,11 @@ int main(int argc,char** argv){
             assert(Text(j.Path()).find("\"event\":\"begin\",\"operation\":\"OriginalInit\"")!=std::string::npos);
             {d::Operation inner("RobotPreload");}
             try{d::Operation failure("stor.Load");throw std::runtime_error("actual exception boundary");}catch(const std::runtime_error&){}
+            try{
+                d::Operation stopped("ControlledDraw");
+                try{throw 1;}catch(int){stopped.Cancel();throw;}
+            }catch(int){}
+            assert(Text(j.Path()).find("\"event\":\"cancelled\",\"operation\":\"ControlledDraw\"")!=std::string::npos);
             d::Record("exception","stor.Load","\"quoted\"\nUnicode: \xd0\xba\xd0\xb0\xd1\x80\xd1\x82\xd0\xb0",-17);
             {d::Operation returned_failure("ResultOperation");returned_failure.Fail(0xdead);}
         }

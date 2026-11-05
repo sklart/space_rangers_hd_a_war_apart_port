@@ -36,6 +36,8 @@ constexpr auto SessionMode=dg::SessionMode::Quick;
 #endif
 constexpr bool Interactive=SessionMode==dg::SessionMode::Interactive;
 struct UserExit:std::exception {const char* what()const noexcept override{return "diagnostic user exit";}};
+enum class EndReason {Completed,TimeLimit,UserExit};
+struct LoopStop {EndReason reason;};
 struct Timeout:std::runtime_error {Timeout():std::runtime_error("diagnostic 120-second cooperative deadline exceeded") {}};
 void CheckLibnx(Result result,const char* operation){
     dg::Record("result",operation,{},result);
@@ -46,21 +48,36 @@ class Cancellation {
     PadState pad_{};
     static std::uint64_t Now(){return std::chrono::duration_cast<std::chrono::microseconds>(mg::native_loop::Clock::now().time_since_epoch()).count();}
     dg::SessionControl control_{SessionMode,Now()};
+    std::uint64_t loop_started_{};
+    bool polling_{true},in_loop_{};
 public:
     Cancellation(){padInitializeDefault(&pad_);}
     void Poll(){
+        if(!polling_)return;
         padUpdate(&pad_);const auto held=padGetButtons(&pad_);
         const auto result=control_.Poll(Now(),{bool(held&HidNpadButton_B),bool(held&HidNpadButton_Plus),bool(held&HidNpadButton_Minus)});
-        if(result==dg::RunControl::PollResult::UserExit)throw UserExit();
-        if(result==dg::RunControl::PollResult::Deadline)throw Timeout();
+        if(result==dg::RunControl::PollResult::UserExit){
+            if(in_loop_)throw LoopStop{EndReason::UserExit};
+            throw UserExit();
+        }
+        if(result==dg::RunControl::PollResult::Deadline){
+            if(in_loop_ && control_.HasControlledDeadline())throw LoopStop{EndReason::TimeLimit};
+            throw Timeout();
+        }
     }
     bool Presented(std::uint64_t before,std::uint64_t after,bool visible){return control_.Presented(before,after,visible);}
     std::uint64_t Frames()const noexcept{return control_.Frames();}
     void BeginOriginalLoop(){
-        const auto result=control_.BeginOriginalLoop(Now());
+        const auto now=Now();
+        const auto result=control_.BeginOriginalLoop(now);
         if(result==dg::RunControl::PollResult::UserExit)throw UserExit();
         if(result==dg::RunControl::PollResult::Deadline)throw Timeout();
+        loop_started_=now;
+        in_loop_=true;
     }
+    void EndLoop()noexcept{in_loop_=false;}
+    void FinishPolling()noexcept{polling_=false;}
+    std::uint64_t LoopElapsed()const{return Now()-loop_started_;}
     bool CountersDue()const noexcept{return control_.CountersDue();}
     bool ValidLoopReturn(int state)const noexcept{return control_.ValidLoopReturn(state);}
 };
@@ -82,6 +99,23 @@ void Counters(p::DekoDevice& device){
     profile("draw_cpu",s.draw_cpu);profile("vertex_decode",s.vertex_decode);profile("block_create",s.block_create);
     profile("residency",s.residency);profile("command_encode",s.command_encode);profile("batch_wait",s.batch_wait);
     profile("state_validation",s.state_validation);
+    profile("batch_gpu_wait",s.batch_gpu_wait);profile("present_gpu_wait",s.present_gpu_wait);
+    profile("abort_gpu_wait",s.abort_gpu_wait);profile("acquire_gpu_wait",s.acquire_gpu_wait);
+    const char* kinds[]{"draw","command_spill","command_fixed"};
+    for(unsigned kind=0;kind<s.blocks.size();++kind)for(unsigned bucket=0;bucket<s.blocks[kind].size();++bucket){
+        const auto& b=s.blocks[kind][bucket];
+        if(!b.requests)continue;
+        const auto limit=bucket<p::DekoDevice::BlockBucketLimits.size()?p::DekoDevice::BlockBucketLimits[bucket]:0;
+        char detail[512];
+        std::snprintf(detail,sizeof(detail),
+            "kind=%s upper_bytes=%u requests=%llu requested=%llu reserved=%llu hits=%llu no_fit=%llu above_reuse_limit=%llu over_pool_budget=%llu create_calls=%llu create_us=%llu max_create_us=%llu repeat_bucket_creates=%llu",
+            kinds[kind],limit,(unsigned long long)b.requests,(unsigned long long)b.requested_bytes,
+            (unsigned long long)b.reserved_bytes,(unsigned long long)b.hits,(unsigned long long)b.miss_no_fit,
+            (unsigned long long)b.miss_above_reuse_limit,(unsigned long long)b.miss_over_pool_budget,
+            (unsigned long long)b.create.calls,(unsigned long long)b.create.us,(unsigned long long)b.create.maximum_us,
+            (unsigned long long)(b.create.calls?b.create.calls-1:0));
+        dg::Record("profile","gpu_block_bucket",detail);
+    }
     const auto io=dg::CurrentIOStats();dg::Metric("profile.journal.calls",io.calls);dg::Metric("profile.journal.bytes",io.bytes);dg::Metric("profile.journal.us",io.us);
     dg::Metric("gpu_buffer_bytes_cumulative",s.buffer_bytes_total);dg::Metric("recorded_draw_calls",s.recorded_draws);
     dg::Metric("queue_submission_calls",s.queue_submissions);dg::Metric("completed_presents",s.presents);
@@ -112,7 +146,8 @@ public:
         cancel_.Poll();dg::Operation operation("C.original_form.Draw");const auto before=device_.Diagnostics().presents;
         const bool visible=(g_MatrixMap->m_Flags&MMFLAG_VIDEO_RESOURCES_READY) && !(g_MatrixMap->m_Flags&MMFLAG_TRANSITION);
         if(visible && !capture_requested_){device_.RequestPrimaryReadback([output=&journal_](auto bytes,unsigned w,unsigned h){dg::SaveFrame(*output,"original-first",w,h,bytes);});capture_requested_=true;}
-        actual_.Draw(form);
+        try{actual_.Draw(form);}
+        catch(const LoopStop&){operation.Cancel();throw;}
         const auto after=device_.Diagnostics().presents;const auto done=cancel_.Presented(before,after,visible);
         if(!visible && after>before){transition_presents_+=after-before;dg::Metric("original_loading_presents",transition_presents_);if(transition_presents_<=4 || transition_presents_%30==0)Counters(device_);}
         if(visible && after>before && cancel_.CountersDue()){dg::Metric("original_loop_frames_presented",cancel_.Frames());Counters(device_);}
@@ -121,7 +156,7 @@ public:
     std::uint64_t Frames()const noexcept{return cancel_.Frames();}
     bool ValidLoopReturn(int state)const noexcept{return cancel_.ValidLoopReturn(state);}
 };
-void Run(const char* root_arg,const char* rangers_root_arg,dg::Journal& journal){
+EndReason Run(const char* root_arg,const char* rangers_root_arg,dg::Journal& journal){
     const auto resource_root=std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.from_bytes(root_arg);
     const auto utf8_output=(journal.Directory()/"output").generic_u8string();
     const auto output_root=std::wstring_convert<std::codecvt_utf8<wchar_t>>{}.from_bytes(reinterpret_cast<const char*>(utf8_output.data()),reinterpret_cast<const char*>(utf8_output.data()+utf8_output.size()));
@@ -139,6 +174,7 @@ void Run(const char* root_arg,const char* rangers_root_arg,dg::Journal& journal)
         CheckLibnx(hidSetSupportedNpadStyleSet(HidNpadStyleSet_NpadFullCtrl),"hidSetSupportedNpadStyleSet");
         CheckLibnx(appletSetAppletWindowVisibility(true),"appletSetAppletWindowVisibility");
     }
+    EndReason reason=EndReason::Completed;
     Cancellation cancel;cancel.Poll();
     dg::Operation display_setup("A.SwitchDisplay");p::SwitchDisplay display;
     dg::Record("begin","A.SwitchWindow");p::SwitchWindow window(display.NativeWindow(),true,&display);dg::Record("ok","A.SwitchWindow");
@@ -180,12 +216,21 @@ void Run(const char* root_arg,const char* rangers_root_arg,dg::Journal& journal)
         {
             mg::native_form::Session form;
             BoundedOriginalLoop backend(window,device,cancel,journal);mg::native_loop::Scope loop(backend);
-            g_ExitState=0;g_Flags&=~GFLAG_EXITLOOP;RunOriginalNativeLoop();
+            g_ExitState=0;
+            g_Flags&=~GFLAG_EXITLOOP;
+            try{RunOriginalNativeLoop();}
+            catch(const LoopStop& stop){reason=stop.reason;}
+            cancel.EndLoop();
+            const auto elapsed=cancel.LoopElapsed();
             dg::Metric("original_loop_frames_presented_final",backend.Frames());
-            if(!backend.ValidLoopReturn(g_ExitState))throw std::runtime_error("original loop ended without valid diagnostic frames/exit state");
-            dg::Metric("original_exit_state",g_ExitState);
+            dg::Metric("original_loop_elapsed_us_final",elapsed);
+            dg::Metric("original_loop_fps_milli_final",elapsed?backend.Frames()*1'000'000'000ull/elapsed:0);
+            if(reason==EndReason::Completed){
+                if(!backend.ValidLoopReturn(g_ExitState))throw std::runtime_error("original loop ended without valid diagnostic frames/exit state");
+                dg::Metric("original_exit_state",g_ExitState);
+            }
         }
-        {
+        if(reason==EndReason::Completed){
             dg::Operation snapshot("C.original_SaveResult");SRobotGameState statistics{};
             runtime.SaveOriginalGameResult(statistics);
             // Preserve signed time (winning sides negate it) without converting
@@ -199,7 +244,14 @@ void Run(const char* root_arg,const char* rangers_root_arg,dg::Journal& journal)
             dg::Record("statistics","original_buildings_destroyed",{},statistics.m_KillBuilding);
             journal.RequireHealthy();
         }
-        hold();phase=L"D: original cleanup";
+        if(reason==EndReason::Completed && !Interactive)hold();
+        cancel.FinishPolling();
+        phase=L"D: original cleanup";
+        if(reason!=EndReason::Completed){
+            const auto aborted=device.AbortNativeFrame();
+            dg::Record(aborted?"failed":"result","diagnostic.stop_abort",{},aborted);
+            if(aborted)throw std::runtime_error("controlled stop GPU completion failed");
+        }
         dg::Record("begin","D.original_runtime");runtime.Deinit();dg::Record("ok","D.original_runtime");
         const auto restored=runtime.LastStateRestoreResult();if(!restored)throw std::runtime_error("original runtime returned no device restore result");
         p::CheckDeviceResult(*restored,"diagnostic original device state restore");Counters(device);
@@ -212,9 +264,9 @@ void Run(const char* root_arg,const char* rangers_root_arg,dg::Journal& journal)
             const auto failure=std::current_exception();
             const auto aborted=device.AbortNativeFrame();dg::Record("result","diagnostic.error_abort",{},aborted);Counters(device);runtime.Deinit();
 #ifdef MATRIXGAME_DIAGNOSTIC_RANGERS_HOST
-            {dg::Operation release("D.RangersHostSession.error");rangers_host.reset();}
+            rangers_host.reset();dg::Record("ok","D.RangersHostSession.error");
 #endif
-            if(!aborted && device.Diagnostics().queue_healthy && journal.Healthy()){
+            if(!aborted && window.Drawable() && device.NativeCooperativeLevel()==p::DeviceSuccess && journal.Healthy()){
                 try{
                     if(!diagnostic_window.Owned()){
                         dg::Operation attachment("diagnostic.error_window_attachment");diagnostic_window.Acquire();
@@ -232,6 +284,7 @@ void Run(const char* root_arg,const char* rangers_root_arg,dg::Journal& journal)
     dg::Record("ok","D.device_owner_released");
     diagnostic_window.Release();
     CheckLibnx(window.LastVisibilityRestoreResult(),"restore applet visibility");
+    return reason;
 }
 }
 int main(int argc,char** argv){
@@ -246,9 +299,16 @@ int main(int argc,char** argv){
         dg::Record("metadata","exit_controls",Interactive?"Minus+Plus; B/Plus remain game input":"B or Plus");
         dg::Record("metadata","rangers_host",matrixgame_diagnostic_build::RangersHostEnabled?"enabled":"disabled");
         if(matrixgame_diagnostic_build::RangersHostEnabled)dg::Record("metadata","rangers_resource_root",rangers_resources);
-        Run(resources,rangers_resources,*journal);journal->RequireHealthy();
+        const auto reason=Run(resources,rangers_resources,*journal);journal->RequireHealthy();
         if(journal->Failures())throw std::runtime_error("diagnostic contains failed stages; inspect journal");
-        dg::Record("ok","diagnostic_complete",Interactive?"manual original loop returned; original exit state recorded; not full battle acceptance":"four original map frames; SWITCH RUNTIME only if executed on hardware");result=0;
+        if(reason==EndReason::Completed){
+            dg::Record("ok","diagnostic_complete",Interactive?"manual original loop returned; original exit state recorded; not full battle acceptance":"four original map frames; SWITCH RUNTIME only if executed on hardware");
+            result=0;
+        }else{
+            dg::Record("metadata","session_end_reason",reason==EndReason::TimeLimit?"time_limit":"user_exit");
+            dg::Record("controlled_stop","diagnostic_complete","CONTROLLED_STOP");
+            result=reason==EndReason::TimeLimit?0:20;
+        }
     }catch(const UserExit&){dg::Record("cancelled","user_exit","stack cleanup completed");result=20;}
     catch(const mg::applet_window::ExitRequested&){dg::Record("cancelled","applet_exit","stack cleanup completed");result=20;}
     catch(const Base::CException& error){

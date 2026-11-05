@@ -318,7 +318,7 @@ struct DekoDevice::Impl: presentation::Driver {
     dk::UniqueMemBlock command_memory,command_discard;
     struct CommandDriver {
         using Command=DkCmdBuf;using Block=dk::UniqueMemBlock;Impl& self;
-        Block Allocate(std::uint32_t bytes){return self.Allocate(bytes);}
+        Block Allocate(std::uint32_t bytes){return self.Allocate(bytes,BlockKind::CommandSpill);}
         void Attach(Command command,const Block& block,std::uint32_t bytes)noexcept{dkCmdBufAddMemory(command,block,0,bytes);}
         void AttachDiscard(Command command)noexcept{dkCmdBufAddMemory(command,self.command_discard,0,NativeCommandMemory<CommandDriver>::QuotaBytes);}
         [[noreturn]] void RejectRequest(std::uint64_t minimum)noexcept{
@@ -337,7 +337,7 @@ struct DekoDevice::Impl: presentation::Driver {
     struct DrawPacket {
         NativeDrawUpload upload;
         std::array<std::shared_ptr<native_texture::Image>,8> images;
-        materials::DekoCombinerProgram::Packet material;
+        materials::DekoCombinerProgram::Binding material;
         std::uint32_t bytes{};
     };
     std::vector<DrawPacket> packets;
@@ -349,19 +349,50 @@ struct DekoDevice::Impl: presentation::Driver {
     DekoDevice::DiagnosticCounters diagnostics;
     DekoDevice::PrimaryReadback primary_readback;
     DekoDevice::PrimaryReadback presentation_readback;
-    dk::UniqueMemBlock Allocate(std::uint64_t bytes){
-        ProfileScope timing(diagnostics.block_create);
-        auto value=dk::MemBlockMaker{device,AllocationSize(bytes)}.setFlags(DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached).create();
-        if(!value)throw std::bad_alloc();++diagnostics.buffer_allocations;diagnostics.buffer_bytes_total+=AllocationSize(bytes);return value;
+    DekoDevice::BlockBucket& BlockStats(BlockKind kind,std::uint64_t bytes)noexcept{
+        unsigned bucket=0;
+        while(bucket<BlockBucketLimits.size() && bytes>BlockBucketLimits[bucket])++bucket;
+        return diagnostics.blocks[unsigned(kind)][bucket];
     }
-    dk::UniqueMemBlock DrawMemory(std::uint64_t bytes,std::uint64_t maximum=0){
+    dk::UniqueMemBlock CreateBlock(std::uint32_t size,DekoDevice::BlockBucket& stats){
+        ProfileScope timing(diagnostics.block_create,&stats.create);
+        auto value=dk::MemBlockMaker{device,size}.setFlags(DkMemBlockFlags_CpuUncached|DkMemBlockFlags_GpuCached).create();
+        if(!value)throw std::bad_alloc();
+        ++diagnostics.buffer_allocations;
+        diagnostics.buffer_bytes_total+=size;
+        return value;
+    }
+    dk::UniqueMemBlock Allocate(std::uint64_t bytes,BlockKind kind=BlockKind::CommandFixed){
         const auto size=AllocationSize(bytes);
-        auto block=completed_blocks.TakeAtLeast(size,maximum?maximum:size);return block?std::move(block):Allocate(bytes);
+        auto& stats=BlockStats(kind,size);
+        ++stats.requests;
+        stats.requested_bytes+=size;
+        auto block=CreateBlock(size,stats);
+        stats.reserved_bytes+=size;
+        return std::move(block);
+    }
+    dk::UniqueMemBlock DrawMemory(std::uint64_t bytes,std::uint64_t maximum){
+        const auto size=AllocationSize(bytes);
+        auto& stats=BlockStats(BlockKind::Draw,size);
+        ++stats.requests;
+        stats.requested_bytes+=size;
+        auto block=completed_blocks.TakeAtLeast(size,maximum);
+        if(block){
+            ++stats.hits;
+            stats.reserved_bytes+=maximum; // Selected exact capacity was planned before this take.
+            return std::move(block);
+        }
+        if(size>completed_blocks.Limit())++stats.miss_over_pool_budget;
+        else if(completed_blocks.BestFitSize(size,UINT64_MAX))++stats.miss_above_reuse_limit;
+        else ++stats.miss_no_fit;
+        block=CreateBlock(size,stats);
+        stats.reserved_bytes+=size;
+        return std::move(block);
     }
     bool presenting{};const dk::Image* bound_color{};const dk::Image* bound_depth{};
     void StartRecording(){
         if(recording){command_pages.Check();return;}if(!Healthy())throw Unsupported("native render queue lost");
-        if(!frame){window.WaitForDrawable();queue.waitIdle();if(!Healthy())throw Unsupported("native render queue completion failed");packets.clear();surface_packets.clear();target_images.clear();batch.Retired();screenshot_frame.Invalidate();frame.Acquire();state.Frame(true);}
+        if(!frame){window.WaitForDrawable();{ProfileScope wait(diagnostics.acquire_gpu_wait);queue.waitIdle();}if(!Healthy())throw Unsupported("native render queue completion failed");packets.clear();surface_packets.clear();target_images.clear();batch.Retired();screenshot_frame.Invalidate();frame.Acquire();state.Frame(true);}
         command_pages.Retire([&]()noexcept{commands.clear();commands.addMemory(command_memory,0,command_bytes);});bound_color=bound_depth=nullptr;recording=true;
     }
     void AcquirePrimary(){
@@ -393,12 +424,12 @@ struct DekoDevice::Impl: presentation::Driver {
         command_pages.Check();
         commands.barrier(DkBarrier_Full,DkInvalidateFlags_Image|DkInvalidateFlags_L2Cache);
         const auto list=command_pages.FinishForSubmission([&]{return commands.finishList();});
-        queue.submitCommands(list);++diagnostics.queue_submissions;queue.flush();queue.waitIdle();
+        queue.submitCommands(list);++diagnostics.queue_submissions;queue.flush();{ProfileScope wait(diagnostics.batch_gpu_wait);queue.waitIdle();}
         if(!Healthy()){diagnostic::Record("sdk_error","GPU.batch_submit_wait","native draw batch queue completion failed");throw Unsupported("native draw batch queue completion failed");}
     }
     void ReleaseCompleted()noexcept{
         command_pages.Retire([&]()noexcept{if(commands){commands.clear();commands.addMemory(command_memory,0,command_bytes);}});recording=false;bound_color=bound_depth=nullptr;
-        for(auto& packet:packets){completed_blocks.Put(packet.upload.TakeCompletedMemory());completed_blocks.Put(std::move(packet.material.uniforms));}
+        for(auto& packet:packets)completed_blocks.Put(packet.upload.TakeCompletedMemory());
         packets.clear();surface_packets.clear();target_images.clear();
         gamma_packet={};
     }
@@ -500,13 +531,14 @@ struct DekoDevice::Impl: presentation::Driver {
         const bool alpha_target=target->desc.Format==28;
         const auto raster=alpha_target?AlphaTargetRaster(saved_state.raster):saved_state.raster;const auto cull=saved_state.cull;
         const auto uniforms=vertex.Prepare();const auto& fog=prepared.fog;
-        const auto upload_layout=NativeDrawUpload::Plan(vertices.size_bytes(),indices.size());
-        auto upload_reuse=PlanUploadReuse(completed_blocks,upload_layout.bytes,materials::uniform_packet::Bytes,frame_budget);
+        static_assert(NativeDrawUpload::UniformBytes==materials::uniform_packet::Bytes);
+        const auto upload_layout=NativeDrawUpload::Plan(vertices.size_bytes(),indices.size(),true);
+        auto upload_reuse=PlanUploadReuse(completed_blocks,upload_layout.bytes,frame_budget);
         if(batch.NeedsDrain(upload_reuse.total) || command_pages.NeedsDrain()){
-            DrainBatch();upload_reuse=PlanUploadReuse(completed_blocks,upload_layout.bytes,materials::uniform_packet::Bytes,frame_budget);
+            DrainBatch();upload_reuse=PlanUploadReuse(completed_blocks,upload_layout.bytes,frame_budget);
         }
         BindTargets(presenting);
-        DrawPacket packet;packet.upload=NativeDrawUpload{DrawMemory(upload_layout.bytes,upload_reuse.capacity),std::as_bytes(vertices),indices};
+        DrawPacket packet;packet.upload=NativeDrawUpload{DrawMemory(upload_layout.bytes,upload_reuse.capacity),std::as_bytes(vertices),indices,true};
         {
         ProfileScope residency_timing(diagnostics.residency);
         for(unsigned i=0;i<8;++i)if(textures[i]){
@@ -521,10 +553,12 @@ struct DekoDevice::Impl: presentation::Driver {
         for(unsigned i=0;i<8;++i){const auto sampler=MakeDekoSampler(samplers[i]);
             dk::SamplerDescriptor descriptor;descriptor.initialize(sampler);packet.upload.WriteSampler(i,descriptor);}
         std::array<DkResHandle,8> handles;for(unsigned i=0;i<8;++i)handles[i]=dkMakeTextureHandle(i,i);
-        packet.material=programs->PrepareUniforms(prepared.combiner,handles,&uniforms,alpha_target,&fog,saved_state.shade,DrawMemory(materials::uniform_packet::Bytes));
-        if(packet.upload.StorageBytes()+std::uint64_t(materials::uniform_packet::Bytes)!=upload_reuse.total)throw std::logic_error("native reusable upload capacity changed before publication");
+        packet.material=programs->PrepareUniformSlice(prepared.combiner,handles,&uniforms,alpha_target,&fog,
+            saved_state.shade,packet.upload.UniformStorage(),packet.upload.UniformAddress());
+        if(packet.upload.StorageBytes()!=upload_reuse.total)throw std::logic_error("native reusable upload capacity changed before publication");
         packets.push_back(std::move(packet));auto& saved=packets.back();batch.Add(upload_reuse.total);++diagnostics.recorded_draws;
-        diagnostics.upload_requested_bytes+=upload_layout.bytes;diagnostics.upload_reserved_bytes+=saved.upload.StorageBytes();
+        diagnostics.upload_requested_bytes+=upload_layout.bytes-NativeDrawUpload::UniformBytes;
+        diagnostics.upload_reserved_bytes+=saved.upload.StorageBytes()-NativeDrawUpload::UniformBytes;
         diagnostics.max_live_draw_packets=std::max(diagnostics.max_live_draw_packets,batch.Draws());
         diagnostics.max_live_draw_bytes=std::max(diagnostics.max_live_draw_bytes,batch.Bytes());
         const auto raster_viewport=LegacyRasterViewport(uniforms.viewport);
@@ -789,7 +823,7 @@ void DekoDevice::PresentNativeFrame(){
         callback(pixels,p.BackBufferWidth,p.BackBufferHeight);
     }
     const auto completed_slot=v.image_slot;
-    v.queue.presentImage(v.Targets().swapchain,v.image_slot);v.image_slot=-1;v.queue.flush();v.queue.waitIdle();if(!v.Healthy())throw std::runtime_error("native presentation queue error");++v.diagnostics.presents;
+    v.queue.presentImage(v.Targets().swapchain,v.image_slot);v.image_slot=-1;v.queue.flush();{ProfileScope wait(v.diagnostics.present_gpu_wait);v.queue.waitIdle();}if(!v.Healthy())throw std::runtime_error("native presentation queue error");++v.diagnostics.presents;
     v.screenshot_frame.Presented(completed_slot,v.Targets().value.BackBufferCount);
     v.ReleaseCompleted();v.batch.Retired();v.frame.Presented();v.state.Frame(false);
 }
@@ -826,7 +860,7 @@ DeviceResult DekoDevice::AbortNativeFrame()noexcept{
     // return too, so a failed frame cannot deliver a stale request after recovery.
     auto& v=*impl_;v.screenshot_frame.Invalidate();v.primary_readback={};v.presentation_readback={};if(!v.queue || !v.Healthy())return presentation::DeviceLost;
     try{
-        if(v.frame || v.image_slot>=0 || v.recording){v.queue.waitIdle();if(!v.Healthy())return presentation::DeviceLost;
+        if(v.frame || v.image_slot>=0 || v.recording){{ProfileScope wait(v.diagnostics.abort_gpu_wait);v.queue.waitIdle();}if(!v.Healthy())return presentation::DeviceLost;
             if(v.image_slot>=0){NvMultiFence fence{};const auto result=nwindowCancelBuffer(&v.window.NativeWindow(),v.image_slot,&fence);if(result)return static_cast<DeviceResult>(result);}
             v.ReleaseCompleted();v.batch.Retired();v.image_slot=-1;v.frame.Abort();v.state.Frame(false);}
         if(v.surface_session->color!=v.surface_session->primary_color)v.surface_session->Color(v.surface_session->primary_color);

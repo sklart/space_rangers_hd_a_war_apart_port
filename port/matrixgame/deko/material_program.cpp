@@ -53,9 +53,24 @@ DekoCombinerProgram::Packet DekoCombinerProgram::PrepareUniforms(Uniforms value,
     uniform_packet::Write({static_cast<std::byte*>(out.uniforms.getCpuAddr()),uniform_packet::Bytes},value,vertex,fog?*fog:disabled,shade);
     return out;
 }
+DekoCombinerProgram::Binding DekoCombinerProgram::PrepareUniformSlice(
+    Uniforms value,const std::array<DkResHandle,8>& textures,const VertexUniforms* vertex,bool alpha_target,
+    const PixelFogUniforms* fog,std::uint32_t shade,std::span<std::byte> storage,DkGpuAddr address)const{
+    if(shade!=1 && shade!=2)throw Incomplete("native material shading mode outside FLAT/GOURAUD");
+    AlphaTarget(value,alpha_target);
+    if(vertex && !VertexReady())throw Incomplete("material vertex program unavailable");
+    if(address%DK_UNIFORM_BUF_ALIGNMENT)throw std::invalid_argument("material uniform slice alignment");
+    const PixelFogUniforms disabled;
+    uniform_packet::Write(storage,value,vertex,fog?*fog:disabled,shade);
+    return {address,vertex!=nullptr,textures};
+}
 void DekoCombinerProgram::Bind(dk::CmdBuf commands,const Packet& packet)const{
     if(!commands || !packet.uniforms)throw std::invalid_argument("material command/packet unavailable");
-    const auto address=dkMemBlockGetGpuAddr(packet.uniforms);
+    Bind(commands,Binding{dkMemBlockGetGpuAddr(packet.uniforms),packet.has_vertex,packet.textures});
+}
+void DekoCombinerProgram::Bind(dk::CmdBuf commands,const Binding& packet)const{
+    if(!commands || packet.address==DK_GPU_ADDR_INVALID)throw std::invalid_argument("material command/packet unavailable");
+    const auto address=packet.address;
     commands.bindShaders(DkStageFlag_Fragment,{&shader_});
     if(packet.has_vertex){commands.bindShaders(DkStageFlag_Vertex,{&vertex_shader_});commands.bindUniformBuffer(DkStage_Vertex,0,address+uniform_packet::VertexOffset,sizeof(VertexUniforms));}
     commands.bindUniformBuffer(DkStage_Fragment,0,address,sizeof(Uniforms));

@@ -41,7 +41,9 @@ int main(){
  assert(quick.BeginOriginalLoop(119'000'000)==R::Continue && manual.BeginOriginalLoop(119'000'000)==R::Continue);
  assert(quick.Poll(120'000'000,{})==R::Deadline);assert(manual.Poll(120'000'000,{})==R::Continue);
  assert(manual.Poll(238'999'999,{})==R::Continue && manual.Poll(239'000'000,{})==R::Deadline);
+ assert(manual.HasControlledDeadline() && !quick.HasControlledDeadline());
  d::SessionControl expired(d::SessionMode::Interactive,0);assert(expired.Poll(1,{})==R::Continue);
+ assert(!expired.HasControlledDeadline());
  assert(expired.BeginOriginalLoop(120'000'000)==R::Deadline);Reject([&]{expired.Presented(0,1,true);});
  d::SessionControl clock(d::SessionMode::Interactive,100);assert(clock.Poll(101,{})==R::Continue);Reject([&]{clock.BeginOriginalLoop(100);});
  std::printf("DIAGNOSTIC_SESSION modes=%u button_cases=%u quick_four_frames=PASS manual_no_autostop=PASS B_Plus_game_controls=PASS fresh_chord_arming=PASS phase_deadlines=PASS counters_throttled=PASS transition_excluded=PASS exit_states=PASS surrender4=PASS exception100_104_rejected=PASS invalid_sequences=PASS CPU_POLICY_ONLY NO_GPU\n",modes,button_cases);

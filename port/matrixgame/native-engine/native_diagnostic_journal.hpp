@@ -32,7 +32,7 @@ public:
                 std::string_view detail={},std::int64_t result=0)noexcept;
     bool Metric(std::string_view name,std::uint64_t value)noexcept;
     std::uint64_t Begin(std::string_view operation);
-    bool End(std::uint64_t token,bool success,std::int64_t result=0)noexcept;
+    bool End(std::uint64_t token,bool success,std::int64_t result=0,bool cancelled=false)noexcept;
     bool Close()noexcept;
     bool Healthy()const noexcept;
     int Error()const noexcept;
@@ -62,8 +62,9 @@ private:Journal* journal_;
 class Operation {
 public:explicit Operation(std::string_view);~Operation();Operation(const Operation&)=delete;
     void Fail(std::int64_t result)noexcept{failed_=true;result_=result;}
+    void Cancel()noexcept{cancelled_=true;}
 private:Journal* journal_{};std::uint64_t token_{};int exceptions_{};
-    bool failed_{};std::int64_t result_{};
+    bool failed_{},cancelled_{};std::int64_t result_{};
 };
 void Record(std::string_view event,std::string_view operation,std::string_view detail={},std::int64_t result=0)noexcept;
 void Metric(std::string_view name,std::uint64_t value)noexcept;

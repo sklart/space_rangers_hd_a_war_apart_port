@@ -14,6 +14,12 @@ namespace srhd_awa::matrixgame::materials {
 // Shader validity does not by itself prove full native Init or a GPU frame.
 class DekoCombinerProgram {
 public:
+    // Borrowed binding. The draw packet must retain its backing through queue completion.
+    struct Binding {
+        DkGpuAddr address{DK_GPU_ADDR_INVALID};
+        bool has_vertex{};
+        std::array<DkResHandle,8> textures{};
+    };
     struct Packet {
         dk::UniqueMemBlock uniforms;
         bool has_vertex{};
@@ -28,6 +34,9 @@ public:
     // Packet, descriptor sets, textures and this program must outlive queue
     // completion; this does not steal another renderer's queue or submit it.
     void Bind(dk::CmdBuf,const Packet&)const;
+    Binding PrepareUniformSlice(Uniforms,const std::array<DkResHandle,8>&,const VertexUniforms*,bool,
+        const PixelFogUniforms*,std::uint32_t,std::span<std::byte>,DkGpuAddr)const;
+    void Bind(dk::CmdBuf,const Binding&)const;
 private:
     dk::Device device_;
     dk::UniqueMemBlock code_;

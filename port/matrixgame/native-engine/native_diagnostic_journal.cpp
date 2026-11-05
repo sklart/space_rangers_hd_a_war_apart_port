@@ -120,11 +120,11 @@ std::uint64_t Journal::Begin(std::string_view operation){
     if(!Emit("begin",operation,{},0,0))throw std::system_error(error_,std::generic_category(),"diagnostic begin flush");
     return stage.token;
 }
-bool Journal::End(std::uint64_t token,bool success,std::int64_t result)noexcept{
+bool Journal::End(std::uint64_t token,bool success,std::int64_t result,bool cancelled)noexcept{
     std::lock_guard lock(mutex_);
     if(!depth_ || stack_[depth_-1].token!=token){if(!error_)error_=EINVAL;return false;}
-    const auto& stage=stack_[depth_-1];const auto ok=Emit(success?"ok":"failed",stage.name.data(),{},result,Micros()-stage.started);
-    if(ok && success)last_ok_=stage.name;
+    const auto& stage=stack_[depth_-1];const auto ok=Emit(cancelled?"cancelled":success?"ok":"failed",stage.name.data(),{},result,Micros()-stage.started);
+    if(ok && success && !cancelled)last_ok_=stage.name;
     --depth_;return ok;
 }
 bool Journal::Healthy()const noexcept{std::lock_guard lock(mutex_);return file_ && !error_;}
@@ -142,7 +142,7 @@ Binding::~Binding(){auto* expected=journal_;if(!active.compare_exchange_strong(e
 Operation::Operation(std::string_view name):journal_(active.load()),exceptions_(std::uncaught_exceptions()){
     if(journal_)token_=journal_->Begin(name);
 }
-Operation::~Operation(){const bool unwind=exceptions_!=std::uncaught_exceptions();if(journal_)journal_->End(token_,!failed_ && !unwind,unwind && !failed_?std::numeric_limits<std::int64_t>::min():result_);}
+Operation::~Operation(){const bool unwind=exceptions_!=std::uncaught_exceptions();if(journal_)journal_->End(token_,!failed_ && !unwind,unwind && !failed_?std::numeric_limits<std::int64_t>::min():result_,cancelled_ && !failed_);}
 void Record(std::string_view event,std::string_view operation,std::string_view detail,std::int64_t result)noexcept{if(auto* journal=active.load())journal->Record(event,operation,detail,event=="exception" && !result?std::numeric_limits<std::int64_t>::min():result);}
 void Metric(std::string_view name,std::uint64_t value)noexcept{if(auto* journal=active.load())journal->Metric(name,value);}
 JournalIOStats CurrentIOStats()noexcept{if(auto* journal=active.load())return journal->Statistics();return {};}

@@ -32,6 +32,7 @@ public:
   last_present_=after;presentation_sampled_=true;
   return mode_==SessionMode::Quick && enough;
  }
+ bool HasControlledDeadline()const noexcept{return loop_ && mode_==SessionMode::Interactive;}
  std::uint64_t Frames()const noexcept{return control_.Frames();}
  bool ValidLoopReturn(int state)const noexcept{return Frames()>=MinimumFrames && (mode_==SessionMode::Quick?state==0:state>=0 && state<=4);}
  bool CountersDue()const noexcept{return mode_==SessionMode::Quick || Frames()<=MinimumFrames || Frames()%60==0;}

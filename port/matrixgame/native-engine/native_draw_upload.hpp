@@ -11,15 +11,16 @@
 namespace srhd_awa::matrixgame::platform3g {
 // One owned GPU block per draw for the former independent vertex/index and
 // descriptor blocks. Preserve page-sized slices, their budget and SDK alignment.
-// Uniforms and image owners remain in the caller's DrawPacket until completion.
+// A trailing page can also carry the uniforms. Image owners stay in DrawPacket.
 class NativeDrawUpload {
 public:
     static constexpr unsigned Slots=8;
+    static constexpr unsigned UniformBytes=DK_MEMBLOCK_ALIGNMENT;
     struct Layout {
-        std::uint32_t vertices{},indices{},samplers{},images{},bytes{};
+        std::uint32_t vertices{},indices{},samplers{},images{},bytes{},uniforms{};
         bool operator==(const Layout&)const=default;
     };
-    static Layout Plan(std::uint64_t vertex_bytes,std::uint64_t index_bytes){
+    static Layout Plan(std::uint64_t vertex_bytes,std::uint64_t index_bytes,bool with_uniforms=false){
         auto align=[](std::uint64_t bytes){
             if(!bytes || bytes>UINT32_MAX-(DK_MEMBLOCK_ALIGNMENT-1))throw std::length_error("native draw upload extent");
             return (bytes+DK_MEMBLOCK_ALIGNMENT-1)&~std::uint64_t(DK_MEMBLOCK_ALIGNMENT-1);
@@ -27,13 +28,15 @@ public:
         const auto indices=align(vertex_bytes);
         const auto samplers=indices+(index_bytes?align(index_bytes):0);
         const auto images=samplers+align(Slots*sizeof(DkSamplerDescriptor));
-        const auto bytes=images+align(Slots*sizeof(DkImageDescriptor));
+        const auto end_images=images+align(Slots*sizeof(DkImageDescriptor));
+        const auto bytes=end_images+(with_uniforms?UniformBytes:0);
         if(bytes>UINT32_MAX)throw std::length_error("native draw upload block extent");
-        return {0,std::uint32_t(indices),std::uint32_t(samplers),std::uint32_t(images),std::uint32_t(bytes)};
+        return {0,std::uint32_t(indices),std::uint32_t(samplers),std::uint32_t(images),std::uint32_t(bytes),
+            with_uniforms?std::uint32_t(end_images):0};
     }
     NativeDrawUpload()=default;
-    NativeDrawUpload(dk::UniqueMemBlock memory,std::span<const std::byte> vertices,std::span<const std::byte> indices)
-        :layout_(Plan(vertices.size(),indices.size())),memory_(std::move(memory)){
+    NativeDrawUpload(dk::UniqueMemBlock memory,std::span<const std::byte> vertices,std::span<const std::byte> indices,bool with_uniforms=false)
+        :layout_(Plan(vertices.size(),indices.size(),with_uniforms)),memory_(std::move(memory)){
         if(!memory_)throw std::bad_alloc();
         capacity_=memory_.getSize();
         if(capacity_<layout_.bytes)throw std::invalid_argument("short native draw upload block");
@@ -53,9 +56,18 @@ public:
     DkGpuAddr Indices(){return Address(layout_.indices);}
     DkGpuAddr Images(){return Address(layout_.images);}
     DkGpuAddr Samplers(){return Address(layout_.samplers);}
+    std::span<std::byte> UniformStorage(){
+        if(!memory_ || !layout_.uniforms)throw std::logic_error("native draw has no uniform storage");
+        return {cpu_+layout_.uniforms,UniformBytes};
+    }
+    DkGpuAddr UniformAddress(){
+        if(!layout_.uniforms)throw std::logic_error("native draw has no uniform storage");
+        return Address(layout_.uniforms);
+    }
     std::uint32_t StorageBytes()const noexcept{return memory_?capacity_:0;}
     dk::UniqueMemBlock TakeCompletedMemory()noexcept{capacity_=0;cpu_=nullptr;gpu_=0;return std::move(memory_);}
 private:
+    static_assert(UniformBytes%DK_UNIFORM_BUF_ALIGNMENT==0);
     static_assert(DK_MEMBLOCK_ALIGNMENT%DK_IMAGE_DESCRIPTOR_ALIGNMENT==0);
     static_assert(DK_MEMBLOCK_ALIGNMENT%DK_SAMPLER_DESCRIPTOR_ALIGNMENT==0);
     static_assert(sizeof(DkImageDescriptor)%DK_IMAGE_DESCRIPTOR_ALIGNMENT==0);

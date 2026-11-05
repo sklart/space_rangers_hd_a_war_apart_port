@@ -13,6 +13,7 @@
 #include "native_surfaces.hpp"
 #include "native_stored_state.hpp"
 #include "native_form_backend.hpp"
+#include <array>
 #include <functional>
 struct NWindow;
 namespace srhd_awa::matrixgame::platform3g {
@@ -130,12 +131,20 @@ public:
     void BeginNativeFrame(std::uint32_t clear_argb);
     void PresentNativeFrame();
     DeviceResult AbortNativeFrame()noexcept override;
+    enum class BlockKind : unsigned {Draw,CommandSpill,CommandFixed,Count};
+    static constexpr std::array<unsigned,5> BlockBucketLimits{16*1024,32*1024,64*1024,256*1024,1024*1024};
+    struct BlockBucket {
+        std::uint64_t requests{},requested_bytes{},reserved_bytes{},hits{},miss_no_fit{},miss_above_reuse_limit{},miss_over_pool_budget{};
+        ProfileTotals create;
+    };
     struct DiagnosticCounters {
         std::uint64_t buffer_allocations{},buffer_bytes_total{},recorded_draws{},queue_submissions{},presents{},session_uploads{};
         std::uint64_t batch_drains{},max_live_draw_packets{},max_live_draw_bytes{};
         std::uint64_t block_pool_hits{},block_pool_misses{},block_pool_bytes{},texture_pressure_events{};
         std::uint64_t block_pool_larger_hits{},upload_requested_bytes{},upload_reserved_bytes{};
         ProfileTotals draw_cpu,vertex_decode,block_create,residency,command_encode,batch_wait,state_validation;
+        std::array<std::array<BlockBucket,BlockBucketLimits.size()+1>,unsigned(BlockKind::Count)> blocks{};
+        ProfileTotals batch_gpu_wait,present_gpu_wait,abort_gpu_wait,acquire_gpu_wait;
         std::uint64_t texture_capacity{},texture_free{};
         std::uint64_t sdk_warnings{};
         bool queue_healthy{};
