@@ -38,6 +38,41 @@ int main(int argc,char** argv){
    if(copied){assert(l.bytes==before.levels[0].bytes && l.pitch==before.levels[0].pitch);}
    for(unsigned y=0;y<l.height;++y)for(unsigned x=0;x<l.width;++x)for(unsigned c=0;c<4;++c){unsigned expected=x<w && y<h?unsigned(before.levels[0].bytes[std::size_t(y)*before.levels[0].pitch+x*4+c]):before.clear_pixel[c];if(gamma && c<3){const double exponent=100000.0/(2.2*gamma);expected=unsigned(std::clamp(std::pow(expected/255.0,exponent)*255.0+.5,0.0,255.0));}assert(unsigned(l.bytes[std::size_t(y)*l.pitch+x*4+c])==expected);++oracle_pixels;}
   }
+  // Correct both supplied levels, then generate from the corrected second level.
+  auto supplied=Make(9,7,13,45000);
+  auto second=Make(4,3,13);
+  supplied.levels.push_back(second.levels.front());
+  Observe(supplied,[&]{supplied.PrepareMips(mg::TextureMipPolicy::CompleteBox);});
+  assert(supplied.levels.size()==5 && supplied.png_gamma==0);
+  const auto& input=second.levels.front();
+  const auto& corrected=supplied.levels[1];
+  const auto& generated=supplied.levels[2];
+  assert(corrected.width==8 && corrected.height==4);
+  assert(generated.width==4 && generated.height==2);
+  const double exponent=100000.0/(2.2*45000u);
+  for(unsigned y=0;y<corrected.height;++y) {
+    for(unsigned x=0;x<corrected.width;++x) {
+      for(unsigned c=0;c<4;++c) {
+        unsigned expected=x<input.width && y<input.height
+            ? unsigned(input.bytes[std::size_t(y)*input.pitch+x*4+c])
+            : supplied.clear_pixel[c];
+        if(c<3) expected=unsigned(std::clamp(std::pow(expected/255.0,exponent)*255.0+.5,0.0,255.0));
+        assert(unsigned(corrected.bytes[std::size_t(y)*corrected.pitch+x*4+c])==expected);
+        ++oracle_pixels;
+      }
+    }
+  }
+  for(unsigned y=0;y<generated.height;++y) {
+    for(unsigned x=0;x<generated.width;++x) {
+      for(unsigned c=0;c<4;++c) {
+        const auto offset=std::size_t(y)*2*corrected.pitch+x*8+c;
+        const unsigned sum=unsigned(corrected.bytes[offset])+unsigned(corrected.bytes[offset+4])+
+            unsigned(corrected.bytes[offset+corrected.pitch])+unsigned(corrected.bytes[offset+corrected.pitch+4]);
+        assert(unsigned(generated.bytes[std::size_t(y)*generated.pitch+x*4+c])==(sum+2)/4);
+        ++oracle_pixels;
+      }
+    }
+  }
   for(auto format:{mg::TextureFormat::BC1,mg::TextureFormat::BC2,mg::TextureFormat::BC3})for(unsigned w:{1u,4u,5u,9u})for(unsigned h:{1u,3u,5u})for(auto policy:{mg::TextureMipPolicy::OneLevel,mg::TextureMipPolicy::CompleteBox}){auto t=Make(w,h,16,0,format);Observe(t,[&]{t.PrepareMips(policy);});}
   for(unsigned budget:{0u,1u,512u,4096u,64u*1024*1024+1})for(unsigned count:{0u,1u,3u,32u}){auto t=Make(9,7,3,45000);Observe(t,[&]{t.PrepareMips(mg::TextureMipPolicy::CompleteBox,budget,count);});}
   for(unsigned kind=0;kind<6;++kind){auto t=Make(9,7,3);if(kind==0)t.levels.clear();if(kind==1)t.levels[0].width=0;if(kind==2)t.levels[0].pitch=1;if(kind==3)t.levels[0].bytes.resize(1);if(kind==4)t.format=mg::TextureFormat(99);if(kind==5)t.png_gamma=45000,t.format=mg::TextureFormat::BC1;Observe(t,[&]{t.PrepareMips(mg::TextureMipPolicy::CompleteBox);});}

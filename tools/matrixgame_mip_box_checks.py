@@ -1,4 +1,4 @@
-"""Compare frozen r36 and current mip preparation at O2: semantics and CPU timings."""
+"""Compare a frozen revision and current mip preparation on the CPU."""
 
 import io, zipfile, argparse, hashlib, json, re, subprocess, statistics
 from pathlib import Path
@@ -19,8 +19,27 @@ def linux(p):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("kind", choices=("host", "arm64", "windows", "benchmark"))
-    kind = ap.parse_args().kind
-    parent = ROOT / "build/matrixgame/e610-mip-box-r37-checks" / kind
+    ap.add_argument("--reference", default=FROZEN)
+    ap.add_argument("--run-name", default="e610-mip-box-r37-checks")
+    ap.add_argument(
+        "--benchmark-source", default="tests/benchmark_matrixgame_mip_copy.cpp"
+    )
+    args = ap.parse_args()
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", args.run_name):
+        ap.error("--run-name must be a single directory name")
+    reference = subprocess.check_output(
+        [
+            GIT,
+            "rev-parse",
+            "--verify",
+            "--end-of-options",
+            args.reference + "^{commit}",
+        ],
+        cwd=ROOT,
+        text=True,
+    ).strip()
+    kind = args.kind
+    parent = ROOT / "build/matrixgame" / args.run_name / kind
     parent.mkdir(parents=True, exist_ok=True)
     i = 1
     while (parent / str(i)).exists():
@@ -35,7 +54,7 @@ def main():
     tree = out / "frozen-tree"
     tree.mkdir()
     blob = subprocess.check_output(
-        [GIT, "archive", "--format=zip", FROZEN, "port/matrixgame"]
+        [GIT, "archive", "--format=zip", reference, "port/matrixgame"], cwd=ROOT
     )
     with zipfile.ZipFile(io.BytesIO(blob)) as archive:
         assert all(
@@ -46,7 +65,7 @@ def main():
         )
         archive.extractall(tree)
     test = (
-        "tests/benchmark_matrixgame_mip_copy.cpp"
+        args.benchmark_source
         if kind == "benchmark"
         else "tests/test_matrixgame_mip_copy.cpp"
     )
@@ -156,19 +175,20 @@ def main():
                 ("frozen", "candidate", "candidate", "frozen", "frozen", "candidate")
             ):
                 log = run(programs[variant], "runtime-" + variant + "-" + str(i))
-                m = {
-                    k: int(v)
-                    for k, v in re.findall(r"(copy_us|box_us|checksum)=(\d+)", log)
-                }
+                m = {k: int(v) for k, v in re.findall(r"\b(\w+_us|checksum)=(\d+)", log)}
                 measurements.append({"variant": variant, **m})
             assert len({m["checksum"] for m in measurements}) == 1
+            timing_keys = sorted(k for k in measurements[0] if k.endswith("_us"))
+            assert timing_keys and all(
+                set(m) == {"variant", "checksum", *timing_keys} for m in measurements
+            )
             j["measurements"] = measurements
             j["median_us"] = {
                 v: {
                     k: statistics.median(
                         m[k] for m in measurements if m["variant"] == v
                     )
-                    for k in ("copy_us", "box_us")
+                    for k in timing_keys
                 }
                 for v in programs
             }
@@ -183,7 +203,7 @@ def main():
             )
             assert "BC_ALIGNMENT cases=864" in j["alignment_stdout"]
         j["status"] = (
-            "PASS FROZEN R36/CANDIDATE CPU O2 COMPARISON; GUARDS RETAINED; HARDWARE_PENDING"
+            "PASS FROZEN/CANDIDATE CPU O2 COMPARISON; GUARDS RETAINED; HARDWARE_PENDING"
         )
     finally:
         paths = [
@@ -194,7 +214,7 @@ def main():
             "tools/matrixgame_mip_box_checks.py",
         ]
         j["source_sha256"] = {p: sha(ROOT / p) for p in paths}
-        j["frozen_commit"] = FROZEN
+        j["frozen_commit"] = reference
         j["frozen_cpp_sha256"] = sha(tree / current)
         j["shared_BC"] = {
             "path": str(bc.relative_to(ROOT)),

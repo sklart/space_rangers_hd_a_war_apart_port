@@ -67,14 +67,31 @@ void FillBC(TextureFormat format,const TextureLevel& source,TextureLevel& target
     EncodeBlock(format,target.bytes.data()+std::size_t(by)*target.pitch+bx*block_bytes,colors);
   }
 }
-void FillRGBA(const TextureLevel& source,TextureLevel& target,std::array<std::uint8_t,4> clear,bool box) {
+void FillRGBA(const TextureLevel& source,TextureLevel& target,std::array<std::uint8_t,4> clear,
+    bool box,const std::array<std::uint8_t,256>* gamma) {
   if(!box) {
     const auto width=std::min(source.width,target.width),height=std::min(source.height,target.height);
-    // Supplied rows are byte copies; only the added POT border uses clear_pixel.
+    if(gamma) {
+      for(unsigned channel=0;channel<3;++channel) clear[channel]=(*gamma)[clear[channel]];
+    }
     for(unsigned y=0;y<target.height;++y) {
       auto* row=target.bytes.data()+std::size_t(y)*target.pitch;
       const auto copied=y<height?width:0;
-      if(copied)std::memcpy(row,source.bytes.data()+std::size_t(y)*source.pitch,std::size_t(copied)*4);
+      if(copied) {
+        const auto* input=source.bytes.data()+std::size_t(y)*source.pitch;
+        if(gamma) {
+          // Correct RGB while copying each supplied pixel. Keep its original alpha.
+          for(unsigned x=0;x<copied;++x) {
+            const auto offset=std::size_t(x)*4;
+            row[offset]=std::byte((*gamma)[unsigned(input[offset])]);
+            row[offset+1]=std::byte((*gamma)[unsigned(input[offset+1])]);
+            row[offset+2]=std::byte((*gamma)[unsigned(input[offset+2])]);
+            row[offset+3]=input[offset+3];
+          }
+        } else {
+          std::memcpy(row,input,std::size_t(copied)*4);
+        }
+      }
       for(unsigned x=copied;x<target.width;++x)std::memcpy(row+std::size_t(x)*4,clear.data(),4);
     }
     return;
@@ -175,13 +192,11 @@ void TextureAsset::PrepareMips(TextureMipPolicy policy,std::size_t budget,std::u
       if(bytes>budget-used)throw std::length_error("mip replacement peak budget");used+=bytes;
       result[i]={w,h,std::uint32_t(row),std::vector<std::byte>(bytes)};
       const bool box=i>=levels.size();const auto& source=box?previous(i-1):levels[i];
-      if(format==TextureFormat::RGBA8)FillRGBA(source,result[i],clear_pixel,box);
-      else FillBC(format,source,result[i],clear_pixel,box);
-      // Supplied levels start in the PNG file's color space. Generated levels
-      // already use the corrected previous level, so never apply gamma twice.
-      if(png_gamma&&!box)for(unsigned y=0;y<h;++y)for(unsigned x=0;x<w;++x)for(unsigned c=0;c<3;++c) {
-        auto& value=result[i].bytes[std::size_t(y)*result[i].pitch+x*4+c];
-        value=std::byte(gamma_lut[std::to_integer<unsigned>(value)]);
+      if(format==TextureFormat::RGBA8) {
+        // Generated levels already use the corrected previous level.
+        FillRGBA(source,result[i],clear_pixel,box,png_gamma&&!box?&gamma_lut:nullptr);
+      } else {
+        FillBC(format,source,result[i],clear_pixel,box);
       }
     }
     w=std::max(1u,w/2);h=std::max(1u,h/2);
