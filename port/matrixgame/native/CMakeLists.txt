@@ -52,7 +52,7 @@ target_include_directories(matrixgame-rangers-government PRIVATE
   "${PORT_ROOT}/upstream/cpp/src" "${PORT_ROOT}/upstream/cpp/runtime")
 target_link_libraries(matrixgame-rangers-government PUBLIC matrixgame-engine-callbacks)
 target_compile_options(matrixgame-rangers-government PRIVATE ${SANITIZER_FLAGS})
-add_library(matrixgame-rangers-script STATIC rangers_script_session.cpp)
+add_library(matrixgame-rangers-script STATIC rangers_script_session.cpp rangers_world_shutdown.cpp)
 target_include_directories(matrixgame-rangers-script PUBLIC "${CMAKE_CURRENT_LIST_DIR}")
 target_include_directories(matrixgame-rangers-script PRIVATE
   "${PORT_ROOT}/upstream/cpp/src" "${PORT_ROOT}/upstream/cpp/runtime" "${PORT_ROOT}/port/switch/platform")
@@ -64,7 +64,7 @@ target_include_directories(matrixgame-rangers-galaxy-prerequisites PRIVATE
   "${PORT_ROOT}/upstream/cpp/src" "${PORT_ROOT}/upstream/cpp/runtime")
 target_link_libraries(matrixgame-rangers-galaxy-prerequisites PUBLIC matrixgame-rangers-script)
 target_compile_options(matrixgame-rangers-galaxy-prerequisites PRIVATE ${SANITIZER_FLAGS})
-add_library(matrixgame-rangers-global-ui STATIC rangers_global_ui_session.cpp)
+add_library(matrixgame-rangers-global-ui STATIC rangers_global_ui_session.cpp rangers_screen_loop.cpp)
 add_library(matrixgame-rangers-ui-context STATIC rangers_ui_context.cpp)
 add_library(matrixgame-rangers-native-input STATIC rangers_native_input.cpp)
 target_include_directories(matrixgame-rangers-native-input PUBLIC "${CMAKE_CURRENT_LIST_DIR}")
@@ -80,7 +80,7 @@ target_link_libraries(matrixgame-rangers-ui-context PUBLIC matrixgame-engine-cal
 target_compile_options(matrixgame-rangers-ui-context PRIVATE ${SANITIZER_FLAGS})
 target_include_directories(matrixgame-rangers-global-ui PUBLIC "${CMAKE_CURRENT_LIST_DIR}")
 target_include_directories(matrixgame-rangers-global-ui PRIVATE
-  "${PORT_ROOT}/upstream/cpp/src" "${PORT_ROOT}/upstream/cpp/runtime")
+  "${PORT_ROOT}/upstream/cpp/src" "${PORT_ROOT}/upstream/cpp/runtime" "${PORT_ROOT}/port/switch/platform")
 target_link_libraries(matrixgame-rangers-global-ui PUBLIC matrixgame-rangers-script)
 target_compile_options(matrixgame-rangers-global-ui PRIVATE ${SANITIZER_FLAGS})
 add_library(matrixgame-rangers-achievements STATIC rangers_achievement_session.cpp)

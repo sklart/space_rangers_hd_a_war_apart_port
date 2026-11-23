@@ -95,6 +95,31 @@ inline Classification classify(aGalaxy::TGalaxy* galaxy, aScript::TScript* scrip
     if (signed_value ? srhd_awa::platform::e2e4_script_value::FitsDiskInt(cell->IntValue)
                      : srhd_awa::platform::e2e4_script_value::FitsDiskDword(value))
         return {"NUMERIC", "scalar", 0};
+    // A script can retain a reference to a live ship owned by the galaxy
+    // without having a TScriptShip binding for it. Compare only with known
+    // live containers; the opaque value itself is never dereferenced.
+    for (std::int32_t si = 0; si < pas::list_count(galaxy->Stars); ++si) {
+        auto* star = pas::list_at<aGalaxy::TStar>(galaxy->Stars, si);
+        for (std::int32_t i = 0; star->Ships && i < pas::list_count(star->Ships); ++i) {
+            auto* ship = pas::list_at<aShip::TShip>(star->Ships, i);
+            if (reinterpret_cast<std::uintptr_t>(ship) != value) continue;
+            const auto id = static_cast<std::uint32_t>(ship->Id);
+            if (id && galaxy->IdToShip(id, false) == ship)
+                return {"STABLE_OBJECT_ID", "ship", id};
+            return {};
+        }
+        for (std::int32_t pi = 0; star->Planets && pi < pas::list_count(star->Planets); ++pi) {
+            auto* planet = pas::list_at<aPlanet::TPlanet>(star->Planets, pi);
+            for (std::int32_t i = 0; planet->Warriors && i < pas::list_count(planet->Warriors); ++i) {
+                auto* ship = pas::list_at<aShip::TShip>(planet->Warriors, i);
+                if (reinterpret_cast<std::uintptr_t>(ship) != value) continue;
+                const auto id = static_cast<std::uint32_t>(ship->Id);
+                if (id && galaxy->IdToShip(id, false) == ship)
+                    return {"STABLE_OBJECT_ID", "ship", id};
+                return {};
+            }
+        }
+    }
     if (auto* item = e2e515_item_references::Find(galaxy, value))
         return {"STABLE_OBJECT_ID", "item", static_cast<std::uint32_t>(item->Id)};
     return {};

@@ -6,6 +6,7 @@
 #include "units/EC_Mem.hpp"
 #include "units/EC_Cache.hpp"
 #include "units/GI_Main.hpp"
+#include "units/SysUtils.hpp"
 #include "units/GR_Main.hpp"
 #include "units/GR_GraphBuf.hpp"
 #include "units/GR_DX.hpp"
@@ -18,8 +19,10 @@
 #include "user_root.hpp"
 #include <codecvt>
 #include <locale>
+#include <filesystem>
 #include <stdexcept>
 #include <new>
+#include <algorithm>
 namespace srhd_awa::matrixgame {
 namespace renderer=srhd_awa::platform::renderer_platform;
 namespace {
@@ -30,7 +33,7 @@ template<class T>struct Saved {T& target;T old;explicit Saved(T& value):target(v
 struct SavedGlobals {
 #define KEEP(ns,name) Saved<decltype(ns::name)> name{ns::name};
  KEEP(GR_Main,UiStyleConfig) KEEP(GR_Main,GameDataConfig) KEEP(GR_Main,UiDepthConfig)
- KEEP(GR_Main,UserSettingsConfig) KEEP(GR_Main,NewGameSettingsConfig) KEEP(GR_Main,CCInterface)
+ KEEP(GR_Main,UserSettingsConfig) KEEP(GR_Main,NewGameSettingsConfig) KEEP(GR_Main,EditableSaveBlock) KEEP(GR_Main,CCInterface)
  KEEP(GR_Main,CachedGameUserDirectory)
  KEEP(GR_Main,GameScreenWidth) KEEP(GR_Main,GameScreenHeight) KEEP(GR_Main,GameScreenRect)
  KEEP(GR_Main,ExtraScreenWidth) KEEP(GR_Main,ExtraScreenHeight)
@@ -42,6 +45,12 @@ struct SavedGlobals {
  KEEP(GR_Main,Direct3DPresentParameters) KEEP(GR_Main,VSyncEnabled) KEEP(GR_Main,PresentWithoutLimit) KEEP(GR_Main,PresentationFrameRate)
  KEEP(GR_Main,BlendPixel16) KEEP(GR_Main,TriangleRasterizer16) KEEP(GR_Main,LineRasterizer16)
  KEEP(GlobalsV,ScaleViewportToWindow) KEEP(GlobalsV,HardwareRenderingEnabled)
+ KEEP(GlobalsV,HardwareRenderingRequested) KEEP(GlobalsV,ThreeDimensionalModeEnabled) KEEP(GlobalsV,MultiThreadEnabled)
+ KEEP(GlobalsV,SoundEnabled) KEEP(GlobalsV,SoundInSpaceEnabled) KEEP(GlobalsV,SoundVolume) KEEP(GlobalsV,RobotSoundVolume)
+ KEEP(GlobalsV,MusicEnabled) KEEP(GlobalsV,MusicInSpaceEnabled) KEEP(GlobalsV,MusicInHyperEnabled) KEEP(GlobalsV,MusicInPlanetEnabled)
+ KEEP(GlobalsV,MusicVolume) KEEP(GlobalsV,RobotMusicVolume)
+ KEEP(GR_Main,DisplayBrightness) KEEP(GR_Main,DisplayContrast) KEEP(GR_Main,RobotBrightness) KEEP(GR_Main,RobotContrast)
+ KEEP(GR_Main,PathGrowEnabled) KEEP(GR_Main,ShowSystemMouse)
  KEEP(GlobalsV,PlanetDepth) KEEP(GlobalsV,ShipPathDepth) KEEP(GlobalsV,ShipPathEndDepth)
  KEEP(GlobalsV,UnitPathDepth) KEEP(GlobalsV,UnitPathEndDepth) KEEP(GlobalsV,ActionButtonDepth)
  KEEP(GlobalsV,GalaxyStarDepth) KEEP(GlobalsV,GalaxyStarNameDepth) KEEP(GlobalsV,GalaxyWarDepth)
@@ -58,7 +67,7 @@ bool ScreensEmpty(){
 }
 void RequireIdle(){
  if(owned || renderer::IsInitialized() || GR_Main::CurrentPixelFormat || GR_Main::ScreenRenderBuffer || GR_Main::RenderScratchBuffer || GR_Main::AuxRenderBuffer ||
-    GR_Main::UserSettingsConfig || GR_Main::NewGameSettingsConfig || GR_Main::CCInterface || GR_Main::UiStyleConfig || GR_Main::GameDataConfig || GR_Main::UiDepthConfig ||
+    GR_Main::UserSettingsConfig || GR_Main::NewGameSettingsConfig || GR_Main::EditableSaveBlock || GR_Main::CCInterface || GR_Main::UiStyleConfig || GR_Main::GameDataConfig || GR_Main::UiDepthConfig ||
     GR_Main::InterfaceBlendPalette || GR_Main::FirstRegisteredCursor || GR_Main::LastRegisteredCursor ||
     Globals::TurnCalculationThread || aScript::ScriptRequestThread || aGalaxy::Galaxy || !ScreensEmpty() || GR_DX::PendingPoints.length() || GR_DX::PendingPointCount)
   throw std::logic_error("UI context requires cold unowned globals before script workers");
@@ -69,10 +78,50 @@ void CheckOptions(const RangersUiContextOptions& o){
     o.width<1024 || o.height<768 || o.width>16384 || o.height>16384 || o.presentation_width<=0 || o.presentation_height<=0 || o.presentation_width>16384 || o.presentation_height>16384)
   throw std::invalid_argument("invalid real UI config path or canvas geometry");
 }
+bool UserConfigExists(const char16_t* name){
+ const auto path=srhd_awa::platform::user_root::ResolveConfigPath(name);
+ if(path.empty())throw std::runtime_error("cannot resolve user configuration path");
+ std::error_code error;
+ const auto status=std::filesystem::status(std::filesystem::u8path(path),error);
+ if(error && error!=std::errc::no_such_file_or_directory)throw std::runtime_error("cannot inspect user configuration path");
+ if(error || !std::filesystem::exists(status))return false;
+ if(!std::filesystem::is_regular_file(status))throw std::runtime_error("user configuration is not a regular file");
+ return true;
+}
+bool Enabled(EC_BlockPar::TBlockParEC& settings,const char16_t* name,bool fallback){
+ if(!settings.CountParamsByPath(name))return fallback;
+ return GI_Main::ParseEnabledNameGI(pas::view(EC_Str::TrimWideString(settings.GetParamByPathOrMarker(name)))) != 0;
+}
+float Volume(EC_BlockPar::TBlockParEC& settings,const char16_t* name,float fallback){
+ if(!settings.CountParamsByPath(name))return std::clamp(fallback,0.0f,1.0f);
+ const auto value=SysUtils::StrToInt(static_cast<pas::AnsiString>(settings.GetParamByPathOrMarker(name)));
+ return std::clamp(static_cast<float>(value)/100.0f,0.0f,1.0f);
+}
+void ApplySettings(EC_BlockPar::TBlockParEC& settings){
+ auto decimal=[&](const char16_t* key,float& target){if(settings.CountParams(key))target=EC_Str::ParseDecimalToSingleW(settings.GetParamByPathOrMarker(key));};
+ decimal(u"Brightness",GR_Main::DisplayBrightness);decimal(u"Contrast",GR_Main::DisplayContrast);
+ decimal(u"RobotBrightness",GR_Main::RobotBrightness);decimal(u"RobotContrast",GR_Main::RobotContrast);
+ GlobalsV::ThreeDimensionalModeEnabled=Enabled(settings,u"3D",GlobalsV::ThreeDimensionalModeEnabled);
+ GlobalsV::MultiThreadEnabled=Enabled(settings,u"MultiThread",GlobalsV::MultiThreadEnabled);
+ GR_Main::PathGrowEnabled=Enabled(settings,u"PathGrow",true);GR_Main::ShowSystemMouse=Enabled(settings,u"ShowSystemMouse",false);
+ // The host may intentionally provide no audio device/music worker. A config
+ // cannot enable a service that was not constructed by that owner.
+ GlobalsV::SoundEnabled=GlobalsV::SoundEnabled && Enabled(settings,u"Sound",true);
+ GlobalsV::MusicEnabled=GlobalsV::MusicEnabled && Enabled(settings,u"Music",true);
+ GlobalsV::SoundInSpaceEnabled=Enabled(settings,u"SoundInSpace",GlobalsV::SoundInSpaceEnabled);
+ GlobalsV::MusicInSpaceEnabled=Enabled(settings,u"MusicInSpace",GlobalsV::MusicInSpaceEnabled);
+ GlobalsV::MusicInHyperEnabled=Enabled(settings,u"MusicInHyper",GlobalsV::MusicInHyperEnabled);
+ GlobalsV::MusicInPlanetEnabled=Enabled(settings,u"MusicInPlanet",GlobalsV::MusicInPlanetEnabled);
+ GlobalsV::SoundVolume=Volume(settings,u"SoundVolume",GlobalsV::SoundVolume);
+ GlobalsV::RobotSoundVolume=Volume(settings,u"RobotSoundVolume",GlobalsV::RobotSoundVolume);
+ GlobalsV::MusicVolume=Volume(settings,u"MusicVolume",GlobalsV::MusicVolume);
+ GlobalsV::RobotMusicVolume=Volume(settings,u"RobotMusicVolume",GlobalsV::RobotMusicVolume);
+ GlobalsV::HardwareRenderingRequested=Enabled(settings,u"HardwareRender",false);
+}
 }
 struct RangersUiContext::Impl {
  SavedGlobals saved;
- Owner<EC_BlockPar::TBlockParEC> user,new_game;
+ Owner<EC_BlockPar::TBlockParEC> user,new_game,editable_save;
  Owner<GR_Main::TCCInterface> state;
  bool renderer_owned{},palette_owned{},ready{};
  GR_GraphBuf::TPixelFormatGR* pixel{};
@@ -87,11 +136,15 @@ struct RangersUiContext::Impl {
    GR_Main::CachedGameUserDirectory=pas::WideString(std::u16string_view(wide));
    user.reset(pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create));
    new_game.reset(pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create));
-   const pas::WideString path(std::u16string_view(o.settings_path));user->LoadFromTextFileWithEncodingProbe(path.pchar(),false);
+   editable_save.reset(pas::construct_call<EC_BlockPar::TBlockParEC>(EC_BlockPar::TBlockParEC_Create));
+   const bool user_settings=o.settings_path==u"CFG.TXT" && UserConfigExists(u"CFG.TXT");
+   const pas::WideString path(std::u16string_view(user_settings?wide+u"CFG.TXT":o.settings_path));user->LoadFromTextFileWithEncodingProbe(path.pchar(),user_settings);
    if(user->GetParamCount()<=0)throw std::runtime_error("original UI settings config is empty");
    if(!o.new_game_settings_path.empty()){const pas::WideString path(std::u16string_view(o.new_game_settings_path));new_game->LoadFromTextFileWithEncodingProbe(path.pchar(),false);}
+   else if(UserConfigExists(u"newgame.txt")){const pas::WideString path(std::u16string_view(wide+u"newgame.txt"));new_game->LoadFromTextFileWithEncodingProbe(path.pchar(),true);}
    state.reset(pas::construct_call<GR_Main::TCCInterface>(GR_Main::TCCInterface_Create));
-   GR_Main::UserSettingsConfig=user.get();GR_Main::NewGameSettingsConfig=new_game.get();GR_Main::CCInterface=state.get();
+   GR_Main::UserSettingsConfig=user.get();GR_Main::NewGameSettingsConfig=new_game.get();GR_Main::EditableSaveBlock=editable_save.get();GR_Main::CCInterface=state.get();
+   ApplySettings(*user);
    GR_Main::UiStyleConfig=GR_Main::MainDataConfig->GetBlockByPath(u"ML"_wref.get());
    GR_Main::GameDataConfig=GR_Main::MainDataConfig->GetBlockByPath(u"Data"_wref.get());
    GR_Main::UiDepthConfig=GR_Main::MainDataConfig->GetBlockByPath(u"ZPos"_wref.get());
@@ -102,7 +155,8 @@ struct RangersUiContext::Impl {
    DEPTH(GalaxyStarDepth,"GalaxyStar") DEPTH(GalaxyStarNameDepth,"GalaxyStarName") DEPTH(GalaxyWarDepth,"GalaxyWar")
    DEPTH(ConstellationLineDepth,"ConstellationLine") DEPTH(ConstellationColorDepth,"ConstellationColor")
 #undef DEPTH
-   renderer::RendererConfig config;config.game_width=o.width;config.game_height=o.height;config.presentation_width=o.presentation_width;config.presentation_height=o.presentation_height;config.frame_limit=false;
+   renderer::RendererConfig config;config.game_width=o.width;config.game_height=o.height;config.presentation_width=o.presentation_width;config.presentation_height=o.presentation_height;
+   config.vsync=Enabled(*user,u"VSync",false);config.scale_viewport=Enabled(*user,u"RenderModeScale",true);config.frame_limit=!Enabled(*user,u"DisableFrameLimit",false);
    if(GR_Main::GameDataConfig->CountParams(u"MiniMapBufSize"_wref.get()))config.minimap_buffer_size=EC_Str::ExtractDigitsToIntW(pas::view(GR_Main::GameDataConfig->GetParam(u"MiniMapBufSize"sv)));
    std::string error;if(!renderer::InitializeSoftwareRenderer(config,&error))throw std::runtime_error(error);renderer_owned=true;pixel=GR_Main::CurrentPixelFormat;
    GR_Main::ScreenCenterX=o.width/2;GR_Main::ScreenCenterY=o.height/2;GR_Main::Direct3DPresentParameters.Windowed=true;
@@ -115,14 +169,14 @@ struct RangersUiContext::Impl {
  }
  void Clear()noexcept{
   if(Globals::TurnCalculationThread || aScript::ScriptRequestThread || aGalaxy::Galaxy || !ScreensEmpty())std::terminate();
-  if(ready && (!owned || GR_Main::UserSettingsConfig!=user.get() || GR_Main::CCInterface!=state.get() || GR_Main::NewGameSettingsConfig!=new_game.get() || GR_Main::CurrentPixelFormat!=pixel))std::terminate();
+  if(ready && (!owned || GR_Main::UserSettingsConfig!=user.get() || GR_Main::CCInterface!=state.get() || GR_Main::NewGameSettingsConfig!=new_game.get() || GR_Main::EditableSaveBlock!=editable_save.get() || GR_Main::CurrentPixelFormat!=pixel))std::terminate();
   try{
    while(GR_Main::FirstRegisteredCursor)GR_Main::RemoveCursorUnit(GR_Main::FirstRegisteredCursor);
    if(palette_owned){EC_Mem::FreeEC(GR_Main::InterfaceBlendPalette);GR_Main::InterfaceBlendPalette=nullptr;palette_owned=false;}
    if(renderer_owned){GR_Main::GlobalCache->TrimToBudget(0);renderer::ShutdownSoftwareRenderer();renderer_owned=false;}
-   GR_Main::UserSettingsConfig=nullptr;GR_Main::NewGameSettingsConfig=nullptr;GR_Main::CCInterface=nullptr;
+   GR_Main::UserSettingsConfig=nullptr;GR_Main::NewGameSettingsConfig=nullptr;GR_Main::EditableSaveBlock=nullptr;GR_Main::CCInterface=nullptr;
    GR_Main::UiStyleConfig=nullptr;GR_Main::GameDataConfig=nullptr;GR_Main::UiDepthConfig=nullptr;
-   state.reset();new_game.reset();user.reset();ready=false;owned=false;
+   state.reset();editable_save.reset();new_game.reset();user.reset();ready=false;owned=false;
   }catch(...){std::terminate();}
  }
  ~Impl(){Clear();}

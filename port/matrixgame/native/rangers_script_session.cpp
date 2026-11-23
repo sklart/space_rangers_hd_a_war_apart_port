@@ -39,6 +39,8 @@ void RequireUnbound(){
 }
 struct RangersScriptSession::Impl {
  srhd_awa::platform::script_arrays::Scope arrays;
+ decltype(aScript::ScriptRequestThread) request_worker{};
+ bool request_bound{};
  EC_Expression::TScriptStepCallback callback=EC_Expression::ScriptStepCallback;
  int interval=EC_Expression::ScriptStepInterval;
  decltype(EC_Expression::ScriptCallTrace) trace=EC_Expression::ScriptCallTrace;
@@ -48,6 +50,7 @@ struct RangersScriptSession::Impl {
   RequireUnbound();
   try{
    Globals::InitializeScriptHostRuntime();
+   request_worker=aScript::ScriptRequestThread;request_bound=true;
    if(!Globals::TalkRequestEvent || !Globals::TalkCompletedEvent || !Globals::ScriptUiRequestEvent || !Globals::ScriptUiAbortEvent ||
       !Globals::TurnCalculationThread || !Globals::TurnCalculationThread->ThreadHandle || !aPath::PathInitialBlock || !aPath::PathNodeHeap ||
       !aScript::ScriptProcess || !aScript::ScriptFunctionScope || !Globals::GlobalScriptVariables || !Globals::SharedScriptVariables ||
@@ -60,11 +63,12 @@ struct RangersScriptSession::Impl {
  }
  void Clear()noexcept{
   if(aGalaxy::Galaxy || aScript::CurrentScript)std::terminate();
+  if(request_bound && aScript::ScriptRequestThread!=request_worker)std::terminate();
   try{
    // Builtin registration also owns a request worker and twelve containers.
    // Original FinalizeScriptEngine only releases the VM and function scope.
    // Join the real worker before releasing its queues, VM, or host events.
-   pas::free(aScript::ScriptRequestThread);aScript::ScriptRequestThread=nullptr;
+   pas::free(aScript::ScriptRequestThread);aScript::ScriptRequestThread=nullptr;request_worker=nullptr;
    if(aScript::QueuedTextQuests && aScript::QueuedArcadeBattles && aScript::QueuedPlanetaryBattles && aScript::QueuedVideos && aScript::StagedArcadeShips)
     aScript::ClearPendingScriptRequests();
    pas::free(aScript::StagedArcadeShips);aScript::StagedArcadeShips=nullptr;
@@ -84,7 +88,15 @@ struct RangersScriptSession::Impl {
   EC_Expression::ScriptCallTrace=trace;EC_Expression::ScriptCallTracePosition=trace_position;EC_Expression::ScriptCallTraceCount=trace_count;
  }
  ~Impl(){Clear();}
+ void StopRequestWorker(){
+  // Its Execute path reads the live player and registered screens. The
+  // caller must stop new dispatch before joining, and must keep those owners
+  // alive until this returns. TThreadEC destruction performs the real join.
+  if(aScript::ScriptRequestThread!=request_worker)throw std::logic_error("script request worker owner changed");
+  pas::free(request_worker);request_worker=nullptr;aScript::ScriptRequestThread=nullptr;
+ }
 };
 RangersScriptSession::RangersScriptSession():impl_(std::make_unique<Impl>()){}
 RangersScriptSession::~RangersScriptSession()=default;
+void RangersScriptSession::StopRequestWorker(){impl_->StopRequestWorker();}
 }

@@ -2,6 +2,8 @@
 #include <functional>
 #include <unordered_set>
 #include "types/aRuins.hpp"
+#include "types/fEquipmentShop.hpp"
+#include "units/fEquipmentShop.hpp"
 
 namespace srhd_awa::platform::e2e515_item_references {
 // Compare an opaque script value only against owned live objects. Never cast
@@ -34,6 +36,11 @@ inline aItem::TItem* Find(aGalaxy::TGalaxy* galaxy, std::uintptr_t value) {
     for (int i = 0; !found && i < count(galaxy->Stars); ++i) {
         auto* star = pas::list_at<aGalaxy::TStar>(galaxy->Stars, i);
         list(star->Items);
+        for (int j = 0; !found && j < count(star->MovingDropItems); ++j) {
+            auto* drop = pas::list_at<aGalaxy::TMovingDropItemEntry>(star->MovingDropItems, j);
+            if (drop && drop->Payload)
+                item(pas::class_cast_if<aItem::TItem*>(drop->Payload));
+        }
         for (int j = 0; !found && j < count(star->Ships); ++j)
             ship(pas::list_at<aShip::TShip>(star->Ships, j));
         for (int j = 0; !found && j < count(star->Planets); ++j) {
@@ -44,6 +51,10 @@ inline aItem::TItem* Find(aGalaxy::TGalaxy* galaxy, std::uintptr_t value) {
             for (int k = 0; !found && k < count(planet->SurfaceLootEntries); ++k)
                 if (auto* loot = pas::list_at<aPlanet::TPlanetSurfaceLootEntry>(planet->SurfaceLootEntries, k)) item(loot->Item);
         }
+    }
+    for (int i = 0; !found && i < count(fEquipmentShop::TemporaryShopSlots); ++i) {
+        auto* slot = pas::list_at<fEquipmentShop::TShopSlot>(fEquipmentShop::TemporaryShopSlots, i);
+        if (slot) item(slot->Item);
     }
     for (int i = 0; !found && i < count(galaxy->StoredItems); ++i)
         item(pas::checked_cast<aItem::TItem*>(pas::list_at<aGalaxy::TStoredItem>(galaxy->StoredItems, i)->Item));

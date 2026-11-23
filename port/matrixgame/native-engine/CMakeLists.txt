@@ -690,6 +690,42 @@ if(MATRIXGAME_BUILD_RANGERS_RUN)
         target_sources(matrixgame-native-rangers-interface PRIVATE rangers_legacy_presentation_win32.cpp)
     endif()
     target_link_libraries(matrixgame-native-rangers-interface PUBLIC matrixgame-native-rangers-run)
+    if(MATRIXGAME_DEVKITPRO)
+        # Shared production owners only; the original screen loop and the
+        # executable entry are supplied by the integrating application.
+        add_library(matrixgame-rangers-integrated-session STATIC rangers_integrated_session.cpp)
+        target_compile_features(matrixgame-rangers-integrated-session PRIVATE cxx_std_20)
+        target_include_directories(matrixgame-rangers-integrated-session PRIVATE
+            "${PORT_ROOT}/port/switch/platform")
+        target_link_libraries(matrixgame-rangers-integrated-session PUBLIC
+            matrixgame-native-rangers-interface matrixgame-rangers-ui-context
+            matrixgame-rangers-native-input matrixgame-rangers-global-ui
+            matrixgame-rangers-achievements)
+        option(MATRIXGAME_BUILD_INTEGRATED_APP "Link the experimental integrated Switch application (hardware not verified)" OFF)
+        option(MATRIXGAME_INTEGRATED_ISOLATED_TEST "Use an isolated profile and logs for the experimental application" ON)
+        set(MATRIXGAME_INTEGRATED_OUTPUT_NAME "matrixgame-integrated-app" CACHE STRING "Integrated ELF basename")
+        if(MATRIXGAME_BUILD_INTEGRATED_APP)
+            if(NOT EXISTS "${BRIDGE_RANGERS_HOST_ARCHIVE}" OR NOT EXISTS "${BRIDGE_RANGERS_OKGF_ARCHIVE}" OR NOT EXISTS "${BRIDGE_RANGERS_SOFTFLOAT_ARCHIVE}")
+                message(FATAL_ERROR "Integrated application requires verified Rangers, OKGF and softfloat SDK archives")
+            endif()
+            if(NOT MATRIXGAME_INTEGRATED_OUTPUT_NAME MATCHES "^[A-Za-z0-9_.-]+$")
+                message(FATAL_ERROR "Integrated ELF basename must not contain a path")
+            endif()
+            add_executable(matrixgame-integrated-app rangers_switch_main.cpp)
+            if(MATRIXGAME_INTEGRATED_ISOLATED_TEST)
+                target_compile_definitions(matrixgame-integrated-app PRIVATE MATRIXGAME_ISOLATED_TEST)
+            endif()
+            target_compile_features(matrixgame-integrated-app PRIVATE cxx_std_20)
+            target_include_directories(matrixgame-integrated-app PRIVATE "${PORT_ROOT}/port/switch/platform")
+            target_link_directories(matrixgame-integrated-app PRIVATE "${MATRIXGAME_DEVKITPRO}/libnx/lib" "${MATRIXGAME_DEVKITPRO}/portlibs/switch/lib")
+            target_link_libraries(matrixgame-integrated-app PRIVATE
+                -Wl,--start-group matrixgame-rangers-integrated-session matrixgame-native-cache
+                "${BRIDGE_RANGERS_HOST_ARCHIVE}" "${BRIDGE_RANGERS_OKGF_ARCHIVE}" "${BRIDGE_RANGERS_SOFTFLOAT_ARCHIVE}"
+                png z jpeg vorbisfile vorbis ogg m SDL2 EGL glapi drm_nouveau nx pthread -Wl,--end-group)
+            target_link_options(matrixgame-integrated-app PRIVATE "-specs=${MATRIXGAME_DEVKITPRO}/libnx/switch.specs" -fPIE -Wl,--gc-sections -Wl,--build-id=sha1)
+            set_target_properties(matrixgame-integrated-app PROPERTIES OUTPUT_NAME "${MATRIXGAME_INTEGRATED_OUTPUT_NAME}" SUFFIX ".elf")
+        endif()
+    endif()
 endif()
 if(BUILD_TESTING OR NAVIGATION_BUILD_LINK_PROBE)
     add_executable(matrixgame-native-navigation-test "${PORT_ROOT}/tests/test_matrixgame_navigation.cpp")

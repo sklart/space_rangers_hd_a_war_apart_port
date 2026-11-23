@@ -2,9 +2,12 @@
 #include "native_rangers_interface.hpp"
 #include "native_rangers_support.hpp"
 #include "native_rangers_services.hpp"
+#include "rangers_exception_boundary.hpp"
 #include "engine_callbacks.hpp"
 #include "MatrixGame.h"
 #include "MatrixMap.hpp"
+#include "CException.hpp"
+#include "utils.hpp"
 #include "units/Robot.hpp"
 #include <stdexcept>
 #ifdef __SWITCH__
@@ -84,6 +87,8 @@ std::int32_t PAS_STDCALL NativeRangersInterface::Support(){return ClassifyRanger
 std::int32_t PAS_STDCALL NativeRangersInterface::Run(std::uint32_t module,std::uint32_t window,char16_t* map,
  Robot::PRobotDisplaySettings settings,char16_t* language,char16_t* start,char16_t* win,char16_t* loss,
  char16_t* planet,aGalaxyStruct::PPlanetBattleStatistics output){
+ return TranslateRangersExceptions([&]() -> std::int32_t {
+  try {
  auto& state=Current();if(!state.callbacks || !state.services)throw std::logic_error("native Robot Run before Initialize");
  if(state.running)throw std::logic_error("recursive native Robot interface Run");
 #ifdef __SWITCH__
@@ -93,5 +98,13 @@ std::int32_t PAS_STDCALL NativeRangersInterface::Run(std::uint32_t module,std::u
  const auto supported=Support();if(supported!=SUPE_OK)throw platform3g::Unsupported("native Robot Run renderer support code "+std::to_string(supported));
  state.running=true;struct Running{bool& value;~Running(){value=false;}} running{state.running};
  return state.run->Entry()(module,window,map,settings,language,start,win,loss,planet,output);
+  } catch(const Base::CException& error) {
+   // MatrixGame's own exception hierarchy does not derive from std::exception.
+   // The native stack has unwound; preserve its diagnostic for the original
+   // Robot/Gov Pascal handlers so they can restore the campaign snapshot.
+   const auto message=utils::from_wstring(error.Info());
+   pas::raise(pas::make_exception<pas::Exception>(pas::AnsiString(message.c_str())));
+  }
+ });
 }
 }

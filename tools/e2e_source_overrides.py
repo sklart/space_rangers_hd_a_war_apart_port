@@ -11,6 +11,8 @@ if __package__:
     from .e2e59_overrides import film_history, film_index, star_map, turn_profile
     from .e2e510_overrides import apply as apply_followup
     from .e2e511_overrides import apply as apply_input_followup
+    from .matrixgame_save_buffer_ownership import apply as apply_save_buffer_ownership
+    from .matrixgame_snapshot_preparation import apply as apply_snapshot_preparation
 else:
     from e2e56_cache_overrides import apply as apply_cache_safety
     from e2e56_geometry_overrides import apply as apply_geometry_reuse
@@ -18,6 +20,8 @@ else:
     from e2e59_overrides import film_history, film_index, star_map, turn_profile
     from e2e510_overrides import apply as apply_followup
     from e2e511_overrides import apply as apply_input_followup
+    from matrixgame_save_buffer_ownership import apply as apply_save_buffer_ownership
+    from matrixgame_snapshot_preparation import apply as apply_snapshot_preparation
 
 
 def _replace_exact(text: str, old: str, new: str, count: int, source_name: str) -> str:
@@ -2941,6 +2945,13 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
                         static_cast<pas::AnsiString>(FileName)}));
                 }
 #endif''', 1)
+        text = apply_save_buffer_ownership(text)
+        text = apply_snapshot_preparation(text)
+        if __package__:
+            from .matrixgame_save_commit_wait import apply as apply_save_commit_wait
+        else:
+            from matrixgame_save_commit_wait import apply as apply_save_commit_wait
+        text = apply_save_commit_wait(text)
         replacements = {
             "std::uint32_t MemorySnapshotGalaxyToken{};":
                 "std::uint32_t MemorySnapshotGalaxyToken{};\n"
@@ -3546,6 +3557,11 @@ std::uint16_t E2E5ScreenIdOrNone(const pas::Object* screen) {
     else:
         from matrixgame_native_ui_input_overrides import apply as native_ui_input
     text = native_ui_input(source.name, text)
+    if __package__:
+        from .matrixgame_gov_autosave_guard import apply as gov_autosave_guard
+    else:
+        from matrixgame_gov_autosave_guard import apply as gov_autosave_guard
+    text = gov_autosave_guard(source.name, text)
     destination.parent.mkdir(parents=True, exist_ok=True)
     if not destination.exists() or destination.read_text(encoding="utf-8") != text:
         destination.write_text(text, encoding="utf-8")
