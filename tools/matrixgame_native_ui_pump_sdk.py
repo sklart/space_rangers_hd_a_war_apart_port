@@ -5,6 +5,7 @@ from matrixgame_standard_nro_audit import ROOT,read,sha,check_hashes
 from matrixgame_legacy_wav_sdk_dependency import members
 from e2e4_script_width_overrides import prepare_script_source_overlay
 from e2e_source_overrides import generated_source
+import e2e_arm64_build
 
 def main():
  parent=ROOT/'build/matrixgame/e2e610-native-ui-pump/sdk';parent.mkdir(parents=True,exist_ok=True);i=1
@@ -24,7 +25,13 @@ def main():
   caller=compile_own(ROOT/'port/matrixgame/native-engine/rangers_caller_presentation.cpp','native_rangers_interface.cpp',out/'rangers_caller_presentation.cpp.obj')
   ar='C:/devkitPro/devkitA64/bin/aarch64-none-elf-ar.exe';cache=out/'libmatrixgame-native-cache.a';shutil.copyfile(reference/'libmatrixgame-native-cache.a',cache);run([ar,'rs',cache,*cache_objects],'replace-native-input-window');before=members(reference/'libmatrixgame-native-cache.a');after=members(cache);assert set(before)==set(after);assert sorted(k for k in before if before[k]!=after[k])==sorted(p.name for p in cache_objects)
   old_interface=ROOT/'build/matrixgame/e2e606-caller-presentation/sdk/2/libmatrixgame-native-rangers-interface.a';interface=out/'libmatrixgame-native-rangers-interface.a';shutil.copyfile(old_interface,interface);run([ar,'rs',interface,caller,factory],'integrate-caller-input-factory')
-  overlay=out/'source-overlay';prepare_script_source_overlay(ROOT/'upstream/cpp/src',overlay);grmain=out/'GR_Main.cpp';assert generated_source(overlay/'GR_Main.cpp',grmain,audio_on=True,e2e5_profile=True,script_width=True)==grmain;assert 'rangers_ui_input::installed' in grmain.read_text(encoding='utf-8')
+  overlay=out/'source-overlay';prepare_script_source_overlay(ROOT/'upstream/cpp/src',overlay)
+  previous_build=e2e_arm64_build.BUILD
+  try:
+   e2e_arm64_build.BUILD=out/'portable-source';patched=e2e_arm64_build.prepare_patched_sources()['GR_Main.cpp']
+  finally:e2e_arm64_build.BUILD=previous_build
+  grmain=out/'GR_Main.cpp';assert generated_source(patched,grmain,audio_on=True,e2e5_profile=True,script_width=True)==grmain
+  grmain_text=grmain.read_text(encoding='utf-8');assert 'rangers_ui_input::installed' in grmain_text and 'renderer_platform::PresentRgb565' in grmain_text
   flags=read(ROOT/'build/matrixgame/e2e572-rangers-host-sdk/fresh/upstream/GR_Main.build.json')['inputs']['flags'];grmain_obj=out/'GR_Main.o';run([flags['compiler'],*flags['flags'],'-c',grmain,'-o',grmain_obj],'compile-production-GR_Main');sources.append(grmain)
   portable_flags=read(ROOT/'build/matrixgame/e2e572-rangers-host-sdk/fresh/platform/win32_compat_messages.build.json')['inputs']['flags'];portable=[]
   for name in ('win32_compat_messages','win32_compat_gdi','win32_compat_window'):

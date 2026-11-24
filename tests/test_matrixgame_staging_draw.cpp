@@ -15,10 +15,20 @@ int main(){
     {auto* p=static_cast<float*>(vertex->Map(0,48));for(int i=0;i<12;++i)p[i]=float(i);vertex->Unmap();}
     {auto* p=static_cast<std::uint16_t*>(index->Map(0,8));for(int i=0;i<4;++i)p[i]=i;index->Unmap();}
     context.BindVertex(vertex,0,16);context.BindIndex(index);
+    staging_draw::VertexRange(context.Vertex(),0,3);
+    staging_draw::VertexRange(context.Vertex(),3,0);
+    Refused([&]{staging_draw::VertexRange(context.Vertex(),0,4);});
+    Refused([&]{staging_draw::VertexRange(context.Vertex(),3,2);});
+    vertex->Map(0,16);Refused([&]{staging_draw::VertexRange(context.Vertex(),0,1);});vertex->Unmap();
     staging_draw::ValidateIndexed(context,4,0,0,3,0,1);
+    {auto* p=static_cast<std::uint16_t*>(index->Map(0,8));p[0]=1;p[1]=1;p[2]=1;p[3]=3;index->Unmap();}
+    staging_draw::ValidateIndexed(context,4,0,0,3,0,1);
+    Refused([&]{staging_draw::ValidateIndexed(context,5,0,0,4,0,2);});
+    {auto* p=static_cast<std::uint16_t*>(index->Map(0,8));for(int i=0;i<4;++i)p[i]=i;index->Unmap();}
     Refused([&]{staging_draw::ValidateIndexed(context,5,0,0,4,0,2);}); // Fourth vertex is unpublished.
     {auto* p=static_cast<float*>(vertex->Map(48,16));for(int i=0;i<4;++i)p[i]=float(i+12);vertex->Unmap();}
     staging_draw::ValidateIndexed(context,5,0,0,4,0,2);
+    staging_draw::VertexRange(context.Vertex(),1,3);
     staging_draw::ValidateIndexed(context,4,0,1,3,1,1);
     Refused([&]{staging_draw::ValidateIndexed(context,4,-1,0,3,0,1);});
     Refused([&]{staging_draw::ValidateIndexed(context,4,0,1,3,0,1);});

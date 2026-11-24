@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 #pragma once
 #include "buffer_resources.hpp"
+#include <array>
 #include <cstring>
 namespace srhd_awa::matrixgame::staging_draw {
 inline std::uint64_t ElementCount(std::uint32_t kind,std::uint32_t primitives){
@@ -21,6 +22,19 @@ inline void Vertex(const buffers::VertexBinding& binding,std::int64_t index){
     const auto offset=std::uint64_t(binding.offset)+std::uint64_t(index)*binding.stride;
     if(offset>binding.buffer->Size() || !binding.buffer->Initialized(static_cast<std::size_t>(offset),binding.stride))
         throw std::out_of_range("staging draw references uninitialized vertex");
+}
+// Consecutive vertices occupy one contiguous initialized range. Keep the
+// original per-vertex validation for invalid or partially initialized input.
+inline void VertexRange(const buffers::VertexBinding& binding,std::uint64_t start,std::uint64_t count){
+    if(!count)return;
+    if(binding.buffer && !binding.buffer->Locked() && binding.stride && binding.offset<=binding.buffer->Size()){
+        const auto available=(binding.buffer->Size()-binding.offset)/binding.stride;
+        if(start<=available && count<=available-start){
+            const auto offset=std::uint64_t(binding.offset)+start*binding.stride;
+            if(binding.buffer->Initialized(static_cast<std::size_t>(offset),static_cast<std::size_t>(count*binding.stride)))return;
+        }
+    }
+    for(std::uint64_t i=0;i<count;++i)Vertex(binding,static_cast<std::int64_t>(start+i));
 }
 inline void ValidateIndexed(const buffers::Context& context,std::uint32_t topology,int base,
     std::uint32_t minimum,std::uint32_t vertices,std::uint32_t start,std::uint32_t primitives){
@@ -56,12 +70,15 @@ inline void ValidateIndexed(const buffers::Context& context,std::uint32_t topolo
         }
     };
     const VertexCoverage coverage(binding);
-    for(std::uint64_t item=0;item<count;++item){
-        std::uint32_t value{};
-        if(width==2){std::uint16_t short_value;std::memcpy(&short_value,bytes.data()+first+item*width,2);value=short_value;}
-        else std::memcpy(&value,bytes.data()+first+item*width,4);
-        if(value<minimum || std::uint64_t(value)-minimum>=vertices)throw std::out_of_range("staging index outside declared vertex range");
-        coverage.Require(std::int64_t(base)+value);
-    }
+    std::array<std::uint32_t,32> checked{};std::uint32_t occupied{};
+    auto validate=[&]<class Index>(){
+        for(std::uint64_t item=0;item<count;++item){
+            Index raw;std::memcpy(&raw,bytes.data()+first+item*sizeof(Index),sizeof(Index));const std::uint32_t value=raw;
+            if(value<minimum || std::uint64_t(value)-minimum>=vertices)throw std::out_of_range("staging index outside declared vertex range");
+            const auto slot=value&31u,mask=std::uint32_t(1u)<<slot;
+            if(!(occupied&mask) || checked[slot]!=value){coverage.Require(std::int64_t(base)+value);checked[slot]=value;occupied|=mask;}
+        }
+    };
+    if(width==2)validate.template operator()<std::uint16_t>();else validate.template operator()<std::uint32_t>();
 }
 }

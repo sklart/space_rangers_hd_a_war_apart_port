@@ -1,5 +1,6 @@
 #include "renderer_platform.hpp"
 #include "rgb565_presentation.hpp"
+#include "sdl_presentation_handoff.hpp"
 #include "e2e_clock.hpp"
 #include "e2e_stage.hpp"
 #include "e2e5_stage_profiler.hpp"
@@ -38,6 +39,7 @@ namespace srhd_awa::platform::renderer_platform {
 namespace {
 void* g_native_window{};
 bool g_initialized{};
+SdlPresentationHandoff g_sdl_handoff;
 std::uint64_t g_presentation_count{};
 std::uint64_t g_last_presentation_hash{};
 PresentationDiagnostics g_presentation_diagnostics{};
@@ -555,6 +557,7 @@ bool ApplyVSyncSetting(bool enabled) {
 }
 
 bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, std::int32_t height) {
+  if (g_sdl_handoff.Suspended()) return PresentationFailure("SDL presentation suspended for battle");
   using e2e5_stage_profiler::Window;
   e2e5_stage_profiler::SetScreen(GlobalsV::CurrentScreenId);
   static Window presentation_profile{"present"};
@@ -833,7 +836,28 @@ bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width, s
   return true;
 }
 
+void SuspendSdlPresentationForBattle() {
+#if defined(__SWITCH__)
+  if (!g_initialized || !g_native_window || CurrentRgb565Presenter())
+    throw std::logic_error("SDL handoff requires the active E2E516 SDL presenter");
+  g_sdl_handoff.Suspend([]{
+    if (g_sdl_texture) SDL_DestroyTexture(g_sdl_texture);
+    if (g_sdl_renderer) SDL_DestroyRenderer(g_sdl_renderer);
+    g_sdl_texture = nullptr;g_sdl_renderer = nullptr;
+    g_texture_width = 0;g_texture_height = 0;
+  });
+#else
+  throw std::logic_error("SDL battle handoff requires Switch");
+#endif
+}
+
+void ResumeSdlPresentationAfterBattle() {
+  g_sdl_handoff.Resume();
+}
+
 void ShutdownPresentation() {
+  if (g_sdl_handoff.Suspended())
+    throw std::logic_error("cannot shut down SDL presentation during battle ownership");
 #if defined(__SWITCH__)
   if (g_sdl_texture) SDL_DestroyTexture(g_sdl_texture);
   if (g_sdl_renderer) SDL_DestroyRenderer(g_sdl_renderer);

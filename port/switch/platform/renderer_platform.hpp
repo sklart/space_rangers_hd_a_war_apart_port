@@ -83,6 +83,11 @@ bool InitializeSoftwareRenderer(const RendererConfig& config, std::string* error
 bool InitializeReleaseCompatibleDefaults(std::string* error);
 bool ApplyVSyncSetting(bool enabled);
 void ShutdownPresentation();
+// Release the E2E516 SDL texture/renderer while retaining the game canvas and
+// window. The renderer is recreated lazily on the first post-battle frame.
+// The caller must first stop the native owner before Resume.
+void SuspendSdlPresentationForBattle();
+void ResumeSdlPresentationAfterBattle();
 void ShutdownSoftwareRenderer();
 bool PresentRgb565(const void* pixels, std::int32_t pitch, std::int32_t width,
                    std::int32_t height);

@@ -68,14 +68,14 @@ void DekoCombinerProgram::Bind(dk::CmdBuf commands,const Packet& packet)const{
     if(!commands || !packet.uniforms)throw std::invalid_argument("material command/packet unavailable");
     Bind(commands,Binding{dkMemBlockGetGpuAddr(packet.uniforms),packet.has_vertex,packet.textures});
 }
-void DekoCombinerProgram::Bind(dk::CmdBuf commands,const Binding& packet)const{
+void DekoCombinerProgram::Bind(dk::CmdBuf commands,const Binding& packet,bool bind_fixed_state)const{
     if(!commands || packet.address==DK_GPU_ADDR_INVALID)throw std::invalid_argument("material command/packet unavailable");
     const auto address=packet.address;
-    commands.bindShaders(DkStageFlag_Fragment,{&shader_});
-    if(packet.has_vertex){commands.bindShaders(DkStageFlag_Vertex,{&vertex_shader_});commands.bindUniformBuffer(DkStage_Vertex,0,address+uniform_packet::VertexOffset,sizeof(VertexUniforms));}
+    if(bind_fixed_state)commands.bindShaders(DkStageFlag_Fragment,{&shader_});
+    if(packet.has_vertex){if(bind_fixed_state)commands.bindShaders(DkStageFlag_Vertex,{&vertex_shader_});commands.bindUniformBuffer(DkStage_Vertex,0,address+uniform_packet::VertexOffset,sizeof(VertexUniforms));}
     commands.bindUniformBuffer(DkStage_Fragment,0,address,sizeof(Uniforms));
     commands.bindUniformBuffer(DkStage_Fragment,1,address+uniform_packet::FogOffset,sizeof(PixelFogUniforms));
     commands.bindUniformBuffer(DkStage_Fragment,2,address+uniform_packet::RasterOffset,16);
-    commands.bindTextures(DkStage_Fragment,0,packet.textures);
+    if(bind_fixed_state)commands.bindTextures(DkStage_Fragment,0,packet.textures);
 }
 }

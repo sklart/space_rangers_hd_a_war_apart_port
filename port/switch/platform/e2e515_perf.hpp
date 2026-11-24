@@ -2,6 +2,7 @@
 #include <cstdint>
 namespace srhd_awa::platform::perf515 {
 void Initialize(const char* root);
+void SetDefaultMode(int mode); // Set before Initialize; perf-mode.txt still overrides it.
 void Shutdown();
 int Mode(); // 0 off, 1 basic, 2 detail; read once before gameplay
 enum class ThreadRole : unsigned { Main, Turn, Saver, Writer, Count };

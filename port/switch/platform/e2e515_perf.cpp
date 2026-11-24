@@ -15,6 +15,7 @@
 #include <cstring>
 #include <filesystem>
 #include <mutex>
+#include <stdexcept>
 #include <thread>
 #include <ctime>
 
@@ -72,6 +73,7 @@ std::array<Entry,Capacity> queue;
 std::size_t head{},tail{},count{};
 std::mutex mutex;
 std::atomic<int> mode{};
+std::atomic<int> default_mode{1};
 std::atomic<bool> scene_enabled{};
 constexpr int ImageWidth=640,ImageHeight=360,ImageLimit=48;
 struct ImageEntry {
@@ -251,6 +253,11 @@ void SceneImage(const char* event,int id,std::uint64_t generation,
   static_cast<long long>(turn),static_cast<long long>(film),static_cast<long long>(order),static_cast<unsigned long long>(center),static_cast<unsigned long long>(panel),static_cast<unsigned long long>(cursor),static_cast<unsigned long long>(Now()-began));
  image->state.store(2,std::memory_order_release);
 }
+void SetDefaultMode(int value) {
+ if(value<0 || value>2)throw std::invalid_argument("invalid default performance mode");
+ if(running.load())throw std::logic_error("performance session already running");
+ default_mode.store(value);
+}
 void Initialize(const char* root) {
 #if defined(E2E515_PERF_DIAGNOSTICS) && E2E515_PERF_DIAGNOSTICS
   if(running.load())return;
@@ -259,11 +266,12 @@ void Initialize(const char* root) {
     slot.phase.store("idle");slot.stage.store(0);slot.native.store(false);
   }
   image_run=Now();image_sequence.store(0);image_dropped.store(0);
-  int value=1;char setting[32]{};
+  int value=default_mode.load();char setting[32]{};
   const auto config=std::filesystem::path(root)/"perf-mode.txt";
   if(FILE* f=std::fopen(config.generic_string().c_str(),"r")) {
     if(std::fgets(setting,sizeof(setting),f)) {
       if(std::strncmp(setting,"off",3)==0)value=0;
+      else if(std::strncmp(setting,"basic",5)==0)value=1;
       else if(std::strncmp(setting,"detail",6)==0)value=2;
     }
     std::fclose(f);

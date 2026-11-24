@@ -3,6 +3,7 @@
 #include "native_input_engine.hpp"
 #include "native_input_gate.hpp"
 #include "native_cursor.hpp"
+#include "native_touch_gesture.hpp"
 #include <switch.h>
 namespace srhd_awa::matrixgame::native_input {
 class SwitchInput {
@@ -21,6 +22,7 @@ private:
     HeldUntilRelease<std::bitset<256>> blocked_keyboard_;HeldUntilRelease<std::uint64_t> blocked_pad_;HeldUntilRelease<unsigned> blocked_mouse_,blocked_touch_;
     bool keyboard_known_{},mouse_known_{},touch_known_{};
     float pointer_x_{},pointer_y_{};std::uint32_t touch_id_{};bool touching_{};
+    TouchGesture touch_gesture_;ZoomRepeat zoom_repeat_;bool battle_touch_{},touch_wait_release_{};int touch_x_{},touch_y_{};
     void Prime();
 };
 }

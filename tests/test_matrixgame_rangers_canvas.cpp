@@ -24,6 +24,7 @@ int main(){
  Reject([]{Layout(512,0,256,1280,720);});Reject([]{Layout(40000,16385,1,1280,720);});
  Reject([]{Layout(2,1,16384,16384,1);});
  const auto widescreen=Layout(2048,1024,768,1280,720);assert(widescreen.x==160 && widescreen.y==0 && widescreen.draw_width==960 && widescreen.draw_height==720);
+ const auto native=Layout(2560,1280,720,1280,720);assert(native.x==0 && native.y==0 && native.draw_width==1280 && native.draw_height==720);
  const auto single=Layout(99,1,1,1280,720);assert(single.source_bytes==2);
  std::puts("RANGERS_CANVAS all_65536_RGB565_words=PASS padded_rows=PASS source_unchanged=PASS rejection_before_write=PASS aspect_fit=PASS");
 }

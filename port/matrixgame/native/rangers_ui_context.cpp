@@ -75,7 +75,7 @@ void RequireIdle(){
 }
 void CheckOptions(const RangersUiContextOptions& o){
  if(o.settings_path.empty() || o.settings_path.find(u'\0')!=o.settings_path.npos || o.new_game_settings_path.find(u'\0')!=o.new_game_settings_path.npos ||
-    o.width<1024 || o.height<768 || o.width>16384 || o.height>16384 || o.presentation_width<=0 || o.presentation_height<=0 || o.presentation_width>16384 || o.presentation_height>16384)
+    o.width<1024 || o.height<720 || o.width>16384 || o.height>16384 || o.presentation_width<=0 || o.presentation_height<=0 || o.presentation_width>16384 || o.presentation_height>16384)
   throw std::invalid_argument("invalid real UI config path or canvas geometry");
 }
 bool UserConfigExists(const char16_t* name){

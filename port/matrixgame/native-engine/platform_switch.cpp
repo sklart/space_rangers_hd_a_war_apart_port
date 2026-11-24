@@ -25,7 +25,15 @@
 #include "native_presentation.hpp"
 #include "native_reset_resources.hpp"
 #include "native_draw_batch.hpp"
+#include "native_command_state_cache.hpp"
 #include "native_draw_upload.hpp"
+#include "native_gpu_upload_arena.hpp"
+#include "native_descriptor_cache.hpp"
+#include "native_weak_resource_cache.hpp"
+#include "native_sampler_set_cache.hpp"
+#include "native_vertex_marks.hpp"
+#include "native_vertex_scratch.hpp"
+#include "native_arena_preference.hpp"
 #include "native_command_memory.hpp"
 #include "applet_window_lifecycle.hpp"
 #include "native_applet_message.hpp"
@@ -339,10 +347,18 @@ struct DekoDevice::Impl: presentation::Driver {
         NativeDrawUpload upload;
         std::array<std::shared_ptr<native_texture::Image>,8> images;
         materials::DekoCombinerProgram::Binding material;
+        DkGpuAddr sampler_address{DK_GPU_ADDR_INVALID};
         std::uint32_t bytes{};
     };
     std::vector<DrawPacket> packets;
-    NativeDrawBatch batch;
+    NativeDrawBatch batch{2048,NativeDrawBatch::ByteLimit};
+    NativeGpuUploadArena<dk::UniqueMemBlock> upload_arena;
+    NativeArenaPreference arena_preference;
+    NativeVertexScratch<materials::Vertex> vertex_scratch;
+    NativeSamplerSetCache sampler_set_cache;
+    NativeDescriptorCache<std::array<std::uint32_t,8>,dk::SamplerDescriptor,8> sampler_cache;
+    NativeWeakResourceCache<native_texture::Image,dk::ImageDescriptor,8> image_descriptor_cache;
+    NativeCommandStateCache draw_command_state;
     bool draw_drain_sdk_flush{};
     int image_slot{-1};NativeFrameScope frame;bool recording{};
     std::vector<std::shared_ptr<native_surfaces::Surface>> surface_packets;
@@ -394,8 +410,8 @@ struct DekoDevice::Impl: presentation::Driver {
     bool presenting{};const dk::Image* bound_color{};const dk::Image* bound_depth{};
     void StartRecording(){
         if(recording){command_pages.Check();return;}if(!Healthy())throw Unsupported("native render queue lost");
-        if(!frame){window.WaitForDrawable();{ProfileScope wait(diagnostics.acquire_gpu_wait);queue.waitIdle();}if(!Healthy())throw Unsupported("native render queue completion failed");packets.clear();surface_packets.clear();target_images.clear();batch.Retired();screenshot_frame.Invalidate();frame.Acquire();state.Frame(true);}
-        command_pages.Retire([&]()noexcept{commands.clear();commands.addMemory(command_memory,0,command_bytes);});bound_color=bound_depth=nullptr;recording=true;
+        if(!frame){window.WaitForDrawable();{ProfileScope wait(diagnostics.acquire_gpu_wait);queue.waitIdle();}if(!Healthy())throw Unsupported("native render queue completion failed");packets.clear();sampler_set_cache.Invalidate();completed_blocks.Put(upload_arena.Retire());surface_packets.clear();target_images.clear();batch.Retired();screenshot_frame.Invalidate();frame.Acquire();state.Frame(true);}
+        command_pages.Retire([&]()noexcept{commands.clear();commands.addMemory(command_memory,0,command_bytes);});draw_command_state.Invalidate();bound_color=bound_depth=nullptr;recording=true;
     }
     void AcquirePrimary(){
         if(image_slot>=0)return;if(!presentation_state.Ready())throw Unsupported("native presentation requires successful Reset");
@@ -417,6 +433,7 @@ struct DekoDevice::Impl: presentation::Driver {
         surface_packets.reserve(surface_packets.size()+2);surface_packets.push_back(color);if(depth)surface_packets.push_back(depth);
         dk::ImageView cv{*ci};commands.barrier(DkBarrier_Full,DkInvalidateFlags_Image|DkInvalidateFlags_L2Cache);
         if(di){dk::ImageView dv{*di};commands.bindRenderTargets(&cv,&dv);}else commands.bindRenderTargets(&cv,nullptr);bound_color=ci;bound_depth=di;
+        draw_command_state.InvalidateScissor();
         commands.setScissors(0,{{0,0,color->desc.Width,color->desc.Height}});
         command_pages.Check();
     }
@@ -442,6 +459,7 @@ struct DekoDevice::Impl: presentation::Driver {
     void ReleaseCompleted()noexcept{
         command_pages.Retire([&]()noexcept{if(commands){commands.clear();commands.addMemory(command_memory,0,command_bytes);}});recording=false;bound_color=bound_depth=nullptr;
         for(auto& packet:packets)completed_blocks.Put(packet.upload.TakeCompletedMemory());
+        sampler_set_cache.Invalidate();completed_blocks.Put(upload_arena.Retire());
         diagnostics.max_pool_bytes=std::max(diagnostics.max_pool_bytes,std::uint64_t(completed_blocks.Bytes()));
         diagnostics.max_pool_blocks=std::max(diagnostics.max_pool_blocks,std::uint64_t(completed_blocks.Size()));
         packets.clear();surface_packets.clear();target_images.clear();
@@ -550,58 +568,116 @@ struct DekoDevice::Impl: presentation::Driver {
         const auto raster=alpha_target?AlphaTargetRaster(saved_state.raster):saved_state.raster;const auto cull=saved_state.cull;
         const auto uniforms=vertex.Prepare();const auto& fog=prepared.fog;
         static_assert(NativeDrawUpload::UniformBytes==materials::uniform_packet::Bytes);
-        const auto upload_layout=NativeDrawUpload::Plan(vertices.size_bytes(),indices.size(),true);
-        auto upload_reuse=PlanUploadReuse(completed_blocks,upload_layout.bytes,frame_budget);
-        const auto cause=BatchLimitCause(batch.LimitsReached(upload_reuse.total),command_pages.NeedsDrain());
+        static_assert(NativeDrawUpload::ArenaUniformBytes==materials::uniform_packet::MinimumBytes);
+        const auto upload_layout=NativeDrawUpload::PlanArena(vertices.size_bytes(),indices.size(),true);
+        auto limits=batch.LimitsReached(upload_layout.bytes);
+        if(upload_arena.HasBlock() && !upload_arena.Fits(upload_layout.bytes)){limits|=NativeDrawBatch::UploadBytes;++diagnostics.upload_arena_fills;}
+        const auto cause=BatchLimitCause(limits,command_pages.NeedsDrain());
         if(unsigned(cause)){
-            DrainBatch(cause);upload_reuse=PlanUploadReuse(completed_blocks,upload_layout.bytes,frame_budget);
+            DrainBatch(cause);
         }
         BindTargets(presenting);
-        DrawPacket packet;packet.upload=NativeDrawUpload{DrawMemory(upload_layout.bytes,upload_reuse.capacity),std::as_bytes(vertices),indices,true};
+        if(!upload_arena.HasBlock()){
+            const bool fallback=upload_arena.Ensure(upload_layout.bytes,frame_budget,[this](std::uint64_t requested){
+                const auto plan=PlanUploadReuse(completed_blocks,requested,frame_budget);
+                return DrawMemory(requested,plan.capacity);
+            },arena_preference.Preferred());
+            arena_preference.CompletedAllocation(fallback);
+            if(fallback)++diagnostics.upload_arena_fallbacks;
+        }
+        const auto slice=upload_arena.Append(upload_layout.bytes,DK_MEMBLOCK_ALIGNMENT);
+        DrawPacket packet;packet.upload=NativeDrawUpload{slice.cpu,slice.gpu,std::uint32_t(slice.bytes),std::as_bytes(vertices),indices,true,false};
         {
         ProfileScope residency_timing(diagnostics.residency);
+        bool any_texture=false;for(const auto& texture:textures)any_texture|=bool(texture);
+        if(!any_texture)packet.upload.ClearImages();
+        const DkImageDescriptor empty_descriptor{};
         for(unsigned i=0;i<8;++i)if(textures[i]){
             if(target->texture==textures[i])throw Unsupported("render target texture feedback is invalid");
             packet.images[i]=native_texture::Resident(textures[i]);
-            auto image=std::dynamic_pointer_cast<native_texture::DekoTextureStore::ResidentImage>(packet.images[i]);
-            if(!image)throw std::logic_error("native texture image belongs to another backend");
-            packet.upload.WriteImage(i,image->descriptor);
-        }
+            bool reused=false;
+            const auto& descriptor=image_descriptor_cache.Get(i,packet.images[i],[](const auto& value){
+                auto image=std::dynamic_pointer_cast<native_texture::DekoTextureStore::ResidentImage>(value);
+                if(!image)throw std::logic_error("native texture image belongs to another backend");
+                return image->descriptor;
+            },reused);
+            if(reused)++diagnostics.image_descriptor_reuses;
+            packet.upload.WriteImage(i,descriptor);
+        }else if(any_texture)packet.upload.WriteImage(i,empty_descriptor);
         }
         ProfileScope encode_timing(diagnostics.command_encode);
-        for(unsigned i=0;i<8;++i){const auto sampler=MakeDekoSampler(samplers[i]);
-            dk::SamplerDescriptor descriptor;descriptor.initialize(sampler);packet.upload.WriteSampler(i,descriptor);}
-        std::array<DkResHandle,8> handles;for(unsigned i=0;i<8;++i)handles[i]=dkMakeTextureHandle(i,i);
+        NativeSamplerSetCache::Key sampler_key;for(unsigned i=0;i<8;++i)sampler_key[i]=samplers[i].Words();
+        std::uint64_t sampler_address{};
+        if(sampler_set_cache.Find(sampler_key,sampler_address))++diagnostics.sampler_set_reuses;
+        else{
+            for(unsigned i=0;i<8;++i){bool reused=false;
+                const auto& descriptor=sampler_cache.Get(i,sampler_key[i],[&]{
+                    const auto sampler=MakeDekoSampler(samplers[i]);dk::SamplerDescriptor value;value.initialize(sampler);return value;
+                },reused);
+                if(reused)++diagnostics.sampler_descriptor_reuses;
+                packet.upload.WriteSampler(i,descriptor);
+            }
+            sampler_address=packet.upload.Samplers();sampler_set_cache.Publish(sampler_key,sampler_address);
+        }
+        packet.sampler_address=sampler_address;
+        static const std::array<DkResHandle,8> handles=[](){std::array<DkResHandle,8> value{};for(unsigned i=0;i<8;++i)value[i]=dkMakeTextureHandle(i,i);return value;}();
         packet.material=programs->PrepareUniformSlice(prepared.combiner,handles,&uniforms,alpha_target,&fog,
             saved_state.shade,packet.upload.UniformStorage(),packet.upload.UniformAddress());
-        if(packet.upload.StorageBytes()!=upload_reuse.total)throw std::logic_error("native reusable upload capacity changed before publication");
-        packets.push_back(std::move(packet));auto& saved=packets.back();batch.Add(upload_reuse.total);++diagnostics.recorded_draws;
-        diagnostics.upload_requested_bytes+=upload_layout.bytes-NativeDrawUpload::UniformBytes;
-        diagnostics.upload_reserved_bytes+=saved.upload.StorageBytes()-NativeDrawUpload::UniformBytes;
+        if(packet.upload.StorageBytes()!=upload_layout.bytes)throw std::logic_error("native arena upload capacity changed before publication");
+        packets.push_back(std::move(packet));auto& saved=packets.back();batch.Add(upload_layout.bytes);++diagnostics.recorded_draws;
+        diagnostics.upload_requested_bytes+=upload_layout.bytes-NativeDrawUpload::ArenaUniformBytes;
+        diagnostics.upload_reserved_bytes+=saved.upload.StorageBytes()-NativeDrawUpload::ArenaUniformBytes;
         diagnostics.max_live_draw_packets=std::max(diagnostics.max_live_draw_packets,batch.Draws());
         diagnostics.max_live_draw_bytes=std::max(diagnostics.max_live_draw_bytes,batch.Bytes());
         const auto raster_viewport=LegacyRasterViewport(uniforms.viewport);
-        commands.setViewports(0,{{raster_viewport[0],raster_viewport[1],raster_viewport[2],raster_viewport[3],0,1}});
+        if(draw_command_state.NeedsViewport(raster_viewport)){
+            commands.setViewports(0,{{raster_viewport[0],raster_viewport[1],raster_viewport[2],raster_viewport[3],0,1}});
+            draw_command_state.ViewportBound(raster_viewport);
+        }else ++diagnostics.viewport_reuses;
         const auto clip=LegacyRasterClip(uniforms.viewport);
-        commands.setScissors(0,{{clip[0],clip[1],clip[2],clip[3]}});
-        dk::RasterizerState rs;rs.setFrontFace(DkFrontFace_CW).setProvokingVertex(DkProvokingVertex_First).setCullMode(cull==1?DkFace_None:cull==2?DkFace_Front:DkFace_Back);
-        ApplyLegacyPolygonMode(rs,saved_state.Render(8));commands.bindRasterizerState(rs);
-        if(primitive==DkPrimitive_Lines || primitive==DkPrimitive_LineStrip || saved_state.Render(8)==2){
-            // Bind actual aliased line state on every draw; neither inherited
-            // width nor a foreign line stipple may alter original one-pixel UI.
-            commands.setLineWidth(1.f);commands.setLineStipple(false,1,0xffff);
+        if(draw_command_state.NeedsScissor(clip)){
+            commands.setScissors(0,{{clip[0],clip[1],clip[2],clip[3]}});draw_command_state.ScissorBound(clip);
+        }else ++diagnostics.scissor_reuses;
+        const auto fill_mode=saved_state.Render(8);const std::array<std::uint32_t,2> raster_key{std::uint32_t(cull),fill_mode};
+        if(draw_command_state.NeedsRaster(raster_key)){
+            dk::RasterizerState rs;rs.setFrontFace(DkFrontFace_CW).setProvokingVertex(DkProvokingVertex_First).setCullMode(cull==1?DkFace_None:cull==2?DkFace_Front:DkFace_Back);
+            ApplyLegacyPolygonMode(rs,fill_mode);commands.bindRasterizerState(rs);draw_command_state.RasterBound(raster_key);
+        }else ++diagnostics.raster_reuses;
+        if(primitive==DkPrimitive_Lines || primitive==DkPrimitive_LineStrip || fill_mode==2){
+            // Rebind after any recording boundary or foreign renderer.
+            if(draw_command_state.NeedsLineState()){
+                commands.setLineWidth(1.f);commands.setLineStipple(false,1,0xffff);draw_command_state.LineStateBound();
+            }else ++diagnostics.line_reuses;
         }
-        dk::ColorState color;color.setBlendEnable(0,raster.blend_enable).setAlphaCompareOp(raster.alpha_test?static_cast<DkCompareOp>(raster.alpha_compare):DkCompareOp_Always);
-        dk::ColorWriteState write;write.setMask(0,raster.color_write);
-        dk::DepthStencilState depth;depth.setDepthTestEnable(raster.depth_test).setDepthWriteEnable(raster.depth_write).setDepthCompareOp(static_cast<DkCompareOp>(raster.depth_compare));
-        PrepareStencil(commands,depth,stencil);
-        dk::BlendState blend;blend.setFactors(static_cast<DkBlendFactor>(raster.source),static_cast<DkBlendFactor>(raster.destination),static_cast<DkBlendFactor>(raster.source),static_cast<DkBlendFactor>(raster.destination))
-            .setOps(static_cast<DkBlendOp>(raster.operation),static_cast<DkBlendOp>(raster.operation));
-        commands.bindMultisampleState(dk::MultisampleState{});commands.bindColorState(color);commands.bindColorWriteState(write);commands.bindDepthStencilState(depth);commands.bindBlendStates(0,{blend});commands.setAlphaRef(float(raster.alpha_reference)/255);
-        std::array<DkVtxAttribState,12> attributes;for(unsigned i=0;i<12;++i)attributes[i]={0,0,i*16,DkVtxAttribSize_4x32,DkVtxAttribType_Float,0};
-        commands.bindVtxAttribState(attributes);commands.bindVtxBufferState({{sizeof(materials::Vertex),0}});commands.bindVtxBuffer(0,saved.upload.Vertices(),vertices.size_bytes());
-        commands.bindImageDescriptorSet(saved.upload.Images(),8);commands.bindSamplerDescriptorSet(saved.upload.Samplers(),8);
-        programs->Bind(commands,saved.material);commands.barrier(DkBarrier_None,DkInvalidateFlags_Shader|DkInvalidateFlags_Descriptors|DkInvalidateFlags_L2Cache);
+        const NativeCommandStateCache::DepthKey depth_key{raster.depth_test,raster.depth_write,std::uint32_t(raster.depth_compare),stencil};
+        const bool bind_depth=draw_command_state.NeedsDepth(depth_key);
+        dk::DepthStencilState depth;
+        if(bind_depth){depth.setDepthTestEnable(raster.depth_test).setDepthWriteEnable(raster.depth_write).setDepthCompareOp(static_cast<DkCompareOp>(raster.depth_compare));PrepareStencil(commands,depth,stencil);}
+        if(draw_command_state.NeedsMultisample()){commands.bindMultisampleState(dk::MultisampleState{});draw_command_state.MultisampleBound();}
+        else ++diagnostics.multisample_reuses;
+        const auto color_key=raster.Words();const bool bind_color=draw_command_state.NeedsColor(color_key);
+        if(bind_color){
+            dk::ColorState color;color.setBlendEnable(0,raster.blend_enable).setAlphaCompareOp(raster.alpha_test?static_cast<DkCompareOp>(raster.alpha_compare):DkCompareOp_Always);
+            dk::ColorWriteState write;write.setMask(0,raster.color_write);
+            commands.bindColorState(color);commands.bindColorWriteState(write);
+        }
+        if(bind_depth){commands.bindDepthStencilState(depth);draw_command_state.DepthBound(depth_key);}else ++diagnostics.depth_reuses;
+        if(bind_color){
+            dk::BlendState blend;blend.setFactors(static_cast<DkBlendFactor>(raster.source),static_cast<DkBlendFactor>(raster.destination),static_cast<DkBlendFactor>(raster.source),static_cast<DkBlendFactor>(raster.destination))
+                .setOps(static_cast<DkBlendOp>(raster.operation),static_cast<DkBlendOp>(raster.operation));
+            commands.bindBlendStates(0,{blend});commands.setAlphaRef(float(raster.alpha_reference)/255);draw_command_state.ColorBound(color_key);
+        }else ++diagnostics.color_reuses;
+        if(draw_command_state.NeedsVertexLayout()){
+            std::array<DkVtxAttribState,12> attributes;for(unsigned i=0;i<12;++i)attributes[i]={0,0,i*16,DkVtxAttribSize_4x32,DkVtxAttribType_Float,0};
+            commands.bindVtxAttribState(attributes);commands.bindVtxBufferState({{sizeof(materials::Vertex),0}});
+            draw_command_state.VertexLayoutBound();
+        }else ++diagnostics.vertex_layout_reuses;
+        commands.bindVtxBuffer(0,saved.upload.Vertices(),vertices.size_bytes());
+        commands.bindImageDescriptorSet(saved.upload.Images(),8);commands.bindSamplerDescriptorSet(saved.sampler_address,8);
+        const bool bind_material=draw_command_state.NeedsMaterialBindings();
+        programs->Bind(commands,saved.material,bind_material);
+        if(bind_material)draw_command_state.MaterialBindingsBound();else ++diagnostics.material_binding_reuses;
+        commands.barrier(DkBarrier_None,DkInvalidateFlags_Shader|DkInvalidateFlags_Descriptors|DkInvalidateFlags_L2Cache);
         if(!indices.empty()){commands.bindIdxBuffer(index_format,saved.upload.Indices());commands.drawIndexed(primitive,count,1,0,base,0);}else commands.draw(primitive,count,1,0,0);
         command_pages.Check();
     }
@@ -766,7 +842,7 @@ DeviceResult DekoDevice::NativeDraw(std::uint32_t kind,std::uint32_t start,std::
     ProfileScope timing(impl_->diagnostics.vertex_decode);
     const auto elements=staging_draw::ElementCount(kind,primitives);if(!elements)return 0;
     if(elements>Impl::frame_budget/sizeof(materials::Vertex))throw std::length_error("native vertex draw budget");
-    const auto binding=buffers::Current().Vertex();for(std::uint64_t i=0;i<elements;++i)staging_draw::Vertex(binding,std::uint64_t(start)+i);
+    const auto binding=buffers::Current().Vertex();staging_draw::VertexRange(binding,start,elements);
     const auto bytes=binding.buffer->Storage().subspan(binding.offset+std::uint64_t(start)*binding.stride,elements*binding.stride);
     auto vertices=impl_->state.Read().vertex.Decode(bytes,binding.stride);timing.Stop();impl_->Record(vertices,{},DkIdxFormat_Uint16,elements,0,NativePrimitive(kind));return 0;
 }
@@ -784,22 +860,37 @@ DeviceResult DekoDevice::NativeDrawIndexed(std::uint32_t kind,int base,std::uint
     auto& context=buffers::Current();staging_draw::ValidateIndexed(context,kind,base,minimum,count,start,primitives);
     const auto binding=context.Vertex();const auto* index=context.Index();const unsigned width=unsigned(index->Width());
     const auto indices=index->Storage().subspan(std::uint64_t(start)*width,elements*width);
-    std::vector<materials::Vertex> vertices(count);std::vector<bool> decoded(count);
+    auto vertex_lease=impl_->vertex_scratch.Acquire(count);auto& vertices=vertex_lease.Values();NativeVertexMarks decoded(count);
     // The following decode loop is callback-free and read-only for state/VB.
     // Acquire checked inputs after allocations, as at the original first decode.
     const auto& vertex_state=impl_->state.Read().vertex;
     const auto vertex_bytes=binding.buffer->Storage();
-    for(std::size_t i=0;i<elements;++i){std::uint32_t value{};if(width==2){std::uint16_t v;std::memcpy(&v,indices.data()+i*2,2);value=v;}else std::memcpy(&value,indices.data()+i*4,4);
-        const auto local=value-minimum;if(!decoded.at(local)){const auto offset=binding.offset+std::uint64_t(std::int64_t(base)+value)*binding.stride;
-            vertex_state.DecodeTo(vertices[local],vertex_bytes.subspan(offset,binding.stride),binding.stride);decoded[local]=true;}}
+    auto decode_indices=[&]<class Index>(){for(std::size_t i=0;i<elements;++i){Index raw;std::memcpy(&raw,indices.data()+i*sizeof(Index),sizeof(Index));const std::uint32_t value=raw;
+        // ValidateIndexed proved the declared range for every index above;
+        // state and index storage remain read-only until this loop finishes.
+        const auto local=value-minimum;if(decoded.MarkFirst(local)){const auto offset=binding.offset+std::uint64_t(std::int64_t(base)+value)*binding.stride;
+            vertex_state.DecodeTo(vertices[local],vertex_bytes.subspan(offset,binding.stride),binding.stride);}}};
+    if(width==2)decode_indices.template operator()<std::uint16_t>();else decode_indices.template operator()<std::uint32_t>();
     // Binding begins at the declared minimum; indices and their order stay
     // unchanged. The GPU base compensates this upload view's byte origin.
     timing.Stop();impl_->Record(vertices,indices,width==2?DkIdxFormat_Uint16:DkIdxFormat_Uint32,elements,-int(minimum),NativePrimitive(kind));return 0;
 }
 void DekoDevice::SetVertexLayout(std::uint32_t fvf){(void)SetFixedVertexLayout(fvf);}
 void DekoDevice::Emit(const MeshRange& range){if(range.index_count%3)throw std::invalid_argument("original VO triangle count");(void)NativeDrawIndexed(4,range.base_vertex,range.minimum_vertex,range.vertex_count,range.first_index,range.index_count/3);}
+bool DekoDevice::HasNativeFrame()const noexcept{return bool(impl_->frame);}
 void DekoDevice::AcquireNativeFrame(){
-    auto& v=*impl_;if(v.frame)throw std::logic_error("native frame already acquired");
+    auto& v=*impl_;
+    if(v.frame){
+        if(!v.frame.CanAdoptOffscreen(v.recording,v.image_slot>=0)){
+            std::fprintf(stderr,"native frame conflict: recording=%d slot=%d scene_closed=%d\n",
+                int(v.recording),v.image_slot,int(v.frame.CanAdoptOffscreen(true,false)));
+            throw std::logic_error("native frame already acquired");
+        }
+        // Takt can record a completed offscreen scene before Draw. Preserve
+        // its commands and transition to the primary target in the same frame.
+        static unsigned logged{};
+        if(logged++<3)std::fprintf(stderr,"native frame: adopting pending offscreen commands\n");
+    }
     // Native frame entry binds the display without changing the original
     // game viewport; only the explicit D3D-style SetTarget resets viewport.
     v.surface_session->color=v.surface_session->primary_color;v.surface_session->depth=v.surface_session->primary_depth;
@@ -807,6 +898,7 @@ void DekoDevice::AcquireNativeFrame(){
 }
 void DekoDevice::BeginNativeFrame(std::uint32_t argb){
     AcquireNativeFrame();auto& v=*impl_;
+    v.draw_command_state.Invalidate();
     v.commands.clearColor(0,DkColorMask_RGBA,float((argb>>16)&255)/255,float((argb>>8)&255)/255,float(argb&255)/255,float(argb>>24)/255);
     v.commands.clearDepthStencil(true,1.f,v.Targets().value.AutoDepthStencilFormat==PixelFormat::Depth24Stencil8?0xff:0,0);
     v.command_pages.Check();
@@ -827,6 +919,7 @@ void DekoDevice::PresentNativeFrame(){
     {diagnostic::Operation gamma_trace("GPU.presentation_gamma");
     v.gamma_packet=v.gamma_program->Prepare(v.Targets().images->scene[v.image_slot],v.gamma.Read(0));
     const auto& p=v.Targets().value;
+    v.draw_command_state.Invalidate();
     v.gamma_program->Record(v.commands,v.gamma_packet,v.Targets().images->color[v.image_slot],p.BackBufferWidth,p.BackBufferHeight);}
     v.command_pages.Check();v.commands.barrier(DkBarrier_Full,DkInvalidateFlags_L2Cache);
     const auto list=v.command_pages.FinishForSubmission([&]{return v.commands.finishList();});
@@ -893,7 +986,7 @@ DeviceResult DekoDevice::NativeClear(std::span<const ClearRectangle> rectangles,
     auto& v=*impl_;v.state.Read().ValidateClear();v.surface_session->RequireDraw();const auto color=v.surface_session->color,ds=v.surface_session->depth;
     if((flags&6) && !ds)return presentation::InvalidCall;if((flags&4) && ds->desc.Format!=75)return presentation::InvalidCall;
     const auto plan=PlanNativeClear(v.state.Read().vertex.Viewport(),color->desc.Width,color->desc.Height,rectangles,flags,depth,stencil);
-    v.BindTargets();v.frame.RequireClear();
+    v.BindTargets();v.frame.RequireClear();v.draw_command_state.Invalidate();
     for(const auto& r:plan){
         if(v.command_pages.NeedsDrain()){v.DrainBatch(BatchWaitCause::CommandSpace);v.BindTargets();}
         v.commands.setScissors(0,{{unsigned(r.left),unsigned(r.top),unsigned(r.right-r.left),unsigned(r.bottom-r.top)}});

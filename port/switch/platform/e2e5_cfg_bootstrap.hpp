@@ -1,8 +1,16 @@
 #pragma once
 
 #include <cstdio>
+#include <array>
+#include <cerrno>
+#include <cstring>
 #include <filesystem>
 #include <string>
+#include <system_error>
+#if !defined(_WIN32)
+#include <fcntl.h>
+#include <unistd.h>
+#endif
 
 namespace srhd_awa::platform::e2e5_cfg_bootstrap {
 namespace fs = std::filesystem;
@@ -118,7 +126,57 @@ inline void Create(Result& result) {
   std::error_code error;
   const auto& source = result.source;
   const auto& target = result.target;
+#if defined(_WIN32)
   result.created = fs::copy_file(source, target, fs::copy_options::none, error);
+#else
+  // libnx cannot copy permission metadata: std::filesystem::copy_file may
+  // fail with ENOSYS after creating an empty destination. Copy only bytes and
+  // never replace an existing file, including one created by a previous run.
+  FILE* input = std::fopen(source.c_str(), "rb");
+  if (!input) error = {errno, std::generic_category()};
+  int fd = -1;
+  if (!error) {
+    fd = ::open(target.c_str(), O_WRONLY | O_CREAT | O_EXCL, 0600);
+    if (fd < 0) error = {errno, std::generic_category()};
+  }
+  FILE* output = nullptr;
+  if (!error) {
+    output = fdopen(fd, "wb");
+    if (!output) { error = {errno, std::generic_category()}; ::close(fd); }
+  }
+  std::array<unsigned char, 32768> buffer{};
+  std::uintmax_t total = 0;
+  while (!error) {
+    const auto count = std::fread(buffer.data(), 1, buffer.size(), input);
+    if (count && std::fwrite(buffer.data(), 1, count, output) != count)
+      error = {errno ? errno : EIO, std::generic_category()};
+    total += count;
+    if (std::ferror(input)) error = {errno ? errno : EIO, std::generic_category()};
+    if (std::feof(input) || error) break;
+    if (!count) { error = {EIO, std::generic_category()}; break; }
+  }
+  if (output && std::fflush(output) != 0 && !error) error = {errno, std::generic_category()};
+  if (output && std::fclose(output) != 0 && !error) error = {errno, std::generic_category()};
+  if (input && std::fclose(input) != 0 && !error) error = {errno, std::generic_category()};
+  if (!error && !total) error = {EINVAL, std::generic_category()};
+  // Read back and compare every byte before publishing success.
+  if (!error) {
+    FILE* a = std::fopen(source.c_str(), "rb");
+    FILE* b = std::fopen(target.c_str(), "rb");
+    if (!a || !b) error = {errno ? errno : EIO, std::generic_category()};
+    std::array<unsigned char, 32768> other{};
+    while (!error) {
+      const auto na = std::fread(buffer.data(), 1, buffer.size(), a);
+      const auto nb = std::fread(other.data(), 1, other.size(), b);
+      if (std::ferror(a) || std::ferror(b) || na != nb || std::memcmp(buffer.data(), other.data(), na))
+        error = {EIO, std::generic_category()};
+      if (!na || error) break;
+    }
+    if (a && std::fclose(a) != 0 && !error) error = {errno, std::generic_category()};
+    if (b && std::fclose(b) != 0 && !error) error = {errno, std::generic_category()};
+  }
+  result.created = !error;
+#endif
   RecordError(result, error);
   if (!result.created) result.problem = "copy-failed";
 }

@@ -26,9 +26,9 @@ def prepare_full_game(output):
             for method in ('BeforeDraw','DrawObjects','DrawLandscape','DrawLandscapeSurfaces','DrawWater','DrawShadows','DrawEffects','Draw'):
                 signature='void CMatrixMap::'+method+'('
                 body=function(text,signature)
-                observed=body.replace('{','{\n    std::clog << "original frame component: CMatrixMap::'+method+'\\n";',1)
+                observed=body.replace('{','{\n    srhd_awa::matrixgame::frame_profiler::Scope frame_profile(srhd_awa::matrixgame::frame_profiler::Component::'+method+');',1)
                 text=text.replace(body,observed,1)
-            text='#include <iostream>\n'+text
+            text='#include "native_frame_profiler.hpp"\n'+text
         write(name,'#include "Texture.hpp"\n#include "legacy_texture_backend.hpp"\n#include "unmanaged_texture_backend.hpp"\n'+text)
     name = 'MatrixGame/src/MatrixVisiCalc.cpp'
     text = adapt((output / name).read_text(encoding='utf-8'))

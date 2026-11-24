@@ -87,6 +87,16 @@ int main(int argc,char** argv){
    }
    Empty();assert(GR_Main::GameScreenWidth==width && GR_Main::GameScreenHeight==height && GR_Main::PresentationWidth==presentation && GlobalsV::PlanetDepth==planet_depth && aMyFunction::InfoNameColorTag==tags && GR_Main::BlendPixel16==blend);
   }
+  {
+   m::RangersUiContextOptions widescreen;
+   widescreen.width=widescreen.presentation_width=1280;
+   widescreen.height=widescreen.presentation_height=720;
+   m::RangersUiContext context(widescreen);
+   assert(GR_Main::GameScreenWidth==1280 && GR_Main::GameScreenHeight==720);
+   assert(GR_Main::PresentationWidth==1280 && GR_Main::PresentationHeight==720);
+   assert(GR_Main::ScreenRenderBuffer->PitchBytes==2560 && GR_Main::ScreenRenderBuffer->GetPixels());
+  }
+  Empty();assert(GR_Main::GameScreenWidth==width && GR_Main::GameScreenHeight==height);
   // These files exist only in the isolated test root supplied by the runner.
   const auto config=std::filesystem::path(argv[2])/"config";
   const auto cfg=config/"cfg.txt", newgame=config/"NEWGAME.TXT";

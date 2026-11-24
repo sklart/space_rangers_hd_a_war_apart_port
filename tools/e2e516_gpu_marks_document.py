@@ -1,0 +1,16 @@
+from pathlib import Path
+import hashlib,json
+root=Path(__file__).resolve().parents[1];out=root/'dist/integrated-e2e516-test-20261124-22'
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+text=(root/'dist/integrated-e2e516-test-20261124-21/README.ru.md').read_text(encoding='utf-8')
+text=(text.replace('v21','v22').replace('7486a4c75ba58a8a95e887b3c68038e45eba71aa','1aa4dee35568a9726166de27a88753ded577a549')
+ .replace('c5451f14587f1a6b042a9bb093d17254eaec7f516533755364525c08f48f28ed','1d2af9358fd9358de6ed6f3fc2f8c56396664eff3c7c871f7e2381707be777e0'))
+text+='\nДля небольших indexed draw таблица отметок вершин размещается локально; дескрипторы ресурсов не получают дополнительную сильную ссылку при попадании в cache. Реальный GPU и FPS Switch не проверены.\n'
+(out/'README.ru.md').write_text(text,encoding='utf-8')
+p=out/'manifest.json';m=json.loads(p.read_text(encoding='utf-8'))
+for name in ('port/matrixgame/native-engine/native_gpu_upload_arena.hpp','port/matrixgame/native-engine/native_sampler_set_cache.hpp','port/matrixgame/native-engine/native_descriptor_cache.hpp','port/matrixgame/native-engine/native_weak_resource_cache.hpp','port/matrixgame/native-engine/native_vertex_marks.hpp','port/matrixgame/native-engine/native_draw_upload.hpp','port/matrixgame/native-engine/native_command_state_cache.hpp','port/matrixgame/native-engine/staging_draw.hpp','port/matrixgame/deko/fixed_vertex.cpp','port/matrixgame/deko/material_uniform_packet.hpp','port/matrixgame/deko/material_program.cpp','port/matrixgame/deko/material_program.hpp','tests/test_matrixgame_vertex_marks.cpp','tests/test_matrixgame_weak_resource_cache.cpp','tests/test_matrixgame_vertex_decode_one.cpp','tools/e2e516_gpu_v22_checks.sh','tools/e2e516_decode_v22_checks.py'):
+ m['inputs_sha256'][name]=sha(root/name)
+p.write_text(json.dumps(m,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+(out/'SHA256SUMS.txt').write_text(''.join(f'{sha(p)}  {p.name}\n' for p in sorted(out.iterdir()) if p.is_file() and p.name!='SHA256SUMS.txt'),encoding='utf-8')
+with (root/'reports/windows-reference-rebuild-20261123.ru.md').open('a',encoding='utf-8') as f:
+ f.write('''\n\n### v22: таблица вершин и владельцы texture descriptors\n\nДля indexed draw до 256 вершин биты посещения размещаются локально без выделения heap; более крупные используют динамический массив. Все индексы проверяются ValidateIndexed до обращения к таблице, затем index buffer не изменяется до конца цикла. В cache image descriptor совпадение проверяется по control block и адресу subobject без weak_ptr.lock; сильная ссылка текущего пакета сохраняется. Alias pointers с общим владельцем различаются.\n\nСравнение фактического индексированного тела с эталоном: 864 формата, 6144 вызова с малыми наборами, bit-exact и на один heap allocation меньше на каждый (6144 суммарно); крупный путь и границы 1/63/64/65/255/256/257/1024/8193, 1000 проверок индексов, failure/expiry/alias cache — host ASan/UBSan и ARM64/QEMU PASS. Это CPU mock/replay, не измерение FPS. SDK compile/link и NRO PASS; реальное выполнение GPU, стабильность и FPS HARDWARE PENDING.\n\nNRO SHA-256 `1d2af9358fd9358de6ed6f3fc2f8c56396664eff3c7c871f7e2381707be777e0`, Build ID `1aa4dee35568a9726166de27a88753ded577a549`, профиль `integrated-e2e516-test-v22`.\n''')

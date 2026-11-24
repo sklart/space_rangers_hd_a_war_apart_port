@@ -1,5 +1,7 @@
 #include "runtime_platform.hpp"
 #include "win32_compat_window.hpp"
+#include "rgb565_presentation.hpp"
+#include <cstdio>
 
 #if defined(__SWITCH__) || defined(E2E5_HOST_SDL_WINDOW)
 #include <SDL2/SDL.h>
@@ -37,13 +39,23 @@ bool CreateMainWindow(State* state, std::string* error) {
     return false;
   }
 #if defined(__SWITCH__) || defined(E2E5_HOST_SDL_WINDOW)
+#if defined(__SWITCH__)
+  // A registered deko presenter already owns the real libnx NWindow. SDL's
+  // Switch CreateWindow always creates an EGL surface on that same NWindow;
+  // keep SDL input services but register only the logical Win32 window here.
+  if (!renderer_platform::CurrentRgb565Presenter()) {
+#endif
   SDL_Window* window = SDL_CreateWindow("Space Rangers HD: A War Apart", SDL_WINDOWPOS_CENTERED,
       SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WINDOW_SHOWN);
   if (!window) {
     if (error) *error = SDL_GetError();
+    std::fprintf(stderr,"SDL_CreateWindow failed: %s\n",SDL_GetError());
     return false;
   }
   state->native_window = window;
+#if defined(__SWITCH__)
+  }
+#endif
 #endif
 #if defined(__SWITCH__) || defined(E2E_HOST_RESOLVER_TEST)
   state->window_token = win32_compat::RegisterMainWindow(state->native_window, 1280, 720);

@@ -4,6 +4,8 @@
 #include "platform_3g.hpp"
 #include "staging_draw.hpp"
 #include "native_draw_batch.hpp"
+#include "native_vertex_marks.hpp"
+#include "native_vertex_scratch.hpp"
 #include <deko3d.h>
 #include <cassert>
 #include <cstring>
@@ -24,6 +26,7 @@ struct IndexedHarness {
     struct Store {State value;const State& Read()const{return value;}};
     struct Impl {
         static constexpr unsigned frame_budget=NativeDrawBatch::ByteLimit;
+        NativeVertexScratch<mat::Vertex> vertex_scratch;
         Store state;std::vector<mat::Vertex> vertices;std::vector<std::byte> indices;DkIdxFormat format{};unsigned count{};int base{};DkPrimitive primitive{};
         void Record(std::span<const mat::Vertex> v,std::span<const std::byte> i,DkIdxFormat f,unsigned c,int b,DkPrimitive p){vertices.assign(v.begin(),v.end());indices.assign(i.begin(),i.end());format=f;count=c;base=b;primitive=p;}
     } data;

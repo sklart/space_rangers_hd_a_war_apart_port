@@ -6,16 +6,25 @@
 #include "native_state_layout.hpp"
 #include "native_diagnostic_journal.hpp"
 #include "../../switch/platform/rgb565_presentation.hpp"
+#include <chrono>
+#include <cstdio>
 namespace srhd_awa::matrixgame {
 namespace p=platform3g;
 namespace renderer=srhd_awa::platform::renderer_platform;
 struct NativeRangersCanvas::Impl final:renderer::Rgb565Presenter {
  p::DekoDevice& device;
+ using Clock=std::chrono::steady_clock;
+ Clock::time_point perf_start{};
+ std::uint64_t perf_frames{},perf_copy_us{},perf_present_us{},perf_total_us{};
  struct Texture {IDirect3DTexture9* value{};int width{},height{};~Texture(){if(value)native_texture::Release(value);}} texture;
  renderer::Rgb565PresentationScope registration;
  explicit Impl(p::DekoDevice& d):device(d),registration(*this){}
  renderer::PresentationDiagnostics Present(const void* pixels,int pitch,int width,int height)override{
+  const auto frame_start=Clock::now();
+  if(!perf_frames)perf_start=frame_start;
   if(!pixels)throw std::invalid_argument("native Rangers canvas pixels missing");
+  // Never let this presenter's rollback cancel a frame owned by MatrixGame.
+  if(device.HasNativeFrame())throw std::logic_error("native frame already acquired");
   const auto extent=device.DrawableExtent();const auto ow=extent.right-extent.left,oh=extent.bottom-extent.top;
   const auto plan=rangers_canvas::Layout(pitch,width,height,ow,oh);
   auto state=device.CaptureState();if(!state)throw std::runtime_error("native Rangers canvas state capture returned no owner");
@@ -38,6 +47,7 @@ struct NativeRangersCanvas::Impl final:renderer::Rgb565Presenter {
     {static_cast<std::byte*>(lock.pBits),std::size_t(lock.Pitch)*height},lock.Pitch);
   }catch(...){native_texture::Unlock(texture.value,0);throw;}
   p::CheckDeviceResult(native_texture::Unlock(texture.value,0),"Rangers RGB565 Unlock");native_texture::Preload(texture.value);
+  const auto copy_end=Clock::now();
   for(const auto& word:p::NativeRenderWords)p::CheckDeviceResult(device.SetRenderState(static_cast<RasterRegister>(word.id),word.initial),"Rangers canvas default raster state");
   for(const auto& word:p::NativeSamplerWords)p::CheckDeviceResult(device.SetSamplerState(0,static_cast<SamplerRegister>(word.id),word.initial),"Rangers canvas default sampler state");
   p::CheckDeviceResult(device.SetFixedVertexLayout(0x144),"Rangers canvas XYZRHW diffuse tex1");
@@ -54,8 +64,19 @@ struct NativeRangersCanvas::Impl final:renderer::Rgb565Presenter {
   const float left=float(plan.x)-.5f,top=float(plan.y)-.5f,right=float(plan.x+plan.draw_width)-.5f,bottom=float(plan.y+plan.draw_height)-.5f;
   const std::array<rangers_canvas::Vertex,4> vertices{{{left,top,0,1,0xffffffff,0,0},{left,bottom,0,1,0xffffffff,0,1},{right,top,0,1,0xffffffff,1,0},{right,bottom,0,1,0xffffffff,1,1}}};
   p::CheckDeviceResult(device.NativeDrawUP(5,2,std::as_bytes(std::span{vertices}),sizeof(rangers_canvas::Vertex)),"Rangers canvas draw");
-  p::CheckDeviceResult(device.NativeEndScene(),"Rangers canvas EndScene");device.PresentNativeFrame();
+  p::CheckDeviceResult(device.NativeEndScene(),"Rangers canvas EndScene");
+  const auto present_start=Clock::now();device.PresentNativeFrame();const auto present_end=Clock::now();
   p::CheckDeviceResult(state->Restore(),"Rangers canvas restore caller state");state.reset();restore.done=true;
+  const auto end=Clock::now();
+  auto us=[](auto duration){return std::uint64_t(std::chrono::duration_cast<std::chrono::microseconds>(duration).count());};
+  ++perf_frames;perf_copy_us+=us(copy_end-frame_start);perf_present_us+=us(present_end-present_start);perf_total_us+=us(end-frame_start);
+  const auto elapsed=us(end-perf_start);
+  if(elapsed>=5'000'000){
+   std::printf("[UI_PERF] frames=%llu elapsed_us=%llu fps=%.2f avg_prepare_us=%llu avg_present_us=%llu avg_canvas_us=%llu\n",
+    (unsigned long long)perf_frames,(unsigned long long)elapsed,double(perf_frames)*1'000'000.0/double(elapsed),
+    (unsigned long long)(perf_copy_us/perf_frames),(unsigned long long)(perf_present_us/perf_frames),(unsigned long long)(perf_total_us/perf_frames));
+   perf_frames=perf_copy_us=perf_present_us=perf_total_us=0;
+  }
   return {true,true,true,ow,oh,plan.x,plan.y,plan.draw_width,plan.draw_height};
  }
 };

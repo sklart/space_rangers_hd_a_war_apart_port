@@ -36,7 +36,7 @@ public:
     void Bind(dk::CmdBuf,const Packet&)const;
     Binding PrepareUniformSlice(Uniforms,const std::array<DkResHandle,8>&,const VertexUniforms*,bool,
         const PixelFogUniforms*,std::uint32_t,std::span<std::byte>,DkGpuAddr)const;
-    void Bind(dk::CmdBuf,const Binding&)const;
+    void Bind(dk::CmdBuf,const Binding&,bool bind_fixed_state=true)const;
 private:
     dk::Device device_;
     dk::UniqueMemBlock code_;

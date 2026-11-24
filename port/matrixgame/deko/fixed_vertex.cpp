@@ -104,11 +104,19 @@ platform3g::VideoViewport FixedVertexState::Viewport()const noexcept{return {uns
 std::vector<Vertex> FixedVertexState::Decode(std::span<const std::byte> bytes,std::uint32_t stride)const{
     if(stride<stride_ || bytes.size()%stride)throw std::invalid_argument("FVF staging stride/range");
     std::vector<Vertex> out(bytes.size()/stride);
+    const auto fvf=fvf_;const unsigned position_count=(fvf&0xe)==4?4:3,texture_count=(fvf>>8)&15;
+    const bool has_normal=fvf&0x10,has_diffuse=fvf&0x40,has_specular=fvf&0x80;
     for(std::size_t i=0;i<out.size();++i){auto* p=bytes.data()+i*stride;auto& v=out[i];
-        auto floats=[&](float* to,unsigned count){std::memcpy(to,p,count*4);p+=count*4;for(unsigned j=0;j<count;++j)Finite(to[j]);};
-        floats(v.position.data(),(fvf_&0xe)==4?4:3);if(fvf_&0x10)floats(v.normal.data(),3);
-        for(auto pair:{std::pair{0x40u,&v.diffuse},std::pair{0x80u,&v.specular}})if(fvf_&pair.first){std::uint32_t c;std::memcpy(&c,p,4);p+=4;*pair.second=Argb(c);}
-        for(unsigned j=0;j<8;++j){v.uv[j]={0,0,0,1};if(dimensions_[j])floats(v.uv[j].data(),dimensions_[j]);}
+        auto floats=[&](float* to,unsigned count){
+            switch(count){case 1:std::memcpy(to,p,4);break;case 2:std::memcpy(to,p,8);break;
+            case 3:std::memcpy(to,p,12);break;case 4:std::memcpy(to,p,16);break;
+            default:std::memcpy(to,p,count*4);break;}
+            p+=count*4;for(unsigned j=0;j<count;++j)Finite(to[j]);};
+        floats(v.position.data(),position_count);if(has_normal)floats(v.normal.data(),3);
+        if(has_diffuse){std::uint32_t c;std::memcpy(&c,p,4);p+=4;v.diffuse=Argb(c);}
+        if(has_specular){std::uint32_t c;std::memcpy(&c,p,4);p+=4;v.specular=Argb(c);}
+        v.uv.fill({0,0,0,1});
+        for(unsigned j=0;j<texture_count;++j)floats(v.uv[j].data(),dimensions_[j]);
     }
     return out;
 }
@@ -130,7 +138,8 @@ void FixedVertexState::DecodeTo(Vertex& v,std::span<const std::byte> bytes,std::
         p+=count*4;for(unsigned j=0;j<count;++j)Finite(to[j]);
     };
     floats(v.position.data(),(fvf_&0xe)==4?4:3);if(fvf_&0x10)floats(v.normal.data(),3);
-    for(auto pair:{std::pair{0x40u,&v.diffuse},std::pair{0x80u,&v.specular}})if(fvf_&pair.first){std::uint32_t c;std::memcpy(&c,p,4);p+=4;*pair.second=Argb(c);}
+    if(fvf_&0x40){std::uint32_t c;std::memcpy(&c,p,4);p+=4;v.diffuse=Argb(c);}
+    if(fvf_&0x80){std::uint32_t c;std::memcpy(&c,p,4);p+=4;v.specular=Argb(c);}
     // All UV slots must be defined in a successful output. Fill them together
     // before decoding contiguous active fields; failed output is unpublished.
     v.uv.fill({0,0,0,1});

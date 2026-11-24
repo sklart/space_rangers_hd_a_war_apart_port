@@ -128,6 +128,7 @@ public:
     void Emit(const MeshRange&)override;
     // Bind the real primary drawable; original form owns all clear operations.
     void AcquireNativeFrame();
+    bool HasNativeFrame()const noexcept;
     void BeginNativeFrame(std::uint32_t clear_argb);
     void PresentNativeFrame();
     // Diagnostic A/B for draw-count drains. Other completion paths keep their
@@ -143,6 +144,8 @@ public:
     struct DiagnosticCounters {
         std::uint64_t buffer_allocations{},buffer_bytes_total{},recorded_draws{},queue_submissions{},presents{},session_uploads{};
         std::uint64_t batch_drains{},batch_explicit_flush_calls{},max_live_draw_packets{},max_live_draw_bytes{};
+        std::uint64_t upload_arena_fills{},upload_arena_fallbacks{};
+        std::uint64_t vertex_layout_reuses{},viewport_reuses{},scissor_reuses{},multisample_reuses{},sampler_descriptor_reuses{},sampler_set_reuses{},image_descriptor_reuses{},material_binding_reuses{},raster_reuses{},color_reuses{},line_reuses{},depth_reuses{};
         std::uint64_t block_pool_hits{},block_pool_misses{},block_pool_bytes{},texture_pressure_events{};
         std::uint64_t block_pool_larger_hits{},upload_requested_bytes{},upload_reserved_bytes{};
         ProfileTotals draw_cpu,vertex_decode,block_create,residency,command_encode,batch_wait,state_validation;

@@ -28,6 +28,12 @@ class NativeFrameScope {
     enum class Phase {Idle,Acquired,Scene,Submitted};Phase phase_{Phase::Idle};
 public:
     explicit operator bool()const noexcept{return phase_!=Phase::Idle;}
+    // GPU work against an offscreen target may have been queued by Takt
+    // before the form starts its display frame. Only a closed, unsubmitted
+    // scene with no acquired display image may be carried into that frame.
+    bool CanAdoptOffscreen(bool recording,bool has_display_image)const noexcept{
+        return phase_==Phase::Acquired && recording && !has_display_image;
+    }
     void Acquire(){if(phase_!=Phase::Idle)throw std::logic_error("native frame already acquired");phase_=Phase::Acquired;}
     void BeginScene(){if(phase_!=Phase::Acquired)throw std::logic_error("native BeginScene requires acquired frame without scene");phase_=Phase::Scene;}
     void EndScene(){if(phase_!=Phase::Scene)throw std::logic_error("native EndScene requires open scene");phase_=Phase::Acquired;}

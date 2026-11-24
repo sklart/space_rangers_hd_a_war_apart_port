@@ -55,7 +55,12 @@ int main() {
 #else
         options.output_root=L"sdmc:/switch/space-rangers-hd-a-war-apart/runtime/matrixgame";
 #endif
-        mg::RangersIntegratedSession session(window,device,options,{},{});
+        const auto drawable=window.ReadClientRect();
+        mg::RangersUiContextOptions ui;
+        ui.width=ui.presentation_width=drawable.right-drawable.left;
+        ui.height=ui.presentation_height=drawable.bottom-drawable.top;
+        std::printf("integrated test: UI drawable %dx%d\n",ui.width,ui.height);
+        mg::RangersIntegratedSession session(window,device,options,{},ui);
         const auto result=session.RunInitialScreens();
         std::printf("integrated test: screen loop returned %d\n",static_cast<int>(result));
         if(result==mg::RangersScreenExit::RuntimeReloadRequested) {
